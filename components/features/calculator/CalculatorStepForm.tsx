@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { ShieldCheck, Send, Loader2 } from 'lucide-react';
 import Button from '../../common/Button';

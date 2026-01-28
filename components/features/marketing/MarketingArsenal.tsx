@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Megaphone, TrendingUp, BarChart3, ArrowRight } from 'lucide-react';
@@ -63,14 +61,16 @@ const MarketingArsenal: React.FC = () => {
                     {/* Header */}
                     <div className="flex justify-between items-start mb-6">
                       <div
-                        className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center text-white shadow-lg transition-transform duration-300 group-hover:scale-110 shrink-0"
+                        className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center mb-6 shadow-sm transition-transform group-hover:scale-110 duration-500"
                         style={{
                           backgroundColor: `${block.color}15`,
                           color: block.color,
                           border: `1px solid ${block.color}30`,
                         }}
                       >
-                        {React.cloneElement(block.icon as React.ReactElement, { size: 20 })}
+                        {React.cloneElement(block.icon as React.ReactElement<{ size?: number }>, {
+                          size: 20,
+                        })}
                       </div>
                       <div
                         className="px-2 py-1 rounded text-xxs md:text-xxs font-mono uppercase tracking-widest border transition-colors"

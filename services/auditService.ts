@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // services/auditService.ts
 const API_URL = '/api/audit/run_audit.php';
 

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../common/Modal';
@@ -58,6 +56,8 @@ interface FormData {
   area?: string;
   appStage?: string;
   auditScope?: string;
+  // Index signature for dynamic fields
+  [key: string]: string | number | boolean | undefined;
 }
 
 // SMART FORM CONFIGURATION
@@ -353,14 +353,12 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
   };
 
   const {
+    formState: { errors, isSubmitting },
+    getValues,
     register,
     handleSubmit,
-    trigger,
-    getValues,
-    setValue,
     reset,
-    watch,
-    formState: { errors, isSubmitting },
+    trigger,
   } = useForm<FormData>();
 
   // Determine specific config based on additionalData.specificType
@@ -404,12 +402,14 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
 
   const nextStep = async () => {
     setSubmitError(null);
-    let fieldsToValidate: (keyof FormData)[] = [];
+    let fieldsToValidate: Extract<keyof FormData, string>[] = [];
     if (step === 1) fieldsToValidate = ['name', 'email', 'phone', 'privacy'];
 
     if (step === 2) {
       if (currentConfig) {
-        fieldsToValidate = currentConfig.fields.map((f) => f.name);
+        fieldsToValidate = currentConfig.fields.map(
+          (f) => f.name as Extract<keyof FormData, string>,
+        );
       } else {
         fieldsToValidate = ['projectType', 'budget', 'website'];
       }
@@ -446,8 +446,8 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
                 setLeadId(createdLead.id);
                 setStep(2);
               }
-            } catch (err: any) {
-              if (err.message === 'RECAPTCHA_TIMEOUT') {
+            } catch (err) {
+              if (err instanceof Error && err.message === 'RECAPTCHA_TIMEOUT') {
                 if (window.location.hostname === 'localhost') {
                   const createdLead = await leadService.createLead({
                     ...leadData,
@@ -473,12 +473,17 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
             return;
           }
           const values = getValues();
-          await leadService.updateLead(leadId, values, 2);
-          setStep(3);
+          try {
+            await leadService.updateLead(leadId, values, 2);
+            setStep(3);
+          } catch (error) {
+            console.error('Error updating lead step 2:', error);
+            setStep(3); // Proceed anyway
+          }
         } else {
           setStep((prev) => prev + 1);
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Form Step Error:', error);
         setSubmitError('Wystąpił błąd podczas zapisywania danych. Spróbuj ponownie.');
       } finally {
@@ -499,7 +504,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
       if (!token) {
         try {
           token = await executeRecaptchaWithTimeout('submit_form');
-        } catch (e: any) {
+        } catch {
           if (window.location.hostname === 'localhost') {
             token = 'local_bypass';
           } else {
@@ -810,13 +815,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
                       <Select
                         label={field.label}
                         options={field.options || []}
-                        {...register(field.name)}
+                        {...register(field.name as string)}
                       />
                     ) : (
                       <Input
                         label={field.label}
                         placeholder={field.placeholder}
-                        {...register(field.name)}
+                        {...register(field.name as string)}
                       />
                     )}
                   </div>

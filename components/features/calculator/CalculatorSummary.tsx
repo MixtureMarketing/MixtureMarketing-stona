@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { memo } from 'react';
 import { CheckCircle2, Clock, Zap, ShieldCheck } from 'lucide-react';
 import GlassCard from '../../common/GlassCard';

@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { ExternalLink, TrendingUp, Users, Clock, ArrowRight, Filter } from 'lucide-react';
 import { COLORS } from '../../types';

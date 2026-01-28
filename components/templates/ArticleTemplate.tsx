@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
@@ -11,12 +9,11 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import { Calendar, Clock, Tag } from 'lucide-react';
 import AuditTeaser from '@/components/features/audit/AuditTeaser';
 import RelatedArticles from '../articles/RelatedArticles';
-
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImage } from '@/types/sanity';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: any) {
+function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 
@@ -170,7 +167,7 @@ const ArticleTemplate = () => {
           title: article.title,
           description: article.excerpt,
           date: article.publishedAt,
-          category: article.category?.title,
+          category: article.category?.title as 'tech' | 'marketing' | 'design' | 'analytics',
           readTime: article.readTime,
           categoryLabel: article.category?.title || 'Baza Wiedzy',
           image: '/assets/images/sygnet.png', // Placeholder
@@ -249,7 +246,7 @@ const ArticleTemplate = () => {
       </div>
 
       <LazyHydrate minHeight="400px">
-        <RelatedArticles currentSlug={slug || ''} category={article.category?.title as any} />
+        <RelatedArticles currentSlug={slug || ''} category={article.category?.title as string} />
       </LazyHydrate>
     </div>
   );

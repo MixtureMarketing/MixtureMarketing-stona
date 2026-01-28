@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
@@ -94,7 +92,7 @@ const Button: React.FC<ButtonProps> = ({
         href={href}
         className={`${combinedClassName} group`}
         style={dynamicStyle}
-        onClick={props.onClick as React.MouseEventHandler<HTMLAnchorElement>}
+        onClick={props.onClick as unknown as React.MouseEventHandler<HTMLAnchorElement>}
         role="button"
         aria-label={ariaLabel}
       >

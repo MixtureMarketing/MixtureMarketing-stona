@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Globe, ArrowRight, ShieldCheck, Zap, AlertTriangle, X } from 'lucide-react';
@@ -36,7 +36,7 @@ const AuditWizard: React.FC = () => {
       const response = await auditService.getAuditResult(id);
       setResult(response.data);
       if (response.meta?.email) {
-        setEmail(response.meta.email);
+        setEmail(response.meta.email as string);
       }
       // Skip email gate for existing reports
       setStep('RESULT');

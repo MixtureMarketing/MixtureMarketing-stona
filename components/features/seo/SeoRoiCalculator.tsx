@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Calculator, Coins } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';

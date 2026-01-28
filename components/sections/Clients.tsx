@@ -1,17 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
-import {
-  Star,
-  Quote,
-  ArrowLeft,
-  ArrowRight,
-  TrendingUp,
-  Users,
-  Clock,
-  CheckCircle2,
-} from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Star, Quote, ArrowLeft, ArrowRight, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import GlassCard from '../common/GlassCard';
@@ -41,14 +29,14 @@ const Clients: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (isAnimating) return;
     setIsAnimating(true);
     setTimeout(() => {
       setActiveIndex((prev) => (prev + 1) % testimonials.length);
       setIsAnimating(false);
     }, 300);
-  };
+  }, [isAnimating]);
 
   const handlePrev = () => {
     if (isAnimating) return;
@@ -64,7 +52,7 @@ const Clients: React.FC = () => {
       handleNext();
     }, 8000);
     return () => clearInterval(interval);
-  }, [activeIndex]);
+  }, [activeIndex, handleNext]);
 
   const activeTestimonial = testimonials[activeIndex];
 
@@ -166,7 +154,10 @@ const Clients: React.FC = () => {
                       <div className="bg-dark text-white px-4 py-2.5 md:px-5 md:py-3 rounded-xl shadow-lg flex items-center gap-3 md:gap-4 w-full md:w-auto">
                         <div className="p-1.5 md:p-2 bg-white/10 rounded-lg text-primary shrink-0">
                           {React.cloneElement(
-                            activeTestimonial.metricIcon as React.ReactElement<any>,
+                            activeTestimonial.metricIcon as React.ReactElement<{
+                              size: number;
+                              className: string;
+                            }>,
                             {
                               size: 18,
                               className: 'text-primary',

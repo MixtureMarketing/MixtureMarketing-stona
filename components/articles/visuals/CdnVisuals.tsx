@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   Zap,
@@ -277,21 +274,22 @@ export const PingCounter = () => {
   );
 };
 
+const NODES = {
+  origin: { id: 'waw', x: 50, y: 35, label: 'Warszawa (Origin)' },
+  edges: [
+    { id: 'nyc', x: 20, y: 40, label: 'New York' },
+    { id: 'syd', x: 85, y: 75, label: 'Sydney' },
+    { id: 'tok', x: 80, y: 35, label: 'Tokyo' },
+    { id: 'gru', x: 30, y: 75, label: 'São Paulo' },
+  ],
+};
+
 // 4. GLOBAL TRAFFIC SIMULATION
 export const GlobalTrafficSimulation = () => {
   const [mode, setMode] = useState<'direct' | 'cdn'>('direct');
   const [requests, setRequests] = useState<
     { id: number; fromEdgeId: string; duration: number; startTime: number }[]
   >([]);
-  const NODES = {
-    origin: { id: 'waw', x: 50, y: 35, label: 'Warszawa (Origin)' },
-    edges: [
-      { id: 'nyc', x: 20, y: 40, label: 'New York' },
-      { id: 'syd', x: 85, y: 75, label: 'Sydney' },
-      { id: 'tok', x: 80, y: 35, label: 'Tokyo' },
-      { id: 'gru', x: 30, y: 75, label: 'São Paulo' },
-    ],
-  };
   useEffect(() => {
     const interval = setInterval(() => {
       const now = Date.now();

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const BACKEND_COMPENDIUM_CONTENT = {
   header: {
     badge: 'Baza Wiedzy: Architektura Systemów',
@@ -116,10 +114,10 @@ export const BACKEND_COMPENDIUM_CONTENT = {
     subtitle: 'Co wybrać dla swojego projektu?',
     text: 'Nie wiesz co wybrać? Nasza uproszczona ścieżka decyzyjna pomoże Ci wskazać właściwy kierunek technologiczny.',
     steps: [
-      { step: 1, q: 'Ograniczony budżet & Czas (MVP)?', ans: 'Laravel / Python' },
-      { step: 2, q: 'Aplikacja Real-time (Chat, Uber)?', ans: 'Node.js' },
-      { step: 3, q: 'Bankowość / Dane Medyczne / AI?', ans: 'Python (Django)' },
-      { step: 4, q: 'Skala Enterprise & Mikroserwisy?', ans: 'Go (Golang)' },
+      { step: '1', q: 'Ograniczony budżet & Czas (MVP)?', ans: 'Laravel / Python' },
+      { step: '2', q: 'Aplikacja Real-time (Chat, Uber)?', ans: 'Node.js' },
+      { step: '3', q: 'Bankowość / Dane Medyczne / AI?', ans: 'Python (Django)' },
+      { step: '4', q: 'Skala Enterprise & Mikroserwisy?', ans: 'Go (Golang)' },
     ],
   },
   cta: {

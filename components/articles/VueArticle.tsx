@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -172,7 +170,9 @@ const VueArticle = () => {
                       className="flex flex-col md:flex-row gap-6 items-start p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#42B883]/30 transition-all group"
                     >
                       <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100 group-hover:bg-[#42B883] group-hover:text-white transition-colors duration-300">
-                        {React.cloneElement(icons[i] as React.ReactElement, { size: 32 })}
+                        {React.cloneElement(icons[i] as React.ReactElement<{ size?: number }>, {
+                          size: 32,
+                        })}
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-dark mb-2 group-hover:text-[#42B883] transition-colors">

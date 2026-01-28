@@ -1,0 +1,76 @@
+﻿2026-01-28T22:55:15.1807867Z ##[group]Run actions/checkout@v4
+2026-01-28T22:55:15.1808518Z with:
+2026-01-28T22:55:15.1808768Z   fetch-depth: 0
+2026-01-28T22:55:15.1809041Z   repository: MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:55:15.1809498Z   token: ***
+2026-01-28T22:55:15.1809687Z   ssh-strict: true
+2026-01-28T22:55:15.1809874Z   ssh-user: git
+2026-01-28T22:55:15.1810152Z   persist-credentials: true
+2026-01-28T22:55:15.1810389Z   clean: true
+2026-01-28T22:55:15.1810582Z   sparse-checkout-cone-mode: true
+2026-01-28T22:55:15.1810854Z   fetch-tags: false
+2026-01-28T22:55:15.1811050Z   show-progress: true
+2026-01-28T22:55:15.1811252Z   lfs: false
+2026-01-28T22:55:15.1811438Z   submodules: false
+2026-01-28T22:55:15.1811723Z   set-safe-directory: true
+2026-01-28T22:55:15.1812172Z ##[endgroup]
+2026-01-28T22:55:15.2947078Z Syncing repository: MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:55:15.2948539Z ##[group]Getting Git version info
+2026-01-28T22:55:15.2949067Z Working directory is '/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona'
+2026-01-28T22:55:15.2949791Z [command]/usr/bin/git version
+2026-01-28T22:55:15.4658385Z git version 2.52.0
+2026-01-28T22:55:15.4717809Z ##[endgroup]
+2026-01-28T22:55:15.4734497Z Temporarily overriding HOME='/home/runner/work/_temp/f084074c-afac-457e-9e44-dd091a3ff551' before making global git config changes
+2026-01-28T22:55:15.4738346Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-28T22:55:15.4752344Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona
+2026-01-28T22:55:15.4893917Z Deleting the contents of '/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona'
+2026-01-28T22:55:15.4895519Z ##[group]Initializing the repository
+2026-01-28T22:55:15.4896357Z [command]/usr/bin/git init /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona
+2026-01-28T22:55:15.5693280Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-01-28T22:55:15.5694697Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-01-28T22:55:15.5695630Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-01-28T22:55:15.5696267Z hint: call:
+2026-01-28T22:55:15.5696538Z hint:
+2026-01-28T22:55:15.5697318Z hint: 	git config --global init.defaultBranch <name>
+2026-01-28T22:55:15.5697827Z hint:
+2026-01-28T22:55:15.5698292Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-01-28T22:55:15.5698826Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-01-28T22:55:15.5699192Z hint:
+2026-01-28T22:55:15.5699377Z hint: 	git branch -m <name>
+2026-01-28T22:55:15.5699606Z hint:
+2026-01-28T22:55:15.5699903Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-01-28T22:55:15.5757607Z Initialized empty Git repository in /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/.git/
+2026-01-28T22:55:15.5770341Z [command]/usr/bin/git remote add origin https://github.com/MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:55:15.5872618Z ##[endgroup]
+2026-01-28T22:55:15.5874498Z ##[group]Disabling automatic garbage collection
+2026-01-28T22:55:15.5877179Z [command]/usr/bin/git config --local gc.auto 0
+2026-01-28T22:55:15.5909727Z ##[endgroup]
+2026-01-28T22:55:15.5911817Z ##[group]Setting up auth
+2026-01-28T22:55:15.5916540Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-28T22:55:15.5951125Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-28T22:55:15.8608791Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-28T22:55:15.8613100Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-28T22:55:15.8842557Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-28T22:55:15.8874522Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-28T22:55:15.9219299Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-01-28T22:55:15.9222853Z ##[endgroup]
+2026-01-28T22:55:15.9223524Z ##[group]Fetching the repository
+2026-01-28T22:55:15.9229995Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-01-28T22:55:20.2583485Z From https://github.com/MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:55:20.2592419Z  * [new branch]      main       -> origin/main
+2026-01-28T22:55:20.2670429Z [command]/usr/bin/git branch --list --remote origin/main
+2026-01-28T22:55:20.2679500Z   origin/main
+2026-01-28T22:55:20.2697668Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-01-28T22:55:20.2724808Z 81c4261520ad96d9d58a0dea7b372081e6224505
+2026-01-28T22:55:20.2751414Z ##[endgroup]
+2026-01-28T22:55:20.2752522Z ##[group]Determining the checkout info
+2026-01-28T22:55:20.2755513Z ##[endgroup]
+2026-01-28T22:55:20.2756784Z [command]/usr/bin/git sparse-checkout disable
+2026-01-28T22:55:20.3019749Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-01-28T22:55:20.3082370Z ##[group]Checking out the ref
+2026-01-28T22:55:20.3083130Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-01-28T22:55:21.7086465Z Switched to a new branch 'main'
+2026-01-28T22:55:21.7087275Z branch 'main' set up to track 'origin/main'.
+2026-01-28T22:55:21.7205899Z ##[endgroup]
+2026-01-28T22:55:21.7245111Z [command]/usr/bin/git log -1 --format=%H
+2026-01-28T22:55:21.7282438Z 81c4261520ad96d9d58a0dea7b372081e6224505

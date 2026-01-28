@@ -1,5 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { CalculatorSelections } from '../hooks/useCalculator';
+
+interface PdfData {
+  selections: CalculatorSelections;
+  result: {
+    minPrice: number;
+    maxPrice: number;
+    minTime: number;
+    maxTime: number;
+  };
+  contact: {
+    email: string;
+  };
+}
+
 export const generatePdf = async (data: PdfData): Promise<Blob> => {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();

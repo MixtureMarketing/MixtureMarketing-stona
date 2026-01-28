@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Zap, Server, Database, Search, CheckCircle2 } from 'lucide-react';
@@ -19,18 +17,18 @@ const STEPS = [
   { icon: CheckCircle2, label: 'Generowanie raportu końcowego...' },
 ];
 
+const TIPS = [
+  'Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?',
+  "Google używa 'Mobile-First Indexing' – Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.",
+  'Brak certyfikatu SSL może obniżyć Twoją konwersję o nawet 40% z powodu ostrzeżeń przeglądarki.',
+  'Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.',
+  'Piksel Facebooka pozwala na remarketing, czyli docieranie do osób, które już były na Twojej stronie.',
+  'Dobre UX to nie tylko wygląd, to przede wszystkim łatwość realizacji celu przez klienta.',
+];
+
 const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, isDataReady }) => {
   const [progress, setProgress] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
-
-  const TIPS = [
-    'Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?',
-    "Google używa 'Mobile-First Indexing' – Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.",
-    'Brak certyfikatu SSL może obniżyć Twoją konwersję o nawet 40% z powodu ostrzeżeń przeglądarki.',
-    'Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.',
-    'Piksel Facebooka pozwala na remarketing, czyli docieranie do osób, które już były na Twojej stronie.',
-    'Dobre UX to nie tylko wygląd, to przede wszystkim łatwość realizacji celu przez klienta.',
-  ];
 
   useEffect(() => {
     const tipInterval = setInterval(() => {

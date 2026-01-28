@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@sanity/client';
 import { SanityTeamMember, SanityCaseStudy, PricingTier } from '@/types';
 import { SanityImage, SanityBody } from '@/types/sanity';

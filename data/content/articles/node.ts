@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const NODE_ARTICLE_CONTENT = {
   header: {
     badge: 'Baza Wiedzy: Fullstack Development',

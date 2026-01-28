@@ -1,0 +1,875 @@
+﻿2026-01-28T22:56:04.5043198Z ##[group]Run npm run lint
+2026-01-28T22:56:04.5043635Z [36;1mnpm run lint[0m
+2026-01-28T22:56:04.5043878Z [36;1mnpx prettier --check .[0m
+2026-01-28T22:56:04.5077539Z shell: /usr/bin/bash -e {0}
+2026-01-28T22:56:04.5077784Z env:
+2026-01-28T22:56:04.5077973Z   COMPOSER_PROCESS_TIMEOUT: 0
+2026-01-28T22:56:04.5078244Z   COMPOSER_NO_INTERACTION: 1
+2026-01-28T22:56:04.5078482Z   COMPOSER_NO_AUDIT: 1
+2026-01-28T22:56:04.5078691Z ##[endgroup]
+2026-01-28T22:56:04.6328998Z 
+2026-01-28T22:56:04.6329610Z > mixture-marketing@0.0.0 lint
+2026-01-28T22:56:04.6330465Z > eslint . --report-unused-disable-directives --max-warnings 0
+2026-01-28T22:56:04.6330990Z 
+2026-01-28T22:56:36.4749824Z 
+2026-01-28T22:56:36.4754975Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/BackendCompendiumArticle.tsx
+2026-01-28T22:56:36.4757388Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4759441Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4760602Z 
+2026-01-28T22:56:36.4761433Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/CdnArticle.tsx
+2026-01-28T22:56:36.4763912Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4765694Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4767781Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4768772Z 
+2026-01-28T22:56:36.4769604Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/CiCdArticle.tsx
+2026-01-28T22:56:36.4771270Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4772968Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4774667Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4775502Z 
+2026-01-28T22:56:36.4776379Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/CoreWebVitalsArticle.tsx
+2026-01-28T22:56:36.4778373Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4780067Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4781726Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4782484Z 
+2026-01-28T22:56:36.4783363Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/DatabaseCompendiumArticle.tsx
+2026-01-28T22:56:36.4785112Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4787079Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4788803Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4789624Z 
+2026-01-28T22:56:36.4790637Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/DevOpsArticle.tsx
+2026-01-28T22:56:36.4792419Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4794439Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4795928Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4797109Z 
+2026-01-28T22:56:36.4797857Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/DockerArticle.tsx
+2026-01-28T22:56:36.4799483Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4801090Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4802694Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4803434Z 
+2026-01-28T22:56:36.4804255Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/EdgeComputingArticle.tsx
+2026-01-28T22:56:36.4805899Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4807712Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4809317Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4810064Z 
+2026-01-28T22:56:36.4810866Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/ElasticsearchArticle.tsx
+2026-01-28T22:56:36.4812506Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4814206Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4815821Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4816561Z 
+2026-01-28T22:56:36.4817473Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/FrontendArticle.tsx
+2026-01-28T22:56:36.4819071Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4820677Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4822284Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4823011Z 
+2026-01-28T22:56:36.4823722Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/GoArticle.tsx
+2026-01-28T22:56:36.4825278Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4827127Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4828761Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4829487Z 
+2026-01-28T22:56:36.4830254Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/GoogleAdsArticle.tsx
+2026-01-28T22:56:36.4831873Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4833466Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4835055Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4835800Z 
+2026-01-28T22:56:36.4836559Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/HeadlessArticle.tsx
+2026-01-28T22:56:36.4838580Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4840190Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4840950Z 
+2026-01-28T22:56:36.4841746Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/ImageFormatsArticle.tsx
+2026-01-28T22:56:36.4843565Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4845178Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4845933Z 
+2026-01-28T22:56:36.4846678Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/LaravelArticle.tsx
+2026-01-28T22:56:36.4848445Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4850046Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4850792Z 
+2026-01-28T22:56:36.4851513Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/MongoArticle.tsx
+2026-01-28T22:56:36.4853143Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4854757Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4855490Z 
+2026-01-28T22:56:36.4856237Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/NextJsArticle.tsx
+2026-01-28T22:56:36.4857992Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4859603Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4860357Z 
+2026-01-28T22:56:36.4861080Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/NodeArticle.tsx
+2026-01-28T22:56:36.4862654Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4864260Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4865002Z 
+2026-01-28T22:56:36.4865760Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/PostgresArticle.tsx
+2026-01-28T22:56:36.4867632Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4869283Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4870051Z 
+2026-01-28T22:56:36.4870791Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/PythonArticle.tsx
+2026-01-28T22:56:36.4872405Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4874013Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4874775Z 
+2026-01-28T22:56:36.4875527Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/ReactJsArticle.tsx
+2026-01-28T22:56:36.4877283Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4878928Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4879689Z 
+2026-01-28T22:56:36.4880428Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/RedisArticle.tsx
+2026-01-28T22:56:36.4882004Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4883802Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4884551Z 
+2026-01-28T22:56:36.4885314Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/RelatedArticles.tsx
+2026-01-28T22:56:36.4887219Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4888812Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4890402Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4891128Z 
+2026-01-28T22:56:36.4891986Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/ServerSideTrackingArticle.tsx
+2026-01-28T22:56:36.4893664Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4895283Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4897015Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4897770Z 
+2026-01-28T22:56:36.4898530Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/TailwindArticle.tsx
+2026-01-28T22:56:36.4900147Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4901751Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4902508Z 
+2026-01-28T22:56:36.4903281Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/TypeScriptArticle.tsx
+2026-01-28T22:56:36.4904922Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4906530Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4907509Z 
+2026-01-28T22:56:36.4908260Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/UxAuditArticle.tsx
+2026-01-28T22:56:36.4909859Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4911473Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4912204Z 
+2026-01-28T22:56:36.4912912Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/VueArticle.tsx
+2026-01-28T22:56:36.4914484Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4916113Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4917037Z 
+2026-01-28T22:56:36.4917766Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/WafArticle.tsx
+2026-01-28T22:56:36.4919363Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4920979Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4921729Z 
+2026-01-28T22:56:36.4922552Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/BackendVisuals.tsx
+2026-01-28T22:56:36.4924176Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4925785Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4926708Z 
+2026-01-28T22:56:36.4927629Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/CdnVisuals.tsx
+2026-01-28T22:56:36.4939999Z     1:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4942123Z     2:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4943866Z     3:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4966405Z ##[warning]  316:6  warning  React Hook useEffect has a missing dependency: 'NODES.edges'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.4976784Z 
+2026-01-28T22:56:36.4977985Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/EdgeVisuals.tsx
+2026-01-28T22:56:36.4979705Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4981345Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4982960Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4983696Z 
+2026-01-28T22:56:36.4984594Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/ElasticsearchVisuals.tsx
+2026-01-28T22:56:36.4986304Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4988101Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4988838Z 
+2026-01-28T22:56:36.4989669Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/FrontendVisuals.tsx
+2026-01-28T22:56:36.4991363Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4992988Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4993740Z 
+2026-01-28T22:56:36.4994511Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/GoVisuals.tsx
+2026-01-28T22:56:36.4996164Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.4997979Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.4998759Z 
+2026-01-28T22:56:36.4999586Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/HeadlessVisuals.tsx
+2026-01-28T22:56:36.5001251Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5002874Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5003631Z 
+2026-01-28T22:56:36.5004422Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/LaravelVisuals.tsx
+2026-01-28T22:56:36.5006070Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5007823Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5008560Z 
+2026-01-28T22:56:36.5009394Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/MarketingVisuals.tsx
+2026-01-28T22:56:36.5011039Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5012875Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5013608Z 
+2026-01-28T22:56:36.5014420Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/MongoVisuals.tsx
+2026-01-28T22:56:36.5016038Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5018121Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5018864Z 
+2026-01-28T22:56:36.5019644Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/NextVisuals.tsx
+2026-01-28T22:56:36.5021407Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5023007Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5023772Z 
+2026-01-28T22:56:36.5024553Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/NodeVisuals.tsx
+2026-01-28T22:56:36.5026174Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5028205Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5028953Z 
+2026-01-28T22:56:36.5029764Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/PerformanceVisuals.tsx
+2026-01-28T22:56:36.5031451Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5033061Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5033803Z 
+2026-01-28T22:56:36.5034613Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/PostgresVisuals.tsx
+2026-01-28T22:56:36.5036251Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5038086Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5038833Z 
+2026-01-28T22:56:36.5039633Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/PythonVisuals.tsx
+2026-01-28T22:56:36.5041267Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5042857Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5043599Z 
+2026-01-28T22:56:36.5044408Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/ReactVisuals.tsx
+2026-01-28T22:56:36.5046035Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5047876Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5048644Z 
+2026-01-28T22:56:36.5049453Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/RedisVisuals.tsx
+2026-01-28T22:56:36.5051103Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5052719Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5053529Z 
+2026-01-28T22:56:36.5054364Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/TailwindVisuals.tsx
+2026-01-28T22:56:36.5056185Z    1:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5058419Z    2:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5061165Z ##[warning]  41:6  warning  React Hook useEffect has a missing dependency: 'classes.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5063272Z 
+2026-01-28T22:56:36.5064148Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/TypeScriptVisuals.tsx
+2026-01-28T22:56:36.5065838Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5067764Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5068527Z 
+2026-01-28T22:56:36.5069315Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/VueVisuals.tsx
+2026-01-28T22:56:36.5070916Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5072498Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5073242Z 
+2026-01-28T22:56:36.5074014Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/WafVisuals.tsx
+2026-01-28T22:56:36.5075653Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5077489Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5078265Z 
+2026-01-28T22:56:36.5079183Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/charts/ImageWeightChart.tsx
+2026-01-28T22:56:36.5080910Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5082529Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5084114Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5084841Z 
+2026-01-28T22:56:36.5085754Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/charts/MarketGrowthChart.tsx
+2026-01-28T22:56:36.5087715Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5089341Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5090956Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5091703Z 
+2026-01-28T22:56:36.5092610Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/charts/RedisUsageChart.tsx
+2026-01-28T22:56:36.5094328Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5095915Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5097760Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5098514Z 
+2026-01-28T22:56:36.5099401Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/articles/visuals/charts/ServerLoadChart.tsx
+2026-01-28T22:56:36.5101121Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5102736Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5104331Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5105279Z 
+2026-01-28T22:56:36.5105987Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Accordion.tsx
+2026-01-28T22:56:36.5107796Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5109596Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5110348Z 
+2026-01-28T22:56:36.5111121Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/AmbientBackground.tsx
+2026-01-28T22:56:36.5112755Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5114353Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5115082Z 
+2026-01-28T22:56:36.5115834Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/AnimateOnScroll.tsx
+2026-01-28T22:56:36.5117812Z    1:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5119564Z    2:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5123777Z ##[warning]  39:32  warning  The ref value 'ref.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'ref.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5126308Z 
+2026-01-28T22:56:36.5127296Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/BenefitCard.tsx
+2026-01-28T22:56:36.5129459Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5131108Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5131861Z 
+2026-01-28T22:56:36.5132570Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Breadcrumbs.tsx
+2026-01-28T22:56:36.5134140Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5135764Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5136521Z 
+2026-01-28T22:56:36.5137422Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Button.tsx
+2026-01-28T22:56:36.5138968Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5140575Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5141317Z 
+2026-01-28T22:56:36.5142005Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/CursorGlow.tsx
+2026-01-28T22:56:36.5143552Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5145173Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5145917Z 
+2026-01-28T22:56:36.5146642Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/ErrorBoundary.tsx
+2026-01-28T22:56:36.5148487Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5149253Z 
+2026-01-28T22:56:36.5149947Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/GlassCard.tsx
+2026-01-28T22:56:36.5151506Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5153409Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5154160Z 
+2026-01-28T22:56:36.5154816Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Image.tsx
+2026-01-28T22:56:36.5156509Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5158387Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5159125Z 
+2026-01-28T22:56:36.5159777Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Input.tsx
+2026-01-28T22:56:36.5161298Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5162886Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5163633Z 
+2026-01-28T22:56:36.5164382Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/IntegrationGrid.tsx
+2026-01-28T22:56:36.5165963Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5167834Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5168590Z 
+2026-01-28T22:56:36.5169303Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/LazyHydrate.tsx
+2026-01-28T22:56:36.5170891Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5172509Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5173248Z 
+2026-01-28T22:56:36.5173894Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Modal.tsx
+2026-01-28T22:56:36.5175429Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5177296Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5178089Z 
+2026-01-28T22:56:36.5178783Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/NotFound.tsx
+2026-01-28T22:56:36.5180340Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5182080Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5182827Z 
+2026-01-28T22:56:36.5183535Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/PricingTable.tsx
+2026-01-28T22:56:36.5185109Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5186708Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5187999Z 
+2026-01-28T22:56:36.5188824Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/ScrollToTop.tsx
+2026-01-28T22:56:36.5190303Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5191857Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5192675Z 
+2026-01-28T22:56:36.5193428Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/SectionHeader.tsx
+2026-01-28T22:56:36.5195096Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5196760Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5198163Z 
+2026-01-28T22:56:36.5198884Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Select.tsx
+2026-01-28T22:56:36.5200555Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5202591Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5203414Z 
+2026-01-28T22:56:36.5204115Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/Seo.tsx
+2026-01-28T22:56:36.5205791Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5207777Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5208551Z 
+2026-01-28T22:56:36.5209295Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/TechSeparator.tsx
+2026-01-28T22:56:36.5210873Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5212489Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5213249Z 
+2026-01-28T22:56:36.5213952Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/TextReveal.tsx
+2026-01-28T22:56:36.5215646Z    1:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5217659Z    2:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5221857Z ##[warning]  41:32  warning  The ref value 'ref.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'ref.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5224401Z 
+2026-01-28T22:56:36.5225113Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/TopicLink.tsx
+2026-01-28T22:56:36.5226722Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5228659Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5229414Z 
+2026-01-28T22:56:36.5230062Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/common/index.ts
+2026-01-28T22:56:36.5231592Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5233218Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5233981Z 
+2026-01-28T22:56:36.5234713Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/CookieBanner.tsx
+2026-01-28T22:56:36.5236309Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5238114Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5238910Z 
+2026-01-28T22:56:36.5239655Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/PriceCalculator.tsx
+2026-01-28T22:56:36.5241238Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5242770Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5243528Z 
+2026-01-28T22:56:36.5244452Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/audit/AuditTeaser.tsx
+2026-01-28T22:56:36.5246390Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5248356Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5249294Z 
+2026-01-28T22:56:36.5250076Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/audit/AuditWizard.tsx
+2026-01-28T22:56:36.5251716Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5252467Z 
+2026-01-28T22:56:36.5253368Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/audit/steps/AuditDashboard.tsx
+2026-01-28T22:56:36.5255056Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5255810Z 
+2026-01-28T22:56:36.5256662Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/audit/steps/AuditProgress.tsx
+2026-01-28T22:56:36.5258745Z    1:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5260494Z    2:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5263186Z ##[warning]  40:6  warning  React Hook useEffect has a missing dependency: 'TIPS.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5264927Z 
+2026-01-28T22:56:36.5265828Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorProgress.tsx
+2026-01-28T22:56:36.5267828Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5269462Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5270215Z 
+2026-01-28T22:56:36.5271138Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorStepDesign.tsx
+2026-01-28T22:56:36.5272869Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5274495Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5275249Z 
+2026-01-28T22:56:36.5276183Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorStepFeatures.tsx
+2026-01-28T22:56:36.5278177Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5279807Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5280586Z 
+2026-01-28T22:56:36.5281474Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorStepForm.tsx
+2026-01-28T22:56:36.5283189Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5284810Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5285562Z 
+2026-01-28T22:56:36.5286494Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorStepMarketing.tsx
+2026-01-28T22:56:36.5288490Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5290160Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5290963Z 
+2026-01-28T22:56:36.5291869Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorStepType.tsx
+2026-01-28T22:56:36.5293851Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5295514Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5296444Z 
+2026-01-28T22:56:36.5297603Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/calculator/CalculatorSummary.tsx
+2026-01-28T22:56:36.5299361Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5301030Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5301808Z 
+2026-01-28T22:56:36.5302692Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingArsenal.tsx
+2026-01-28T22:56:36.5304426Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5306082Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5307086Z 
+2026-01-28T22:56:36.5307953Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingCta.tsx
+2026-01-28T22:56:36.5309677Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5311367Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5312150Z 
+2026-01-28T22:56:36.5312994Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingFaq.tsx
+2026-01-28T22:56:36.5314692Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5316364Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5317383Z 
+2026-01-28T22:56:36.5318247Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingHero.tsx
+2026-01-28T22:56:36.5319980Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5321650Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5322431Z 
+2026-01-28T22:56:36.5323333Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingIndustries.tsx
+2026-01-28T22:56:36.5325097Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5326758Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5327772Z 
+2026-01-28T22:56:36.5328719Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingOmnichannel.tsx
+2026-01-28T22:56:36.5330498Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5332174Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5332942Z 
+2026-01-28T22:56:36.5333827Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/marketing/MarketingStrategy.tsx
+2026-01-28T22:56:36.5335565Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5337450Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5338430Z 
+2026-01-28T22:56:36.5339332Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoContentIntelligence.tsx
+2026-01-28T22:56:36.5341073Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5342745Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5343740Z 
+2026-01-28T22:56:36.5344477Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoCta.tsx
+2026-01-28T22:56:36.5346100Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5348044Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5348840Z 
+2026-01-28T22:56:36.5349579Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoFaq.tsx
+2026-01-28T22:56:36.5351220Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5352890Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5353717Z 
+2026-01-28T22:56:36.5354473Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoHero.tsx
+2026-01-28T22:56:36.5356115Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5358030Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5358800Z 
+2026-01-28T22:56:36.5359628Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoLocalSection.tsx
+2026-01-28T22:56:36.5361322Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5363003Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5363779Z 
+2026-01-28T22:56:36.5364552Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoRoadmap.tsx
+2026-01-28T22:56:36.5366196Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5367941Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5368668Z 
+2026-01-28T22:56:36.5369472Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoRoiCalculator.tsx
+2026-01-28T22:56:36.5371124Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5372731Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5373518Z 
+2026-01-28T22:56:36.5374371Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/seo/SeoTechnicalSection.tsx
+2026-01-28T22:56:36.5376092Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5378042Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5378818Z 
+2026-01-28T22:56:36.5379739Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/features/services/ServiceRelatedArticles.tsx
+2026-01-28T22:56:36.5381533Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5382308Z 
+2026-01-28T22:56:36.5382989Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/layout/Footer.tsx
+2026-01-28T22:56:36.5384774Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5385561Z 
+2026-01-28T22:56:36.5386226Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/layout/Navbar.tsx
+2026-01-28T22:56:36.5388057Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5389897Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5390679Z 
+2026-01-28T22:56:36.5391391Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/Analytics.tsx
+2026-01-28T22:56:36.5392985Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5394664Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5396747Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5397811Z 
+2026-01-28T22:56:36.5398542Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/AuditPage.tsx
+2026-01-28T22:56:36.5400152Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5401816Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5403470Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5404235Z 
+2026-01-28T22:56:36.5404969Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/BrandIdentity.tsx
+2026-01-28T22:56:36.5406592Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5408496Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5410151Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5410921Z 
+2026-01-28T22:56:36.5411657Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/ContactPage.tsx
+2026-01-28T22:56:36.5413275Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5414929Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5416576Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5417585Z 
+2026-01-28T22:56:36.5418361Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/CorporateWebsite.tsx
+2026-01-28T22:56:36.5420012Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5421675Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5422434Z 
+2026-01-28T22:56:36.5423170Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/CustomWebApp.tsx
+2026-01-28T22:56:36.5424781Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5426418Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5427440Z 
+2026-01-28T22:56:36.5428209Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/DesignBranding.tsx
+2026-01-28T22:56:36.5429849Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5431706Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5433355Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5434293Z 
+2026-01-28T22:56:36.5434995Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/Ecommerce.tsx
+2026-01-28T22:56:36.5436579Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5438543Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5440200Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5440981Z 
+2026-01-28T22:56:36.5441686Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/GoogleAds.tsx
+2026-01-28T22:56:36.5443287Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5444945Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5445733Z 
+2026-01-28T22:56:36.5446475Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/KnowledgeBase.tsx
+2026-01-28T22:56:36.5448357Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5450033Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5450817Z 
+2026-01-28T22:56:36.5451535Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/LandingPage.tsx
+2026-01-28T22:56:36.5453195Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5454901Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5456583Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5457616Z 
+2026-01-28T22:56:36.5458338Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/Marketing.tsx
+2026-01-28T22:56:36.5459940Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5461614Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5463277Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5464039Z 
+2026-01-28T22:56:36.5464777Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/MarketingSeo.tsx
+2026-01-28T22:56:36.5466407Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5468309Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5469992Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5470774Z 
+2026-01-28T22:56:36.5471449Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/MetaAds.tsx
+2026-01-28T22:56:36.5473024Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5473800Z 
+2026-01-28T22:56:36.5474493Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/Portfolio.tsx
+2026-01-28T22:56:36.5476081Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5478168Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5478955Z 
+2026-01-28T22:56:36.5479695Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/PortfolioPage.tsx
+2026-01-28T22:56:36.5481497Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5482275Z 
+2026-01-28T22:56:36.5483023Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/PremiumWebsites.tsx
+2026-01-28T22:56:36.5484660Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5487209Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5488958Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5489743Z 
+2026-01-28T22:56:36.5490475Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/PrintDesign.tsx
+2026-01-28T22:56:36.5492020Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5492810Z 
+2026-01-28T22:56:36.5493579Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/PrivacyPolicy.tsx
+2026-01-28T22:56:36.5495137Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5497083Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5497898Z 
+2026-01-28T22:56:36.5498663Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/TermsOfService.tsx
+2026-01-28T22:56:36.5500300Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5501973Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5502750Z 
+2026-01-28T22:56:36.5503458Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/UiUxDesign.tsx
+2026-01-28T22:56:36.5505052Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5506698Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5507706Z 
+2026-01-28T22:56:36.5508428Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/VisualAudit.tsx
+2026-01-28T22:56:36.5510035Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5511717Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5512506Z 
+2026-01-28T22:56:36.5513250Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/VisualContent.tsx
+2026-01-28T22:56:36.5514882Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5516546Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5518410Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5519197Z 
+2026-01-28T22:56:36.5519948Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/pages/WebDevelopment.tsx
+2026-01-28T22:56:36.5521590Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5523511Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5525174Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5525942Z 
+2026-01-28T22:56:36.5526703Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/portal/AdminDashboard.tsx
+2026-01-28T22:56:36.5530101Z ##[warning]  257:6  warning  React Hook useEffect has missing dependencies: 'fetchData' and 'fetchLeads'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5534049Z ##[warning]  263:6  warning  React Hook useEffect has a missing dependency: 'fetchMetrics'. Either include it or remove the dependency array                  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5538110Z ##[warning]  382:6  warning  React Hook useEffect has a missing dependency: 'chatMessages'. Either include it or remove the dependency array                  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5540050Z 
+2026-01-28T22:56:36.5540858Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/portal/PortalDashboard.tsx
+2026-01-28T22:56:36.5542544Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5543349Z 
+2026-01-28T22:56:36.5544086Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/portal/PortalLogin.tsx
+2026-01-28T22:56:36.5545723Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5547643Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5548406Z 
+2026-01-28T22:56:36.5549114Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/portal/PortalVerify.tsx
+2026-01-28T22:56:36.5550721Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5551527Z 
+2026-01-28T22:56:36.5552236Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/Clients.tsx
+2026-01-28T22:56:36.5554037Z    1:1  error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5556629Z ##[warning]  67:6  warning  React Hook useEffect has a missing dependency: 'handleNext'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+2026-01-28T22:56:36.5558707Z 
+2026-01-28T22:56:36.5559447Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/Contact.tsx
+2026-01-28T22:56:36.5561086Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5562767Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5564442Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5565203Z 
+2026-01-28T22:56:36.5565894Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/Hero.tsx
+2026-01-28T22:56:36.5567738Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5569441Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5570217Z 
+2026-01-28T22:56:36.5571053Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/KnowledgeBaseTeaser.tsx
+2026-01-28T22:56:36.5572750Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5574406Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5575366Z 
+2026-01-28T22:56:36.5576112Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/LeadMagnet.tsx
+2026-01-28T22:56:36.5578030Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5579901Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5580685Z 
+2026-01-28T22:56:36.5581393Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/Offers.tsx
+2026-01-28T22:56:36.5582958Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5584627Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5586289Z   3:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5587300Z 
+2026-01-28T22:56:36.5588032Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/Services.tsx
+2026-01-28T22:56:36.5589652Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5590434Z 
+2026-01-28T22:56:36.5591119Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/TechStack.tsx
+2026-01-28T22:56:36.5592709Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5594407Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5595190Z 
+2026-01-28T22:56:36.5595885Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/sections/WhyUs.tsx
+2026-01-28T22:56:36.5597723Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5598521Z 
+2026-01-28T22:56:36.5599324Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/templates/ArticleTemplate.tsx
+2026-01-28T22:56:36.5601003Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5601781Z 
+2026-01-28T22:56:36.5602584Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/templates/IndustryTemplate.tsx
+2026-01-28T22:56:36.5604282Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5605073Z 
+2026-01-28T22:56:36.5605887Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/components/templates/LocationTemplate.tsx
+2026-01-28T22:56:36.5607854Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5609550Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5610351Z 
+2026-01-28T22:56:36.5610972Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/context/AuthContext.tsx
+2026-01-28T22:56:36.5612489Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5613290Z 
+2026-01-28T22:56:36.5613938Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/context/ModalContext.tsx
+2026-01-28T22:56:36.5615488Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5617304Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5618185Z 
+2026-01-28T22:56:36.5618840Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/articles-content.ts
+2026-01-28T22:56:36.5620410Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5622302Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5623090Z 
+2026-01-28T22:56:36.5623664Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/articles.ts
+2026-01-28T22:56:36.5625329Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5627217Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5628010Z 
+2026-01-28T22:56:36.5628593Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content.ts
+2026-01-28T22:56:36.5630092Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5631769Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5632555Z 
+2026-01-28T22:56:36.5633384Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/backend-compendium.ts
+2026-01-28T22:56:36.5635075Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5636950Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5637852Z 
+2026-01-28T22:56:36.5638551Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/cdn.ts
+2026-01-28T22:56:36.5640129Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5641807Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5642588Z 
+2026-01-28T22:56:36.5643286Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/cicd.ts
+2026-01-28T22:56:36.5644881Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5646543Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5647563Z 
+2026-01-28T22:56:36.5648243Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/cwv.ts
+2026-01-28T22:56:36.5649791Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5651446Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5652230Z 
+2026-01-28T22:56:36.5653047Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/database-compendium.ts
+2026-01-28T22:56:36.5654776Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5656441Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5657381Z 
+2026-01-28T22:56:36.5658194Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/devops.ts
+2026-01-28T22:56:36.5659809Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5661497Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5662262Z 
+2026-01-28T22:56:36.5662971Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/docker.ts
+2026-01-28T22:56:36.5664570Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5666409Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5667425Z 
+2026-01-28T22:56:36.5668228Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/edge-computing.ts
+2026-01-28T22:56:36.5669900Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5671747Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5672521Z 
+2026-01-28T22:56:36.5673299Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/elasticsearch.ts
+2026-01-28T22:56:36.5674966Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5676628Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5677675Z 
+2026-01-28T22:56:36.5678406Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/frontend.ts
+2026-01-28T22:56:36.5680023Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5681698Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5682484Z 
+2026-01-28T22:56:36.5683144Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/go.ts
+2026-01-28T22:56:36.5684708Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5686372Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5687375Z 
+2026-01-28T22:56:36.5688138Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/google-ads.ts
+2026-01-28T22:56:36.5689782Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5691429Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5692212Z 
+2026-01-28T22:56:36.5692949Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/headless.ts
+2026-01-28T22:56:36.5694561Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5696233Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5697234Z 
+2026-01-28T22:56:36.5698018Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/image-formats.ts
+2026-01-28T22:56:36.5699685Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5701357Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5702135Z 
+2026-01-28T22:56:36.5702853Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/laravel.ts
+2026-01-28T22:56:36.5704465Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5706128Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5707129Z 
+2026-01-28T22:56:36.5707847Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/mongo.ts
+2026-01-28T22:56:36.5709458Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5711141Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5712159Z 
+2026-01-28T22:56:36.5712881Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/nextjs.ts
+2026-01-28T22:56:36.5714499Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5716330Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5717369Z 
+2026-01-28T22:56:36.5718070Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/node.ts
+2026-01-28T22:56:36.5719672Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5721351Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5722130Z 
+2026-01-28T22:56:36.5722861Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/postgres.ts
+2026-01-28T22:56:36.5724491Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5726156Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5727877Z 
+2026-01-28T22:56:36.5728617Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/python.ts
+2026-01-28T22:56:36.5730277Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5731964Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5732748Z 
+2026-01-28T22:56:36.5733452Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/react.ts
+2026-01-28T22:56:36.5735050Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5736730Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5737761Z 
+2026-01-28T22:56:36.5738469Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/redis.ts
+2026-01-28T22:56:36.5740061Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5741725Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5742509Z 
+2026-01-28T22:56:36.5743191Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/sst.ts
+2026-01-28T22:56:36.5744773Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5746419Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5747429Z 
+2026-01-28T22:56:36.5748160Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/tailwind.ts
+2026-01-28T22:56:36.5749774Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5751439Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5752213Z 
+2026-01-28T22:56:36.5752960Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/typescript.ts
+2026-01-28T22:56:36.5754651Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5756303Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5757342Z 
+2026-01-28T22:56:36.5758282Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/ux-audit.ts
+2026-01-28T22:56:36.5759919Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5761598Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5762562Z 
+2026-01-28T22:56:36.5763253Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/vue.ts
+2026-01-28T22:56:36.5764846Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5766519Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5767533Z 
+2026-01-28T22:56:36.5768230Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/articles/waf.ts
+2026-01-28T22:56:36.5769816Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5771494Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5772267Z 
+2026-01-28T22:56:36.5772890Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/common.ts
+2026-01-28T22:56:36.5774440Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5776101Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5777102Z 
+2026-01-28T22:56:36.5777811Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/pages/contact.ts
+2026-01-28T22:56:36.5779430Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5781109Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5781891Z 
+2026-01-28T22:56:36.5782556Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/pages/home.ts
+2026-01-28T22:56:36.5784115Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5784896Z 
+2026-01-28T22:56:36.5785665Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/pages/knowledge-base.ts
+2026-01-28T22:56:36.5787484Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5788269Z 
+2026-01-28T22:56:36.5788983Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/pages/portfolio.ts
+2026-01-28T22:56:36.5790609Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5791380Z 
+2026-01-28T22:56:36.5792086Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/services/design.ts
+2026-01-28T22:56:36.5793684Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5794464Z 
+2026-01-28T22:56:36.5795202Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/services/marketing.ts
+2026-01-28T22:56:36.5796958Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5797749Z 
+2026-01-28T22:56:36.5798566Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/services/web-development.ts
+2026-01-28T22:56:36.5800535Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5802340Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5803382Z 
+2026-01-28T22:56:36.5804186Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/content/types.ts
+2026-01-28T22:56:36.5805887Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5807940Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5809014Z 
+2026-01-28T22:56:36.5809759Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/data/pricing_archive.ts
+2026-01-28T22:56:36.5811416Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5813235Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5814115Z 
+2026-01-28T22:56:36.5814824Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/hooks/useCalculator.ts
+2026-01-28T22:56:36.5816479Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5818523Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5834977Z 
+2026-01-28T22:56:36.5835671Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/hooks/useCounter.ts
+2026-01-28T22:56:36.5837399Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5839096Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5839871Z 
+2026-01-28T22:56:36.5840467Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/hooks/useParallax.ts
+2026-01-28T22:56:36.5841947Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5843635Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5844375Z 
+2026-01-28T22:56:36.5844997Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/hooks/useTypewriter.ts
+2026-01-28T22:56:36.5846531Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5853871Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5854654Z 
+2026-01-28T22:56:36.5855299Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/auditService.ts
+2026-01-28T22:56:36.5857151Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5858741Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5859479Z 
+2026-01-28T22:56:36.5860111Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/cmsService.ts
+2026-01-28T22:56:36.5861502Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5863034Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5863819Z 
+2026-01-28T22:56:36.5864442Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/geminiService.ts
+2026-01-28T22:56:36.5865945Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5867934Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5868660Z 
+2026-01-28T22:56:36.5869275Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/leadService.ts
+2026-01-28T22:56:36.5870956Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5872558Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5873309Z 
+2026-01-28T22:56:36.5873989Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/notificationService.ts
+2026-01-28T22:56:36.5875715Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5876454Z 
+2026-01-28T22:56:36.5877268Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/services/pdfService.ts
+2026-01-28T22:56:36.5878763Z   2:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+2026-01-28T22:56:36.5879489Z 
+2026-01-28T22:56:36.5880081Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/Contact.test.tsx
+2026-01-28T22:56:36.5881692Z    1:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5883898Z ##[warning]  46:32  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5886736Z ##[warning]  47:32  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5893186Z 
+2026-01-28T22:56:36.5893816Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/Image.test.tsx
+2026-01-28T22:56:36.5895351Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5896117Z 
+2026-01-28T22:56:36.5897023Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/components/ContactModal.test.tsx
+2026-01-28T22:56:36.5898807Z    1:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5901035Z ##[warning]  25:79  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5903943Z ##[warning]  40:32  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5906761Z ##[warning]  72:32  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5909756Z ##[warning]  73:32  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5912577Z ##[warning]  74:38  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5914134Z 
+2026-01-28T22:56:36.5914887Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/components/Marketing.test.tsx
+2026-01-28T22:56:36.5916493Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5917379Z 
+2026-01-28T22:56:36.5918072Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/hooks/useCalculator.test.ts
+2026-01-28T22:56:36.5919731Z    1:1   error    Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5921829Z ##[warning]  40:40  warning  Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5923328Z 
+2026-01-28T22:56:36.5923992Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/portal/portal.test.tsx
+2026-01-28T22:56:36.5925723Z ##[warning]   41:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5928138Z ##[warning]   82:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5930354Z ##[warning]  127:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5932776Z ##[warning]  184:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+2026-01-28T22:56:36.5934154Z 
+2026-01-28T22:56:36.5934888Z /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/tests/services/leadService.test.ts
+2026-01-28T22:56:36.5936522Z   1:1  error  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+2026-01-28T22:56:36.5937443Z 
+2026-01-28T22:56:36.5937959Z ✖ 439 problems (418 errors, 21 warnings)
+2026-01-28T22:56:36.5938699Z   418 errors and 0 warnings potentially fixable with the `--fix` option.
+2026-01-28T22:56:36.5939209Z 
+2026-01-28T22:56:36.6053027Z ##[error]Process completed with exit code 1.

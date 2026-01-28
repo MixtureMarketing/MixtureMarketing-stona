@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useId } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 

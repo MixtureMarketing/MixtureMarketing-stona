@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
@@ -9,7 +7,6 @@ import { SanityImage } from '@/types/sanity';
 import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
 import AuditTeaser from '@/components/features/audit/AuditTeaser';
-import Button from '@/components/common/Button';
 import {
   Calendar,
   User,
@@ -17,7 +14,6 @@ import {
   ExternalLink,
   Code2,
   Cpu,
-  BarChart3,
   PenTool,
   CheckCircle2,
   Download,
@@ -27,35 +23,21 @@ import {
   MapPin,
   CreditCard,
   Layout,
-  Box,
   Globe,
   Database,
   Terminal,
-  Smartphone,
-  Facebook,
-  Linkedin,
-  Instagram,
-  Youtube,
-  Megaphone,
   LineChart,
   X,
   Maximize2,
 } from 'lucide-react';
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useSpring,
-  useTransform,
-  useScroll,
-} from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/services/cmsService';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: any) {
+function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 
@@ -63,11 +45,6 @@ function urlFor(source: any) {
 const CountUp = ({ value, label }: { value: string; label: string }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
-
-  // Extract number if present
-  const numberMatch = value.match(/[\d.]+/);
-  const numericValue = numberMatch ? parseFloat(numberMatch[0]) : 0;
-  const suffix = value.replace(/[\d.]/, ''); // Simple suffix extraction, might need refinement
 
   // We'll just display the string for now to support complex formats like "+120%"
   // but animate the container opacity/y
@@ -120,8 +97,6 @@ const CaseStudyTemplate = () => {
     null,
   );
   const navigate = useNavigate();
-  const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,10 +113,10 @@ const CaseStudyTemplate = () => {
           setProject(current);
 
           // Find next project
-          const currentIndex = all.findIndex((p) => p.slug === slug);
+          const currentIndex = all.findIndex((p) => p.slug.current === slug);
           if (currentIndex !== -1 && currentIndex < all.length - 1) {
             setNextProject(all[currentIndex + 1]);
-          } else if (all.length > 0 && all[0].slug !== slug) {
+          } else if (all.length > 0 && all[0].slug.current !== slug) {
             // Loop back to start if it's the last one, or just pick first distinct
             setNextProject(all[0]);
           } else {

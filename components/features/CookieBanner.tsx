@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import {
   Cookie,
@@ -13,18 +11,6 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../common/Button';
-
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-    dataLayer?: unknown[];
-    zaraz?: {
-      consent: {
-        set: (data: Record<string, boolean>) => void;
-      };
-    };
-  }
-}
 
 // Helper to push to dataLayer safely
 const gtag = (...args: unknown[]) => {

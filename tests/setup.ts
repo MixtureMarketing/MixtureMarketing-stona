@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
@@ -28,7 +27,7 @@ class IntersectionObserverMock {
       time: Date.now(),
     } as unknown as IntersectionObserverEntry;
 
-    this.callback([entry], this);
+    this.callback([entry], this as any);
   });
   disconnect = vi.fn();
   unobserve = vi.fn();

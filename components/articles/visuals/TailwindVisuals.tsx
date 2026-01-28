@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   Zap,
@@ -18,24 +16,25 @@ import {
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 
 // --- HERO: BUTTON BUILDER ANIMATION ---
-export const TailwindButtonBuilder: React.FC = () => {
+const TAILWIND_CLASSES = [
+  'bg-blue-500',
+  'text-white',
+  'rounded-xl',
+  'shadow-xl',
+  'px-8',
+  'py-4',
+  'font-bold',
+  'hover:bg-blue-600',
+  'transition-all',
+  'scale-110',
+];
+
+export const TailwindButtonBuilder = () => {
   const [step, setStep] = useState(0);
-  const classes = [
-    'bg-blue-500',
-    'text-white',
-    'rounded-xl',
-    'shadow-2xl',
-    'px-8',
-    'py-4',
-    'font-bold',
-    'hover:bg-blue-600',
-    'transition-all',
-    'scale-110',
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStep((prev) => (prev < classes.length ? prev + 1 : 0));
+      setStep((prev) => (prev < TAILWIND_CLASSES.length ? prev + 1 : 0));
     }, 600);
     return () => clearInterval(interval);
   }, []);
@@ -44,7 +43,7 @@ export const TailwindButtonBuilder: React.FC = () => {
     <div className="relative w-full bg-gray-50 rounded-[3rem] p-12 md:p-20 overflow-hidden border border-gray-100 shadow-inner flex flex-col items-center justify-center min-h-[400px]">
       {/* Code Stream */}
       <div className="absolute top-10 left-0 w-full flex flex-wrap justify-center gap-2 px-4 opacity-20 pointer-events-none">
-        {classes.map((c, i) => (
+        {TAILWIND_CLASSES.map((c, i) => (
           <span
             key={i}
             className={`text-xs font-mono font-bold transition-all duration-500 ${i < step ? 'text-blue-600 scale-110' : 'text-gray-400'}`}
@@ -95,8 +94,8 @@ export const TailwindButtonBuilder: React.FC = () => {
             <span className="text-purple-400">class</span>
             <span className="text-gray-500">="</span>
             <span className="text-emerald-400 break-words">
-              {classes.slice(0, step).join(' ')}
-              {step < classes.length && (
+              {TAILWIND_CLASSES.slice(0, step).join(' ')}
+              {step < TAILWIND_CLASSES.length && (
                 <span className="animate-pulse inline-block w-2 h-4 bg-emerald-400 ml-1"></span>
               )}
             </span>

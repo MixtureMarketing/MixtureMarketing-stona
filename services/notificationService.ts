@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Service for sending notifications (e.g., Slack, Email) when a new lead is created.
  * In a real-world scenario, this would call a Supabase Edge Function or a backend API.

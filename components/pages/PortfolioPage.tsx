@@ -1,20 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cmsService } from '../../services/cmsService';
 import { SanityCaseStudy } from '../../types';
+import { SanityImage } from '../../types/sanity';
 import Seo from '../common/Seo';
-import GlassCard from '../common/GlassCard';
 import Button from '../common/Button';
 import { ArrowRight, Filter, Layers, Zap, PenTool, Layout } from 'lucide-react';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '../../services/cmsService';
 
 const builder = imageUrlBuilder(client);
-function urlForImage(source: any) {
+function urlForImage(source: SanityImage) {
   return builder.image(source);
 }
 
@@ -98,7 +95,7 @@ const PortfolioPage = () => {
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setFilter(cat.id as any)}
+                    onClick={() => setFilter(cat.id as 'all' | 'web' | 'marketing' | 'design')}
                     className={`relative px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 group overflow-hidden ${
                       isActive
                         ? 'text-white'

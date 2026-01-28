@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import {
   ShieldCheck,
@@ -199,7 +197,9 @@ const TypeScriptArticle = () => {
                       className="flex gap-6 items-start p-6 bg-white rounded-2xl border border-gray-100 hover:border-[#3178C6]/30 transition-all"
                     >
                       <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center shrink-0">
-                        {React.cloneElement(icons[i] as React.ReactElement, { size: 24 })}
+                        {React.cloneElement(icons[i] as React.ReactElement<{ size?: number }>, {
+                          size: 24,
+                        })}
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-dark mb-2">{reason.title}</h4>

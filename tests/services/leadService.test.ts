@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { leadService } from '../../services/leadService';
 
 // Mock global fetch
@@ -13,7 +12,7 @@ describe('leadService', () => {
   describe('sendNotification', () => {
     it('should call the API with correct parameters for abandoned_step_1', async () => {
       // Setup mock response
-      (global.fetch as vi.Mock).mockResolvedValue({
+      (global.fetch as Mock).mockResolvedValue({
         ok: true,
         json: async () => ({ status: 'success' }),
       });
@@ -39,7 +38,7 @@ describe('leadService', () => {
 
     it('should return false if API call fails', async () => {
       // Setup mock error response
-      (global.fetch as vi.Mock).mockResolvedValue({
+      (global.fetch as Mock).mockResolvedValue({
         ok: false,
         text: async () => 'Server Error',
       });
@@ -53,7 +52,7 @@ describe('leadService', () => {
 
   describe('createLead', () => {
     it('should return lead object with an ID on success', async () => {
-      (global.fetch as vi.Mock).mockResolvedValue({
+      (global.fetch as Mock).mockResolvedValue({
         ok: true,
         json: async () => ({ status: 'success' }),
       });

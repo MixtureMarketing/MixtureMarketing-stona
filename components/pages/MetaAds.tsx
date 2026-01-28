@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -35,7 +32,6 @@ import {
   Video,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useMemo } from 'react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
@@ -308,10 +304,12 @@ const MetaAds: React.FC = () => {
                                   boxShadow: `0 20px 40px -10px ${stage.color}60`,
                                 }}
                               >
-                                {React.cloneElement(stage.icon as React.ReactElement<any>, {
-                                  size: 36,
-                                  strokeWidth: 2.5,
-                                })}
+                                {React.cloneElement(
+                                  stage.icon as React.ReactElement<{ size: number }>,
+                                  {
+                                    size: 32,
+                                  },
+                                )}
                               </div>
 
                               <div className="transition-transform duration-700">

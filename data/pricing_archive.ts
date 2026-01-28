@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // Backup of all hardcoded pricing data extracted from content.ts
 // Use this reference to populate Sanity CMS
 

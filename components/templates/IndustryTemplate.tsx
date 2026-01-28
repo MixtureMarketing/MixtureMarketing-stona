@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cmsService, SanityIndustry, client } from '../../services/cmsService';
@@ -19,12 +19,12 @@ import {
 import Button from '../common/Button';
 import { useModal } from '../../context/ModalContext';
 import imageUrlBuilder from '@sanity/image-url';
-import { SanityImageSource } from '@sanity/image-url/lib/types/types';
+import { SanityImage } from '../../types/sanity';
 
 import AuditTeaser from '../features/audit/AuditTeaser';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImageSource) {
+function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 

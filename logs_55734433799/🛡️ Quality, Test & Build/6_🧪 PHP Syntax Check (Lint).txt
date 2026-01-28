@@ -1,0 +1,50 @@
+﻿2026-01-28T22:55:33.4664191Z ##[group]Run find public/api -name "*.php" -exec php -l {} \;
+2026-01-28T22:55:33.4664683Z [36;1mfind public/api -name "*.php" -exec php -l {} \;[0m
+2026-01-28T22:55:33.4757444Z shell: /usr/bin/bash -e {0}
+2026-01-28T22:55:33.4757843Z env:
+2026-01-28T22:55:33.4758162Z   COMPOSER_PROCESS_TIMEOUT: 0
+2026-01-28T22:55:33.4758443Z   COMPOSER_NO_INTERACTION: 1
+2026-01-28T22:55:33.4758691Z   COMPOSER_NO_AUDIT: 1
+2026-01-28T22:55:33.4758923Z ##[endgroup]
+2026-01-28T22:55:33.5227569Z No syntax errors detected in public/api/admin/admin_reply_chat.php
+2026-01-28T22:55:33.5678171Z No syntax errors detected in public/api/admin/get_all_messages.php
+2026-01-28T22:55:33.6131239Z No syntax errors detected in public/api/admin/delete_document.php
+2026-01-28T22:55:33.6579996Z No syntax errors detected in public/api/admin/save_milestone.php
+2026-01-28T22:55:33.7208833Z No syntax errors detected in public/api/admin/get_all_data.php
+2026-01-28T22:55:33.7871932Z No syntax errors detected in public/api/admin/get_leads.php
+2026-01-28T22:55:33.8354583Z No syntax errors detected in public/api/admin/upload_document.php
+2026-01-28T22:55:33.8807598Z No syntax errors detected in public/api/admin/save_project.php
+2026-01-28T22:55:33.9263368Z No syntax errors detected in public/api/admin/convert_lead.php
+2026-01-28T22:55:33.9799158Z No syntax errors detected in public/api/admin/check_admin.php
+2026-01-28T22:55:34.0252555Z No syntax errors detected in public/api/admin/reply_lead.php
+2026-01-28T22:55:34.0712956Z No syntax errors detected in public/api/admin/get_performance_stats.php
+2026-01-28T22:55:34.1175908Z No syntax errors detected in public/api/admin/save_client.php
+2026-01-28T22:55:34.1623923Z No syntax errors detected in public/api/cron_notifications.php
+2026-01-28T22:55:34.2055551Z No syntax errors detected in public/api/setup_sessions_table.php
+2026-01-28T22:55:34.2492007Z No syntax errors detected in public/api/calculator_submit.php
+2026-01-28T22:55:34.2941343Z No syntax errors detected in public/api/rum-collect.php
+2026-01-28T22:55:34.3395744Z No syntax errors detected in public/api/RedisService.php
+2026-01-28T22:55:34.3843322Z No syntax errors detected in public/api/auth_check.php
+2026-01-28T22:55:34.4293112Z No syntax errors detected in public/api/portal/download.php
+2026-01-28T22:55:34.4745616Z No syntax errors detected in public/api/portal/get_messages.php
+2026-01-28T22:55:34.5193303Z No syntax errors detected in public/api/portal/update_milestone.php
+2026-01-28T22:55:34.5628102Z No syntax errors detected in public/api/portal/update_profile.php
+2026-01-28T22:55:34.6073478Z No syntax errors detected in public/api/portal/dashboard.php
+2026-01-28T22:55:34.6495974Z No syntax errors detected in public/api/portal/send_message.php
+2026-01-28T22:55:34.6931971Z No syntax errors detected in public/api/auth/send_magic_link.php
+2026-01-28T22:55:34.7353489Z No syntax errors detected in public/api/auth/verify_token.php
+2026-01-28T22:55:34.7773091Z No syntax errors detected in public/api/setup_rum_table.php
+2026-01-28T22:55:34.8196697Z No syntax errors detected in public/api/test_db.php
+2026-01-28T22:55:34.8619950Z No syntax errors detected in public/api/contact_submit.php
+2026-01-28T22:55:34.9061567Z No syntax errors detected in public/api/test_log.php
+2026-01-28T22:55:34.9479667Z No syntax errors detected in public/api/audit/get_audit_result.php
+2026-01-28T22:55:34.9904097Z No syntax errors detected in public/api/audit/audit_config.php
+2026-01-28T22:55:35.0349660Z No syntax errors detected in public/api/audit/generate_pdf.php
+2026-01-28T22:55:35.0794095Z No syntax errors detected in public/api/audit/classes/RedisCache.php
+2026-01-28T22:55:35.1235666Z No syntax errors detected in public/api/audit/debug.php
+2026-01-28T22:55:35.1683422Z No syntax errors detected in public/api/audit/run_audit.php
+2026-01-28T22:55:35.2106450Z No syntax errors detected in public/api/PHPMailer/Exception.php
+2026-01-28T22:55:35.2544932Z No syntax errors detected in public/api/PHPMailer/SMTP.php
+2026-01-28T22:55:35.3014735Z No syntax errors detected in public/api/PHPMailer/PHPMailer.php
+2026-01-28T22:55:35.3468658Z No syntax errors detected in public/api/db.php
+2026-01-28T22:55:35.3908113Z No syntax errors detected in public/api/templates/email_template.php

@@ -1,14 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // import { supabase } from './supabaseClient'; // Removed Supabase
-
-declare global {
-  interface Window {
-    zaraz?: {
-      track: (event: string, data?: Record<string, unknown>) => void;
-    };
-  }
-}
 
 export interface LeadBase {
   name: string;

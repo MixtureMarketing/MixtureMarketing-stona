@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { SITE_CONFIG } from '../../../config/site';
 
 export const DESIGN_BRANDING_CONTENT = {

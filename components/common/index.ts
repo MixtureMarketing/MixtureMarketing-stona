@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export { default as Accordion } from './Accordion';
 export { default as AmbientBackground } from './AmbientBackground';
 export { default as Breadcrumbs } from './Breadcrumbs';

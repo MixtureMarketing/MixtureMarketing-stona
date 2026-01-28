@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   TrendingUp,
@@ -125,7 +122,7 @@ const GoogleAdsArticle = () => {
                 {CONTENT.twoWays.items.map((item, i) => (
                   <ScalingTypeCard
                     key={i}
-                    type={item.type}
+                    type={item.type as 'vertical' | 'horizontal'}
                     title={item.title}
                     desc={item.desc}
                     risk={item.risk}

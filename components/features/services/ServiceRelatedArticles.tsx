@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { cmsService } from '../../../services/cmsService';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '../../../services/cmsService';
+import { SanityImage } from '../../../types/sanity';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: unknown) {
-  return builder.image(source as any);
+function urlFor(source: SanityImage) {
+  return builder.image(source);
 }
 
 interface ServiceRelatedArticlesProps {
@@ -27,7 +26,7 @@ const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
     Array<{
       slug: string;
       title: string;
-      mainImage: unknown;
+      mainImage: SanityImage;
       category: string;
     }>
   >([]);

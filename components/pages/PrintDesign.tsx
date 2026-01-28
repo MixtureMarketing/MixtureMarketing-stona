@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowLeft,
@@ -14,7 +11,6 @@ import {
   Ruler,
   Droplet,
   Scan,
-  Scale,
   Palette,
   Recycle,
   Sheet,
@@ -549,7 +545,7 @@ const PrintDesign: React.FC = () => {
               {CONTENT.finishes.items.map((finish) => (
                 <button
                   key={finish.id}
-                  onClick={() => setActiveFinish(finish.id as any)}
+                  onClick={() => setActiveFinish(finish.id as 'none' | 'gold' | 'uv' | 'emboss')}
                   className={`w-full text-left p-5 rounded-xl border transition-all duration-300 flex items-start gap-4 group
                                 ${
                                   activeFinish === finish.id

@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Users,
   Briefcase,
@@ -13,16 +11,10 @@ import {
   Edit,
   ExternalLink,
   Send,
-  MessageSquare,
   FileText,
   Check,
   CheckCheck,
   FilePlus,
-  FileDown,
-  Clock,
-  Calendar,
-  RefreshCw,
-  ShieldCheck,
   Activity,
   Smartphone,
   Monitor,
@@ -37,6 +29,11 @@ interface Client {
   company_name: string;
 }
 
+interface MetricValue {
+  desktop: number;
+  mobile: number;
+}
+
 interface MetricLog {
   metric_name: string;
   metric_value: number;
@@ -47,10 +44,10 @@ interface MetricLog {
 
 interface PerformanceData {
   summary: {
-    lcp: { desktop: number; mobile: number };
-    cls: { desktop: number; mobile: number };
-    inp: { desktop: number; mobile: number };
-    ttfb: { desktop: number; mobile: number };
+    lcp: MetricValue;
+    cls: MetricValue;
+    inp: MetricValue;
+    ttfb: MetricValue;
     sample_size: number;
   };
   logs: MetricLog[];
@@ -143,8 +140,6 @@ const AdminDashboard: React.FC = () => {
   const [clientSearch, setClientSearch] = useState('');
   const [projectSearch, setProjectSearch] = useState('');
 
-  const [loadingData, setLoadingData] = useState(true);
-
   // Document Upload State
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [uploadDocData, setUploadDocData] = useState({
@@ -156,13 +151,13 @@ const AdminDashboard: React.FC = () => {
   });
 
   // Milestone State
-  const [editingMilestone, setEditingMilestone] = useState<any>(null);
+  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
   const [isSavingMilestone, setIsSavingMilestone] = useState(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<Partial<Client & Project> | null>(null);
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const [replyingTo, setReplyingTo] = useState<Lead | null>(null);
   const [replyMessage, setReplyMessage] = useState('');
@@ -239,6 +234,58 @@ const AdminDashboard: React.FC = () => {
     [projects, projectSearch],
   );
 
+  const fetchLeads = useCallback(async () => {
+    if (!sessionToken) return;
+    try {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${sessionToken}`,
+        'X-Auth-Token': sessionToken || '',
+      };
+      const res = await fetch(`/api/admin/get_leads.php?t=${Date.now()}`, {
+        headers,
+      });
+      const data = await res.json();
+      setLeads(data.leads || []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [sessionToken]);
+
+  const fetchMetrics = useCallback(async () => {
+    if (!sessionToken) return;
+    try {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${sessionToken}`,
+        'X-Auth-Token': sessionToken || '',
+      };
+      const res = await fetch(`/api/admin/get_performance_stats.php?t=${Date.now()}`, {
+        headers,
+      });
+      const data = await res.json();
+      setMetricsData(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [sessionToken]);
+
+  const fetchData = useCallback(async () => {
+    if (!sessionToken) return;
+    try {
+      const headers: Record<string, string> = {
+        Authorization: `Bearer ${sessionToken}`,
+        'X-Auth-Token': sessionToken || '',
+      };
+      const res = await fetch(`/api/admin/get_all_data.php?t=${Date.now()}`, {
+        headers,
+      });
+      const data = await res.json();
+      setClients(data.clients || []);
+      setProjects(data.projects || []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [sessionToken]);
+
   useEffect(() => {
     if (!isLoading) {
       if (!user || user.role !== 'admin') {
@@ -254,79 +301,13 @@ const AdminDashboard: React.FC = () => {
         return () => clearInterval(interval);
       }
     }
-  }, [user, isLoading, navigate]);
+  }, [user, isLoading, navigate, fetchData, fetchLeads]);
 
   useEffect(() => {
     if (activeTab === 'metrics') {
       fetchMetrics();
     }
-  }, [activeTab]);
-
-  useEffect(() => {
-    const unreadCount = conversations.reduce((acc, conv) => acc + (conv.unread_count || 0), 0);
-    if (unreadCount > 0) {
-      document.title = `(${unreadCount}) Nowa wiadomość | Admin Panel`;
-    } else {
-      document.title = 'Admin Panel | Mixture Marketing';
-    }
-    return () => {
-      document.title = 'Mixture Marketing';
-    };
-  }, [conversations]);
-
-  const fetchData = async () => {
-    if (!sessionToken) return;
-    try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken || '',
-      };
-      const res = await fetch(`/api/admin/get_all_data.php?t=${Date.now()}`, {
-        headers,
-      });
-      const data = await res.json();
-      setClients(data.clients || []);
-      setProjects(data.projects || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingData(false);
-    }
-  };
-
-  const fetchLeads = async () => {
-    if (!sessionToken) return;
-    try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken || '',
-      };
-      const res = await fetch(`/api/admin/get_leads.php?t=${Date.now()}`, {
-        headers,
-      });
-      const data = await res.json();
-      setLeads(data.leads || []);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const fetchMetrics = async () => {
-    if (!sessionToken) return;
-    try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken || '',
-      };
-      const res = await fetch(`/api/admin/get_performance_stats.php?t=${Date.now()}`, {
-        headers,
-      });
-      const data = await res.json();
-      setMetricsData(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  }, [activeTab, fetchMetrics]);
 
   const fetchChat = useCallback(
     async (userId: string | null = null) => {
@@ -379,7 +360,7 @@ const AdminDashboard: React.FC = () => {
         });
       }
     }
-  }, [chatMessages.length, activeTab, activeChatId]);
+  }, [chatMessages, activeTab, activeChatId]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -448,9 +429,9 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleSaveMilestone = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingMilestone.project_id || !sessionToken) return;
+  const handleSaveMilestone = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!editingMilestone || !editingMilestone.project_id || !sessionToken) return;
     setIsSavingMilestone(true);
 
     try {
@@ -611,7 +592,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const openEdit = (item: any = {}) => {
+  const openEdit = (item: Partial<Client & Project> = {}) => {
     setEditingItem(item);
     setIsModalOpen(true);
   };
@@ -691,8 +672,10 @@ const AdminDashboard: React.FC = () => {
                 },
               ].map((m) => {
                 const summary = metricsData?.summary;
-                const valDesktop = (summary as any)?.[m.key]?.desktop || 0;
-                const valMobile = (summary as any)?.[m.key]?.mobile || 0;
+                const key = m.key as keyof typeof summary;
+                const metricValue = summary?.[key] as MetricValue | undefined;
+                const valDesktop = metricValue?.desktop || 0;
+                const valMobile = metricValue?.mobile || 0;
                 const isGood = valDesktop <= m.good;
 
                 return (
@@ -981,7 +964,10 @@ const AdminDashboard: React.FC = () => {
                             className="flex-1 text-xxs p-2 border-0 rounded-lg shadow-sm bg-white"
                             value={uploadDocData.type}
                             onChange={(e) =>
-                              setUploadDocData({ ...uploadDocData, type: e.target.value as any })
+                              setUploadDocData({
+                                ...uploadDocData,
+                                type: e.target.value as 'invoice' | 'document',
+                              })
                             }
                           >
                             <option value="document">Dokument</option>
@@ -1029,11 +1015,13 @@ const AdminDashboard: React.FC = () => {
                       <button
                         onClick={() => {
                           setEditingMilestone({
+                            id: '',
                             project_id: project.id,
                             title: '',
                             description: '',
-                            due_date: '',
+                            due_date: new Date().toISOString().split('T')[0],
                             status: 'pending',
+                            feedback: '',
                           });
                           setIsMilestoneModalOpen(true);
                         }}
@@ -1104,8 +1092,9 @@ const AdminDashboard: React.FC = () => {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] backdrop-blur-sm">
             <div className="bg-white p-8 rounded-2xl w-full max-w-md shadow-2xl">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-dark">
-                  {editingMilestone.id ? 'Edytuj' : 'Dodaj'} Etap Projektu
+                <h2 className="text-xl font-black text-dark flex items-center gap-2">
+                  <FilePlus className="text-secondary" size={20} />
+                  {editingMilestone?.id ? 'Edytuj' : 'Dodaj'} Etap Projektu
                 </h2>
                 <button onClick={() => setIsMilestoneModalOpen(false)}>
                   <X className="text-gray-400" />
@@ -1120,9 +1109,12 @@ const AdminDashboard: React.FC = () => {
                   <input
                     className="w-full p-3 border rounded-lg"
                     placeholder="np. Makieta UX"
-                    value={editingMilestone.title || ''}
+                    value={editingMilestone?.title || ''}
                     onChange={(e) =>
-                      setEditingMilestone({ ...editingMilestone, title: e.target.value })
+                      setEditingMilestone({
+                        ...editingMilestone,
+                        title: e.target.value,
+                      } as Milestone)
                     }
                     required
                   />
@@ -1134,9 +1126,12 @@ const AdminDashboard: React.FC = () => {
                   <textarea
                     className="w-full p-3 border rounded-lg h-24"
                     placeholder="Co zrobimy w tym etapie..."
-                    value={editingMilestone.description || ''}
+                    value={editingMilestone?.description || ''}
                     onChange={(e) =>
-                      setEditingMilestone({ ...editingMilestone, description: e.target.value })
+                      setEditingMilestone({
+                        ...editingMilestone,
+                        description: e.target.value,
+                      } as Milestone)
                     }
                   />
                 </div>
@@ -1148,9 +1143,12 @@ const AdminDashboard: React.FC = () => {
                     <input
                       type="date"
                       className="w-full p-3 border rounded-lg"
-                      value={editingMilestone.due_date || ''}
+                      value={editingMilestone?.due_date || ''}
                       onChange={(e) =>
-                        setEditingMilestone({ ...editingMilestone, due_date: e.target.value })
+                        setEditingMilestone({
+                          ...editingMilestone,
+                          due_date: e.target.value,
+                        } as Milestone)
                       }
                     />
                   </div>
@@ -1160,9 +1158,12 @@ const AdminDashboard: React.FC = () => {
                     </label>
                     <select
                       className="w-full p-3 border rounded-lg bg-white"
-                      value={editingMilestone.status || 'pending'}
+                      value={editingMilestone?.status || 'pending'}
                       onChange={(e) =>
-                        setEditingMilestone({ ...editingMilestone, status: e.target.value })
+                        setEditingMilestone({
+                          ...editingMilestone,
+                          status: e.target.value as 'pending' | 'accepted' | 'corrections',
+                        } as Milestone)
                       }
                     >
                       <option value="pending">Oczekujący</option>
@@ -1357,7 +1358,7 @@ const AdminDashboard: React.FC = () => {
                             })}
                             {msg.sender_type === 'admin' && (
                               <span>
-                                {msg.is_read === '1' || (msg as any).is_read === 1 ? (
+                                {msg.is_read === '1' || Number(msg.is_read) === 1 ? (
                                   <CheckCheck size={12} className="text-blue-300" />
                                 ) : (
                                   <Check size={12} />
@@ -1526,7 +1527,7 @@ const AdminDashboard: React.FC = () => {
             <div className="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-dark">
-                  {editingItem.id ? 'Edytuj' : 'Dodaj'}{' '}
+                  {editingItem?.id ? 'Edytuj' : 'Dodaj'}{' '}
                   {activeTab === 'clients' ? 'Klienta' : 'Projekt'}
                 </h2>
                 <button onClick={() => setIsModalOpen(false)}>
@@ -1540,7 +1541,7 @@ const AdminDashboard: React.FC = () => {
                     <input
                       className="w-full p-3 border rounded-lg"
                       placeholder="Imię i Nazwisko"
-                      value={editingItem.name || ''}
+                      value={editingItem?.name || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                       required
                     />
@@ -1548,14 +1549,14 @@ const AdminDashboard: React.FC = () => {
                       className="w-full p-3 border rounded-lg"
                       placeholder="Email"
                       type="email"
-                      value={editingItem.email || ''}
+                      value={editingItem?.email || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, email: e.target.value })}
                       required
                     />
                     <input
                       className="w-full p-3 border rounded-lg"
                       placeholder="Nazwa Firmy"
-                      value={editingItem.company_name || ''}
+                      value={editingItem?.company_name || ''}
                       onChange={(e) =>
                         setEditingItem({ ...editingItem, company_name: e.target.value })
                       }
@@ -1565,7 +1566,7 @@ const AdminDashboard: React.FC = () => {
                   <>
                     <select
                       className="w-full p-3 border rounded-lg bg-white"
-                      value={editingItem.user_id || ''}
+                      value={editingItem?.user_id || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, user_id: e.target.value })}
                       required
                     >
@@ -1579,14 +1580,14 @@ const AdminDashboard: React.FC = () => {
                     <input
                       className="w-full p-3 border rounded-lg"
                       placeholder="Nazwa Projektu"
-                      value={editingItem.name || ''}
+                      value={editingItem?.name || ''}
                       onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
                       required
                     />
                     <div className="grid grid-cols-2 gap-4">
                       <select
                         className="w-full p-3 border rounded-lg bg-white"
-                        value={editingItem.type || 'web'}
+                        value={editingItem?.type || 'web'}
                         onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
                       >
                         <option value="web">Web Development</option>
@@ -1596,13 +1597,13 @@ const AdminDashboard: React.FC = () => {
                       <input
                         className="w-full p-3 border rounded-lg font-bold text-green-600"
                         placeholder="Budżet (np. 5000 PLN)"
-                        value={editingItem.budget || ''}
+                        value={editingItem?.budget || ''}
                         onChange={(e) => setEditingItem({ ...editingItem, budget: e.target.value })}
                       />
                     </div>
                     <select
                       className="w-full p-3 border rounded-lg bg-white"
-                      value={editingItem.status || 'pending'}
+                      value={editingItem?.status || 'pending'}
                       onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
                     >
                       <option value="pending">Oczekujący</option>
@@ -1612,14 +1613,14 @@ const AdminDashboard: React.FC = () => {
                     </select>
                     <div className="flex items-center gap-4">
                       <span className="text-sm font-bold text-gray-600">
-                        Postęp: {editingItem.progress || 0}%
+                        Postęp: {editingItem?.progress || 0}%
                       </span>
                       <input
                         type="range"
                         className="flex-1"
                         min="0"
                         max="100"
-                        value={editingItem.progress || 0}
+                        value={editingItem?.progress || 0}
                         onChange={(e) =>
                           setEditingItem({ ...editingItem, progress: parseInt(e.target.value) })
                         }
@@ -1628,7 +1629,7 @@ const AdminDashboard: React.FC = () => {
                     <input
                       className="w-full p-3 border rounded-lg"
                       placeholder="Link do Drive"
-                      value={editingItem.drive_link || ''}
+                      value={editingItem?.drive_link || ''}
                       onChange={(e) =>
                         setEditingItem({ ...editingItem, drive_link: e.target.value })
                       }
@@ -1636,7 +1637,7 @@ const AdminDashboard: React.FC = () => {
                     <input
                       className="w-full p-3 border rounded-lg"
                       placeholder="Następny krok (tekst)"
-                      value={editingItem.next_milestone || ''}
+                      value={editingItem?.next_milestone || ''}
                       onChange={(e) =>
                         setEditingItem({ ...editingItem, next_milestone: e.target.value })
                       }
@@ -1644,7 +1645,7 @@ const AdminDashboard: React.FC = () => {
                     <input
                       className="w-full p-3 border rounded-lg"
                       type="date"
-                      value={editingItem.next_milestone_date || ''}
+                      value={editingItem?.next_milestone_date || ''}
                       onChange={(e) =>
                         setEditingItem({ ...editingItem, next_milestone_date: e.target.value })
                       }

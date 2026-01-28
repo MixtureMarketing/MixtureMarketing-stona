@@ -1,9 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { Cpu, ShieldCheck, RefreshCw, Zap, Target, BarChart3 } from 'lucide-react';
-import { COLORS } from '../../types';
+import { Zap, Target, BarChart3 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import GlassCard from '../common/GlassCard';
@@ -46,7 +42,9 @@ const WhyUs: React.FC = () => {
                 <GlassCard className="p-8 md:p-10 flex flex-col items-center text-center h-full relative z-10 bg-white/80 border-gray-100 hover:border-primary/30 transition-all duration-500 rounded-[2rem] shadow-sm hover:shadow-xl">
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 md:mb-8 relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 bg-gradient-to-br from-[#F9FAFB] to-white shadow-inner border border-gray-100">
                     <div className="text-secondary group-hover:text-primary transition-colors duration-300 transform group-hover:scale-110">
-                      {React.cloneElement(icons[index] as React.ReactElement<any>, { size: 28 })}
+                      {React.cloneElement(icons[index] as React.ReactElement<{ size: number }>, {
+                        size: 28,
+                      })}
                     </div>
 
                     {/* Decorative Dot */}

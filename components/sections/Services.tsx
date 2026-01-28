@@ -1,16 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
-import {
-  Monitor,
-  BarChart3,
-  Palette,
-  ArrowRight,
-  Code,
-  Megaphone,
-  CheckCircle2,
-} from 'lucide-react';
+import { Palette, ArrowRight, Code, Megaphone, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
@@ -116,7 +105,9 @@ const Services: React.FC = () => {
                 <div className="p-6 md:p-8 pb-0">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-gray-50 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
-                      {React.cloneElement(service.icon as React.ReactElement<any>, { size: 24 })}
+                      {React.cloneElement(service.icon as React.ReactElement<{ size: number }>, {
+                        size: 24,
+                      })}
                     </div>
                     <span className="text-xxs md:text-xs font-black uppercase tracking-widest text-gray-600 bg-gray-50 px-3 py-1 rounded-full group-hover:bg-blue-50 group-hover:text-secondary transition-colors">
                       {service.subtitle}

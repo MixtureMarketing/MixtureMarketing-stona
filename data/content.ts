@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Centralized content for the Mixture Marketing website.
  * This file re-exports content from smaller modules to maintain backward compatibility.

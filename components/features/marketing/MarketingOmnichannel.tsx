@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { GitMerge, TrendingUp, Database, Search, Megaphone, Activity } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';

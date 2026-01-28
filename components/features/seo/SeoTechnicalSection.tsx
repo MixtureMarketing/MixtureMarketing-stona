@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Code2, Gauge, Globe, Terminal } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';

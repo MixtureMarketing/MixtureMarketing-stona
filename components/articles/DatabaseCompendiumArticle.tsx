@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Database,
@@ -164,10 +161,16 @@ const DatabaseCompendiumArticle = () => {
                           className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
                           style={{ backgroundColor: `${bgColors[i]}10` }}
                         >
-                          {React.cloneElement(icons[i] as React.ReactElement, {
-                            style: { color: i === 3 ? '#f1c40f' : bgColors[i] },
-                            className: 'group-hover:text-white',
-                          })}
+                          {React.cloneElement(
+                            icons[i] as React.ReactElement<{
+                              style?: React.CSSProperties;
+                              className?: string;
+                            }>,
+                            {
+                              style: { color: i === 3 ? '#f1c40f' : bgColors[i] },
+                              className: 'group-hover:text-white',
+                            },
+                          )}
                         </div>
                         <h3 className="text-2xl font-bold text-dark mb-2 flex items-center gap-3">
                           {item.name}{' '}
@@ -325,9 +328,12 @@ const DatabaseCompendiumArticle = () => {
                         >
                           {step.step}
                         </div>
-                        {React.cloneElement(UI_Icons[i] as React.ReactElement, {
-                          className: `text-${colors[i]}-200 group-hover:text-${colors[i]}-500 transition-colors`,
-                        })}
+                        {React.cloneElement(
+                          UI_Icons[i] as React.ReactElement<{ className?: string }>,
+                          {
+                            className: `text-${colors[i]}-200 group-hover:text-${colors[i]}-500 transition-colors`,
+                          },
+                        )}
                       </div>
                       <h4 className="text-xl font-bold text-dark mb-2">{step.q}</h4>
                       <p className="text-gray-600 text-sm mb-4 min-h-[40px]">{step.desc}</p>
