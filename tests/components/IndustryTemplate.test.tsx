@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import IndustryTemplate from '../../components/templates/IndustryTemplate';
 import { cmsService } from '../../services/cmsService';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { ModalProvider } from '../../context/ModalContext';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, Mock } from 'vitest';
 import Contact from '../components/sections/Contact';
 import { leadService } from '../services/leadService';
 
@@ -42,8 +42,8 @@ describe('Contact Component', () => {
 
   it('submits form data successfully', async () => {
     const mockLead = { id: '123', name: 'John Doe', email: 'john@example.com' };
-    (leadService.createLead as any).mockResolvedValue(mockLead);
-    (leadService.updateLead as any).mockResolvedValue(true);
+    (leadService.createLead as Mock).mockResolvedValue(mockLead);
+    (leadService.updateLead as Mock).mockResolvedValue(true);
 
     render(<Contact />);
 

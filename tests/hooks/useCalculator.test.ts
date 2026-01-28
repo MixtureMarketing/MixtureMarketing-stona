@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { useCalculator } from '../../hooks/useCalculator';
 import { cmsService } from '../../services/cmsService';
 import { act } from 'react';
@@ -36,7 +36,7 @@ const mockConfig = {
 describe('useCalculator Hook', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (cmsService.getCalculatorConfig as any).mockResolvedValue(mockConfig);
+    (cmsService.getCalculatorConfig as Mock).mockResolvedValue(mockConfig);
   });
 
   it('calculates base price correctly for landing page with template design', async () => {

@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 // Runs a cleanup after each test case (e.g. clearing jsdom)
@@ -8,10 +8,13 @@ afterEach(() => {
 });
 
 // Mock IntersectionObserver
-class IntersectionObserverMock {
+class IntersectionObserverMock implements IntersectionObserver {
   readonly callback: IntersectionObserverCallback;
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
 
-  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
+  constructor(callback: IntersectionObserverCallback, _opts?: IntersectionObserverInit) {
     this.callback = callback;
   }
 
@@ -27,11 +30,11 @@ class IntersectionObserverMock {
       time: Date.now(),
     } as unknown as IntersectionObserverEntry;
 
-    this.callback([entry], this as any);
+    this.callback([entry], this);
   });
   disconnect = vi.fn();
   unobserve = vi.fn();
-  takeRecords = vi.fn();
+  takeRecords = vi.fn(() => []);
 }
 
 vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);

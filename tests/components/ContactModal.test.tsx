@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import ContactModal from '../../components/features/ContactModal';
 import { ModalProvider } from '../../context/ModalContext';
 import { leadService } from '../../services/leadService';
+import { ContactType } from '../../types';
 
 // Mock dependencies
 vi.mock('react-google-recaptcha-v3', () => ({
@@ -21,7 +22,7 @@ vi.mock('../../services/leadService', () => ({
   },
 }));
 
-const renderModal = (props = { isOpen: true, onClose: vi.fn(), type: 'web' as any }) => {
+const renderModal = (props: { isOpen: boolean; onClose: () => void; type: ContactType }) => {
   return render(
     <ModalProvider>
       <ContactModal {...props} />
@@ -36,13 +37,13 @@ describe('ContactModal Integration', () => {
 
   it('should trigger abandoned_step_1 if closed at step 2', async () => {
     const onClose = vi.fn();
-    (leadService.createLead as any).mockResolvedValue({
+    (leadService.createLead as Mock).mockResolvedValue({
       id: 'lead-123',
       name: 'Jan',
       email: 'jan@test.pl',
     });
 
-    renderModal({ isOpen: true, onClose, type: 'web' });
+    renderModal({ isOpen: true, onClose, type: 'web' as ContactType });
 
     // Step 1: Fill data
     fireEvent.change(screen.getByLabelText(/Imię i Nazwisko/i), {
@@ -68,9 +69,9 @@ describe('ContactModal Integration', () => {
   });
 
   it('should trigger success notification on final submission', async () => {
-    (leadService.createLead as any).mockResolvedValue({ id: 'lead-full', name: 'Jan' });
-    (leadService.updateLead as any).mockResolvedValue(true);
-    (leadService.sendNotification as any).mockResolvedValue(true);
+    (leadService.createLead as Mock).mockResolvedValue({ id: 'lead-full', name: 'Jan' });
+    (leadService.updateLead as Mock).mockResolvedValue(true);
+    (leadService.sendNotification as Mock).mockResolvedValue(true);
 
     renderModal({ isOpen: true, onClose: vi.fn(), type: 'web' });
 

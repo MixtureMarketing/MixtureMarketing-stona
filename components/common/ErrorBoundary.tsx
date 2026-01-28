@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {

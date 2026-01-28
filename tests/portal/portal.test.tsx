@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
 import PortalLogin from '../../components/portal/PortalLogin';
@@ -37,7 +37,7 @@ describe('Portal Integration Tests', () => {
   });
 
   it('PortalLogin sends magic link request', async () => {
-    (global.fetch as any).mockResolvedValue({
+    (global.fetch as Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ message: 'Link sent' }),
     });
@@ -78,7 +78,7 @@ describe('Portal Integration Tests', () => {
     localStorage.setItem('portal_token', 'mock_token_123');
 
     // Mock API responses
-    (global.fetch as any).mockImplementation((url: string) => {
+    (global.fetch as Mock).mockImplementation((url: string) => {
       if (url.includes('dashboard.php')) {
         return Promise.resolve({
           ok: true,
@@ -123,7 +123,7 @@ describe('Portal Integration Tests', () => {
     localStorage.setItem('portal_user', JSON.stringify(mockUser));
     localStorage.setItem('portal_token', 'mock_token_123');
 
-    (global.fetch as any).mockImplementation((url: string) => {
+    (global.fetch as Mock).mockImplementation((url: string) => {
       if (url.includes('dashboard.php') || url.includes('get_messages.php')) {
         return Promise.resolve({
           ok: true,
@@ -180,7 +180,7 @@ describe('Portal Integration Tests', () => {
     // Or we can mock useNavigate. Let's try checking if it redirects to dashboard.
 
     // Mock API to prevent errors during initial render attempt
-    (global.fetch as any).mockResolvedValue({ ok: true, json: async () => ({}) });
+    (global.fetch as Mock).mockResolvedValue({ ok: true, json: async () => ({}) });
 
     render(
       <MemoryRouter initialEntries={['/portal/admin']}>
