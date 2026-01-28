@@ -148,9 +148,7 @@ const Home = () => {
       />
       <Hero onOpenModal={() => openModal('general')} />
       <Suspense fallback={<div className="h-screen" />}>
-        <LazyHydrate minHeight="800px">
-          <Services />
-        </LazyHydrate>
+        <Services />
         <LazyHydrate minHeight="600px">
           <WhyUs />
         </LazyHydrate>

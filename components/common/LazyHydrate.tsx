@@ -15,7 +15,7 @@ interface LazyHydrateProps {
  */
 const LazyHydrate: React.FC<LazyHydrateProps> = ({
   children,
-  rootMargin = '200px',
+  rootMargin = '600px',
   threshold = 0.01,
   minHeight = '100px',
 }) => {
@@ -43,13 +43,15 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
     }
   }, [hydrated, rootMargin, threshold]);
 
-  // Check for Prerendering (Puppeteer/Headless)
+  // Check for Prerendering (Puppeteer/Headless) or Development Mode
   const isPrerendering =
     typeof window !== 'undefined' &&
     (navigator.userAgent.includes('Headless') || (window as any).isPrerendering);
 
-  // During SSR (Node.js) or Prerendering, always render children normally
-  if (typeof window === 'undefined' || isPrerendering) {
+  const isDev = import.meta.env.DEV;
+
+  // During SSR (Node.js), Prerendering, or Dev mode, always render children normally
+  if (typeof window === 'undefined' || isPrerendering || isDev) {
     return <div style={{ minHeight }}>{children}</div>;
   }
 

@@ -12,6 +12,15 @@ vi.mock('../../services/cmsService', () => ({
   cmsService: {
     getIndustryBySlug: vi.fn(),
   },
+  client: {}, // Mock Sanity client
+}));
+
+vi.mock('@sanity/image-url', () => ({
+  default: () => ({
+    image: () => ({
+      url: () => 'https://via.placeholder.com/150',
+    }),
+  }),
 }));
 
 // Mock params
