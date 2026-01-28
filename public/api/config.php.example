@@ -1,0 +1,37 @@
+<?php
+// Konfiguracja Bazy Danych
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'your_database_name');
+define('DB_USER', 'your_database_user');
+define('DB_PASS', 'your_database_password');
+
+// Konfiguracja Drugiej Bazy Danych (Audyty)
+define('DB_AUDIT_HOST', 'localhost');
+define('DB_AUDIT_NAME', 'your_audit_db_name');
+define('DB_AUDIT_USER', 'your_audit_db_user');
+define('DB_AUDIT_PASS', 'your_audit_db_password');
+
+// Konfiguracja Emaila (Powiadomienia)
+define('NOTIFY_EMAIL', 'info@example.com');
+define('EMAIL_SUBJECT', 'Nowy Lead ze strony');
+
+// Konfiguracja SMTP
+define('SMTP_HOST', 'smtp.example.com');
+define('SMTP_USER', 'info@example.com');
+define('SMTP_PASS', 'your_smtp_password');
+define('SMTP_PORT', 465);
+define('SMTP_SECURE', 'ssl'); // lub 'tls'
+
+// ReCAPTCHA v3 Secret Key
+define('RECAPTCHA_SECRET', 'your_recaptcha_secret_key');
+
+// Zabezpieczenia CORS
+define('ALLOWED_ORIGIN', 'https://yourdomain.pl');
+
+// Konfiguracja Redis (Cache)
+define('REDIS_ENABLED', false);
+define('REDIS_HOST', '127.0.0.1');
+define('REDIS_PORT', 6379);
+define('REDIS_SOCKET', null);
+define('REDIS_PASS', null); 
+?>

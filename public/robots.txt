@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /*?*wc-ajax*
+Disallow: /*?*wc-ajax=
+
+Sitemap: https://mixturemarketing.pl/sitemap.xml

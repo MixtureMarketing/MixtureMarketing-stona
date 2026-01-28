@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mixture Marketing - Agencja Przyszłości</title>
+
+    <!-- Favicons & App Icons (Google Search Compliance) -->
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="icon" href="/assets/images/sygnet.png" type="image/png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/sygnet.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/sygnet.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/sygnet.png" />
+    <meta name="theme-color" content="#213261" />
+
+    <!-- Google Consent Mode v2 Default State -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      });
+    </script>
+
+    <style>
+      body {
+        font-family: 'Manrope', sans-serif;
+        background-color: #f5f7fa;
+        color: #111827;
+        overflow-x: hidden;
+      }
+      /* Smooth scrolling for anchor links */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      /* Custom Scrollbar - Modern Tech Look */
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f5f7fa;
+        border-left: 1px solid rgba(97, 182, 222, 0.1);
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #213261; /* Dark Navy */
+        border-radius: 6px;
+        border: 3px solid #f5f7fa; /* Creates a floating effect */
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #61b6de; /* Accent Blue - Lights up on interaction */
+      }
+
+      /* Tech Grid Background Pattern */
+      .bg-tech-grid {
+        background-image:
+          linear-gradient(to right, rgba(97, 182, 222, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(97, 182, 222, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent,
+          black 15%,
+          black 85%,
+          transparent
+        );
+      }
+
+      /* Custom Animation for Ambient Orbs */
+      @keyframes float {
+        0% {
+          transform: translate(0px, 0px) scale(1);
+        }
+        33% {
+          transform: translate(30px, -50px) scale(1.1);
+        }
+        66% {
+          transform: translate(-20px, 20px) scale(0.9);
+        }
+        100% {
+          transform: translate(0px, 0px) scale(1);
+        }
+      }
+      .animate-float {
+        animation: float 7s infinite ease-in-out;
+      }
+      .animate-float-delayed {
+        animation: float 7s infinite ease-in-out;
+        animation-delay: 3.5s;
+      }
+
+      /* Energy Line Animations */
+      @keyframes energy-flow {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      .animate-energy-flow {
+        stroke-dashoffset: 1000;
+        animation: energy-flow 3s linear infinite;
+      }
+
+      @keyframes energy-flow-reverse {
+        to {
+          stroke-dashoffset: 1000;
+        }
+      }
+      .animate-energy-flow-reverse {
+        stroke-dashoffset: 0;
+        animation: energy-flow-reverse 3s linear infinite;
+      }
+
+      /* Circuit Board Specific Animations */
+      @keyframes circuit-flow-h {
+        0% {
+          stroke-dashoffset: 600;
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        90% {
+          opacity: 1;
+        }
+        100% {
+          stroke-dashoffset: 0;
+          opacity: 0;
+        }
+      }
+      .animate-circuit-h {
+        stroke-dasharray: 100 500;
+        animation: circuit-flow-h 4s linear infinite;
+      }
+
+      @keyframes rain-flow {
+        0% {
+          stroke-dashoffset: 1000;
+        }
+        100% {
+          stroke-dashoffset: 0;
+        }
+      }
+      .animate-rain {
+        stroke-dasharray: 200 800;
+        animation: rain-flow 3s linear infinite;
+      }
+
+      @keyframes energy-pulse {
+        0%,
+        100% {
+          opacity: 0.3;
+          stroke-width: 1px;
+        }
+        50% {
+          opacity: 1;
+          stroke-width: 2px;
+        }
+      }
+      .animate-energy-pulse {
+        animation: energy-pulse 3s ease-in-out infinite;
+      }
+
+      /* Animated Gradient Background */
+      @keyframes gradient-xy {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      .animate-gradient-xy {
+        animation: gradient-xy 3s ease infinite;
+      }
+
+      /* Split Text Reveal Animation */
+      @keyframes revealUp {
+        from {
+          transform: translateY(110%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .reveal-text-item {
+        display: inline-block;
+        transform: translateY(110%);
+        opacity: 0;
+        animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* WCAG: Reduced Motion Support */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+
+        .animate-float,
+        .animate-float-delayed,
+        .reveal-text-item,
+        .animate-gradient-xy,
+        .animate-energy-flow,
+        .animate-energy-pulse,
+        .animate-circuit-h,
+        .animate-rain {
+          animation: none !important;
+          transform: none !important;
+          opacity: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

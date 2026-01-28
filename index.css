@@ -1,0 +1,236 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #61b6de;
+  --color-accent-dark: #3a8fb7;
+  --color-secondary: #3f3d91;
+  --color-dark: #213261;
+  --color-success: #00c853;
+  --color-instagram: #e1306c;
+
+  /* High contrast grays for WCAG AA compliance on light backgrounds */
+  --color-gray-400: #4b5563;
+  --color-gray-500: #374151;
+
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-fade-in-up: fadeInUp 0.6s ease-out forwards;
+  --animate-scale-in: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-shake: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  --animate-bounce-x: bounceX 1s infinite;
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-blob: blob 7s infinite;
+  --animate-shimmer: shimmer 2s infinite linear;
+  --animate-infinite-scroll: infinite-scroll 40s linear infinite;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 20px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale3d(0.95, 0.95, 1);
+    }
+    to {
+      opacity: 1;
+      transform: scale3d(1, 1, 1);
+    }
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @keyframes bounceX {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(5px, 0, 0);
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate3d(0, -10px, 0) rotate(1deg);
+    }
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate3d(0px, 0px, 0) scale(1);
+    }
+    33% {
+      transform: translate3d(30px, -50px, 0) scale(1.1);
+    }
+    66% {
+      transform: translate3d(-20px, 20px, 0) scale(0.9);
+    }
+    100% {
+      transform: translate3d(0px, 0px, 0) scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translate3d(-100%, 0, 0);
+    }
+    100% {
+      transform: translate3d(100%, 0, 0);
+    }
+  }
+
+  @keyframes infinite-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes grain {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    10% {
+      transform: translate3d(-5%, -10%, 0);
+    }
+    20% {
+      transform: translate3d(-15%, 5%, 0);
+    }
+    30% {
+      transform: translate3d(7%, -25%, 0);
+    }
+    40% {
+      transform: translate3d(-5%, 25%, 0);
+    }
+    50% {
+      transform: translate3d(-15%, 10%, 0);
+    }
+    60% {
+      transform: translate3d(15%, 0%, 0);
+    }
+    70% {
+      transform: translate3d(0%, 15%, 0);
+    }
+    80% {
+      transform: translate3d(3%, 35%, 0);
+    }
+    90% {
+      transform: translate3d(-10%, 10%, 0);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Accessibility: Ensure links in text blocks are distinguishable by more than just color */
+  .prose a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  .prose a:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+@layer utilities {
+  /* GPU Optimized Grid */
+  .bg-tech-grid {
+    background-image:
+      linear-gradient(rgba(97, 182, 222, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(97, 182, 222, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    transform: translateZ(0); /* Force GPU */
+  }
+
+  .bg-grid-pattern {
+    background-image: radial-gradient(rgba(33, 50, 97, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Inline SVG Noise (Zero HTTP Requests) */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    animation: grain 8s steps(10) infinite;
+    pointer-events: none;
+  }
+
+  .mask-fade-x {
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(33, 50, 97, 0.1);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(33, 50, 97, 0.2);
+}

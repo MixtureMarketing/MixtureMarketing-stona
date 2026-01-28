@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Zaloguj się do Panelu Klienta</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f5f7fa;
+      font-family: Helvetica, Arial, sans-serif;
+    "
+  >
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tr>
+        <td align="center" style="padding: 40px 0">
+          <table
+            role="presentation"
+            width="600"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            style="
+              background-color: #ffffff;
+              border-radius: 16px;
+              overflow: hidden;
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            "
+          >
+            <tr>
+              <td align="center" style="background-color: #213261; padding: 30px">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px">Mixture Portal</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 40px 30px; text-align: center">
+                <h2 style="color: #213261; margin-bottom: 20px">Twój link logowania</h2>
+                <p style="color: #64748b; line-height: 1.6; margin-bottom: 30px">
+                  Otrzymaliśmy prośbę o zalogowanie do Panelu Klienta. Kliknij poniższy przycisk,
+                  aby uzyskać bezpieczny dostęp do swoich projektów. Link jest ważny przez 15 minut.
+                </p>
+                <a
+                  href="{{MAGIC_LINK}}"
+                  style="
+                    display: inline-block;
+                    background-color: #61b6de;
+                    color: #ffffff;
+                    padding: 15px 30px;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-size: 16px;
+                  "
+                  >Zaloguj się teraz</a
+                >
+                <p style="color: #9ca3af; font-size: 12px; margin-top: 30px">
+                  Jeśli to nie Ty prosiłeś o link, zignoruj tę wiadomość.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
