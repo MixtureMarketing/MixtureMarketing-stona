@@ -38,7 +38,7 @@ jobs:
         run: find public/api -name "*.php" -exec php -l {} \;
 
       - name: 📦 Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: 🎨 Linting & Formatting
         run: |
