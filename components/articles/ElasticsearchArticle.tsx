@@ -1,21 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  Search,
-  Zap,
-  CheckCircle2,
-  XCircle,
-  BarChart3,
-  ArrowRight,
-  Layout,
-  Layers,
-  Database,
-  Terminal,
-  ChevronDown,
-  Info,
-  MousePointerClick,
-  Filter,
-} from 'lucide-react';
+import { Search, BarChart3, ArrowRight, Layers, Database } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
@@ -215,9 +202,7 @@ const ElasticsearchArticle = () => {
                 <div className="flex items-center gap-3 text-gray-500 font-bold uppercase tracking-widest text-xxs mb-4">
                   <Layers size={16} /> Bonus dla IT i Zarządu
                 </div>
-                <h3 className="text-2xl font-bold text-dark mb-6 mt-0">
-                  {CONTENT.elkStack.title}
-                </h3>
+                <h3 className="text-2xl font-bold text-dark mb-6 mt-0">{CONTENT.elkStack.title}</h3>
                 <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">
                   {CONTENT.elkStack.text}
                 </p>

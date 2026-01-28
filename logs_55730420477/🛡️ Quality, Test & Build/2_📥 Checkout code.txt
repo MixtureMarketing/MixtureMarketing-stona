@@ -1,0 +1,77 @@
+﻿2026-01-28T22:05:43.6362468Z ##[group]Run actions/checkout@v4
+2026-01-28T22:05:43.6363370Z with:
+2026-01-28T22:05:43.6363785Z   fetch-depth: 0
+2026-01-28T22:05:43.6364295Z   repository: MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:05:43.6365507Z   token: ***
+2026-01-28T22:05:43.6365958Z   ssh-strict: true
+2026-01-28T22:05:43.6366362Z   ssh-user: git
+2026-01-28T22:05:43.6366788Z   persist-credentials: true
+2026-01-28T22:05:43.6367256Z   clean: true
+2026-01-28T22:05:43.6367672Z   sparse-checkout-cone-mode: true
+2026-01-28T22:05:43.6368173Z   fetch-tags: false
+2026-01-28T22:05:43.6368584Z   show-progress: true
+2026-01-28T22:05:43.6369015Z   lfs: false
+2026-01-28T22:05:43.6369421Z   submodules: false
+2026-01-28T22:05:43.6369866Z   set-safe-directory: true
+2026-01-28T22:05:43.6370779Z ##[endgroup]
+2026-01-28T22:05:43.7530314Z Syncing repository: MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:05:43.7533460Z ##[group]Getting Git version info
+2026-01-28T22:05:43.7535284Z Working directory is '/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona'
+2026-01-28T22:05:43.7537499Z [command]/usr/bin/git version
+2026-01-28T22:05:43.7612908Z git version 2.52.0
+2026-01-28T22:05:43.7648461Z ##[endgroup]
+2026-01-28T22:05:43.7662373Z Temporarily overriding HOME='/home/runner/work/_temp/436823e7-4b6e-43c5-bf71-3888e0abe6ae' before making global git config changes
+2026-01-28T22:05:43.7667403Z Adding repository directory to the temporary git global config as a safe directory
+2026-01-28T22:05:43.7681332Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona
+2026-01-28T22:05:43.7721978Z Deleting the contents of '/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona'
+2026-01-28T22:05:43.7727034Z ##[group]Initializing the repository
+2026-01-28T22:05:43.7732422Z [command]/usr/bin/git init /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona
+2026-01-28T22:05:43.7839141Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-01-28T22:05:43.7842985Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-01-28T22:05:43.7844806Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-01-28T22:05:43.7847079Z hint: call:
+2026-01-28T22:05:43.7847866Z hint:
+2026-01-28T22:05:43.7848829Z hint: 	git config --global init.defaultBranch <name>
+2026-01-28T22:05:43.7850041Z hint:
+2026-01-28T22:05:43.7851200Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-01-28T22:05:43.7853099Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-01-28T22:05:43.7854560Z hint:
+2026-01-28T22:05:43.7855539Z hint: 	git branch -m <name>
+2026-01-28T22:05:43.7856493Z hint:
+2026-01-28T22:05:43.7857706Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-01-28T22:05:43.7861078Z Initialized empty Git repository in /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/.git/
+2026-01-28T22:05:43.7864513Z [command]/usr/bin/git remote add origin https://github.com/MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:05:43.7900796Z ##[endgroup]
+2026-01-28T22:05:43.7904276Z ##[group]Disabling automatic garbage collection
+2026-01-28T22:05:43.7907413Z [command]/usr/bin/git config --local gc.auto 0
+2026-01-28T22:05:43.7938131Z ##[endgroup]
+2026-01-28T22:05:43.7940698Z ##[group]Setting up auth
+2026-01-28T22:05:43.7945790Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-01-28T22:05:43.7980245Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-01-28T22:05:43.8359367Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-01-28T22:05:43.8392482Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-01-28T22:05:43.8623439Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-01-28T22:05:43.8656440Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-01-28T22:05:43.8902555Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-01-28T22:05:43.8940583Z ##[endgroup]
+2026-01-28T22:05:43.8943884Z ##[group]Fetching the repository
+2026-01-28T22:05:43.8951525Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+2026-01-28T22:05:48.8182978Z From https://github.com/MixtureMarketing/MixtureMarketing-stona
+2026-01-28T22:05:48.8185325Z  * [new branch]      dependabot/npm_and_yarn/dependencies-29fefb1f62 -> origin/dependabot/npm_and_yarn/dependencies-29fefb1f62
+2026-01-28T22:05:48.8187036Z  * [new branch]      main       -> origin/main
+2026-01-28T22:05:48.8225804Z [command]/usr/bin/git branch --list --remote origin/main
+2026-01-28T22:05:48.8250934Z   origin/main
+2026-01-28T22:05:48.8261399Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-01-28T22:05:48.8282641Z 88ed6d77ca5b540e8ce5175f7aaa6dbd51664e2a
+2026-01-28T22:05:48.8289434Z ##[endgroup]
+2026-01-28T22:05:48.8290876Z ##[group]Determining the checkout info
+2026-01-28T22:05:48.8292129Z ##[endgroup]
+2026-01-28T22:05:48.8296630Z [command]/usr/bin/git sparse-checkout disable
+2026-01-28T22:05:48.8338568Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-01-28T22:05:48.8367167Z ##[group]Checking out the ref
+2026-01-28T22:05:48.8372446Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-01-28T22:05:49.5680192Z Switched to a new branch 'main'
+2026-01-28T22:05:49.5712745Z branch 'main' set up to track 'origin/main'.
+2026-01-28T22:05:49.5773480Z ##[endgroup]
+2026-01-28T22:05:49.5831627Z [command]/usr/bin/git log -1 --format=%H
+2026-01-28T22:05:49.5856452Z 88ed6d77ca5b540e8ce5175f7aaa6dbd51664e2a

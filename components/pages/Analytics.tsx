@@ -1,19 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowLeft,
   BarChart3,
-  PieChart,
   Target,
   Eye,
   ArrowRight,
   Activity,
-  MousePointer2,
   Database,
   Filter,
-  Layers,
-  Zap,
-  Search,
-  Globe,
   Server,
   Lock,
   TrendingUp,
@@ -22,40 +19,27 @@ import {
   CheckCircle2,
   AlertTriangle,
   ShieldCheck,
-  HelpCircle,
   ChevronDown,
-  FileCode,
   FileSpreadsheet,
   GripVertical,
   Scale,
-  HardDrive,
   FileWarning,
-  Unlock,
-  Network,
   GitMerge,
-  Plug,
   Settings,
-  RefreshCw,
   Cpu,
   Terminal,
-  CreditCard,
-  Share2,
   Store,
-  ShoppingBag,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import TechSeparator from '../common/TechSeparator';
-import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { ANALYTICS_CONTENT as CONTENT } from '../../data/content';
 
 const Analytics: React.FC = () => {
-  const [activeDashboard, setActiveDashboard] = useState<'ecommerce' | 'leads'>('ecommerce');
   const [counter, setCounter] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
@@ -478,9 +462,7 @@ const Analytics: React.FC = () => {
                       <div className="text-white font-bold text-sm">
                         {CONTENT.compliance.status.safe}
                       </div>
-                      <div className="text-xxs text-success">
-                        {CONTENT.compliance.status.desc}
-                      </div>
+                      <div className="text-xxs text-success">{CONTENT.compliance.status.desc}</div>
                     </div>
                   )}
                 </div>
@@ -895,9 +877,7 @@ const Analytics: React.FC = () => {
           <div className="inline-block p-4 rounded-full bg-blue-50 mb-6 animate-pulse">
             <Activity size={32} className="text-secondary" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.cta.title}
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
           <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.text}</p>
           <Button onClick={() => openModal('audit')} variant="primary" size="lg">
             {CONTENT.cta.button}

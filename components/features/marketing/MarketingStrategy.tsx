@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -54,7 +56,7 @@ const MarketingStrategy: React.FC = () => {
                   {MARKETING_CONTENT.strategy.quick.title}
                 </h3>
 
-                <p className="text-xxs text-gray-400 uppercase font-medium tracking-tight">
+                <p className="text-xxs text-gray-500 uppercase font-medium tracking-tight">
                   {MARKETING_CONTENT.strategy.quick.subtitle}
                 </p>
               </div>
@@ -79,7 +81,7 @@ const MarketingStrategy: React.FC = () => {
                   {MARKETING_CONTENT.strategy.stable.title}
                 </h3>
 
-                <p className="text-xxs text-gray-400 uppercase font-medium tracking-tight">
+                <p className="text-xxs text-gray-500 uppercase font-medium tracking-tight">
                   {MARKETING_CONTENT.strategy.stable.subtitle}
                 </p>
               </div>
@@ -113,9 +115,7 @@ const MarketingStrategy: React.FC = () => {
                       </span>
 
                       <span
-                        className={
-                          activeStrategy === 'quick' ? 'text-instagram' : 'text-primary'
-                        }
+                        className={activeStrategy === 'quick' ? 'text-instagram' : 'text-primary'}
                       >
                         {activeStrategy === 'quick'
                           ? MARKETING_CONTENT.strategy.quick.timeVal
@@ -139,9 +139,7 @@ const MarketingStrategy: React.FC = () => {
                       </span>
 
                       <span
-                        className={
-                          activeStrategy === 'quick' ? 'text-instagram' : 'text-primary'
-                        }
+                        className={activeStrategy === 'quick' ? 'text-instagram' : 'text-primary'}
                       >
                         {activeStrategy === 'quick'
                           ? MARKETING_CONTENT.strategy.quick.durabilityVal
@@ -160,7 +158,7 @@ const MarketingStrategy: React.FC = () => {
                 <div className="mt-8 pt-8 border-t border-[#334155] grid grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg bg-[#0B1120] ${activeStrategy === 'quick' ? 'text-instagram' : 'text-gray-400'}`}
+                      className={`p-2 rounded-lg bg-[#0B1120] ${activeStrategy === 'quick' ? 'text-instagram' : 'text-gray-500'}`}
                     >
                       <Zap size={18} aria-hidden="true" />
                     </div>
@@ -174,7 +172,7 @@ const MarketingStrategy: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg bg-[#0B1120] ${activeStrategy === 'stable' ? 'text-primary' : 'text-gray-400'}`}
+                      className={`p-2 rounded-lg bg-[#0B1120] ${activeStrategy === 'stable' ? 'text-primary' : 'text-gray-500'}`}
                     >
                       <Anchor size={18} aria-hidden="true" />
                     </div>
@@ -225,7 +223,7 @@ const MarketingStrategy: React.FC = () => {
                         <div className="text-gray-200 text-xxs truncate">{tool.desc}</div>
                       </div>
                       <button
-                        className="!p-1.5 h-auto shrink-0 text-gray-400 hover:text-white transition-colors"
+                        className="!p-1.5 h-auto shrink-0 text-gray-500 hover:text-white transition-colors"
                         onClick={() => navigate('/marketing/')}
                         aria-label={`Dowiedz się więcej o ${tool.name}`}
                       >

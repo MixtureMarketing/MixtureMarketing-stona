@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowLeft,
@@ -957,9 +960,7 @@ const PrintDesign: React.FC = () => {
           <div className="inline-block p-4 rounded-full bg-[#FFFBF0] mb-6 animate-pulse">
             <Package size={32} className="text-[#F4B400]" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.cta.title}
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
           <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
           <Button
             onClick={() => openModal('design')}

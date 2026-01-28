@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Zap, ArrowRight, ShieldCheck, Globe, Sparkles } from 'lucide-react';
-import Button from '../../common/Button';
 
 interface AuditTeaserProps {
   placeholder?: string;
@@ -70,7 +71,7 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
 
   const currentScheme = schemeClasses[colorScheme];
 
-  const containerClasses = 
+  const containerClasses =
     variant === 'glass'
       ? 'bg-white/80 backdrop-blur-2xl border-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)]'
       : variant === 'dark'
@@ -83,32 +84,53 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
     <div
       className={`rounded-[2.5rem] p-1 border transition-all duration-500 ${containerClasses} ${className} ${isCompact ? 'rounded-3xl' : 'sm:p-2'}`}
     >
-      <div className={`relative overflow-hidden rounded-[2.2rem] ${isCompact ? 'p-6 rounded-[1.4rem]' : 'px-6 py-10 sm:p-10'}`}>
+      <div
+        className={`relative overflow-hidden rounded-[2.2rem] ${isCompact ? 'p-6 rounded-[1.4rem]' : 'px-6 py-10 sm:p-10'}`}
+      >
         {/* Abstract Background Elements */}
         {!isCompact && (
           <>
-            <div className={`absolute -top-24 -right-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}></div>
-            <div className={`absolute -bottom-24 -left-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}></div>
+            <div
+              className={`absolute -top-24 -right-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}
+            ></div>
+            <div
+              className={`absolute -bottom-24 -left-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}
+            ></div>
           </>
         )}
-        
+
         <div className="relative z-10">
-          <div className={`flex flex-col gap-4 ${isCompact ? 'mb-6' : 'lg:flex-row lg:items-end justify-between lg:gap-8 mb-10'}`}>
+          <div
+            className={`flex flex-col gap-4 ${isCompact ? 'mb-6' : 'lg:flex-row lg:items-end justify-between lg:gap-8 mb-10'}`}
+          >
             <div className={isCompact ? 'w-full' : 'max-w-xl'}>
-              <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-current/10 bg-white/50 backdrop-blur-sm shadow-sm ${isCompact ? 'mb-4' : 'mb-6'}`}>
+              <div
+                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-current/10 bg-white/50 backdrop-blur-sm shadow-sm ${isCompact ? 'mb-4' : 'mb-6'}`}
+              >
                 <Sparkles size={14} className={currentScheme.text} />
                 <span className="text-xxs font-black uppercase tracking-[0.2em] text-gray-500">
                   {isCompact ? 'Darmowy Audyt' : 'Darmowy Audyt Digital 360™'}
                 </span>
               </div>
 
-              <h3 className={`font-black leading-[1.1] tracking-tight ${titleColor} ${isCompact ? 'text-xl' : 'text-3xl sm:text-4xl md:text-5xl'}`}>
+              <h3
+                className={`font-black leading-[1.1] tracking-tight ${titleColor} ${isCompact ? 'text-xl' : 'text-3xl sm:text-4xl md:text-5xl'}`}
+              >
                 {isCompact ? (
-                  <>Analiza Twojej <span className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}>Strony WWW</span></>
+                  <>
+                    Analiza Twojej{' '}
+                    <span
+                      className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}
+                    >
+                      Strony WWW
+                    </span>
+                  </>
                 ) : (
                   <>
                     Odkryj błędy na <br />
-                    <span className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}>
+                    <span
+                      className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}
+                    >
                       Twojej stronie WWW
                     </span>
                   </>
@@ -121,7 +143,10 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
                 <div className="flex flex-col items-end gap-2 text-right">
                   <div className="flex -space-x-2">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xxs font-bold text-gray-600 shadow-sm">
+                      <div
+                        key={i}
+                        className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xxs font-bold text-gray-600 shadow-sm"
+                      >
                         {String.fromCharCode(64 + i)}
                       </div>
                     ))}
@@ -129,16 +154,23 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
                       +4k
                     </div>
                   </div>
-                  <p className="text-xxs font-bold text-gray-400 uppercase tracking-widest">Zaufali nam liderzy branży</p>
+                  <p className="text-xxs font-bold text-gray-400 uppercase tracking-widest">
+                    Zaufali nam liderzy branży
+                  </p>
                 </div>
               </div>
             )}
           </div>
 
           <form onSubmit={handleSubmit} className="relative group/form">
-            <div className={`flex flex-col gap-3 p-2 bg-gray-50/50 border border-gray-100 rounded-[1.8rem] backdrop-blur-sm transition-all group-focus-within/form:bg-white group-focus-within/form:shadow-2xl group-focus-within/form:shadow-black/5 ${!isCompact && 'md:flex-row'}`}>
+            <div
+              className={`flex flex-col gap-3 p-2 bg-gray-50/50 border border-gray-100 rounded-[1.8rem] backdrop-blur-sm transition-all group-focus-within/form:bg-white group-focus-within/form:shadow-2xl group-focus-within/form:shadow-black/5 ${!isCompact && 'md:flex-row'}`}
+            >
               <div className="relative flex-1 flex items-center">
-                <div className="absolute left-5 text-gray-400 group-focus-within/form:text-current transition-colors" style={{ color: url ? currentScheme.primary : undefined }}>
+                <div
+                  className="absolute left-5 text-gray-400 group-focus-within/form:text-current transition-colors"
+                  style={{ color: url ? currentScheme.primary : undefined }}
+                >
                   <Globe size={isCompact ? 18 : 22} />
                 </div>
                 <input
@@ -155,7 +187,10 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
                 className={`w-full bg-dark text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:bg-secondary active:scale-[0.98] shadow-lg shadow-[#213261]/20 hover:shadow-[#213261]/30 group/btn ${isCompact ? 'py-4 text-sm' : 'md:w-auto px-8 py-5 text-lg'}`}
               >
                 <span>{buttonText}</span>
-                <ArrowRight size={isCompact ? 16 : 20} className="group-hover/btn:translate-x-1 transition-transform" />
+                <ArrowRight
+                  size={isCompact ? 16 : 20}
+                  className="group-hover/btn:translate-x-1 transition-transform"
+                />
               </button>
             </div>
           </form>
@@ -184,9 +219,9 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
           )}
 
           {isCompact && (
-             <p className="mt-4 text-center text-xxs font-bold text-gray-400 uppercase tracking-widest">
-                Bezpłatnie • Wynik w 60s
-             </p>
+            <p className="mt-4 text-center text-xxs font-bold text-gray-400 uppercase tracking-widest">
+              Bezpłatnie • Wynik w 60s
+            </p>
           )}
         </div>
       </div>

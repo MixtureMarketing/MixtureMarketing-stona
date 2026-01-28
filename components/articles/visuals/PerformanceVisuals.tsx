@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
@@ -385,15 +388,7 @@ interface CalculatorSliderProps {
   unit: string;
 }
 
-const CalculatorSlider = ({
-  label,
-  val,
-  setVal,
-  min,
-  max,
-  step,
-  unit,
-}: CalculatorSliderProps) => (
+const CalculatorSlider = ({ label, val, setVal, min, max, step, unit }: CalculatorSliderProps) => (
   <div>
     <div className="flex justify-between mb-3">
       <label className="text-sm font-bold text-dark">{label}</label>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import '@testing-library/jest-dom';
 import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
@@ -10,7 +11,7 @@ afterEach(() => {
 // Mock IntersectionObserver
 class IntersectionObserverMock {
   readonly callback: IntersectionObserverCallback;
-  
+
   constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {
     this.callback = callback;
   }
@@ -18,15 +19,15 @@ class IntersectionObserverMock {
   observe = vi.fn((element: Element) => {
     // Trigger the callback immediately with a fake entry
     const entry = {
-        isIntersecting: true,
-        target: element,
-        boundingClientRect: element.getBoundingClientRect(),
-        intersectionRatio: 1,
-        intersectionRect: element.getBoundingClientRect(),
-        rootBounds: null,
-        time: Date.now(),
+      isIntersecting: true,
+      target: element,
+      boundingClientRect: element.getBoundingClientRect(),
+      intersectionRatio: 1,
+      intersectionRect: element.getBoundingClientRect(),
+      rootBounds: null,
+      time: Date.now(),
     } as unknown as IntersectionObserverEntry;
-    
+
     this.callback([entry], this);
   });
   disconnect = vi.fn();

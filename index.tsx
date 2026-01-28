@@ -10,7 +10,7 @@ import './index.css';
 // Performance Monitoring (Real User Metrics)
 function reportWebVitals(metric: Metric) {
   const { name, value, id, delta } = metric;
-  
+
   // Local log only in DEV
   if (import.meta.env.DEV) {
     const color = value > 2500 ? 'color: #ff4d4f' : 'color: #52c41a';
@@ -20,8 +20,11 @@ function reportWebVitals(metric: Metric) {
   // Placeholder for future Supabase/GA4 ingestion
   if (import.meta.env.PROD) {
     const body = JSON.stringify({ name, value, id, delta, url: window.location.href });
-    (navigator.sendBeacon && navigator.sendBeacon('/api/rum-collect.php', body)) ||
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/rum-collect.php', body);
+    } else {
       fetch('/api/rum-collect.php', { body, method: 'POST', keepalive: true });
+    }
   }
 }
 

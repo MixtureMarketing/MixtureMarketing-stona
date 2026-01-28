@@ -1,34 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
 import {
   Globe,
   Zap,
-  Server,
   ShieldCheck,
   TrendingDown,
-  Activity,
-  ArrowDown,
-  Clock,
-  Map,
   DollarSign,
-  Lock,
-  Wifi,
-  ChevronDown,
-  ChevronUp,
   Play,
   CheckCircle2,
-  XCircle,
   Rocket,
   ShieldAlert,
   Image as ImageIcon,
   FileCode,
   Layout,
-  ChevronRight,
-  Shield,
-  Search,
-  Bot,
-  ZapOff,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -36,8 +22,6 @@ import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Image from '../common/Image';
 import AmbientBackground from '../common/AmbientBackground';
-import Breadcrumbs from '../common/Breadcrumbs';
-import GlassCard from '../common/GlassCard';
 import Seo from '../common/Seo';
 import RelatedArticles from './RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
@@ -264,9 +248,7 @@ const CdnArticle = () => {
 
             {/* SERVER LOAD CHART */}
             <div className="mt-24 mb-16">
-              <h3 className="text-2xl font-bold text-dark mb-6 text-center">
-                Odciążenie Serwera
-              </h3>
+              <h3 className="text-2xl font-bold text-dark mb-6 text-center">Odciążenie Serwera</h3>
               <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-lg h-96">
                 <React.Suspense
                   fallback={<div className="w-full h-full bg-gray-50 animate-pulse rounded-xl" />}

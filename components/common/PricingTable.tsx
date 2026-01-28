@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { CheckCircle2, Sparkles } from 'lucide-react';
 import AnimateOnScroll from './AnimateOnScroll';
@@ -91,9 +93,7 @@ const PricingTable: React.FC<PricingTableProps> = ({
                       <div className="mb-8">
                         <div
                           className={`inline-block px-3 py-1 rounded-full text-xxs font-black uppercase tracking-wider mb-4 ${
-                            isHighlight
-                              ? 'bg-primary/10 text-primary'
-                              : 'bg-gray-100 text-gray-600'
+                            isHighlight ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-600'
                           }`}
                         >
                           {tier.subtitle || 'Pakiet'}

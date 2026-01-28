@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -13,7 +15,7 @@ class ErrorBoundary extends Component<Props, State> {
     hasError: false,
   };
 
-  public static getDerivedStateFromError(_: Error): State {
+  public static getDerivedStateFromError(_error: Error): State {
     // Update state so the next render will show the fallback UI.
     return { hasError: true };
   }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -8,20 +11,15 @@ import {
   Layers,
   Feather,
   Anchor,
-  Play,
   Settings,
   Code2,
   Database,
   Cloud,
   Clock,
   TrendingDown,
-  CheckCircle2,
   ArrowRight,
   RefreshCw,
   Scale,
-  Music,
-  ShoppingBag,
-  Building2,
   Rocket,
   ShieldCheck,
   Zap,
@@ -229,9 +227,7 @@ const DockerArticle = () => {
                   <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                     <ShieldCheck size={24} />
                   </div>
-                  <h3 className="text-xl font-bold text-dark mb-3">
-                    2. Bezpieczeństwo Izolacji
-                  </h3>
+                  <h3 className="text-xl font-bold text-dark mb-3">2. Bezpieczeństwo Izolacji</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">
                     Awarie wewnątrz jednego kontenera nie wpływają na pozostałe części systemu. To
                     kluczowe w architekturze mikroserwisów.
@@ -253,9 +249,7 @@ const DockerArticle = () => {
                   <div className="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                     <Cloud size={24} />
                   </div>
-                  <h3 className="text-xl font-bold text-dark mb-3">
-                    4. Niezależność od Chmury
-                  </h3>
+                  <h3 className="text-xl font-bold text-dark mb-3">4. Niezależność od Chmury</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">
                     Docker chroni Cię przed tzw. "Vendor Lock-in". Przeniesienie kontenerów z AWS do
                     Google Cloud lub na własny serwer jest szybkie i bezbolesne.

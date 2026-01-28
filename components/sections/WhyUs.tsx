@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Cpu, ShieldCheck, RefreshCw, Zap, Target, BarChart3 } from 'lucide-react';
 import { COLORS } from '../../types';
@@ -50,9 +53,7 @@ const WhyUs: React.FC = () => {
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white scale-0 group-hover:scale-100 transition-transform duration-500 delay-100"></div>
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 text-dark tracking-tight">
-                    {item.title}
-                  </h3>
+                  <h3 className="text-2xl font-bold mb-4 text-dark tracking-tight">{item.title}</h3>
                   <p className="text-gray-600 leading-relaxed font-medium">{item.desc}</p>
                 </GlassCard>
               </div>

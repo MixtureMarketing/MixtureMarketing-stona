@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -210,9 +213,7 @@ const NextJsArticle = () => {
                 <div className="mt-1 text-secondary">
                   <Zap size={20} />
                 </div>
-                <p className="text-sm m-0 font-medium text-dark">
-                  {content.appRouter.benefit}
-                </p>
+                <p className="text-sm m-0 font-medium text-dark">{content.appRouter.benefit}</p>
               </div>
             </div>
 

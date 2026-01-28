@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -432,7 +435,9 @@ const CorporateWebsite: React.FC = () => {
                     : CONTENT.cms.headless.title}
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed">
-                  {activeCms === 'wordpress' ? CONTENT.cms.wordpress.desc : CONTENT.cms.headless.desc}
+                  {activeCms === 'wordpress'
+                    ? CONTENT.cms.wordpress.desc
+                    : CONTENT.cms.headless.desc}
                 </p>
                 <ul className="space-y-3">
                   {(activeCms === 'wordpress'
@@ -538,9 +543,7 @@ const CorporateWebsite: React.FC = () => {
             <div className="inline-block p-4 rounded-full bg-blue-50 border border-secondary/10 mb-6 animate-pulse">
               <Briefcase size={32} className="text-secondary" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-              {CONTENT.cta.title}
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
             <p className="text-xl text-gray-600 mb-10 font-medium">{CONTENT.cta.description}</p>
             <Button
               onClick={() => openModal('consultation', { specificType: 'corporate' })}

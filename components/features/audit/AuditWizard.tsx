@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Globe, ArrowRight, ShieldCheck, Zap, AlertTriangle, X } from 'lucide-react';
@@ -11,33 +13,24 @@ const AuditDashboard = lazy(() => import('./steps/AuditDashboard'));
 type Step = 'INPUT' | 'SCANNING' | 'EMAIL_GATE' | 'RESULT';
 
 const AuditWizard: React.FC = () => {
-  const [step, setStep] = useState<Step>('INPUT');
+  const [step, setStep] = useState<Step>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('url') || params.get('auditId') ? 'SCANNING' : 'INPUT';
+  });
   const [companyName, setCompanyName] = useState('');
   const [placeId, setPlaceId] = useState('');
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const deepLinkUrl = params.get('url');
+    return deepLinkUrl ? decodeURIComponent(deepLinkUrl) : '';
+  });
   const [competitorUrl, setCompetitorUrl] = useState('');
   const [email, setEmail] = useState('');
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const autoCompleteRef = React.useRef<HTMLInputElement>(null);
 
-  // Handle Deep Linking (URL param)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const deepLinkUrl = params.get('url');
-    const auditIdParam = params.get('auditId');
-
-    if (auditIdParam) {
-      fetchExistingAudit(auditIdParam);
-    } else if (deepLinkUrl && step === 'INPUT') {
-      const decodedUrl = decodeURIComponent(deepLinkUrl);
-      setUrl(decodedUrl);
-      startScanning(decodedUrl);
-    }
-  }, []);
-
-  const fetchExistingAudit = async (id: string) => {
-    setStep('SCANNING');
+  const fetchExistingAudit = React.useCallback(async (id: string) => {
     setError(null);
     try {
       const response = await auditService.getAuditResult(id);
@@ -52,20 +45,35 @@ const AuditWizard: React.FC = () => {
       setError('Nie udało się pobrać wyników audytu.');
       setStep('INPUT');
     }
-  };
+  }, []);
 
-  const startScanning = async (targetUrl: string) => {
-    setStep('SCANNING');
-    setError(null);
-    try {
-      const data = await auditService.runAudit(targetUrl, competitorUrl, placeId, true);
-      setResult(data);
-    } catch (err) {
-      console.error(err);
-      setError('Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.');
-      setStep('INPUT');
+  const startScanning = React.useCallback(
+    async (targetUrl: string) => {
+      setError(null);
+      try {
+        const data = await auditService.runAudit(targetUrl, competitorUrl, placeId, true);
+        setResult(data);
+      } catch (err) {
+        console.error(err);
+        setError('Nie udało się przeprowadzić audytu. Sprawź adres URL i spróbuj ponownie.');
+        setStep('INPUT');
+      }
+    },
+    [competitorUrl, placeId],
+  );
+
+  // Handle Deep Linking (URL param)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const auditIdParam = params.get('auditId');
+    const deepLinkUrl = params.get('url');
+
+    if (auditIdParam) {
+      setTimeout(() => fetchExistingAudit(auditIdParam), 0);
+    } else if (deepLinkUrl) {
+      setTimeout(() => startScanning(decodeURIComponent(deepLinkUrl)), 0);
     }
-  };
+  }, [fetchExistingAudit, startScanning]);
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,9 +125,21 @@ const AuditWizard: React.FC = () => {
                     </h1>
                     <div className="space-y-6">
                       {[
-                        { icon: Zap, title: "Wydajność", desc: "Testujemy Core Web Vitals i szybkość ładowania." },
-                        { icon: Search, title: "SEO", desc: "Sprawdzamy widoczność w Google i strukturę treści." },
-                        { icon: ShieldCheck, title: "Bezpieczeństwo", desc: "Weryfikacja SSL i standardów ochrony danych." }
+                        {
+                          icon: Zap,
+                          title: 'Wydajność',
+                          desc: 'Testujemy Core Web Vitals i szybkość ładowania.',
+                        },
+                        {
+                          icon: Search,
+                          title: 'SEO',
+                          desc: 'Sprawdzamy widoczność w Google i strukturę treści.',
+                        },
+                        {
+                          icon: ShieldCheck,
+                          title: 'Bezpieczeństwo',
+                          desc: 'Weryfikacja SSL i standardów ochrony danych.',
+                        },
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4">
                           <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
@@ -139,16 +159,25 @@ const AuditWizard: React.FC = () => {
                 <div className="lg:col-span-7 p-8 md:p-16">
                   <div className="max-w-xl mx-auto">
                     <div className="mb-10">
-                      <h2 className="text-3xl font-black text-dark mb-2">Rozpocznij darmowy audyt</h2>
-                      <p className="text-gray-500 font-medium">Podaj adres strony, którą chcesz przeanalizować.</p>
+                      <h2 className="text-3xl font-black text-dark mb-2">
+                        Rozpocznij darmowy audyt
+                      </h2>
+                      <p className="text-gray-500 font-medium">
+                        Podaj adres strony, którą chcesz przeanalizować.
+                      </p>
                     </div>
 
                     <form onSubmit={handleUrlSubmit} className="space-y-6">
                       <div className="space-y-6">
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Adres strony WWW</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                            Adres strony WWW
+                          </label>
                           <div className="relative group">
-                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={20} />
+                            <Globe
+                              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors"
+                              size={20}
+                            />
                             <input
                               type="text"
                               placeholder="np. twoja-strona.pl"
@@ -161,9 +190,14 @@ const AuditWizard: React.FC = () => {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Nazwa Firmy (Opcjonalnie)</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
+                            Nazwa Firmy (Opcjonalnie)
+                          </label>
                           <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={20} />
+                            <Search
+                              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors"
+                              size={20}
+                            />
                             <input
                               ref={autoCompleteRef}
                               type="text"
@@ -210,13 +244,15 @@ const AuditWizard: React.FC = () => {
               className="max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl p-12 text-center border border-gray-100 relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#00C853] to-emerald-400"></div>
-              
+
               <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8">
                 <ShieldCheck size={40} className="text-success" />
               </div>
 
               <h2 className="text-3xl font-black text-dark mb-4">Analiza zakończona!</h2>
-              <p className="text-gray-600 mb-10 text-lg">Twój raport PDF jest gotowy do pobrania. Podaj e-mail, na który mamy go wysłać.</p>
+              <p className="text-gray-600 mb-10 text-lg">
+                Twój raport PDF jest gotowy do pobrania. Podaj e-mail, na który mamy go wysłać.
+              </p>
 
               <form onSubmit={handleEmailSubmit} className="space-y-6">
                 <input
@@ -239,12 +275,14 @@ const AuditWizard: React.FC = () => {
           )}
 
           {step === 'RESULT' && result && (
-            <Suspense fallback={
-              <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[3rem] shadow-xl h-[600px]">
-                <Zap className="animate-spin text-blue-500 mb-4" size={48} />
-                <p className="text-gray-500 font-bold">Generowanie raportu...</p>
-              </div>
-            }>
+            <Suspense
+              fallback={
+                <div className="flex flex-col items-center justify-center p-20 bg-white rounded-[3rem] shadow-xl h-[600px]">
+                  <Zap className="animate-spin text-blue-500 mb-4" size={48} />
+                  <p className="text-gray-500 font-bold">Generowanie raportu...</p>
+                </div>
+              }
+            >
               <AuditDashboard
                 data={result}
                 email={email}

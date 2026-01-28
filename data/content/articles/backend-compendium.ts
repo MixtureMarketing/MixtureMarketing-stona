@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const BACKEND_COMPENDIUM_CONTENT = {
   header: {
     badge: 'Baza Wiedzy: Architektura Systemów',

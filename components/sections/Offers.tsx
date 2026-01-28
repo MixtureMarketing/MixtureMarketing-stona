@@ -1,43 +1,23 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
-  Monitor,
   BarChart3,
-  Palette,
   ArrowRight,
   CheckCircle2,
-  Zap,
-  Code2,
-  Search,
   TrendingUp,
-  Layers,
-  HelpCircle,
   ChevronDown,
   Server,
-  Globe,
-  ShieldCheck,
-  Clock,
-  Users,
-  X,
-  Check,
   Rocket,
-  Database,
-  Cpu,
-  Terminal,
-  DollarSign,
   PieChart,
-  PenTool,
-  Image as ImageIcon,
-  Type,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { COLORS } from '../../types';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
 import SectionHeader from '../common/SectionHeader';
 import GlassCard from '../common/GlassCard';
-import TechSeparator from '../common/TechSeparator';
-import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { OFFERS_CONTENT as CONTENT } from '../../data/content';
@@ -51,20 +31,10 @@ const Offers: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const navigate = useNavigate();
-  const { openModal } = useModal();
-
-  // Animation states for re-triggering
-  const [animKey, setAnimKey] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  // Reset animations when scale changes
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setAnimKey((prev) => prev + 1);
-  }, [scale]);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -505,7 +475,7 @@ const Offers: React.FC = () => {
                       <BarChart3 size={24} />
                     </div>
                     <div>
-                      <p className="text-xxs font-bold text-gray-400 uppercase">
+                      <p className="text-xxs font-bold text-gray-500 uppercase">
                         {content.marketing[scale].widgets?.metric || 'Efektywność'}
                       </p>
                       <p className="text-lg font-black text-dark">
@@ -522,7 +492,7 @@ const Offers: React.FC = () => {
                       {scale === 'startup' ? (
                         <div className="space-y-6">
                           <div className="flex justify-between items-end">
-                            <h4 className="font-bold text-dark">Lejek Sprzedażowy</h4>
+                            <h3 className="font-bold text-dark">Lejek Sprzedażowy</h3>
                             <span className="text-xs font-bold text-success">Active Campaign</span>
                           </div>
                           <div className="space-y-2">
@@ -539,7 +509,7 @@ const Offers: React.FC = () => {
                         </div>
                       ) : (
                         <div className="space-y-6">
-                          <h4 className="font-bold text-dark">Omnichannel BI Dashboard</h4>
+                          <h3 className="font-bold text-dark">Omnichannel BI Dashboard</h3>
                           <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                               <div className="text-xxs font-bold text-gray-400 mb-1">
@@ -548,7 +518,7 @@ const Offers: React.FC = () => {
                               <div className="text-xl font-black text-secondary">8.4x</div>
                             </div>
                             <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                              <div className="text-xxs font-bold text-gray-400 mb-1">DATA FLOW</div>
+                              <div className="text-xxs font-bold text-gray-500 mb-1">DATA FLOW</div>
                               <div className="flex gap-1">
                                 {[1, 2, 3, 4].map((i) => (
                                   <div
@@ -591,7 +561,11 @@ const Offers: React.FC = () => {
       </LazyHydrate>
 
       <LazyHydrate minHeight="600px">
-        <React.Suspense fallback={<div className="h-40 flex items-center justify-center">Ładowanie kalkulatora...</div>}>
+        <React.Suspense
+          fallback={
+            <div className="h-40 flex items-center justify-center">Ładowanie kalkulatora...</div>
+          }
+        >
           <PriceCalculator />
         </React.Suspense>
       </LazyHydrate>

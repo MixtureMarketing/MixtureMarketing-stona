@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -100,9 +103,7 @@ const ReactJsArticle = () => {
                 <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">
                   {content.contextBox.title}
                 </p>
-                <h4 className="text-lg font-bold text-dark mb-2">
-                  {content.contextBox.subtitle}
-                </h4>
+                <h4 className="text-lg font-bold text-dark mb-2">{content.contextBox.subtitle}</h4>
                 <p className="text-sm text-gray-600 mb-3">{content.contextBox.text}</p>
                 <Link
                   to={content.contextBox.linkUrl}

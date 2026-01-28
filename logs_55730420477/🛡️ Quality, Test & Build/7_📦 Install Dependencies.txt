@@ -1,0 +1,30 @@
+﻿2026-01-28T22:06:03.5850072Z ##[group]Run npm ci --legacy-peer-deps
+2026-01-28T22:06:03.5850439Z [36;1mnpm ci --legacy-peer-deps[0m
+2026-01-28T22:06:03.5889589Z shell: /usr/bin/bash -e {0}
+2026-01-28T22:06:03.5889988Z env:
+2026-01-28T22:06:03.5890293Z   COMPOSER_PROCESS_TIMEOUT: 0
+2026-01-28T22:06:03.5890715Z   COMPOSER_NO_INTERACTION: 1
+2026-01-28T22:06:03.5891106Z   COMPOSER_NO_AUDIT: 1
+2026-01-28T22:06:03.5891471Z ##[endgroup]
+2026-01-28T22:06:11.5970099Z npm warn deprecated ohmyfetch@0.4.21: Package renamed to https://github.com/unjs/ofetch
+2026-01-28T22:06:12.1031878Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2026-01-28T22:06:12.8665621Z npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+2026-01-28T22:06:12.8679250Z npm warn deprecated intl-messageformat-parser@1.8.1: We've written a new parser that's 6x faster and is backwards compatible. Please use @formatjs/icu-messageformat-parser
+2026-01-28T22:06:14.2241783Z npm warn deprecated @unlighthouse/vite@0.10.6: Vite integration is no longer supported use CLI directly
+2026-01-28T22:06:15.9223483Z npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+2026-01-28T22:06:15.9524119Z npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+2026-01-28T22:06:32.2203524Z 
+2026-01-28T22:06:32.2206542Z added 1048 packages, and audited 1050 packages in 29s
+2026-01-28T22:06:32.2208616Z 
+2026-01-28T22:06:32.2208948Z 277 packages are looking for funding
+2026-01-28T22:06:32.2209499Z   run `npm fund` for details
+2026-01-28T22:06:32.2910671Z 
+2026-01-28T22:06:32.2913696Z 19 vulnerabilities (2 low, 5 moderate, 12 high)
+2026-01-28T22:06:32.2916820Z 
+2026-01-28T22:06:32.2919239Z To address issues that do not require attention, run:
+2026-01-28T22:06:32.2926630Z   npm audit fix
+2026-01-28T22:06:32.2926801Z 
+2026-01-28T22:06:32.2927066Z To address all issues (including breaking changes), run:
+2026-01-28T22:06:32.2927421Z   npm audit fix --force
+2026-01-28T22:06:32.2927577Z 
+2026-01-28T22:06:32.2927696Z Run `npm audit` for details.

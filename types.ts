@@ -83,7 +83,7 @@ export interface SanityCaseStudy {
   excerpt?: string;
   mainImage?: SanityImage;
   clientLogo?: SanityImage;
-  
+
   // Content (Portable Text)
   challenge?: SanityBody;
   solution?: SanityBody;

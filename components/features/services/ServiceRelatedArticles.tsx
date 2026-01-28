@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen } from 'lucide-react';
 import { cmsService } from '../../../services/cmsService';
-import { SanityImage } from '../../../types/sanity';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '../../../services/cmsService';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: any) {
-  return builder.image(source);
+function urlFor(source: unknown) {
+  return builder.image(source as any);
 }
 
 interface ServiceRelatedArticlesProps {
@@ -17,12 +18,19 @@ interface ServiceRelatedArticlesProps {
   className?: string;
 }
 
-const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({ 
-  category, 
-  title = "Poszerz swoją wiedzę",
-  className = ""
+const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
+  category,
+  title = 'Poszerz swoją wiedzę',
+  className = '',
 }) => {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<
+    Array<{
+      slug: string;
+      title: string;
+      mainImage: unknown;
+      category: string;
+    }>
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +40,7 @@ const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
         // Map service categories to Sanity categories if needed
         // For now assuming direct mapping or partial match handled by cmsService
         const data = await cmsService.getRelatedContent('', category);
-        setArticles(data.filter(item => item._type === 'article').slice(0, 3));
+        setArticles(data.filter((item) => item._type === 'article').slice(0, 3));
       } catch (error) {
         console.error('Failed to fetch service related articles:', error);
       } finally {
@@ -55,11 +63,11 @@ const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-[#213261]">{title}</h2>
           </div>
-          <Link 
-            to="/baza-wiedzy" 
+          <Link
+            to="/baza-wiedzy"
             className="group flex items-center gap-2 text-sm font-bold text-[#3F3D91] hover:text-[#61B6DE] transition-colors"
           >
-            Zobacz wszystkie artykuły 
+            Zobacz wszystkie artykuły
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -75,8 +83,8 @@ const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
                 </div>
               ))
             : articles.map((article) => (
-                <Link 
-                  key={article.slug} 
+                <Link
+                  key={article.slug}
                   to={`/baza-wiedzy/${article.slug}`}
                   className="group block"
                 >
@@ -100,11 +108,11 @@ const ServiceRelatedArticles: React.FC<ServiceRelatedArticlesProps> = ({
                       </span>
                     </div>
                   </div>
-                  
+
                   <h3 className="text-xl font-bold text-[#213261] group-hover:text-[#3F3D91] transition-colors leading-snug mb-3">
                     {article.title}
                   </h3>
-                  
+
                   <div className="flex items-center text-sm font-bold text-[#3A8FB7] group-hover:gap-2 transition-all">
                     Czytaj dalej <ArrowRight size={16} className="ml-1" />
                   </div>

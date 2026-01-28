@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AuditResult } from '../../../../services/auditService';
@@ -324,15 +326,15 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
             <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xxs mb-8">
               Indeks Zdrowia Witryny
             </h3>
-            
+
             <div className="relative mb-10 group">
               {/* Outer Glow */}
-              <div 
+              <div
                 className={`absolute inset-0 blur-3xl opacity-20 transition-all duration-1000 group-hover:opacity-40 ${
                   score >= 80 ? 'bg-green-500' : score >= 50 ? 'bg-orange-500' : 'bg-red-500'
                 }`}
               ></div>
-              
+
               <div
                 className={`relative w-56 h-56 rounded-full flex items-center justify-center shadow-2xl transition-all duration-700 transform group-hover:scale-105 ${
                   score >= 80
@@ -346,7 +348,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   <motion.span
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                    transition={{ delay: 0.5, type: 'spring', stiffness: 100 }}
                     className={`text-7xl font-black tracking-tighter leading-none ${
                       score >= 80
                         ? 'text-emerald-600'
@@ -357,7 +359,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   >
                     {score}
                   </motion.span>
-                  <span className="text-xs text-gray-400 font-black uppercase mt-1 tracking-widest">PKT / 100</span>
+                  <span className="text-xs text-gray-400 font-black uppercase mt-1 tracking-widest">
+                    PKT / 100
+                  </span>
                 </div>
               </div>
             </div>
@@ -367,7 +371,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                 {getScoreLabel(score)}
               </p>
               <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${score}%` }}
                   className={`h-full ${score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
@@ -389,7 +393,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
               <div className="w-[220px] h-[440px] bg-gray-100 rounded-[3rem] flex items-center justify-center border-8 border-gray-200">
                 <div className="text-center p-6">
                   <RefreshCw className="animate-spin mx-auto text-gray-400 mb-4" size={32} />
-                  <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">Renderowanie...</span>
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                    Renderowanie...
+                  </span>
                 </div>
               </div>
             )}
@@ -407,7 +413,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
             {/* Mesh Gradient Overlay */}
             <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_50%_50%,#3F3D91_0%,transparent_50%)]"></div>
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px]"></div>
-            
+
             <div className="relative z-10 grid grid-cols-1 xl:grid-cols-2 gap-12 items-center">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xxs font-black uppercase tracking-widest mb-6 border border-white/5">
@@ -422,8 +428,12 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
 
                 <div className="space-y-6">
                   <div className="flex justify-between items-end">
-                    <span className="text-sm font-bold text-blue-200 uppercase tracking-widest">Budżet Marketingowy</span>
-                    <span className="text-3xl font-black text-white leading-none tracking-tighter">{budget.toLocaleString()} <span className="text-lg text-blue-300">PLN</span></span>
+                    <span className="text-sm font-bold text-blue-200 uppercase tracking-widest">
+                      Budżet Marketingowy
+                    </span>
+                    <span className="text-3xl font-black text-white leading-none tracking-tighter">
+                      {budget.toLocaleString()} <span className="text-lg text-blue-300">PLN</span>
+                    </span>
                   </div>
                   <div className="relative pt-4 pb-2">
                     <input
@@ -435,7 +445,10 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                       onChange={(e) => setBudget(parseInt(e.target.value))}
                       className="w-full h-3 bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-400 hover:accent-emerald-300 transition-all"
                     />
-                    <div className="absolute top-0 left-0 h-3 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full pointer-events-none" style={{ width: `${(budget/50000)*100}%` }}></div>
+                    <div
+                      className="absolute top-0 left-0 h-3 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full pointer-events-none"
+                      style={{ width: `${(budget / 50000) * 100}%` }}
+                    ></div>
                   </div>
                   <div className="flex justify-between text-xxs font-black text-blue-300/40 uppercase tracking-widest">
                     <span>min. 500 PLN</span>
@@ -446,14 +459,14 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
 
               <div className="bg-white/5 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 shadow-2xl relative overflow-hidden group/box">
                 <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent"></div>
-                
+
                 <div className="text-center relative z-10">
                   <p className="text-xs font-black text-blue-200 uppercase tracking-[0.2em] mb-4">
                     Strata przychodów / msc
                   </p>
                   <div className="text-6xl font-black text-white mb-4 tracking-tighter flex items-center justify-center">
                     {monthlyLoss > 0 ? (
-                      <motion.span 
+                      <motion.span
                         key={monthlyLoss}
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -465,11 +478,11 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                     {monthlyLoss.toLocaleString()}
                     <span className="text-2xl text-blue-300 ml-3">PLN</span>
                   </div>
-                  
+
                   <div
                     className={`inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-wider transition-all ${
-                      delay > 0 
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' 
+                      delay > 0
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                         : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                     }`}
                   >
@@ -483,7 +496,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                       </>
                     )}
                   </div>
-                  
+
                   <p className="text-xxs text-blue-300/40 mt-6 font-medium italic leading-relaxed">
                     * Wyliczenia oparte na badaniach Google & Amazon: <br />
                     Każde 100ms opóźnienia to średnio 1% spadku konwersji.
@@ -505,7 +518,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   </div>
                   <span
                     className={`text-xs font-black px-4 py-2 rounded-xl border-2 ${
-                      lcp < 2.5 ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-rose-50 border-rose-100 text-rose-600'
+                      lcp < 2.5
+                        ? 'bg-emerald-50 border-emerald-100 text-emerald-600'
+                        : 'bg-rose-50 border-rose-100 text-rose-600'
                     }`}
                   >
                     LCP: {typeof lcp === 'number' ? lcp.toFixed(2) : lcp}s
@@ -534,7 +549,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                     <span className="text-lg font-black text-dark leading-none">
                       {client.reputation.rating > 0 ? client.reputation.rating : '0.0'}
                     </span>
-                    <span className="text-xxs text-gray-400 font-bold uppercase tracking-widest mt-1">Ocena Google</span>
+                    <span className="text-xxs text-gray-400 font-bold uppercase tracking-widest mt-1">
+                      Ocena Google
+                    </span>
                   </div>
                 </div>
                 <h4 className="text-xl font-black text-dark mb-3">Reputacja</h4>
@@ -566,12 +583,17 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                 {client.seo.local?.city ? (
                   <ul className="space-y-2.5">
                     {[
-                      { l: "W Tytule", v: client.seo.local.in_title },
-                      { l: "W Nagłówku H1", v: client.seo.local.in_h1 },
-                      { l: "W Treści", v: client.seo.local.in_content }
+                      { l: 'W Tytule', v: client.seo.local.in_title },
+                      { l: 'W Nagłówku H1', v: client.seo.local.in_h1 },
+                      { l: 'W Treści', v: client.seo.local.in_content },
                     ].map((item, i) => (
-                      <li key={i} className="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100/50">
-                        <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">{item.l}</span>
+                      <li
+                        key={i}
+                        className="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100/50"
+                      >
+                        <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">
+                          {item.l}
+                        </span>
                         {item.v ? (
                           <CheckCircle2 size={16} className="text-emerald-500" />
                         ) : (
@@ -582,7 +604,8 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   </ul>
                 ) : (
                   <p className="text-xs text-gray-400 italic leading-relaxed">
-                    Nie wykryto miasta. Upewnij się, że Twoja wizytówka Google jest poprawnie połączona.
+                    Nie wykryto miasta. Upewnij się, że Twoja wizytówka Google jest poprawnie
+                    połączona.
                   </p>
                 )}
               </div>
@@ -600,7 +623,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                 <h4 className="text-xl font-black text-dark mb-4">Analityka</h4>
                 <ul className="space-y-2.5">
                   <li className="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100/50">
-                    <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">Google Analytics 4</span>
+                    <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">
+                      Google Analytics 4
+                    </span>
                     {client.tech.analytics ? (
                       <CheckCircle2 size={16} className="text-emerald-500" />
                     ) : (
@@ -608,7 +633,9 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                     )}
                   </li>
                   <li className="flex items-center justify-between p-2.5 bg-gray-50 rounded-xl border border-gray-100/50">
-                    <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">Meta Pixel</span>
+                    <span className="text-xxs font-black text-gray-400 uppercase tracking-wider">
+                      Meta Pixel
+                    </span>
                     {client.tech.pixel ? (
                       <CheckCircle2 size={16} className="text-emerald-500" />
                     ) : (
@@ -632,22 +659,37 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {client.tech.cms?.map((c, i) => (
-                      <span key={i} className="text-[9px] font-black uppercase bg-purple-100 text-purple-700 px-2 py-1 rounded-md">{c}</span>
+                      <span
+                        key={i}
+                        className="text-[9px] font-black uppercase bg-purple-100 text-purple-700 px-2 py-1 rounded-md"
+                      >
+                        {c}
+                      </span>
                     ))}
-                    {client.tech.ssl && <span className="text-[9px] font-black uppercase bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md">SSL OK</span>}
+                    {client.tech.ssl && (
+                      <span className="text-[9px] font-black uppercase bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md">
+                        SSL OK
+                      </span>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="p-2 bg-gray-50 rounded-xl border border-gray-100/50 text-center">
-                      <div className="text-xxxs text-gray-400 font-black uppercase tracking-widest mb-1">Dostępność</div>
+                      <div className="text-xxxs text-gray-400 font-black uppercase tracking-widest mb-1">
+                        Dostępność
+                      </div>
                       <div className="text-sm font-black text-dark">
-                        {client.metrics.scores?.accessibility 
-                          ? `${Math.round(client.metrics.scores.accessibility)}/100` 
+                        {client.metrics.scores?.accessibility
+                          ? `${Math.round(client.metrics.scores.accessibility)}/100`
                           : 'Brak danych'}
                       </div>
                     </div>
                     <div className="p-2 bg-gray-50 rounded-xl border border-gray-100/50 text-center">
-                      <div className="text-xxxs text-gray-400 font-black uppercase tracking-widest mb-1">Social Media</div>
-                      <div className="text-sm font-black text-dark">{Object.values(client.social || {}).filter(Boolean).length} linki</div>
+                      <div className="text-xxxs text-gray-400 font-black uppercase tracking-widest mb-1">
+                        Social Media
+                      </div>
+                      <div className="text-sm font-black text-dark">
+                        {Object.values(client.social || {}).filter(Boolean).length} linki
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -665,20 +707,34 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   <div className="space-y-6">
                     <div className="space-y-2">
                       <div className="flex justify-between items-end">
-                        <span className="text-xxs font-black uppercase tracking-widest text-blue-200">Twoja Strona</span>
+                        <span className="text-xxs font-black uppercase tracking-widest text-blue-200">
+                          Twoja Strona
+                        </span>
                         <span className="text-lg font-black">{score}%</span>
                       </div>
                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${score}%` }} className="h-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${score}%` }}
+                          className="h-full bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.5)]"
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-end">
-                        <span className="text-xxs font-black uppercase tracking-widest text-blue-200 truncate max-w-[150px]">{competitor.url.replace('https://', '')}</span>
-                        <span className="text-lg font-black">{Math.round(competitor.psi_score)}%</span>
+                        <span className="text-xxs font-black uppercase tracking-widest text-blue-200 truncate max-w-[150px]">
+                          {competitor.url.replace('https://', '')}
+                        </span>
+                        <span className="text-lg font-black">
+                          {Math.round(competitor.psi_score)}%
+                        </span>
                       </div>
                       <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${competitor.psi_score}%` }} className="h-full bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.5)]" />
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${competitor.psi_score}%` }}
+                          className="h-full bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.5)]"
+                        />
                       </div>
                     </div>
                   </div>
@@ -701,20 +757,57 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                     <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
                       <BarChart3 size={20} />
                     </div>
-                    <h4 className="text-2xl font-black text-dark">Content DNA <span className="text-gray-400 font-medium text-lg leading-none">/ Analiza Treści</span></h4>
+                    <h4 className="text-2xl font-black text-dark">
+                      Content DNA{' '}
+                      <span className="text-gray-400 font-medium text-lg leading-none">
+                        / Analiza Treści
+                      </span>
+                    </h4>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {[
-                      { label: "Objętość Treści", val: client.content.word_count, unit: "Słów", sub: "Zalecane: >600", color: client.content.word_count < 300 ? "rose" : "emerald" },
-                      { label: "Struktura H1", val: client.content.h1_count, unit: "Nagłówek", sub: "Zalecane: 1", color: client.content.h1_count !== 1 ? "rose" : "emerald" },
-                      { label: "Multimedia", val: client.content.images_count, unit: "Grafik", sub: "Wizualny przekaz", color: "blue" },
-                      { label: "Dostępność (ALT)", val: client.content.images_no_alt, unit: "Brak opisu", sub: "Błędy SEO", color: client.content.images_no_alt > 0 ? "rose" : "emerald" }
+                      {
+                        label: 'Objętość Treści',
+                        val: client.content.word_count,
+                        unit: 'Słów',
+                        sub: 'Zalecane: >600',
+                        color: client.content.word_count < 300 ? 'rose' : 'emerald',
+                      },
+                      {
+                        label: 'Struktura H1',
+                        val: client.content.h1_count,
+                        unit: 'Nagłówek',
+                        sub: 'Zalecane: 1',
+                        color: client.content.h1_count !== 1 ? 'rose' : 'emerald',
+                      },
+                      {
+                        label: 'Multimedia',
+                        val: client.content.images_count,
+                        unit: 'Grafik',
+                        sub: 'Wizualny przekaz',
+                        color: 'blue',
+                      },
+                      {
+                        label: 'Dostępność (ALT)',
+                        val: client.content.images_no_alt,
+                        unit: 'Brak opisu',
+                        sub: 'Błędy SEO',
+                        color: client.content.images_no_alt > 0 ? 'rose' : 'emerald',
+                      },
                     ].map((stat, i) => (
-                      <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:scale-105 transition-transform group/card">
-                        <div className="text-xxs text-gray-400 font-black uppercase tracking-[0.2em] mb-3 group-hover/card:text-secondary transition-colors">{stat.label}</div>
-                        <div className={`text-4xl font-black mb-1 tracking-tighter ${stat.color === 'rose' ? 'text-rose-500' : stat.color === 'emerald' ? 'text-emerald-500' : 'text-blue-500'}`}>
-                          {stat.val} <span className="text-lg text-gray-300 font-bold">{stat.unit}</span>
+                      <div
+                        key={i}
+                        className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:scale-105 transition-transform group/card"
+                      >
+                        <div className="text-xxs text-gray-400 font-black uppercase tracking-[0.2em] mb-3 group-hover/card:text-secondary transition-colors">
+                          {stat.label}
+                        </div>
+                        <div
+                          className={`text-4xl font-black mb-1 tracking-tighter ${stat.color === 'rose' ? 'text-rose-500' : stat.color === 'emerald' ? 'text-emerald-500' : 'text-blue-500'}`}
+                        >
+                          {stat.val}{' '}
+                          <span className="text-lg text-gray-300 font-bold">{stat.unit}</span>
                         </div>
                         <div className="text-xxs text-gray-400 font-bold italic">{stat.sub}</div>
                       </div>
@@ -985,8 +1078,8 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                   >
                     <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar text-sm bg-gray-50 p-4 rounded-xl">
                       <p className="text-xs text-gray-500 mb-2 italic">
-                        Oto lista plików graficznych, które nie są widoczne dla Google (brak atrybutu
-                        alt):
+                        Oto lista plików graficznych, które nie są widoczne dla Google (brak
+                        atrybutu alt):
                       </p>
                       {client.content.details.images_missing_alt.map((src, i) => (
                         <div

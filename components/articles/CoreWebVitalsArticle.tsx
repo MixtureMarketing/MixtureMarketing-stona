@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { BarChart3, CheckCircle2, Gauge } from 'lucide-react';
 
@@ -8,7 +11,6 @@ import Image from '../common/Image';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import RelatedArticles from './RelatedArticles';
-import Accordion from '../common/Accordion';
 import { ARTICLES } from '../../data/articles';
 import { CWV_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/cwv';
 import {

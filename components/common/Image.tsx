@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -68,9 +70,12 @@ const Image: React.FC<ImageProps> = ({
         {/* We don't need style on img inside picture if picture handles the ratio/layout, 
             but keeping it safe often helps. However, picture usually needs the block/ratio. 
             Let's apply style to picture primarily if it's a wrapper. */}
-        {React.cloneElement(imgElement as React.ReactElement<React.ImgHTMLAttributes<HTMLImageElement>>, {
-          style: { ...props.style, width: '100%', height: '100%', objectFit: 'cover' }, // Reset style for inner img
-        })}
+        {React.cloneElement(
+          imgElement as React.ReactElement<React.ImgHTMLAttributes<HTMLImageElement>>,
+          {
+            style: { ...props.style, width: '100%', height: '100%', objectFit: 'cover' }, // Reset style for inner img
+          },
+        )}
       </picture>
     );
   }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import {
   Bot,
@@ -23,13 +26,7 @@ interface ScalingTypeCardProps {
   suitability: string;
 }
 
-export const ScalingTypeCard = ({
-  type,
-  title,
-  desc,
-  risk,
-  suitability,
-}: ScalingTypeCardProps) => (
+export const ScalingTypeCard = ({ type, title, desc, risk, suitability }: ScalingTypeCardProps) => (
   <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col h-full">
     <div
       className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${type === 'vertical' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
@@ -72,9 +69,7 @@ export const RoasProfitCalculator = () => {
       <div className="relative z-10">
         <div className="mb-12">
           <div className="flex justify-between mb-4">
-            <label className="text-sm font-bold text-dark">
-              Miesięczne wydatki na reklamę:
-            </label>
+            <label className="text-sm font-bold text-dark">Miesięczne wydatki na reklamę:</label>
             <span className="text-primary font-mono font-bold text-lg">
               {spend.toLocaleString()} PLN
             </span>

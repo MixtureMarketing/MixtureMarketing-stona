@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useState } from 'react';
 import {
   Globe,
   Cloud,
@@ -8,15 +11,10 @@ import {
   Factory,
   Gamepad2,
   Box,
-  Timer,
   ArrowRight,
   Activity,
-  Zap,
-  RefreshCw,
-  Play,
 } from 'lucide-react';
 import Button from '../../common/Button';
-import SectionHeader from '../../common/SectionHeader';
 
 // 1. LATENCY SWITCHER
 export const LatencySwitcher = () => {
@@ -213,18 +211,16 @@ export const FlipCard = ({
 export const SafetySimulator = () => {
   const [mode, setMode] = useState<'cloud' | 'edge'>('cloud');
   const [status, setStatus] = useState<'idle' | 'running' | 'result'>('idle');
-  const [packetPos, setPacketPos] = useState<'car' | 'network' | 'returned'>('car');
   const [isCollision, setIsCollision] = useState(false);
 
   const startTest = () => {
     setIsCollision(false);
     setStatus('running');
-    setPacketPos('car');
-    setTimeout(() => setPacketPos('network'), 100);
     const lag = mode === 'cloud' ? 2000 : 400;
     setTimeout(() => {
-      setPacketPos('returned');
-      if (mode === 'cloud') setIsCollision(true);
+      if (mode === 'cloud') {
+        setIsCollision(true);
+      }
       setStatus('result');
     }, lag);
   };
@@ -232,7 +228,6 @@ export const SafetySimulator = () => {
   const reset = () => {
     setStatus('idle');
     setIsCollision(false);
-    setPacketPos('car');
   };
 
   return (
@@ -291,9 +286,7 @@ export const SafetySimulator = () => {
             className={`absolute top-6 transition-all duration-500 flex flex-col items-center ${mode === 'cloud' ? 'opacity-100 scale-100' : 'opacity-20 scale-75 grayscale'}`}
           >
             <Cloud size={40} className="text-primary" />
-            <span className="text-xxxs font-bold text-primary uppercase">
-              Central Cloud (USA)
-            </span>
+            <span className="text-xxxs font-bold text-primary uppercase">Central Cloud (USA)</span>
           </div>
           <div
             className={`absolute top-24 left-[40%] transition-all duration-500 flex flex-col items-center ${mode === 'edge' ? 'opacity-100 scale-100' : 'opacity-20 scale-75 grayscale'}`}

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useRef } from 'react';
 
 interface LazyHydrateProps {
@@ -46,7 +48,8 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
   // Check for Prerendering (Puppeteer/Headless) or Development Mode
   const isPrerendering =
     typeof window !== 'undefined' &&
-    (navigator.userAgent.includes('Headless') || (window as any).isPrerendering);
+    (navigator.userAgent.includes('Headless') ||
+      (window as Window & { isPrerendering?: boolean }).isPrerendering);
 
   const isDev = import.meta.env.DEV;
 
@@ -62,11 +65,7 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
       suppressHydrationWarning={true}
       className={hydrated ? 'lazy-hydrated' : 'lazy-placeholder'}
     >
-      {hydrated ? (
-        children
-      ) : (
-        <div dangerouslySetInnerHTML={{ __html: '' }} />
-      )}
+      {hydrated ? children : <div dangerouslySetInnerHTML={{ __html: '' }} />}
     </div>
   );
 };

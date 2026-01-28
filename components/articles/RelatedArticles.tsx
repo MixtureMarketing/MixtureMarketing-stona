@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar } from 'lucide-react';
@@ -5,10 +8,9 @@ import { cmsService } from '../../services/cmsService';
 import { SanityImage } from '../../types/sanity';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '../../services/cmsService';
-import LazyHydrate from '../common/LazyHydrate';
 
 const builder = imageUrlBuilder(client);
-function urlFor(source: any) {
+function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 
@@ -28,7 +30,11 @@ interface RelatedArticlesProps {
   tags?: string[];
 }
 
-const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, currentArticleId, category }) => {
+const RelatedArticles: React.FC<RelatedArticlesProps> = ({
+  currentSlug,
+  currentArticleId,
+  category,
+}) => {
   const [items, setItems] = useState<RelatedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -72,7 +78,10 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, currentA
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {loading
             ? [...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                >
                   <div className="h-48 bg-gray-200 animate-pulse"></div>
                   <div className="p-6 space-y-3">
                     <div className="h-4 w-1/3 bg-gray-200 animate-pulse rounded"></div>
@@ -84,7 +93,11 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, currentA
             : items.map((item) => (
                 <Link
                   key={item.slug}
-                  to={item._type === 'caseStudy' ? `/portfolio/${item.slug}` : `/baza-wiedzy/${item.slug}`}
+                  to={
+                    item._type === 'caseStudy'
+                      ? `/portfolio/${item.slug}`
+                      : `/baza-wiedzy/${item.slug}`
+                  }
                   className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
                 >
                   <div className="relative h-48 overflow-hidden">

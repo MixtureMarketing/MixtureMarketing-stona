@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
   CheckCircle2,
   LayoutTemplate,
-  Code2,
   Zap,
   Search,
   Smartphone,
@@ -12,55 +14,30 @@ import {
   ShoppingCart,
   Database,
   ChevronDown,
-  Check,
   ArrowRight,
-  MousePointerClick,
-  Cpu,
   Gauge,
   Lock,
   Settings,
-  RefreshCw,
   Server,
   XCircle,
   FileCode,
   Terminal,
   ShieldCheck,
   Activity,
-  Globe,
-  Layers,
-  BarChart3,
-  Monitor,
-  Tablet,
-  Move,
-  HardDrive,
-  Filter,
-  Edit3,
-  Key,
-  Cloud,
-  Link,
-  Share2,
-  Users,
-  Table,
-  GitBranch,
-  Command,
   MoreHorizontal,
-  DollarSign,
-  Megaphone,
   TrendingUp,
   CreditCard,
-  Box,
   Plug,
-  Wifi,
-  AlertOctagon,
-  X,
   Calculator,
+  Megaphone,
+  Edit3,
+  Users,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import TechSeparator from '../common/TechSeparator';
 import AmbientBackground from '../common/AmbientBackground';
 import IntegrationGrid, { IntegrationCategory } from '../common/IntegrationGrid';
 import { useModal } from '../../context/ModalContext';
@@ -69,7 +46,6 @@ import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { useCounter } from '../../hooks/useCounter';
 import { WEB_DEV_CONTENT } from '../../data/content';
-import { PricingTier } from '../../types';
 import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
 
 const WebDevelopment: React.FC = () => {
@@ -274,79 +250,79 @@ const WebDevelopment: React.FC = () => {
               <LazyHydrate whenVisible>
                 <AnimateOnScroll className="relative z-10 flex justify-center lg:justify-end">
                   <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-6 md:p-10 w-full max-w-[320px] md:max-w-none relative overflow-hidden group hover:shadow-[0_40px_80px_-20px_rgba(63,61,145,0.15)] transition-all duration-500">
-                  {/* Simulation Header */}
-                  <div className="flex justify-between items-center mb-6 md:mb-10">
-                    <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]"></div>
-                      <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]"></div>
-                      <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]"></div>
+                    {/* Simulation Header */}
+                    <div className="flex justify-between items-center mb-6 md:mb-10">
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]"></div>
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]"></div>
+                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]"></div>
+                      </div>
+                      <div className="px-2 py-1 bg-gray-50 rounded-lg text-xxxs md:text-xxs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2 border border-gray-100">
+                        <Activity size={10} className="text-emerald-600" /> Core Web Vitals
+                      </div>
                     </div>
-                    <div className="px-2 py-1 bg-gray-50 rounded-lg text-xxxs md:text-xxs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2 border border-gray-100">
-                      <Activity size={10} className="text-emerald-600" /> Core Web Vitals
-                    </div>
-                  </div>
 
-                  {/* Main Performance Circle */}
-                  <div className="flex justify-center mb-6 md:mb-10 relative">
-                    <svg
-                      className="w-32 h-32 md:w-52 md:h-52 transform -rotate-90"
-                      viewBox="0 0 200 200"
-                    >
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="88"
-                        fill="none"
-                        stroke="#F3F4F6"
-                        strokeWidth="8"
-                      />
-                      <circle
-                        cx="100"
-                        cy="100"
-                        r="88"
-                        fill="none"
-                        stroke={perfScore > 90 ? '#00C853' : '#F4B400'}
-                        strokeWidth="8"
-                        strokeDasharray={552}
-                        strokeDashoffset={552 - (552 * perfScore) / 100}
-                        className="transition-all duration-1000 ease-out"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span
-                        className={`text-4xl md:text-6xl font-black tracking-tighter leading-none ${perfScore > 90 ? 'text-dark' : 'text-[#F4B400]'}`}
+                    {/* Main Performance Circle */}
+                    <div className="flex justify-center mb-6 md:mb-10 relative">
+                      <svg
+                        className="w-32 h-32 md:w-52 md:h-52 transform -rotate-90"
+                        viewBox="0 0 200 200"
                       >
-                        {perfScore}
-                      </span>
-                      <span className="text-xs md:text-xxs font-bold text-gray-600 uppercase mt-1 md:mt-2 tracking-widest">
-                        Performance
-                      </span>
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="88"
+                          fill="none"
+                          stroke="#F3F4F6"
+                          strokeWidth="8"
+                        />
+                        <circle
+                          cx="100"
+                          cy="100"
+                          r="88"
+                          fill="none"
+                          stroke={perfScore > 90 ? '#00C853' : '#F4B400'}
+                          strokeWidth="8"
+                          strokeDasharray={552}
+                          strokeDashoffset={552 - (552 * perfScore) / 100}
+                          className="transition-all duration-1000 ease-out"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span
+                          className={`text-4xl md:text-6xl font-black tracking-tighter leading-none ${perfScore > 90 ? 'text-dark' : 'text-[#F4B400]'}`}
+                        >
+                          {perfScore}
+                        </span>
+                        <span className="text-xs md:text-xxs font-bold text-gray-600 uppercase mt-1 md:mt-2 tracking-widest">
+                          Performance
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Grid of Mini Stats */}
-                  <div className="grid grid-cols-2 gap-3 md:gap-4">
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
-                      <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
-                        SEO Readiness
+                    {/* Grid of Mini Stats */}
+                    <div className="grid grid-cols-2 gap-3 md:gap-4">
+                      <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
+                          SEO Readiness
+                        </div>
+                        <div className="text-sm md:text-lg font-black text-dark flex items-center gap-1">
+                          100% <CheckCircle2 size={12} className="text-success" />
+                        </div>
                       </div>
-                      <div className="text-sm md:text-lg font-black text-dark flex items-center gap-1">
-                        100% <CheckCircle2 size={12} className="text-success" />
+                      <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
+                        <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
+                          Accessibility
+                        </div>
+                        <div className="text-sm md:text-lg font-black text-dark">AA+</div>
                       </div>
                     </div>
-                    <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
-                      <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
-                        Accessibility
-                      </div>
-                      <div className="text-sm md:text-lg font-black text-dark">AA+</div>
-                    </div>
-                  </div>
 
-                  {/* Decorative scanning line */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-scan"></div>
-                </div>
-              </AnimateOnScroll>
+                    {/* Decorative scanning line */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-scan"></div>
+                  </div>
+                </AnimateOnScroll>
               </LazyHydrate>
 
               {/* Floating Badge */}
@@ -477,106 +453,106 @@ const WebDevelopment: React.FC = () => {
               <LazyHydrate whenVisible>
                 <AnimateOnScroll delay={200} className="w-full max-w-lg">
                   <div className="relative group">
-                  {/* Decorative blobs */}
-                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-all duration-500"></div>
-                  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all duration-500"></div>
+                    {/* Decorative blobs */}
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-all duration-500"></div>
+                    <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all duration-500"></div>
 
-                  {/* Main Code Window */}
-                  <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-500 hover:-translate-y-2">
-                    <div className="bg-[#1E293B] p-4 flex items-center justify-between border-b border-[#334155]">
-                      <div className="flex gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                        <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                        <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
+                    {/* Main Code Window */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-500 hover:-translate-y-2">
+                      <div className="bg-[#1E293B] p-4 flex items-center justify-between border-b border-[#334155]">
+                        <div className="flex gap-2">
+                          <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
+                          <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+                          <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
+                        </div>
+                        <div className="text-xxs font-mono text-gray-500 flex items-center gap-2">
+                          <FileCode size={12} /> custom-logic.php
+                        </div>
                       </div>
-                      <div className="text-xxs font-mono text-gray-400 flex items-center gap-2">
-                        <FileCode size={12} /> custom-logic.php
+                      <div className="p-6 bg-[#0F172A] overflow-x-auto">
+                        <pre className="font-mono text-xs md:text-sm leading-relaxed">
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">1</span>
+                            <span className="text-[#C792EA]">add_filter</span>
+                            <span className="text-[#89DDFF]">(</span>
+                            <span className="text-[#C3E88D]">'woocommerce_get_price'</span>
+                            <span className="text-[#89DDFF]">,</span>{' '}
+                            <span className="text-[#C792EA]">function</span>
+                            <span className="text-[#89DDFF]">(</span>
+                            <span className="text-[#FFCB6B]">$price</span>
+                            <span className="text-[#89DDFF]">)</span>{' '}
+                            <span className="text-[#89DDFF]">{'{'}</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">2</span>{' '}
+                            <span className="text-gray-500">{'// Connect to External ERP'}</span>
+                          </div>{' '}
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">3</span>{' '}
+                            <span className="text-[#C792EA]">if</span>{' '}
+                            <span className="text-[#89DDFF]">(</span>
+                            <span className="text-[#82AAFF]">App</span>
+                            <span className="text-[#89DDFF]">\</span>
+                            <span className="text-[#FFCB6B]">User</span>
+                            <span className="text-[#89DDFF]">-&gt;</span>
+                            <span className="text-[#82AAFF]">isB2B</span>
+                            <span className="text-[#89DDFF]">())</span>{' '}
+                            <span className="text-[#89DDFF]">{'{'}</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">4</span>{' '}
+                            <span className="text-[#FFCB6B]">$discount</span>{' '}
+                            <span className="text-[#89DDFF]">=</span>{' '}
+                            <span className="text-[#82AAFF]">API</span>
+                            <span className="text-[#89DDFF]">::</span>
+                            <span className="text-[#82AAFF]">getDiscountLevel</span>
+                            <span className="text-[#89DDFF]">();</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">5</span>{' '}
+                            <span className="text-[#C792EA]">return</span>{' '}
+                            <span className="text-[#FFCB6B]">$price</span>{' '}
+                            <span className="text-[#89DDFF]">*</span>{' '}
+                            <span className="text-[#FFCB6B]">$discount</span>
+                            <span className="text-[#89DDFF]">;</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">6</span>{' '}
+                            <span className="text-[#89DDFF]">{'}'}</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">7</span>{' '}
+                            <span className="text-[#C792EA]">return</span>{' '}
+                            <span className="text-[#FFCB6B]">$price</span>
+                            <span className="text-[#89DDFF]">;</span>
+                          </div>
+                          <div className="flex">
+                            <span className="text-gray-500 select-none mr-4">8</span>
+                            <span className="text-[#89DDFF]">{'}'});</span>
+                          </div>
+                        </pre>
                       </div>
                     </div>
-                    <div className="p-6 bg-[#0F172A] overflow-x-auto">
-                      <pre className="font-mono text-xs md:text-sm leading-relaxed">
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">1</span>
-                          <span className="text-[#C792EA]">add_filter</span>
-                          <span className="text-[#89DDFF]">(</span>
-                          <span className="text-[#C3E88D]">'woocommerce_get_price'</span>
-                          <span className="text-[#89DDFF]">,</span>{' '}
-                          <span className="text-[#C792EA]">function</span>
-                          <span className="text-[#89DDFF]">(</span>
-                          <span className="text-[#FFCB6B]">$price</span>
-                          <span className="text-[#89DDFF]">)</span>{' '}
-                          <span className="text-[#89DDFF]">{'{'}</span>
+
+                    {/* Floating Elements */}
+                    <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3 animate-float z-20">
+                      <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-secondary">
+                        <Zap size={20} />
+                      </div>
+                      <div>
+                        <div className="text-xxs font-bold text-gray-500 uppercase tracking-wider">
+                          Performance
                         </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">2</span>{' '}
-                          <span className="text-gray-500">{'// Connect to External ERP'}</span>
-                        </div>{' '}
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">3</span>{' '}
-                          <span className="text-[#C792EA]">if</span>{' '}
-                          <span className="text-[#89DDFF]">(</span>
-                          <span className="text-[#82AAFF]">App</span>
-                          <span className="text-[#89DDFF]">\</span>
-                          <span className="text-[#FFCB6B]">User</span>
-                          <span className="text-[#89DDFF]">-&gt;</span>
-                          <span className="text-[#82AAFF]">isB2B</span>
-                          <span className="text-[#89DDFF]">())</span>{' '}
-                          <span className="text-[#89DDFF]">{'{'}</span>
-                        </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">4</span>{' '}
-                          <span className="text-[#FFCB6B]">$discount</span>{' '}
-                          <span className="text-[#89DDFF]">=</span>{' '}
-                          <span className="text-[#82AAFF]">API</span>
-                          <span className="text-[#89DDFF]">::</span>
-                          <span className="text-[#82AAFF]">getDiscountLevel</span>
-                          <span className="text-[#89DDFF]">();</span>
-                        </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">5</span>{' '}
-                          <span className="text-[#C792EA]">return</span>{' '}
-                          <span className="text-[#FFCB6B]">$price</span>{' '}
-                          <span className="text-[#89DDFF]">*</span>{' '}
-                          <span className="text-[#FFCB6B]">$discount</span>
-                          <span className="text-[#89DDFF]">;</span>
-                        </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">6</span>{' '}
-                          <span className="text-[#89DDFF]">{'}'}</span>
-                        </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">7</span>{' '}
-                          <span className="text-[#C792EA]">return</span>{' '}
-                          <span className="text-[#FFCB6B]">$price</span>
-                          <span className="text-[#89DDFF]">;</span>
-                        </div>
-                        <div className="flex">
-                          <span className="text-gray-500 select-none mr-4">8</span>
-                          <span className="text-[#89DDFF]">{'}'});</span>
-                        </div>
-                      </pre>
+                        <div className="text-sm font-black text-dark">0.02s Query Time</div>
+                      </div>
+                    </div>
+
+                    <div className="absolute top-1/2 -right-8 bg-dark text-white p-3 rounded-lg shadow-lg flex items-center gap-2 transform rotate-90 origin-bottom-right z-10">
+                      <Plug size={14} />
+                      <span className="text-xs font-bold uppercase tracking-widest">Connected</span>
                     </div>
                   </div>
-
-                  {/* Floating Elements */}
-                  <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3 animate-float z-20">
-                    <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-secondary">
-                      <Zap size={20} />
-                    </div>
-                    <div>
-                      <div className="text-xxs font-bold text-gray-500 uppercase tracking-wider">
-                        Performance
-                      </div>
-                      <div className="text-sm font-black text-dark">0.02s Query Time</div>
-                    </div>
-                  </div>
-
-                  <div className="absolute top-1/2 -right-8 bg-dark text-white p-3 rounded-lg shadow-lg flex items-center gap-2 transform rotate-90 origin-bottom-right z-10">
-                    <Plug size={14} />
-                    <span className="text-xs font-bold uppercase tracking-widest">Connected</span>
-                  </div>
-                </div>
-              </AnimateOnScroll>
+                </AnimateOnScroll>
               </LazyHydrate>
             </div>
           </div>
@@ -621,134 +597,134 @@ const WebDevelopment: React.FC = () => {
               <LazyHydrate whenVisible>
                 <AnimateOnScroll delay={200}>
                   <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden relative transform rotate-1 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex h-[450px]">
-                    {/* Sidebar */}
-                    <div className="w-64 bg-[#F8FAFC] border-r border-gray-200 flex flex-col hidden sm:flex">
-                      <div className="p-6 border-b border-gray-100">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-dark flex items-center justify-center text-white font-bold text-xs">
-                            M
-                          </div>
-                          <span className="font-bold text-dark text-sm">Mixture Admin</span>
-                        </div>
-                      </div>
-                      <div className="p-4 space-y-1">
-                        <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-dark">
-                          <LayoutTemplate size={16} className="text-primary" /> Dashboard
-                        </div>
-                        <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                          <Users size={16} /> Użytkownicy
-                        </div>
-                        <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                          <ShoppingCart size={16} /> Zamówienia
-                        </div>
-                        <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
-                          <Settings size={16} /> Ustawienia
-                        </div>
-                      </div>
-                      <div className="mt-auto p-4 border-t border-gray-200">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-secondary text-xs font-bold">
-                            JD
-                          </div>
-                          <div className="text-xs">
-                            <div className="font-bold text-dark">Jan D.</div>
-                            <div className="text-gray-600">Administrator</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="flex-1 bg-white p-6 sm:p-8 flex flex-col overflow-hidden">
-                      <div className="flex justify-between items-center mb-8">
-                        <div>
-                          <div className="text-2xl font-bold text-dark mb-1">
-                            Przegląd Systemu
-                          </div>
-                          <div className="text-xs text-gray-600 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>{' '}
-                            System Operational
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <div className="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white shadow-sm cursor-pointer hover:border-primary">
-                            Export CSV
-                          </div>
-                          <div className="px-3 py-1.5 bg-dark text-white rounded-md text-xs font-bold shadow-md cursor-pointer hover:bg-secondary">
-                            + Add New
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                        <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white">
-                          <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
-                            Total Users
-                          </div>
-                          <div className="text-2xl font-black text-dark">12,450</div>
-                          <div className="text-xxs text-success mt-1 font-medium flex items-center gap-1">
-                            <TrendingUp size={10} /> +12% this week
-                          </div>
-                        </div>
-                        <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white">
-                          <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
-                            Revenue
-                          </div>
-                          <div className="text-2xl font-black text-dark">$45.2k</div>
-                          <div className="text-xxs text-success mt-1 font-medium flex items-center gap-1">
-                            <TrendingUp size={10} /> +5% this week
-                          </div>
-                        </div>
-                        <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white hidden md:block">
-                          <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
-                            Active Sessions
-                          </div>
-                          <div className="text-2xl font-black text-dark">342</div>
-                          <div className="text-xxs text-gray-600 mt-1 font-medium">
-                            Currently online
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border border-gray-200 rounded-xl overflow-hidden flex-1 shadow-sm">
-                        <div className="bg-[#F9FAFB] px-4 py-3 border-b border-gray-200 flex justify-between items-center">
-                          <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                            Ostatnie Transakcje
-                          </span>
-                          <MoreHorizontal size={16} className="text-gray-600" />
-                        </div>
-                        <div className="divide-y divide-gray-100">
-                          {[1, 2, 3].map((i) => (
-                            <div
-                              key={i}
-                              className="px-4 py-3 flex items-center justify-between hover:bg-[#F9FAFB] transition-colors group cursor-pointer"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-blue-50 flex items-center justify-center text-secondary font-bold text-xs">
-                                  #{i}02
-                                </div>
-                                <div>
-                                  <div className="text-xs font-bold text-dark">
-                                    Zamówienie #{i}245
-                                  </div>
-                                  <div className="text-xxs text-gray-600">2 min temu</div>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-xs font-bold text-dark">250.00 PLN</div>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xxs font-medium bg-green-100 text-green-800">
-                                  Completed
-                                </span>
-                              </div>
+                    <div className="flex h-[450px]">
+                      {/* Sidebar */}
+                      <div className="w-64 bg-[#F8FAFC] border-r border-gray-200 flex flex-col hidden sm:flex">
+                        <div className="p-6 border-b border-gray-100">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-dark flex items-center justify-center text-white font-bold text-xs">
+                              M
                             </div>
-                          ))}
+                            <span className="font-bold text-dark text-sm">Mixture Admin</span>
+                          </div>
+                        </div>
+                        <div className="p-4 space-y-1">
+                          <div className="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-dark">
+                            <LayoutTemplate size={16} className="text-primary" /> Dashboard
+                          </div>
+                          <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <Users size={16} /> Użytkownicy
+                          </div>
+                          <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <ShoppingCart size={16} /> Zamówienia
+                          </div>
+                          <div className="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer">
+                            <Settings size={16} /> Ustawienia
+                          </div>
+                        </div>
+                        <div className="mt-auto p-4 border-t border-gray-200">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-secondary text-xs font-bold">
+                              JD
+                            </div>
+                            <div className="text-xs">
+                              <div className="font-bold text-dark">Jan D.</div>
+                              <div className="text-gray-600">Administrator</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Main Content */}
+                      <div className="flex-1 bg-white p-6 sm:p-8 flex flex-col overflow-hidden">
+                        <div className="flex justify-between items-center mb-8">
+                          <div>
+                            <div className="text-2xl font-bold text-dark mb-1">
+                              Przegląd Systemu
+                            </div>
+                            <div className="text-xs text-gray-600 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>{' '}
+                              System Operational
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <div className="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-bold text-gray-700 bg-white shadow-sm cursor-pointer hover:border-primary">
+                              Export CSV
+                            </div>
+                            <div className="px-3 py-1.5 bg-dark text-white rounded-md text-xs font-bold shadow-md cursor-pointer hover:bg-secondary">
+                              + Add New
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+                          <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white">
+                            <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
+                              Total Users
+                            </div>
+                            <div className="text-2xl font-black text-dark">12,450</div>
+                            <div className="text-xxs text-success mt-1 font-medium flex items-center gap-1">
+                              <TrendingUp size={10} /> +12% this week
+                            </div>
+                          </div>
+                          <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white">
+                            <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
+                              Revenue
+                            </div>
+                            <div className="text-2xl font-black text-dark">$45.2k</div>
+                            <div className="text-xxs text-success mt-1 font-medium flex items-center gap-1">
+                              <TrendingUp size={10} /> +5% this week
+                            </div>
+                          </div>
+                          <div className="p-4 rounded-xl border border-gray-100 shadow-sm bg-white hidden md:block">
+                            <div className="text-xs text-gray-600 uppercase font-bold tracking-wider mb-2">
+                              Active Sessions
+                            </div>
+                            <div className="text-2xl font-black text-dark">342</div>
+                            <div className="text-xxs text-gray-600 mt-1 font-medium">
+                              Currently online
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="border border-gray-200 rounded-xl overflow-hidden flex-1 shadow-sm">
+                          <div className="bg-[#F9FAFB] px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              Ostatnie Transakcje
+                            </span>
+                            <MoreHorizontal size={16} className="text-gray-600" />
+                          </div>
+                          <div className="divide-y divide-gray-100">
+                            {[1, 2, 3].map((i) => (
+                              <div
+                                key={i}
+                                className="px-4 py-3 flex items-center justify-between hover:bg-[#F9FAFB] transition-colors group cursor-pointer"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded bg-blue-50 flex items-center justify-center text-secondary font-bold text-xs">
+                                    #{i}02
+                                  </div>
+                                  <div>
+                                    <div className="text-xs font-bold text-dark">
+                                      Zamówienie #{i}245
+                                    </div>
+                                    <div className="text-xxs text-gray-600">2 min temu</div>
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-xs font-bold text-dark">250.00 PLN</div>
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xxs font-medium bg-green-100 text-green-800">
+                                    Completed
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </AnimateOnScroll>
+                </AnimateOnScroll>
               </LazyHydrate>
             </div>
           </div>
@@ -806,103 +782,103 @@ const WebDevelopment: React.FC = () => {
               <LazyHydrate whenVisible>
                 <AnimateOnScroll delay={200}>
                   <div className="bg-[#0F172A] rounded-xl border border-[#1E293B] p-6 shadow-[0_0_50px_rgba(0,200,83,0.1)] relative overflow-hidden group">
-                  {/* Scanning Grid Background */}
-                  <div className="absolute inset-0 bg-grid-white/[0.02]"></div>
+                    {/* Scanning Grid Background */}
+                    <div className="absolute inset-0 bg-grid-white/[0.02]"></div>
 
-                  {/* Header */}
-                  <div className="flex justify-between items-center mb-8 border-b border-[#334155] pb-4 relative z-10">
-                    <div className="flex items-center gap-2 text-white font-mono text-sm">
-                      <Server size={16} className="text-primary" /> SECURITY_CENTER
-                    </div>
-                    <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-                      <span className="text-xxs text-emerald-400 font-bold uppercase tracking-wide">
-                        System Secure
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Main Content Split */}
-                  <div className="flex gap-6 relative z-10">
-                    {/* Left: Radar & Status */}
-                    <div className="w-1/3 flex flex-col items-center justify-center border-r border-[#334155] pr-6">
-                      <div className="relative w-24 h-24 mb-4">
-                        <div className="absolute inset-0 border-2 border-[#1E293B] rounded-full"></div>
-                        <div className="absolute inset-4 border border-[#334155] rounded-full"></div>
-                        <div
-                          className="absolute inset-0 rounded-full border-t-2 border-success opacity-50"
-                          style={{
-                            transform: `rotate(${securityScanAngle}deg)`,
-                            transition: 'transform 0.05s linear',
-                          }}
-                        ></div>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-success">
-                          <ShieldCheck size={32} />
-                        </div>
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-8 border-b border-[#334155] pb-4 relative z-10">
+                      <div className="flex items-center gap-2 text-white font-mono text-sm">
+                        <Server size={16} className="text-primary" /> SECURITY_CENTER
                       </div>
-                      <div className="text-center">
-                        <div className="text-xxs text-gray-300 uppercase font-bold">
-                          Threats Blocked
-                        </div>
-                        <div className="text-xl font-mono text-white">{blockedCount}</div>
+                      <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                        <span className="text-xxs text-emerald-400 font-bold uppercase tracking-wide">
+                          System Secure
+                        </span>
                       </div>
                     </div>
 
-                    {/* Right: Log Stream */}
-                    <div className="w-2/3 space-y-3 font-mono text-xs">
-                      <div className="flex justify-between text-gray-300 text-xxs uppercase font-bold border-b border-[#334155] pb-1">
-                        <span>Event Type</span>
-                        <span>Status</span>
-                      </div>
-                      {[
-                        {
-                          time: 'Now',
-                          msg: 'SQL Injection attempt',
-                          status: 'BLOCKED',
-                          color: 'text-red-400',
-                        },
-                        {
-                          time: '-2s',
-                          msg: 'Bot crawler detected',
-                          status: 'DENIED',
-                          color: 'text-orange-400',
-                        },
-                        {
-                          time: '-5s',
-                          msg: 'SSL Handshake',
-                          status: 'SUCCESS',
-                          color: 'text-success',
-                        },
-                        {
-                          time: '-12s',
-                          msg: 'Admin Login (2FA)',
-                          status: 'VERIFIED',
-                          color: 'text-primary',
-                        },
-                      ].map((log, i) => (
-                        <div
-                          key={i}
-                          className="flex justify-between items-center animate-fade-in-up"
-                          style={{ animationDelay: `${i * 100}ms` }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-gray-400">[{log.time}]</span>
-                            <span className="text-gray-300">{log.msg}</span>
+                    {/* Main Content Split */}
+                    <div className="flex gap-6 relative z-10">
+                      {/* Left: Radar & Status */}
+                      <div className="w-1/3 flex flex-col items-center justify-center border-r border-[#334155] pr-6">
+                        <div className="relative w-24 h-24 mb-4">
+                          <div className="absolute inset-0 border-2 border-[#1E293B] rounded-full"></div>
+                          <div className="absolute inset-4 border border-[#334155] rounded-full"></div>
+                          <div
+                            className="absolute inset-0 rounded-full border-t-2 border-success opacity-50"
+                            style={{
+                              transform: `rotate(${securityScanAngle}deg)`,
+                              transition: 'transform 0.05s linear',
+                            }}
+                          ></div>
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-success">
+                            <ShieldCheck size={32} />
                           </div>
-                          <span className={`font-bold ${log.color}`}>{log.status}</span>
                         </div>
-                      ))}
-                      <div className="h-4 bg-gradient-to-t from-[#0F172A] to-transparent w-full absolute bottom-0 left-0"></div>
+                        <div className="text-center">
+                          <div className="text-xxs text-gray-300 uppercase font-bold">
+                            Threats Blocked
+                          </div>
+                          <div className="text-xl font-mono text-white">{blockedCount}</div>
+                        </div>
+                      </div>
+
+                      {/* Right: Log Stream */}
+                      <div className="w-2/3 space-y-3 font-mono text-xs">
+                        <div className="flex justify-between text-gray-300 text-xxs uppercase font-bold border-b border-[#334155] pb-1">
+                          <span>Event Type</span>
+                          <span>Status</span>
+                        </div>
+                        {[
+                          {
+                            time: 'Now',
+                            msg: 'SQL Injection attempt',
+                            status: 'BLOCKED',
+                            color: 'text-red-400',
+                          },
+                          {
+                            time: '-2s',
+                            msg: 'Bot crawler detected',
+                            status: 'DENIED',
+                            color: 'text-orange-400',
+                          },
+                          {
+                            time: '-5s',
+                            msg: 'SSL Handshake',
+                            status: 'SUCCESS',
+                            color: 'text-success',
+                          },
+                          {
+                            time: '-12s',
+                            msg: 'Admin Login (2FA)',
+                            status: 'VERIFIED',
+                            color: 'text-primary',
+                          },
+                        ].map((log, i) => (
+                          <div
+                            key={i}
+                            className="flex justify-between items-center animate-fade-in-up"
+                            style={{ animationDelay: `${i * 100}ms` }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-500">[{log.time}]</span>
+                              <span className="text-gray-300">{log.msg}</span>
+                            </div>
+                            <span className={`font-bold ${log.color}`}>{log.status}</span>
+                          </div>
+                        ))}
+                        <div className="h-4 bg-gradient-to-t from-[#0F172A] to-transparent w-full absolute bottom-0 left-0"></div>
+                      </div>
+                    </div>
+
+                    {/* Decorative Bottom Bar */}
+                    <div className="mt-6 pt-3 border-t border-[#334155] flex justify-between items-center text-xxs text-gray-300 font-mono">
+                      <div>Mem: 24% | CPU: 12%</div>
+                      <div>Firewall: v4.2.0 (Active)</div>
                     </div>
                   </div>
-
-                  {/* Decorative Bottom Bar */}
-                  <div className="mt-6 pt-3 border-t border-[#334155] flex justify-between items-center text-xxs text-gray-300 font-mono">
-                    <div>Mem: 24% | CPU: 12%</div>
-                    <div>Firewall: v4.2.0 (Active)</div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
+                </AnimateOnScroll>
               </LazyHydrate>
             </div>
           </div>
@@ -925,99 +901,99 @@ const WebDevelopment: React.FC = () => {
           {/* The Comparison Card */}
           <LazyHydrate whenVisible>
             <div className="bg-[#0F172A] text-gray-200 rounded-3xl overflow-hidden shadow-2xl border border-[#1E293B] relative">
-            {/* Decorative Header Bar */}
-            <div className="bg-[#1E293B] px-6 py-4 flex justify-between items-center border-b border-gray-700">
-              <div className="flex gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+              {/* Decorative Header Bar */}
+              <div className="bg-[#1E293B] px-6 py-4 flex justify-between items-center border-b border-gray-700">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                </div>
+                <div className="font-mono text-xs text-gray-200 tracking-widest">
+                  DIFF_CHECKER_V2.1
+                </div>
               </div>
-              <div className="font-mono text-xs text-gray-200 tracking-widest">
-                DIFF_CHECKER_V2.1
-              </div>
-            </div>
 
-            {/* Grid Header */}
-            <div className="grid grid-cols-12 px-6 py-4 border-b border-gray-700/50 bg-[#0F172A] text-xs font-bold uppercase tracking-wider text-white sticky top-0 z-10">
-              <div className="col-span-12 md:col-span-4 lg:col-span-4">Parametr</div>
-              <div className="hidden md:block col-span-4 text-center text-red-300">
-                Standard Rynkowy
+              {/* Grid Header */}
+              <div className="grid grid-cols-12 px-6 py-4 border-b border-gray-700/50 bg-[#0F172A] text-xs font-bold uppercase tracking-wider text-white sticky top-0 z-10">
+                <div className="col-span-12 md:col-span-4 lg:col-span-4">Parametr</div>
+                <div className="hidden md:block col-span-4 text-center text-red-300">
+                  Standard Rynkowy
+                </div>
+                <div className="hidden md:block col-span-4 text-center text-emerald-400">
+                  Mixture Tech Stack
+                </div>
               </div>
-              <div className="hidden md:block col-span-4 text-center text-emerald-400">
-                Mixture Tech Stack
-              </div>
-            </div>
 
-            {/* Rows */}
-            <div className="divide-y divide-gray-800">
-              {comparisonData.map((row, i) => (
-                <div key={i} className="px-6 py-6 hover:bg-white/5 transition-colors group">
-                  <div className="grid grid-cols-12 items-center">
-                    {/* Metric Name */}
-                    <div className="col-span-12 md:col-span-4 flex items-center gap-4 mb-6 md:mb-0">
-                      <div className="p-2 rounded-lg bg-[#1E293B] text-primary border border-gray-700 group-hover:border-primary group-hover:text-white transition-colors">
-                        {row.icon}
+              {/* Rows */}
+              <div className="divide-y divide-gray-800">
+                {comparisonData.map((row, i) => (
+                  <div key={i} className="px-6 py-6 hover:bg-white/5 transition-colors group">
+                    <div className="grid grid-cols-12 items-center">
+                      {/* Metric Name */}
+                      <div className="col-span-12 md:col-span-4 flex items-center gap-4 mb-6 md:mb-0">
+                        <div className="p-2 rounded-lg bg-[#1E293B] text-primary border border-gray-700 group-hover:border-primary group-hover:text-white transition-colors">
+                          {row.icon}
+                        </div>
+                        <div>
+                          <span className="font-bold text-white text-base block">{row.label}</span>
+                          <span className="text-xxs text-gray-200 font-mono hidden md:block">
+                            {row.desc}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-bold text-white text-base block">{row.label}</span>
-                        <span className="text-xxs text-gray-200 font-mono hidden md:block">
-                          {row.desc}
-                        </span>
+
+                      {/* Bad Value */}
+                      <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center border-r border-gray-800 md:border-none pr-4 md:pr-0 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div className="md:hidden text-xxs uppercase font-bold text-red-500 mb-2">
+                          Standard
+                        </div>
+                        <div className="flex items-center gap-2 text-red-400 font-mono text-sm md:text-base">
+                          <XCircle size={16} />
+                          <span className="line-through decoration-red-500/50">{row.bad}</span>
+                        </div>
+                      </div>
+
+                      {/* Good Value */}
+                      <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center pl-4 md:pl-0">
+                        <div className="md:hidden text-xxs uppercase font-bold text-emerald-500 mb-2">
+                          Mixture
+                        </div>
+                        <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono text-sm md:text-base bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.1)]">
+                          <CheckCircle2 size={16} />
+                          <span>{row.good}</span>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Bad Value */}
-                    <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center border-r border-gray-800 md:border-none pr-4 md:pr-0 opacity-60 group-hover:opacity-100 transition-opacity">
-                      <div className="md:hidden text-xxs uppercase font-bold text-red-500 mb-2">
-                        Standard
-                      </div>
-                      <div className="flex items-center gap-2 text-red-400 font-mono text-sm md:text-base">
-                        <XCircle size={16} />
-                        <span className="line-through decoration-red-500/50">{row.bad}</span>
-                      </div>
-                    </div>
-
-                    {/* Good Value */}
-                    <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center pl-4 md:pl-0">
-                      <div className="md:hidden text-xxs uppercase font-bold text-emerald-500 mb-2">
-                        Mixture
-                      </div>
-                      <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono text-sm md:text-base bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.1)]">
-                        <CheckCircle2 size={16} />
-                        <span>{row.good}</span>
-                      </div>
-                    </div>
+                    {/* Mobile Description */}
+                    <p className="md:hidden text-xxs text-gray-200 font-mono mt-4 text-center leading-relaxed">
+                      {row.desc}
+                    </p>
                   </div>
-                  {/* Mobile Description */}
-                  <p className="md:hidden text-xxs text-gray-200 font-mono mt-4 text-center leading-relaxed">
-                    {row.desc}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer / Summary */}
-            <div className="bg-[#1E293B]/50 px-8 py-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
-                  <ShieldCheck size={24} />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-sm">Gwarancja Jakości Kodu</h3>
-                  <p className="text-gray-200 text-xs">
-                    Każdy projekt przechodzi audyt Core Web Vitals przed wdrożeniem.
-                  </p>
-                </div>
+                ))}
               </div>
-              <Button
-                onClick={() => openModal('audit')}
-                variant="outline"
-                className="border-gray-600 text-gray-300 hover:text-white hover:border-white w-full md:w-auto"
-              >
-                Pobierz Przykładowy Raport
-              </Button>
+
+              {/* Footer / Summary */}
+              <div className="bg-[#1E293B]/50 px-8 py-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+                    <ShieldCheck size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-sm">Gwarancja Jakości Kodu</h3>
+                    <p className="text-gray-200 text-xs">
+                      Każdy projekt przechodzi audyt Core Web Vitals przed wdrożeniem.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => openModal('audit')}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:text-white hover:border-white w-full md:w-auto"
+                >
+                  Pobierz Przykładowy Raport
+                </Button>
+              </div>
             </div>
-          </div>
           </LazyHydrate>
         </div>
       </section>

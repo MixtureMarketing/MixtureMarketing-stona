@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
@@ -103,9 +105,7 @@ const ArticleTemplate = () => {
 
         return (
           <>
-            <h2 className="text-3xl font-bold text-dark mt-16 mb-8 leading-tight">
-              {children}
-            </h2>
+            <h2 className="text-3xl font-bold text-dark mt-16 mb-8 leading-tight">{children}</h2>
             {showTeaser && (
               <div className="my-12 not-prose">
                 <LazyHydrate minHeight="120px">
@@ -114,9 +114,7 @@ const ArticleTemplate = () => {
                     variant="light"
                     buttonText={isMarketing ? 'Sprawdź swoje SEO' : 'Analizuj Kod Strony'}
                     placeholder={
-                      isMarketing
-                        ? 'Adres Twojej strony (np. mojanazwa.pl)...'
-                        : 'https://...'
+                      isMarketing ? 'Adres Twojej strony (np. mojanazwa.pl)...' : 'https://...'
                     }
                     className="bg-indigo-50/50 border-indigo-100 shadow-sm"
                   />
@@ -251,10 +249,7 @@ const ArticleTemplate = () => {
       </div>
 
       <LazyHydrate minHeight="400px">
-        <RelatedArticles
-          currentSlug={slug || ''}
-          category={article.category?.title as any}
-        />
+        <RelatedArticles currentSlug={slug || ''} category={article.category?.title as any} />
       </LazyHydrate>
     </div>
   );

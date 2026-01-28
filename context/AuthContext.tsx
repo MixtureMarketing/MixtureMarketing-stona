@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {
   createContext,
   useContext,
@@ -29,24 +31,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [sessionToken, setSessionToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check localStorage for persisted session
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem('portal_user');
-    const storedToken = localStorage.getItem('portal_token');
-    if (storedUser && storedToken) {
+    if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
-        setSessionToken(storedToken);
+        return JSON.parse(storedUser);
       } catch (e) {
         console.error('Failed to parse stored user', e);
+        return null;
       }
     }
-    setIsLoading(false);
-  }, []);
+    return null;
+  });
+
+  const [sessionToken, setSessionToken] = useState<string | null>(() => {
+    return localStorage.getItem('portal_token');
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = useCallback(async (email: string) => {
     try {

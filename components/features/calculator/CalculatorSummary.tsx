@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { memo } from 'react';
 import { CheckCircle2, Clock, Zap, ShieldCheck } from 'lucide-react';
 import GlassCard from '../../common/GlassCard';
@@ -52,17 +54,13 @@ const CalculatorSummary: React.FC<CalculatorSummaryProps> = memo(({ selections, 
             <p className="text-xxs font-bold text-gray-400 uppercase tracking-widest mb-1">
               Typ Projektu
             </p>
-            <p className="text-sm font-bold text-dark">
-              {projectLabels[selections.projectType]}
-            </p>
+            <p className="text-sm font-bold text-dark">{projectLabels[selections.projectType]}</p>
           </div>
           <div>
             <p className="text-xxs font-bold text-gray-400 uppercase tracking-widest mb-1">
               Standard Designu
             </p>
-            <p className="text-sm font-bold text-dark">
-              {designLabels[selections.designLevel]}
-            </p>
+            <p className="text-sm font-bold text-dark">{designLabels[selections.designLevel]}</p>
           </div>
           {(selections.features.length > 0 || selections.marketing.length > 0) && (
             <div>

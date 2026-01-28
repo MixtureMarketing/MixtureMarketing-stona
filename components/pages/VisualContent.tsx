@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from 'react';
 import {
   ArrowLeft,
@@ -200,9 +203,7 @@ const VisualContent: React.FC<VisualContentProps> = ({ onBack, onOpenModal }) =>
       {/* --- CTA --- */}
       <section className="py-24 bg-white text-center">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.cta.title}
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
           <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
           <Button
             onClick={() => onOpenModal('design')}

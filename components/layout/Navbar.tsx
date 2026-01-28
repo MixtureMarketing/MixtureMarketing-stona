@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-  Menu,
-  X,
   Zap,
   ChevronDown,
   Rocket,
@@ -23,21 +23,12 @@ import {
   Check,
   Users,
 } from 'lucide-react';
-import { COLORS } from '../../types';
 import Button from '../common/Button';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { NAVBAR_CONTENT as CONTENT } from '../../data/content';
 import Image from '../common/Image';
 import { ARTICLES } from '../../data/articles';
-import { leadService } from '../../services/leadService';
-
-interface NavItem {
-  title: string;
-  path: string;
-  icon?: React.ReactNode;
-  roles?: string[];
-}
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -100,8 +91,8 @@ const Navbar: React.FC = () => {
   };
 
   useEffect(() => {
-    if (location.state && (location.state as any).scrollTo) {
-      const anchorId = (location.state as any).scrollTo;
+    if (location.state && (location.state as { scrollTo?: string }).scrollTo) {
+      const anchorId = (location.state as { scrollTo?: string }).scrollTo as string;
       setTimeout(() => {
         const element = document.getElementById(anchorId);
         if (element) {

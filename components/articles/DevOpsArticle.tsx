@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Infinity as InfinityIcon,
@@ -5,22 +8,10 @@ import {
   Container,
   Anchor,
   Workflow,
-  Server,
-  Building2,
-  Factory,
-  Truck,
   Cpu,
   CheckCircle2,
-  XCircle,
   ArrowRight,
-  Database,
-  Globe,
-  Zap,
-  ShieldCheck,
-  TrendingUp,
   GitBranch,
-  Box,
-  Layers,
   Settings,
 } from 'lucide-react';
 

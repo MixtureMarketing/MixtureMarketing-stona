@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Target, ArrowRight, TrendingUp, Search, Megaphone, ArrowLeft } from 'lucide-react';

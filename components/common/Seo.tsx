@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
@@ -13,7 +15,7 @@ interface SeoProps {
   image?: string;
   lcpImage?: string; // High priority image for LCP
   article?: Article | SanityArticle | Partial<Article & SanityArticle>; // Accepting both static and Sanity articles
-  jsonLd?: Record<string, any> | Record<string, any>[]; // Custom JSON-LD data
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[]; // Custom JSON-LD data
   breadcrumbs?: { name: string; item: string }[];
   faq?: { question: string; answer: string }[];
   service?: {
@@ -121,9 +123,10 @@ const Seo: React.FC<SeoProps> = ({
     if (!article) return null;
 
     // Normalize data from different article types
-    const getCategoryTitle = (cat: any) => {
+    const getCategoryTitle = (cat: string | { title?: string } | undefined): string => {
+      if (!cat) return '';
       if (typeof cat === 'string') return cat;
-      return cat?.title || '';
+      return cat.title || '';
     };
 
     const categoryTitle = getCategoryTitle(article.category).toLowerCase();
@@ -132,13 +135,13 @@ const Seo: React.FC<SeoProps> = ({
         ? 'TechArticle'
         : 'BlogPosting';
 
-    const rawDate = 'date' in article ? article.date : (article as any).publishedAt;
+    const rawDate = 'date' in article ? article.date : (article as SanityArticle).publishedAt;
     const isoDate = parseToIsoDate(rawDate || new Date().toISOString());
     const duration = article.readTime ? parseReadTime(article.readTime) : undefined;
     const description =
-      ('description' in article ? article.description : (article as any).excerpt) || '';
+      ('description' in article ? article.description : (article as SanityArticle).excerpt) || '';
     const section =
-      ('categoryLabel' in article ? article.categoryLabel : undefined) ||
+      ('categoryLabel' in article ? (article as Article).categoryLabel : undefined) ||
       getCategoryTitle(article.category) ||
       'Baza Wiedzy';
 

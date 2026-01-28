@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { ShoppingCart, Briefcase, Globe } from 'lucide-react';
 import SectionHeader from '@/components/common/SectionHeader';

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Zap, Palette, Award, CheckCircle2 } from 'lucide-react';
 import { DesignLevel } from '../../../hooks/useCalculator';

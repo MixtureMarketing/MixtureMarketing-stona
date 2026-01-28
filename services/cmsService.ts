@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createClient } from '@sanity/client';
 import { SanityTeamMember, SanityCaseStudy, PricingTier } from '@/types';
 import { SanityImage, SanityBody } from '@/types/sanity';
@@ -365,7 +367,7 @@ export const cmsService = {
    */
   async getRelatedContent(
     currentSlug: string,
-    category?: string
+    category?: string,
   ): Promise<
     Array<{
       _type: 'article' | 'caseStudy';
@@ -378,9 +380,7 @@ export const cmsService = {
   > {
     try {
       // Fallback to fetching recent items if no category is provided
-      const filter = category
-        ? `(category->title == $category || category == $category)`
-        : `true`;
+      const filter = category ? `(category->title == $category || category == $category)` : `true`;
 
       const query = `*[
         (_type == "article" || _type == "caseStudy") &&

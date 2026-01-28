@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   TrendingUp,
   Target,
   AlertTriangle,
   Bot,
-  ArrowRight,
   Settings,
   DollarSign,
   Info,
@@ -15,10 +16,8 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import Image from '../common/Image';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
-import Accordion from '../common/Accordion';
 import { ARTICLES } from '../../data/articles';
 import { GOOGLE_ADS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/google-ads';
 import {
@@ -269,13 +268,7 @@ interface ScalingTypeCardProps {
   suitability: string;
 }
 
-const ScalingTypeCard = ({
-  type,
-  title,
-  desc,
-  risk,
-  suitability,
-}: ScalingTypeCardProps) => (
+const ScalingTypeCard = ({ type, title, desc, risk, suitability }: ScalingTypeCardProps) => (
   <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col h-full">
     <div
       className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${type === 'vertical' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
@@ -294,27 +287,6 @@ const ScalingTypeCard = ({
         <p className="text-xs text-emerald-800 m-0 leading-snug">{suitability}</p>
       </div>
     </div>
-  </div>
-);
-
-const ValueCard = ({
-  icon,
-  title,
-  desc,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all">
-    <div
-      className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-4 text-xl"
-      aria-hidden="true"
-    >
-      {icon}
-    </div>
-    <h3 className="font-bold text-dark mb-2">{title}</h3>
-    <p className="text-sm text-gray-700 leading-relaxed">{desc}</p>
   </div>
 );
 

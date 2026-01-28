@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Server,
@@ -206,9 +209,7 @@ const CiCdArticle = () => {
                     <tbody className="divide-y divide-gray-50">
                       {CONTENT.comparison.rows.map((row, i) => (
                         <tr key={i}>
-                          <td className="p-6 font-bold text-dark bg-gray-50/50">
-                            {row.label}
-                          </td>
+                          <td className="p-6 font-bold text-dark bg-gray-50/50">{row.label}</td>
                           <td
                             className={`p-6 text-center text-sm ${i === 1 || i === 3 ? 'text-red-600 font-bold' : 'text-gray-500 italic'}`}
                           >

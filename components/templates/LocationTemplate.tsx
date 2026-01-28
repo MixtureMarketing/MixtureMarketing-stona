@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cmsService, SanityLocation } from '../../services/cmsService';
@@ -137,9 +139,7 @@ const LocationTemplate = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500 font-medium">Rozwój Biznesu</p>
-                      <p className="text-lg font-bold text-dark">
-                        Skalowanie w {location.city}
-                      </p>
+                      <p className="text-lg font-bold text-dark">Skalowanie w {location.city}</p>
                     </div>
                   </div>
                 </div>

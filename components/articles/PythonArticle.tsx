@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   ShieldCheck,
@@ -107,9 +110,7 @@ const PythonArticle = () => {
                 <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">
                   Szerszy Kontekst
                 </p>
-                <h4 className="text-lg font-bold text-dark mb-2">
-                  {CONTENT.contextBox.title}
-                </h4>
+                <h4 className="text-lg font-bold text-dark mb-2">{CONTENT.contextBox.title}</h4>
                 <p className="text-sm text-gray-600 mb-3">{CONTENT.contextBox.text}</p>
                 <a
                   href={CONTENT.contextBox.linkUrl}

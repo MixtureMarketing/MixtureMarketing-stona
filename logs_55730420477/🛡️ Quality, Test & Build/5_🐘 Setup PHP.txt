@@ -1,0 +1,16 @@
+﻿2026-01-28T22:05:54.9962933Z ##[group]Run shivammathur/setup-php@v2
+2026-01-28T22:05:54.9963243Z with:
+2026-01-28T22:05:54.9963433Z   php-version: 8.2
+2026-01-28T22:05:54.9963641Z   ini-file: production
+2026-01-28T22:05:54.9963990Z   github-token: ***
+2026-01-28T22:05:54.9964192Z ##[endgroup]
+2026-01-28T22:05:55.0703029Z [command]/usr/bin/bash /home/runner/work/_actions/shivammathur/setup-php/v2/src/scripts/run.sh
+2026-01-28T22:05:55.1137339Z 
+2026-01-28T22:05:55.1144272Z [90;1m==> [0m[37;1mSetup PHP[0m
+2026-01-28T22:06:01.2022357Z [32;1m✓ [0m[34;1mPHP [0m[90;1mInstalled PHP 8.2.30[0m
+2026-01-28T22:06:01.2022986Z 
+2026-01-28T22:06:01.2023758Z [90;1m==> [0m[37;1mSetup Tools[0m
+2026-01-28T22:06:01.6072196Z [32;1m✓ [0m[34;1mcomposer [0m[90;1mAdded composer 2.9.3[0m
+2026-01-28T22:06:01.6075800Z 
+2026-01-28T22:06:01.6077859Z [90;1m==> [0m[37;1mSponsor setup-php[0m
+2026-01-28T22:06:01.6079185Z [32;1m✓ [0m[34;1msetup-php [0m[90;1mhttps://setup-php.com/sponsor[0m

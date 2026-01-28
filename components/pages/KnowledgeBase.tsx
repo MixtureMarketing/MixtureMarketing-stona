@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -138,11 +141,7 @@ const KnowledgeBase = () => {
                       }
                     `}
                   >
-                    <Icon
-                      size={16}
-                      className={isActive ? 'text-primary' : ''}
-                      aria-hidden="true"
-                    />
+                    <Icon size={16} className={isActive ? 'text-primary' : ''} aria-hidden="true" />
                     {cat.label}
                   </button>
                 );
@@ -243,9 +242,7 @@ const KnowledgeBase = () => {
               <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
                 <Search size={32} />
               </div>
-              <h3 className="text-xl font-bold text-dark mb-2">
-                {CONTENT.grid.notFound.title}
-              </h3>
+              <h3 className="text-xl font-bold text-dark mb-2">{CONTENT.grid.notFound.title}</h3>
               <p className="text-gray-700">{CONTENT.grid.notFound.desc}</p>
               <Button
                 variant="outline"

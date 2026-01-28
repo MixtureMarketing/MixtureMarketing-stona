@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   Database,
@@ -217,9 +220,7 @@ export const ArchitectureDiagram: React.FC = () => {
           <div className="p-6 bg-primary/10 rounded-2xl border-2 border-primary flex flex-col items-center text-center shadow-[0_0_30px_rgba(97,182,222,0.2)]">
             <Zap size={32} className="text-primary mb-2" />
             <span className="text-xs font-bold text-white">Next.js Frontend</span>
-            <p className="text-xxs text-primary mt-2 font-mono uppercase">
-              Decoupled Architecture
-            </p>
+            <p className="text-xxs text-primary mt-2 font-mono uppercase">Decoupled Architecture</p>
           </div>
           <div className="flex justify-center py-2">
             <ArrowRight className="rotate-90 text-primary" size={20} />

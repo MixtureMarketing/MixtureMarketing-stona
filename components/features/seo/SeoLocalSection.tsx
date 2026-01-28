@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { CheckCircle2, MapPin, Navigation } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';

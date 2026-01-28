@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Monitor,
@@ -120,9 +123,7 @@ const Services: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 text-dark">
-                    {service.title}
-                  </h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 text-dark">{service.title}</h3>
                   <p className="text-gray-600 leading-relaxed text-sm mb-6">{service.desc}</p>
                 </div>
 

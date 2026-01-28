@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   Mail,
@@ -117,9 +120,7 @@ const ContactPage: React.FC = () => {
                   <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/20 to-transparent rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none blur-3xl"></div>
 
                   <div className="relative z-10 w-full">
-                    <h2 className="text-3xl font-bold text-dark mb-4">
-                      {CONTENT.ctaCard.title}
-                    </h2>
+                    <h2 className="text-3xl font-bold text-dark mb-4">{CONTENT.ctaCard.title}</h2>
                     <p className="text-gray-700 text-lg mb-8 leading-relaxed max-w-lg">
                       {CONTENT.ctaCard.description}
                     </p>

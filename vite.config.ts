@@ -81,12 +81,16 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@google/genai')) return 'vendor-ai';
               if (id.includes('@sanity/client')) return 'vendor-cms';
               if (id.includes('lucide-react')) return 'vendor-utils';
-              
+
               // Group remaining standard react vendors
-              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              if (
+                id.includes('react') ||
+                id.includes('react-dom') ||
+                id.includes('react-router-dom')
+              ) {
                 return 'vendor-core';
               }
-              
+
               // Generic vendor chunk for other small libs
               return 'vendor-others';
             }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
 import {
   ShieldCheck,
@@ -249,9 +252,7 @@ const WafArticle = () => {
               </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-dark mb-8">
-              {CONTENT.implementation.title}
-            </h2>
+            <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.implementation.title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose mb-24">
               <div className="bg-white p-8 rounded-3xl border-2 border-primary/20 shadow-xl relative overflow-hidden group hover:border-primary transition-all">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">

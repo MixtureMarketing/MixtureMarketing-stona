@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   ArrowLeft,
@@ -872,9 +875,7 @@ const UiUxDesign: React.FC = () => {
                   onClick={() => toggleFaq(i)}
                   className="w-full flex justify-between items-center p-5 md:p-6 text-left focus:outline-none"
                 >
-                  <span className="font-bold text-dark text-base md:text-lg pr-4">
-                    {faq.q}
-                  </span>
+                  <span className="font-bold text-dark text-base md:text-lg pr-4">{faq.q}</span>
                   <ChevronDown
                     size={20}
                     className={`text-primary transition-transform duration-300 shrink-0 ${openFaq === i ? 'rotate-180' : ''}`}

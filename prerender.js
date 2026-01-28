@@ -81,7 +81,7 @@ async function processRoute(browser, critters, route) {
       // Remove leading/trailing slashes for path construction
       const cleanRoute = route.replace(/^\/|\/$/g, '');
       const routeDir = path.join(DIST_DIR, cleanRoute);
-      
+
       if (!fs.existsSync(routeDir)) {
         fs.mkdirSync(routeDir, { recursive: true });
       }

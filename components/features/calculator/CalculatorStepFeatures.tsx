@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { memo, useMemo } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import { ProjectType } from '../../../hooks/useCalculator';

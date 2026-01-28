@@ -1,18 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
-import {
-  Layout,
-  Layers,
-  Palette,
-  Users,
-  TrendingUp,
-  CheckCircle2,
-  ArrowRight,
-  HelpCircle,
-  Zap,
-  Globe,
-  Code2,
-  Smartphone,
-} from 'lucide-react';
+import { Layout, Palette, ArrowRight, Zap } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';

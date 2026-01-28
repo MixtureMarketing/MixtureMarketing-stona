@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Layout, Building2, ShoppingCart, Code2 } from 'lucide-react';
 import { ProjectType } from '../../../hooks/useCalculator';

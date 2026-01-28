@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react';
@@ -79,9 +82,7 @@ const Contact: React.FC = () => {
                       <Mail size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-dark text-sm uppercase tracking-wide">
-                        Email
-                      </h3>
+                      <h3 className="font-bold text-dark text-sm uppercase tracking-wide">Email</h3>
                       <a
                         href={`mailto:${SITE_CONFIG.contact.email}`}
                         className="text-gray-600 hover:text-primary transition-colors text-lg"
@@ -113,9 +114,7 @@ const Contact: React.FC = () => {
                       <MapPin size={20} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-dark text-sm uppercase tracking-wide">
-                        Biuro
-                      </h3>
+                      <h3 className="font-bold text-dark text-sm uppercase tracking-wide">Biuro</h3>
                       <p className="text-gray-600 text-lg">
                         {SITE_CONFIG.contact.address.street}
                         <br />

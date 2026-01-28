@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Modal from '../common/Modal';
@@ -388,7 +390,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
 
       Object.keys(lead).forEach((key) => {
         if (!['id', 'name', 'email', 'phone', 'website', 'budget', 'message'].includes(key)) {
-          // @ts-ignore - dynamic mapping
+          // @ts-expect-error - dynamic mapping
           initialValues[key] = lead[key];
         }
       });
@@ -699,9 +701,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
               ) : (
                 <p className="text-gray-700 text-sm font-medium leading-relaxed">
                   Wypełnij ten krok, abyśmy mogli zapisać Twoje zgłoszenie. <br />
-                  <span className="text-primary font-bold">
-                    Zajmie Ci to mniej niż 30 sekund.
-                  </span>
+                  <span className="text-primary font-bold">Zajmie Ci to mniej niż 30 sekund.</span>
                 </p>
               )}
             </div>

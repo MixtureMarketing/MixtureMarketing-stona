@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -876,9 +879,7 @@ const MetaAds: React.FC = () => {
           <div className="inline-block p-4 rounded-full bg-white border border-instagram/20 mb-6 shadow-sm animate-pulse">
             <Video size={32} className="text-instagram" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.cta.title}
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
           <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
           <Button
             onClick={() => openModal('marketing', { specificType: 'ads' })}

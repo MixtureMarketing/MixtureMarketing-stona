@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import {
   Cookie,
   Check,
   Settings,
-  ChevronDown,
   ChevronUp,
   ShieldCheck,
   BarChart3,
@@ -168,7 +169,10 @@ const CookieBanner: React.FC = () => {
                 Używamy plików cookies, aby strona działała poprawnie (niezbędne) oraz – za Twoją
                 zgodą – do analizy ruchu i personalizacji reklam. Możesz dostosować swoje wybory
                 poniżej. Szczegóły w{' '}
-                <Link to="/privacy-policy/" className="text-accent-dark hover:underline font-medium">
+                <Link
+                  to="/privacy-policy/"
+                  className="text-accent-dark hover:underline font-medium"
+                >
                   Polityce Prywatności
                 </Link>
                 .

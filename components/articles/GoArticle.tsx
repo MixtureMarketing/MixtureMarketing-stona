@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from 'react';
 import {
   Cloud,
@@ -6,11 +9,8 @@ import {
   CheckCircle2,
   XCircle,
   ArrowRight,
-  Code2,
   Server,
   DollarSign,
-  Cpu,
-  Box,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';

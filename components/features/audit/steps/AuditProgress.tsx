@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Smartphone, Zap, Server, Database, Search, CheckCircle2 } from 'lucide-react';
@@ -19,16 +21,15 @@ const STEPS = [
 
 const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, isDataReady }) => {
   const [progress, setProgress] = useState(0);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [tipIndex, setTipIndex] = useState(0);
 
   const TIPS = [
-    "Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?",
+    'Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?',
     "Google używa 'Mobile-First Indexing' – Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.",
-    "Brak certyfikatu SSL może obniżyć Twoją konwersję o nawet 40% z powodu ostrzeżeń przeglądarki.",
-    "Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.",
-    "Piksel Facebooka pozwala na remarketing, czyli docieranie do osób, które już były na Twojej stronie.",
-    "Dobre UX to nie tylko wygląd, to przede wszystkim łatwość realizacji celu przez klienta."
+    'Brak certyfikatu SSL może obniżyć Twoją konwersję o nawet 40% z powodu ostrzeżeń przeglądarki.',
+    'Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.',
+    'Piksel Facebooka pozwala na remarketing, czyli docieranie do osób, które już były na Twojej stronie.',
+    'Dobre UX to nie tylko wygląd, to przede wszystkim łatwość realizacji celu przez klienta.',
   ];
 
   useEffect(() => {
@@ -60,17 +61,16 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
     return () => clearInterval(timer);
   }, [isDataReady]);
 
-  // Update text steps based on progress
+  // Handle completion
   useEffect(() => {
-    const stepDuration = 100 / STEPS.length;
-    const newIndex = Math.min(Math.floor(progress / stepDuration), STEPS.length - 1);
-    setCurrentStepIndex(newIndex);
-
     if (progress >= 100) {
-      setTimeout(onComplete, 500);
+      const timeout = setTimeout(onComplete, 500);
+      return () => clearTimeout(timeout);
     }
   }, [progress, onComplete]);
 
+  const stepDuration = 100 / STEPS.length;
+  const currentStepIndex = Math.min(Math.floor(progress / stepDuration), STEPS.length - 1);
   const CurrentIcon = STEPS[currentStepIndex].icon;
 
   return (
@@ -81,7 +81,7 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
       className="bg-white rounded-[3rem] shadow-2xl p-8 md:p-16 max-w-4xl mx-auto text-center border border-gray-100 relative overflow-hidden"
     >
       <div className="absolute top-0 left-0 w-full h-2 bg-gray-50">
-        <motion.div 
+        <motion.div
           className="h-full bg-gradient-to-r from-secondary to-[#00C853]"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
@@ -114,9 +114,12 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
           <span className="text-dark font-black text-5xl tracking-tighter">
-            {Math.round(progress)}<span className="text-2xl text-gray-300">%</span>
+            {Math.round(progress)}
+            <span className="text-2xl text-gray-300">%</span>
           </span>
-          <span className="text-xxs font-bold text-gray-400 uppercase tracking-widest mt-1">Status Analizy</span>
+          <span className="text-xxs font-bold text-gray-400 uppercase tracking-widest mt-1">
+            Status Analizy
+          </span>
         </div>
       </div>
 
@@ -124,7 +127,12 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
         <h2 className="text-3xl font-black text-dark mb-3">
           Magia dzieje się <span className="text-secondary">teraz...</span>
         </h2>
-        <p className="text-gray-500 font-medium">Analizujemy każdy bajt na: <span className="text-success underline decoration-dotted underline-offset-4">{targetUrl}</span></p>
+        <p className="text-gray-500 font-medium">
+          Analizujemy każdy bajt na:{' '}
+          <span className="text-success underline decoration-dotted underline-offset-4">
+            {targetUrl}
+          </span>
+        </p>
       </div>
 
       {/* Dynamic Tip Section */}
@@ -149,7 +157,9 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
             <div className="w-2 h-2 rounded-full bg-red-500"></div>
             <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
             <div className="w-2 h-2 rounded-full bg-green-500"></div>
-            <span className="ml-2 text-gray-500 text-xxxs uppercase font-bold tracking-widest">Live Engine Console</span>
+            <span className="ml-2 text-gray-500 text-xxxs uppercase font-bold tracking-widest">
+              Live Engine Console
+            </span>
           </div>
           <div className="space-y-1.5 text-green-400/80">
             {STEPS.slice(0, currentStepIndex + 1).map((s, i) => (
@@ -175,7 +185,7 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
 
         <div className="space-y-4 text-left">
           <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div> 
+            <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div>
             Aktualnie przetwarzane:
           </h4>
           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 flex items-center gap-6 group">
@@ -192,7 +202,8 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
             </div>
           </div>
           <p className="text-xxs text-gray-400 italic">
-            * Używamy zaawansowanego silnika Mixture Engine™ opartego o Google Lighthouse 11.0 i Puppeteer.
+            * Używamy zaawansowanego silnika Mixture Engine™ opartego o Google Lighthouse 11.0 i
+            Puppeteer.
           </p>
         </div>
       </div>

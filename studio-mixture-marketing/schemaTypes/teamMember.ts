@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'teamMember',
@@ -39,8 +39,8 @@ export default defineType({
           name: 'alt',
           type: 'string',
           title: 'Tekst alternatywny',
-        }
-      ]
+        },
+      ],
     }),
     defineField({
       name: 'email',

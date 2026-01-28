@@ -1,34 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   ArrowLeft,
   ShoppingCart,
   CreditCard,
   Truck,
-  RefreshCw,
   ArrowRight,
   Package,
   TrendingUp,
   Search,
-  Zap,
   Database,
-  Globe,
-  Filter,
-  BarChart3,
   Layers,
   DollarSign,
   Box,
   FileText,
-  CheckCircle2,
   MousePointerClick,
-  Maximize,
   Eye,
-  ShieldCheck,
-  XCircle,
-  AlertTriangle,
-  Unlock,
-  Lock,
   Cpu,
-  Sparkles,
   Calculator,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -51,11 +41,11 @@ const Ecommerce: React.FC = () => {
   const [pipelineStep, setPipelineStep] = useState(0);
 
   // Configurator State
-  const [configColor, setConfigColor] = useState<'red' | 'blue' | 'black' | 'emerald'>('black');
-  const [configMaterial, setConfigMaterial] = useState<'mesh' | 'leather'>('mesh');
-  const [configHeadrest, setConfigHeadrest] = useState<boolean>(true);
-  const [configArmrests, setConfigArmrests] = useState<boolean>(true);
-  const [configBase, setConfigBase] = useState<'plastic' | 'chrome'>('plastic');
+  const [configColor] = useState<'red' | 'blue' | 'black' | 'emerald'>('black');
+  const [configMaterial] = useState<'mesh' | 'leather'>('mesh');
+  const [configHeadrest] = useState<boolean>(true);
+  const [configArmrests] = useState<boolean>(true);
+  const [configBase] = useState<'plastic' | 'chrome'>('plastic');
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
   useEffect(() => {
@@ -240,8 +230,8 @@ const Ecommerce: React.FC = () => {
                   <div
                     className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-20'}`}
                   >
-                    <span className="text-success font-bold">[10:42:06]</span> Faktura
-                    VAT_12450.pdf wysłana
+                    <span className="text-success font-bold">[10:42:06]</span> Faktura VAT_12450.pdf
+                    wysłana
                   </div>
                   <div
                     className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-20'}`}
@@ -319,7 +309,9 @@ const Ecommerce: React.FC = () => {
                   <span className="font-bold text-sm uppercase tracking-widest">
                     {CONTENT.automation.hubs.myStore}
                   </span>
-                  <span className="text-xxs text-gray-600">{CONTENT.automation.hubs.masterData}</span>
+                  <span className="text-xxs text-gray-600">
+                    {CONTENT.automation.hubs.masterData}
+                  </span>
                   <div className="absolute inset-0 rounded-full border border-primary animate-ping opacity-20"></div>
                 </div>
 
@@ -585,7 +577,10 @@ const Ecommerce: React.FC = () => {
                 >
                   <FileText size={16} />
                   <span>{CONTENT.boosters.articleLink}</span>
-                  <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight
+                    size={14}
+                    className="group-hover:translate-x-1 transition-transform"
+                  />
                 </div>
               </div>
             </div>
@@ -690,9 +685,7 @@ const Ecommerce: React.FC = () => {
           <div className="inline-block p-4 rounded-full bg-blue-50 border border-secondary/10 mb-6 animate-pulse">
             <Box size={32} className="text-secondary" />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.cta.title}
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
           <p className="text-xl text-gray-600 mb-10 font-medium">{CONTENT.cta.text}</p>
           <Button
             onClick={() => openModal('consultation', { specificType: 'ecommerce' })}

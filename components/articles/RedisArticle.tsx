@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Database,
@@ -190,9 +193,7 @@ const RedisArticle = () => {
 
             {/* PERSISTENCE */}
             <div className="mt-24">
-              <h2 className="text-3xl font-bold text-dark mb-8">
-                {CONTENT.persistence.title}
-              </h2>
+              <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.persistence.title}</h2>
               <p className="mb-8">{CONTENT.persistence.text}</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose">

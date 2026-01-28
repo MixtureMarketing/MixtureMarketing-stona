@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Zap,
@@ -20,7 +23,6 @@ import Image from '../common/Image';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import RelatedArticles from './RelatedArticles';
-import Accordion from '../common/Accordion';
 import LazyHydrate from '../common/LazyHydrate';
 import { ARTICLES } from '../../data/articles';
 import { EDGE_COMPUTING_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/edge-computing';

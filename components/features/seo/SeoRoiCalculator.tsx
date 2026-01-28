@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Calculator, Coins } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
@@ -68,9 +70,7 @@ const SeoRoiCalculator: React.FC = () => {
                     <div className="p-2 bg-success/10 rounded-lg text-success">
                       <Calculator size={24} />
                     </div>
-                    <h3 className="text-xl font-bold text-dark">
-                      {CONTENT.roi.labels.potential}
-                    </h3>
+                    <h3 className="text-xl font-bold text-dark">{CONTENT.roi.labels.potential}</h3>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">

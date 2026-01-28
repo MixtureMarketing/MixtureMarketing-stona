@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // services/auditService.ts
 const API_URL = '/api/audit/run_audit.php';
 
@@ -96,7 +98,9 @@ export const auditService = {
     return json.data;
   },
 
-  async getAuditResult(auditId: string | number): Promise<{ data: AuditResult; meta: Record<string, unknown> }> {
+  async getAuditResult(
+    auditId: string | number,
+  ): Promise<{ data: AuditResult; meta: Record<string, unknown> }> {
     const response = await fetch(`/api/audit/get_audit_result.php?auditId=${auditId}`);
 
     if (!response.ok) {

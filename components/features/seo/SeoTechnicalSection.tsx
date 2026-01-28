@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, Code2, Gauge, Globe, Terminal } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
@@ -18,7 +20,7 @@ const SeoTechnicalSection: React.FC = () => {
           observer.disconnect(); // Run once
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (sectionRef.current) {
@@ -57,9 +59,9 @@ const SeoTechnicalSection: React.FC = () => {
             return currentLogs;
           });
         }
-        
+
         if (next >= 100) {
-            clearInterval(simInterval);
+          clearInterval(simInterval);
         }
         return next;
       });
@@ -78,7 +80,10 @@ const SeoTechnicalSection: React.FC = () => {
   const clsColor = optStep < 60 ? 'text-red-400' : 'text-success';
 
   return (
-    <section ref={sectionRef} className="py-24 bg-[#0B1120] text-white relative z-10 overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-24 bg-[#0B1120] text-white relative z-10 overflow-hidden"
+    >
       <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
       <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#00C853] to-transparent opacity-30"></div>
 
@@ -103,9 +108,7 @@ const SeoTechnicalSection: React.FC = () => {
                   <div className="text-3xl font-black text-success mb-1">
                     {CONTENT.technicalSeo.impact.conversion}
                   </div>
-                  <div className="text-xs text-gray-300">
-                    Konwersji za każdą sekundę opóźnienia
-                  </div>
+                  <div className="text-xs text-gray-300">Konwersji za każdą sekundę opóźnienia</div>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
                   <div className="text-3xl font-black text-red-400 mb-1">

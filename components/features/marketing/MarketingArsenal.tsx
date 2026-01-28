@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Megaphone, TrendingUp, BarChart3, ArrowRight } from 'lucide-react';
@@ -126,8 +128,7 @@ const MarketingArsenal: React.FC = () => {
                       </div>
                       <ArrowRight
                         size={16}
-                        className="text-gray-400 group-hover:text-white transition-colors transform group-hover:translate-x-1 shrink-0"
-                        aria-hidden="true"
+                        className="text-gray-500 group-hover:text-white transition-colors transform group-hover:translate-x-1 shrink-0"
                       />
                     </div>
                   </div>

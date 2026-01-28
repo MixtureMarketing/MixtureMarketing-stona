@@ -9,7 +9,7 @@ module.exports = {
         '/web-development/ecommerce/',
         '/branza/medycyna',
         '/miasto/warszawa',
-        '/baza-wiedzy/core-web-vitals-2025'
+        '/baza-wiedzy/core-web-vitals-2025',
       ],
       numberOfRuns: 3,
     },

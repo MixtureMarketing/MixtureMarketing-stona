@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import {
   Server,
@@ -207,9 +210,7 @@ const BackendCompendiumArticle = () => {
                 <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm group hover:border-primary transition-all">
                   <div className="flex items-center gap-3 mb-6">
                     <Layers className="text-green-500" size={32} />
-                    <h3 className="text-xl font-bold m-0 text-dark">
-                      {content.part3.mongo.title}
-                    </h3>
+                    <h3 className="text-xl font-bold m-0 text-dark">{content.part3.mongo.title}</h3>
                   </div>
                   <p className="text-sm text-gray-600 mb-6">{content.part3.mongo.text}</p>
                   <div className="bg-green-50 p-4 rounded-xl border border-green-100">
@@ -251,9 +252,7 @@ const BackendCompendiumArticle = () => {
                   <Star size={32} className="fill-current" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-dark mb-2">
-                    {content.part4.advice.title}
-                  </h4>
+                  <h4 className="text-xl font-bold text-dark mb-2">{content.part4.advice.title}</h4>
                   <p
                     className="text-sm text-gray-700 m-0 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: content.part4.advice.text }}

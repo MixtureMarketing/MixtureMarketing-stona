@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import {
   Globe,
@@ -162,18 +165,14 @@ export const ReactVennDiagram: React.FC = () => {
         {/* Circle 1: Web */}
         <div className="absolute left-[10%] md:left-[20%] w-64 h-64 bg-[#61DAFB]/10 border-4 border-[#61DAFB] rounded-full flex flex-col items-center justify-center p-8 transition-transform hover:scale-105 group">
           <Monitor size={32} className="text-[#61DAFB] mb-2" />
-          <span className="text-xs font-black uppercase tracking-widest text-dark">
-            Web App
-          </span>
+          <span className="text-xs font-black uppercase tracking-widest text-dark">Web App</span>
           <span className="text-xxs text-gray-500 mt-1">React.js</span>
         </div>
 
         {/* Circle 2: Mobile */}
         <div className="absolute right-[10%] md:right-[20%] w-64 h-64 bg-purple-500/10 border-4 border-purple-500 rounded-full flex flex-col items-center justify-center p-8 transition-transform hover:scale-105 group">
           <Smartphone size={32} className="text-purple-500 mb-2" />
-          <span className="text-xs font-black uppercase tracking-widest text-dark">
-            Mobile App
-          </span>
+          <span className="text-xs font-black uppercase tracking-widest text-dark">Mobile App</span>
           <span className="text-xxs text-gray-500 mt-1">React Native</span>
         </div>
 

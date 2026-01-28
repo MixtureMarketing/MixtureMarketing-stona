@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
@@ -27,8 +28,24 @@ vi.mock('@/data/content', () => ({
     strategy: {
       title: 'Strategy Title',
       description: 'Strategy Desc',
-      quick: { title: 'Quick', subtitle: 'Sub', paramsTitle: 'Params', timeLabel: 'Time', timeVal: '1m', durabilityLabel: 'Dur', durabilityVal: 'Low' },
-      stable: { title: 'Stable', subtitle: 'Sub', paramsTitle: 'Params', timeLabel: 'Time', timeVal: '1y', durabilityLabel: 'Dur', durabilityVal: 'High' },
+      quick: {
+        title: 'Quick',
+        subtitle: 'Sub',
+        paramsTitle: 'Params',
+        timeLabel: 'Time',
+        timeVal: '1m',
+        durabilityLabel: 'Dur',
+        durabilityVal: 'Low',
+      },
+      stable: {
+        title: 'Stable',
+        subtitle: 'Sub',
+        paramsTitle: 'Params',
+        timeLabel: 'Time',
+        timeVal: '1y',
+        durabilityLabel: 'Dur',
+        durabilityVal: 'High',
+      },
       quickTools: [],
       stableTools: [],
     },
@@ -61,7 +78,9 @@ vi.mock('@/hooks/useCounter', () => ({
 vi.mock('@/components/common/LazyHydrate', () => {
   return {
     __esModule: true,
-    default: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-lazy-hydrate">{children}</div>,
+    default: ({ children }: { children: React.ReactNode }) => (
+      <div data-testid="mock-lazy-hydrate">{children}</div>
+    ),
   };
 });
 
@@ -74,7 +93,7 @@ describe('Marketing Page', () => {
             <Marketing />
           </ModalProvider>
         </BrowserRouter>
-      </HelmetProvider>
+      </HelmetProvider>,
     );
 
     expect(screen.getByText('Hero Title')).toBeInTheDocument();
