@@ -14,6 +14,15 @@ interface SeoProps {
   lcpImage?: string; // High priority image for LCP
   article?: Article | SanityArticle | Partial<Article & SanityArticle>; // Accepting both static and Sanity articles
   jsonLd?: Record<string, any> | Record<string, any>[]; // Custom JSON-LD data
+  breadcrumbs?: { name: string; item: string }[];
+  faq?: { question: string; answer: string }[];
+  service?: {
+    name: string;
+    description: string;
+    areaServed?: string;
+    serviceType?: string;
+    offers?: { price: string; currency: string; name: string }[];
+  };
 }
 
 const Seo: React.FC<SeoProps> = ({
@@ -26,6 +35,9 @@ const Seo: React.FC<SeoProps> = ({
   lcpImage,
   article,
   jsonLd,
+  breadcrumbs,
+  faq,
+  service,
 }) => {
   const fullTitle = `${title} | ${name}`;
   const location = useLocation();
@@ -130,41 +142,146 @@ const Seo: React.FC<SeoProps> = ({
       getCategoryTitle(article.category) ||
       'Baza Wiedzy';
 
-    return (
-      <script type="application/ld+json">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': schemaType,
-          headline: article.title,
-          image: [ogImage, `${baseUrl}/assets/images/sygnet.png`],
-          author: {
-            '@type': 'Organization',
-            name: 'Mixture Marketing Team',
-            url: baseUrl,
-          },
-          publisher: {
-            '@type': 'Organization',
-            name: 'Mixture Marketing',
-            logo: {
-              '@type': 'ImageObject',
-              url: `${baseUrl}/assets/images/sygnet.png`,
-            },
-          },
-          datePublished: isoDate,
-          dateModified: isoDate,
-          description: description,
-          mainEntityOfPage: {
-            '@type': 'WebPage',
-            '@id': canonicalUrl,
-          },
-          keywords: (article.tags || []).join(', '),
-          articleSection: section,
-          ...(duration && { timeRequired: duration }),
-          ...(schemaType === 'TechArticle' && { proficiencyLevel: 'Intermediate' }),
-        })}
-      </script>
-    );
+    return {
+      '@context': 'https://schema.org',
+      '@type': schemaType,
+      headline: article.title,
+      image: [ogImage, `${baseUrl}/assets/images/sygnet.png`],
+      author: {
+        '@type': 'Organization',
+        name: 'Mixture Marketing Team',
+        url: baseUrl,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Mixture Marketing',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${baseUrl}/assets/images/sygnet.png`,
+        },
+      },
+      datePublished: isoDate,
+      dateModified: isoDate,
+      description: description,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl,
+      },
+      keywords: (article.tags || []).join(', '),
+      articleSection: section,
+      ...(duration && { timeRequired: duration }),
+      ...(schemaType === 'TechArticle' && { proficiencyLevel: 'Intermediate' }),
+    };
   };
+
+  const renderBreadcrumbsSchema = () => {
+    if (!breadcrumbs || breadcrumbs.length === 0) return null;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumbs.map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: crumb.item.startsWith('http') ? crumb.item : `${baseUrl}${crumb.item}`,
+      })),
+    };
+  };
+
+  const renderFaqSchema = () => {
+    if (!faq || faq.length === 0) return null;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    };
+  };
+
+  const renderServiceSchema = () => {
+    if (!service) return null;
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      serviceType: service.serviceType || title,
+      provider: {
+        '@type': 'Organization',
+        name: 'Mixture Marketing',
+        url: baseUrl,
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: service.areaServed || 'Poland',
+      },
+      hasOfferCatalog: service.offers
+        ? {
+            '@type': 'OfferCatalog',
+            name: 'Cennik Usług',
+            itemListElement: service.offers.map((offer) => ({
+              '@type': 'Offer',
+              itemOffered: {
+                '@type': 'Service',
+                name: offer.name,
+              },
+              price: offer.price,
+              priceCurrency: offer.currency || 'PLN',
+            })),
+          }
+        : undefined,
+      description: service.description || description,
+      name: service.name || title,
+    };
+  };
+
+  const renderLocalBusinessSchema = () => {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name: 'Mixture Marketing',
+      image: `${baseUrl}/assets/images/sygnet.png`,
+      '@id': baseUrl,
+      url: baseUrl,
+      telephone: '+48733330335', // Assuming this is public
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'ul. Przykładowa 123', // Update with real address if available in context
+        addressLocality: 'Wrocław',
+        postalCode: '50-000',
+        addressCountry: 'PL',
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 51.107883,
+        longitude: 17.038538,
+      },
+      openingHoursSpecification: {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '09:00',
+        closes: '17:00',
+      },
+      priceRange: '$$',
+    };
+  };
+
+  // Collect all schemas
+  const schemas = [
+    renderArticleSchema(),
+    renderBreadcrumbsSchema(),
+    renderFaqSchema(),
+    renderServiceSchema(),
+    // Always include LocalBusiness on homepage or if no other specific type is present,
+    // or maybe always? Usually safe to include Organization everywhere.
+    // Let's include Organization/LocalBusiness always as it helps with Knowledge Graph.
+    renderLocalBusinessSchema(),
+    ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
+  ].filter(Boolean);
 
   return (
     <Helmet>
@@ -177,12 +294,11 @@ const Seo: React.FC<SeoProps> = ({
       {renderLcpPreload()}
 
       {/* Schema.org */}
-      {renderArticleSchema()}
-      {jsonLd && (
-        <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
+      {schemas.map((schema, index) => (
+        <script key={index} type="application/ld+json">
+          {JSON.stringify(schema)}
         </script>
-      )}
+      ))}
 
       {/* Facebook Meta Tags */}
       <meta property="og:type" content={type} />

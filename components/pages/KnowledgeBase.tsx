@@ -59,6 +59,10 @@ const KnowledgeBase = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
+        ]}
       />
 
       <AmbientBackground />

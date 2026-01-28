@@ -9,8 +9,8 @@ const SITEMAP_PATH = path.resolve(__dirname, '../public/sitemap.xml');
 const BASE_URL = 'https://mixturemarketing.pl';
 
 const sanityClient = createClient({
-  projectId: 'azuef2ua',
-  dataset: 'production',
+  projectId: process.env.VITE_SANITY_PROJECT_ID,
+  dataset: process.env.VITE_SANITY_DATASET || 'production',
   apiVersion: '2024-01-21',
   useCdn: false,
 });

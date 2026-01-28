@@ -1,0 +1,72 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  quality-and-build:
+    name: 🛡️ Quality, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for gitleaks to scan history
+
+      - name: 🛡️ Gitleaks Security Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true # Don't block the whole build if false positive found, but will show in logs
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: 🧪 PHP Syntax Check (Lint)
+        run: find public/api -name "*.php" -exec php -l {} \;
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🎨 Linting & Formatting
+        run: |
+          npm run lint
+          npx prettier --check .
+
+      - name: 📐 TypeScript Check
+        run: npx tsc --noEmit
+
+      - name: 🧪 Unit Tests
+        run: npm run test -- --run
+
+      - name: 🏗️ Build & Prerender
+        env:
+          # Pulling from Secrets
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          # Pulling from Variables
+          VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET }}
+        run: npm run build
+
+      # Since audit:health runs against local files in dist/, it works in CI environment
+      - name: 🏥 Health Audit (Smoke Test)
+        run: npm run audit:health
+
+      - name: 📊 Upload Build Artifacts (Optional)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-build
+          path: dist/
+          retention-days: 5

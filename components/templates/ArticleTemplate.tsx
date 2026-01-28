@@ -162,6 +162,11 @@ const ArticleTemplate = () => {
             ? urlFor(article.mainImage).width(1200).url()
             : '/assets/images/sygnet.png'
         }
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
+          { name: article.title, item: `/baza-wiedzy/${article.slug.current}` },
+        ]}
         article={{
           id: article._id,
           title: article.title,
@@ -245,11 +250,10 @@ const ArticleTemplate = () => {
         </div>
       </div>
 
-      {/* Related Content */}
       <LazyHydrate minHeight="400px">
         <RelatedArticles
           currentSlug={slug || ''}
-          category={article.category?.title}
+          category={article.category?.title as any}
         />
       </LazyHydrate>
     </div>

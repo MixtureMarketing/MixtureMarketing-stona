@@ -14,8 +14,8 @@ const PORT = 4173;
 const MAX_CONCURRENCY = 2; // Render 2 pages in parallel
 
 const sanityClient = createClient({
-  projectId: 'azuef2ua',
-  dataset: 'production',
+  projectId: process.env.VITE_SANITY_PROJECT_ID,
+  dataset: process.env.VITE_SANITY_DATASET || 'production',
   apiVersion: '2024-01-21',
   useCdn: false,
 });
@@ -45,6 +45,18 @@ async function processRoute(browser, critters, route) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 800 });
+
+    // Optimization: Intercept and abort unnecessary requests
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+      const resourceType = req.resourceType();
+      if (['image', 'media', 'font'].includes(resourceType)) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     const url = `http://localhost:${PORT}${route}`;
     // console.log(`⏳ Processing: ${route}`);
 

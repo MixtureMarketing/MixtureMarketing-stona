@@ -11,6 +11,7 @@ import SeoRoadmap from '../features/seo/SeoRoadmap';
 import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
 import SeoFaq from '../features/seo/SeoFaq';
 import SeoCta from '../features/seo/SeoCta';
+import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '../../context/ModalContext';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
@@ -37,25 +38,25 @@ const MarketingSeo: React.FC = () => {
     });
   }, [openModal]);
 
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    serviceType: 'SEO Optimization',
-    provider: {
-      '@type': 'Organization',
-      name: 'Mixture Marketing',
-    },
-    description: CONTENT.seo.description,
-    areaServed: 'Poland',
-  };
-
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-success/20">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
-        jsonLd={structuredData}
+        type="Service"
+        service={{
+          name: 'Pozycjonowanie Stron WWW (SEO)',
+          description: CONTENT.seo.description,
+          serviceType: 'SEO Optimization',
+          areaServed: 'Poland',
+        }}
+        faq={CONTENT.faqs.map((f) => ({ question: f.q, answer: f.a }))}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Marketing', item: '/marketing' },
+          { name: 'Pozycjonowanie (SEO)', item: '/marketing/seo' },
+        ]}
       />
 
       <SeoHero />
@@ -100,6 +101,10 @@ const MarketingSeo: React.FC = () => {
 
       <LazyHydrate whenVisible>
         <SeoFaq />
+      </LazyHydrate>
+
+      <LazyHydrate whenVisible>
+        <RelatedArticles currentSlug="seo" category="Marketing" />
       </LazyHydrate>
 
       <LazyHydrate whenVisible>

@@ -2,7 +2,7 @@ import { createClient } from '@sanity/client';
 import { SanityTeamMember, SanityCaseStudy, PricingTier } from '@/types';
 import { SanityImage, SanityBody } from '@/types/sanity';
 
-const projectId = import.meta.env.VITE_SANITY_PROJECT_ID || 'azuef2ua';
+const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
 const apiVersion = import.meta.env.VITE_SANITY_API_VERSION || '2024-01-21';
 

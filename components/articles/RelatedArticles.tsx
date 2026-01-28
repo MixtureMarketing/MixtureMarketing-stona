@@ -22,21 +22,26 @@ interface RelatedItem {
 }
 
 interface RelatedArticlesProps {
-  currentSlug: string;
+  currentSlug?: string;
+  currentArticleId?: string; // Alias for backward compatibility
   category?: string;
   tags?: string[];
 }
 
-const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, category }) => {
+const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, currentArticleId, category }) => {
   const [items, setItems] = useState<RelatedItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const slug = currentSlug || currentArticleId || '';
+
   useEffect(() => {
+    if (!slug) return;
+
     const fetchRelated = async () => {
       try {
         setLoading(true);
         // Remove "/baza-wiedzy/" or "/portfolio/" prefix for slug comparison if needed
-        const cleanSlug = currentSlug.split('/').pop() || currentSlug;
+        const cleanSlug = slug.split('/').pop() || slug;
         const data = await cmsService.getRelatedContent(cleanSlug, category);
         setItems(data);
       } catch (error) {
@@ -47,7 +52,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({ currentSlug, category
     };
 
     fetchRelated();
-  }, [currentSlug, category]);
+  }, [slug, category]);
 
   if (!loading && items.length === 0) return null;
 
