@@ -34,19 +34,16 @@ import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../data/content';
 
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { UiUxHeroVisual } from '../visuals/HeroVisuals';
+
 const BrandIdentity: React.FC = () => {
   const [activeArchetype, setActiveArchetype] = useState<'sage' | 'rebel' | 'ruler'>('sage');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const navigate = useNavigate();
   const { openModal } = useModal();
-
-  // Brand DNA Mixer State
-  const [dna, setDna] = useState({
-    style: 50, // 0: Classic, 100: Modern
-    energy: 50, // 0: Calm, 100: Energetic
-    weight: 50, // 0: Light/Minimal, 100: Bold/Heavy
-  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -132,161 +129,20 @@ const BrandIdentity: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-24 bg-[#0B1120] text-white overflow-hidden">
-        <AmbientBackground />
-
-        {/* Construction Grid Overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage:
-              'linear-gradient(#61B6DE 1px, transparent 1px), linear-gradient(90deg, #61B6DE 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        ></div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/design')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-primary mb-8 transition-colors"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Wróć do Designu
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-                <Fingerprint size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-300 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('design', { specificType: 'branding' })}
-                  icon={<ArrowRight size={18} />}
-                >
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold text-gray-300 backdrop-blur-sm">
-                  <Grid size={16} className="text-primary" /> {CONTENT.hero.microCopy}
-                </div>
-              </div>
-            </div>
-
-            {/* Visual: Construction Grid Animation (Golden Ratio) */}
-            <div
-              className="lg:w-1/2 relative w-full flex justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative w-80 h-80 md:w-96 md:h-96">
-                {/* Animated Circles Drawing */}
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#61B6DE"
-                    strokeWidth="0.2"
-                    strokeOpacity="0.3"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="25"
-                    fill="none"
-                    stroke="#61B6DE"
-                    strokeWidth="0.2"
-                    strokeOpacity="0.3"
-                  />
-
-                  {/* Dynamic Drawing Lines */}
-                  <path
-                    d="M50 10 A40 40 0 0 1 90 50"
-                    fill="none"
-                    stroke="#61B6DE"
-                    strokeWidth="0.5"
-                    className="animate-draw-path"
-                  />
-                  <path
-                    d="M10 50 A40 40 0 0 0 50 90"
-                    fill="none"
-                    stroke="#3F3D91"
-                    strokeWidth="0.5"
-                    className="animate-draw-path"
-                    style={{ animationDelay: '1s' }}
-                  />
-
-                  {/* Grid Lines */}
-                  <line
-                    x1="50"
-                    y1="10"
-                    x2="50"
-                    y2="90"
-                    stroke="#61B6DE"
-                    strokeWidth="0.1"
-                    strokeDasharray="2 2"
-                  />
-                  <line
-                    x1="10"
-                    y1="50"
-                    x2="90"
-                    y2="50"
-                    stroke="#61B6DE"
-                    strokeWidth="0.1"
-                    strokeDasharray="2 2"
-                  />
-                </svg>
-
-                {/* Center Logo Placeholder */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 bg-white text-dark rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(97,182,222,0.3)] z-10 animate-float">
-                    <Target size={64} strokeWidth={1.5} />
-                  </div>
-                </div>
-
-                {/* Floating Labels with connecting lines */}
-                <div className="absolute top-10 -left-10 bg-[#1E293B] px-3 py-1 rounded text-xxs text-primary border border-primary/30 animate-fade-in-up">
-                  Ratio: 1.618
-                </div>
-                <div
-                  className="absolute bottom-10 -right-10 bg-[#1E293B] px-3 py-1 rounded text-xxs text-primary border border-primary/30 animate-fade-in-up"
-                  style={{ animationDelay: '0.5s' }}
-                >
-                  Safe Area: 2x
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <style>{`
-            @keyframes draw-path {
-                0% { stroke-dasharray: 0, 1000; }
-                100% { stroke-dasharray: 1000, 0; }
-            }
-            .animate-draw-path {
-                animation: draw-path 3s ease-in-out infinite alternate;
-            }
-        `}</style>
-      </section>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Fingerprint}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('design', { specificType: 'branding' })}
+        ctaSecondaryText={CONTENT.hero.microCopy}
+        ctaSecondaryOnClick={() => {}}
+        ctaSecondaryIcon={Grid}
+        backLinkPath="/design"
+        backLinkLabel="Wróć do Designu"
+        visual={<UiUxHeroVisual />}
+      />
 
       {/* --- PROCESS TIMELINE (REFINED) --- */}
       <section className="py-24 bg-white relative z-10 overflow-hidden">
@@ -897,19 +753,15 @@ const BrandIdentity: React.FC = () => {
         </div>
       </section>
 
-      {/* --- CTA --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden text-center">
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="inline-block p-4 rounded-full bg-white border border-gray-200 mb-6 shadow-sm animate-pulse">
-            <Zap size={32} className="text-secondary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
-          <Button onClick={() => openModal('design')} variant="primary" size="lg">
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      {/* --- FINAL CTA --- */}
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.description}
+        buttonText={CONTENT.cta.button}
+        icon={Briefcase}
+        onClick={() => openModal('branding')}
+        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+      />
     </div>
   );
 };

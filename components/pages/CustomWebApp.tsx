@@ -44,6 +44,10 @@ import LazyHydrate from '../common/LazyHydrate';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { WebAppHeroVisual } from '../visuals/HeroVisuals';
+
 const CustomWebApp: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
@@ -52,11 +56,6 @@ const CustomWebApp: React.FC = () => {
     '> Initializing build sequence...',
   ]);
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
-
-  // Generate stable deterministic "random" heights for the monitor chart
-  const [randomHeights] = useState(() =>
-    Array.from({ length: 20 }).map((_, i) => ((i * 17) % 80) + 10),
-  );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -169,107 +168,20 @@ const CustomWebApp: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-28 bg-[#0B1120] text-white overflow-hidden">
-        <AmbientBackground />
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/web-development')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-primary mb-8 transition-colors uppercase tracking-wider"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Web Development
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in font-mono">
-                <Code2 size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-200 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('web', { specificType: 'custom' })}
-                  icon={<ArrowRight size={18} />}
-                >
-                  Umów się na konsultację
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/offers#calculator?type=custom')}
-                  icon={<Calculator size={18} />}
-                >
-                  Wyceń aplikację
-                </Button>
-              </div>
-            </div>
-
-            <div
-              className="lg:w-1/2 w-full relative animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative z-10 bg-[#0F172A] rounded-xl border border-[#334155] p-6 shadow-2xl overflow-hidden group hover:shadow-[0_0_40px_rgba(97,182,222,0.15)] transition-shadow duration-500">
-                <div className="flex justify-between items-center mb-6 border-b border-[#334155] pb-4">
-                  <div className="text-xs font-mono text-primary flex items-center gap-2">
-                    <Activity size={14} className="animate-pulse" /> SYSTEM_MONITOR_V2
-                  </div>
-                  <div className="flex gap-2 text-xxs font-mono text-green-400">
-                    <span>UPTIME: 99.99%</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#1E293B] p-4 rounded-lg border border-[#334155]">
-                    <div className="text-xxs text-gray-300 mb-2 font-mono">ACTIVE USERS</div>
-                    <div className="text-2xl font-bold text-white mb-2">12,450</div>
-                    <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-primary w-[75%] animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div className="bg-[#1E293B] p-4 rounded-lg border border-[#334155]">
-                    <div className="text-xxs text-gray-200 mb-2 font-mono">SERVER LOAD</div>
-                    <div className="text-2xl font-bold text-white mb-2">34%</div>
-                    <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-success w-[34%]"></div>
-                    </div>
-                  </div>
-                  <div className="col-span-2 bg-[#1E293B] p-4 rounded-lg border border-[#334155] relative overflow-hidden h-32 flex items-end">
-                    <div className="absolute top-3 left-4 text-xxs text-gray-200 font-mono">
-                      TRANSACTIONS / SEC
-                    </div>
-                    <div className="flex items-end justify-between w-full h-20 gap-1">
-                      {randomHeights.map((height, i) => (
-                        <div
-                          key={i}
-                          className="bg-secondary w-full rounded-t opacity-80 transition-all duration-500"
-                          style={{ height: `${height}%` }}
-                        ></div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Code2}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText="Umów się na konsultację"
+        ctaPrimaryOnClick={() => openModal('web', { specificType: 'custom' })}
+        ctaSecondaryText="Wyceń aplikację"
+        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=custom')}
+        ctaSecondaryIcon={Calculator}
+        backLinkPath="/web-development"
+        backLinkLabel="Web Development"
+        visual={<WebAppHeroVisual />}
+      />
 
       {/* --- USE CASES --- */}
       <LazyHydrate minHeight="600px">
@@ -546,46 +458,14 @@ const CustomWebApp: React.FC = () => {
       )}
 
       {/* --- CTA --- */}
-      <LazyHydrate minHeight="400px">
-        <section className="py-24 bg-[#F9FAFB] relative overflow-hidden text-center border-t border-gray-100">
-          <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none"></div>
-          <div className="max-w-4xl mx-auto px-4 relative z-10">
-            <div className="inline-block p-4 rounded-full bg-white border border-gray-200 mb-6 shadow-sm animate-pulse">
-              <Settings size={32} className="text-secondary" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-            <p className="text-xl text-gray-600 mb-10 font-medium">{CONTENT.cta.description}</p>
-            <Button
-              onClick={() => openModal('consultation', { specificType: 'custom' })}
-              variant="primary"
-              size="lg"
-              className="!bg-dark border-none hover:!bg-secondary shadow-xl shadow-[#213261]/20"
-            >
-              {CONTENT.cta.button}
-            </Button>
-          </div>
-        </section>
-      </LazyHydrate>
-
-      {/* --- CTA --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden text-center border-t border-gray-100">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="inline-block p-4 rounded-full bg-white border border-gray-200 mb-6 shadow-sm animate-pulse">
-            <Settings size={32} className="text-secondary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10 font-medium">{CONTENT.cta.description}</p>
-          <Button
-            onClick={() => openModal('consultation', { specificType: 'custom' })}
-            variant="primary"
-            size="lg"
-            className="!bg-dark border-none hover:!bg-secondary shadow-xl shadow-[#213261]/20"
-          >
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.description}
+        buttonText={CONTENT.cta.button}
+        icon={Settings}
+        onClick={() => openModal('consultation', { specificType: 'custom' })}
+        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+      />
     </div>
   );
 };

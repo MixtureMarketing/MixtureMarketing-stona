@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   ShieldCheck,
   Shield,
   Cloud,
   Building2,
-  XCircle,
   Zap,
   Activity,
   User,
@@ -16,20 +14,13 @@ import {
   Plane,
   FileCode,
   Terminal,
-  ChevronUp,
-  ChevronDown,
-  RotateCcw,
-  AlertTriangle,
   Scale,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import Image from '../common/Image';
-import AmbientBackground from '../common/AmbientBackground';
-import Seo from '../common/Seo';
-import RelatedArticles from './RelatedArticles';
+import ArticleShell from './ArticleShell';
 import LazyHydrate from '../common/LazyHydrate';
 import { ARTICLES } from '../../data/articles';
 import { WAF_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/waf';
@@ -38,322 +29,230 @@ import { useCounter } from '../../hooks/useCounter';
 const WafArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'waf-bezpieczenstwo');
 
+  if (!articleData) return null;
+
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-dark selection:bg-primary/30">
-      <Seo
-        title={articleData?.title || CONTENT.header.title.line1 + ' ' + CONTENT.header.title.line2}
-        description={
-          articleData?.description ||
-          'Czym jest WAF i jak chroni przed atakami SQL Injection i XSS? Poznaj różnice między zwykłym firewallem a Web Application Firewall.'
-        }
-        image={articleData?.image}
-        lcpImage="/assets/images/WAF.png"
+    <ArticleShell
+      id={articleData.id}
+      title={articleData.title}
+      description={CONTENT.header.subtitle}
+      category="tech"
+      categoryLabel={CONTENT.header.badge}
+      image={articleData.image}
+      icon={ShieldCheck}
+      accentColor="#3F3D91"
+      heroVisual={<WafHeroVisual />}
+    >
+      <div className="flex justify-center mb-16 not-prose">
+        <AttackCounter />
+      </div>
+
+      <AnimateOnScroll>
+        <p
+          className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed italic border-l-4 border-secondary pl-6 py-2"
+          dangerouslySetInnerHTML={{ __html: CONTENT.lead.quote }}
+        />
+        <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text }} />
+      </AnimateOnScroll>
+
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.howItWorks.title}
+          subtitle={CONTENT.howItWorks.subtitle}
+          align="left"
+        />
+        <p className="mb-8">{CONTENT.howItWorks.text}</p>
+
+        <LazyHydrate minHeight="400px">
+          <AirportSecuritySimulator />
+        </LazyHydrate>
+      </div>
+
+      <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.technical.title}</h2>
+      <p className="mb-8">{CONTENT.technical.text}</p>
+
+      <AnimateOnScroll>
+        <div className="mb-16 overflow-hidden rounded-2xl border border-gray-200 shadow-lg bg-white not-prose">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
+                  <th className="p-5 border-b border-gray-200 font-bold">
+                    {CONTENT.technical.headers[0]}
+                  </th>
+                  <th className="p-5 border-b border-gray-200 font-bold">
+                    {CONTENT.technical.headers[1]}
+                  </th>
+                  <th className="p-5 border-b border-gray-200 font-bold text-secondary bg-blue-50/30">
+                    {CONTENT.technical.headers[2]}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {CONTENT.technical.rows.map((row, i) => (
+                  <tr
+                    key={i}
+                    className="hover:bg-gray-50 transition-colors border-b border-gray-100"
+                  >
+                    <td className="p-5 font-bold text-dark">{row.label}</td>
+                    <td className="p-5 text-gray-700">{row.v1}</td>
+                    <td className="p-5 font-bold text-secondary bg-blue-50/10">{row.v2}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </AnimateOnScroll>
+
+      <SectionHeader
+        title={CONTENT.blocks.title}
+        subtitle={CONTENT.blocks.subtitle}
+        align="left"
       />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose my-12">
+        {CONTENT.blocks.items.map((item, i) => (
+          <AttackTypeCard key={i} title={item.title} desc={item.desc} impact={item.impact} />
+        ))}
+      </div>
 
-      <AmbientBackground />
+      <SectionHeader
+        title={CONTENT.patching.title}
+        subtitle={CONTENT.patching.subtitle}
+        align="left"
+      />
+      <p dangerouslySetInnerHTML={{ __html: CONTENT.patching.text }} />
+      <AnimateOnScroll>
+        <div className="my-12">
+          <VirtualPatchingTimeline />
+        </div>
+      </AnimateOnScroll>
 
-      <div className="pt-12 pb-24 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          <header className="mb-16 mt-8 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-8 border border-[#cce4ff]">
-              <ShieldCheck size={12} />
-              <span>{CONTENT.header.badge}</span>
-            </div>
+      <AnimateOnScroll>
+        <div className="my-16">
+          <LazyHydrate minHeight="300px">
+            <SqliDemo />
+          </LazyHydrate>
+        </div>
+      </AnimateOnScroll>
 
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-8 text-dark leading-[1.1] tracking-tight">
-              {CONTENT.header.title.line1} <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-primary to-secondary">
-                {CONTENT.header.title.line2}
-              </span>
-            </h1>
+      <div className="my-24">
+        <SectionHeader
+          title="Cena zaniedbania"
+          subtitle="Symulator Kar RODO / GDPR"
+          centered={true}
+        />
+        <LazyHydrate minHeight="400px">
+          <GdprPenaltyCalculator />
+        </LazyHydrate>
+      </div>
 
-            <div className="flex justify-center mb-8">
-              <AttackCounter />
-            </div>
-
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-              {CONTENT.header.subtitle}
-            </p>
-          </header>
-
-          <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">
-            <Image
-              src="/assets/images/WAF.png"
-              alt="Web Application Firewall Security"
-              className="w-full h-[400px] object-cover"
-              priority
+      <div className="mt-24">
+        <SectionHeader
+          title={CONTENT.value.title}
+          subtitle={CONTENT.value.subtitle}
+          align="left"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12 mb-24">
+          {CONTENT.value.items.map((item, i) => (
+            <ValueCard
+              key={i}
+              icon={
+                i === 0 ? (
+                  <ShieldCheck className="text-emerald-500" />
+                ) : i === 1 ? (
+                  <Activity className="text-blue-500" />
+                ) : (
+                  <Zap className="text-amber-500" />
+                )
+              }
+              title={item.title}
+              desc={item.desc}
             />
-          </div>
-
-          <div className="mb-20">
-            <div className="relative bg-[#0B1120] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
-              <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-transparent"></div>
-
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary blur-[60px] opacity-20 animate-pulse"></div>
-                  <Shield
-                    size={100}
-                    className="text-white relative z-10 drop-shadow-[0_0_20px_rgba(97,182,222,0.5)]"
-                    strokeWidth={1.5}
-                  />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <ShieldCheck size={32} className="text-primary" />
-                  </div>
-                </div>
-                <div className="mt-6 font-mono text-xxs tracking-[0.4em] text-primary uppercase font-black">
-                  Layer 7 Protection Active
-                </div>
-              </div>
-
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div
-                    key={i}
-                    className={`absolute w-1 h-1 bg-red-500 rounded-full animate-projectile-${i}`}
-                  ></div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <article className="prose prose-lg prose-slate max-w-none prose-headings:text-dark prose-headings:font-bold prose-p:text-gray-700 prose-a:text-secondary hover:prose-a:text-primary prose-strong:text-dark prose-li:text-gray-700">
-            <AnimateOnScroll>
-              <p
-                className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed italic border-l-4 border-secondary pl-6 py-2"
-                dangerouslySetInnerHTML={{ __html: CONTENT.lead.quote }}
-              />
-              <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text }} />
-            </AnimateOnScroll>
-
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.howItWorks.title}
-                subtitle={CONTENT.howItWorks.subtitle}
-                level="h2"
-                align="left"
-              />
-              <p className="mb-8">{CONTENT.howItWorks.text}</p>
-
-              <LazyHydrate minHeight="400px">
-                <AirportSecuritySimulator />
-              </LazyHydrate>
-            </div>
-
-            <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.technical.title}</h2>
-            <p className="mb-8">{CONTENT.technical.text}</p>
-
-            <AnimateOnScroll>
-              <div className="mb-16 overflow-hidden rounded-2xl border border-gray-200 shadow-lg bg-white">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[600px]">
-                    <thead>
-                      <tr className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
-                        <th className="p-5 border-b border-gray-200 font-bold">
-                          {CONTENT.technical.headers[0]}
-                        </th>
-                        <th className="p-5 border-b border-gray-200 font-bold">
-                          {CONTENT.technical.headers[1]}
-                        </th>
-                        <th className="p-5 border-b border-gray-200 font-bold text-secondary bg-blue-50/30">
-                          {CONTENT.technical.headers[2]}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      {CONTENT.technical.rows.map((row, i) => (
-                        <tr
-                          key={i}
-                          className="hover:bg-gray-50 transition-colors border-b border-gray-100"
-                        >
-                          <td className="p-5 font-bold text-dark">{row.label}</td>
-                          <td className="p-5 text-gray-700">{row.v1}</td>
-                          <td className="p-5 font-bold text-secondary bg-blue-50/10">{row.v2}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </AnimateOnScroll>
-
-            <SectionHeader
-              title={CONTENT.blocks.title}
-              subtitle={CONTENT.blocks.subtitle}
-              level="h2"
-              align="left"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose my-12">
-              {CONTENT.blocks.items.map((item, i) => (
-                <AttackTypeCard key={i} title={item.title} desc={item.desc} impact={item.impact} />
-              ))}
-            </div>
-
-            <SectionHeader
-              title={CONTENT.patching.title}
-              subtitle={CONTENT.patching.subtitle}
-              level="h2"
-              align="left"
-            />
-            <p dangerouslySetInnerHTML={{ __html: CONTENT.patching.text }} />
-            <AnimateOnScroll>
-              <div className="my-12">
-                <VirtualPatchingTimeline />
-              </div>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll>
-              <div className="my-16">
-                <LazyHydrate minHeight="300px">
-                  <SqliDemo />
-                </LazyHydrate>
-              </div>
-            </AnimateOnScroll>
-
-            <div className="my-24">
-              <SectionHeader
-                title="Cena zaniedbania"
-                subtitle="Symulator Kar RODO / GDPR"
-                level="h2"
-                centered={true}
-              />
-              <LazyHydrate minHeight="400px">
-                <GdprPenaltyCalculator />
-              </LazyHydrate>
-            </div>
-
-            <div className="mt-24">
-              <SectionHeader
-                title={CONTENT.value.title}
-                subtitle={CONTENT.value.subtitle}
-                level="h2"
-                align="left"
-              />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12 mb-24">
-                {CONTENT.value.items.map((item, i) => (
-                  <ValueCard
-                    key={i}
-                    icon={
-                      i === 0 ? (
-                        <ShieldCheck className="text-emerald-500" />
-                      ) : i === 1 ? (
-                        <Activity className="text-blue-500" />
-                      ) : (
-                        <Zap className="text-amber-500" />
-                      )
-                    }
-                    title={item.title}
-                    desc={item.desc}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.implementation.title}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose mb-24">
-              <div className="bg-white p-8 rounded-3xl border-2 border-primary/20 shadow-xl relative overflow-hidden group hover:border-primary transition-all">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Cloud size={80} aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
-                  <Cloud className="text-primary" aria-hidden="true" />{' '}
-                  {CONTENT.implementation.cloud.title}
-                </h3>
-                <p className="text-sm text-gray-700 mb-6">{CONTENT.implementation.cloud.desc}</p>
-                <ul className="text-sm space-y-3 mb-8">
-                  {CONTENT.implementation.cloud.items.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircle2 size={14} className="text-emerald-500" aria-hidden="true" />{' '}
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="text-xxs font-black uppercase text-primary">
-                  {CONTENT.implementation.cloud.label}
-                </div>
-              </div>
-
-              <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
-                <div className="absolute top-0 right-0 p-4 opacity-5">
-                  <Building2 size={80} aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
-                  <Building2 className="text-gray-600" aria-hidden="true" />{' '}
-                  {CONTENT.implementation.onPremise.title}
-                </h3>
-                <p className="text-sm text-gray-700 mb-6">
-                  {CONTENT.implementation.onPremise.desc}
-                </p>
-                <ul className="text-sm space-y-3 mb-8">
-                  {CONTENT.implementation.onPremise.items.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2 text-gray-700">
-                      <CheckCircle2
-                        size={14}
-                        className={`${i === 2 ? 'text-rose-500' : 'text-emerald-500'}`}
-                        aria-hidden="true"
-                      />{' '}
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <div className="text-xxs font-black uppercase text-gray-600">
-                  {CONTENT.implementation.onPremise.label}
-                </div>
-              </div>
-            </div>
-
-            <AnimateOnScroll>
-              <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner">
-                    <Shield size={40} className="text-white" aria-hidden="true" />
-                  </div>
-                  <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-                  <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                    {CONTENT.cta.text}
-                  </p>
-                  <div className="flex flex-col sm:flex-row justify-center gap-4">
-                    <Button
-                      variant="white"
-                      size="lg"
-                      className="shadow-xl text-dark hover:bg-gray-100"
-                    >
-                      {CONTENT.cta.primaryBtn}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                      size="lg"
-                      onClick={() => (window.location.href = '/baza-wiedzy')}
-                    >
-                      {CONTENT.cta.secondaryBtn}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </AnimateOnScroll>
-
-            <RelatedArticles currentArticleId="waf-bezpieczenstwo" category="tech" />
-          </article>
+          ))}
         </div>
       </div>
-      <style>{`
-        .bg-tech-grid {
-            background-image: linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-        @keyframes projectile { from { right: 0; opacity: 1; } to { right: 45%; opacity: 0; } }
-        .animate-projectile-1 { top: 20%; right: -10px; animation: projectile 1.5s infinite linear; }
-        .animate-projectile-2 { top: 40%; right: -10px; animation: projectile 1.2s infinite linear 0.2s; }
-        .animate-projectile-3 { top: 60%; right: -10px; animation: projectile 1.8s infinite linear 0.5s; }
-        .animate-projectile-4 { top: 30%; right: -10px; animation: projectile 1.4s infinite linear 0.8s; }
-        .animate-projectile-5 { top: 70%; right: -10px; animation: projectile 1.6s infinite linear 1.1s; }
-      `}</style>
-    </div>
+
+      <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.implementation.title}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose mb-24">
+        <div className="bg-white p-8 rounded-3xl border-2 border-primary/20 shadow-xl relative overflow-hidden group hover:border-primary transition-all">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Cloud size={80} aria-hidden="true" />
+          </div>
+          <h3 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
+            <Cloud className="text-primary" aria-hidden="true" />{' '}
+            {CONTENT.implementation.cloud.title}
+          </h3>
+          <p className="text-sm text-gray-700 mb-6">{CONTENT.implementation.cloud.desc}</p>
+          <ul className="text-sm space-y-3 mb-8">
+            {CONTENT.implementation.cloud.items.map((item, i) => (
+              <li key={i} className="flex items-center gap-2 text-gray-700">
+                <CheckCircle2 size={14} className="text-emerald-500" aria-hidden="true" /> {item}
+              </li>
+            ))}
+          </ul>
+          <div className="text-xxs font-black uppercase text-primary">
+            {CONTENT.implementation.cloud.label}
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-lg transition-all">
+          <div className="absolute top-0 right-0 p-4 opacity-5">
+            <Building2 size={80} aria-hidden="true" />
+          </div>
+          <h3 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
+            <Building2 className="text-gray-600" aria-hidden="true" />{' '}
+            {CONTENT.implementation.onPremise.title}
+          </h3>
+          <p className="text-sm text-gray-700 mb-6">{CONTENT.implementation.onPremise.desc}</p>
+          <ul className="text-sm space-y-3 mb-8">
+            {CONTENT.implementation.onPremise.items.map((item, i) => (
+              <li key={i} className="flex items-center gap-2 text-gray-700">
+                <CheckCircle2
+                  size={14}
+                  className={`${i === 2 ? 'text-rose-500' : 'text-emerald-500'}`}
+                  aria-hidden="true"
+                />{' '}
+                {item}
+              </li>
+            ))}
+          </ul>
+          <div className="text-xxs font-black uppercase text-gray-600">
+            {CONTENT.implementation.onPremise.label}
+          </div>
+        </div>
+      </div>
+
+      <AnimateOnScroll>
+        <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
+
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner">
+              <Shield size={40} className="text-white" aria-hidden="true" />
+            </div>
+            <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
+            <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
+              {CONTENT.cta.text}
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Button variant="white" size="lg" className="shadow-xl text-dark hover:bg-gray-100">
+                {CONTENT.cta.primaryBtn}
+              </Button>
+              <Button
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10 hover:border-white"
+                size="lg"
+                onClick={() => (window.location.href = '/baza-wiedzy')}
+              >
+                {CONTENT.cta.secondaryBtn}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </AnimateOnScroll>
+    </ArticleShell>
   );
 };
 
@@ -658,5 +557,50 @@ const GdprPenaltyCalculator = () => {
     </div>
   );
 };
+
+const WafHeroVisual = () => (
+  <div className="relative bg-[#0B1120] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
+    <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
+    <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-transparent"></div>
+
+    <div className="relative z-10 flex flex-col items-center">
+      <div className="relative">
+        <div className="absolute inset-0 bg-primary blur-[60px] opacity-20 animate-pulse"></div>
+        <Shield
+          size={100}
+          className="text-white relative z-10 drop-shadow-[0_0_20px_rgba(97,182,222,0.5)]"
+          strokeWidth={1.5}
+        />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <ShieldCheck size={32} className="text-primary" />
+        </div>
+      </div>
+      <div className="mt-6 font-mono text-xxs tracking-[0.4em] text-primary uppercase font-black">
+        Layer 7 Protection Active
+      </div>
+    </div>
+
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className={`absolute w-1 h-1 bg-red-500 rounded-full animate-projectile-${i}`}
+        ></div>
+      ))}
+    </div>
+    <style>{`
+        @keyframes projectile { from { right: 0; opacity: 1; } to { right: 45%; opacity: 0; } }
+        .animate-projectile-1 { top: 20%; right: -10px; animation: projectile 1.5s infinite linear; }
+        .animate-projectile-2 { top: 40%; right: -10px; animation: projectile 1.2s infinite linear 0.2s; }
+        .animate-projectile-3 { top: 60%; right: -10px; animation: projectile 1.8s infinite linear 0.5s; }
+        .animate-projectile-4 { top: 30%; right: -10px; animation: projectile 1.4s infinite linear 0.8s; }
+        .animate-projectile-5 { top: 70%; right: -10px; animation: projectile 1.6s infinite linear 1.1s; }
+        .bg-tech-grid {
+            background-image: linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    `}</style>
+  </div>
+);
 
 export default WafArticle;

@@ -49,5 +49,6 @@ export const routes = [
   '/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/',
   '/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/',
   '/portal',
+  '/portfolio/',
   '/audyt-360/',
 ];

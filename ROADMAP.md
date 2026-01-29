@@ -196,15 +196,15 @@ Niniejszy dokument definiuje strategiczny plan rozwoju projektu, skupiając się
 
 **Cel:** Głęboka analiza statyczna kodu w celu wykrycia redundancji, martwego kodu i problemów architektonicznych, a następnie wdrożenie poprawek.
 
-### Module 1: Wielkie Czyszczenie (Dead Code Removal) 🔄
+### Module 1: Wielkie Czyszczenie (Dead Code Removal) ✅
 
 - **Zadania:**
   - ✅ Analiza raportów `knip` (martwy kod) i `jscpd` (duplikacja).
   - ✅ Usunięcie martwych komponentów (`Portfolio.tsx`, `PremiumWebsites.tsx`, `VisualContent.tsx`).
   - ✅ Usunięcie starych plików danych (`articles-content.ts`, `pricing_archive.ts`).
   - ✅ Eliminacja "barrel files" (`components/common/index.ts`).
-  - Usunięcie pozostałych 34 martwych plików wskazanych przez `knip` (skrypty, nieużywane wizualizacje).
-  - Wyczyszczenie nieużywanych zależności w `package.json` (`@google/genai`, `why-did-you-render`).
+  - ✅ Usunięcie 34 martwych plików (skrypty, nieużywane wizualizacje).
+  - ✅ Wyczyszczenie nieużywanych zależności w `package.json` (`@google/genai`, `why-did-you-render`, `postcss`, `autoprefixer`).
 - **Efekt:**
   - Zmniejszenie rozmiaru projektu i szumu informacyjnego.
 
@@ -214,21 +214,20 @@ Niniejszy dokument definiuje strategiczny plan rozwoju projektu, skupiając się
   - ✅ Refaktoryzacja `Input.tsx` i `Select.tsx` do `FieldWrapper.tsx`.
   - ✅ Unifikacja logiki pobierania danych pSEO via `usePseoData` hook.
   - ✅ Refaktoryzacja `GoogleAds.tsx` (wydzielenie kalkulatora i FAQ).
-  - Scalenie JSX w szablonach pSEO (`IndustryTemplate.tsx` i `LocationTemplate.tsx`).
+  - Scalenie JSX w szablonach pSEO (`IndustryTemplate.tsx` i `LocationTemplate.tsx`) w jeden `PseoTemplate.tsx`.
   - Standaryzacja sekcji powtarzalnych w Landing Page'ach (Hero, FAQ, Pricing).
 - **Efekt:**
-  - Łatwiejsze utrzymanie spójności wizualnej (zmiana w jednym miejscu).
-  - Mniejszy rozmiar kodu (redukcja duplikatów).
+  - Łatwiejsze utrzymanie spójności wizualnej.
 
-### Module 3: Refaktoryzacja "God Objects"
+### Module 3: Refaktoryzacja "God Objects" 🔄
 
 - **Zadania:**
-  - `ContactModal`: Wydzielenie konfiguracji formularza i podział na mniejsze sub-komponenty.
-  - `Marketing.tsx`: Dalsza atomizacja sekcji.
+  - ✅ `ContactModal`: Wydzielenie konfiguracji formularza i podział na mniejsze sub-komponenty.
+  - `Marketing.tsx`: Dalsza atomizacja sekcji (Hero, Strategy, itp. są już osobno, ale wymagają standaryzacji).
 - **Efekt:**
   - Lepsza czytelność i testowalność kluczowych elementów UI.
 
-### Module 4: Optymalizacja Artykułów
+### Module 4: Optymalizacja Artykułów ⏳
 
 - **Zadania:**
   - Analiza duplikacji między komponentami artykułów (`...Article.tsx`) a ich wizualizacjami (`...Visuals.tsx`).

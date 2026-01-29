@@ -42,7 +42,7 @@ import { META_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
-import Accordion from '../common/Accordion';
+import StandardCta from '../common/StandardCta';
 
 const MetaAds: React.FC = () => {
   const [strategyType, setStrategyType] = useState<'ecommerce' | 'b2b'>('ecommerce');
@@ -839,24 +839,15 @@ const MetaAds: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-instagram/5 relative overflow-hidden">
-        <div className="absolute inset-0 bg-tech-grid opacity-5 pointer-events-none"></div>
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-block p-4 rounded-full bg-white border border-instagram/20 mb-6 shadow-sm animate-pulse">
-            <Video size={32} className="text-instagram" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
-          <Button
-            onClick={() => openModal('marketing', { specificType: 'ads' })}
-            variant="primary"
-            size="lg"
-            className="!bg-instagram hover:!bg-[#C13584] border-transparent"
-          >
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.description}
+        buttonText={CONTENT.cta.button}
+        icon={Video}
+        onClick={() => openModal('marketing', { specificType: 'ads' })}
+        colorScheme="instagram"
+        bgClassName="bg-instagram/5"
+      />
 
       <style>{`
         @keyframes scroll-y {

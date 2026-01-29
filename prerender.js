@@ -204,7 +204,11 @@ async function prerender() {
         ...projects.map((p) => `/portfolio/${p.slug}`),
       ];
 
-      console.log(`✅ Found ${dynamicRoutes.length} dynamic routes.`);
+      console.log(`✅ Found ${articles.length} articles.`);
+      console.log(`✅ Found ${industries.length} industries.`);
+      console.log(`✅ Found ${locations.length} locations.`);
+      console.log(`✅ Found ${projects.length} projects.`);
+      console.log(`🚀 Total dynamic routes: ${dynamicRoutes.length}`);
     } catch (err) {
       console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
     }

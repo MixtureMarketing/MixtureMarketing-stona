@@ -28,6 +28,10 @@ import Seo from '../common/Seo';
 import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../data/content';
 import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
 
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { DesignHeroVisual } from '../visuals/HeroVisuals';
+
 const DesignBranding: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
@@ -85,84 +89,17 @@ const DesignBranding: React.FC = () => {
         }}
       />
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-24 bg-[#F9FAFB] overflow-hidden">
-        <AmbientBackground />
-
-        {/* Construction Grid Overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage:
-              'linear-gradient(#213261 1px, transparent 1px), linear-gradient(90deg, #213261 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        ></div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-secondary mb-8 transition-colors"
-            aria-label="Wróć do strony głównej"
-          >
-            <ArrowLeft
-              className="mr-2 group-hover:-translate-x-1 transition-transform"
-              size={16}
-              aria-hidden="true"
-            />
-            Wróć do strony głównej
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in border border-secondary/20">
-                <Palette size={14} aria-hidden="true" /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-[#3A8FB7]">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-                dangerouslySetInnerHTML={{ __html: CONTENT.hero.description }}
-              />
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button onClick={() => openModal('design')} icon={<ArrowRight size={18} />}>
-                  {CONTENT.hero.cta}
-                </Button>
-              </div>
-            </div>
-
-            {/* Visual: Abstract Design Composition */}
-            <div
-              className="lg:w-1/2 w-full flex justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <LazyHydrate whenVisible>
-                <div className="relative w-80 h-80 md:w-96 md:h-96">
-                  {/* Floating Layers */}
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-2xl transform rotate-6 z-10 opacity-90 animate-float"></div>
-                  <div className="absolute bottom-0 left-10 w-40 h-40 bg-white border border-gray-200 rounded-2xl shadow-xl transform -rotate-3 z-20 flex items-center justify-center animate-float-delayed">
-                    <div className="text-dark font-black text-4xl tracking-tighter">Aa</div>
-                  </div>
-                  <div className="absolute top-20 left-0 w-32 h-32 bg-dark rounded-full z-0 opacity-10"></div>
-
-                  {/* Grid Lines */}
-                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full border-dashed animate-spin-slow"></div>
-                </div>
-              </LazyHydrate>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Palette}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('design')}
+        backLinkPath="/"
+        backLinkLabel="Wróć do strony głównej"
+        visual={<DesignHeroVisual />}
+      />
 
       {/* --- DESIGN TECH STACK (TOOLKIT) --- */}
       <section className="py-20 bg-white border-b border-gray-100 overflow-hidden">
@@ -491,19 +428,16 @@ const DesignBranding: React.FC = () => {
       </LazyHydrate>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-dark relative overflow-hidden text-center">
-        <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="inline-block p-4 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-sm animate-pulse">
-            <Wand2 size={32} className="text-primary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-300 mb-10">{CONTENT.cta.text}</p>
-          <Button onClick={() => openModal('design')} variant="white" size="lg">
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.button}
+        icon={Wand2}
+        onClick={() => openModal('design')}
+        variant="white"
+        bgClassName="bg-dark text-white"
+        className="text-white"
+      />
     </div>
   );
 };

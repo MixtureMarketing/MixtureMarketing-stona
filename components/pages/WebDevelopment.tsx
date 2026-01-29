@@ -41,13 +41,14 @@ import { useModal } from '../../context/ModalContext';
 import TechStack from '../sections/TechStack';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
-import { useCounter } from '../../hooks/useCounter';
 import { WEB_DEV_CONTENT } from '../../data/content';
 import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { WebDevHeroVisual } from '../visuals/HeroVisuals';
 
 const WebDevelopment: React.FC = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const perfScore = useCounter(98, { duration: 1500, delay: 500 });
   const [securityScanAngle, setSecurityScanAngle] = useState(0);
   const [blockedCount, setBlockedCount] = useState(1420);
 
@@ -167,178 +168,34 @@ const WebDevelopment: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-24 lg:py-32 bg-[#F9FAFB] overflow-hidden">
-        <AmbientBackground />
+      <StandardHero
+        badge={WEB_DEV_CONTENT.hero.badge}
+        badgeIcon={Terminal}
+        title={{ line1: WEB_DEV_CONTENT.hero.title, line2: WEB_DEV_CONTENT.hero.titleAccent }}
+        description={WEB_DEV_CONTENT.hero.description}
+        ctaPrimaryText="Umów się na konsultację"
+        ctaPrimaryOnClick={() => openModal('web')}
+        ctaSecondaryText="Wyceń projekt"
+        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=webApp')}
+        ctaSecondaryIcon={Calculator}
+        backLinkPath="/"
+        backLinkLabel="System.Return_To_Home()"
+        visual={<WebDevHeroVisual />}
+      />
 
+      <section className="bg-[#F9FAFB] pb-24">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
-            {/* Left Column: Text Content */}
-            <div className="lg:w-3/5 text-center lg:text-left">
-              <button
-                onClick={() => navigate('/')}
-                className="group inline-flex items-center text-xxs font-bold text-gray-600 hover:text-secondary mb-8 transition-colors uppercase tracking-[0.2em] border border-gray-200 rounded-full px-3 py-1 bg-white hover:border-secondary"
-                aria-label="Wróć do strony głównej"
-              >
-                <ArrowLeft
-                  className="mr-2 group-hover:-translate-x-1 transition-transform"
-                  size={12}
-                  aria-hidden="true"
-                />
-                System.Return_To_Home()
-              </button>
-
-              <div className="mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-gray-200 shadow-sm text-secondary text-xxs font-black uppercase tracking-widest mb-6">
-                  <Terminal size={12} className="text-accent-dark" aria-hidden="true" />{' '}
-                  {WEB_DEV_CONTENT.hero.badge}
-                </div>
-                <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-dark mb-8 leading-[1.1] tracking-tight">
-                  {WEB_DEV_CONTENT.hero.title}
-                  <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-[#3A8FB7] to-secondary">
-                    {WEB_DEV_CONTENT.hero.titleAccent}
-                  </span>
-                </h1>
-                <p className="text-xl text-gray-600 max-w-2xl leading-relaxed mb-10 font-medium">
-                  {WEB_DEV_CONTENT.hero.description}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <Button
-                    size="lg"
-                    onClick={() => openModal('web')}
-                    className="shadow-2xl shadow-secondary/20"
-                  >
-                    Umów się na konsultację
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    onClick={() => navigate('/offers#calculator?type=webApp')}
-                    icon={<Calculator size={18} />}
-                  >
-                    Wyceń projekt
-                  </Button>
-                </div>
-              </div>
-
-              {/* Tech Stack Horizontal List */}
-              <div className="pt-10 border-t border-gray-200/60 flex flex-wrap gap-x-8 gap-y-4 justify-center lg:justify-start">
-                {[
-                  'Next.js',
-                  'React',
-                  'TypeScript',
-                  'WordPress Headless',
-                  'Laravel',
-                  'AWS Cloud',
-                ].map((tech, i) => (
-                  <span
-                    key={i}
-                    className="text-xs font-bold font-mono tracking-wider text-gray-600 hover:text-dark transition-colors flex items-center gap-2 cursor-default"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Column: Performance Simulator */}
-            <div className="lg:w-2/5 w-full relative mt-12 lg:mt-0">
-              <LazyHydrate whenVisible>
-                <AnimateOnScroll className="relative z-10 flex justify-center lg:justify-end">
-                  <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-6 md:p-10 w-full max-w-[320px] md:max-w-none relative overflow-hidden group hover:shadow-[0_40px_80px_-20px_rgba(63,61,145,0.15)] transition-all duration-500">
-                    {/* Simulation Header */}
-                    <div className="flex justify-between items-center mb-6 md:mb-10">
-                      <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FF5F57]"></div>
-                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#FFBD2E]"></div>
-                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-[#28C840]"></div>
-                      </div>
-                      <div className="px-2 py-1 bg-gray-50 rounded-lg text-xxxs md:text-xxs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2 border border-gray-100">
-                        <Activity size={10} className="text-emerald-600" /> Core Web Vitals
-                      </div>
-                    </div>
-
-                    {/* Main Performance Circle */}
-                    <div className="flex justify-center mb-6 md:mb-10 relative">
-                      <svg
-                        className="w-32 h-32 md:w-52 md:h-52 transform -rotate-90"
-                        viewBox="0 0 200 200"
-                      >
-                        <circle
-                          cx="100"
-                          cy="100"
-                          r="88"
-                          fill="none"
-                          stroke="#F3F4F6"
-                          strokeWidth="8"
-                        />
-                        <circle
-                          cx="100"
-                          cy="100"
-                          r="88"
-                          fill="none"
-                          stroke={perfScore > 90 ? '#00C853' : '#F4B400'}
-                          strokeWidth="8"
-                          strokeDasharray={552}
-                          strokeDashoffset={552 - (552 * perfScore) / 100}
-                          className="transition-all duration-1000 ease-out"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span
-                          className={`text-4xl md:text-6xl font-black tracking-tighter leading-none ${perfScore > 90 ? 'text-dark' : 'text-[#F4B400]'}`}
-                        >
-                          {perfScore}
-                        </span>
-                        <span className="text-xs md:text-xxs font-bold text-gray-600 uppercase mt-1 md:mt-2 tracking-widest">
-                          Performance
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Grid of Mini Stats */}
-                    <div className="grid grid-cols-2 gap-3 md:gap-4">
-                      <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
-                          SEO Readiness
-                        </div>
-                        <div className="text-sm md:text-lg font-black text-dark flex items-center gap-1">
-                          100% <CheckCircle2 size={12} className="text-success" />
-                        </div>
-                      </div>
-                      <div className="p-3 md:p-4 bg-gray-50 rounded-xl md:rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center">
-                        <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase mb-1">
-                          Accessibility
-                        </div>
-                        <div className="text-sm md:text-lg font-black text-dark">AA+</div>
-                      </div>
-                    </div>
-
-                    {/* Decorative scanning line */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-scan"></div>
-                  </div>
-                </AnimateOnScroll>
-              </LazyHydrate>
-
-              {/* Floating Badge */}
-              <div className="absolute -bottom-4 -left-4 md:-bottom-8 md:-left-8 bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-xl border border-gray-100 animate-float z-20">
-                <div className="flex items-center gap-2 md:gap-3">
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center text-success">
-                    <Gauge size={16} className="md:w-5 md:h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xxxs md:text-xxs font-bold text-gray-600 uppercase leading-none mb-1">
-                      LCP Speed
-                    </div>
-                    <div className="text-xs md:text-sm font-black text-dark">
-                      0.7s <span className="text-emerald-600 text-xxxs md:text-xxs">Optimal</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="pt-10 border-t border-gray-200/60 flex flex-wrap gap-x-8 gap-y-4 justify-center lg:justify-start">
+            {['Next.js', 'React', 'TypeScript', 'WordPress Headless', 'Laravel', 'AWS Cloud'].map(
+              (tech, i) => (
+                <span
+                  key={i}
+                  className="text-xs font-bold font-mono tracking-wider text-gray-600 hover:text-dark transition-colors flex items-center gap-2 cursor-default"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {tech}
+                </span>
+              ),
+            )}
           </div>
         </div>
       </section>
@@ -509,7 +366,7 @@ const WebDevelopment: React.FC = () => {
                             <span className="text-gray-500 select-none mr-4">5</span>{' '}
                             <span className="text-[#C792EA]">return</span>{' '}
                             <span className="text-[#FFCB6B]">$price</span>{' '}
-                            <span className="text-[#89DDFF]">*</span>{' '}
+                            <span className="text-[#89DDFF]">/</span>{' '}
                             <span className="text-[#FFCB6B]">$discount</span>
                             <span className="text-[#89DDFF]">;</span>
                           </div>
@@ -558,7 +415,6 @@ const WebDevelopment: React.FC = () => {
 
       {/* --- ADMIN PANEL & MANAGEMENT --- */}
       <section className="py-24 bg-white relative overflow-hidden">
-        {/* Content from previous version regarding Admin Panel... */}
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             <div className="lg:w-1/2 order-2 lg:order-1">
@@ -728,29 +584,26 @@ const WebDevelopment: React.FC = () => {
         </div>
       </section>
 
-      {/* --- ECOSYSTEM & INTEGRATIONS (CLEAN GRID) --- */}
+      {/* --- ECOSYSTEM & INTEGRATIONS --- */}
       <section className="py-24 bg-[#F9FAFB] relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
-
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <SectionHeader
             title={WEB_DEV_CONTENT.integrations.title}
             description={WEB_DEV_CONTENT.integrations.description}
             className="mb-16"
           />
-
           <LazyHydrate whenVisible>
             <IntegrationGrid categories={integrationCategories} />
           </LazyHydrate>
         </div>
       </section>
 
-      {/* --- INFRASTRUCTURE & SECURITY DASHBOARD (LIVE ANIMATION) --- */}
+      {/* --- INFRASTRUCTURE & SECURITY --- */}
       <section className="py-24 bg-[#0B1120] relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
-            {/* Left Text */}
             <div className="lg:w-1/2">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-emerald-400 text-xxs font-black uppercase tracking-widest mb-6 backdrop-blur-sm">
                 <ShieldCheck size={12} /> {WEB_DEV_CONTENT.infrastructure.badge}
@@ -774,15 +627,11 @@ const WebDevelopment: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Visual: Security Center Dashboard */}
             <div className="lg:w-1/2 w-full">
               <LazyHydrate whenVisible>
                 <AnimateOnScroll delay={200}>
                   <div className="bg-[#0F172A] rounded-xl border border-[#1E293B] p-6 shadow-[0_0_50px_rgba(0,200,83,0.1)] relative overflow-hidden group">
-                    {/* Scanning Grid Background */}
                     <div className="absolute inset-0 bg-grid-white/[0.02]"></div>
-
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-8 border-b border-[#334155] pb-4 relative z-10">
                       <div className="flex items-center gap-2 text-white font-mono text-sm">
                         <Server size={16} className="text-primary" /> SECURITY_CENTER
@@ -794,14 +643,10 @@ const WebDevelopment: React.FC = () => {
                         </span>
                       </div>
                     </div>
-
-                    {/* Main Content Split */}
                     <div className="flex gap-6 relative z-10">
-                      {/* Left: Radar & Status */}
                       <div className="w-1/3 flex flex-col items-center justify-center border-r border-[#334155] pr-6">
                         <div className="relative w-24 h-24 mb-4">
                           <div className="absolute inset-0 border-2 border-[#1E293B] rounded-full"></div>
-                          <div className="absolute inset-4 border border-[#334155] rounded-full"></div>
                           <div
                             className="absolute inset-0 rounded-full border-t-2 border-success opacity-50"
                             style={{
@@ -814,65 +659,28 @@ const WebDevelopment: React.FC = () => {
                           </div>
                         </div>
                         <div className="text-center">
-                          <div className="text-xxs text-gray-300 uppercase font-bold">
-                            Threats Blocked
-                          </div>
+                          <div className="text-xxs text-gray-300 uppercase font-bold">Blocked</div>
                           <div className="text-xl font-mono text-white">{blockedCount}</div>
                         </div>
                       </div>
-
-                      {/* Right: Log Stream */}
                       <div className="w-2/3 space-y-3 font-mono text-xs">
                         <div className="flex justify-between text-gray-300 text-xxs uppercase font-bold border-b border-[#334155] pb-1">
-                          <span>Event Type</span>
+                          <span>Event</span>
                           <span>Status</span>
                         </div>
-                        {[
-                          {
-                            time: 'Now',
-                            msg: 'SQL Injection attempt',
-                            status: 'BLOCKED',
-                            color: 'text-red-400',
-                          },
-                          {
-                            time: '-2s',
-                            msg: 'Bot crawler detected',
-                            status: 'DENIED',
-                            color: 'text-orange-400',
-                          },
-                          {
-                            time: '-5s',
-                            msg: 'SSL Handshake',
-                            status: 'SUCCESS',
-                            color: 'text-success',
-                          },
-                          {
-                            time: '-12s',
-                            msg: 'Admin Login (2FA)',
-                            status: 'VERIFIED',
-                            color: 'text-primary',
-                          },
-                        ].map((log, i) => (
-                          <div
-                            key={i}
-                            className="flex justify-between items-center animate-fade-in-up"
-                            style={{ animationDelay: `${i * 100}ms` }}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-gray-500">[{log.time}]</span>
-                              <span className="text-gray-300">{log.msg}</span>
-                            </div>
-                            <span className={`font-bold ${log.color}`}>{log.status}</span>
-                          </div>
-                        ))}
-                        <div className="h-4 bg-gradient-to-t from-[#0F172A] to-transparent w-full absolute bottom-0 left-0"></div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-300">SQL Injection</span>
+                          <span className="text-red-400 font-bold">BLOCKED</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-300">Bot crawler</span>
+                          <span className="text-orange-400 font-bold">DENIED</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-300">SSL Handshake</span>
+                          <span className="text-success font-bold">SUCCESS</span>
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Decorative Bottom Bar */}
-                    <div className="mt-6 pt-3 border-t border-[#334155] flex justify-between items-center text-xxs text-gray-300 font-mono">
-                      <div>Mem: 24% | CPU: 12%</div>
-                      <div>Firewall: v4.2.0 (Active)</div>
                     </div>
                   </div>
                 </AnimateOnScroll>
@@ -882,11 +690,8 @@ const WebDevelopment: React.FC = () => {
         </div>
       </section>
 
-      {/* --- TECHNICAL COMPARISON (DIFF CHECKER STYLE) --- */}
+      {/* --- TECHNICAL COMPARISON --- */}
       <section className="py-24 bg-white relative overflow-hidden">
-        {/* Tech Background */}
-        <div className="absolute inset-0 bg-tech-grid opacity-5"></div>
-
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader
             title={WEB_DEV_CONTENT.comparison.title}
@@ -894,101 +699,25 @@ const WebDevelopment: React.FC = () => {
             description={WEB_DEV_CONTENT.comparison.description}
             className="mb-16"
           />
-
-          {/* The Comparison Card */}
           <LazyHydrate whenVisible>
-            <div className="bg-[#0F172A] text-gray-200 rounded-3xl overflow-hidden shadow-2xl border border-[#1E293B] relative">
-              {/* Decorative Header Bar */}
-              <div className="bg-[#1E293B] px-6 py-4 flex justify-between items-center border-b border-gray-700">
-                <div className="flex gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
-                </div>
-                <div className="font-mono text-xs text-gray-200 tracking-widest">
-                  DIFF_CHECKER_V2.1
-                </div>
-              </div>
-
-              {/* Grid Header */}
-              <div className="grid grid-cols-12 px-6 py-4 border-b border-gray-700/50 bg-[#0F172A] text-xs font-bold uppercase tracking-wider text-white sticky top-0 z-10">
-                <div className="col-span-12 md:col-span-4 lg:col-span-4">Parametr</div>
-                <div className="hidden md:block col-span-4 text-center text-red-300">
-                  Standard Rynkowy
-                </div>
-                <div className="hidden md:block col-span-4 text-center text-emerald-400">
-                  Mixture Tech Stack
-                </div>
-              </div>
-
-              {/* Rows */}
+            <div className="bg-[#0F172A] text-gray-200 rounded-3xl overflow-hidden shadow-2xl border border-[#1E293B]">
               <div className="divide-y divide-gray-800">
                 {comparisonData.map((row, i) => (
                   <div key={i} className="px-6 py-6 hover:bg-white/5 transition-colors group">
                     <div className="grid grid-cols-12 items-center">
-                      {/* Metric Name */}
-                      <div className="col-span-12 md:col-span-4 flex items-center gap-4 mb-6 md:mb-0">
-                        <div className="p-2 rounded-lg bg-[#1E293B] text-primary border border-gray-700 group-hover:border-primary group-hover:text-white transition-colors">
-                          {row.icon}
-                        </div>
-                        <div>
-                          <span className="font-bold text-white text-base block">{row.label}</span>
-                          <span className="text-xxs text-gray-200 font-mono hidden md:block">
-                            {row.desc}
-                          </span>
-                        </div>
+                      <div className="col-span-12 md:col-span-4 flex items-center gap-4">
+                        <div className="p-2 rounded-lg bg-[#1E293B] text-primary">{row.icon}</div>
+                        <span className="font-bold text-white">{row.label}</span>
                       </div>
-
-                      {/* Bad Value */}
-                      <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center border-r border-gray-800 md:border-none pr-4 md:pr-0 opacity-60 group-hover:opacity-100 transition-opacity">
-                        <div className="md:hidden text-xxs uppercase font-bold text-red-500 mb-2">
-                          Standard
-                        </div>
-                        <div className="flex items-center gap-2 text-red-400 font-mono text-sm md:text-base">
-                          <XCircle size={16} />
-                          <span className="line-through decoration-red-500/50">{row.bad}</span>
-                        </div>
+                      <div className="col-span-6 md:col-span-4 text-center">
+                        <span className="line-through text-red-400">{row.bad}</span>
                       </div>
-
-                      {/* Good Value */}
-                      <div className="col-span-6 md:col-span-4 flex flex-col items-center justify-center pl-4 md:pl-0">
-                        <div className="md:hidden text-xxs uppercase font-bold text-emerald-500 mb-2">
-                          Mixture
-                        </div>
-                        <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono text-sm md:text-base bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-400/20 shadow-[0_0_15px_rgba(52,211,153,0.1)]">
-                          <CheckCircle2 size={16} />
-                          <span>{row.good}</span>
-                        </div>
+                      <div className="col-span-6 md:col-span-4 text-center">
+                        <span className="text-emerald-400 font-bold">{row.good}</span>
                       </div>
                     </div>
-                    {/* Mobile Description */}
-                    <p className="md:hidden text-xxs text-gray-200 font-mono mt-4 text-center leading-relaxed">
-                      {row.desc}
-                    </p>
                   </div>
                 ))}
-              </div>
-
-              {/* Footer / Summary */}
-              <div className="bg-[#1E293B]/50 px-8 py-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
-                    <ShieldCheck size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-sm">Gwarancja Jakości Kodu</h3>
-                    <p className="text-gray-200 text-xs">
-                      Każdy projekt przechodzi audyt Core Web Vitals przed wdrożeniem.
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => openModal('audit')}
-                  variant="outline"
-                  className="border-gray-600 text-gray-300 hover:text-white hover:border-white w-full md:w-auto"
-                >
-                  Pobierz Przykładowy Raport
-                </Button>
               </div>
             </div>
           </LazyHydrate>
@@ -1003,41 +732,27 @@ const WebDevelopment: React.FC = () => {
             subtitle={WEB_DEV_CONTENT.faq.subtitle}
             className="mb-12"
           />
-
           <div className="space-y-4">
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border border-gray-200 rounded-2xl bg-white overflow-hidden transition-all duration-300 hover:border-primary/50 group"
+                className="border border-gray-200 rounded-2xl bg-white overflow-hidden hover:border-primary/50 transition-all group"
               >
                 <button
                   onClick={() => toggleFaq(index)}
-                  className="w-full px-6 py-5 text-left flex justify-between items-center bg-transparent"
+                  className="w-full px-6 py-5 text-left flex justify-between items-center"
                 >
-                  <span className="font-bold text-dark pr-8 text-lg group-hover:text-secondary transition-colors">
+                  <span className="font-bold text-dark text-lg group-hover:text-secondary">
                     {faq.q}
                   </span>
-                  <div
-                    className={`w-8 h-8 rounded-full bg-[#F9FAFB] flex items-center justify-center text-secondary transition-all duration-300 ${
-                      openFaq === index
-                        ? 'bg-secondary text-white rotate-180'
-                        : 'group-hover:bg-blue-50'
-                    }`}
-                  >
-                    <ChevronDown size={18} />
-                  </div>
+                  <ChevronDown
+                    size={18}
+                    className={`transition-all ${openFaq === index ? 'rotate-180' : ''}`}
+                  />
                 </button>
-                <div
-                  className={`grid transition-all duration-300 ease-in-out ${
-                    openFaq === index ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                  }`}
-                >
-                  <div className="overflow-hidden">
-                    <div className="px-6 pb-6 pt-0 text-gray-600 leading-relaxed border-t border-transparent">
-                      {faq.a}
-                    </div>
-                  </div>
-                </div>
+                {openFaq === index && (
+                  <div className="px-6 pb-6 text-gray-600 animate-fade-in">{faq.a}</div>
+                )}
               </div>
             ))}
           </div>
@@ -1050,72 +765,16 @@ const WebDevelopment: React.FC = () => {
       </LazyHydrate>
 
       {/* --- FINAL CTA --- */}
-      <section className="py-24 bg-white">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimateOnScroll>
-            <div className="rounded-[3rem] bg-gradient-to-br from-dark to-secondary p-10 md:p-16 lg:p-24 relative overflow-hidden shadow-2xl text-center lg:text-left">
-              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px]"></div>
-              <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16">
-                <div className="lg:w-3/5">
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-8 tracking-tight">
-                    {WEB_DEV_CONTENT.ctaSection.title} <br />
-                    <span className="text-primary">{WEB_DEV_CONTENT.ctaSection.titleAccent}</span>
-                  </h2>
-                  <p className="text-gray-200 text-xl mb-12 leading-relaxed font-medium">
-                    {WEB_DEV_CONTENT.ctaSection.description}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                    <Button
-                      onClick={() => openModal('consultation')}
-                      variant="white"
-                      size="lg"
-                      className="px-12 py-5 text-xl"
-                    >
-                      {WEB_DEV_CONTENT.ctaSection.buttonText}
-                    </Button>
-                    <div className="flex items-center gap-5 px-8 text-white/60 text-sm font-bold border-l border-white/10 hidden sm:flex">
-                      <div className="p-3 bg-white/5 rounded-full">
-                        <Smartphone size={24} className="text-primary" />
-                      </div>
-                      <div>
-                        <div className="text-xxs uppercase tracking-widest mb-1">Direct Line</div>
-                        <div className="text-white text-lg font-black">
-                          {WEB_DEV_CONTENT.ctaSection.phone}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="hidden lg:block">
-                  <div className="w-80 h-80 rounded-full border-[24px] border-white/5 flex items-center justify-center relative shadow-inner">
-                    <Activity size={120} className="text-primary animate-pulse" />
-                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full animate-ping"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </AnimateOnScroll>
-        </div>
-      </section>
-
-      <style>{`
-        @keyframes scan {
-            0% { transform: translateY(-100%); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateY(400%); opacity: 0; }
-        }
-        .animate-scan {
-            animation: scan 4s linear infinite;
-        }
-        .animate-spin-slow {
-            animation: spin 30s linear infinite;
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <StandardCta
+        title={WEB_DEV_CONTENT.ctaSection.title}
+        description={WEB_DEV_CONTENT.ctaSection.description}
+        buttonText={WEB_DEV_CONTENT.ctaSection.buttonText}
+        icon={Activity}
+        onClick={() => openModal('consultation')}
+        variant="white"
+        bgClassName="bg-gradient-to-br from-dark to-secondary text-white"
+        className="text-white"
+      />
     </div>
   );
 };

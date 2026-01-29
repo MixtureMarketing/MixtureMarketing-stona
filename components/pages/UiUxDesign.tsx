@@ -34,6 +34,10 @@ import { useParallax } from '../../hooks/useParallax';
 import Seo from '../common/Seo';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content';
 
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { UiUxHeroVisual } from '../visuals/HeroVisuals';
+
 const UiUxDesign: React.FC = () => {
   const [viewMode, setViewMode] = useState<'lofi' | 'hifi'>('hifi');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -46,10 +50,6 @@ const UiUxDesign: React.FC = () => {
   // Hooks
   const navigate = useNavigate();
   const { openModal } = useModal();
-
-  // Parallax Optimization
-  const heroRef = useRef<HTMLDivElement>(null);
-  const mousePos = useParallax(heroRef, 1);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -68,144 +68,20 @@ const UiUxDesign: React.FC = () => {
       />
 
       {/* --- HERO SECTION WITH PARALLAX --- */}
-      <section ref={heroRef} className="relative py-24 lg:py-32 bg-[#F9FAFB] overflow-hidden">
-        <AmbientBackground />
-
-        {/* Design Grid Overlay */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/')}
-            className="group inline-flex items-center text-xs font-bold text-gray-600 hover:text-secondary mb-12 transition-all uppercase tracking-widest border border-gray-200 rounded-full px-4 py-1.5 bg-white shadow-sm"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={14} />
-            Back to Mixtured
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-20 items-center">
-            <div className="lg:w-1/2 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-secondary/10 text-secondary text-xxs font-black uppercase tracking-[0.2em] mb-8 animate-fade-in shadow-sm">
-                <Fingerprint size={12} className="text-primary" /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-dark mb-8 leading-[1.05] tracking-tighter animate-fade-in-up">
-                {CONTENT.hero.title.line1}
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-primary to-secondary">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-700 mb-12 leading-relaxed animate-fade-in-up max-w-xl mx-auto lg:mx-0 font-medium"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('design', { specificType: 'uiux' })}
-                  className="px-10 py-4 shadow-2xl shadow-secondary/20"
-                >
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-2xl border border-gray-100 text-sm font-bold text-gray-600 shadow-sm cursor-default hover:border-primary/30 transition-colors">
-                  <Figma size={18} className="text-[#F24E1E]" />
-                  <div className="flex flex-col leading-none">
-                    <span className="text-xxs uppercase text-gray-600 mb-1">
-                      {CONTENT.hero.microCopy.label}
-                    </span>
-                    <span>{CONTENT.hero.microCopy.value}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Visual: Floating Interface Elements (Parallax) */}
-            <div
-              className="lg:w-1/2 w-full relative h-[600px] flex items-center justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative w-full h-full perspective-[2000px]">
-                {/* Back Element - Glass Dashboard */}
-                <div
-                  className="absolute top-1/2 left-1/2 w-[400px] h-72 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white p-8 transition-transform duration-100 ease-out will-change-transform"
-                  style={{
-                    transform: `translate(-50%, -50%) translate(${mousePos.x * -25}px, ${mousePos.y * -25}px) rotateX(${mousePos.y * 8}deg) rotateY(${mousePos.x * 8}deg)`,
-                  }}
-                >
-                  <div className="flex justify-between items-center mb-8">
-                    <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-red-400/20"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-400/20"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-400/20"></div>
-                    </div>
-                    <div className="w-24 h-2 bg-gray-100 rounded-full"></div>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="w-1/3 h-32 bg-gradient-to-br from-[#F9FAFB] to-[#E0EFFF] rounded-2xl border border-gray-50 shadow-inner"></div>
-                    <div className="w-2/3 space-y-4 pt-2">
-                      <div className="w-full h-3 bg-gray-100 rounded-full"></div>
-                      <div className="w-full h-3 bg-gray-100 rounded-full"></div>
-                      <div className="w-2/3 h-3 bg-gray-100 rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Front Element - Luxury Mobile App */}
-                <div
-                  className="absolute top-1/2 left-[60%] w-56 h-[420px] bg-[#0B1120] rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[6px] border-[#1E293B] p-6 transition-transform duration-100 ease-out flex flex-col justify-between overflow-hidden will-change-transform"
-                  style={{
-                    transform: `translate(-50%, -40%) translate(${mousePos.x * 50}px, ${mousePos.y * 50}px) rotateX(${mousePos.y * 12}deg) rotateY(${mousePos.x * 12}deg)`,
-                  }}
-                >
-                  <div className="space-y-6 pt-6 relative z-10">
-                    <div className="w-16 h-16 bg-gradient-to-tr from-primary to-secondary rounded-[1.5rem] mx-auto shadow-2xl shadow-primary/40 flex items-center justify-center text-white">
-                      <Sparkles size={32} />
-                    </div>
-                    <div className="space-y-2 text-center">
-                      <div className="w-28 h-2.5 bg-white/20 rounded-full mx-auto"></div>
-                      <div className="w-20 h-2 bg-white/10 rounded-full mx-auto"></div>
-                    </div>
-                    <div className="bg-white/5 rounded-2xl p-4 backdrop-blur-md border border-white/10">
-                      <div className="flex justify-between items-center mb-4">
-                        <div className="w-10 h-10 bg-white/10 rounded-full"></div>
-                        <div className="w-16 h-2 bg-white/20 rounded-full"></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="h-12 bg-white/5 rounded-xl"></div>
-                        <div className="h-12 bg-primary/20 rounded-xl"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <button className="w-full py-4 bg-white text-[#0B1120] font-black rounded-2xl text-xxs uppercase tracking-widest shadow-xl transform hover:scale-105 transition-all">
-                    Connect Now
-                  </button>
-
-                  {/* Internal Glow */}
-                  <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-[60px]"></div>
-                </div>
-
-                {/* Floating Dev Annotations */}
-                <div
-                  className="absolute top-20 right-10 flex flex-col items-end gap-2 transition-transform duration-100 ease-out will-change-transform"
-                  style={{ transform: `translate(${mousePos.x * 80}px, ${mousePos.y * 80}px)` }}
-                >
-                  <div className="px-3 py-1 bg-primary text-white text-xxxs font-black rounded uppercase tracking-wider shadow-lg">
-                    Padding: 32px
-                  </div>
-                  <div className="w-px h-16 bg-gradient-to-b from-primary to-transparent"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Fingerprint}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('design', { specificType: 'uiux' })}
+        ctaSecondaryText={`${CONTENT.hero.microCopy.label}: ${CONTENT.hero.microCopy.value}`}
+        ctaSecondaryOnClick={() => {}}
+        ctaSecondaryIcon={Figma}
+        backLinkPath="/"
+        backLinkLabel="Back to Mixtured"
+        visual={<UiUxHeroVisual />}
+      />
 
       {/* --- DESIGN SYSTEM PLAYGROUND (REFINED) --- */}
       <section className="py-24 bg-[#0B1120] text-white relative z-10 overflow-hidden">
@@ -893,30 +769,14 @@ const UiUxDesign: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden text-center border-t border-gray-100">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-        <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <div className="inline-block p-5 rounded-[2rem] bg-white border border-gray-200 mb-8 shadow-xl animate-bounce-subtle">
-            <Smartphone size={40} className="text-primary" />
-          </div>
-          <h2 className="text-4xl md:text-5xl font-black mb-8 text-dark tracking-tighter uppercase">
-            {CONTENT.cta.title.line1}
-            <br />
-            <span className="text-primary">{CONTENT.cta.title.line2}</span>
-          </h2>
-          <p className="text-xl text-gray-700 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
-            {CONTENT.cta.description}
-          </p>
-          <Button
-            onClick={() => openModal('design')}
-            variant="primary"
-            size="lg"
-            className="px-12 py-5 text-lg shadow-2xl shadow-primary/20"
-          >
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={`${CONTENT.cta.title.line1} ${CONTENT.cta.title.line2}`}
+        description={CONTENT.cta.description}
+        buttonText={CONTENT.cta.button}
+        icon={Smartphone}
+        onClick={() => openModal('design')}
+        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+      />
     </div>
   );
 };

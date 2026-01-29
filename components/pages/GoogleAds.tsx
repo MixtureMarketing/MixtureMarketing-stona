@@ -30,8 +30,7 @@ import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import AuditTeaser from '../features/audit/AuditTeaser';
-import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
-import Accordion from '../common/Accordion';
+import StandardCta from '../common/StandardCta';
 
 const GoogleAds: React.FC = () => {
   // Hooks
@@ -479,26 +478,14 @@ const GoogleAds: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-blue-50/30 relative overflow-hidden">
-        <div className="absolute inset-0 bg-tech-grid opacity-5 pointer-events-none"></div>
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-block p-4 rounded-full bg-white border border-[#4285F4]/10 mb-6 shadow-sm animate-pulse">
-            <Target size={32} className="text-[#4285F4]" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-            {CONTENT.ctaAudit.title}
-          </h2>
-          <p className="text-xl text-gray-600 mb-10">{CONTENT.ctaAudit.description}</p>
-
-          <Button
-            onClick={() => openModal('audit', { specificType: 'ads' })}
-            variant="primary"
-            size="lg"
-          >
-            {CONTENT.ctaAudit.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.ctaAudit.title}
+        description={CONTENT.ctaAudit.description}
+        buttonText={CONTENT.ctaAudit.button}
+        icon={Target}
+        onClick={() => openModal('audit', { specificType: 'ads' })}
+        bgClassName="bg-blue-50/30"
+      />
     </div>
   );
 };

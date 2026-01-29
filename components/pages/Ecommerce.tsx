@@ -30,7 +30,7 @@ import { useModal } from '../../context/ModalContext';
 import { ECOMMERCE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
-import { PricingSectionData, PricingTier } from '../../types';
+import StandardHero from '../common/StandardHero';
 
 const Ecommerce: React.FC = () => {
   const navigate = useNavigate();
@@ -103,147 +103,98 @@ const Ecommerce: React.FC = () => {
         lcpImage={CONTENT.seo.image}
       />
 
-      {/* --- HERO SECTION: REVENUE PIPELINE --- */}
-      <section className="relative py-20 lg:py-28 bg-[#F9FAFB] overflow-hidden">
-        <AmbientBackground />
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/web-development/')}
-            className="group flex items-center text-sm font-semibold text-gray-700 hover:text-secondary mb-8 transition-colors uppercase tracking-wider"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Web Development
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in border border-secondary/20">
-                <ShoppingCart size={14} /> {CONTENT.hero.badge}
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={ShoppingCart}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText="Umów się na konsultację"
+        ctaPrimaryOnClick={() => openModal('web', { specificType: 'ecommerce' })}
+        ctaSecondaryText="Wyceń sklep"
+        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=ecommerce')}
+        ctaSecondaryIcon={Calculator}
+        backLinkPath="/web-development/"
+        backLinkLabel="Web Development"
+        accentGradientFrom="[#00C853]"
+        accentGradientTo="secondary"
+        visual={
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 transform rotate-1 hover:rotate-0 transition-all duration-500">
+            <div className="flex justify-between items-center mb-8">
+              <div className="text-xs font-bold text-gray-600 uppercase tracking-widest">
+                Automatyzacja Zamówienia
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                <span className="text-xxs font-bold text-success">SYSTEM ACTIVE</span>
+              </div>
+            </div>
 
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00C853] to-secondary">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
+            <div className="relative flex justify-between items-center mb-12">
+              <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
               <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
+                className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-[#00C853] to-secondary -translate-y-1/2 z-0 transition-all duration-500 ease-in-out"
+                style={{ width: `${(pipelineStep / 3) * 100}%` }}
+              ></div>
+
+              {[
+                { icon: <ShoppingCart size={18} />, label: 'Zakup' },
+                { icon: <CreditCard size={18} />, label: 'Płatność' },
+                { icon: <FileText size={18} />, label: 'Faktura' },
+                { icon: <Truck size={18} />, label: 'Wysyłka' },
+              ].map((step, i) => (
+                <div key={i} className="relative z-10 flex flex-col items-center group">
+                  <div
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-500 z-10
+                                 ${
+                                   i <= pipelineStep
+                                     ? 'bg-success border-success text-white scale-110 shadow-[0_0_20px_rgba(0,200,83,0.4)]'
+                                     : 'bg-white border-gray-200 text-gray-300'
+                                 }
+                             `}
+                  >
+                    {step.icon}
+                  </div>
+                  <div
+                    className={`absolute -bottom-8 text-xxs font-bold uppercase tracking-wider transition-colors whitespace-nowrap
+                                 ${i <= pipelineStep ? 'text-dark' : 'text-gray-300'}
+                             `}
+                  >
+                    {step.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-[#F9FAFB] rounded-xl p-4 font-mono text-xs text-gray-700 space-y-3 border border-gray-100 shadow-inner">
+              <div
+                className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 0 ? 'opacity-100' : 'opacity-20'}`}
               >
-                <Button
-                  onClick={() => openModal('web', { specificType: 'ecommerce' })}
-                  icon={<ArrowRight size={18} />}
-                >
-                  Umów się na konsultację
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => navigate('/offers#calculator?type=ecommerce')}
-                  icon={<Calculator size={18} />}
-                >
-                  Wyceń sklep
-                </Button>
+                <span className="text-success font-bold">[10:42:01]</span> Nowe zamówienie #12450
+                (249.00 PLN)
+              </div>
+              <div
+                className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-20'}`}
+              >
+                <span className="text-success font-bold">[10:42:05]</span> Płatność BLIK zatwierdzona
+                (PayU)
+              </div>
+              <div
+                className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-20'}`}
+              >
+                <span className="text-success font-bold">[10:42:06]</span> Faktura VAT_12450.pdf
+                wysłana
+              </div>
+              <div
+                className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-20'}`}
+              >
+                <span className="text-success font-bold">[10:42:10]</span> Etykieta InPost
+                wygenerowana
               </div>
             </div>
-
-            {/* Visual: Order Pipeline Animation */}
-            <div
-              className="lg:w-1/2 w-full relative animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 transform rotate-1 hover:rotate-0 transition-all duration-500">
-                <div className="flex justify-between items-center mb-8">
-                  <div className="text-xs font-bold text-gray-600 uppercase tracking-widest">
-                    Automatyzacja Zamówienia
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                    <span className="text-xxs font-bold text-success">SYSTEM ACTIVE</span>
-                  </div>
-                </div>
-
-                <div className="relative flex justify-between items-center mb-12">
-                  {/* Pipeline Track */}
-                  <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
-                  <div
-                    className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-[#00C853] to-secondary -translate-y-1/2 z-0 transition-all duration-500 ease-in-out"
-                    style={{ width: `${(pipelineStep / 3) * 100}%` }}
-                  ></div>
-
-                  {/* Steps */}
-                  {[
-                    { icon: <ShoppingCart size={18} />, label: 'Zakup' },
-                    { icon: <CreditCard size={18} />, label: 'Płatność' },
-                    { icon: <FileText size={18} />, label: 'Faktura' },
-                    { icon: <Truck size={18} />, label: 'Wysyłka' },
-                  ].map((step, i) => (
-                    <div key={i} className="relative z-10 flex flex-col items-center group">
-                      <div
-                        className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-500 z-10
-                                     ${
-                                       i <= pipelineStep
-                                         ? 'bg-success border-success text-white scale-110 shadow-[0_0_20px_rgba(0,200,83,0.4)]'
-                                         : 'bg-white border-gray-200 text-gray-300'
-                                     }
-                                 `}
-                      >
-                        {step.icon}
-                      </div>
-                      <div
-                        className={`absolute -bottom-8 text-xxs font-bold uppercase tracking-wider transition-colors whitespace-nowrap
-                                     ${i <= pipelineStep ? 'text-dark' : 'text-gray-300'}
-                                 `}
-                      >
-                        {step.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Status Log */}
-                <div className="bg-[#F9FAFB] rounded-xl p-4 font-mono text-xs text-gray-700 space-y-3 border border-gray-100 shadow-inner">
-                  <div
-                    className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 0 ? 'opacity-100' : 'opacity-20'}`}
-                  >
-                    <span className="text-success font-bold">[10:42:01]</span> Nowe zamówienie
-                    #12450 (249.00 PLN)
-                  </div>
-                  <div
-                    className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-20'}`}
-                  >
-                    <span className="text-success font-bold">[10:42:05]</span> Płatność BLIK
-                    zatwierdzona (PayU)
-                  </div>
-                  <div
-                    className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-20'}`}
-                  >
-                    <span className="text-success font-bold">[10:42:06]</span> Faktura VAT_12450.pdf
-                    wysłana
-                  </div>
-                  <div
-                    className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 3 ? 'opacity-100' : 'opacity-20'}`}
-                  >
-                    <span className="text-success font-bold">[10:42:10]</span> Etykieta InPost
-                    wygenerowana
-                  </div>
-                </div>
-              </div>
-              {/* Decorative elements */}
-              <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-r from-[#00C853]/20 to-secondary/20 blur-3xl rounded-full opacity-50"></div>
-            </div>
+            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-r from-[#00C853]/20 to-secondary/20 blur-3xl rounded-full opacity-50"></div>
           </div>
-        </div>
-      </section>
+        }
+      />
 
       {/* --- AUTOMATION HUB (BASELINKER) --- */}
       <LazyHydrate minHeight="600px">
@@ -677,22 +628,14 @@ const Ecommerce: React.FC = () => {
       )}
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-white text-center border-t border-gray-100">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="inline-block p-4 rounded-full bg-blue-50 border border-secondary/10 mb-6 animate-pulse">
-            <Box size={32} className="text-secondary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10 font-medium">{CONTENT.cta.text}</p>
-          <Button
-            onClick={() => openModal('consultation', { specificType: 'ecommerce' })}
-            variant="primary"
-            size="lg"
-          >
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.button}
+        icon={Box}
+        onClick={() => openModal('consultation', { specificType: 'ecommerce' })}
+        bgClassName="bg-white border-t border-gray-100"
+      />
     </div>
   );
 };

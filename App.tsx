@@ -85,8 +85,7 @@ const DockerArticle = lazy(() => import('@/components/articles/DockerArticle'));
 const CiCdArticle = lazy(() => import('@/components/articles/CiCdArticle'));
 const DevOpsArticle = lazy(() => import('@/components/articles/DevOpsArticle'));
 const ArticleTemplate = lazy(() => import('@/components/templates/ArticleTemplate'));
-const IndustryTemplate = lazy(() => import('@/components/templates/IndustryTemplate'));
-const LocationTemplate = lazy(() => import('@/components/templates/LocationTemplate'));
+const PseoTemplate = lazy(() => import('@/components/templates/pseo/PseoTemplate'));
 const PortfolioPage = lazy(() => import('@/components/pages/PortfolioPage'));
 const CaseStudyTemplate = lazy(() => import('@/components/templates/CaseStudyTemplate'));
 
@@ -402,10 +401,10 @@ function App() {
                 <Route path="/baza-wiedzy/:slug" element={<ArticleTemplate />} />
 
                 {/* Dynamic Industry Route */}
-                <Route path="/branza/:slug" element={<IndustryTemplate />} />
+                <Route path="/branza/:slug" element={<PseoTemplate mode="industry" />} />
 
                 {/* Dynamic Location Route */}
-                <Route path="/miasto/:slug" element={<LocationTemplate />} />
+                <Route path="/miasto/:slug" element={<PseoTemplate mode="location" />} />
 
                 {/* Portfolio Routes */}
                 <Route path="/portfolio" element={<PortfolioPage />} />

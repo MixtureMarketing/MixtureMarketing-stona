@@ -7,7 +7,8 @@ import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnic
 import MarketingIndustries from '@/components/features/marketing/MarketingIndustries';
 import MarketingArsenal from '@/components/features/marketing/MarketingArsenal';
 import MarketingFaq from '@/components/features/marketing/MarketingFaq';
-import MarketingCta from '@/components/features/marketing/MarketingCta';
+import StandardCta from '@/components/common/StandardCta';
+import { Compass } from 'lucide-react';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
 
@@ -92,7 +93,16 @@ const Marketing: React.FC = () => {
       </LazyHydrate>
 
       <LazyHydrate>
-        <MarketingCta />
+        <StandardCta
+          title={MARKETING_CONTENT.cta.title}
+          description={MARKETING_CONTENT.cta.description}
+          buttonText={MARKETING_CONTENT.cta.button}
+          icon={Compass}
+          onClick={() => openModal('consultation')}
+          variant="white"
+          bgClassName="bg-[#0B1120] text-white"
+          className="text-white"
+        />
       </LazyHydrate>
     </div>
   );

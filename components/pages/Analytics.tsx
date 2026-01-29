@@ -36,8 +36,11 @@ import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { ANALYTICS_CONTENT as CONTENT } from '../../data/content';
 
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { AnalyticsHeroVisual } from '../visuals/HeroVisuals';
+
 const Analytics: React.FC = () => {
-  const [counter, setCounter] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Compliance Scan State
@@ -56,8 +59,8 @@ const Analytics: React.FC = () => {
       Array.from({ length: 120 }).map((_, i) =>
         i < 6
           ? ['Date', 'Source', 'Medium', 'Camp.', 'Click', 'Cost'][i]
-          : Math.floor(Math.random() * 1000).toString(),
-      ),
+          : Math.floor(Math.random() * 1000).toString()
+      )
     );
   }, []);
 
@@ -67,14 +70,6 @@ const Analytics: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
-
-  // Simulated Live Data Ticker
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCounter((prev) => prev + 1);
-    }, 2000);
-    return () => clearInterval(interval);
   }, []);
 
   // Compliance Simulator Loop
@@ -144,195 +139,22 @@ const Analytics: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-28 bg-[#0B1120] text-white overflow-hidden">
-        {/* Abstract Data Stream Background */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="absolute inset-0 bg-tech-grid"></div>
-          <svg className="w-full h-full">
-            <defs>
-              <linearGradient id="streamGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#61B6DE" stopOpacity="0" />
-                <stop offset="50%" stopColor="#61B6DE" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#61B6DE" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {[10, 25, 40, 60, 75, 90].map((pos, i) => (
-              <rect
-                key={i}
-                x={`${pos}%`}
-                y="0"
-                width="1"
-                height="100%"
-                fill="url(#streamGrad)"
-                className="animate-pulse"
-                style={{ animationDuration: `${2 + i * 0.5}s`, opacity: 0.3 }}
-              />
-            ))}
-          </svg>
-        </div>
-
-        {/* Glowing Orbs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full blur-[150px] opacity-30 animate-float"></div>
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary rounded-full blur-[150px] opacity-20 animate-float-delayed"></div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/marketing')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-primary mb-12 transition-colors uppercase tracking-widest focus:outline-none"
-            aria-label="Wróć do menu Marketing"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Wróć do Marketingu
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            {/* Left Content */}
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-                <Activity size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-200 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-                dangerouslySetInnerHTML={{ __html: CONTENT.hero.description }}
-              />
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button onClick={() => openModal('marketing')} icon={<ArrowRight size={18} />}>
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-2 px-4 py-3 text-sm font-bold text-gray-600 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-                  <CheckCircle2 size={16} className="text-success" /> {CONTENT.hero.trustBadge}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Visual: Live Analytics Dashboard Simulation */}
-            <div
-              className="lg:w-1/2 w-full relative animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative z-10 bg-[#0F172A]/90 backdrop-blur-xl rounded-2xl shadow-[0_0_50px_rgba(97,182,222,0.15)] border border-[#1E293B] transform rotate-1 hover:rotate-0 transition-all duration-700 group overflow-hidden">
-                {/* Window Controls */}
-                <div className="bg-[#1E293B] px-4 py-3 flex items-center justify-between border-b border-[#334155]">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                  </div>
-                  <div className="text-xxs font-mono text-gray-400 flex items-center gap-2">
-                    <Lock size={10} /> looker.studio.google.com
-                  </div>
-                </div>
-
-                {/* Dashboard Content */}
-                <div className="p-6 bg-[#0B1120]">
-                  <div className="flex justify-between items-end mb-6">
-                    <div>
-                      <div className="text-xs text-gray-300 uppercase font-bold tracking-wider mb-1">
-                        {CONTENT.dashboard.revenueLabel}
-                      </div>
-                      <div className="text-3xl font-black text-white flex items-center gap-2">
-                        {(124500 + counter * 125).toLocaleString()} PLN
-                        <span className="text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded border border-success/20">
-                          +12%
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 bg-success/10 px-2 py-1 rounded-full border border-success/20">
-                      <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-                      <span className="text-xxs font-bold text-success">LIVE</span>
-                    </div>
-                  </div>
-
-                  {/* Animated Chart */}
-                  <div className="relative h-32 w-full mb-6 overflow-hidden rounded-lg bg-[#1E293B]/30 border border-[#334155]/50">
-                    {/* Grid Lines */}
-                    <div className="absolute inset-0 flex flex-col justify-between p-2 opacity-20">
-                      <div className="w-full h-px bg-gray-500"></div>
-                      <div className="w-full h-px bg-gray-500"></div>
-                      <div className="w-full h-px bg-gray-500"></div>
-                    </div>
-
-                    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                      <path
-                        d={`M0,${60 + Math.sin(counter / 5) * 10} Q20,${50 + Math.cos(counter / 5) * 10} 40,55 T80,40 T120,45 T160,20 T200,10 V100 H0 Z`}
-                        fill="url(#chartGradient)"
-                        className="opacity-50 transition-all duration-1000 ease-linear"
-                      />
-                      <path
-                        d={`M0,${60 + Math.sin(counter / 5) * 10} Q20,${50 + Math.cos(counter / 5) * 10} 40,55 T80,40 T120,45 T160,20 T200,10`}
-                        fill="none"
-                        stroke="#61B6DE"
-                        strokeWidth="2"
-                        className="transition-all duration-1000 ease-linear"
-                      />
-                      <defs>
-                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#61B6DE" stopOpacity="0.5" />
-                          <stop offset="100%" stopColor="#61B6DE" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    {/* Scanning Line */}
-                    <div className="absolute top-0 bottom-0 w-px bg-white/50 animate-scan"></div>
-                  </div>
-
-                  {/* Mini Cards */}
-                  <div className="grid grid-cols-3 gap-3">
-                    {CONTENT.dashboard.stats.map((stat, i) => (
-                      <div
-                        key={i}
-                        className="bg-[#1E293B] p-3 rounded-lg border border-[#334155] hover:border-primary/30 transition-colors"
-                      >
-                        <div className="text-xxs text-gray-300 uppercase mb-1 font-bold">
-                          {stat.label}
-                        </div>
-                        <div className="text-sm font-bold text-white flex items-center gap-1">
-                          {stat.val}
-                          {i < 2 ? (
-                            <TrendingUp size={10} color={i === 0 ? '#61B6DE' : '#00C853'} />
-                          ) : (
-                            <span className="text-xxs text-gray-700">▼</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}{' '}
-                  </div>
-                </div>
-              </div>
-
-              {/* Decorative Code Snippet */}
-              <div className="absolute -bottom-6 -right-6 bg-[#1E293B] p-4 rounded-xl border border-[#334155] shadow-xl text-xxs font-mono text-gray-600 hidden sm:block animate-float-delayed z-20">
-                <div className="flex gap-2 mb-2 opacity-50">
-                  <div className="w-2 h-2 rounded-full bg-gray-500"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-500"></div>
-                </div>
-                <div className="text-primary">dataLayer.push({'{'}</div>
-                <div className="pl-2">
-                  event: <span className="text-success">'purchase'</span>,
-                </div>
-                <div className="pl-2">
-                  value: <span className="text-yellow-400">245.00</span>,
-                </div>
-                <div className="pl-2">currency: 'PLN'</div>
-                <div>{'}'});</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Activity}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('marketing')}
+        ctaSecondaryText={CONTENT.hero.trustBadge}
+        ctaSecondaryOnClick={() => {}}
+        ctaSecondaryIcon={CheckCircle2}
+        backLinkPath="/marketing"
+        backLinkLabel="Wróć do Marketingu"
+        accentGradientFrom="primary"
+        accentGradientTo="secondary"
+        visual={<AnalyticsHeroVisual />}
+      />
 
       {/* --- RED FLAGS (PAIN POINTS) --- */}
       <section className="py-20 bg-white relative z-10">
@@ -869,18 +691,14 @@ const Analytics: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-white text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="inline-block p-4 rounded-full bg-blue-50 mb-6 animate-pulse">
-            <Activity size={32} className="text-secondary" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.text}</p>
-          <Button onClick={() => openModal('audit')} variant="primary" size="lg">
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.button}
+        icon={Activity}
+        onClick={() => openModal('audit')}
+        bgClassName="bg-white border-t border-gray-100"
+      />
     </div>
   );
 };

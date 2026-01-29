@@ -24,8 +24,9 @@ import GlassCard from '../common/GlassCard';
 import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import { useParallax } from '../../hooks/useParallax';
-import Seo from '../common/Seo';
-import { PRINT_DESIGN_CONTENT as CONTENT } from '../../data/content';
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { PrintHeroVisual } from '../visuals/HeroVisuals';
 
 const TiltCard = ({ activeFinish }: { activeFinish: 'none' | 'gold' | 'uv' | 'emboss' }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -370,137 +371,23 @@ const PrintDesign: React.FC = () => {
     <div className="bg-white pt-20 animate-fade-in font-sans">
       <Seo title={CONTENT.seo.title} description={CONTENT.seo.description} />
 
-      {/* --- HERO SECTION: CMYK FUSION --- */}
-      <section
-        ref={heroRef}
-        className="relative py-20 lg:py-24 bg-[#0B1120] text-white overflow-hidden"
-      >
-        <AmbientBackground />
-
-        <div className="absolute inset-0 pointer-events-none opacity-20">
-          <div className="absolute top-10 left-10 w-4 h-4 border-l border-t border-white"></div>
-          <div className="absolute top-10 right-10 w-4 h-4 border-r border-t border-white"></div>
-          <div className="absolute bottom-10 left-10 w-4 h-4 border-l border-b border-white"></div>
-          <div className="absolute bottom-10 right-10 w-4 h-4 border-r border-b border-white"></div>
-          <div className="absolute top-1/2 left-4 w-2 h-2 rounded-full border border-white"></div>
-          <div className="absolute top-1/2 right-4 w-2 h-2 rounded-full border border-white"></div>
-        </div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/design/')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-[#F4B400] mb-8 transition-colors"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Wróć do Designu
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F4B400]/10 text-[#F4B400] border border-[#F4B400]/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-                <Printer size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F4B400] to-[#FFD700]">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-300 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('design', { specificType: 'print' })}
-                  icon={<ArrowRight size={18} />}
-                  className="!bg-[#F4B400] hover:!bg-[#E65100] text-[#0B1120] border-none"
-                >
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold text-gray-300 backdrop-blur-sm">
-                  <Droplet size={16} className="text-cyan-400" /> {CONTENT.hero.microCopy}
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="lg:w-1/2 w-full flex justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative w-80 h-[400px] perspective-1000 group">
-                {[
-                  { color: 'cyan', mix: 'multiply', label: 'C' },
-                  { color: 'magenta', mix: 'multiply', label: 'M' },
-                  { color: 'yellow', mix: 'multiply', label: 'Y' },
-                  { color: 'black', mix: 'multiply', label: 'K' },
-                ].map((layer, index) => (
-                  <div
-                    key={index}
-                    className="absolute inset-0 bg-white rounded-xl shadow-lg border border-white/10 transition-all duration-1000 ease-in-out flex items-center justify-center overflow-hidden will-change-transform"
-                    style={{
-                      transform:
-                        activeLayer >= index
-                          ? `translateZ(${-index * 20}px) translateY(${index * 10}px) rotateY(-15deg) translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`
-                          : `translateZ(${-index * 100}px) translateY(${index * 100}px) rotateY(-15deg) opacity(0)`,
-                      opacity: activeLayer >= index ? 1 : 0,
-                      zIndex: 10 - index,
-                    }}
-                  >
-                    <div className="absolute top-4 left-4 text-xs font-bold font-mono opacity-50">
-                      {layer.label} Channel
-                    </div>
-                    <div
-                      className="w-48 h-48 rounded-full border-[20px]"
-                      style={{
-                        borderColor:
-                          layer.color === 'black'
-                            ? '#000'
-                            : layer.color === 'yellow'
-                              ? '#FF0'
-                              : layer.color === 'magenta'
-                                ? '#F0F'
-                                : '#0FF',
-                        opacity: 0.5,
-                      }}
-                    ></div>
-                    <div
-                      className="absolute bottom-10 right-4 text-4xl font-black opacity-20"
-                      style={{ color: layer.color === 'black' ? '#000' : layer.color }}
-                    >
-                      Mixture
-                    </div>
-                  </div>
-                ))}
-
-                <div
-                  className="absolute inset-0 bg-[#F4B400] rounded-xl shadow-[0_0_50px_rgba(244,180,0,0.3)] flex items-center justify-center overflow-hidden transition-all duration-1000 will-change-transform"
-                  style={{
-                    transform: `translateZ(30px) translateX(40px) rotateY(-15deg) translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)`,
-                    opacity: activeLayer === 4 ? 1 : 0,
-                    zIndex: 20,
-                  }}
-                >
-                  <div className="text-[#0B1120] text-center">
-                    <Box size={48} className="mx-auto mb-4" />
-                    <h3 className="text-2xl font-bold uppercase tracking-widest">Premium</h3>
-                    <p className="text-xs font-mono mt-2">Print Quality</p>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent w-[200%] h-full -skew-x-12 animate-shine"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* --- HERO SECTION --- */}
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Printer}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('design', { specificType: 'print' })}
+        ctaSecondaryText={CONTENT.hero.microCopy}
+        ctaSecondaryOnClick={() => {}}
+        ctaSecondaryIcon={Droplet}
+        backLinkPath="/design/"
+        backLinkLabel="Wróć do Designu"
+        accentGradientFrom="[#F4B400]"
+        accentGradientTo="[#FFD700]"
+        visual={<PrintHeroVisual />}
+      />
 
       {/* --- PRINT GUARANTEE --- */}
       <section className="py-24 bg-white relative z-10">
@@ -951,23 +838,14 @@ const PrintDesign: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <section className="py-24 bg-white text-center border-t border-gray-100">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="inline-block p-4 rounded-full bg-[#FFFBF0] mb-6 animate-pulse">
-            <Package size={32} className="text-[#F4B400]" />
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-          <p className="text-xl text-gray-600 mb-10">{CONTENT.cta.description}</p>
-          <Button
-            onClick={() => openModal('design')}
-            variant="primary"
-            size="lg"
-            className="!bg-[#F4B400] hover:!bg-[#E65100] border-transparent text-[#0B1120]"
-          >
-            {CONTENT.cta.button}
-          </Button>
-        </div>
-      </section>
+      <StandardCta
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.description}
+        buttonText={CONTENT.cta.button}
+        icon={Package}
+        onClick={() => openModal('design')}
+        bgClassName="bg-white border-t border-gray-100"
+      />
     </div>
   );
 };

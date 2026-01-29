@@ -3,19 +3,10 @@ import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import PricingTable from '../common/PricingTable';
 import AuditTeaser from '../features/audit/AuditTeaser';
-import SeoHero from '../features/seo/SeoHero';
-import SeoLocalSection from '../features/seo/SeoLocalSection';
-import SeoContentIntelligence from '../features/seo/SeoContentIntelligence';
-import SeoTechnicalSection from '../features/seo/SeoTechnicalSection';
-import SeoRoadmap from '../features/seo/SeoRoadmap';
-import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
-import SeoFaq from '../features/seo/SeoFaq';
-import SeoCta from '../features/seo/SeoCta';
-import RelatedArticles from '../articles/RelatedArticles';
-import { useModal } from '../../context/ModalContext';
-import { cmsService } from '../../services/cmsService';
-import { PricingSectionData, PricingTier } from '../../types';
-import { SEO_CONTENT as CONTENT } from '../../data/content';
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { SeoHeroVisual } from '../visuals/HeroVisuals';
+import { TrendingUp, Crosshair } from 'lucide-react';
 
 const MarketingSeo: React.FC = () => {
   const { openModal } = useModal();
@@ -59,7 +50,20 @@ const MarketingSeo: React.FC = () => {
         ]}
       />
 
-      <SeoHero />
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={TrendingUp}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'seo' })}
+        ctaSecondaryText={CONTENT.hero.microCopy}
+        ctaSecondaryOnClick={() => {}}
+        ctaSecondaryIcon={Globe}
+        backLinkPath="/marketing"
+        backLinkLabel="Wróć do Marketingu"
+        visual={<SeoHeroVisual />}
+      />
 
       <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
         <AuditTeaser
@@ -108,7 +112,16 @@ const MarketingSeo: React.FC = () => {
       </LazyHydrate>
 
       <LazyHydrate whenVisible>
-        <SeoCta />
+        <StandardCta
+          title={CONTENT.cta.title}
+          description={CONTENT.cta.description}
+          buttonText={CONTENT.cta.button}
+          icon={Crosshair}
+          onClick={() => openModal('audit', { specificType: 'seo' })}
+          colorScheme="success"
+          bgClassName="bg-success text-white"
+          className="text-white"
+        />
       </LazyHydrate>
     </div>
   );

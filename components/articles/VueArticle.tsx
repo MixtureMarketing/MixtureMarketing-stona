@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Heart,
@@ -12,9 +11,6 @@ import {
   Globe,
   Box,
   Users,
-  Maximize,
-  Minimize,
-  Component,
   FileCode,
   Settings,
   Cpu,
@@ -23,300 +19,246 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
-import Seo from '../common/Seo';
-import RelatedArticles from './RelatedArticles';
-import { ARTICLES, Article } from '../../data/articles';
+import ArticleShell from './ArticleShell';
+import { ARTICLES } from '../../data/articles';
 import { VUE_ARTICLE_CONTENT } from '../../data/content/articles/vue';
 
 const VueArticle = () => {
-  const articleData = (ARTICLES.find((a) => a.id === 'vue-js-harmonijny-kompromis') ||
-    {}) as Partial<Article>;
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const articleData = ARTICLES.find((a) => a.id === 'vue-js-harmonijny-kompromis');
   const content = VUE_ARTICLE_CONTENT;
 
-  // Handle scroll progress
-  useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const currentScroll = window.scrollY;
-      setScrollProgress((currentScroll / totalScroll) * 100);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  if (!articleData) return null;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-dark selection:bg-[#42B883]/20 font-sans">
-      <Seo
-        title={articleData.title || content.header.title.line1 + ' ' + content.header.title.line2}
-        description={articleData.description || content.header.subtitle}
-        image={articleData.image}
-      />
-
-      {/* Reading Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1.5 z-[100] pointer-events-none bg-gray-100">
-        <div
-          className="h-full bg-gradient-to-r from-dark via-[#42B883] to-[#35495E] shadow-[0_0_10px_rgba(66,184,131,0.5)] transition-all duration-100 ease-out"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
-
-      <AmbientBackground />
-
-      <div className="pt-12 pb-24 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          {/* Article Header */}
-          <header className="mb-20 mt-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E8F5E9] text-[#00684A] text-xs font-bold uppercase tracking-wider mb-8 border border-[#42B883]/30 shadow-sm">
-              <Heart size={14} fill="currentColor" />
-              <span>{content.header.badge}</span>
-            </div>
-
-            <h1 className="text-4xl md:text-7xl font-extrabold mb-8 text-dark leading-[1.1] tracking-tight">
-              {content.header.title.line1} <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#35495E] via-[#42B883] to-[#35495E]">
-                {content.header.title.line2}
-              </span>
-            </h1>
-
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-              {content.header.subtitle}
-            </p>
-          </header>
-
-          {/* HERO VISUAL: 3D LOGO & CONCEPT */}
-          <div className="mb-24">
-            <VueHeroVisual />
-          </div>
-
-          <article className="prose prose-lg prose-slate max-w-none prose-headings:text-dark prose-headings:font-bold prose-p:text-gray-700 prose-a:text-[#42B883] hover:prose-a:text-dark prose-strong:text-dark prose-li:text-gray-700">
-            {/* Context Link */}
-            <div className="mb-16 p-6 bg-white border border-blue-100 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start gap-5 not-prose hover:shadow-md transition-shadow">
-              <div className="bg-blue-50 p-3 rounded-full shrink-0">
-                <Layout className="text-secondary" size={24} />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">
-                  {content.contextBox.title}
-                </p>
-                <h4 className="text-lg font-bold text-dark mb-2">{content.contextBox.subtitle}</h4>
-                <p className="text-sm text-gray-600 mb-3">{content.contextBox.text}</p>
-                <Link
-                  to={content.contextBox.linkUrl}
-                  className="text-sm text-[#42B883] hover:text-[#35495E] font-bold inline-flex items-center gap-2 group"
-                >
-                  {content.contextBox.linkText}{' '}
-                  <ArrowRight
-                    size={16}
-                    className="group-hover:translate-x-1 transition-transform"
-                  />
-                </Link>
-              </div>
-            </div>
-
-            <AnimateOnScroll>
-              <p className="lead text-2xl text-[#35495E] mb-12 font-medium leading-relaxed border-l-4 border-[#42B883] pl-6 py-2 bg-emerald-50/30 rounded-r-xl">
-                {content.lead.highlight}
-              </p>
-              <p>{content.lead.text}</p>
-            </AnimateOnScroll>
-
-            {/* THE SPECTRUM VISUAL */}
-            <div className="my-32">
-              <SectionHeader
-                title={content.spectrum.title}
-                subtitle={content.spectrum.subtitle}
-                align="center"
-              />
-              <p className="text-center max-w-2xl mx-auto mb-12">{content.spectrum.text}</p>
-              <div className="not-prose">
-                <FrameworkSpectrum />
-              </div>
-            </div>
-
-            {/* WHAT IS PROGRESSIVE FRAMEWORK */}
-            <div className="my-32">
-              <SectionHeader
-                title={content.progressive.title}
-                subtitle={content.progressive.subtitle}
-                align="left"
-              />
-              <p>{content.progressive.text}</p>
-
-              <div className="not-prose mt-12">
-                <ProgressiveScalingVisual />
-              </div>
-            </div>
-
-            {/* 3 BUSINESS REASONS */}
-            <div className="my-32">
-              <SectionHeader
-                title={content.businessReasons.title}
-                subtitle={content.businessReasons.subtitle}
-                align="left"
-              />
-
-              <div className="space-y-8 mt-12 not-prose">
-                {content.businessReasons.cards.map((reason, i) => {
-                  const icons = [
-                    <Users key="users" className="text-[#42B883]" />,
-                    <Zap key="zap" className="text-amber-500" />,
-                    <Box key="box" className="text-blue-500" />,
-                  ];
-                  return (
-                    <div
-                      key={i}
-                      className="flex flex-col md:flex-row gap-6 items-start p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#42B883]/30 transition-all group"
-                    >
-                      <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100 group-hover:bg-[#42B883] group-hover:text-white transition-colors duration-300">
-                        {React.cloneElement(icons[i] as React.ReactElement<{ size?: number }>, {
-                          size: 32,
-                        })}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-dark mb-2 group-hover:text-[#42B883] transition-colors">
-                          {reason.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 leading-relaxed m-0">{reason.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* TECH CORNER: SFC */}
-            <div className="my-32">
-              <div className="flex flex-col lg:flex-row gap-12 items-center">
-                <div className="flex-1">
-                  <SectionHeader
-                    title={content.techCorner.title}
-                    subtitle={content.techCorner.subtitle}
-                    align="left"
-                  />
-                  {content.techCorner.text.map((p, i) => (
-                    <p key={i} dangerouslySetInnerHTML={{ __html: p }}></p>
-                  ))}
-                </div>
-                <div className="flex-1 w-full not-prose">
-                  <VueSfcPreview />
-                </div>
-              </div>
-            </div>
-
-            {/* NUXT.JS & SEO */}
-            <div className="my-32 bg-white p-8 md:p-16 rounded-[3rem] border border-emerald-100 shadow-xl relative overflow-hidden not-prose group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <Globe size={200} className="text-emerald-900" />
-              </div>
-              <div className="relative z-10">
-                <SectionHeader
-                  title={content.nuxt.title}
-                  subtitle={content.nuxt.subtitle}
-                  align="left"
-                />
-                <p
-                  className="text-gray-600 mb-8 max-w-2xl leading-relaxed text-lg"
-                  dangerouslySetInnerHTML={{ __html: content.nuxt.text }}
-                ></p>
-                <div className="flex flex-wrap gap-4">
-                  {content.nuxt.badges.map((badge, i) => (
-                    <div
-                      key={i}
-                      className="bg-emerald-50 text-emerald-800 px-5 py-3 rounded-2xl text-sm font-bold border border-emerald-200 flex items-center gap-2 shadow-sm"
-                    >
-                      <CheckCircle2 size={18} className="text-[#42B883]" /> {badge}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* BIG COMPARISON TABLE */}
-            <div className="my-32">
-              <SectionHeader
-                title={content.comparison.title}
-                subtitle={content.comparison.subtitle}
-                align="center"
-              />
-              <div className="overflow-hidden rounded-3xl border border-gray-200 shadow-2xl mt-12 not-prose bg-white">
-                <table className="w-full text-left">
-                  <thead className="bg-[#35495E] text-white">
-                    <tr>
-                      <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
-                        {content.comparison.headers[0]}
-                      </th>
-                      <th className="p-6 text-xs font-black uppercase tracking-wider text-[#42B883]">
-                        {content.comparison.headers[1]}
-                      </th>
-                      <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
-                        {content.comparison.headers[2]}
-                      </th>
-                      <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
-                        {content.comparison.headers[3]}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-sm">
-                    {content.comparison.rows.map((row, i) => (
-                      <tr key={i} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-6 font-bold text-gray-900 bg-gray-50/50">{row.feature}</td>
-                        <td className="p-6 text-[#00684A] font-bold bg-emerald-50/30">{row.vue}</td>
-                        <td className="p-6 text-gray-600">{row.react}</td>
-                        <td className="p-6 text-gray-600">{row.angular}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* SUMMARY & CTA */}
-            <div className="mt-32">
-              <AnimateOnScroll>
-                <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-[#42B883] rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-                  <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#35495E] rounded-full blur-[100px] opacity-40"></div>
-
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-8 backdrop-blur-md border border-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                      <Heart size={48} className="text-[#42B883]" fill="currentColor" />
-                    </div>
-                    <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
-                      {content.cta.title}
-                    </h2>
-                    <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                      {content.cta.text}
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        className="shadow-xl shadow-[#42B883]/20 !bg-[#42B883] border-none text-dark font-black hover:!bg-[#3AA675] px-10 py-4"
-                        onClick={() => (window.location.href = '/web-development/custom-app/')}
-                      >
-                        {content.cta.primaryBtn}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10 py-4"
-                        size="lg"
-                        onClick={() => (window.location.href = '/baza-wiedzy/')}
-                      >
-                        {content.cta.secondaryBtn}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            </div>
-
-            <RelatedArticles currentArticleId="vue-js-harmonijny-kompromis" category="tech" />
-          </article>
+    <ArticleShell
+      id={articleData.id}
+      title={articleData.title}
+      description={content.header.subtitle}
+      category="tech"
+      categoryLabel={content.header.badge}
+      image={articleData.image}
+      icon={Heart}
+      accentColor="#42B883"
+      heroVisual={<VueHeroVisual />}
+    >
+      {/* Context Link */}
+      <div className="mb-16 p-6 bg-white border border-blue-100 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start gap-5 not-prose hover:shadow-md transition-shadow">
+        <div className="bg-blue-50 p-3 rounded-full shrink-0">
+          <Layout className="text-secondary" size={24} />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">
+            {content.contextBox.title}
+          </p>
+          <h4 className="text-lg font-bold text-dark mb-2">{content.contextBox.subtitle}</h4>
+          <p className="text-sm text-gray-600 mb-3">{content.contextBox.text}</p>
+          <Link
+            to={content.contextBox.linkUrl}
+            className="text-sm text-[#42B883] hover:text-[#35495E] font-bold inline-flex items-center gap-2 group"
+          >
+            {content.contextBox.linkText}{' '}
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </div>
-    </div>
+
+      <AnimateOnScroll>
+        <p className="lead text-2xl text-[#35495E] mb-12 font-medium leading-relaxed border-l-4 border-[#42B883] pl-6 py-2 bg-emerald-50/30 rounded-r-xl">
+          {content.lead.highlight}
+        </p>
+        <p>{content.lead.text}</p>
+      </AnimateOnScroll>
+
+      {/* THE SPECTRUM VISUAL */}
+      <div className="my-32">
+        <SectionHeader
+          title={content.spectrum.title}
+          subtitle={content.spectrum.subtitle}
+          align="center"
+        />
+        <p className="text-center max-w-2xl mx-auto mb-12">{content.spectrum.text}</p>
+        <div className="not-prose">
+          <FrameworkSpectrum />
+        </div>
+      </div>
+
+      {/* WHAT IS PROGRESSIVE FRAMEWORK */}
+      <div className="my-32">
+        <SectionHeader
+          title={content.progressive.title}
+          subtitle={content.progressive.subtitle}
+          align="left"
+        />
+        <p>{content.progressive.text}</p>
+
+        <div className="not-prose mt-12">
+          <ProgressiveScalingVisual />
+        </div>
+      </div>
+
+      {/* 3 BUSINESS REASONS */}
+      <div className="my-32">
+        <SectionHeader
+          title={content.businessReasons.title}
+          subtitle={content.businessReasons.subtitle}
+          align="left"
+        />
+
+        <div className="space-y-8 mt-12 not-prose">
+          {content.businessReasons.cards.map((reason, i) => {
+            const icons = [
+              <Users key="users" className="text-[#42B883]" />,
+              <Zap key="zap" className="text-amber-500" />,
+              <Box key="box" className="text-blue-500" />,
+            ];
+            return (
+              <div
+                key={i}
+                className="flex flex-col md:flex-row gap-6 items-start p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#42B883]/30 transition-all group"
+              >
+                <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100 group-hover:bg-[#42B883] group-hover:text-white transition-colors duration-300">
+                  {React.cloneElement(icons[i] as React.ReactElement<{ size?: number }>, {
+                    size: 32,
+                  })}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-dark mb-2 group-hover:text-[#42B883] transition-colors">
+                    {reason.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed m-0">{reason.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* TECH CORNER: SFC */}
+      <div className="my-32">
+        <div className="flex flex-col lg:flex-row gap-12 items-center">
+          <div className="flex-1">
+            <SectionHeader
+              title={content.techCorner.title}
+              subtitle={content.techCorner.subtitle}
+              align="left"
+            />
+            {content.techCorner.text.map((p, i) => (
+              <p key={i} dangerouslySetInnerHTML={{ __html: p }}></p>
+            ))}
+          </div>
+          <div className="flex-1 w-full not-prose">
+            <VueSfcPreview />
+          </div>
+        </div>
+      </div>
+
+      {/* NUXT.JS & SEO */}
+      <div className="my-32 bg-white p-8 md:p-16 rounded-[3rem] border border-emerald-100 shadow-xl relative overflow-hidden not-prose group">
+        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+          <Globe size={200} className="text-emerald-900" />
+        </div>
+        <div className="relative z-10">
+          <SectionHeader
+            title={content.nuxt.title}
+            subtitle={content.nuxt.subtitle}
+            align="left"
+          />
+          <p
+            className="text-gray-600 mb-8 max-w-2xl leading-relaxed text-lg"
+            dangerouslySetInnerHTML={{ __html: content.nuxt.text }}
+          ></p>
+          <div className="flex wrap gap-4">
+            {content.nuxt.badges.map((badge, i) => (
+              <div
+                key={i}
+                className="bg-emerald-50 text-emerald-800 px-5 py-3 rounded-2xl text-sm font-bold border border-emerald-200 flex items-center gap-2 shadow-sm"
+              >
+                <CheckCircle2 size={18} className="text-[#42B883]" /> {badge}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* BIG COMPARISON TABLE */}
+      <div className="my-32">
+        <SectionHeader
+          title={content.comparison.title}
+          subtitle={content.comparison.subtitle}
+          align="center"
+        />
+        <div className="overflow-hidden rounded-3xl border border-gray-200 shadow-2xl mt-12 not-prose bg-white">
+          <table className="w-full text-left">
+            <thead className="bg-[#35495E] text-white">
+              <tr>
+                <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
+                  {content.comparison.headers[0]}
+                </th>
+                <th className="p-6 text-xs font-black uppercase tracking-wider text-[#42B883]">
+                  {content.comparison.headers[1]}
+                </th>
+                <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
+                  {content.comparison.headers[2]}
+                </th>
+                <th className="p-6 text-xs font-black uppercase tracking-wider opacity-80">
+                  {content.comparison.headers[3]}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-sm">
+              {content.comparison.rows.map((row, i) => (
+                <tr key={i} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-6 font-bold text-gray-900 bg-gray-50/50">{row.feature}</td>
+                  <td className="p-6 text-[#00684A] font-bold bg-emerald-50/30">{row.vue}</td>
+                  <td className="p-6 text-gray-600">{row.react}</td>
+                  <td className="p-6 text-gray-600">{row.angular}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* SUMMARY & CTA */}
+      <div className="mt-32">
+        <AnimateOnScroll>
+          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#42B883] rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#35495E] rounded-full blur-[100px] opacity-40"></div>
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-8 backdrop-blur-md border border-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                <Heart size={48} className="text-[#42B883]" fill="currentColor" />
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
+                {content.cta.title}
+              </h2>
+              <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
+                {content.cta.text}
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="shadow-xl shadow-[#42B883]/20 !bg-[#42B883] border-none text-dark font-black hover:!bg-[#3AA675] px-10 py-4"
+                  onClick={() => (window.location.href = '/web-development/custom-app/')}
+                >
+                  {content.cta.primaryBtn}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10 py-4"
+                  size="lg"
+                  onClick={() => (window.location.href = '/baza-wiedzy/')}
+                >
+                  {content.cta.secondaryBtn}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </AnimateOnScroll>
+      </div>
+    </ArticleShell>
   );
 };
 
