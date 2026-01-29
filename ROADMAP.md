@@ -132,7 +132,6 @@ Niniejszy dokument definiuje strategiczny plan rozwoju projektu, skupiając się
 ### Module 1: Audyt i Poprawa Dostępności (WCAG)
 
 - **Zadania:**
-  - Weryfikacja kontrastów kolorystycznych tekstów i elementów UI.
   - Uzupełnienie brakujących etykiet ARIA (`aria-label`, `role`) dla elementów interaktywnych.
   - Zapewnienie alternatyw tekstowych dla wszystkich grafik znaczących.
 - **Efekt:**

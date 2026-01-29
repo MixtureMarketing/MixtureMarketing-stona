@@ -70,10 +70,34 @@ jobs:
       - name: 🕵️ E2E Contact Form Test
         run: npm run test:e2e
 
-      - name: 📊 Upload Build Artifacts (Optional)
+      - name: 📊 Upload Build Artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: dist-build
           path: dist/
-          retention-days: 5
+          retention-days: 1
+
+  deploy:
+    name: 🚀 Deploy to Production
+    needs: quality-and-build
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-build
+          path: dist
+
+      - name: 🚚 Sync to Server (rsync)
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-rlgoDzvc -i --delete"
+          SOURCE: "dist/"
+          REMOTE_HOST: ${{ secrets.SSH_HOST }}
+          REMOTE_USER: ${{ secrets.SSH_USER }}
+          TARGET: ${{ secrets.REMOTE_PATH }}
+          # Exclude configuration file if you want to keep production-specific values on server
+          EXCLUDE: "/api/config.php"
