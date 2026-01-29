@@ -17,6 +17,7 @@
     "audit:perf": "node scripts/audit-performance.js",
     "preview": "vite preview",
     "test": "vitest",
+    "test:e2e": "node scripts/test-e2e-contact.js",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write ."
   },
