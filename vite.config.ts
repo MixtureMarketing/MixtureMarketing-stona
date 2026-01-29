@@ -64,6 +64,7 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
+          /*
           manualChunks(id) {
             if (id.includes('node_modules')) {
               // Standalone heavy libraries
@@ -88,9 +89,10 @@ export default defineConfig(({ mode }) => {
               return 'vendor-others';
             }
           },
+          */
         },
       },
-      chunkSizeWarningLimit: 800,
+      chunkSizeWarningLimit: 1000,
     },
     define: {
       // Pozwala na dostęp do klucza przez process.env (użyteczne dla niektórych bibliotek)

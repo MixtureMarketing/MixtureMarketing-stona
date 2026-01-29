@@ -70,7 +70,7 @@ async function runHealthCheck() {
 
       try {
         const response = await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
-        
+
         if (!response || !response.ok()) {
           const status = response ? response.status() : 'No Response';
           consoleErrors.push(`[HTTP_ERROR] Status ${status}`);
@@ -83,7 +83,7 @@ async function runHealthCheck() {
         if (consoleErrors.length > 0 || hasErrorUI) {
           fullReport.errors.push({ route, errors: consoleErrors });
           console.log(`❌ Issues detected on ${route}:`);
-          consoleErrors.slice(0, 3).forEach(err => console.log(`   - ${err.substring(0, 200)}`));
+          consoleErrors.slice(0, 3).forEach((err) => console.log(`   - ${err.substring(0, 200)}`));
           if (hasErrorUI) console.log('   - Error Boundary UI triggered');
         } else {
           fullReport.success.push(route);

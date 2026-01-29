@@ -11,6 +11,9 @@ import './index.css';
 function reportWebVitals(metric: Metric) {
   const { name, value, id, delta } = metric;
 
+  // Skip RUM if prerendering (build time) to avoid console errors
+  if ((window as any).isPrerendering) return;
+
   // Local log only in DEV
   if (import.meta.env.DEV) {
     const color = value > 2500 ? 'color: #ff4d4f' : 'color: #52c41a';

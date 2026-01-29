@@ -7,6 +7,9 @@ import { routes } from './routes.js';
 import Critters from 'critters';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
@@ -45,7 +48,7 @@ async function processRoute(browser, critters, route) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 800 });
-    
+
     // Set global flag for components
     await page.evaluateOnNewDocument(() => {
       window.isPrerendering = true;
@@ -144,7 +147,7 @@ async function prerender() {
       const page = await browser.newPage();
       try {
         await page.setViewport({ width: 1280, height: 800 });
-        
+
         await page.evaluateOnNewDocument(() => {
           window.isPrerendering = true;
         });
@@ -155,7 +158,10 @@ async function prerender() {
           else req.continue();
         });
 
-        await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: 'networkidle0', timeout: 90000 });
+        await page.goto(`http://localhost:${PORT}${route}`, {
+          waitUntil: 'networkidle0',
+          timeout: 90000,
+        });
         await page.waitForSelector('#root', { timeout: 90000 });
         await new Promise((r) => setTimeout(r, 1000));
 
@@ -167,9 +173,12 @@ async function prerender() {
         let html = await page.content();
         html = await critters.process(html);
 
-        let filePath = route === '/' ? path.join(DIST_DIR, 'index.html') : path.join(DIST_DIR, route.replace(/^\/|\/$/g, ''), 'index.html');
+        let filePath =
+          route === '/'
+            ? path.join(DIST_DIR, 'index.html')
+            : path.join(DIST_DIR, route.replace(/^\/|\/$/g, ''), 'index.html');
         if (route !== '/') fs.mkdirSync(path.dirname(filePath), { recursive: true });
-        
+
         fs.writeFileSync(filePath, html);
         console.log(`✅ Prerendered & Optimized: ${route}`);
       } finally {
@@ -185,16 +194,16 @@ async function prerender() {
         sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }'),
         sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }'),
         sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }'),
-        sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }')
+        sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }'),
       ]);
 
       dynamicRoutes = [
-        ...articles.map(a => `/baza-wiedzy/${a.slug}`),
-        ...industries.map(i => `/branza/${i.slug}`),
-        ...locations.map(l => `/miasto/${l.slug}`),
-        ...projects.map(p => `/portfolio/${p.slug}`)
+        ...articles.map((a) => `/baza-wiedzy/${a.slug}`),
+        ...industries.map((i) => `/branza/${i.slug}`),
+        ...locations.map((l) => `/miasto/${l.slug}`),
+        ...projects.map((p) => `/portfolio/${p.slug}`),
       ];
-      
+
       console.log(`✅ Found ${dynamicRoutes.length} dynamic routes.`);
     } catch (err) {
       console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
