@@ -45,6 +45,11 @@ async function processRoute(browser, critters, route) {
   const page = await browser.newPage();
   try {
     await page.setViewport({ width: 1280, height: 800 });
+    
+    // Set global flag for components
+    await page.evaluateOnNewDocument(() => {
+      window.isPrerendering = true;
+    });
 
     // Optimization: Intercept and abort unnecessary requests
     await page.setRequestInterception(true);
@@ -105,8 +110,9 @@ async function prerender() {
   // 1. Start Server
   console.log('📦 Starting preview server...');
   const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
-    stdio: 'ignore', // Keep it quiet
+    stdio: 'ignore',
     shell: true,
+    detached: true, // Allow killing process group
   });
 
   try {
@@ -133,58 +139,78 @@ async function prerender() {
       reduceInlineStyles: true,
     });
 
+    // Custom processRoute with error checking
+    const processRouteWithCheck = async (browser, critters, route) => {
+      const page = await browser.newPage();
+      try {
+        await page.setViewport({ width: 1280, height: 800 });
+        
+        await page.evaluateOnNewDocument(() => {
+          window.isPrerendering = true;
+        });
+
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+          if (['image', 'media', 'font'].includes(req.resourceType())) req.abort();
+          else req.continue();
+        });
+
+        await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: 'networkidle0', timeout: 90000 });
+        await page.waitForSelector('#root', { timeout: 90000 });
+        await new Promise((r) => setTimeout(r, 1000));
+
+        const bodyText = await page.evaluate(() => document.body.innerText);
+        if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
+          throw new Error(`React Error Boundary triggered on ${route}`);
+        }
+
+        let html = await page.content();
+        html = await critters.process(html);
+
+        let filePath = route === '/' ? path.join(DIST_DIR, 'index.html') : path.join(DIST_DIR, route.replace(/^\/|\/$/g, ''), 'index.html');
+        if (route !== '/') fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        
+        fs.writeFileSync(filePath, html);
+        console.log(`✅ Prerendered & Optimized: ${route}`);
+      } finally {
+        await page.close();
+      }
+    };
+
     // 5. Process Routes in Batches (Parallel)
     console.log('🔄 Fetching dynamic routes from Sanity...');
     let dynamicRoutes = [];
     try {
-      console.log('Fetching articles...');
-      const articles = await sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }');
-      const articleRoutes = articles.map((a) => `/baza-wiedzy/${a.slug}`);
+      const [articles, industries, locations, projects] = await Promise.all([
+        sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }'),
+        sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }'),
+        sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }'),
+        sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }')
+      ]);
 
-      console.log('Fetching industries...');
-      const industries = await sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }');
-      const industryRoutes = industries.map((i) => `/branza/${i.slug}`);
-
-      console.log('Fetching locations...');
-      const locations = await sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }');
-      const locationRoutes = locations.map((l) => `/miasto/${l.slug}`);
-
-      console.log('Fetching portfolio...');
-      const projects = await sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }');
-      const projectRoutes = projects.map((p) => `/portfolio/${p.slug}`);
-
-      dynamicRoutes = [...articleRoutes, ...industryRoutes, ...locationRoutes, ...projectRoutes];
-      console.log(
-        `✅ Found ${dynamicRoutes.length} dynamic routes (${articleRoutes.length} articles, ${industryRoutes.length} industries, ${locationRoutes.length} locations, ${projectRoutes.length} projects).`,
-      );
+      dynamicRoutes = [
+        ...articles.map(a => `/baza-wiedzy/${a.slug}`),
+        ...industries.map(i => `/branza/${i.slug}`),
+        ...locations.map(l => `/miasto/${l.slug}`),
+        ...projects.map(p => `/portfolio/${p.slug}`)
+      ];
+      
+      console.log(`✅ Found ${dynamicRoutes.length} dynamic routes.`);
     } catch (err) {
-      console.warn(
-        '⚠️ Failed to fetch dynamic routes from Sanity. Proceeding with static only.',
-        err.message,
-      );
+      console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
     }
 
     const queue = [...routes, ...dynamicRoutes];
     const workers = [];
 
-    // Helper to run workers
     const next = async () => {
       while (queue.length > 0) {
         const route = queue.shift();
-        if (route) {
-          await processRoute(browser, critters, route).catch((e) => {
-            // Optional: Add to retry queue or just log
-            console.error(`⚠️ Skipping ${route} due to error.`);
-          });
-        }
+        if (route) await processRouteWithCheck(browser, critters, route);
       }
     };
 
-    // Spawn workers
-    for (let i = 0; i < MAX_CONCURRENCY; i++) {
-      workers.push(next());
-    }
-
+    for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
 
     console.log('🛑 Closing browser...');
@@ -193,8 +219,14 @@ async function prerender() {
     console.error('❌ Critical Error during prerendering:', err);
     process.exit(1);
   } finally {
-    server.kill();
-    // Ensure process exits even if child process lingers
+    if (server.pid) {
+      try {
+        // Kill the entire process group on Unix-like systems
+        process.kill(-server.pid, 'SIGTERM');
+      } catch (e) {
+        server.kill();
+      }
+    }
     setTimeout(() => process.exit(0), 1000);
   }
 }

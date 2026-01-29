@@ -15,9 +15,10 @@ async function runHealthCheck() {
   const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
     stdio: 'ignore',
     shell: true,
+    detached: true,
   });
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -36,46 +37,44 @@ async function runHealthCheck() {
       const consoleErrors = [];
 
       page.on('console', async (msg) => {
-        if (msg.type() === 'error') {
+        const type = msg.type();
+        if (type === 'error' || type === 'warning') {
           const args = await Promise.all(
             msg.args().map(async (arg) => {
               try {
-                const errorDetails = await arg.evaluate((obj) => {
-                  if (obj instanceof Error) {
-                    return obj.message + (obj.stack ? '\n' + obj.stack : '');
-                  }
-                  return JSON.stringify(obj, null, 2); // Better serialization
-                });
-                return errorDetails !== undefined ? errorDetails : String(arg); // Fallback to handle string
+                const val = await arg.jsonValue();
+                return typeof val === 'object' ? JSON.stringify(val) : String(val);
               } catch (e) {
-                return 'Unserializable Error Argument';
+                return 'Unserializable';
               }
             }),
           );
-
           const text = args.join(' ');
-
-          // Filter out network noise but keep application errors
           if (
             text &&
             !text.includes('Failed to load resource') &&
             !text.includes('chrome-extension') &&
             !text.includes('ERR_BLOCKED_BY_CLIENT')
           ) {
-            consoleErrors.push(text);
+            consoleErrors.push(`[${type.toUpperCase()}] ${text}`);
           }
         }
       });
 
       page.on('pageerror', (err) => {
-        consoleErrors.push(err.message + (err.stack ? `\nStack: ${err.stack}` : ''));
+        consoleErrors.push(`[PAGE_ERROR] ${err.message}\n${err.stack}`);
       });
 
       const url = `http://localhost:${PORT}${route}`;
       console.log(`🚀 Checking: ${route}`);
 
       try {
-        await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+        const response = await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+        
+        if (!response || !response.ok()) {
+          const status = response ? response.status() : 'No Response';
+          consoleErrors.push(`[HTTP_ERROR] Status ${status}`);
+        }
 
         const bodyText = await page.evaluate(() => document.body.innerText);
         const hasErrorUI =
@@ -83,13 +82,16 @@ async function runHealthCheck() {
 
         if (consoleErrors.length > 0 || hasErrorUI) {
           fullReport.errors.push({ route, errors: consoleErrors });
-          console.log(`❌ Issues detected on ${route}`);
+          console.log(`❌ Issues detected on ${route}:`);
+          consoleErrors.slice(0, 3).forEach(err => console.log(`   - ${err.substring(0, 200)}`));
+          if (hasErrorUI) console.log('   - Error Boundary UI triggered');
         } else {
           fullReport.success.push(route);
           console.log(`✅ ${route} is healthy.`);
         }
       } catch (err) {
         fullReport.errors.push({ route, errors: [err.message] });
+        console.log(`❌ Critical error on ${route}: ${err.message}`);
       } finally {
         await page.close();
       }
@@ -104,7 +106,13 @@ async function runHealthCheck() {
     console.error('❌ Failed:', err);
   } finally {
     await browser.close();
-    server.kill();
+    if (server.pid) {
+      try {
+        process.kill(-server.pid, 'SIGTERM');
+      } catch (e) {
+        server.kill();
+      }
+    }
     process.exit(fullReport.errors.length > 0 ? 1 : 0);
   }
 }

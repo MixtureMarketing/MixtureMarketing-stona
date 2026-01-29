@@ -419,10 +419,12 @@ function App() {
           <Footer />
         </LazyHydrate>
 
-        {/* Global Modal */}
-        <Suspense fallback={null}>
-          <ContactModal isOpen={isModalOpen} onClose={closeModal} type={modalType} />
-        </Suspense>
+        {/* Global Modal - Exclude during prerendering to avoid ReCaptcha context errors */}
+        {!isPrerendering && (
+          <Suspense fallback={null}>
+            <ContactModal isOpen={isModalOpen} onClose={closeModal} type={modalType} />
+          </Suspense>
+        )}
       </div>
     </AuthProvider>
   );
