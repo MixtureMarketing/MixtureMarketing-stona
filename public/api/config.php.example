@@ -1,37 +1,44 @@
 <?php
-// Konfiguracja Bazy Danych
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'your_database_name');
-define('DB_USER', 'your_database_user');
-define('DB_PASS', 'your_database_password');
+/**
+ * Mixture Marketing - Konfiguracja API (Produkcja / Local)
+ * 
+ * Skopiuj ten plik do config.php i uzupełnij prawdziwe dane.
+ * Plik config.php jest ignorowany przez Git dla bezpieczeństwa.
+ */
 
-// Konfiguracja Drugiej Bazy Danych (Audyty)
+// Konfiguracja Bazy Danych (Główna)
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'YOUR_DB_NAME');
+define('DB_USER', 'YOUR_DB_USER');
+define('DB_PASS', 'YOUR_DB_PASSWORD');
+
+// Konfiguracja Drugiej Bazy Danych (Audyty) - np. na LH.pl
 define('DB_AUDIT_HOST', 'localhost');
-define('DB_AUDIT_NAME', 'your_audit_db_name');
-define('DB_AUDIT_USER', 'your_audit_db_user');
-define('DB_AUDIT_PASS', 'your_audit_db_password');
+define('DB_AUDIT_NAME', 'YOUR_AUDIT_DB_NAME');
+define('DB_AUDIT_USER', 'YOUR_AUDIT_DB_USER');
+define('DB_AUDIT_PASS', 'YOUR_AUDIT_DB_PASSWORD');
 
 // Konfiguracja Emaila (Powiadomienia)
-define('NOTIFY_EMAIL', 'info@example.com');
-define('EMAIL_SUBJECT', 'Nowy Lead ze strony');
+define('NOTIFY_EMAIL', 'YOUR_NOTIFICATION_EMAIL');
+define('EMAIL_SUBJECT', 'Nowy Lead ze strony Mixture Marketing');
 
-// Konfiguracja SMTP
-define('SMTP_HOST', 'smtp.example.com');
-define('SMTP_USER', 'info@example.com');
-define('SMTP_PASS', 'your_smtp_password');
-define('SMTP_PORT', 465);
-define('SMTP_SECURE', 'ssl'); // lub 'tls'
+// Konfiguracja SMTP (Wysyłka maili)
+define('SMTP_HOST', 'YOUR_SMTP_HOST'); // np. smtp.gmail.com
+define('SMTP_USER', 'YOUR_SMTP_USER');
+define('SMTP_PASS', 'YOUR_SMTP_APP_PASSWORD');
+define('SMTP_PORT', 465); // 465 dla SSL, 587 dla TLS
+define('SMTP_SECURE', 'ssl'); // 'ssl' lub 'tls'
 
-// ReCAPTCHA v3 Secret Key
-define('RECAPTCHA_SECRET', 'your_recaptcha_secret_key');
+// ReCAPTCHA v3 Secret Key (Pobierz z Google Admin Console)
+define('RECAPTCHA_SECRET', 'YOUR_RECAPTCHA_SECRET_KEY');
 
-// Zabezpieczenia CORS
-define('ALLOWED_ORIGIN', 'https://yourdomain.pl');
+// Zabezpieczenia CORS (Zmień na adres swojej domeny)
+define('ALLOWED_ORIGIN', 'https://mixturemarketing.pl');
 
 // Konfiguracja Redis (Cache)
-define('REDIS_ENABLED', false);
+define('REDIS_ENABLED', false); // Zmień na true jeśli serwer obsługuje Redis
 define('REDIS_HOST', '127.0.0.1');
 define('REDIS_PORT', 6379);
-define('REDIS_SOCKET', null);
-define('REDIS_PASS', null); 
+define('REDIS_SOCKET', '/path/to/redis.sock'); // Wymagane na niektórych hostingach (np. LH.pl)
+define('REDIS_PASS', null);
 ?>

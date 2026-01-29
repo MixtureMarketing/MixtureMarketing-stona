@@ -94,10 +94,10 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "dist/"
+          ARGS: '-rlgoDzvc -i --delete'
+          SOURCE: 'dist/'
           REMOTE_HOST: ${{ secrets.SSH_HOST }}
           REMOTE_USER: ${{ secrets.SSH_USER }}
           TARGET: ${{ secrets.REMOTE_PATH }}
           # Exclude configuration file if you want to keep production-specific values on server
-          EXCLUDE: "/api/config.php"
+          EXCLUDE: '/api/config.php'
