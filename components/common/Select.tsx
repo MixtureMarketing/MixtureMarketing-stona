@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { ChevronDown, AlertCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import FieldWrapper from './FieldWrapper';
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label: string;
@@ -13,7 +14,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const errorId = `${generatedId}-error`;
 
     return (
-      <div className={`relative mb-4 group ${className}`}>
+      <FieldWrapper error={error} errorId={errorId} className={className}>
         <select
           id={generatedId}
           ref={ref}
@@ -58,36 +59,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         >
           {label}
         </label>
-
-        {/* Animated Bottom Border */}
-        <div
-          className={`
-          absolute bottom-0 left-1/2 h-[2px] w-0 
-          bg-primary
-          transition-all duration-300 ease-out 
-          -translate-x-1/2 
-          peer-focus:w-full
-          ${error ? 'bg-red-500 w-full' : ''}
-        `}
-        />
-
-        {/* Error Message */}
-        <div
-          className={`
-          overflow-hidden transition-all duration-300 ease-in-out
-          ${error ? 'max-h-10 opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'}
-        `}
-        >
-          <div
-            id={errorId}
-            className="flex items-center gap-1.5 text-[11px] font-bold text-red-500 pl-4"
-            role="alert"
-          >
-            <AlertCircle size={13} className="shrink-0" />
-            <span>{error}</span>
-          </div>
-        </div>
-      </div>
+      </FieldWrapper>
     );
   },
 );

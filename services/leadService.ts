@@ -9,7 +9,7 @@ export interface LeadBase {
   website_verify?: string;
 }
 
-export interface LeadDetails {
+interface LeadDetails {
   website?: string;
   budget?: string;
   message?: string;

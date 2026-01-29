@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { AlertCircle } from 'lucide-react';
+import FieldWrapper from './FieldWrapper';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
   label: string;
@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
     };
 
     return (
-      <div className={`relative mb-4 group ${className}`}>
+      <FieldWrapper error={error} errorId={errorId} className={className}>
         {/* Icon */}
         {icon && (
           <div className="absolute left-4 top-[2.1rem] -translate-y-1/2 text-gray-600 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300 pointer-events-none z-10">
@@ -75,36 +75,7 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
         >
           {label}
         </label>
-
-        {/* Animated Bottom Border */}
-        <div
-          className={`
-          absolute bottom-0 left-1/2 h-[2px] w-0 
-          bg-primary
-          transition-all duration-300 ease-out 
-          -translate-x-1/2 
-          peer-focus:w-full
-          ${error ? 'bg-red-500 w-full' : ''}
-        `}
-        />
-
-        {/* Error Message (Relative Position now) */}
-        <div
-          className={`
-          overflow-hidden transition-all duration-300 ease-in-out
-          ${error ? 'max-h-10 opacity-100 mt-1.5' : 'max-h-0 opacity-0 mt-0'}
-        `}
-        >
-          <div
-            id={errorId}
-            className="flex items-center gap-1.5 text-[11px] font-bold text-red-500 pl-4"
-            role="alert"
-          >
-            <AlertCircle size={13} className="shrink-0" />
-            <span>{error}</span>
-          </div>
-        </div>
-      </div>
+      </FieldWrapper>
     );
   },
 );

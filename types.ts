@@ -13,26 +13,6 @@ export const COLORS = {
   warning: '#F4B400',
 };
 
-export enum LoadingState {
-  IDLE = 'IDLE',
-  LOADING = 'LOADING',
-  SUCCESS = 'SUCCESS',
-  ERROR = 'ERROR',
-}
-
-export interface ServiceItem {
-  title: string;
-  description: string;
-  iconName: string;
-}
-
-export interface Testimonial {
-  text: string;
-  author: string;
-  role: string;
-  company: string;
-}
-
 export type ContactType = 'general' | 'web' | 'marketing' | 'design' | 'audit' | 'consultation';
 
 // --- Pricing Types ---

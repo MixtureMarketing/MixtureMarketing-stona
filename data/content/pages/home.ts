@@ -23,55 +23,6 @@ export const WHY_US_CONTENT = {
   ],
 };
 
-export const CLIENTS_CONTENT = {
-  badge: 'Realne Wyniki',
-  title: 'Nie wierz nam na słowo.',
-  description:
-    'Wierz liczbom. Oto przykłady problemów, które rozwiązaliśmy dla naszych partnerów biznesowych.',
-  labels: {
-    challenge: 'Wyzwanie',
-    solution: 'Rozwiązanie',
-    trusted: 'Zaufali nam',
-  },
-  testimonials: [
-    {
-      author: 'Michał K.',
-      role: 'CEO, Branża Fashion',
-      company: 'ModaPremium',
-      challenge: 'Wysoki koszt pozyskania klienta (CAC) i niska powracalność.',
-      solution:
-        'Wdrożenie lejków sprzedażowych w Meta Ads + automatyzacja mailowa odzyskująca koszyki.',
-      result: 'ROAS 1250%',
-      resultDesc: 'Zwrot z nakładów reklamowych',
-      quote:
-        'Mixture Marketing to nie tylko agencja, to analitycy. Przestaliśmy przepalać budżet na przypadkowe działania. Liczby mówią same za siebie.',
-    },
-    {
-      author: 'Anna Z.',
-      role: 'Marketing Director',
-      company: 'SolarSystem OZE',
-      challenge: 'Dużo zapytań niskiej jakości (spam), handlowcy tracili czas.',
-      solution:
-        "Przebudowa Landing Page'a i precyzyjne targetowanie w Google Ads na słowa intencyjne.",
-      result: '+40% Leadów',
-      resultDesc: 'Wzrost kwalifikowanych zapytań',
-      quote:
-        'W końcu otrzymujemy zapytania od klientów, którzy faktycznie chcą kupić instalację, a nie tylko pytają o cenę. Jakość leadów wzrosła drastycznie.',
-    },
-    {
-      author: 'Tomasz W.',
-      role: 'Founder',
-      company: 'Logistics SaaS',
-      challenge:
-        'Skomplikowany interfejs aplikacji powodował rezygnację użytkowników po okresie próbnym.',
-      solution:
-        'Kompletny redesign UX/UI skupiony na onboardingu i uproszczeniu kluczowych procesów.',
-      result: '-25% Churn',
-      resultDesc: 'Spadek rezygnacji klientów',
-    },
-  ],
-};
-
 export const OFFERS_CONTENT = {
   web: {
     startup: {
@@ -236,60 +187,6 @@ export const LEAD_MAGNET_CONTENT = {
     growth: {
       title: 'Potencjał wzrostu',
       desc: 'Optymalizacja Core Web Vitals może zwiększyć ROAS o 15%.',
-    },
-  },
-};
-
-export const AI_GENERATOR_CONTENT = {
-  header: {
-    badge: 'SYSTEM_READY',
-    title: {
-      line1: 'Proof of',
-      line2: 'Concept.',
-    },
-    description:
-      'Nie wierzysz w obietnice? Sprawdź naszą technologię w akcji. Ten terminal łączy się bezpośrednio z modelem językowym Google Gemini, aby wygenerować kreatywne hasło dla Twojej firmy w czasie rzeczywistym.',
-  },
-  features: [
-    {
-      title: 'Real-time Processing',
-      desc: 'Generowanie na żywo bez opóźnień cache.',
-    },
-    {
-      title: 'Secure Connection',
-      desc: 'Szyfrowane połączenie SSL z API Google.',
-    },
-    {
-      title: 'AI-Powered',
-      desc: 'Wykorzystuje model Gemini 2.5 Flash.',
-    },
-  ],
-  terminal: {
-    header: 'Neural_Generator_v2.0.exe',
-    fields: {
-      companyName: '// NAZWA_FIRMY',
-      industry: '// BRANŻA',
-      tone: '// TON_KOMUNIKACJI',
-    },
-    placeholders: {
-      companyName: 'np. SolarFuture',
-      industry: 'np. OZE',
-    },
-    button: {
-      idle: 'EXECUTE_PROTOCOL',
-      processing: 'PROCESSING...',
-    },
-    status: {
-      standby: 'System standby. Awaiting input...',
-    },
-    logs: {
-      init: 'Initializing Neural Link v2.5...',
-      analyzing: 'Analyzing industry context:',
-      calibrating: 'Calibrating tone:',
-      connecting: 'Connecting to Gemini API Node...',
-      received: 'Response received. Decoding...',
-      synthesizing: 'Synthesizing output...',
-      error: 'ERROR: Connection failed.',
     },
   },
 };

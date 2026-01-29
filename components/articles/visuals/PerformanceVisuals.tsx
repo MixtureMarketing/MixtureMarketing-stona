@@ -17,43 +17,6 @@ import Button from '../../common/Button';
 import SectionHeader from '../../common/SectionHeader';
 import { useCounter } from '../../../hooks/useCounter';
 
-// 0. HELPERS
-interface MetricIntroCardProps {
-  title: string;
-  subtitle: string;
-  desc: string;
-  target: string;
-  color: string;
-}
-
-export const MetricIntroCard = ({ title, subtitle, desc, target, color }: MetricIntroCardProps) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
-    <h3 className={`text-2xl font-black mb-1 ${color}`}>{title}</h3>
-    <div className="text-xxs font-black text-gray-600 uppercase tracking-widest mb-4">
-      {subtitle}
-    </div>
-    <p className="text-xs text-gray-700 leading-relaxed mb-4">{desc}</p>
-    <div className="bg-gray-50 rounded-xl py-2 border border-gray-100">
-      <span className="text-xxs font-black text-gray-600 uppercase block mb-1">Target</span>
-      <span className="text-sm font-bold text-dark">{target}</span>
-    </div>
-  </div>
-);
-
-interface CaseStudyCardProps {
-  brand: string;
-  metric: string;
-  result: string;
-}
-
-export const CaseStudyCard = ({ brand, metric, result }: CaseStudyCardProps) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center group hover:border-primary transition-all">
-    <div className="text-xxs font-black text-primary uppercase tracking-widest mb-2">{brand}</div>
-    <div className="text-xl font-bold text-dark mb-1">{metric}</div>
-    <div className="text-sm font-bold text-emerald-500">{result}</div>
-  </div>
-);
-
 // 1. LIGHTHOUSE GAUGE
 export const LighthouseGauge = ({ score }: { score: number }) => {
   const current = useCounter(score, { duration: 1000, delay: 500 });

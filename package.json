@@ -43,7 +43,6 @@
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/montserrat": "^5.2.8",
     "@fontsource/playfair-display": "^5.2.8",
-    "@google/genai": "^1.38.0",
     "@portabletext/react": "^6.0.2",
     "@sanity/client": "^7.14.1",
     "@sanity/image-url": "^2.0.3",
@@ -73,11 +72,7 @@
     "@types/node": "^25.1.0",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.54.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "^10.4.23",
-    "axe-core": "^4.11.1",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
@@ -86,7 +81,6 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.2.0",
     "jsdom": "^27.4.0",
-    "postcss": "^8.5.6",
     "prettier": "^3.8.1",
     "puppeteer": "^24.36.1",
     "react-scan": "^0.4.3",
@@ -101,9 +95,7 @@
     "vite": "^7.3.1",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-image-optimizer": "^2.0.3",
-    "vite-plugin-sitemap": "^0.8.2",
-    "vitest": "^4.0.18",
-    "why-did-you-render": "^1.0.1"
+    "vitest": "^4.0.18"
   },
   "overrides": {}
 }

@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cmsService, SanityIndustry, client } from '../../services/cmsService';
 import Seo from '../common/Seo';
@@ -13,7 +11,6 @@ import {
   Shield,
   MessageCircle,
   Calculator,
-  Star,
   ArrowRight,
 } from 'lucide-react';
 import Button from '../common/Button';
@@ -22,6 +19,7 @@ import imageUrlBuilder from '@sanity/image-url';
 import { SanityImage } from '../../types/sanity';
 
 import AuditTeaser from '../features/audit/AuditTeaser';
+import { usePseoData } from '../../hooks/usePseoData';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
@@ -30,33 +28,13 @@ function urlFor(source: SanityImage) {
 
 const IndustryTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [industry, setIndustry] = useState<SanityIndustry | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    data: industry,
+    loading,
+    error,
+  } = usePseoData<SanityIndustry>(slug, cmsService.getIndustryBySlug);
   const { openModal } = useModal();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchIndustry = async () => {
-      if (!slug) return;
-      try {
-        setLoading(true);
-        const data = await cmsService.getIndustryBySlug(slug);
-        if (data) {
-          setIndustry(data);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error('Failed to fetch industry:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchIndustry();
-  }, [slug]);
 
   if (loading) {
     return (

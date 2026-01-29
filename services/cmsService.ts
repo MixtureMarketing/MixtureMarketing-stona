@@ -13,7 +13,7 @@ export const client = createClient({
   useCdn: false, // Ensure fresh data, especially after migration
 });
 
-export interface SanityCategory {
+interface SanityCategory {
   _id: string;
   title: string;
   description?: string;
@@ -82,7 +82,7 @@ export interface CalculatorConfig {
   };
 }
 
-export interface SanityPricingSection {
+interface SanityPricingSection {
   title: string;
   description?: string;
   tiers: PricingTier[];

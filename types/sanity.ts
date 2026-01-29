@@ -11,13 +11,3 @@ export interface SanityImage {
 }
 
 export type SanityBody = PortableTextBlock[];
-
-export interface SanitySlug {
-  current: string;
-  _type: 'slug';
-}
-
-export interface SanityReference {
-  _ref: string;
-  _type: 'reference';
-}

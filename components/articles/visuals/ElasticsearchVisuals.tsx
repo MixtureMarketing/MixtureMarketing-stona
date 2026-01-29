@@ -505,8 +505,3 @@ export const SearchArchitecture: React.FC = () => {
     </div>
   );
 };
-
-// --- FACETED SEARCH PREVIEW (Deprecated in favor of KillerFeaturesInteractive but kept for safety if needed) ---
-export const FacetedSearchVisual: React.FC = () => {
-  return null; // Using KillerFeaturesInteractive instead
-};

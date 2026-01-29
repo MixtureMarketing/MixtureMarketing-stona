@@ -15,37 +15,6 @@ import Button from '../../common/Button';
 import SectionHeader from '../../common/SectionHeader';
 import { useCounter } from '../../../hooks/useCounter';
 
-// 0. HELPERS
-interface ScalingTypeCardProps {
-  type: 'vertical' | 'horizontal';
-  title: string;
-  desc: string;
-  risk: string;
-  suitability: string;
-}
-
-export const ScalingTypeCard = ({ type, title, desc, risk, suitability }: ScalingTypeCardProps) => (
-  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col h-full">
-    <div
-      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${type === 'vertical' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
-    >
-      {type === 'vertical' ? <Target size={24} /> : <Search size={24} />}
-    </div>
-    <h3 className="text-xl font-bold text-dark mb-3">{title}</h3>
-    <p className="text-sm text-gray-700 mb-6 flex-grow">{desc}</p>
-    <div className="space-y-4">
-      <div className="bg-rose-50 p-3 rounded-xl border border-rose-100">
-        <div className="text-xxs font-black uppercase text-rose-600 mb-1">Ryzyko</div>
-        <p className="text-xs text-rose-800 m-0 leading-snug">{risk}</p>
-      </div>
-      <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-        <div className="text-xxs font-black uppercase text-emerald-600 mb-1">Kiedy stosować?</div>
-        <p className="text-xs text-emerald-800 m-0 leading-snug">{suitability}</p>
-      </div>
-    </div>
-  </div>
-);
-
 // 1. ROAS VS PROFIT CALCULATOR
 export const RoasProfitCalculator = () => {
   const [spend, setSpend] = useState(10000);

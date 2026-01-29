@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { cmsService, SanityLocation } from '../../services/cmsService';
 import Seo from '../common/Seo';
@@ -16,36 +16,17 @@ import {
 } from 'lucide-react';
 import Button from '../common/Button';
 import { useModal } from '../../context/ModalContext';
+import { usePseoData } from '../../hooks/usePseoData';
 
 const LocationTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [location, setLocation] = useState<SanityLocation | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const {
+    data: location,
+    loading,
+    error,
+  } = usePseoData<SanityLocation>(slug, cmsService.getLocationBySlug);
   const { openModal } = useModal();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchLocation = async () => {
-      if (!slug) return;
-      try {
-        setLoading(true);
-        const data = await cmsService.getLocationBySlug(slug);
-        if (data) {
-          setLocation(data);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error('Failed to fetch location:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLocation();
-  }, [slug]);
 
   if (loading) {
     return (
