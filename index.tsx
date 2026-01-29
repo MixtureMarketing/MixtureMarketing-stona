@@ -12,7 +12,7 @@ function reportWebVitals(metric: Metric) {
   const { name, value, id, delta } = metric;
 
   // Skip RUM if prerendering (build time) to avoid console errors
-  if ((window as any).isPrerendering) return;
+  if (window.isPrerendering) return;
 
   // Local log only in DEV
   if (import.meta.env.DEV) {

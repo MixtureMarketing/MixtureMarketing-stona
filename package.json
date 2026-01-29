@@ -106,6 +106,5 @@
     "why-did-you-render": "^1.0.1"
   },
   "overrides": {
-    "react-is": "19.2.4"
   }
 }

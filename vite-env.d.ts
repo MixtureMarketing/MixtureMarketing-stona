@@ -2,6 +2,7 @@
 
 declare global {
   interface Window {
+    isPrerendering?: boolean;
     gtag?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
     zaraz?: {

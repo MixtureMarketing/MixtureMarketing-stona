@@ -1,0 +1,33 @@
+﻿2026-01-29T10:32:46.6425181Z ##[group]Run npm ci --legacy-peer-deps
+2026-01-29T10:32:46.6425554Z [36;1mnpm ci --legacy-peer-deps[0m
+2026-01-29T10:32:46.6457330Z shell: /usr/bin/bash -e {0}
+2026-01-29T10:32:46.6457594Z env:
+2026-01-29T10:32:46.6457794Z   COMPOSER_PROCESS_TIMEOUT: 0
+2026-01-29T10:32:46.6458059Z   COMPOSER_NO_INTERACTION: 1
+2026-01-29T10:32:46.6458305Z   COMPOSER_NO_AUDIT: 1
+2026-01-29T10:32:46.6458526Z ##[endgroup]
+2026-01-29T10:32:47.5498854Z npm error code EUSAGE
+2026-01-29T10:32:47.5501190Z npm error
+2026-01-29T10:32:47.5504466Z npm error The `npm ci` command can only install with an existing package-lock.json or
+2026-01-29T10:32:47.5505745Z npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+2026-01-29T10:32:47.5507369Z npm error later to generate a package-lock.json file, then try again.
+2026-01-29T10:32:47.5508397Z npm error
+2026-01-29T10:32:47.5509225Z npm error Clean install a project
+2026-01-29T10:32:47.5509966Z npm error
+2026-01-29T10:32:47.5510593Z npm error Usage:
+2026-01-29T10:32:47.5511975Z npm error npm ci
+2026-01-29T10:32:47.5512772Z npm error
+2026-01-29T10:32:47.5513402Z npm error Options:
+2026-01-29T10:32:47.5514556Z npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+2026-01-29T10:32:47.5515994Z npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+2026-01-29T10:32:47.5518686Z npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+2026-01-29T10:32:47.5520033Z npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+2026-01-29T10:32:47.5521089Z npm error [--no-bin-links] [--no-fund] [--dry-run]
+2026-01-29T10:32:47.5522436Z npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+2026-01-29T10:32:47.5523444Z npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+2026-01-29T10:32:47.5524064Z npm error
+2026-01-29T10:32:47.5524689Z npm error aliases: clean-install, ic, install-clean, isntall-clean
+2026-01-29T10:32:47.5525299Z npm error
+2026-01-29T10:32:47.5525732Z npm error Run "npm help ci" for more info
+2026-01-29T10:32:47.5526788Z npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-01-29T10_32_46_711Z-debug-0.log
+2026-01-29T10:32:47.5608238Z ##[error]Process completed with exit code 1.
