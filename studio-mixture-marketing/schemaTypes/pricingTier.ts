@@ -76,7 +76,15 @@ export default defineType({
       subtitle: 'price',
       isRecommended: 'isRecommended',
     },
-    prepare({title, subtitle, isRecommended}: {title: string; subtitle: string; isRecommended: boolean}) {
+    prepare({
+      title,
+      subtitle,
+      isRecommended,
+    }: {
+      title: string
+      subtitle: string
+      isRecommended: boolean
+    }) {
       return {
         title: title,
         subtitle: `${subtitle} ${isRecommended ? '(⭐)' : ''}`,

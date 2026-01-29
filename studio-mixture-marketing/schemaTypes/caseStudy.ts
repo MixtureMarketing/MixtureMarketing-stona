@@ -129,7 +129,6 @@ export default defineType({
 
     // --- 3. SPECYFIKACJA (WARUNKOWA) ---
 
-    // A. WEB
     defineField({
       name: 'websiteUrl',
       title: 'Link do strony WWW',
