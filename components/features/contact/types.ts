@@ -29,7 +29,7 @@ export interface ContactFormData {
 }
 
 export interface FormConfigField {
-  name: keyof ContactFormData;
+  name: any;
   label: string;
   type: 'select' | 'input';
   options?: { value: string; label: string }[];
