@@ -39,6 +39,25 @@ class IntersectionObserverMock implements IntersectionObserver {
 
 vi.stubGlobal('IntersectionObserver', IntersectionObserverMock);
 
+// Mock Sanity
+vi.mock('@sanity/client', () => ({
+  createClient: vi.fn(() => ({
+    fetch: vi.fn().mockResolvedValue([]),
+  })),
+}));
+
+vi.mock('@sanity/image-url', () => ({
+  default: vi.fn(() => ({
+    image: vi.fn(() => ({
+      width: vi.fn(() => ({
+        height: vi.fn(() => ({
+          url: vi.fn(() => 'test-image-url'),
+        })),
+      })),
+    })),
+  })),
+}));
+
 // Mock scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 window.HTMLElement.prototype.scrollTo = vi.fn();

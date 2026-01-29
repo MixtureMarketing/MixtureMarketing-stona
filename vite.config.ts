@@ -2,11 +2,9 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import Sitemap from 'vite-plugin-sitemap';
 import viteCompression from 'vite-plugin-compression';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { routes } from './routes.js';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -25,11 +23,6 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(), // Tailwind v4 plugin
-      Sitemap({
-        hostname: 'https://mixturemarketing.pl', // Replace with actual domain if different
-        dynamicRoutes: routes.filter((route) => route !== '/'), // Sitemap usually handles root automatically or we can include it
-        generateRobotsTxt: false,
-      }),
       // Image optimization (compression)
       ViteImageOptimizer({
         test: /\.(jpe?g|png|gif|tiff|svg)$/i, // Exclude webp/avif from re-optimization (handled by script)
