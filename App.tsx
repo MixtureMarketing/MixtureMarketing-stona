@@ -128,23 +128,15 @@ const GlobalSchema = () => (
 // Helper component for the Home Page structure
 
 const Home = () => {
-
   const { openModal } = useModal();
 
   return (
-
     <>
-
       <Seo
-
         title="Agencja Marketingowa 360° i Software House"
-
         description="Łączymy precyzję Software House'u z kreatywnością Agencji Reklamowej. Budujemy systemy, które działają i kampanie, które sprzedają. Poznaj naszą ofertę."
-
         lcpImage="/assets/images/sygnet.png"
-
         jsonLd={{
-
           '@context': 'https://schema.org',
 
           '@type': 'WebSite',
@@ -154,52 +146,35 @@ const Home = () => {
           url: 'https://mixturemarketing.pl',
 
           potentialAction: {
-
             '@type': 'SearchAction',
 
             target: 'https://mixturemarketing.pl/search?q={search_term_string}',
 
             'query-input': 'required name=search_term_string',
-
           },
-
         }}
-
       />
 
       <Hero onOpenModal={() => openModal('general')} />
 
       <Suspense fallback={<div className="h-screen" />}>
-
         <Services />
 
         <LazyHydrate minHeight="600px">
-
           <WhyUs />
-
         </LazyHydrate>
 
         <LazyHydrate minHeight="400px">
-
           <LeadMagnet />
-
         </LazyHydrate>
 
         <LazyHydrate minHeight="600px">
-
           <KnowledgeBaseTeaser />
-
         </LazyHydrate>
-
       </Suspense>
-
     </>
-
   );
-
 };
-
-
 
 // Fallback component for Suspense
 const Loading = () => (

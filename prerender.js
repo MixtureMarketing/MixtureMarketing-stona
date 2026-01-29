@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { spawn } from 'node:child_process';
 import { routes } from './routes.js';
-import Critters from 'critters';
+import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
 import dotenv from 'dotenv';
@@ -131,8 +131,8 @@ async function prerender() {
       timeout: 60000,
     });
 
-    // 4. Init Critters
-    const critters = new Critters({
+    // 4. Init Beasties
+    const critters = new Beasties({
       path: DIST_DIR,
       publicPath: '/',
       compress: true,
