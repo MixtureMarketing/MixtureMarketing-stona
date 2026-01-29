@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule} from 'sanity'
 
 export const industryType = defineType({
   name: 'industry',
@@ -10,21 +10,21 @@ export const industryType = defineType({
       title: 'Nazwa Branży (Mianownik)',
       description: 'np. Kancelarie Prawne, Deweloperzy Mieszkaniowi',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
       options: {source: 'name', maxLength: 96},
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'forWho',
       title: 'Dla kogo (Celownik)',
       description: 'np. "dla Prawników", "dla Branży Budowlanej". Używane w nagłówkach.',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'painPoints',

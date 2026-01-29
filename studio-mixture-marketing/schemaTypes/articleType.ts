@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule} from 'sanity'
 
 export const articleType = defineType({
   name: 'article',
@@ -9,14 +9,14 @@ export const articleType = defineType({
       name: 'title',
       title: 'Tytuł',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
       options: {source: 'title', maxLength: 96},
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'category',
@@ -29,7 +29,7 @@ export const articleType = defineType({
       title: 'Data publikacji',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'readTime',

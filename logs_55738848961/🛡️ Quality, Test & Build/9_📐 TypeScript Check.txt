@@ -1,0 +1,54 @@
+﻿2026-01-29T00:00:51.8119250Z ##[group]Run npx tsc --noEmit
+2026-01-29T00:00:51.8119578Z [36;1mnpx tsc --noEmit[0m
+2026-01-29T00:00:51.8152406Z shell: /usr/bin/bash -e {0}
+2026-01-29T00:00:51.8152659Z env:
+2026-01-29T00:00:51.8152866Z   COMPOSER_PROCESS_TIMEOUT: 0
+2026-01-29T00:00:51.8153112Z   COMPOSER_NO_INTERACTION: 1
+2026-01-29T00:00:51.8153340Z   COMPOSER_NO_AUDIT: 1
+2026-01-29T00:00:51.8153541Z ##[endgroup]
+2026-01-29T00:01:11.0672139Z ##[error]studio-mixture-marketing/sanity.cli.ts(1,31): error TS2307: Cannot find module 'sanity/cli' or its corresponding type declarations.
+2026-01-29T00:01:11.0693012Z ##[error]studio-mixture-marketing/sanity.config.ts(1,28): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0696326Z ##[error]studio-mixture-marketing/sanity.config.ts(2,29): error TS2307: Cannot find module 'sanity/structure' or its corresponding type declarations.
+2026-01-29T00:01:11.0699679Z ##[error]studio-mixture-marketing/sanity.config.ts(3,26): error TS2307: Cannot find module '@sanity/vision' or its corresponding type declarations.
+2026-01-29T00:01:11.0703306Z ##[error]studio-mixture-marketing/schemaTypes/articleType.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0706312Z ##[error]studio-mixture-marketing/schemaTypes/articleType.ts(12,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0709176Z ##[error]studio-mixture-marketing/schemaTypes/articleType.ts(19,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0714881Z ##[error]studio-mixture-marketing/schemaTypes/articleType.ts(32,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0718224Z ##[error]studio-mixture-marketing/schemaTypes/calculatorType.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0721440Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0725006Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(21,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0727849Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(32,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0730685Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(60,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0733904Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(138,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0737038Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(164,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0740135Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(188,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0743423Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(195,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0746418Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(204,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0749843Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(221,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0752952Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(239,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0756077Z ##[error]studio-mixture-marketing/schemaTypes/caseStudy.ts(248,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0759344Z ##[error]studio-mixture-marketing/schemaTypes/categoryType.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0762885Z ##[error]studio-mixture-marketing/schemaTypes/categoryType.ts(12,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0766025Z ##[error]studio-mixture-marketing/schemaTypes/industryType.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0768977Z ##[error]studio-mixture-marketing/schemaTypes/industryType.ts(13,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0771938Z ##[error]studio-mixture-marketing/schemaTypes/industryType.ts(20,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0774763Z ##[error]studio-mixture-marketing/schemaTypes/industryType.ts(27,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0777869Z ##[error]studio-mixture-marketing/schemaTypes/locationType.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0780919Z ##[error]studio-mixture-marketing/schemaTypes/locationType.ts(12,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0783950Z ##[error]studio-mixture-marketing/schemaTypes/locationType.ts(19,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0786544Z ##[error]studio-mixture-marketing/schemaTypes/locationType.ts(26,20): error TS7006: Parameter 'rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0789646Z ##[error]studio-mixture-marketing/schemaTypes/pricingSection.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0792584Z ##[error]studio-mixture-marketing/schemaTypes/pricingSection.ts(12,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0795326Z ##[error]studio-mixture-marketing/schemaTypes/pricingSection.ts(25,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0798329Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0801111Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(12,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0803941Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(23,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0806721Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(64,17): error TS7031: Binding element 'document' implicitly has an 'any' type.
+2026-01-29T00:01:11.0809490Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(79,14): error TS7031: Binding element 'title' implicitly has an 'any' type.
+2026-01-29T00:01:11.0812357Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(79,21): error TS7031: Binding element 'subtitle' implicitly has an 'any' type.
+2026-01-29T00:01:11.0815216Z ##[error]studio-mixture-marketing/schemaTypes/pricingTier.ts(79,31): error TS7031: Binding element 'isRecommended' implicitly has an 'any' type.
+2026-01-29T00:01:11.0818128Z ##[error]studio-mixture-marketing/schemaTypes/teamMember.ts(1,39): error TS2307: Cannot find module 'sanity' or its corresponding type declarations.
+2026-01-29T00:01:11.0821100Z ##[error]studio-mixture-marketing/schemaTypes/teamMember.ts(12,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0823880Z ##[error]studio-mixture-marketing/schemaTypes/teamMember.ts(18,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.0826491Z ##[error]studio-mixture-marketing/schemaTypes/teamMember.ts(28,20): error TS7006: Parameter 'Rule' implicitly has an 'any' type.
+2026-01-29T00:01:11.1485966Z ##[error]Process completed with exit code 2.

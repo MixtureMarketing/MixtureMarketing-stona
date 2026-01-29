@@ -18,5 +18,23 @@
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true
-  }
+  },
+  "include": [
+    "App.tsx",
+    "index.tsx",
+    "prerender.js",
+    "routes.js",
+    "vite.config.ts",
+    "vite-env.d.ts",
+    "components/**/*",
+    "config/**/*",
+    "context/**/*",
+    "data/**/*",
+    "hooks/**/*",
+    "services/**/*",
+    "tests/**/*",
+    "types/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": ["node_modules", "dist", ".vite", "studio-mixture-marketing"]
 }

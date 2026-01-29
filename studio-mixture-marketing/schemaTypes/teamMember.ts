@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule} from 'sanity'
 
 export default defineType({
   name: 'teamMember',
@@ -9,13 +9,13 @@ export default defineType({
       name: 'name',
       title: 'Imię i Nazwisko',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'role',
       title: 'Stanowisko',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
@@ -25,7 +25,7 @@ export default defineType({
         source: 'name',
         maxLength: 96,
       },
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'image',

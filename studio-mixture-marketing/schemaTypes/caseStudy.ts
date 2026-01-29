@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule, SanityDocument} from 'sanity'
 
 export default defineType({
   name: 'caseStudy',
@@ -18,7 +18,7 @@ export default defineType({
       title: 'Nazwa Projektu',
       type: 'string',
       group: 'main',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
@@ -29,7 +29,7 @@ export default defineType({
         source: 'title',
         maxLength: 96,
       },
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'client',
@@ -57,7 +57,7 @@ export default defineType({
         ],
         layout: 'radio',
       },
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'subcategory',
@@ -135,7 +135,7 @@ export default defineType({
       title: 'Link do strony WWW',
       type: 'url',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'web',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'web',
     }),
     defineField({
       name: 'techStack',
@@ -161,7 +161,7 @@ export default defineType({
         ],
         layout: 'grid',
       },
-      hidden: ({document}) => document?.category !== 'web',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'web',
     }),
     defineField({
       name: 'integrations',
@@ -185,14 +185,14 @@ export default defineType({
         ],
         layout: 'grid',
       },
-      hidden: ({document}) => document?.category !== 'web',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'web',
     }),
     defineField({
       name: 'performanceScore',
       title: 'Wynik PageSpeed (Mobile)',
       type: 'number',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'web',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'web',
     }),
 
     // B. MARKETING
@@ -201,7 +201,7 @@ export default defineType({
       title: 'Kluczowe KPI',
       type: 'array',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'marketing',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'marketing',
       of: [
         {
           type: 'object',
@@ -218,7 +218,7 @@ export default defineType({
       title: 'Platformy Reklamowe',
       type: 'array',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'marketing',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'marketing',
       of: [{type: 'string'}],
       options: {
         list: [
@@ -236,7 +236,7 @@ export default defineType({
       title: 'Narzędzia Design',
       type: 'array',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'design',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'design',
       of: [{type: 'string'}],
       options: {layout: 'tags'},
     }),
@@ -245,7 +245,7 @@ export default defineType({
       title: 'Kroje Pisma',
       type: 'string',
       group: 'specs',
-      hidden: ({document}) => document?.category !== 'design',
+      hidden: ({document}: {document: SanityDocument}) => document?.category !== 'design',
     }),
 
     // --- 4. MEDIA ---

@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule} from 'sanity'
 
 export default defineType({
   name: 'pricingSection',
@@ -9,7 +9,7 @@ export default defineType({
       name: 'title',
       title: 'Tytuł Sekcji',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'description',
@@ -22,7 +22,7 @@ export default defineType({
       title: 'Kategoria / ID (np. landing-page)',
       type: 'string',
       description: 'Unikalny identyfikator używany w kodzie do pobrania odpowiedniego cennika',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'packages',

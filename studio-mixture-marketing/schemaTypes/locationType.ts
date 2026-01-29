@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule} from 'sanity'
 
 export const locationType = defineType({
   name: 'location',
@@ -9,21 +9,21 @@ export const locationType = defineType({
       name: 'city',
       title: 'Miasto',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'slug',
       title: 'Slug (np. warszawa)',
       type: 'slug',
       options: {source: 'city', maxLength: 96},
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'genitive',
       title: 'Dopełniacz (np. Warszawy)',
       description: 'Przydatne do zdań typu: "Obsługa firm z..."',
       type: 'string',
-      validation: (rule) => rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'businessContext',

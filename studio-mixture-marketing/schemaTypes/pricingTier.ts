@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineField, defineType, Rule, SanityDocument} from 'sanity'
 
 export default defineType({
   name: 'pricingTier',
@@ -9,7 +9,7 @@ export default defineType({
       name: 'title',
       title: 'Nazwa Pakietu',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'subtitle',
@@ -20,7 +20,7 @@ export default defineType({
       name: 'price',
       title: 'Cena (np. 2500)',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: (rule: Rule) => rule.required(),
     }),
     defineField({
       name: 'currency',
@@ -61,7 +61,7 @@ export default defineType({
       name: 'highlightText',
       title: 'Tekst wyróżnienia (np. Najczęściej Wybierany)',
       type: 'string',
-      hidden: ({document}) => !document?.isRecommended,
+      hidden: ({document}: {document: SanityDocument}) => !document?.isRecommended,
     }),
     defineField({
       name: 'buttonText',
@@ -76,7 +76,7 @@ export default defineType({
       subtitle: 'price',
       isRecommended: 'isRecommended',
     },
-    prepare({title, subtitle, isRecommended}) {
+    prepare({title, subtitle, isRecommended}: {title: string; subtitle: string; isRecommended: boolean}) {
       return {
         title: title,
         subtitle: `${subtitle} ${isRecommended ? '(⭐)' : ''}`,
