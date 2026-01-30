@@ -41,7 +41,7 @@ import { useParallax } from '../../hooks/useParallax';
 
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
-import { CorporateHeroVisual } from '../visuals/HeroVisuals';
+import { CorporateHeroVisual } from '../visuals/hero/CorporateVisual';
 import SectionWrapper from '../common/SectionWrapper';
 
 const CorporateWebsite: React.FC = () => {

@@ -44,6 +44,7 @@ const BackendCompendiumArticle = () => {
       icon={Server}
       accentColor="#3B82F6"
       heroVisual={<BackendIcebergHero />}
+      slug="/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto"
     >
       <AnimateOnScroll>
         <p className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-primary pl-6 py-2 bg-blue-50/30 rounded-r-xl">

@@ -31,6 +31,7 @@ const MongoArticle = () => {
       icon={Database}
       accentColor="#00ED64"
       heroVisual={<MongoHeroVisual />}
+      slug="/baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Database className="text-secondary mt-1 shrink-0" size={20} />

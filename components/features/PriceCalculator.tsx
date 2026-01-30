@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCalculator, ProjectType } from '../../hooks/useCalculator';
-import { generatePdf } from '../../services/pdfService';
 import { ChevronRight, ChevronLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { useNotification } from '../../context/NotificationContext';
 import Button from '../common/Button';
 import SectionHeader from '../common/SectionHeader';
 import CalculatorProgress from './calculator/CalculatorProgress';
@@ -14,15 +14,26 @@ import CalculatorStepForm from './calculator/CalculatorStepForm';
 import CalculatorSummary from './calculator/CalculatorSummary';
 
 const PriceCalculator: React.FC = () => {
-  const { loading, selections, result, updateSelection, toggleFeature, toggleMarketing } =
-    useCalculator();
+  const {
+    loading,
+    selections,
+    result,
+    updateSelection,
+    toggleFeature,
+    toggleMarketing,
+    resetSelections,
+  } = useCalculator();
 
   const location = useLocation();
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
+
   const [step, setStep] = useState(1);
   const totalSteps = 5;
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -34,28 +45,40 @@ const PriceCalculator: React.FC = () => {
     }
   }, [location.search, updateSelection]);
 
+  const resetCalculator = () => {
+    setStep(1);
+    setEmail('');
+    setIsSuccess(false);
+    setError(null);
+    resetSelections();
+  };
+
   const nextStep = () => setStep((s) => Math.min(s + 1, totalSteps));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
     try {
-      // 1. Generate PDF
+      // 1. Dynamic import of PDF service
+      const { generatePdf } = await import('../../services/pdfService');
+
+      // 2. Generate PDF
       const pdfBlob = await generatePdf({
         selections,
         result,
         contact: { email },
       });
 
-      // 2. Prepare Form Data
+      // 3. Prepare Form Data
       const formData = new FormData();
       formData.append('email', email);
       formData.append('pdf', pdfBlob, 'wycena_mixture.pdf');
       formData.append('data', JSON.stringify({ selections, result }));
 
-      // 3. Send to Backend
+      // 4. Send to Backend
       const response = await fetch('/api/calculator_submit.php', {
         method: 'POST',
         body: formData,
@@ -63,12 +86,17 @@ const PriceCalculator: React.FC = () => {
 
       if (response.ok) {
         setIsSuccess(true);
+        showNotification('Oferta została wysłana na Twój e-mail!', 'success');
       } else {
-        alert('Wystąpił błąd podczas wysyłania. Spróbuj ponownie.');
+        const errorMsg = 'Wystąpił błąd podczas wysyłania. Spróbuj ponownie.';
+        setError(errorMsg);
+        showNotification(errorMsg, 'error');
       }
-    } catch (error) {
-      console.error('Submission failed:', error);
-      alert('Wystąpił błąd krytyczny.');
+    } catch (err) {
+      console.error('Submission failed:', err);
+      const errorMsg = 'Wystąpił błąd krytyczny. Sprawdź połączenie z internetem.';
+      setError(errorMsg);
+      showNotification(errorMsg, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +124,12 @@ const PriceCalculator: React.FC = () => {
               Sprawdź swoją skrzynkę odbiorczą ({email}). Wstępny kosztorys w PDF już tam na Ciebie
               czeka.
             </p>
-            <Button onClick={() => window.location.reload()}>Wróć do strony głównej</Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button onClick={() => navigate('/')}>Przejdź do strony głównej</Button>
+              <Button variant="outline" onClick={resetCalculator}>
+                Nowa wycena
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -118,6 +151,14 @@ const PriceCalculator: React.FC = () => {
           <div className="lg:col-span-8">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 md:p-12 relative overflow-hidden">
               <CalculatorProgress currentStep={step} totalSteps={totalSteps} />
+
+              {/* Error Alert */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-bold flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  {error}
+                </div>
+              )}
 
               {/* STEP 1: Type */}
               {step === 1 && (

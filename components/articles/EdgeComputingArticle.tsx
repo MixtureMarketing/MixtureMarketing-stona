@@ -46,6 +46,7 @@ const EdgeComputingArticle = () => {
       image={articleData?.image || '/assets/images/edge-computing.png'}
       icon={Zap}
       accentColor="#F59E0B"
+      slug="/baza-wiedzy/edge-computing"
       heroVisual={
         <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">
           <Image

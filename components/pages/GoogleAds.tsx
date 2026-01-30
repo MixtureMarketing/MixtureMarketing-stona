@@ -1,54 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
-  ArrowRight,
-  Target,
-  MousePointerClick,
-  TrendingUp,
-  Filter,
-  Award,
   ShieldCheck,
+  TrendingUp,
+  Database,
+  Layers,
+  Cpu,
+  Terminal,
+  Target,
   ShoppingCart,
   Briefcase,
   Store,
-  Layers,
-  Database,
-  Cpu,
-  Terminal,
   CheckCircle2,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import { useModal } from '../../context/ModalContext';
-import { useTypewriter } from '../../hooks/useTypewriter';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
-import { PricingSectionData, PricingTier } from '../../types';
+import { PricingSection, PricingTier } from '../../types';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardCta from '../common/StandardCta';
 import StandardFaq from '../common/StandardFaq';
 import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
+import StandardHero from '../common/StandardHero';
+import { GoogleAdsHeroVisual } from '../visuals/hero/GoogleAdsVisual';
 
 const GoogleAds: React.FC = () => {
-  // Hooks
-  const navigate = useNavigate();
   const { openModal } = useModal();
-
-  // Simulator State using custom hook
-  const { displayText: typedText, isComplete: showResults } = useTypewriter(
-    CONTENT.hero.simulator.placeholder,
-    {
-      speed: 60,
-      delay: 600,
-    },
-  );
-
-  const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
+  const [pricingData, setPricingData] = useState<PricingSection | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -86,154 +68,24 @@ const GoogleAds: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-24 bg-light-gray overflow-hidden">
-        <AmbientBackground />
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/marketing/')}
-            className="group flex items-center text-sm font-semibold text-gray-700 hover:text-secondary mb-8 transition-colors uppercase tracking-wider"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Wróć do Marketingu
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in border border-secondary/10">
-                <ShieldCheck size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-[1.1] animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] to-[#34A853]">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('marketing', { specificType: 'ads' })}
-                  icon={<ArrowRight size={18} />}
-                >
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-full border border-gray-100 text-sm font-bold text-gray-600 shadow-sm cursor-default">
-                  <TrendingUp size={16} className="text-[#34A853]" /> {CONTENT.hero.microCopy}
-                </div>
-              </div>
-
-              <div
-                className="mt-10 p-4 bg-white rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fade-in-up max-w-lg"
-                style={{ animationDelay: '0.3s' }}
-              >
-                <div className="bg-green-100 p-2.5 rounded-lg text-success shrink-0">
-                  <TrendingUp size={24} />
-                </div>
-                <div>
-                  <div className="text-xxs font-bold text-gray-600 uppercase tracking-widest mb-1">
-                    {CONTENT.hero.caseStudy.label}
-                  </div>
-                  <div
-                    className="text-sm text-dark leading-snug"
-                    dangerouslySetInnerHTML={{ __html: CONTENT.hero.caseStudy.desc }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              className="lg:w-1/2 w-full relative animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative z-10 bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(66,133,244,0.2)] border border-gray-200 p-2 max-w-lg mx-auto transform rotate-1 hover:rotate-0 transition-all duration-500">
-                <div className="bg-[#F1F3F4] rounded-t-xl px-4 py-3 flex items-center gap-4 border-b border-gray-200">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
-                  </div>
-                  <div className="flex-1 bg-white rounded-full h-8 px-4 flex items-center text-sm text-gray-600 shadow-sm relative overflow-hidden">
-                    <img
-                      src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg"
-                      alt="G"
-                      className="h-3 mr-3"
-                    />
-                    <span className="truncate">{typedText}</span>
-                    <span className="w-0.5 h-4 bg-[#4285F4] ml-0.5 animate-pulse"></span>
-                  </div>
-                </div>
-
-                <div className="p-4 sm:p-6 bg-white rounded-b-xl min-h-[320px]">
-                  {showResults ? (
-                    <div className="animate-fade-in-up space-y-6">
-                      <div className="p-4 rounded-xl bg-white border border-[#4285F4] shadow-[0_4px_20px_-5px_rgba(66,133,244,0.15)] relative overflow-hidden group cursor-pointer transition-colors">
-                        <div className="absolute top-0 left-0 w-1 h-full bg-[#4285F4]"></div>
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="font-bold text-dark text-[11px]">
-                            {CONTENT.hero.simulator.ad.label}
-                          </span>
-                          <span className="text-gray-600 text-xxs">•</span>
-                          <div className="flex items-center gap-1 text-gray-700 text-[11px]">
-                            <div className="w-4 h-4 rounded-full bg-gray-200"></div>
-                            <span>twoja-firma.pl</span>
-                          </div>
-                        </div>
-                        <div className="text-[#1a0dab] text-lg font-medium group-hover:underline leading-snug mb-2">
-                          {CONTENT.hero.simulator.ad.title}
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                          {CONTENT.hero.simulator.ad.desc}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {CONTENT.hero.simulator.ad.links.map((link, i) => (
-                            <span
-                              key={i}
-                              className="text-[#1a0dab] text-xs hover:underline cursor-pointer bg-[#F1F3F4] px-3 py-1.5 rounded-full font-medium hover:bg-[#E8F0FE]"
-                            >
-                              {link}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="absolute bottom-4 right-8 pointer-events-none animate-bounce hidden sm:block drop-shadow-xl">
-                          <MousePointerClick size={28} className="text-dark fill-white" />
-                        </div>
-                      </div>
-
-                      <div className="px-2 opacity-30 blur-[2px] grayscale select-none pointer-events-none">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-                          <div className="w-32 h-3 bg-gray-300 rounded"></div>
-                        </div>
-                        <div className="w-64 h-4 bg-gray-400 rounded mb-2"></div>
-                        <div className="w-full h-12 bg-gray-100 rounded"></div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-48 opacity-20">
-                      <div className="w-12 h-12 rounded-full border-4 border-gray-300 border-t-[#4285F4] animate-spin mb-4"></div>
-                      <p className="text-xs font-bold text-gray-600 uppercase tracking-widest">
-                        Wyszukiwanie...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={ShieldCheck}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
+        ctaSecondaryNode={
+          <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-full border border-gray-100 text-sm font-bold text-gray-600 shadow-sm cursor-default">
+            <TrendingUp size={16} className="text-[#34A853]" /> {CONTENT.hero.microCopy}
           </div>
-        </div>
-      </section>
+        }
+        backLinkPath="/marketing/"
+        backLinkLabel="Marketing"
+        accentGradientFrom="#4285F4"
+        accentGradientTo="#34A853"
+        visual={<GoogleAdsHeroVisual />}
+      />
 
       {/* --- AUDIT TEASER --- */}
       <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
@@ -256,9 +108,9 @@ const GoogleAds: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {CONTENT.painPoints.items.map((item, i) => {
               const icons = [
-                <Filter key="filter" size={32} className="text-red-500" />,
+                <Terminal key="filter" size={32} className="text-red-500" />,
                 <Target key="target" size={32} className="text-red-500" />,
-                <Award key="award" size={32} className="text-red-500" />,
+                <ShieldCheck key="award" size={32} className="text-red-500" />,
               ];
               return (
                 <AnimateOnScroll key={i} delay={i * 100}>

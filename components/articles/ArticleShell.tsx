@@ -1,8 +1,10 @@
 import React from 'react';
-import { LucideIcon, FileText } from 'lucide-react';
+import { LucideIcon, FileText, Share2, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
 import Seo from '../common/Seo';
 import AmbientBackground from '../common/AmbientBackground';
+import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
+import { useNotification } from '../../context/NotificationContext';
 
 interface ArticleShellProps {
   id: string;
@@ -16,41 +18,94 @@ interface ArticleShellProps {
   secondaryAccentColor?: string;
   heroVisual?: React.ReactNode;
   children: React.ReactNode;
+  slug: string;
 }
 
 const ArticleShell: React.FC<ArticleShellProps> = ({
   id = 'default-article',
-
   title = '',
-
   description,
-
   category,
-
   categoryLabel,
-
   image,
-
   icon: Icon = FileText,
-
   accentColor = '#3F3D91',
-
   heroVisual,
-
   children,
+  slug,
 }: ArticleShellProps) => {
   const titleStr = typeof title === 'string' ? title : '';
-
   const titleParts = titleStr.includes(':') ? titleStr.split(':') : [titleStr, ''];
+
+  const { showNotification } = useNotification();
+
+  const breadcrumbs = [
+    { name: 'Strona Główna', item: '/' },
+    { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
+    { name: titleStr, item: slug || '#' },
+  ];
+
+  const shareUrl = `https://mixturemarketing.pl${slug}`;
+
+  const shareActions = [
+    {
+      icon: <Facebook size={16} />,
+      label: 'Facebook',
+      onClick: () =>
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank'),
+    },
+    {
+      icon: <Linkedin size={16} />,
+      label: 'LinkedIn',
+      onClick: () =>
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank'),
+    },
+    {
+      icon: <LinkIcon size={16} />,
+      label: 'Kopiuj link',
+      onClick: () => {
+        navigator.clipboard.writeText(shareUrl);
+        showNotification('Link skopiowany do schowka!', 'success');
+      },
+    },
+  ];
 
   return (
     <div className="bg-white min-h-screen font-sans selection:bg-blue-100">
-      <Seo title={titleStr} description={description} image={image} type="article" />
+      <Seo
+        title={titleStr}
+        description={description}
+        image={image}
+        type="article"
+        breadcrumbs={breadcrumbs}
+      />
 
       <AmbientBackground />
 
       <div className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <Breadcrumbs />
+
+            <div className="flex items-center gap-3">
+              <span className="text-xxs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Share2 size={12} /> Udostępnij:
+              </span>
+              <div className="flex gap-2">
+                {shareActions.map((action, i) => (
+                  <button
+                    key={i}
+                    onClick={action.onClick}
+                    className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-500 hover:bg-secondary hover:text-white transition-all shadow-sm"
+                    title={action.label}
+                  >
+                    {action.icon}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Header */}
 
           <header className="mb-20 mt-8 text-center">

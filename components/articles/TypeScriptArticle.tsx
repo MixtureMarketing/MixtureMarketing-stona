@@ -33,6 +33,7 @@ const TypeScriptArticle = () => {
       icon={ShieldCheck}
       accentColor="#3178C6"
       heroVisual={<TypeScriptScanner />}
+      slug="/baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu"
     >
       <AnimateOnScroll>
         <p className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-[#3178C6] pl-6 py-2 bg-blue-50/30 rounded-r-xl">

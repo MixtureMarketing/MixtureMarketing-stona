@@ -6,7 +6,7 @@ import SectionHeader from '../common/SectionHeader';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
-import { SeoHeroVisual } from '../visuals/HeroVisuals';
+import { SeoHeroVisual } from '../visuals/hero/SeoVisual';
 import { TrendingUp, Crosshair, Globe } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import { PricingSectionData, PricingTier } from '../../types';

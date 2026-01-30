@@ -32,6 +32,7 @@ const CoreWebVitalsArticle = () => {
       image={articleData?.image || '/assets/images/core-web-vitals.png'}
       icon={BarChart3}
       accentColor="#10B981"
+      slug="/baza-wiedzy/core-web-vitals-2025"
       heroVisual={
         <>
           <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">

@@ -1,33 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Cookie,
-  Check,
-  Settings,
-  ChevronUp,
-  ShieldCheck,
-  BarChart3,
-  Megaphone,
-  X,
-} from 'lucide-react';
+import { Cookie, Check, Settings, ChevronUp, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../common/Button';
-
-// Helper to push to dataLayer safely
-const gtag = (...args: unknown[]) => {
-  if (typeof window !== 'undefined') {
-    if (typeof window.gtag === 'function') {
-      window.gtag(...args);
-    } else {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(args);
-    }
-  }
-};
-
-type ConsentState = {
-  analytics: boolean;
-  marketing: boolean;
-};
+import { ConsentState, applyConsent } from '../../utils/analytics';
+import CookiePreferences from './CookiePreferences';
+import CookieFloatingButton from './CookieFloatingButton';
 
 const CookieBanner: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,68 +15,29 @@ const CookieBanner: React.FC = () => {
   });
   const bannerRef = useRef<HTMLDivElement>(null);
 
-  const applyConsent = (consent: ConsentState) => {
-    const consentSettings = {
-      ad_storage: consent.marketing ? 'granted' : 'denied',
-      ad_user_data: consent.marketing ? 'granted' : 'denied',
-      ad_personalization: consent.marketing ? 'granted' : 'denied',
-      analytics_storage: consent.analytics ? 'granted' : 'denied',
-      personalization_storage: 'granted',
-      functionality_storage: 'granted',
-      security_storage: 'granted',
-    };
-
-    gtag('consent', 'update', consentSettings);
-
-    // Update Cloudflare Zaraz Consent
-    if (typeof window !== 'undefined' && window.zaraz?.consent) {
-      try {
-        window.zaraz.consent.set({
-          kese: consent.analytics,
-          Pzjv: consent.marketing,
-        });
-      } catch (e) {
-        console.error('Zaraz consent error:', e);
-      }
-    }
-
-    // Push event to trigger GTM tags immediately
-    if (typeof window !== 'undefined' && window.dataLayer) {
-      window.dataLayer.push({
-        event: 'cookie_consent_update',
-      });
-    }
-  };
-
   useEffect(() => {
-    // Check local storage
     const storedConsent = localStorage.getItem('cookie-consent-v2');
-
     if (!storedConsent) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsOpen(true);
+      setTimeout(() => setIsOpen(true), 0);
     } else {
-      // Restore consent state on reload for GTM
       const parsedConsent = JSON.parse(storedConsent);
-      setPreferences(parsedConsent); // Sync state with stored values
-      applyConsent(parsedConsent);
+      setTimeout(() => {
+        setPreferences(parsedConsent);
+        applyConsent(parsedConsent);
+      }, 0);
     }
   }, []);
 
-  // Focus trap logic
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false);
-
       if (e.key === 'Tab' && bannerRef.current) {
         const focusableSelector =
           'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
         const focusableElements = bannerRef.current.querySelectorAll(focusableSelector);
-
         if (focusableElements.length === 0) return;
-
         const firstElement = focusableElements[0] as HTMLElement;
         const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
@@ -121,15 +59,10 @@ const CookieBanner: React.FC = () => {
     };
 
     document.addEventListener('keydown', handleKeyDown);
-
-    // Focus first element or banner itself
     const timer = setTimeout(() => {
       const focusable = bannerRef.current?.querySelector('button, [href], input');
-      if (focusable instanceof HTMLElement) {
-        focusable.focus();
-      } else {
-        bannerRef.current?.focus();
-      }
+      if (focusable instanceof HTMLElement) focusable.focus();
+      else bannerRef.current?.focus();
     }, 100);
 
     return () => {
@@ -164,26 +97,10 @@ const CookieBanner: React.FC = () => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // FLOATING BUTTON STATE (When Banner is Closed)
   if (!isOpen) {
-    return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[90] p-3 bg-white text-secondary rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-transform duration-300 group"
-        aria-label="Ustawienia plików cookies"
-      >
-        <Cookie size={24} className="group-hover:rotate-12 transition-transform" />
-        <span className="sr-only">Ustawienia Cookies</span>
-
-        {/* Tooltip */}
-        <span className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1 bg-dark text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-          Ustawienia prywatności
-        </span>
-      </button>
-    );
+    return <CookieFloatingButton onClick={() => setIsOpen(true)} />;
   }
 
-  // FULL BANNER STATE
   return (
     <div
       ref={bannerRef}
@@ -193,7 +110,6 @@ const CookieBanner: React.FC = () => {
       tabIndex={-1}
     >
       <div className="max-w-screen-lg mx-auto bg-white/95 backdrop-blur-md border border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden relative">
-        {/* Close Button (X) */}
         <button
           onClick={() => setIsOpen(false)}
           className="absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -202,7 +118,6 @@ const CookieBanner: React.FC = () => {
           <X size={20} />
         </button>
 
-        {/* Main Banner Content */}
         <div className="p-6 md:p-8 flex flex-col gap-6">
           <div className="flex items-start gap-4 pr-8">
             <div className="p-3 bg-blue-50 text-secondary rounded-xl shrink-0 hidden md:flex">
@@ -225,82 +140,10 @@ const CookieBanner: React.FC = () => {
             </div>
           </div>
 
-          {/* Expanded Preferences Section */}
           {showPreferences && (
-            <div className="bg-gray-50 rounded-xl p-4 space-y-4 animate-fade-in border border-gray-100">
-              {/* Essential */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck size={20} className="text-green-600" aria-hidden="true" />
-                  <div>
-                    <div className="font-bold text-dark text-sm">Niezbędne</div>
-                    <div className="text-xs text-gray-600">
-                      Wymagane do działania strony (bezpieczeństwo, logowanie).
-                    </div>
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked
-                  disabled
-                  className="w-5 h-5 accent-[#3F3D91] opacity-50 cursor-not-allowed"
-                  aria-label="Niezbędne cookies"
-                />
-              </div>
-
-              {/* Analytics */}
-              <div
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => togglePreference('analytics')}
-              >
-                <div className="flex items-center gap-3">
-                  <BarChart3 size={20} className="text-accent-dark" aria-hidden="true" />
-                  <div>
-                    <div className="font-bold text-dark text-sm">Analityczne</div>
-                    <div className="text-xs text-gray-600">
-                      Pomagają nam ulepszać stronę (Google Analytics).
-                    </div>
-                  </div>
-                </div>
-                <button
-                  className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ${preferences.analytics ? 'bg-secondary' : 'bg-gray-300'}`}
-                  aria-pressed={preferences.analytics}
-                  aria-label="Zgoda na ciasteczka analityczne"
-                >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${preferences.analytics ? 'translate-x-5' : ''}`}
-                  ></div>
-                </button>
-              </div>
-
-              {/* Marketing */}
-              <div
-                className="flex items-center justify-between cursor-pointer"
-                onClick={() => togglePreference('marketing')}
-              >
-                <div className="flex items-center gap-3">
-                  <Megaphone size={20} className="text-accent-dark" aria-hidden="true" />
-                  <div>
-                    <div className="font-bold text-dark text-sm">Marketingowe</div>
-                    <div className="text-xs text-gray-600">
-                      Pozwalają dopasować reklamy do Twoich potrzeb (Google Ads, Meta).
-                    </div>
-                  </div>
-                </div>
-                <button
-                  className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ${preferences.marketing ? 'bg-secondary' : 'bg-gray-300'}`}
-                  aria-pressed={preferences.marketing}
-                  aria-label="Zgoda na ciasteczka marketingowe"
-                >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${preferences.marketing ? 'translate-x-5' : ''}`}
-                  ></div>
-                </button>
-              </div>
-            </div>
+            <CookiePreferences preferences={preferences} onToggle={togglePreference} />
           )}
 
-          {/* Actions */}
           <div className="flex flex-col md:flex-row items-center gap-3 justify-end pt-2">
             {!showPreferences ? (
               <>

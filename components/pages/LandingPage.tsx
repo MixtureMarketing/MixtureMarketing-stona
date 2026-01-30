@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   ArrowRight,
   Target,
-  MousePointerClick,
   BarChart3,
-  CheckCircle2,
   Zap,
   Split,
   Magnet,
@@ -13,16 +10,13 @@ import {
   Database,
   Rocket,
   Play,
-  Gauge,
-  AlertTriangle,
   Calculator,
+  MousePointerClick,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import AmbientBackground from '../common/AmbientBackground';
 import IntegrationGrid, { IntegrationCategory } from '../common/IntegrationGrid';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
@@ -31,16 +25,14 @@ import { LANDING_PAGE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardCta from '../common/StandardCta';
-import { PricingSectionData, PricingTier } from '../../types/common';
 import SectionWrapper from '../common/SectionWrapper';
+import StandardHero from '../common/StandardHero';
+import { LandingPageHeroVisual } from '../visuals/hero/LandingPageVisual';
+import { PricingSectionData, PricingTier } from '../../types';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
-
-  const [loadTime, setLoadTime] = useState(0.8);
-  const [conversionDrop, setConversionDrop] = useState(0);
-  const [score, setScore] = useState(98);
 
   const [activeStep, setActiveStep] = useState<number | null>(null);
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
@@ -61,23 +53,6 @@ const LandingPage: React.FC = () => {
       }
     });
   }, [openModal]);
-
-  useEffect(() => {
-    if (loadTime <= 1) {
-      setConversionDrop(0);
-      setScore(Math.max(90, 100 - loadTime * 5));
-    } else {
-      const drop = Math.min((loadTime - 1) * 7, 100);
-      setConversionDrop(Math.round(drop * 10) / 10);
-      setScore(Math.max(0, 90 - (loadTime - 1) * 20));
-    }
-  }, [loadTime]);
-
-  const getScoreColor = (s: number) => {
-    if (s >= 90) return '#00C853';
-    if (s >= 50) return '#FFA000';
-    return '#FF5252';
-  };
 
   const useCases = CONTENT.useCases.items.map((item, i) => {
     const icons = [
@@ -131,151 +106,22 @@ const LandingPage: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <SectionWrapper variant="light-gray" padding="lg" overflow={true}>
-        <AmbientBackground />
-        <div className="bg-grid-pattern absolute inset-0 opacity-5 pointer-events-none"></div>
-
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-          <div className="lg:w-1/2 text-center lg:text-left">
-            <button
-              onClick={() => navigate('/web-development/')}
-              className="group inline-flex items-center text-xxs font-bold text-gray-600 hover:text-secondary mb-8 transition-colors uppercase tracking-[0.2em] border border-gray-200 rounded-full px-3 py-1 bg-white hover:border-secondary"
-            >
-              <ArrowLeft
-                className="mr-2 group-hover:-translate-x-1 transition-transform"
-                size={12}
-              />
-              Web Development
-            </button>
-
-            <div className="mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-secondary text-xxs font-black uppercase tracking-widest mb-6 border border-secondary/10">
-                <MousePointerClick size={12} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-dark mb-6 leading-[1.1] tracking-tight">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-[#E1306C]">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p className="text-xl text-gray-700 mb-10 leading-relaxed font-medium">
-                {CONTENT.hero.description}
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Button
-                  onClick={() => openModal('web', { specificType: 'landing' })}
-                  size="lg"
-                  className="shadow-xl shadow-secondary/20"
-                >
-                  Umów się na konsultację
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => navigate('/offers#calculator?type=landingPage')}
-                  icon={<Calculator size={18} />}
-                >
-                  Wyceń stronę
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="lg:w-1/2 w-full relative animate-fade-in-up"
-            style={{ animationDelay: '0.3s' }}
-          >
-            <div className="relative z-10 bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 max-w-lg mx-auto transform transition-all hover:scale-[1.01] duration-500">
-              <div className="flex justify-between items-center mb-8">
-                <div className="font-bold text-dark flex items-center gap-2">
-                  <Gauge size={20} className="text-instagram" />
-                  {CONTENT.hero.simulator.title}
-                </div>
-                <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-600">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Live Check
-                </div>
-              </div>
-
-              <div className="flex justify-center mb-10 relative">
-                <svg className="w-56 h-56 transform -rotate-90" viewBox="0 0 200 200">
-                  <circle cx="100" cy="100" r="88" fill="none" stroke="#F3F4F6" strokeWidth="12" />
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="88"
-                    fill="none"
-                    stroke={getScoreColor(Math.round(score))}
-                    strokeWidth="12"
-                    strokeDasharray={552}
-                    strokeDashoffset={552 - (552 * Math.round(score)) / 100}
-                    strokeLinecap="round"
-                    className="transition-all duration-300 ease-out"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span
-                    className="text-4xl font-black tracking-tighter leading-none transition-colors duration-300"
-                    style={{ color: getScoreColor(Math.round(score)) }}
-                  >
-                    {Math.round(score)}
-                  </span>
-                  <span className="text-xs font-bold text-gray-600 uppercase mt-2 tracking-widest">
-                    {CONTENT.hero.simulator.labels.score}
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                  <div className="text-xxs text-gray-600 uppercase font-bold mb-1">
-                    {CONTENT.hero.simulator.labels.loadTime}
-                  </div>
-                  <div className="text-xl font-black text-dark">{loadTime.toFixed(1)}s</div>
-                </div>
-                <div
-                  className={`p-4 rounded-2xl border text-center transition-colors duration-300 ${conversionDrop > 0 ? 'bg-red-50 border-red-100' : 'bg-green-50 border-green-100'}`}
-                >
-                  <div className="text-xxs uppercase font-bold mb-1 flex items-center justify-center gap-1">
-                    {conversionDrop > 0 ? (
-                      <AlertTriangle size={12} className="text-red-500" aria-hidden="true" />
-                    ) : (
-                      <CheckCircle2 size={12} className="text-green-500" aria-hidden="true" />
-                    )}
-                    <span className={conversionDrop > 0 ? 'text-red-600' : 'text-green-700'}>
-                      {CONTENT.hero.simulator.labels.conversionLoss}
-                    </span>
-                  </div>
-                  <div
-                    className={`text-xl font-black ${conversionDrop > 0 ? 'text-red-500' : 'text-green-700'}`}
-                  >
-                    {conversionDrop > 0 ? `-${conversionDrop}%` : '0%'}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between text-xs font-bold text-gray-600">
-                  <span>{CONTENT.hero.simulator.labels.fast}</span>
-                  <span>{CONTENT.hero.simulator.labels.slow}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0.5"
-                  max="5.0"
-                  step="0.1"
-                  value={loadTime}
-                  onChange={(e) => setLoadTime(parseFloat(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#213261]"
-                  aria-label="Symulacja: Dostosuj czas ładowania strony"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </SectionWrapper>
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={MousePointerClick}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText="Umów się na konsultację"
+        ctaPrimaryOnClick={() => openModal('web', { specificType: 'landing' })}
+        ctaSecondaryText="Wyceń stronę"
+        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=landingPage')}
+        ctaSecondaryIcon={Calculator}
+        backLinkPath="/web-development/"
+        backLinkLabel="Web Development"
+        accentGradientFrom="#61B6DE"
+        accentGradientTo="#E1306C"
+        visual={<LandingPageHeroVisual />}
+      />
 
       {/* --- USE CASES --- */}
       <LazyHydrate minHeight="600px">

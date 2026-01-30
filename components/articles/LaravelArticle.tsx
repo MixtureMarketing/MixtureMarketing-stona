@@ -38,6 +38,7 @@ const LaravelArticle = () => {
       icon={Timer}
       accentColor="#FF2D20"
       heroVisual={<LaravelHeroVisual />}
+      slug="/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Server className="text-secondary mt-1 shrink-0" size={20} />

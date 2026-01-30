@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
   BookOpen,
   ArrowRight,
   Search,
-  Filter,
   Tag,
   Hash,
   Clock,
@@ -25,8 +24,10 @@ import Image from '../common/Image';
 import Breadcrumbs from '../common/Breadcrumbs';
 import Seo from '../common/Seo';
 
-import { ARTICLES } from '../../data/articles';
+import { ARTICLES, Article } from '../../data/articles';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
+import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
+import { formatDate } from '@/utils/date';
 
 // Categories Configuration
 const CATEGORIES = [
@@ -44,9 +45,45 @@ const CATEGORIES = [
 const KnowledgeBase = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [dynamicArticles, setDynamicArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Filter articles
-  const filteredArticles = ARTICLES.filter((article) => {
+  useEffect(() => {
+    const fetchDynamic = async () => {
+      try {
+        const data: SanityArticle[] = await cmsService.getArticles();
+        const mapped: Article[] = data.map((art) => ({
+          id: art._id,
+          title: art.title,
+          description: art.excerpt,
+          category: (art.category?.title?.toLowerCase() as Article['category']) || 'tech',
+          categoryLabel: art.category?.title || 'Artykuł',
+          image: art.mainImage
+            ? urlFor(art.mainImage).width(800).url()
+            : '/assets/images/sygnet.png',
+          date: art.publishedAt,
+          readTime: art.readTime || '5 min',
+          slug: `/baza-wiedzy/${art.slug.current}`,
+          tags: art.tags || [],
+        }));
+        setDynamicArticles(mapped);
+      } catch (err) {
+        console.error('Failed to load CMS articles:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDynamic();
+  }, []);
+
+  // Filter and Merge articles
+  const allArticles = useMemo(() => {
+    return [...ARTICLES, ...dynamicArticles].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    );
+  }, [dynamicArticles]);
+
+  const filteredArticles = allArticles.filter((article) => {
     const matchesCategory = activeCategory === 'all' || article.category === activeCategory;
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -117,7 +154,7 @@ const KnowledgeBase = () => {
 
           {/* Categories Navigation */}
           <nav
-            className="mb-12 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"
+            className="mb-12 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
             aria-label="Kategorie artykułów"
           >
             <div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-3 min-w-max sm:min-w-0">
@@ -159,7 +196,16 @@ const KnowledgeBase = () => {
           />
 
           {/* Articles Grid */}
-          {filteredArticles.length > 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-3xl h-96 animate-pulse border border-gray-100"
+                ></div>
+              ))}
+            </div>
+          ) : filteredArticles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
               {filteredArticles.map((article) => (
                 <GlassCard
@@ -190,8 +236,10 @@ const KnowledgeBase = () => {
                     <div className="flex items-center gap-4 text-xs font-medium text-gray-700 mb-4 border-b border-gray-100 pb-4">
                       <span className="flex items-center gap-1.5">
                         <Clock size={14} className="text-accent-dark" aria-hidden="true" />{' '}
-                        {article.readTime} czytania
+                        {article.readTime}
                       </span>
+                      <span className="text-gray-300">•</span>
+                      <span>{formatDate(article.date)}</span>
                     </div>
 
                     <Link

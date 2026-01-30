@@ -43,5 +43,42 @@ export default tseslint.config(
       },
     },
   },
+  // --- Architecture Budgets (File Line Limits) ---
+  {
+    files: ['components/common/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 110, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['components/features/**/*.{ts,tsx}', 'components/portal/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 400, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['components/pages/**/*.{ts,tsx}', 'components/templates/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 450, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['components/sections/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 400, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['components/layout/**/*.{ts,tsx}', 'components/visuals/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 250, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['components/articles/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 400, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['hooks/**/*.{ts,tsx}', 'services/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 200, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['data/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 500, skipBlankLines: true, skipComments: true }] },
+  },
+  {
+    files: ['utils/**/*.{ts,tsx}'],
+    rules: { 'max-lines': ['warn', { max: 100, skipBlankLines: true, skipComments: true }] },
+  },
   prettierConfig,
 );

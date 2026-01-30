@@ -11,3 +11,4 @@ export * from './content/pages/home';
 export * from './content/pages/knowledge-base';
 export * from './content/pages/contact';
 export * from './content/pages/portfolio';
+export * from './content/offers';

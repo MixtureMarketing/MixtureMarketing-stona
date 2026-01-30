@@ -106,6 +106,15 @@ export const useCalculator = () => {
     }));
   };
 
+  const resetSelections = () => {
+    setSelections({
+      projectType: 'landingPage',
+      designLevel: 'custom',
+      features: [],
+      marketing: [],
+    });
+  };
+
   return {
     config,
     loading,
@@ -114,5 +123,6 @@ export const useCalculator = () => {
     updateSelection,
     toggleFeature,
     toggleMarketing,
+    resetSelections,
   };
 };

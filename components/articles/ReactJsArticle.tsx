@@ -3,16 +3,13 @@ import { Link } from 'react-router-dom';
 import {
   Code2,
   Zap,
-  Layers,
   Users,
   CheckCircle2,
   ArrowRight,
   Layout,
   Smartphone,
   Globe,
-  TrendingUp,
   ShieldCheck,
-  Repeat,
 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
@@ -20,6 +17,12 @@ import Button from '../common/Button';
 import ArticleShell from './ArticleShell';
 import { ARTICLES } from '../../data/articles';
 import { REACT_ARTICLE_CONTENT } from '../../data/content/articles/react';
+import {
+  ReactHeroNetwork,
+  InterfaceAssembly,
+  ReactVennDiagram,
+  ReactTrendChart,
+} from './visuals/ReactVisuals';
 
 const ReactJsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'react-js-krol-frontendu');
@@ -38,8 +41,8 @@ const ReactJsArticle = () => {
       icon={Code2}
       accentColor="#61DAFB"
       heroVisual={<ReactHeroNetwork />}
+      slug="/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu"
     >
-      {/* Context Box */}
       <div className="mb-16 p-6 bg-white border border-blue-100 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start gap-5 not-prose hover:shadow-md transition-shadow">
         <div className="bg-blue-50 p-3 rounded-full shrink-0 text-secondary">
           <Layout size={24} />
@@ -67,7 +70,6 @@ const ReactJsArticle = () => {
         <p>{content.lead.text}</p>
       </AnimateOnScroll>
 
-      {/* COMPONENT REVOLUTION (LEGO) */}
       <div className="my-32">
         <SectionHeader
           title={content.componentRevolution.title}
@@ -75,39 +77,34 @@ const ReactJsArticle = () => {
           align="center"
         />
         <p className="text-center max-w-2xl mx-auto mb-12">{content.componentRevolution.text}</p>
-
         <div className="not-prose mb-16">
           <InterfaceAssembly />
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose">
-          {content.componentRevolution.cards.map((card, i) => {
-            const icons = [
-              <Zap key="zap" size={24} />,
-              <ShieldCheck key="shield" size={24} />,
-              <Layers key="layers" size={24} />,
-            ];
-            return (
-              <div
-                key={i}
-                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#61DAFB]/30 transition-all group"
-              >
-                <div className="w-12 h-12 bg-blue-50 text-[#0088AA] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                  {icons[i]}
-                </div>
-                <h4 className="font-bold text-dark mb-2">{card.title}</h4>
-                <p className="text-sm text-gray-600 m-0 leading-relaxed">{card.desc}</p>
+          {content.componentRevolution.cards.map((card, i) => (
+            <div
+              key={i}
+              className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#61DAFB]/30 transition-all group"
+            >
+              <div className="w-12 h-12 bg-blue-50 text-[#0088AA] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                {i === 0 ? (
+                  <Zap size={24} />
+                ) : i === 1 ? (
+                  <ShieldCheck size={24} />
+                ) : (
+                  <Layout size={24} />
+                )}
               </div>
-            );
-          })}
+              <h4 className="font-bold text-dark mb-2">{card.title}</h4>
+              <p className="text-sm text-gray-600 m-0 leading-relaxed">{card.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* BUS FACTOR & TALENT */}
       <div className="my-32 bg-[#0F172A] rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden not-prose shadow-2xl group">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#61DAFB] rounded-full blur-[150px] opacity-10 group-hover:opacity-15 transition-opacity duration-1000"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-[120px] opacity-10"></div>
-
         <div className="relative z-10 flex flex-col lg:flex-row gap-16 items-center">
           <div className="lg:w-1/2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#61DAFB] text-xs font-bold uppercase tracking-wider mb-6">
@@ -131,7 +128,6 @@ const ReactJsArticle = () => {
               ))}
             </ul>
           </div>
-
           <div className="lg:w-1/2 w-full flex justify-center">
             <div className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] backdrop-blur-md text-center relative overflow-hidden w-full max-w-sm">
               <div className="absolute inset-0 bg-gradient-to-b from-[#61DAFB]/10 to-transparent opacity-50"></div>
@@ -142,7 +138,6 @@ const ReactJsArticle = () => {
                 <div className="text-xs font-bold text-[#61DAFB] uppercase tracking-[0.3em] mb-8">
                   {content.busFactor.stats.rankLabel}
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-[#0F172A]/50 rounded-2xl border border-white/5">
                     <div className="text-2xl font-bold text-white">
@@ -167,7 +162,6 @@ const ReactJsArticle = () => {
         </div>
       </div>
 
-      {/* SYNERGY: REACT NATIVE */}
       <div className="my-32">
         <SectionHeader
           title={content.synergy.title}
@@ -175,13 +169,11 @@ const ReactJsArticle = () => {
           align="left"
         />
         <p dangerouslySetInnerHTML={{ __html: content.synergy.text }}></p>
-
         <div className="not-prose mt-12">
           <ReactVennDiagram />
         </div>
       </div>
 
-      {/* REACT VS NEXT.JS */}
       <div className="my-32 bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden not-prose">
         <SectionHeader
           title={content.nextJs.title}
@@ -205,7 +197,6 @@ const ReactJsArticle = () => {
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">{content.nextJs.reactCard.text}</p>
           </div>
-
           <div className="p-8 bg-gray-50 rounded-3xl border border-gray-100 group hover:border-black transition-all">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center font-black text-xl italic shadow-lg">
@@ -233,7 +224,6 @@ const ReactJsArticle = () => {
         </div>
       </div>
 
-      {/* TREND CHART */}
       <div className="my-32">
         <SectionHeader
           title={content.trends.title}
@@ -246,18 +236,14 @@ const ReactJsArticle = () => {
         </div>
       </div>
 
-      {/* SUMMARY & CTA */}
       <div className="mt-32">
         <AnimateOnScroll>
           <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-gradient-to-br from-[#0B1120] to-[#1e293b] relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-80 h-80 bg-[#61DAFB] rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-600 rounded-full blur-[100px] opacity-10"></div>
-
             <div className="relative z-10 flex flex-col items-center">
               <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(97,218,251,0.2)] border border-white/10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                <div className="relative">
-                  <Zap size={48} className="text-[#61DAFB]" fill="currentColor" />
-                </div>
+                <Zap size={48} className="text-[#61DAFB]" fill="currentColor" />
               </div>
               <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
                 {content.cta.title}
@@ -283,363 +269,28 @@ const ReactJsArticle = () => {
                   {content.cta.secondaryBtn}
                 </Button>
               </div>
-
               <div className="mt-16 flex flex-wrap justify-center gap-8 opacity-60">
-                {content.cta.badges.map((badge, i) => {
-                  const icons = [
-                    <ShieldCheck key="shield" size={16} className="text-[#61DAFB]" />,
-                    <Globe key="globe" size={16} className="text-[#61DAFB]" />,
-                    <Smartphone key="mobile" size={16} className="text-[#61DAFB]" />,
-                  ];
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest"
-                    >
-                      {icons[i]} {badge}
-                    </div>
-                  );
-                })}
+                {content.cta.badges.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest"
+                  >
+                    {i === 0 ? (
+                      <ShieldCheck size={16} className="text-[#61DAFB]" />
+                    ) : i === 1 ? (
+                      <Globe size={16} className="text-[#61DAFB]" />
+                    ) : (
+                      <Smartphone size={16} className="text-[#61DAFB]" />
+                    )}
+                    {badge}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </AnimateOnScroll>
       </div>
     </ArticleShell>
-  );
-};
-
-// ==========================================
-// VISUAL COMPONENTS (POPRAWIONE)
-// ==========================================
-
-const ReactHeroNetwork = () => {
-  return (
-    <div className="relative w-full bg-[#0F172A] rounded-[3rem] p-8 md:p-16 overflow-hidden border border-[#61DAFB]/20 shadow-2xl min-h-[600px] flex items-center justify-center group">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#1e293b] to-[#0F172A]"></div>
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: 'radial-gradient(#61DAFB 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      ></div>
-
-      <div className="relative z-10 flex flex-col items-center w-full h-full justify-center">
-        {/* Central React Atom */}
-        <div className="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center animate-float z-20">
-          {/* Core */}
-          <div className="w-20 h-20 bg-[#61DAFB] rounded-full shadow-[0_0_80px_rgba(97,218,251,0.8)] relative z-20 flex items-center justify-center border-4 border-[#0F172A]">
-            <Code2 size={40} className="text-[#0F172A]" />
-          </div>
-
-          {/* Electrons (Ellipses) */}
-          <div
-            className="absolute w-full h-20 border-[3px] border-[#61DAFB]/60 rounded-[100%] animate-spin-slow"
-            style={{ animationDuration: '8s' }}
-          ></div>
-          <div
-            className="absolute w-full h-20 border-[3px] border-[#61DAFB]/60 rounded-[100%] animate-spin-slow"
-            style={{ animationDuration: '8s', transform: 'rotate(60deg)' }}
-          ></div>
-          <div
-            className="absolute w-full h-20 border-[3px] border-[#61DAFB]/60 rounded-[100%] animate-spin-slow"
-            style={{ animationDuration: '8s', transform: 'rotate(-60deg)' }}
-          ></div>
-        </div>
-
-        {/* Orbiting Satellites - ROZUNIĘTE DO ROGÓW */}
-        <div className="absolute inset-0 w-full h-full pointer-events-none">
-          {/* Mobile - Top Left Corner */}
-          <div className="absolute top-8 left-4 md:top-12 md:left-12 flex flex-col items-center gap-2 animate-bounce-slow z-30">
-            <div className="bg-[#1e293b] p-4 rounded-2xl border border-[#61DAFB] shadow-[0_0_20px_rgba(97,218,251,0.3)]">
-              <Smartphone size={24} className="text-[#61DAFB]" />
-            </div>
-            <span className="text-white text-xs font-bold uppercase tracking-widest bg-[#0F172A]/80 px-2 rounded">
-              Mobile
-            </span>
-            {/* Connecting Line */}
-            <div className="absolute top-full left-1/2 w-px h-32 bg-gradient-to-b from-[#61DAFB]/50 to-transparent -z-10 rotate-[-45deg] origin-top"></div>
-          </div>
-
-          {/* Web - Bottom Right Corner */}
-          <div className="absolute bottom-8 right-4 md:bottom-12 md:right-12 flex flex-col-reverse items-center gap-2 animate-bounce-slow delay-700 z-30">
-            <div className="bg-[#1e293b] p-4 rounded-2xl border border-[#61DAFB] shadow-[0_0_20px_rgba(97,218,251,0.3)]">
-              <Globe size={24} className="text-[#61DAFB]" />
-            </div>
-            <span className="text-white text-xs font-bold uppercase tracking-widest bg-[#0F172A]/80 px-2 rounded">
-              Web App
-            </span>
-            {/* Connecting Line */}
-            <div className="absolute bottom-full left-1/2 w-px h-32 bg-gradient-to-t from-[#61DAFB]/50 to-transparent -z-10 rotate-[-45deg] origin-bottom"></div>
-          </div>
-
-          {/* Desktop - Top Right Corner */}
-          <div className="absolute top-8 right-4 md:top-12 md:right-12 flex flex-col items-center gap-2 animate-bounce-slow delay-300 z-30">
-            <div className="bg-[#1e293b] p-4 rounded-2xl border border-[#61DAFB] shadow-[0_0_20px_rgba(97,218,251,0.3)]">
-              <Layout size={24} className="text-[#61DAFB]" />
-            </div>
-            <span className="text-white text-xs font-bold uppercase tracking-widest bg-[#0F172A]/80 px-2 rounded">
-              Desktop
-            </span>
-            {/* Connecting Line */}
-            <div className="absolute top-full left-1/2 w-px h-32 bg-gradient-to-b from-[#61DAFB]/50 to-transparent -z-10 rotate-[45deg] origin-top"></div>
-          </div>
-        </div>
-
-        <div className="text-center absolute bottom-12 z-50 p-4 rounded-xl backdrop-blur-sm bg-[#0F172A]/30">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-2 tracking-tight">
-            The <span className="text-[#61DAFB]">Universal</span> UI
-          </h2>
-          <p className="text-[#61DAFB]/70 font-mono text-sm uppercase tracking-[0.3em]">
-            Learn Once • Write Anywhere
-          </p>
-        </div>
-      </div>
-
-      <style>{`
-                .animate-float { animation: float 6s ease-in-out infinite; }
-                .animate-spin-slow { animation: spin 10s linear infinite; }
-                .animate-bounce-slow { animation: bounceSlow 4s infinite; }
-                @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-                @keyframes bounceSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-            `}</style>
-    </div>
-  );
-};
-
-const InterfaceAssembly = () => {
-  return (
-    <div className="bg-gray-50 rounded-[2.5rem] p-8 md:p-12 border border-gray-200 shadow-inner relative overflow-hidden group">
-      <div className="flex flex-col items-center relative z-10">
-        {/* The "Browser" */}
-        <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden transform group-hover:scale-[1.02] transition-transform duration-500">
-          <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-400"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          </div>
-
-          <div className="p-6 grid grid-cols-3 gap-4">
-            {/* Header Component */}
-            <div className="col-span-3 h-16 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 flex items-center justify-center text-blue-600 font-mono text-xs relative group/item">
-              <span className="absolute -top-3 left-4 bg-blue-100 px-2 text-xxs font-bold">
-                Header.jsx
-              </span>
-              Logo | Menu | Auth
-            </div>
-
-            {/* Sidebar Component */}
-            <div className="col-span-1 h-48 rounded-lg border-2 border-dashed border-purple-300 bg-purple-50 flex items-center justify-center text-purple-600 font-mono text-xs relative group/item">
-              <span className="absolute -top-3 left-4 bg-purple-100 px-2 text-xxs font-bold">
-                Sidebar.jsx
-              </span>
-              Nav
-            </div>
-
-            {/* Content Component */}
-            <div className="col-span-2 h-48 rounded-lg border-2 border-dashed border-green-300 bg-green-50 flex flex-col gap-3 p-3 relative group/item">
-              <span className="absolute -top-3 left-4 bg-green-100 px-2 text-xxs font-bold text-green-700">
-                Feed.jsx
-              </span>
-
-              {/* Nested Components (Cards) */}
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-16 rounded border border-green-200 bg-white flex items-center justify-center text-green-500 font-mono text-xxs"
-                >
-                  Card.jsx (Instance {i})
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 flex gap-2">
-          <div className="w-1 h-12 bg-gray-300 rounded-full"></div>
-          <div className="w-1 h-12 bg-gray-300 rounded-full mx-1"></div>
-          <div className="w-1 h-12 bg-gray-300 rounded-full"></div>
-        </div>
-
-        <div className="mt-4 bg-white px-6 py-2 rounded-full shadow-sm border border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-widest">
-          Zasada atomowa
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ReactVennDiagram = () => {
-  return (
-    <div className="bg-white rounded-[2.5rem] p-8 md:p-16 border border-gray-100 shadow-xl relative overflow-hidden flex justify-center">
-      <div className="relative w-[300px] h-[200px] md:w-[500px] md:h-[300px]">
-        {/* Circle 1: Web */}
-        <div className="absolute left-0 top-0 w-48 h-48 md:w-72 md:h-72 rounded-full bg-blue-500/10 border-2 border-blue-500/30 flex items-center justify-center mix-blend-multiply hover:scale-105 transition-transform duration-500">
-          <div className="text-center -ml-12 mt-12 md:-ml-20">
-            <Globe className="mx-auto text-blue-500 mb-2" size={32} />
-            <span className="font-bold text-blue-900 block">React DOM</span>
-            <span className="text-xs text-blue-700">Aplikacje Webowe</span>
-          </div>
-        </div>
-
-        {/* Circle 2: Mobile */}
-        <div className="absolute right-0 top-0 w-48 h-48 md:w-72 md:h-72 rounded-full bg-purple-500/10 border-2 border-purple-500/30 flex items-center justify-center mix-blend-multiply hover:scale-105 transition-transform duration-500">
-          <div className="text-center -mr-12 mt-12 md:-mr-20">
-            <Smartphone className="mx-auto text-purple-500 mb-2" size={32} />
-            <span className="font-bold text-purple-900 block">React Native</span>
-            <span className="text-xs text-purple-700">iOS & Android</span>
-          </div>
-        </div>
-
-        {/* Intersection */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10">
-          <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div className="text-[#61DAFB] mb-1 flex justify-center">
-              <Repeat size={24} />
-            </div>
-            <span className="font-black text-dark text-sm md:text-base whitespace-nowrap">
-              SHARED LOGIC
-            </span>
-            <div className="text-xxs text-gray-500 uppercase tracking-wide mt-1">
-              State, Hooks, Utils,
-              <br />
-              API Calls
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ReactTrendChart = () => {
-  // Dane do wykresu: React (niebieski) vs Reszta (szary)
-  const data = [
-    { year: '2018', react: 45, others: 40 },
-    { year: '2019', react: 55, others: 35 },
-    { year: '2020', react: 65, others: 30 },
-    { year: '2021', react: 72, others: 25 },
-    { year: '2022', react: 80, others: 20 },
-    { year: '2023', react: 88, others: 15 },
-    { year: '2024', react: 92, others: 10 },
-    { year: '2025', react: 96, others: 8 },
-  ];
-
-  return (
-    <div className="bg-[#1e293b] p-8 md:p-12 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
-      {/* Grid Background */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-10"></div>
-
-      <div className="relative z-10 flex flex-col lg:flex-row items-end gap-12">
-        {/* CHART AREA */}
-        <div className="flex-1 w-full">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#61DAFB]/20 p-2 rounded-lg">
-                <TrendingUp className="text-[#61DAFB]" size={24} />
-              </div>
-              <div>
-                <h3 className="text-white font-bold text-xl">Dominacja Rynkowa</h3>
-                <p className="text-gray-400 text-xs uppercase tracking-wider">
-                  Udział w nowych projektach Enterprise
-                </p>
-              </div>
-            </div>
-            {/* Legend */}
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-[#61DAFB] rounded-full"></div>
-                <span className="text-white text-xs font-bold">React</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
-                <span className="text-gray-400 text-xs">Starsze technologie</span>
-              </div>
-            </div>
-          </div>
-
-          {/* The Bar Chart */}
-          <div className="h-64 w-full flex items-end justify-between gap-2 relative border-b border-gray-700 pb-2 px-2">
-            {data.map((item, i) => (
-              <div key={i} className="flex-1 flex flex-row items-end justify-center gap-1 h-full">
-                {/* React Bar (Blue) - Side by Side layout */}
-                <div
-                  className="w-1/2 bg-gradient-to-t from-[#61DAFB] to-[#00D8FF] rounded-t-sm shadow-[0_0_20px_rgba(97,218,251,0.3)] transition-all duration-700 group/bar relative hover:opacity-90"
-                  style={{ height: `${item.react}%` }}
-                >
-                  {/* Tooltip */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-[#0F172A] text-xs font-bold px-2 py-1 rounded shadow-lg opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap z-20">
-                    {item.react}%
-                  </div>
-                </div>
-
-                {/* Others Bar (Gray) */}
-                <div
-                  className="w-1/2 bg-gray-700 rounded-t-sm opacity-50 transition-all duration-700 hover:opacity-80"
-                  style={{ height: `${item.others}%` }}
-                ></div>
-              </div>
-            ))}
-          </div>
-
-          {/* X-Axis Labels */}
-          <div className="flex justify-between text-gray-500 text-xs mt-4 font-mono uppercase">
-            {data.map((item) => (
-              <span key={item.year} className="flex-1 text-center">
-                {item.year}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* STATS SIDEBAR */}
-        <div className="lg:w-1/3 w-full bg-[#0F172A] p-6 rounded-3xl border border-gray-700 shadow-xl">
-          <h4 className="text-gray-400 text-xs uppercase tracking-widest mb-6 border-b border-gray-700 pb-2">
-            Statystyki 2025
-          </h4>
-          <div className="space-y-6">
-            <div>
-              <div className="flex justify-between text-white text-sm font-bold mb-2">
-                <span>React Ecosystem</span>
-                <span className="text-[#61DAFB]">Dominujący</span>
-              </div>
-              <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-[#61DAFB] h-full w-[85%] shadow-[0_0_10px_#61DAFB]"></div>
-              </div>
-              <p className="text-gray-500 text-xxs mt-1">Największy wybór bibliotek i narzędzi.</p>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-white text-sm font-bold mb-2">
-                <span>Konkurencja</span>
-                <span className="text-gray-400">Malejąca</span>
-              </div>
-              <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
-                <div className="bg-gray-600 h-full w-[35%]"></div>
-              </div>
-              <p className="text-gray-500 text-xxs mt-1">
-                Starsze frameworki tracą udział w rynku.
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-900/30 p-2 rounded-lg text-green-400">
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                  <div className="text-white font-bold text-lg">+124%</div>
-                  <div className="text-gray-500 text-xs">Wzrost wdrożeń Enterprise</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 };
 

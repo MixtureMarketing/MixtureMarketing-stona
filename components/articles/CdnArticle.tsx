@@ -66,6 +66,7 @@ const CdnArticle = () => {
           </div>
         </>
       }
+      slug="/baza-wiedzy/cdn-globalna-wydajnosc"
     >
       <div className="flex justify-center mb-8 not-prose">
         <LazyHydrate whenVisible>

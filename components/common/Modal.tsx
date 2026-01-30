@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 interface ModalProps {
   isOpen: boolean;
@@ -19,81 +20,41 @@ const Modal: React.FC<ModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
+  useFocusTrap(modalRef, isOpen, onClose);
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-
-      // Robust Tab trapping
-      if (e.key === 'Tab' && modalRef.current) {
-        const focusableSelector =
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-        const focusableElements = modalRef.current.querySelectorAll(focusableSelector);
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0] as HTMLElement;
-        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-        if (e.shiftKey) {
-          // Shift + Tab
-          if (
-            document.activeElement === firstElement ||
-            document.activeElement === modalRef.current
-          ) {
-            lastElement.focus();
-            e.preventDefault();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement) {
-            firstElement.focus();
-            e.preventDefault();
-          }
-        }
-      }
-    };
-
     if (isOpen) {
       previousFocus.current = document.activeElement as HTMLElement;
       document.body.style.overflow = 'hidden';
-      document.addEventListener('keydown', handleKeyDown);
 
-      // Focus modal or first element when opened
       const focusTimeout = setTimeout(() => {
         const focusableSelector =
           'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
         const focusable = modalRef.current?.querySelectorAll(focusableSelector);
-        if (focusable && focusable.length > 0) {
-          (focusable[0] as HTMLElement).focus();
-        } else {
-          modalRef.current?.focus();
-        }
-      }, 150); // Slightly longer delay to ensure animation/rendering finish
+        if (focusable && focusable.length > 0) (focusable[0] as HTMLElement).focus();
+        else modalRef.current?.focus();
+      }, 150);
 
       return () => {
         clearTimeout(focusTimeout);
         document.body.style.overflow = 'unset';
-        document.removeEventListener('keydown', handleKeyDown);
-        // Restore focus
         if (previousFocus.current && typeof previousFocus.current.focus === 'function') {
           previousFocus.current.focus();
         }
       };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-dark/40 backdrop-blur-md transition-opacity duration-500 animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       ></div>
 
-      {/* Modal Content */}
       <div
         ref={modalRef}
         className={`relative bg-white w-full ${maxWidth} rounded-[2.5rem] shadow-[0_25px_100px_-15px_rgba(33,50,97,0.3)] border border-white/20 overflow-hidden transform transition-all duration-500 animate-modal-in flex flex-col max-h-[95vh] z-10`}
@@ -102,7 +63,6 @@ const Modal: React.FC<ModalProps> = ({
         aria-labelledby={title ? 'modal-title' : undefined}
         tabIndex={-1}
       >
-        {/* Header */}
         <div className="flex justify-between items-center p-4 md:p-6 md:px-10 border-b border-gray-100 bg-white/50 backdrop-blur-sm sticky top-0 z-20">
           <div>
             {title && (
@@ -123,7 +83,6 @@ const Modal: React.FC<ModalProps> = ({
           </button>
         </div>
 
-        {/* Scrollable Body */}
         <div className="p-4 md:p-8 lg:p-10 overflow-y-auto custom-scrollbar flex-grow">
           {children}
         </div>

@@ -7,6 +7,7 @@ import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { ContactFormData } from '../components/features/contact/types';
+import { executeRecaptchaWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
 
 export const useContactForm = (type: ContactType, onClose: () => void) => {
   const [step, setStep] = useState(1);
@@ -25,21 +26,11 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
 
   const { getValues, reset, trigger } = formMethods;
 
-  const executeRecaptchaWithTimeout = async (action: string) => {
-    if (!executeRecaptcha) throw new Error('RECAPTCHA_NOT_READY');
-    return Promise.race([
-      executeRecaptcha(action),
-      new Promise<string>((_, reject) =>
-        setTimeout(() => reject(new Error('RECAPTCHA_TIMEOUT')), 8000),
-      ),
-    ]);
-  };
-
   useEffect(() => {
     if (additionalData?.resumedLead && !isInitialized.current) {
       const lead = additionalData.resumedLead as Lead;
       setLeadId(lead.id);
-      const initialValues: Partial<ContactFormData> = {
+      reset({
         name: lead.name || '',
         email: lead.email || '',
         phone: lead.phone || '',
@@ -47,8 +38,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
         budget: lead.budget || '',
         message: lead.message || '',
         privacy: true,
-      };
-      reset(initialValues);
+      });
       setStep(additionalData.step ? Number(additionalData.step) : 2);
       isInitialized.current = true;
     }
@@ -57,61 +47,61 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
   const nextStep = async () => {
     let fieldsToValidate: Extract<keyof ContactFormData, string>[] = [];
     if (step === 1) fieldsToValidate = ['name', 'email', 'phone', 'privacy'];
-    if (step === 2) fieldsToValidate = ['projectType', 'budget', 'website']; // Simplified, specific config handled in component
+    if (step === 2) fieldsToValidate = ['projectType', 'budget', 'website'];
 
     const isValid = await trigger(fieldsToValidate);
-    if (isValid) {
-      setIsLoading(true);
-      setSubmitError(null);
-      try {
-        if (step === 1) {
-          const values = getValues();
-          const leadData: LeadBase = {
-            name: values.name,
-            email: values.email,
-            phone: values.phone,
-            service_interest: type,
-          };
-          if (leadId) {
-            await leadService.updateLead(leadId, values, 1);
-            setStep(2);
-          } else {
-            try {
-              const token = await executeRecaptchaWithTimeout('create_lead');
+    if (!isValid) return;
+
+    setIsLoading(true);
+    setSubmitError(null);
+    try {
+      if (step === 1) {
+        const values = getValues();
+        const leadData: LeadBase = {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          service_interest: type,
+        };
+        if (leadId) {
+          await leadService.updateLead(leadId, values, 1);
+          setStep(2);
+        } else {
+          try {
+            const token = await executeRecaptchaWithTimeout(executeRecaptcha, 'create_lead');
+            const createdLead = await leadService.createLead({
+              ...leadData,
+              recaptcha_token: token,
+            });
+            if (createdLead) {
+              setLeadId(createdLead.id);
+              setStep(2);
+            }
+          } catch (_err) {
+            if (isLocalhost()) {
               const createdLead = await leadService.createLead({
                 ...leadData,
-                recaptcha_token: token,
+                recaptcha_token: 'local_bypass',
               });
               if (createdLead) {
                 setLeadId(createdLead.id);
                 setStep(2);
               }
-            } catch (_err) {
-              if (window.location.hostname === 'localhost') {
-                const createdLead = await leadService.createLead({
-                  ...leadData,
-                  recaptcha_token: 'local_bypass',
-                });
-                if (createdLead) {
-                  setLeadId(createdLead.id);
-                  setStep(2);
-                }
-              } else {
-                setSubmitError('Weryfikacja reCAPTCHA nieudana.');
-              }
+            } else {
+              setSubmitError('Weryfikacja reCAPTCHA nieudana.');
             }
           }
-        } else if (step === 2) {
-          if (leadId) await leadService.updateLead(leadId, getValues(), 2);
-          setStep(3);
-        } else {
-          setStep((prev) => prev + 1);
         }
-      } catch (_error) {
-        setSubmitError('Błąd zapisu danych.');
-      } finally {
-        setIsLoading(false);
+      } else if (step === 2) {
+        if (leadId) await leadService.updateLead(leadId, getValues(), 2);
+        setStep(3);
+      } else {
+        setStep((prev) => prev + 1);
       }
+    } catch (_error) {
+      setSubmitError('Błąd zapisu danych.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -126,9 +116,9 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
       let token = leadId ? 'existing_lead_verified' : '';
       if (!token) {
         try {
-          token = await executeRecaptchaWithTimeout('submit_form');
+          token = await executeRecaptchaWithTimeout(executeRecaptcha, 'submit_form');
         } catch {
-          token = window.location.hostname === 'localhost' ? 'local_bypass' : '';
+          token = isLocalhost() ? 'local_bypass' : '';
           if (!token) {
             setSubmitError('Błąd weryfikacji bezpieczeństwa.');
             return;

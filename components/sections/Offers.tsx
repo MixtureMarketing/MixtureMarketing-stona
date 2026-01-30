@@ -18,6 +18,7 @@ import GlassCard from '../common/GlassCard';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { OFFERS_CONTENT as CONTENT } from '../../data/content';
+import OffersBackground from '../visuals/OffersBackground';
 
 const PriceCalculator = React.lazy(() => import('../features/PriceCalculator'));
 
@@ -37,101 +38,7 @@ const Offers: React.FC = () => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  // --- CONTENT DATA ---
-
-  const content = {
-    web: {
-      startup: {
-        badge: 'Szybki Start & MVP',
-        title: 'Strony WWW & E-commerce',
-        desc: 'Potrzebujesz szybko zaistnieć w sieci? Tworzymy wydajne strony na WordPress i sklepy, które sprzedają od pierwszego dnia. Idealne rozwiązanie na start, z możliwością późniejszej rozbudowy.',
-        features: [
-          'Strony Wizytówki (WordPress)',
-          'Sklepy WooCommerce',
-          'Optymalizacja Szybkości',
-          'Podstawowe SEO',
-        ],
-        stat: { label: 'Czas wdrożenia', value: '2-4 Tygodnie' },
-        modules: ['Design UX/UI', 'CMS Setup', 'RWD Mobile', 'SEO Basic'],
-      },
-      enterprise: {
-        badge: 'Skalowalność & Bezpieczeństwo',
-        title: 'Dedykowane Systemy & SaaS',
-        desc: 'Rozwiązania dla liderów rynku. Projektujemy zaawansowane aplikacje webowe (React/Laravel), headless CMS i systemy B2B, które obsługują tysiące użytkowników jednocześnie przy zachowaniu najwyższego bezpieczeństwa.',
-        features: [
-          'Aplikacje Webowe (React)',
-          'Dedykowane Backend (Laravel)',
-          'Architektura Mikroserwisów',
-          'Audyty Bezpieczeństwa',
-        ],
-        stat: { label: 'Gwarancja SLA', value: '99.9%' },
-        modules: ['Microservices', 'Cloud AWS', 'Load Balancing', 'Security Audit'],
-      },
-    },
-    marketing: {
-      startup: {
-        badge: 'Wzrost & Trakcja',
-        title: 'Kampanie Generujące Sprzedaż',
-        desc: 'Każda złotówka się liczy. Skupiamy się na kanałach o najwyższym zwrocie z inwestycji (ROI). Uruchamiamy precyzyjne kampanie Google Ads i Meta Ads, aby sprowadzić pierwszych płacących klientów.',
-        features: [
-          'Google Ads (Search)',
-          'Facebook Lead Ads',
-          'Konfiguracja Analityki',
-          'Remarketing',
-        ],
-        stat: { label: 'Średni ROAS', value: '650%' },
-        widgets: { budget: '2k - 10k', metric: 'Sales Focused' },
-      },
-      enterprise: {
-        badge: 'Dominacja & Wizerunek',
-        title: 'Strategie Omnichannel',
-        desc: 'Kompleksowe zarządzanie budżetami reklamowymi w wielu kanałach. Zaawansowana segmentacja, automatyzacja marketingu i budowanie świadomości marki (Brand Awareness) na dużą skalę.',
-        features: [
-          'Strategia 360°',
-          'Marketing Automation',
-          'Kampanie Wideo (YouTube)',
-          'Raportowanie BI',
-        ],
-        stat: { label: 'Obsługa Budżetów', value: '1M+ PLN' },
-        widgets: { budget: '50k+', metric: 'Brand & LTV' },
-      },
-    },
-  };
-
-  const techStack = [
-    'React',
-    'TypeScript',
-    'Laravel',
-    'Node.js',
-    'Docker',
-    'AWS',
-    'Google Cloud',
-    'WordPress',
-    'WooCommerce',
-    'Figma',
-    'Google Ads',
-    'GA4',
-    'Meta Business',
-  ];
-
-  const faqs = [
-    {
-      q: 'Czy po wykonaniu strony będę mógł ją samodzielnie edytować?',
-      a: 'Tak. Niezależnie czy wybierzesz WordPress (Startup) czy dedykowany Headless CMS (Enterprise), wdrażamy intuicyjny panel administratora i szkolimy Twój zespół z jego obsługi.',
-    },
-    {
-      q: 'Jak wygląda model rozliczeń w marketingu?',
-      a: 'Stawiamy na transparentność. Budżet reklamowy (płatny do Google/Meta) jest oddzielony od naszego wynagrodzenia (prowizja od wydatków lub stała opłata flat fee, zależnie od skali).',
-    },
-    {
-      q: 'Czy podpisujemy umowę o poufności (NDA)?',
-      a: 'Oczywiście. Bezpieczeństwo Twoich danych i pomysłów biznesowych to priorytet. Standardowo pracujemy na NDA, szczególnie przy projektach Enterprise.',
-    },
-    {
-      q: 'Co obejmuje darmowa opieka techniczna?',
-      a: 'Przez 6 miesięcy po wdrożeniu dbamy o aktualizacje wtyczek, bezpieczeństwo serwera, kopie zapasowe oraz naprawę ewentualnych błędów krytycznych.',
-    },
-  ];
+  const { web, marketing, techStack, faqs } = CONTENT;
 
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans text-slate-800 relative overflow-hidden">
@@ -141,102 +48,7 @@ const Offers: React.FC = () => {
         image={CONTENT.seo.image}
       />
 
-      {/* --- BACKGROUND CABLE INFRASTRUCTURE (Cleaned SVG) --- */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <svg className="w-full h-full" viewBox="0 0 1000 3000" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="cableGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3F3D91" stopOpacity="0.1" />
-              <stop offset="50%" stopColor="#61B6DE" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#3F3D91" stopOpacity="0.1" />
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-              <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-
-          {/* Central Bus Line */}
-          <line
-            x1="500"
-            y1="0"
-            x2="500"
-            y2="3000"
-            stroke="url(#cableGradient)"
-            strokeWidth="2"
-            className="hidden lg:block"
-          />
-
-          {/* Animated Energy Packets */}
-          <path
-            d="M 500 0 V 3000"
-            stroke="#61B6DE"
-            strokeWidth="3"
-            strokeDasharray="100 1000"
-            strokeLinecap="round"
-            className="hidden lg:block animate-energy-flow"
-            filter="url(#glow)"
-            opacity="0.8"
-          />
-
-          {/* === BRANCH 1 === */}
-          <path
-            d="M 500 1050 H 850"
-            stroke="rgba(63, 61, 145, 0.1)"
-            strokeWidth="2"
-            fill="none"
-            className="hidden lg:block"
-          />
-          <path
-            d="M 500 1050 H 850"
-            stroke="#61B6DE"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="50 800"
-            className="hidden lg:block animate-energy-flow"
-            filter="url(#glow)"
-          />
-
-          {/* === BRANCH 2 === */}
-          <path
-            d="M 500 1850 H 150"
-            stroke="rgba(63, 61, 145, 0.1)"
-            strokeWidth="2"
-            fill="none"
-            className="hidden lg:block"
-          />
-          <path
-            d="M 500 1850 H 150"
-            stroke="#61B6DE"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="50 800"
-            className="hidden lg:block animate-energy-flow"
-            filter="url(#glow)"
-          />
-
-          {/* === BRANCH 3 === */}
-          <path
-            d="M 500 2650 H 850"
-            stroke="rgba(63, 61, 145, 0.1)"
-            strokeWidth="2"
-            fill="none"
-            className="hidden lg:block"
-          />
-          <path
-            d="M 500 2650 H 850"
-            stroke="#61B6DE"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="50 800"
-            className="hidden lg:block animate-energy-flow"
-            filter="url(#glow)"
-          />
-        </svg>
-      </div>
+      <OffersBackground />
 
       {/* --- HERO SECTION --- */}
       <section className="relative py-24 lg:py-32 overflow-hidden bg-gray-50">
@@ -359,16 +171,14 @@ const Offers: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div className="order-2 lg:order-1">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6">
-                    {content.web[scale].badge}
+                    {web[scale].badge}
                   </div>
                   <h2 className="text-3xl md:text-4xl font-bold mb-4 text-dark">
-                    {content.web[scale].title}
+                    {web[scale].title}
                   </h2>
-                  <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                    {content.web[scale].desc}
-                  </p>
+                  <p className="text-gray-600 text-lg leading-relaxed mb-8">{web[scale].desc}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                    {content.web[scale].features.map((feature, i) => (
+                    {web[scale].features.map((feature, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-secondary shrink-0">
                           <CheckCircle2 size={12} />
@@ -449,16 +259,16 @@ const Offers: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mt-32">
                 <div className="order-2 lg:order-2">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFE4F0] text-instagram text-xs font-bold uppercase tracking-wider mb-6">
-                    {content.marketing[scale].badge}
+                    {marketing[scale].badge}
                   </div>
                   <h2 className="text-3xl md:text-4xl font-bold mb-4 text-dark">
-                    {content.marketing[scale].title}
+                    {marketing[scale].title}
                   </h2>
                   <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                    {content.marketing[scale].desc}
+                    {marketing[scale].desc}
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                    {content.marketing[scale].features.map((feature, i) => (
+                    {marketing[scale].features.map((feature, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-5 h-5 rounded-full bg-[#FFE4F0] flex items-center justify-center text-instagram shrink-0">
                           <TrendingUp size={12} />
@@ -473,11 +283,9 @@ const Offers: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-xxs font-bold text-gray-500 uppercase">
-                        {content.marketing[scale].widgets?.metric || 'Efektywność'}
+                        {marketing[scale].widgets?.metric || 'Efektywność'}
                       </p>
-                      <p className="text-lg font-black text-dark">
-                        {content.marketing[scale].stat.value}
-                      </p>
+                      <p className="text-lg font-black text-dark">{marketing[scale].stat.value}</p>
                     </div>
                   </div>
                 </div>
@@ -581,6 +389,9 @@ const Offers: React.FC = () => {
                   <button
                     onClick={() => toggleFaq(i)}
                     className="w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-colors"
+                    aria-expanded={openFaq === i}
+                    aria-controls={`faq-answer-${i}`}
+                    id={`faq-button-${i}`}
                   >
                     <span className="font-bold text-dark text-lg">{faq.q}</span>
                     <ChevronDown
@@ -589,6 +400,9 @@ const Offers: React.FC = () => {
                     />
                   </button>
                   <div
+                    id={`faq-answer-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-button-${i}`}
                     className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
                   >
                     <div className="p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50">

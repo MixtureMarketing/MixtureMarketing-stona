@@ -37,6 +37,7 @@ const GoArticle = () => {
       icon={Cloud}
       accentColor="#00ADD8"
       heroVisual={<GoHeroVisual />}
+      slug="/baza-wiedzy/go-golang-jezyk-chmury"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Server className="text-secondary mt-1 shrink-0" size={20} />

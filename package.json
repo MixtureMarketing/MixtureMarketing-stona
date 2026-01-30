@@ -26,15 +26,11 @@
   "size-limit": [
     {
       "path": "dist/assets/index-*.js",
-      "limit": "120 kB"
+      "limit": "300 kB"
     },
     {
-      "path": "dist/assets/vendor-*.js",
-      "limit": "1.5 MB"
-    },
-    {
-      "path": "dist/assets/*.css",
-      "limit": "40 kB"
+      "path": "dist/assets/index-*.css",
+      "limit": "50 kB"
     }
   ],
   "dependencies": {

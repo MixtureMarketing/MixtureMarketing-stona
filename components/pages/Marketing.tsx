@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import Seo from '@/components/common/Seo';
 import { MARKETING_CONTENT } from '@/data/content';
-import MarketingHero from '@/components/features/marketing/MarketingHero';
+import StandardHero from '@/components/common/StandardHero';
+import { MarketingHeroVisual } from '@/components/visuals/hero/MarketingVisual';
+import { Compass, Target } from 'lucide-react';
 import MarketingStrategy from '@/components/features/marketing/MarketingStrategy';
 import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnichannel';
 import MarketingIndustries from '@/components/features/marketing/MarketingIndustries';
 import MarketingArsenal from '@/components/features/marketing/MarketingArsenal';
 import StandardFaq from '@/components/common/StandardFaq';
 import StandardCta from '@/components/common/StandardCta';
-import { Compass } from 'lucide-react';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '@/context/ModalContext';
@@ -54,7 +55,19 @@ const Marketing: React.FC = () => {
         ]}
       />
 
-      <MarketingHero />
+      <StandardHero
+        badge={MARKETING_CONTENT.hero.badge}
+        badgeIcon={Target}
+        title={{ line1: MARKETING_CONTENT.hero.title, line2: MARKETING_CONTENT.hero.titleAccent }}
+        description={MARKETING_CONTENT.hero.description}
+        ctaPrimaryText={MARKETING_CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('marketing')}
+        backLinkPath="/"
+        backLinkLabel="Wróć do głównej"
+        accentGradientFrom="#61B6DE"
+        accentGradientTo="#FFFFFF"
+        visual={<MarketingHeroVisual />}
+      />
 
       {/* Missing Pain Points Section - placeholder if needed or implemented later */}
 

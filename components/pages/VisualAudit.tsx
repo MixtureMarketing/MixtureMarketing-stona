@@ -23,6 +23,10 @@ import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
+import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import { VisualAuditHeroVisual } from '../visuals/hero/VisualAuditVisual';
+
 import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../data/content';
 
 const VisualAudit: React.FC = () => {
@@ -93,135 +97,25 @@ const VisualAudit: React.FC = () => {
         image={CONTENT.seo.image}
       />
 
-      {/* --- HERO SECTION: DIGITAL FORENSICS --- */}
-      <section className="relative py-20 lg:py-28 bg-deep-dark text-white overflow-hidden">
-        <AmbientBackground />
-
-        {/* Matrix Grid Overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-20"
-          style={{
-            backgroundImage:
-              'linear-gradient(#E1306C 1px, transparent 1px), linear-gradient(90deg, #E1306C 1px, transparent 1px)',
-            backgroundSize: '50px 50px',
-          }}
-        ></div>
-
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <button
-            onClick={() => navigate('/design/')}
-            className="group flex items-center text-sm font-semibold text-gray-600 hover:text-instagram mb-8 transition-colors"
-          >
-            <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
-            Wróć do Designu
-          </button>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="lg:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-instagram/10 text-instagram border border-instagram/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-                <Microscope size={14} /> {CONTENT.hero.badge}
-              </div>
-
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight animate-fade-in-up">
-                {CONTENT.hero.title.line1} <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E1306C] to-[#833AB4]">
-                  {CONTENT.hero.title.line2}
-                </span>
-              </h1>
-
-              <p
-                className="text-xl text-gray-300 mb-8 leading-relaxed animate-fade-in-up"
-                style={{ animationDelay: '0.1s' }}
-              >
-                {CONTENT.hero.description}
-              </p>
-
-              <div
-                className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
-                style={{ animationDelay: '0.2s' }}
-              >
-                <Button
-                  onClick={() => openModal('audit', { specificType: 'visual_audit' })}
-                  icon={<ArrowRight size={18} />}
-                >
-                  {CONTENT.hero.cta}
-                </Button>
-                <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold text-gray-300 backdrop-blur-sm">
-                  <ScanEye size={16} className="text-instagram" /> {CONTENT.hero.microCopy}
-                </div>
-              </div>
-            </div>
-
-            {/* Visual: Heuristic Radar & Scan */}
-            <div
-              className="lg:w-1/2 w-full flex justify-center animate-fade-in-up"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <div className="relative w-full max-w-md aspect-square bg-[#1E293B]/50 rounded-full border border-[#334155] shadow-2xl flex items-center justify-center backdrop-blur-sm p-8">
-                {/* Radar Chart Visual */}
-                <div className="relative w-full h-full">
-                  {/* Axis */}
-                  {[0, 72, 144, 216, 288].map((deg, i) => (
-                    <div
-                      key={i}
-                      className="absolute top-1/2 left-1/2 w-1/2 h-[1px] bg-[#334155] origin-left"
-                      style={{ transform: `rotate(${deg}deg)` }}
-                    ></div>
-                  ))}
-
-                  {/* Radar Polygon */}
-                  <svg
-                    className="absolute inset-0 w-full h-full drop-shadow-[0_0_20px_rgba(225,48,108,0.4)]"
-                    viewBox="0 0 100 100"
-                  >
-                    <polygon
-                      points="50,10 90,40 80,80 20,80 10,40"
-                      fill="rgba(225, 48, 108, 0.2)"
-                      stroke="#E1306C"
-                      strokeWidth="1.5"
-                    />
-                    <polygon
-                      points="50,5 95,35 85,90 15,90 5,35"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.1)"
-                      strokeWidth="1"
-                      strokeDasharray="2 2"
-                    />
-                  </svg>
-
-                  {/* Labels */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
-                    Clarity
-                  </div>
-                  <div className="absolute bottom-0 right-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
-                    Speed
-                  </div>
-                  <div className="absolute bottom-0 left-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
-                    Trust
-                  </div>
-                </div>
-
-                {/* Scanning Line */}
-                <div
-                  className="absolute inset-0 bg-gradient-to-b from-[#E1306C]/20 to-transparent w-full h-[20%] animate-scan-radar border-b border-instagram"
-                  style={{ opacity: 0.5 }}
-                ></div>
-              </div>
-            </div>
+      {/* --- HERO SECTION --- */}
+      <StandardHero
+        badge={CONTENT.hero.badge}
+        badgeIcon={Microscope}
+        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+        description={CONTENT.hero.description}
+        ctaPrimaryText={CONTENT.hero.cta}
+        ctaPrimaryOnClick={() => openModal('audit', { specificType: 'visual_audit' })}
+        ctaSecondaryNode={
+          <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-full text-sm font-bold text-gray-300 backdrop-blur-sm">
+            <ScanEye size={16} className="text-instagram" /> {CONTENT.hero.microCopy}
           </div>
-        </div>
-        <style>{`
-            @keyframes scan-radar {
-                0% { top: 0%; opacity: 0; }
-                20% { opacity: 1; }
-                80% { opacity: 1; }
-                100% { top: 100%; opacity: 0; }
-            }
-            .animate-scan-radar {
-                animation: scan-radar 3s linear infinite;
-            }
-        `}</style>
-      </section>
+        }
+        backLinkPath="/design/"
+        backLinkLabel="Design"
+        accentGradientFrom="#E1306C"
+        accentGradientTo="#833AB4"
+        visual={<VisualAuditHeroVisual />}
+      />
 
       {/* --- 5-SECOND TEST SIMULATOR (INTERACTIVE) --- */}
       <section className="py-24 bg-white relative z-10">

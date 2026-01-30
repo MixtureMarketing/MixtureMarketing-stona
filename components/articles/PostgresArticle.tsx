@@ -33,6 +33,7 @@ const PostgresArticle = () => {
       icon={Database}
       accentColor="#336791"
       heroVisual={<PostgresHeroVisual />}
+      slug="/baza-wiedzy/postgresql-krol-baz-danych-open-source-dla-biznesu"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Database className="text-secondary mt-1 shrink-0" size={20} />

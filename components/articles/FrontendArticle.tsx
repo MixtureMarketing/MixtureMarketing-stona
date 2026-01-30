@@ -29,6 +29,7 @@ const FrontendArticle = () => {
       icon={Layout}
       accentColor="#3B82F6"
       heroVisual={<FrontendHeroVisual />}
+      slug="/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto"
     >
       <AnimateOnScroll>
         <p className="lead text-2xl text-[#334155] mb-12 font-medium leading-relaxed">

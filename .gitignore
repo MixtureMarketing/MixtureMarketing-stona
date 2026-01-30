@@ -33,6 +33,7 @@ public/api/audit/audit_secrets.php
 # Unlighthouse & Audits
 .unlighthouse/
 *-report.json
+health-report.json
 mixturemarketing.pl-*.json
 metadata.json
 audit.md
@@ -41,6 +42,7 @@ stats.html
 # Performance Traces (Debug data)
 Trace-*.json
 perf-traces/
+debug.log
 
 # Gemini CLI & Security
 .gemini/

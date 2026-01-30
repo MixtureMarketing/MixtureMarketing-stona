@@ -33,6 +33,7 @@ const ElasticsearchArticle = () => {
           <ElasticHeroSearch />
         </LazyHydrate>
       }
+      slug="/baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Database className="text-secondary mt-1 shrink-0" size={20} />

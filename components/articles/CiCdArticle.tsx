@@ -37,6 +37,7 @@ const CiCdArticle = () => {
       icon={Workflow}
       accentColor="#10B981"
       heroVisual={<CiCdHeroVisual />}
+      slug="/baza-wiedzy/ci-cd-automatyzacja-wdrozen"
     >
       <AnimateOnScroll>
         <p

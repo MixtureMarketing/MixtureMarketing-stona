@@ -1,22 +1,5 @@
 import React, { useEffect } from 'react';
-import {
-  Palette,
-  Fingerprint,
-  Wand2,
-  Monitor,
-  Layout,
-  ScanEye,
-  Package,
-  Box,
-  Repeat,
-  ShoppingBag,
-  Cpu,
-  PenTool,
-  Scale,
-  Sparkles,
-  ArrowRight,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Palette, Wand2 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import LazyHydrate from '../common/LazyHydrate';
@@ -24,36 +7,23 @@ import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../data/content';
 import RelatedArticles from '../articles/RelatedArticles';
-
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
 import StandardFaq from '../common/StandardFaq';
-import { DesignHeroVisual } from '../visuals/HeroVisuals';
+import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
+
+// Refactored Sub-components
+import DesignToolkit from '../features/design/DesignToolkit';
+import DesignEcosystem from '../features/design/DesignEcosystem';
+import DesignSectors from '../features/design/DesignSectors';
+import DesignPillars from '../features/design/DesignPillars';
 
 const DesignBranding: React.FC = () => {
-  const navigate = useNavigate();
   const { openModal } = useModal();
 
-  // ... (rest of the component logic remains same)
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const serviceBlocks = CONTENT.pillars.items.map((block, index) => {
-    const icons = [
-      <Fingerprint size={32} key="fingerprint" />,
-      <Layout size={32} key="layout" />,
-      <Package size={32} key="package" />,
-      <ScanEye size={32} key="scaneye" />,
-    ];
-    const colors = ['#3F3D91', '#61B6DE', '#F4B400', '#E1306C'];
-    return {
-      ...block,
-      icon: icons[index],
-      color: colors[index],
-      action: () => navigate(block.path),
-    };
-  });
 
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
@@ -87,6 +57,7 @@ const DesignBranding: React.FC = () => {
           },
         }}
       />
+
       {/* --- HERO SECTION --- */}
       <StandardHero
         badge={CONTENT.hero.badge}
@@ -100,303 +71,13 @@ const DesignBranding: React.FC = () => {
         visual={<DesignHeroVisual />}
       />
 
-      {/* --- DESIGN TECH STACK (TOOLKIT) --- */}
-      <section className="py-20 bg-white border-b border-gray-100 overflow-hidden">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12">
-            <div className="text-left">
-              <h3 className="text-lg font-bold text-dark">{CONTENT.toolkit.title}</h3>
-              <p className="text-xs text-gray-500 uppercase tracking-widest">
-                {CONTENT.toolkit.subtitle}
-              </p>
-            </div>
-            <div className="h-px bg-gray-100 flex-1 mx-8 hidden md:block"></div>
-            <div className="flex gap-2">
-              <div className="w-2 h-2 rounded-full bg-secondary"></div>
-              <div className="w-2 h-2 rounded-full bg-primary"></div>
-              <div className="w-2 h-2 rounded-full bg-[#F4B400]"></div>
-            </div>
-          </div>
+      <DesignToolkit />
 
-          <LazyHydrate whenVisible>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-              {CONTENT.toolkit.tools.map((tool, i) => {
-                const icons = [
-                  <Layout size={20} key="layout" />,
-                  <PenTool size={20} key="pentool" />,
-                  <Box size={20} key="box" />,
-                  <Repeat size={20} key="repeat" />,
-                  <Wand2 size={20} key="wand2" />,
-                ];
-                const hoverColors = [
-                  'hover:border-[#0ACF83] hover:text-[#0ACF83]',
-                  'hover:border-[#FF0000] hover:text-[#FF0000]',
-                  'hover:border-[#E87D0D] hover:text-[#E87D0D]',
-                  'hover:border-[#475569] hover:text-[#475569]',
-                  'hover:border-dark hover:text-dark',
-                ];
-                return (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50/50 transition-all duration-300 group cursor-default hover:bg-white hover:shadow-md ${hoverColors[i]}`}
-                  >
-                    <div className="p-2 bg-white rounded-lg shadow-sm text-gray-400 group-hover:text-current transition-colors">
-                      {icons[i]}
-                    </div>
-                    <div>
-                      <div className="font-bold text-dark text-sm leading-tight">{tool.name}</div>
-                      <div className="text-xxs text-gray-500 uppercase tracking-tight">
-                        {tool.desc}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </LazyHydrate>
-        </div>
-      </section>
+      <DesignEcosystem />
 
-      {/* --- DESIGN ECOSYSTEM (NEW) --- */}
-      <section className="py-28 bg-light-gray relative z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
+      <DesignSectors />
 
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <SectionHeader
-            title={CONTENT.ecosystem.title}
-            description={CONTENT.ecosystem.description}
-            className="mb-20 pb-4"
-          />
-
-          <LazyHydrate whenVisible>
-            <div className="relative">
-              {/* Central Flow Line - Desktop */}
-              <div className="hidden md:block absolute top-[80px] left-0 w-full h-[2px] bg-gradient-to-r from-secondary/20 via-primary/40 to-[#F4B400]/20 -z-10 rounded-full"></div>
-
-              {/* Vertical Flow Line - Mobile */}
-              <div className="md:hidden absolute top-0 bottom-0 left-[2.25rem] w-[2px] bg-gradient-to-b from-secondary/20 via-primary/40 to-[#F4B400]/20 -z-10 rounded-full"></div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 relative">
-                {CONTENT.ecosystem.items.map((item, i) => {
-                  const icons = [
-                    <Fingerprint size={28} key="fingerprint" />,
-                    <Monitor size={28} key="monitor" />,
-                    <Package size={28} key="package" />,
-                  ];
-                  const colors = ['#3F3D91', '#61B6DE', '#F4B400'];
-                  const gradients = [
-                    'from-secondary/10 to-transparent',
-                    'from-primary/10 to-transparent',
-                    'from-[#F4B400]/10 to-transparent',
-                  ];
-                  return (
-                    <AnimateOnScroll key={i} delay={i * 200}>
-                      <div className="group relative flex flex-col h-full pl-20 md:pl-0 md:pt-20">
-                        {/* Step Connector Node */}
-                        <div
-                          className="absolute left-6 md:left-1/2 top-8 md:top-0 w-6 h-6 md:w-8 md:h-8 -ml-3 md:-ml-4 rounded-full bg-white border-4 shadow-lg z-20 transition-transform duration-500 group-hover:scale-125"
-                          style={{ borderColor: colors[i] }}
-                        >
-                          <div
-                            className="absolute inset-0 m-auto w-1.5 h-1.5 md:w-2 md:h-2 rounded-full"
-                            style={{ backgroundColor: colors[i] }}
-                          ></div>
-                        </div>
-
-                        {/* Card */}
-                        <div className="relative bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 flex-grow group-hover:-translate-y-1 overflow-hidden">
-                          {/* Top Gradient */}
-                          <div
-                            className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradients[i].replace('/10', '')}`}
-                          ></div>
-                          <div
-                            className={`absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br ${gradients[i]} rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700`}
-                          ></div>
-
-                          <div className="mb-6 flex justify-between items-start">
-                            <div
-                              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
-                              style={{ backgroundColor: colors[i] }}
-                            >
-                              {icons[i]}
-                            </div>
-                            <span className="text-4xl font-black text-gray-100 select-none absolute top-6 right-8 pointer-events-none group-hover:text-gray-50 transition-colors">
-                              {item.step}
-                            </span>
-                          </div>
-
-                          <h3 className="font-bold text-xl text-dark mb-3 group-hover:text-secondary transition-colors">
-                            {item.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 leading-relaxed mb-6 font-medium">
-                            {item.desc}
-                          </p>
-
-                          <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-gray-50">
-                            {item.tags.map((tag, t) => (
-                              <span
-                                key={t}
-                                className="text-xxs font-bold uppercase tracking-wider text-gray-500 bg-gray-50 px-2 py-1 rounded group-hover:bg-blue-50 group-hover:text-secondary transition-colors"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </AnimateOnScroll>
-                  );
-                })}
-              </div>
-            </div>
-          </LazyHydrate>
-        </div>
-      </section>
-
-      {/* --- SECTORS (SEGMENTATION) --- */}
-      <section className="py-24 bg-white relative z-10">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={CONTENT.sectors.title}
-            description={CONTENT.sectors.description}
-            className="mb-16 pb-4"
-          />
-
-          <LazyHydrate whenVisible>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {CONTENT.sectors.items.map((sector, i) => {
-                const icons = [
-                  <Cpu size={24} key="cpu" />,
-                  <ShoppingBag size={24} key="shoppingbag" />,
-                  <Scale size={24} key="scale" />,
-                  <Sparkles size={24} key="sparkles" />,
-                ];
-                const colors = [
-                  'from-blue-500 to-indigo-600',
-                  'from-emerald-400 to-teal-600',
-                  'from-slate-700 to-slate-900',
-                  'from-rose-400 to-pink-600',
-                ];
-                const bgs = ['bg-blue-50', 'bg-emerald-50', 'bg-slate-50', 'bg-rose-50'];
-                return (
-                  <AnimateOnScroll key={i} delay={i * 100}>
-                    <div className="group relative overflow-hidden rounded-2xl border border-gray-100 p-6 h-full hover:shadow-xl transition-all duration-300 cursor-pointer">
-                      <div
-                        className={`absolute inset-0 bg-gradient-to-br ${colors[i]} opacity-0 group-hover:opacity-5 transition-opacity`}
-                      ></div>
-
-                      <div className="relative z-10 flex flex-col h-full">
-                        <div
-                          className={`w-12 h-12 rounded-xl ${bgs[i]} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
-                        >
-                          <div className="text-gray-700 group-hover:text-black transition-colors">
-                            {icons[i]}
-                          </div>
-                        </div>
-
-                        <h3 className="text-lg font-bold text-dark mb-2 group-hover:translate-x-1 transition-transform">
-                          {sector.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-grow">
-                          {sector.desc}
-                        </p>
-
-                        <div className="flex justify-end mt-auto">
-                          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-400 group-hover:text-dark group-hover:bg-white group-hover:shadow-md transition-all">
-                            <ArrowRight
-                              size={14}
-                              className="group-hover:-rotate-45 transition-transform duration-300"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </AnimateOnScroll>
-                );
-              })}
-            </div>
-          </LazyHydrate>
-        </div>
-      </section>
-
-      {/* --- SERVICE BLOCKS (4 PILLARS) --- */}
-      <section className="py-24 bg-white relative z-10">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={CONTENT.pillars.title}
-            description={CONTENT.pillars.description}
-            className="mb-16"
-          />
-
-          <LazyHydrate whenVisible>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {serviceBlocks.map((block, index) => (
-                <AnimateOnScroll key={index} delay={index * 100} className="h-full">
-                  <div
-                    onClick={block.action}
-                    className="group relative h-full bg-white rounded-2xl border border-gray-200 hover:border-transparent transition-all duration-300 cursor-pointer flex flex-col overflow-hidden hover:shadow-2xl"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-0 pointer-events-none"></div>
-                    <div
-                      className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-current opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
-                      style={{ color: block.color }}
-                    ></div>
-
-                    <div className="p-8 flex-grow relative z-10">
-                      <div className="flex justify-between items-start mb-6">
-                        <div
-                          className="w-14 h-14 rounded-xl flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform duration-300"
-                          style={{ backgroundColor: block.color }}
-                        >
-                          {block.icon}
-                        </div>
-                        <span className="text-4xl font-black text-gray-100 group-hover:text-gray-100 transition-colors select-none">
-                          {block.id}
-                        </span>
-                      </div>
-
-                      <div className="mb-4">
-                        <span className="text-xs font-bold uppercase tracking-widest text-gray-600 block mb-1">
-                          {block.role}
-                        </span>
-                        <h3 className="text-2xl font-bold text-dark group-hover:text-primary transition-colors">
-                          {block.title}
-                        </h3>
-                      </div>
-
-                      <p className="text-gray-600 leading-relaxed mb-8 text-sm">{block.desc}</p>
-
-                      <div className="flex flex-wrap gap-2 mt-auto">
-                        {block.features.map((feat, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center px-3 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-bold text-gray-600 group-hover:bg-white group-hover:border-gray-200 transition-colors"
-                          >
-                            {feat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="px-8 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-between items-center group-hover:bg-white transition-colors relative z-10">
-                      <span
-                        className="text-sm font-bold flex items-center gap-2"
-                        style={{ color: block.color }}
-                      >
-                        Zobacz proces{' '}
-                        <ArrowRight
-                          size={16}
-                          className="transform group-hover:translate-x-1 transition-transform"
-                        />
-                      </span>
-                    </div>
-                  </div>
-                </AnimateOnScroll>
-              ))}
-            </div>
-          </LazyHydrate>
-        </div>
-      </section>
+      <DesignPillars />
 
       {/* --- ROI OF DESIGN --- */}
       <section className="py-24 bg-light-gray relative overflow-hidden">
@@ -421,7 +102,6 @@ const DesignBranding: React.FC = () => {
         </div>
       </section>
 
-      {/* --- RELATED ARTICLES --- */}
       <LazyHydrate minHeight="600px">
         <RelatedArticles category="design" layout="service" />
       </LazyHydrate>

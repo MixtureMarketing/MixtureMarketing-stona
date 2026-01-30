@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
+import { NotificationProvider } from '../../context/NotificationContext';
 import PortalLogin from '../../components/portal/PortalLogin';
 import PortalDashboard from '../../components/portal/PortalDashboard';
 import AdminDashboard from '../../components/portal/AdminDashboard';
@@ -44,9 +45,11 @@ describe('Portal Integration Tests', () => {
 
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <PortalLogin />
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <PortalLogin />
+          </AuthProvider>
+        </NotificationProvider>
       </MemoryRouter>,
     );
 
@@ -106,9 +109,11 @@ describe('Portal Integration Tests', () => {
 
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <PortalDashboard />
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <PortalDashboard />
+          </AuthProvider>
+        </NotificationProvider>
       </MemoryRouter>,
     );
 
@@ -141,9 +146,11 @@ describe('Portal Integration Tests', () => {
 
     render(
       <MemoryRouter>
-        <AuthProvider>
-          <PortalDashboard />
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <PortalDashboard />
+          </AuthProvider>
+        </NotificationProvider>
       </MemoryRouter>,
     );
 
@@ -184,12 +191,14 @@ describe('Portal Integration Tests', () => {
 
     render(
       <MemoryRouter initialEntries={['/portal/admin']}>
-        <AuthProvider>
-          <Routes>
-            <Route path="/portal/admin" element={<AdminDashboard />} />
-            <Route path="/portal/dashboard" element={<div>Client Dashboard Reached</div>} />
-          </Routes>
-        </AuthProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/portal/admin" element={<AdminDashboard />} />
+              <Route path="/portal/dashboard" element={<div>Client Dashboard Reached</div>} />
+            </Routes>
+          </AuthProvider>
+        </NotificationProvider>
       </MemoryRouter>,
     );
 

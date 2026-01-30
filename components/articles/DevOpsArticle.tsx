@@ -35,6 +35,7 @@ const DevOpsArticle = () => {
       icon={InfinityIcon}
       accentColor="#3B82F6"
       heroVisual={<DevOpsMetropolisVisual />}
+      slug="/baza-wiedzy/devops-fundament-nowoczesnego-biznesu"
     >
       <AnimateOnScroll>
         <p

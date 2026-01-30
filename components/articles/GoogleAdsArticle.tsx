@@ -36,6 +36,7 @@ const GoogleAdsArticle = () => {
       icon={TrendingUp}
       accentColor="#10B981"
       heroVisual={<GoogleAdsHero />}
+      slug="/baza-wiedzy/google-ads-skalowanie-budzetu"
     >
       <AnimateOnScroll>
         <p

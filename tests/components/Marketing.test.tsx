@@ -84,16 +84,18 @@ vi.mock('@/components/common/LazyHydrate', () => {
 });
 
 describe('Marketing Page', () => {
-  it('renders hero section correctly', () => {
-    render(
-      <HelmetProvider>
-        <BrowserRouter>
-          <ModalProvider>
-            <Marketing />
-          </ModalProvider>
-        </BrowserRouter>
-      </HelmetProvider>,
-    );
+  it('renders hero section correctly', async () => {
+    await React.act(async () => {
+      render(
+        <HelmetProvider>
+          <BrowserRouter>
+            <ModalProvider>
+              <Marketing />
+            </ModalProvider>
+          </BrowserRouter>
+        </HelmetProvider>,
+      );
+    });
 
     expect(screen.getByText('Hero Title')).toBeInTheDocument();
     expect(screen.getByText('Hero Desc')).toBeInTheDocument();

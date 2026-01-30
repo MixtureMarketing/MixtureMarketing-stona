@@ -45,6 +45,7 @@ const TailwindArticle = () => {
       icon={Palette}
       accentColor="#06B6D4"
       heroVisual={<TailwindButtonBuilder />}
+      slug="/baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Layout className="text-secondary mt-1 shrink-0" size={20} />

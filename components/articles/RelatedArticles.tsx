@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, BookOpen } from 'lucide-react';
-import { cmsService } from '../../services/cmsService';
+import { cmsService, urlFor } from '../../services/cmsService';
 import { SanityImage } from '../../types/sanity';
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from '../../services/cmsService';
-
-const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImage) {
-  return builder.image(source);
-}
+import { formatDate } from '@/utils/date';
 
 interface RelatedItem {
   _type: 'article' | 'caseStudy';
@@ -51,7 +45,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
           cleanSlug === 'unknown' ? '' : cleanSlug,
           category,
         );
-        setItems(data);
+        setItems(data as RelatedItem[]);
       } catch (error) {
         console.error('Failed to fetch related content:', error);
       } finally {
@@ -191,13 +185,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   <div className="p-6">
                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-3 font-medium">
                       <Calendar size={14} className="text-indigo-500" />
-                      {item.date
-                        ? new Date(item.date).toLocaleDateString('pl-PL', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })
-                        : 'Brak daty'}
+                      {formatDate(item.date)}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug">
                       {item.title}

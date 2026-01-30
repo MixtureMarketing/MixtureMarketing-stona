@@ -9,6 +9,7 @@ import {
   XCircle,
   Bot,
   ArrowRight,
+  Zap,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -36,14 +37,14 @@ const RedisArticle = () => {
   return (
     <ArticleShell
       id="redis-optymalizacja"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={`${CONTENT.header.title.line1} ${CONTENT.header.title.line2}`}
       description={CONTENT.header.subtitle}
       category="tech"
-      categoryLabel={CONTENT.header.badge}
-      image={articleData?.image || '/assets/images/redis.png'}
-      icon={Database}
-      accentColor="#DC2626"
-      heroVisual={<RedisHeroVisual />}
+      categoryLabel="Technologia & Dev"
+      image="/assets/images/redis.png"
+      icon={Zap}
+      accentColor="#213261"
+      slug="/baza-wiedzy/redis-optymalizacja"
     >
       <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
         <Database className="text-secondary mt-1 shrink-0" size={20} />
