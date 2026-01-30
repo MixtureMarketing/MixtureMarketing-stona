@@ -111,24 +111,21 @@ export const UiUxHeroVisual: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[600px] flex items-center justify-center perspective-[2000px]"
+      className="relative w-full max-w-[500px] aspect-[4/5] md:aspect-square flex items-center justify-center perspective-[2000px] mx-auto"
+      style={{ transform: 'scale(var(--hero-scale))' }}
     >
       <div
-        className="absolute top-1/2 left-1/2 w-[400px] h-72 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white p-8 transition-transform duration-100 ease-out will-change-transform"
+        className="absolute top-1/2 left-1/2 w-[90%] md:w-[400px] h-64 md:h-72 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white p-6 md:p-8 transition-transform duration-100 ease-out will-change-transform"
         style={{
           transform: `translate(-50%, -50%) translate(${mousePos.x * -25}px, ${mousePos.y * -25}px) rotateX(${mousePos.y * 8}deg) rotateY(${mousePos.x * 8}deg)`,
         }}
       >
         <div className="flex justify-between items-center mb-8">
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-400/20"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-400/20"></div>
-            <div className="w-3 h-3 rounded-full bg-green-400/20"></div>
-          </div>
+          <WindowControls />
           <div className="w-24 h-2 bg-gray-100 rounded-full"></div>
         </div>
         <div className="flex gap-6">
-          <div className="w-1/3 h-32 bg-gradient-to-br from-light-gray to-[#E0EFFF] rounded-2xl border border-gray-50 shadow-inner"></div>
+          <div className="w-1/3 h-24 md:h-32 bg-gradient-to-br from-light-gray to-[#E0EFFF] rounded-2xl border border-gray-50 shadow-inner"></div>
           <div className="w-2/3 space-y-4 pt-2">
             <div className="w-full h-3 bg-gray-100 rounded-full"></div>
             <div className="w-full h-3 bg-gray-100 rounded-full"></div>
@@ -138,31 +135,31 @@ export const UiUxHeroVisual: React.FC = () => {
       </div>
 
       <div
-        className="absolute top-1/2 left-[60%] w-56 h-[420px] bg-deep-dark rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[6px] border-slate-border p-6 transition-transform duration-100 ease-out flex flex-col justify-between overflow-hidden will-change-transform"
+        className="absolute top-1/2 left-[60%] w-[50%] md:w-56 h-[320px] md:h-[420px] bg-deep-dark rounded-[2.5rem] md:rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[4px] md:border-[6px] border-slate-border p-4 md:p-6 transition-transform duration-100 ease-out flex flex-col justify-between overflow-hidden will-change-transform"
         style={{
           transform: `translate(-50%, -40%) translate(${mousePos.x * 50}px, ${mousePos.y * 50}px) rotateX(${mousePos.y * 12}deg) rotateY(${mousePos.x * 12}deg)`,
         }}
       >
-        <div className="space-y-6 pt-6 relative z-10">
-          <div className="w-16 h-16 bg-gradient-to-tr from-primary to-secondary rounded-[1.5rem] mx-auto shadow-2xl shadow-primary/40 flex items-center justify-center text-white">
-            <Sparkles size={32} />
+        <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 relative z-10">
+          <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-tr from-primary to-secondary rounded-[1.2rem] md:rounded-[1.5rem] mx-auto shadow-2xl shadow-primary/40 flex items-center justify-center text-white">
+            <Sparkles size={24} className="md:w-8 md:h-8" />
           </div>
           <div className="space-y-2 text-center">
-            <div className="w-28 h-2.5 bg-white/20 rounded-full mx-auto"></div>
-            <div className="w-20 h-2 bg-white/10 rounded-full mx-auto"></div>
+            <div className="w-20 md:w-28 h-2 md:h-2.5 bg-white/20 rounded-full mx-auto"></div>
+            <div className="w-16 md:w-20 h-1.5 md:h-2 bg-white/10 rounded-full mx-auto"></div>
           </div>
-          <div className="bg-white/5 rounded-2xl p-4 backdrop-blur-md border border-white/10">
-            <div className="flex justify-between items-center mb-4">
-              <div className="w-10 h-10 bg-white/10 rounded-full"></div>
-              <div className="w-16 h-2 bg-white/20 rounded-full"></div>
+          <div className="bg-white/5 rounded-xl md:rounded-2xl p-3 md:p-4 backdrop-blur-md border border-white/10">
+            <div className="flex justify-between items-center mb-3 md:mb-4">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-white/10 rounded-full"></div>
+              <div className="w-12 md:w-16 h-2 bg-white/20 rounded-full"></div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="h-12 bg-white/5 rounded-xl"></div>
-              <div className="h-12 bg-primary/20 rounded-xl"></div>
+              <div className="h-8 md:h-12 bg-white/5 rounded-lg md:rounded-xl"></div>
+              <div className="h-8 md:h-12 bg-primary/20 rounded-lg md:rounded-xl"></div>
             </div>
           </div>
         </div>
-        <button className="w-full py-4 bg-white text-deep-dark font-black rounded-2xl text-xxs uppercase tracking-widest shadow-xl transform hover:scale-105 transition-all">
+        <button className="w-full py-3 md:py-4 bg-white text-deep-dark font-black rounded-xl md:rounded-2xl text-[10px] md:text-xxs uppercase tracking-widest shadow-xl transform hover:scale-105 transition-all">
           Zacznij teraz
         </button>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-[60px]"></div>
@@ -181,38 +178,41 @@ export const AnalyticsHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative z-10 bg-slate-dark/90 backdrop-blur-xl rounded-2xl shadow-[0_0_50px_rgba(97,182,222,0.15)] border border-slate-border transform rotate-1 hover:rotate-0 transition-all duration-700 group overflow-hidden">
+    <div
+      className="relative z-10 w-full max-w-[480px] bg-slate-dark/90 backdrop-blur-xl rounded-2xl shadow-[0_0_50px_rgba(97,182,222,0.15)] border border-slate-border transform rotate-1 hover:rotate-0 transition-all duration-700 group overflow-hidden mx-auto"
+      style={{ transform: 'scale(var(--hero-scale)) rotate(1deg)' }}
+    >
       <div className="bg-slate-border px-4 py-3 flex items-center justify-between border-b border-slate-border">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
           <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
         </div>
-        <div className="text-xxs font-mono text-gray-400 flex items-center gap-2">
+        <div className="text-xxxs md:text-xxs font-mono text-gray-400 flex items-center gap-2">
           <Lock size={10} /> looker.studio.google.com
         </div>
       </div>
 
-      <div className="p-6 bg-deep-dark">
+      <div className="p-5 md:p-6 bg-deep-dark">
         <div className="flex justify-between items-end mb-6">
           <div>
-            <div className="text-xs text-gray-300 uppercase font-bold tracking-wider mb-1">
+            <div className="text-xxs md:text-xs text-gray-300 uppercase font-bold tracking-wider mb-1">
               Miesięczny Przychód
             </div>
-            <div className="text-3xl font-black text-white flex items-center gap-2">
+            <div className="text-2xl md:text-3xl font-black text-white flex items-center gap-2">
               {(124500 + counter * 125).toLocaleString()} PLN
-              <span className="text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded border border-success/20">
+              <span className="text-[10px] md:text-xs font-bold text-success bg-success/10 px-2 py-0.5 rounded border border-success/20">
                 +12%
               </span>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-success/10 px-2 py-1 rounded-full border border-success/20">
-            <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-            <span className="text-xxs font-bold text-success">NA ŻYWO</span>
+            <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-success animate-pulse"></div>
+            <span className="text-[8px] md:text-xxs font-bold text-success uppercase">NA ŻYWO</span>
           </div>
         </div>
 
-        <div className="relative h-32 w-full mb-6 overflow-hidden rounded-lg bg-slate-border/30 border border-[#334155]/50">
+        <div className="relative h-24 md:h-32 w-full mb-6 overflow-hidden rounded-lg bg-slate-border/30 border border-[#334155]/50">
           <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             <path
               d={`M0,${60 + Math.sin(counter / 5) * 10} Q20,${50 + Math.cos(counter / 5) * 10} 40,55 T80,40 T120,45 T160,20 T200,10 V100 H0 Z`}
@@ -229,15 +229,17 @@ export const AnalyticsHeroVisual: React.FC = () => {
           <div className="absolute top-0 bottom-0 w-px bg-white/50 animate-scan-line"></div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
           {[
             { l: 'ROAS', v: '4.2x' },
             { l: 'Konw.', v: '3.8%' },
             { l: 'CPC', v: '1.20' },
           ].map((s, i) => (
-            <div key={i} className="bg-slate-border p-3 rounded-lg border border-[#334155]">
-              <div className="text-xxs text-gray-300 uppercase mb-1 font-bold">{s.l}</div>
-              <div className="text-sm font-bold text-white flex items-center gap-1">
+            <div key={i} className="bg-slate-border p-2 md:p-3 rounded-lg border border-[#334155]">
+              <div className="text-[10px] md:text-xxs text-gray-300 uppercase mb-1 font-bold">
+                {s.l}
+              </div>
+              <div className="text-xs md:text-sm font-bold text-white flex items-center gap-1">
                 {s.v} <TrendingUp size={10} className="text-success" />
               </div>
             </div>
@@ -379,14 +381,17 @@ export const SeoHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative z-10 w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform rotate-y-6 rotate-x-6 hover:rotate-0 transition-transform duration-700">
+    <div
+      className="relative z-10 w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform rotate-y-6 rotate-x-6 hover:rotate-0 transition-transform duration-700 mx-auto"
+      style={{ transform: 'scale(var(--hero-scale)) rotateX(6deg) rotateY(6deg)' }}
+    >
       <div className="bg-gray-50 border-b border-gray-100 px-4 py-3 flex items-center gap-3">
         <WindowControls />
-        <div className="flex-1 bg-white border border-gray-200 rounded-full px-3 py-1 text-xxs text-gray-600 shadow-inner flex items-center">
+        <div className="flex-1 bg-white border border-gray-200 rounded-full px-3 py-1 text-xxxs md:text-xxs text-gray-600 shadow-inner flex items-center">
           <Search size={10} className="mr-2" /> najlepsza firma w branży
         </div>
       </div>
-      <div className="p-4 bg-white relative min-h-[380px] flex flex-col gap-3">
+      <div className="p-4 bg-white relative min-h-[320px] md:min-h-[380px] flex flex-col gap-3">
         {[1, 2, 3, 4, 5, 6].map((pos) => {
           const isHero = pos === rankPosition;
           return (
@@ -428,7 +433,11 @@ export const PrintHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative w-80 h-[400px] perspective-1000 group">
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-[320px] h-[350px] md:h-[400px] perspective-1000 group mx-auto"
+      style={{ transform: 'scale(var(--hero-scale))' }}
+    >
       {['cyan', 'magenta', 'yellow', 'black'].map((color, i) => (
         <div
           key={i}
@@ -442,11 +451,11 @@ export const PrintHeroVisual: React.FC = () => {
             zIndex: 10 - i,
           }}
         >
-          <div className="absolute top-4 left-4 text-xs font-bold font-mono opacity-50 uppercase">
+          <div className="absolute top-4 left-4 text-xxs font-bold font-mono opacity-50 uppercase">
             {color[0]} Channel
           </div>
           <div
-            className="w-48 h-48 rounded-full border-[20px]"
+            className="w-32 h-32 md:w-48 md:h-48 rounded-full border-[15px] md:border-[20px]"
             style={{
               borderColor:
                 color === 'black'
@@ -470,8 +479,8 @@ export const PrintHeroVisual: React.FC = () => {
         }}
       >
         <div className="text-deep-dark text-center">
-          <ShoppingCart size={48} className="mx-auto mb-4" />
-          <h3 className="text-2xl font-bold uppercase tracking-widest">Premium</h3>
+          <ShoppingCart size={40} className="mx-auto mb-4 md:w-12 md:h-12" />
+          <h3 className="text-xl md:text-2xl font-bold uppercase tracking-widest">Premium</h3>
         </div>
       </div>
     </div>

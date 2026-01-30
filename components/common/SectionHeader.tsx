@@ -52,12 +52,12 @@ const SectionHeader: React.FC<SectionHeaderProps> = memo(
 
     // Responsive sizes based on heading level
     const sizes = {
-      h1: 'text-4xl md:text-5xl lg:text-7xl font-black tracking-tight',
-      h2: 'text-3xl md:text-4xl lg:text-5xl font-bold',
-      h3: 'text-2xl md:text-3xl lg:text-4xl font-bold',
-      h4: 'text-xl md:text-2xl lg:text-3xl font-bold',
-      h5: 'text-lg md:text-xl lg:text-2xl font-bold',
-      h6: 'text-base md:text-lg lg:text-xl font-bold',
+      h1: 'text-3xl xs:text-4xl md:text-5xl lg:text-7xl font-black tracking-tight',
+      h2: 'text-2xl xs:text-3xl md:text-4xl lg:text-5xl font-bold',
+      h3: 'text-xl xs:text-2xl md:text-3xl lg:text-4xl font-bold',
+      h4: 'text-lg xs:text-xl md:text-2xl lg:text-3xl font-bold',
+      h5: 'text-base xs:text-lg md:text-xl lg:text-2xl font-bold',
+      h6: 'text-sm xs:text-base md:text-lg lg:text-xl font-bold',
     };
 
     const Content = (

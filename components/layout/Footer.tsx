@@ -14,8 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Organization } from 'schema-dts';
-import { COLORS } from '../../types';
+import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 import { SITE_CONFIG } from '../../config/site';
 import { FOOTER_CONTENT as CONTENT } from '../../data/content';
 
@@ -34,13 +33,55 @@ const TikTokIcon = ({ size = 20, className = '' }: { size?: number; className?: 
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
+  const { scrollToId } = useSmoothScroll();
 
   const handleScrollTo = (id: string) => {
-    navigate('/', { state: { scrollTo: id } });
+    if (window.location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: id } });
+    } else {
+      scrollToId(id);
+    }
+  };
+
+  const schemaData = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: SITE_CONFIG.companyName,
+    image: SITE_CONFIG.url + '/assets/images/logo.svg',
+    '@id': SITE_CONFIG.url,
+    url: SITE_CONFIG.url,
+    telephone: SITE_CONFIG.contact.phoneFull,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: SITE_CONFIG.contact.address.street,
+      addressLocality: SITE_CONFIG.contact.address.city,
+      postalCode: SITE_CONFIG.contact.address.postalCode,
+      addressCountry: SITE_CONFIG.contact.address.countryCode,
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 50.0411, // Rzeszów approx
+      longitude: 21.9991,
+    },
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '17:00',
+    },
+    sameAs: [
+      SITE_CONFIG.social.linkedin,
+      SITE_CONFIG.social.facebook,
+      SITE_CONFIG.social.instagram,
+    ],
   };
 
   return (
     <footer className="relative bg-[#0B1120] text-white overflow-hidden pt-24 pb-12 border-t border-white/5">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       {/* Background Decor */}
       <div className="absolute inset-0 bg-tech-grid opacity-[0.03] pointer-events-none"></div>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>

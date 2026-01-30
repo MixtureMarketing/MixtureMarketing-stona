@@ -45,6 +45,20 @@ export const leadService = {
       throw new Error('Email and Name are required');
     }
 
+    // Email regex check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      throw new Error('Invalid email format');
+    }
+
+    // Phone regex check (optional but must be valid if provided)
+    if (data.phone) {
+      const phoneRegex = /^[+]?[0-9\s-]{9,20}$/;
+      if (!phoneRegex.test(data.phone)) {
+        throw new Error('Invalid phone format');
+      }
+    }
+
     const id = generateUUID();
 
     try {

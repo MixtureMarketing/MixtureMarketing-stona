@@ -32,10 +32,17 @@ const ServerLoadChart = () => {
             <stop offset="95%" stopColor="#10B981" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <XAxis dataKey="time" stroke="#94a3b8" tick={{ fontSize: 12 }} />
-        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} unit="%" />
+        <XAxis dataKey="time" stroke="#94a3b8" tick={{ fontSize: 12 }} minTickGap={30} />
+        <YAxis
+          stroke="#94a3b8"
+          tick={{ fontSize: 10 }}
+          unit="%"
+          width={35}
+          hide={typeof window !== 'undefined' && window.innerWidth < 480}
+        />
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
         <Tooltip
+          trigger="click"
           contentStyle={{
             backgroundColor: '#fff',
             borderRadius: '8px',

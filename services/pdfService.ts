@@ -68,11 +68,19 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
   doc.setTextColor(0);
 
   const addRow = (label: string, value: string) => {
+    // Check if we need a new page before drawing
+    if (y > 250) {
+      doc.addPage();
+      y = 30;
+    }
     doc.setFont('helvetica', 'bold');
     doc.text(`${label}:`, margin, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(value, margin + 50, y);
-    y += 8;
+
+    // Multi-line value handling
+    const splitValue = doc.splitTextToSize(value, 120);
+    doc.text(splitValue, margin + 50, y);
+    y += splitValue.length * 7;
   };
 
   const projectLabels: Record<string, string> = {

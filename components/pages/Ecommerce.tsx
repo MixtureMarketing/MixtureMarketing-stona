@@ -312,22 +312,6 @@ const Ecommerce: React.FC = () => {
               </div>
             </div>
           </div>
-          <style>{`
-              @keyframes ecommerce-orbit {
-                  from { transform: rotate(0deg); }
-                  to { transform: rotate(360deg); }
-              }
-              @keyframes ecommerce-counter-orbit {
-                  from { transform: translate(-50%, -50%) rotate(0deg); }
-                  to { transform: translate(-50%, -50%) rotate(-360deg); }
-              }
-              .animate-spin-slow {
-                  animation: spin 60s linear infinite;
-              }
-              .animate-pulse-slow {
-                  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-              }
-          `}</style>
         </section>
       </LazyHydrate>
 

@@ -128,16 +128,6 @@ const Modal: React.FC<ModalProps> = ({
           {children}
         </div>
       </div>
-
-      <style>{`
-        @keyframes modal-in {
-          0% { transform: scale(0.9) translateY(20px); opacity: 0; }
-          100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-        .animate-modal-in {
-          animation: modal-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
     </div>
   );
 };

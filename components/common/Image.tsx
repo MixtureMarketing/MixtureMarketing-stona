@@ -7,11 +7,12 @@ interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   width?: number | string;
   height?: number | string;
   priority?: boolean;
+  isSanity?: boolean;
 }
 
 /**
  * A reusable Image component that implements the <picture> pattern
- * to serve AVIF/WebP formats automatically.
+ * and Sanity image optimization for multiple resolutions.
  */
 const Image: React.FC<ImageProps> = ({
   src,
@@ -22,6 +23,7 @@ const Image: React.FC<ImageProps> = ({
   width,
   height,
   priority = false,
+  isSanity = false,
   ...props
 }) => {
   if (!alt) {
@@ -31,22 +33,35 @@ const Image: React.FC<ImageProps> = ({
   const effectiveLoading = priority ? undefined : loading || 'lazy';
   const fetchPriority = priority ? 'high' : 'auto';
 
-  // Check if we can serve multiple formats
-  const isEnhanceable = src.startsWith('/') && /\.(jpe?g|png)$/i.test(src);
+  // Sanity Image Optimization
+  let srcSet: string | undefined = undefined;
+  let finalSrc = src;
+
+  if (isSanity && src.includes('cdn.sanity.io')) {
+    const baseUrl = src.split('?')[0];
+    const widths = [320, 640, 768, 1024, 1280, 1536];
+    srcSet = widths.map((w) => `${baseUrl}?w=${w}&auto=format&q=75 ${w}w`).join(', ');
+    finalSrc = `${baseUrl}?w=${width || 800}&auto=format&q=80`;
+  }
+
+  // Check if we can serve multiple formats (Local Images)
+  const isEnhanceable = !isSanity && src.startsWith('/') && /\.(jpe?g|png)$/i.test(src);
 
   // CLS Optimization: Calculate aspect ratio to reserve space
   const style =
     width && height
       ? ({
           aspectRatio: `${width} / ${height}`,
-          width: '100%', // Ensure it fills the container if needed, or respect width prop via attribute
+          width: '100%',
           height: 'auto',
         } as React.CSSProperties)
       : undefined;
 
   const imgElement = (
     <img
-      src={src}
+      src={finalSrc}
+      srcSet={srcSet}
+      sizes={srcSet ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : undefined}
       alt={alt}
       className={className}
       loading={effectiveLoading}
@@ -54,7 +69,7 @@ const Image: React.FC<ImageProps> = ({
       width={width}
       height={height}
       fetchPriority={fetchPriority}
-      style={{ ...style, ...props.style }} // Apply aspect-ratio here
+      style={{ ...style, ...props.style }}
       {...props}
     />
   );

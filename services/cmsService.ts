@@ -1,4 +1,5 @@
 import { createClient } from '@sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
 import { SanityTeamMember, SanityCaseStudy, PricingTier } from '@/types';
 import { SanityImage, SanityBody } from '@/types/sanity';
 
@@ -12,6 +13,12 @@ export const client = createClient({
   apiVersion,
   useCdn: false, // Ensure fresh data, especially after migration
 });
+
+const builder = imageUrlBuilder(client);
+
+export function urlFor(source: SanityImage | { asset: { _ref: string } }) {
+  return builder.image(source);
+}
 
 interface SanityCategory {
   _id: string;
@@ -88,6 +95,23 @@ interface SanityPricingSection {
   tiers: PricingTier[];
 }
 
+// Simple In-Memory Cache
+const cache = new Map<string, { data: unknown; timestamp: number }>();
+const CACHE_TTL = 1000 * 60 * 5; // 5 minutes
+
+async function fetchWithCache<T>(query: string, params: Record<string, unknown> = {}): Promise<T> {
+  const cacheKey = JSON.stringify({ query, params });
+  const cached = cache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data as T;
+  }
+
+  const data = await client.fetch(query, params);
+  cache.set(cacheKey, { data, timestamp: Date.now() });
+  return data;
+}
+
 export const cmsService = {
   /**
    * Fetch all team members
@@ -102,7 +126,7 @@ export const cmsService = {
         email,
         linkedin
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getTeamMembers):', error);
       return [];
@@ -126,7 +150,7 @@ export const cmsService = {
         excerpt,
         mainImage
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getCaseStudies):', error);
       return [];
@@ -155,7 +179,7 @@ export const cmsService = {
           linkedin
         }
       }`;
-      return await client.fetch(query, { slug });
+      return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getCaseStudyBySlug: ${slug}):`, error);
       return null;
@@ -178,7 +202,7 @@ export const cmsService = {
         tags,
         readTime
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getArticles):', error);
       return [];
@@ -202,7 +226,7 @@ export const cmsService = {
         tags,
         readTime
       }`;
-      return await client.fetch(query, { slug });
+      return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getArticleBySlug: ${slug}):`, error);
       return null;
@@ -219,7 +243,7 @@ export const cmsService = {
         title,
         description
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getCategories):', error);
       return [];
@@ -240,7 +264,7 @@ export const cmsService = {
         seoTitle,
         seoDescription
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getLocations):', error);
       return [];
@@ -261,7 +285,7 @@ export const cmsService = {
         seoTitle,
         seoDescription
       }`;
-      return await client.fetch(query, { slug });
+      return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getLocationBySlug: ${slug}):`, error);
       return null;
@@ -284,7 +308,7 @@ export const cmsService = {
         compliance,
         heroImage
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getIndustries):', error);
       return [];
@@ -307,7 +331,7 @@ export const cmsService = {
         compliance,
         heroImage
       }`;
-      return await client.fetch(query, { slug });
+      return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getIndustryBySlug: ${slug}):`, error);
       return null;
@@ -325,7 +349,7 @@ export const cmsService = {
         features,
         marketing
       }`;
-      return await client.fetch(query);
+      return await fetchWithCache(query);
     } catch (error) {
       console.warn('Sanity fetch error (getCalculatorConfig):', error);
       return null;
@@ -353,7 +377,7 @@ export const cmsService = {
           buttonText
         }
       }`;
-      return await client.fetch(query, { categorySlug });
+      return await fetchWithCache(query, { categorySlug });
     } catch (error) {
       console.warn(`Sanity fetch error (getPricingSection: ${categorySlug}):`, error);
       return null;
@@ -393,7 +417,7 @@ export const cmsService = {
         "date": coalesce(publishedAt, date)
       }`;
 
-      return await client.fetch(query, { currentSlug, category });
+      return await fetchWithCache(query, { currentSlug, category });
     } catch (error) {
       console.warn('Sanity fetch error (getRelatedContent):', error);
       return [];

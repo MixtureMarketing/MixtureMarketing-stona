@@ -28,10 +28,17 @@ const MarketGrowthChart = () => {
             <stop offset="95%" stopColor="#61B6DE" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <XAxis dataKey="year" stroke="#94a3b8" tick={{ fontSize: 12 }} />
-        <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} unit="ZB" />
+        <XAxis dataKey="year" stroke="#94a3b8" tick={{ fontSize: 12 }} minTickGap={20} />
+        <YAxis
+          stroke="#94a3b8"
+          tick={{ fontSize: 10 }}
+          unit="ZB"
+          width={40}
+          hide={typeof window !== 'undefined' && window.innerWidth < 480}
+        />
         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
         <Tooltip
+          trigger="click"
           contentStyle={{
             backgroundColor: '#213261',
             border: 'none',

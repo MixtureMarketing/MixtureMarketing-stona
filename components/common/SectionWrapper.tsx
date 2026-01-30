@@ -32,9 +32,9 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({
 
   const paddingClasses = {
     none: 'py-0',
-    sm: 'py-12 md:py-16',
-    base: 'py-20 md:py-24',
-    lg: 'py-24 md:py-32',
+    sm: 'py-10 md:py-16 lg:py-20',
+    base: 'py-16 md:py-24 lg:py-32',
+    lg: 'py-20 md:py-32 lg:py-48',
   };
 
   return (

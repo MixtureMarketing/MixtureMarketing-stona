@@ -42,6 +42,7 @@ import { useParallax } from '../../hooks/useParallax';
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
 import { CorporateHeroVisual } from '../visuals/HeroVisuals';
+import SectionWrapper from '../common/SectionWrapper';
 
 const CorporateWebsite: React.FC = () => {
   const [activeCms, setActiveCms] = useState<'wordpress' | 'headless'>('wordpress');
@@ -132,171 +133,189 @@ const CorporateWebsite: React.FC = () => {
       />
 
       {/* --- BUSINESS MODULES --- */}
-      <section className="py-24 bg-light-gray relative z-10">
-        <LazyHydrate whenVisible>
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader
-              title={CONTENT.modules.title}
-              description={CONTENT.modules.description}
-              className="mb-16"
-            />
+      <LazyHydrate whenVisible>
+        <SectionWrapper variant="light-gray">
+          <SectionHeader
+            title={CONTENT.modules.title}
+            description={CONTENT.modules.description}
+            className="mb-16"
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {businessModules.map((mod, i) => (
-                <AnimateOnScroll key={i} delay={i * 100} className="h-full">
-                  <GlassCard className="p-8 h-full flex flex-col hover:border-secondary hover:shadow-lg transition-all group bg-white hover:-translate-y-1">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-[#F0F7FF] flex items-center justify-center text-secondary shadow-sm border border-[#E0EFFF] group-hover:scale-110 transition-transform">
-                        {mod.icon}
-                      </div>
-                      <div className="bg-blue-50 text-secondary text-xxs font-mono px-2 py-1 rounded border border-secondary/10">
-                        {mod.tech}
-                      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {businessModules.map((mod, i) => (
+              <AnimateOnScroll key={i} delay={i * 100} className="h-full">
+                <GlassCard className="p-8 h-full flex flex-col hover:border-secondary hover:shadow-lg transition-all group bg-white hover:-translate-y-1">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-12 h-12 rounded-xl bg-[#F0F7FF] flex items-center justify-center text-secondary shadow-sm border border-[#E0EFFF] group-hover:scale-110 transition-transform">
+                      {mod.icon}
                     </div>
-                    <h3 className="font-bold text-dark text-lg mb-3 group-hover:text-primary transition-colors">
-                      {mod.title}
-                    </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{mod.desc}</p>
-                  </GlassCard>
-                </AnimateOnScroll>
-              ))}
-            </div>
+                    <div className="bg-blue-50 text-secondary text-xxs font-mono px-2 py-1 rounded border border-secondary/10">
+                      {mod.tech}
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-dark text-lg mb-3 group-hover:text-primary transition-colors">
+                    {mod.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{mod.desc}</p>
+                </GlassCard>
+              </AnimateOnScroll>
+            ))}
           </div>
-        </LazyHydrate>
-      </section>
+        </SectionWrapper>
+      </LazyHydrate>
 
       {/* --- CMS SECTION --- */}
-      <section className="py-24 bg-white relative overflow-hidden">
-        <LazyHydrate whenVisible>
-          {/* ... (Content same as original) ... */}
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Abbreviated CMS section content */}
-            <div className="text-center mb-16">
-              <SectionHeader title={CONTENT.cms.title} description={CONTENT.cms.description} />
+      <LazyHydrate whenVisible>
+        <SectionWrapper variant="white">
+          <div className="text-center mb-16">
+            <SectionHeader title={CONTENT.cms.title} description={CONTENT.cms.description} />
+            <div
+              className="inline-flex bg-[#F1F5F9] p-1.5 rounded-full mt-8 border border-gray-200 shadow-inner relative"
+              role="group"
+              aria-label="Wybór silnika CMS"
+            >
               <div
-                className="inline-flex bg-[#F1F5F9] p-1.5 rounded-full mt-8 border border-gray-200 shadow-inner relative"
-                role="group"
-                aria-label="Wybór silnika CMS"
+                className={`absolute top-1.5 bottom-1.5 rounded-full bg-white shadow-sm border border-gray-200 transition-all duration-300 ease-in-out z-0`}
+                style={{
+                  left: activeCms === 'wordpress' ? '6px' : 'calc(50% + 3px)',
+                  width: 'calc(50% - 9px)',
+                }}
+              ></div>
+              <button
+                onClick={() => setActiveCms('wordpress')}
+                aria-pressed={activeCms === 'wordpress'}
+                className={`relative z-10 px-6 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-black transition-colors duration-300 flex items-center gap-2 ${activeCms === 'wordpress' ? 'text-dark' : 'text-gray-500 hover:text-dark'}`}
               >
-                <div
-                  className={`absolute top-1.5 bottom-1.5 rounded-full bg-white shadow-sm border border-gray-200 transition-all duration-300 ease-in-out z-0`}
-                  style={{
-                    left: activeCms === 'wordpress' ? '6px' : '50%',
-                    width: 'calc(50% - 6px)',
-                  }}
-                ></div>
-                <button
-                  onClick={() => setActiveCms('wordpress')}
-                  aria-pressed={activeCms === 'wordpress'}
-                  className={`relative z-10 px-8 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 flex items-center gap-2 ${activeCms === 'wordpress' ? 'text-dark' : 'text-gray-700 hover:text-gray-700'}`}
-                >
-                  {CONTENT.cms.wordpress.label}
-                </button>
-                <button
-                  onClick={() => setActiveCms('headless')}
-                  aria-pressed={activeCms === 'headless'}
-                  className={`relative z-10 px-8 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 flex items-center gap-2 ${activeCms === 'headless' ? 'text-dark' : 'text-gray-700 hover:text-gray-700'}`}
-                >
-                  {CONTENT.cms.headless.label}
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-dark">
-                  {activeCms === 'wordpress'
-                    ? CONTENT.cms.wordpress.title
-                    : CONTENT.cms.headless.title}
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  {activeCms === 'wordpress'
-                    ? CONTENT.cms.wordpress.desc
-                    : CONTENT.cms.headless.desc}
-                </p>
-                <ul className="space-y-3">
-                  {(activeCms === 'wordpress'
-                    ? CONTENT.cms.wordpress.features
-                    : CONTENT.cms.headless.features
-                  ).map((feat, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                      <CheckCircle2 size={18} className="text-success" /> {feat}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* Visual part remains same */}
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-primary/10 rounded-2xl transform rotate-2"></div>
-                <GlassCard className="relative bg-white shadow-xl overflow-hidden aspect-[16/10] flex flex-col p-0 border border-gray-200">
-                  {/* Mockup UI */}
-                  <div className="h-8 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
-                    <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                    <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
-                  </div>
-                  {/* Mockup Content - Simplified */}
-                  <div className="p-6 flex gap-6 h-full animate-fade-in bg-gray-50/50">
-                    <div className="m-auto text-gray-400 font-bold">CMS UI PREVIEW</div>
-                  </div>
-                </GlassCard>
-              </div>
+                {CONTENT.cms.wordpress.label}
+              </button>
+              <button
+                onClick={() => setActiveCms('headless')}
+                aria-pressed={activeCms === 'headless'}
+                className={`relative z-10 px-6 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-black transition-colors duration-300 flex items-center gap-2 ${activeCms === 'headless' ? 'text-dark' : 'text-gray-500 hover:text-dark'}`}
+              >
+                {CONTENT.cms.headless.label}
+              </button>
             </div>
           </div>
-        </LazyHydrate>
-      </section>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-dark">
+                {activeCms === 'wordpress'
+                  ? CONTENT.cms.wordpress.title
+                  : CONTENT.cms.headless.title}
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed font-medium">
+                {activeCms === 'wordpress' ? CONTENT.cms.wordpress.desc : CONTENT.cms.headless.desc}
+              </p>
+              <ul className="space-y-3">
+                {(activeCms === 'wordpress'
+                  ? CONTENT.cms.wordpress.features
+                  : CONTENT.cms.headless.features
+                ).map((feat, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-700 font-bold">
+                    <CheckCircle2 size={18} className="text-success shrink-0" /> {feat}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="relative order-first lg:order-2">
+              <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-primary/10 rounded-2xl transform rotate-2"></div>
+              <GlassCard className="relative bg-white shadow-xl overflow-hidden aspect-[16/10] flex flex-col p-0 border border-gray-200">
+                <div className="h-8 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]"></div>
+                </div>
+                <div className="p-6 flex flex-col gap-4 h-full animate-fade-in bg-gray-50/50 overflow-hidden">
+                  <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-32 w-full bg-white rounded border border-gray-100 shadow-sm"></div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-gray-200 rounded"></div>
+                    <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+        </SectionWrapper>
+      </LazyHydrate>
 
       {/* --- COMPLIANCE & SECURITY --- */}
-      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
-        <LazyHydrate whenVisible>
-          {/* ... (Content same as original) ... */}
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Abbreviated Compliance Section */}
-            <div className="flex flex-col lg:flex-row gap-16 items-center">
-              <div className="lg:w-1/2">
-                <AnimateOnScroll>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                    {CONTENT.compliance.title.line1} <br />
-                    {CONTENT.compliance.title.line2}
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {complianceFeatures.map((feat, i) => (
-                      <div
-                        key={i}
-                        className="p-4 bg-white/5 border border-white/5 rounded-xl hover:border-white/20 transition-colors group"
-                      >
-                        <div className="text-primary mb-3">{feat.icon}</div>
-                        <h3 className="font-bold text-sm mb-1">{feat.title}</h3>
+      <LazyHydrate whenVisible>
+        <SectionWrapper variant="dark" padding="lg">
+          <div className="bg-tech-grid absolute inset-0 opacity-10 pointer-events-none"></div>
+          <div className="flex flex-col lg:flex-row gap-16 items-center relative z-10">
+            <div className="lg:w-1/2">
+              <AnimateOnScroll>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-primary text-xxs font-black uppercase tracking-widest mb-6">
+                  <ShieldCheck size={14} /> Enterprise Ready
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight">
+                  {CONTENT.compliance.title.line1} <br />
+                  <span className="text-primary">{CONTENT.compliance.title.line2}</span>
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                  {complianceFeatures.map((feat, i) => (
+                    <div
+                      key={i}
+                      className="p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-primary/30 transition-all group"
+                    >
+                      <div className="text-primary mb-4 group-hover:scale-110 transition-transform">
+                        {feat.icon}
                       </div>
-                    ))}
+                      <h3 className="font-bold text-base mb-2">{feat.title}</h3>
+                      <p className="text-xs text-gray-400 leading-relaxed">{feat.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </AnimateOnScroll>
+            </div>
+            <div className="lg:w-1/2 w-full">
+              <AnimateOnScroll delay={200}>
+                <div className="relative max-w-md mx-auto aspect-square bg-blue-500/10 rounded-full flex items-center justify-center p-8 border border-white/5">
+                  <div className="absolute inset-0 border-2 border-dashed border-primary/20 rounded-full animate-spin-slow"></div>
+                  <div className="relative z-10 text-center">
+                    <Lock size={64} className="text-primary mx-auto mb-6 animate-pulse" />
+                    <div className="text-2xl font-black tracking-tighter">DATA SECURED</div>
+                    <div className="text-xxs font-mono text-primary mt-2">AES-256 ENCRYPTION</div>
                   </div>
-                </AnimateOnScroll>
-              </div>
-              {/* Visual part abbreviated */}
+                </div>
+              </AnimateOnScroll>
             </div>
           </div>
-        </LazyHydrate>
-      </section>
+        </SectionWrapper>
+      </LazyHydrate>
 
       {/* --- SAFE MIGRATION --- */}
-      <section className="py-24 bg-white relative z-10 overflow-hidden">
-        <LazyHydrate whenVisible>
-          {/* ... (Content same as original) ... */}
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader
-              title={CONTENT.migration.title}
-              subtitle={CONTENT.migration.subtitle}
-              description={CONTENT.migration.description}
-              className="mb-16"
-            />
-            <AnimateOnScroll className="relative w-full max-w-6xl mx-auto">
-              {/* Migration visual abbreviated */}
-              <div className="bg-[#0F172A] rounded-3xl border border-[#334155] p-12 text-center text-white">
-                MIGRATION PROTOCOL VISUALIZATION
-              </div>
-            </AnimateOnScroll>
+      <LazyHydrate whenVisible>
+        <SectionWrapper variant="white" padding="lg">
+          <SectionHeader
+            title={CONTENT.migration.title}
+            subtitle={CONTENT.migration.subtitle}
+            description={CONTENT.migration.description}
+            className="mb-16"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, i) => (
+              <AnimateOnScroll key={i} delay={i * 100} className="relative">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-secondary mb-6 border border-gray-100 shadow-sm relative z-10 group-hover:bg-blue-50 transition-colors">
+                    {step.icon}
+                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-black text-dark">
+                      {i + 1}
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-dark text-lg mb-3">{step.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed font-medium">{step.desc}</p>
+                </div>
+                {i < 3 && (
+                  <div className="hidden lg:block absolute top-8 left-[calc(100%-2rem)] w-full h-px bg-gradient-to-r from-gray-200 to-transparent z-0"></div>
+                )}
+              </AnimateOnScroll>
+            ))}
           </div>
-        </LazyHydrate>
-      </section>
+        </SectionWrapper>
+      </LazyHydrate>
 
       {/* --- PRICING --- */}
       {pricingData && (

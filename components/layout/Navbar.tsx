@@ -27,6 +27,8 @@ import { SITE_CONFIG } from '../../config/site';
 import { NAVBAR_CONTENT as CONTENT } from '../../data/content';
 import Image from '../common/Image';
 import { ARTICLES } from '../../data/articles';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { useSmoothScroll } from '../../hooks/useSmoothScroll';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,8 +40,14 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { openModal } = useModal();
+  const { toggleScroll } = useBodyScrollLock();
+  const { scrollToId } = useSmoothScroll();
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleMenu = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    toggleScroll(nextState);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -64,6 +72,7 @@ const Navbar: React.FC = () => {
     navigate('/');
     window.scrollTo(0, 0);
     setIsOpen(false);
+    toggleScroll(false);
   };
 
   const handleAnchorLink = (anchorId: string, e: React.MouseEvent) => {
@@ -71,44 +80,21 @@ const Navbar: React.FC = () => {
     if (location.pathname !== '/') {
       navigate('/', { state: { scrollTo: anchorId } });
     } else {
-      const element = document.getElementById(anchorId);
-      if (element) {
-        const offset = 80;
-        const bodyRect = document.body.getBoundingClientRect().top;
-        const elementRect = element.getBoundingClientRect().top;
-        const elementPosition = elementRect - bodyRect;
-        const offsetPosition = elementPosition - offset;
-
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth',
-        });
-      }
+      scrollToId(anchorId);
     }
     setIsOpen(false);
+    toggleScroll(false);
   };
 
   useEffect(() => {
     if (location.state && (location.state as { scrollTo?: string }).scrollTo) {
       const anchorId = (location.state as { scrollTo?: string }).scrollTo as string;
       setTimeout(() => {
-        const element = document.getElementById(anchorId);
-        if (element) {
-          const offset = 80;
-          const bodyRect = document.body.getBoundingClientRect().top;
-          const elementRect = element.getBoundingClientRect().top;
-          const elementPosition = elementRect - bodyRect;
-          const offsetPosition = elementPosition - offset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth',
-          });
-        }
+        scrollToId(anchorId);
         window.history.replaceState({}, document.title);
       }, 100);
     }
-  }, [location]);
+  }, [location, scrollToId]);
 
   const handleMouseEnter = (name: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -227,13 +213,14 @@ const Navbar: React.FC = () => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsOpen(false);
     setActiveDropdown(null);
-  }, [location.pathname, location.search]);
+    toggleScroll(false);
+  }, [location.pathname, location.search, toggleScroll]);
 
   return (
     <header>
       <nav
         aria-label="Główna nawigacja"
-        className={`fixed w-full z-50 transition-all duration-300 h-20 flex items-center ${isAnyDropdownOpen ? 'bg-white shadow-lg' : scrolled ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md border-b border-transparent'}`}
+        className={`fixed w-full z-[var(--z-nav)] transition-all duration-300 h-20 flex items-center ${isAnyDropdownOpen ? 'bg-white shadow-lg' : scrolled ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md border-b border-transparent'}`}
       >
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex justify-between items-center h-full">
@@ -302,7 +289,7 @@ const Navbar: React.FC = () => {
 
                 <div
                   id="offer-mega-menu"
-                  className={`fixed left-0 w-full top-20 z-50 transform transition-all duration-500 origin-top ${activeDropdown === CONTENT.offer.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
+                  className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all duration-500 origin-top ${activeDropdown === CONTENT.offer.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
                   style={{ display: activeDropdown === CONTENT.offer.label ? 'block' : 'none' }}
                   role="region"
                   aria-labelledby="offer-menu-button"
@@ -434,7 +421,7 @@ const Navbar: React.FC = () => {
 
                 <div
                   id="kb-mega-menu"
-                  className={`fixed left-0 w-full top-20 z-50 transform transition-all duration-500 origin-top ${activeDropdown === CONTENT.knowledgeBase.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
+                  className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all duration-500 origin-top ${activeDropdown === CONTENT.knowledgeBase.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
                   style={{
                     display: activeDropdown === CONTENT.knowledgeBase.label ? 'block' : 'none',
                   }}
@@ -558,7 +545,7 @@ const Navbar: React.FC = () => {
             <div className="lg:hidden flex items-center">
               <button
                 onClick={toggleMenu}
-                className="relative z-50 text-dark focus:outline-none p-2 w-12 h-12 flex flex-col justify-center items-center gap-1.5 group"
+                className="relative z-[var(--z-nav)] text-dark focus:outline-none p-2 w-12 h-12 flex flex-col justify-center items-center gap-1.5 group"
                 aria-label={isOpen ? 'Zamknij menu nawigacyjne' : 'Otwórz menu nawigacyjne'}
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"
@@ -579,7 +566,7 @@ const Navbar: React.FC = () => {
       </nav>
       <div
         id="mobile-menu"
-        className={`lg:hidden fixed inset-0 z-40 bg-white/98 backdrop-blur-2xl transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}
+        className={`lg:hidden fixed inset-0 z-[var(--z-header)] bg-white/98 backdrop-blur-2xl transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}
         aria-hidden={!isOpen}
         role="navigation"
         aria-label="Menu mobilne"

@@ -98,12 +98,14 @@ const PricingTable: React.FC<PricingTableProps> = ({
                         </div>
                         <h3 className="text-2xl font-black text-dark mb-4">{tier.title}</h3>
 
-                        <div className="flex items-baseline gap-2 mb-6">
+                        <div className="flex items-baseline flex-wrap gap-2 mb-6">
                           {tier.price !== 'Wycena' && (
                             <span className="text-gray-600 text-sm font-medium">od</span>
                           )}
-                          <span className="text-5xl font-black text-dark">{tier.price}</span>
-                          <span className="text-gray-700 font-bold text-lg">
+                          <span className="text-4xl xs:text-5xl font-black text-dark">
+                            {tier.price}
+                          </span>
+                          <span className="text-gray-700 font-bold text-base md:text-lg">
                             {tier.currency || (tier.price === 'Wycena' ? '' : 'PLN')}
                           </span>
                           {tier.priceSuffix && (
