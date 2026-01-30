@@ -1,4 +1,5 @@
 import { SITE_CONFIG } from '../../config/site';
+import { DICTIONARY } from '../dictionary';
 
 export const HERO_CONTENT = {
   badge: 'Partner Strategiczny dla Biznesu',
@@ -10,12 +11,12 @@ export const HERO_CONTENT = {
   description:
     "Łączymy inżynierską precyzję Software House'u z kreatywnością Agencji Marketingowej.",
   cta: {
-    primary: 'Darmowa Konsultacja',
-    secondary: 'Poznaj Ofertę',
+    primary: DICTIONARY.cta.consultation,
+    secondary: DICTIONARY.cta.offer,
   },
   microCopy: {
-    responseTime: 'Odpowiedź w 24h',
-    noObligation: 'Brak zobowiązań',
+    responseTime: DICTIONARY.labels.responseTime,
+    noObligation: DICTIONARY.labels.noObligation,
   },
   visuals: {
     codeSnippet: {
@@ -27,28 +28,28 @@ export const HERO_CONTENT = {
 };
 
 export const NAVBAR_CONTENT = {
-  about: 'O Nas',
-  portfolio: 'Realizacje',
-  contact: 'Kontakt',
-  pricing: 'Wycena Projektu',
+  about: DICTIONARY.labels.about,
+  portfolio: DICTIONARY.labels.portfolio,
+  contact: DICTIONARY.labels.contact,
+  pricing: DICTIONARY.labels.pricing,
   offer: {
     label: 'Oferta',
     title: 'Zbudujmy coś',
     accent: 'wyjątkowego.',
     desc: 'Opowiedz nam o swoim pomyśle. Pomożemy dobrać technologię i przygotujemy bezpłatną wycenę.',
-    button: 'Zarezerwuj Termin',
+    button: DICTIONARY.cta.book,
     features: ['Analiza techniczna', 'Dobór kanałów Ads', 'Plan wdrożenia'],
     badge: 'Rozmowa Strategiczna',
   },
   knowledgeBase: {
-    label: 'Baza Wiedzy',
+    label: DICTIONARY.labels.knowledgeBase,
     badge: 'Wyróżnione artykuły',
     all: 'Zobacz całą bazę',
-    readMore: 'Czytaj artykuł',
+    readMore: DICTIONARY.cta.readMore,
   },
   mobileMenu: {
     question: 'Masz pytanie?',
-    cta: 'Darmowa Konsultacja',
+    cta: DICTIONARY.cta.consultation,
     seeAll: 'Zobacz całą ofertę',
   },
   megaMenu: [
@@ -102,9 +103,9 @@ export const FOOTER_CONTENT = {
     company: {
       title: 'Firma',
       links: [
-        { label: 'O Nas', path: 'about', type: 'scroll' },
-        { label: 'Realizacje', path: '/portfolio/' },
-        { label: 'Baza Wiedzy', path: '/baza-wiedzy/' },
+        { label: DICTIONARY.labels.about, path: 'about', type: 'scroll' },
+        { label: DICTIONARY.labels.portfolio, path: '/portfolio/' },
+        { label: DICTIONARY.labels.knowledgeBase, path: '/baza-wiedzy/' },
         { label: 'Kariera', path: '/contact/' },
         { label: 'Prywatność', path: '/privacy-policy/' },
         { label: 'Regulamin', path: '/terms/' },

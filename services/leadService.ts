@@ -1,5 +1,3 @@
-// import { supabase } from './supabaseClient'; // Removed Supabase
-
 export interface LeadBase {
   name: string;
   email: string;

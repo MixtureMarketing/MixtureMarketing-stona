@@ -281,13 +281,16 @@ try {
         $firstName = explode(' ', $name)[0];
         
         // --- BUDOWANIE TABELI DANYCH ---
-        $dataTable = "<table style='width: 100%; border-collapse: separate; border-spacing: 0; margin: 25px 0; border: 1px solid #eee; border-radius: 8px; overflow: hidden;'>";
+        require_once __DIR__ . '/config_styles.php';
+        global $BRAND, $EMAIL_STYLES;
+
+        $dataTable = "<table style='{$EMAIL_STYLES['table']}'>";
         
         // Podstawowe pola
         $fields = [
             'Imię i nazwisko' => $name,
-            'Email' => "<a href='mailto:$email' style='color:#61B6DE;text-decoration:none;'>$email</a>",
-            'Telefon' => $lead['phone'] ? "<a href='tel:{$lead['phone']}' style='color:#61B6DE;text-decoration:none;'>{$lead['phone']}</a>" : '-',
+            'Email' => "<a href='mailto:$email' style='color:{$BRAND['accent']};text-decoration:none;'>$email</a>",
+            'Telefon' => $lead['phone'] ? "<a href='tel:{$lead['phone']}' style='color:{$BRAND['accent']};text-decoration:none;'>{$lead['phone']}</a>" : '-',
             'Usługa' => ucfirst($lead['service_interest'] ?? 'Ogólne'),
             'Budżet' => $lead['budget'],
             'Strona WWW' => $lead['website'] ? "<a href='{$lead['website']}' target='_blank'>{$lead['website']}</a>" : '-',
@@ -333,12 +336,9 @@ try {
         $i = 0;
         foreach ($fields as $label => $value) {
             if (!empty($value) && $value !== '-') {
-                $bg = $i % 2 == 0 ? '#fafafa' : '#ffffff';
-                $dataTable .= "
-                <tr style='background-color: $bg;'>
-                    <td style='padding: 12px 15px; font-weight: 600; color: #555; width: 35%; border-bottom: 1px solid #eee;'>$label</td>
-                    <td style='padding: 12px 15px; color: #222; border-bottom: 1px solid #eee;'>$value</td>
-                </tr>";
+                $labelStyle = $EMAIL_STYLES['table_label'];
+                $valueStyle = $EMAIL_STYLES['table_value'];
+                $dataTable .= "<tr><td style='$labelStyle'>$label</td><td style='$valueStyle'>$value</td></tr>";
                 $i++;
             }
         }
@@ -405,7 +405,7 @@ try {
             // Do Klienta
             $subject = "$firstName, dokończmy Twoją wycenę";
             $content = "
-                <p style='font-size: 18px; font-weight: 600; color: #213261; margin-bottom: 15px;'>Cześć $firstName,</p>
+                <p style='font-size: 18px; font-weight: 600; color: {$BRAND['primary']}; margin-bottom: 15px;'>Cześć $firstName,</p>
                 <p>Zauważyliśmy, że przerwałeś wypełnianie formularza w sprawie projektu. Twoje dane są u nas bezpieczne – zapisaliśmy postęp prac.</p>
                 
                 $progressBar
@@ -413,17 +413,17 @@ try {
                 <p>Możesz wrócić do formularza dokładnie tam, gdzie skończyłeś:</p>
                 
                 <br>
-                <div style='background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 25px; margin-bottom: 25px;'>
-                    <p style='margin: 0 0 15px 0; font-size: 11px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 1px;'>Twoje zapisane odpowiedzi:</p>
+                <div style='{$EMAIL_STYLES['card']}'>
+                    <p style='margin: 0 0 15px 0; font-size: 11px; font-weight: 800; color: {$BRAND['gray']}; text-transform: uppercase; letter-spacing: 1px;'>Twoje zapisane odpowiedzi:</p>
                     $dataTable
                 </div>
 
-                <div style='background-color: #E0EFFF; border-radius: 12px; padding: 20px; margin-bottom: 25px;'>
-                    <p style='margin: 0; font-size: 14px; color: #3F3D91;'><strong>💡 Tip:</strong> Nawet jeśli nie zdążysz uzupełnić szczegółów, nasz konsultant skontaktuje się z Tobą wkrótce, aby pomóc w doprecyzowaniu wyceny.</p>
+                <div style='{$EMAIL_STYLES['tip']}'>
+                    <p style='margin: 0; font-size: 14px;'><strong>💡 Tip:</strong> Nawet jeśli nie zdążysz uzupełnić szczegółów, nasz konsultant skontaktuje się z Tobą wkrótce, aby pomóc w doprecyzowaniu wyceny.</p>
                 </div>
 
                 <p style='text-align: center; margin-bottom: 30px;'>
-                    <a href='https://calendar.app.google/atVivbU6qaL7KXPXA' target='_blank' style='color: #61B6DE; font-weight: bold; text-decoration: underline;'>Wolisz od razu umówić rozmowę? Kliknij tutaj.</a>
+                    <a href='https://calendar.app.google/atVivbU6qaL7KXPXA' target='_blank' style='color: {$BRAND['accent']}; font-weight: bold; text-decoration: underline;'>Wolisz od razu umówić rozmowę? Kliknij tutaj.</a>
                 </p>
             ";
             $html = getEmailTemplate($subject, $content, $ctaLink, "DOKOŃCZ ZGŁOSZENIE");
@@ -481,7 +481,7 @@ try {
                 $progressBar
                 $dataTable
                 <p style='text-align: center; margin-top: 20px;'>
-                    <a href='mailto:$email' style='color: #61B6DE; font-weight: bold;'>Odpowiedz bezpośrednio ($email)</a>
+                    <a href='mailto:$email' style='color: {$BRAND['accent']}; font-weight: bold;'>Odpowiedz bezpośrednio ($email)</a>
                 </p>
             ";
             

@@ -15,236 +15,195 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
-import Seo from '../common/Seo';
-import RelatedArticles from './RelatedArticles';
 import { ARTICLES } from '../../data/articles';
 import { DEVOPS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/devops';
+import ArticleShell from './ArticleShell';
 
 const DevOpsArticle = () => {
   const { openModal } = useModal();
   const articleData = ARTICLES.find((a) => a.id === 'devops-fundament-biznesu');
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-dark selection:bg-primary/30 font-sans">
-      <Seo
-        title={
-          articleData?.title ||
-          CONTENT.header.title.line1 + ' ' + CONTENT.header.title.line2 + ' | Mixture Marketing'
-        }
-        description={articleData?.description || CONTENT.header.subtitle}
-        image={articleData?.image}
-      />
+    <ArticleShell
+      id="devops-fundament-biznesu"
+      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      description={CONTENT.header.subtitle}
+      category="tech"
+      categoryLabel={CONTENT.header.badge}
+      image={articleData?.image || '/assets/images/devops.png'}
+      icon={InfinityIcon}
+      accentColor="#3B82F6"
+      heroVisual={<DevOpsMetropolisVisual />}
+    >
+      <AnimateOnScroll>
+        <p
+          className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-primary pl-6 py-2 bg-blue-50/30 rounded-r-xl"
+          dangerouslySetInnerHTML={{ __html: CONTENT.lead.highlight }}
+        />
+        <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text1 }} />
+        <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text2 }} />
+      </AnimateOnScroll>
 
-      <AmbientBackground />
+      {/* THE 4 PILLARS */}
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.pillars.title}
+          subtitle={CONTENT.pillars.subtitle}
+          align="left"
+        />
 
-      <div className="pt-12 pb-24 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          {/* Article Header */}
-          <header className="mb-16 mt-8 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-secondary text-xxs font-black uppercase tracking-widest mb-6">
-              <InfinityIcon size={12} /> {CONTENT.header.badge}
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-8 text-dark leading-[1.1] tracking-tight">
-              {CONTENT.header.title.line1} <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-primary to-secondary">
-                {CONTENT.header.title.line2}
-              </span>
-            </h1>
-
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-              {CONTENT.header.subtitle}
-            </p>
-          </header>
-
-          {/* Hero Visual - Digital Metropolis */}
-          <div className="mb-20">
-            <DevOpsMetropolisVisual />
-          </div>
-
-          <article className="prose prose-lg prose-slate max-w-none prose-headings:text-dark prose-headings:font-bold prose-p:text-gray-600 prose-a:text-secondary hover:prose-a:text-primary prose-strong:text-dark prose-li:text-gray-600">
-            <AnimateOnScroll>
-              <p
-                className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-primary pl-6 py-2 bg-blue-50/30 rounded-r-xl"
-                dangerouslySetInnerHTML={{ __html: CONTENT.lead.highlight }}
-              />
-              <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text1 }} />
-              <p dangerouslySetInnerHTML={{ __html: CONTENT.lead.text2 }} />
-            </AnimateOnScroll>
-
-            {/* THE 4 PILLARS */}
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.pillars.title}
-                subtitle={CONTENT.pillars.subtitle}
-                align="left"
-              />
-
-              <div className="space-y-12 mt-12 not-prose">
-                {CONTENT.pillars.items.map((pillar, i) => (
+        <div className="space-y-12 mt-12 not-prose">
+          {CONTENT.pillars.items.map((pillar, i) => (
+            <div
+              key={i}
+              className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 opacity-50"></div>
+              <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
+                <div
+                  className={`w-16 h-16 ${i === 0 ? 'bg-blue-100 text-blue-600' : i === 1 ? 'bg-indigo-100 text-indigo-600' : i === 2 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'} rounded-2xl flex items-center justify-center flex-shrink-0`}
+                >
+                  {i === 0 ? (
+                    <Container size={32} />
+                  ) : i === 1 ? (
+                    <Anchor size={32} />
+                  ) : i === 2 ? (
+                    <Cloud size={32} />
+                  ) : (
+                    <Workflow size={32} />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-dark mb-2">{pillar.title}</h3>
+                  <p
+                    className="text-gray-600 mb-4"
+                    dangerouslySetInnerHTML={{ __html: pillar.text }}
+                  />
                   <div
-                    key={i}
-                    className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group"
+                    className={`bg-${i === 0 ? 'blue' : i === 1 ? 'indigo' : i === 2 ? 'orange' : 'green'}-50 text-${i === 0 ? 'blue' : i === 1 ? 'indigo' : i === 2 ? 'orange' : 'green'}-700 px-4 py-2 rounded-lg text-sm font-bold inline-block`}
                   >
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 opacity-50"></div>
-                    <div className="relative z-10 flex flex-col md:flex-row gap-8 items-start">
-                      <div
-                        className={`w-16 h-16 ${i === 0 ? 'bg-blue-100 text-blue-600' : i === 1 ? 'bg-indigo-100 text-indigo-600' : i === 2 ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'} rounded-2xl flex items-center justify-center flex-shrink-0`}
-                      >
-                        {i === 0 ? (
-                          <Container size={32} />
-                        ) : i === 1 ? (
-                          <Anchor size={32} />
-                        ) : i === 2 ? (
-                          <Cloud size={32} />
-                        ) : (
-                          <Workflow size={32} />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-dark mb-2">{pillar.title}</h3>
-                        <p
-                          className="text-gray-600 mb-4"
-                          dangerouslySetInnerHTML={{ __html: pillar.text }}
-                        />
-                        <div
-                          className={`bg-${i === 0 ? 'blue' : i === 1 ? 'indigo' : i === 2 ? 'orange' : 'green'}-50 text-${i === 0 ? 'blue' : i === 1 ? 'indigo' : i === 2 ? 'orange' : 'green'}-700 px-4 py-2 rounded-lg text-sm font-bold inline-block`}
-                        >
-                          {pillar.role}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* FLOWCHART: THE SYNTHESIS */}
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.process.title}
-                subtitle={CONTENT.process.subtitle}
-                align="left"
-              />
-              <p>{CONTENT.process.text}</p>
-
-              <div className="my-12">
-                <DevOpsProcessVisual />
-              </div>
-            </div>
-
-            {/* MATURITY MODEL */}
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.maturity.title}
-                subtitle={CONTENT.maturity.subtitle}
-                align="left"
-              />
-              <p>{CONTENT.maturity.text}</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 not-prose">
-                {CONTENT.maturity.levels.map((level, i) => (
-                  <div
-                    key={i}
-                    className={`bg-white p-6 rounded-2xl border ${i === 1 ? 'border-primary shadow-xl transform md:-translate-y-4' : 'border-gray-100 shadow-sm hover:border-primary'} transition-colors relative overflow-hidden group`}
-                  >
-                    {i === 1 && (
-                      <div className="absolute right-4 top-4 bg-primary text-white text-xxxs font-black px-2 py-1 rounded uppercase tracking-widest">
-                        Polecane
-                      </div>
-                    )}
-                    <div
-                      className={`text-xs font-black uppercase ${i === 1 ? 'text-primary' : 'text-gray-400'} mb-2`}
-                    >
-                      {level.lvl}
-                    </div>
-                    <h3 className="text-xl font-bold text-dark mb-2">{level.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4 min-h-[40px]">{level.desc}</p>
-                    <ul className="space-y-2 text-sm">
-                      {level.features.map((feature, j) => (
-                        <li key={j} className="flex items-center gap-2">
-                          <CheckCircle2 size={16} className="text-green-500" /> {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* ROI */}
-            <div className="my-24 bg-blue-50 rounded-[3rem] p-10 border border-[#cce4ff] relative overflow-hidden">
-              <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/30 rounded-full blur-[60px]"></div>
-              <SectionHeader
-                title={CONTENT.roi.title}
-                subtitle={CONTENT.roi.subtitle}
-                align="left"
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8 not-prose">
-                {CONTENT.roi.items.map((item, i) => (
-                  <div key={i} className="flex gap-4 bg-white/50 p-6 rounded-2xl backdrop-blur-sm">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-blue-600 font-bold shadow-sm shrink-0">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-dark">{item.title}</h4>
-                      <p className="text-sm text-gray-600">{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="mt-32">
-              <AnimateOnScroll>
-                <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-                  <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600 rounded-full blur-[100px] opacity-20"></div>
-
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-500">
-                      <Settings size={40} className="text-white animate-spin-slow" />
-                    </div>
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">
-                      {CONTENT.cta.title}
-                    </h2>
-                    <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                      {CONTENT.cta.text}
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        className="shadow-xl shadow-primary/20 px-10"
-                        onClick={() => openModal('consultation')}
-                      >
-                        {CONTENT.cta.primaryBtn}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10"
-                        size="lg"
-                        onClick={() => (window.location.href = '/baza-wiedzy')}
-                      >
-                        {CONTENT.cta.secondaryBtn}
-                      </Button>
-                    </div>
+                    {pillar.role}
                   </div>
                 </div>
-              </AnimateOnScroll>
+              </div>
             </div>
-
-            <RelatedArticles
-              currentArticleId="devops-fundament-nowoczesnego-biznesu"
-              category="tech"
-            />
-          </article>
+          ))}
         </div>
       </div>
-    </div>
+
+      {/* FLOWCHART: THE SYNTHESIS */}
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.process.title}
+          subtitle={CONTENT.process.subtitle}
+          align="left"
+        />
+        <p>{CONTENT.process.text}</p>
+
+        <div className="my-12">
+          <DevOpsProcessVisual />
+        </div>
+      </div>
+
+      {/* MATURITY MODEL */}
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.maturity.title}
+          subtitle={CONTENT.maturity.subtitle}
+          align="left"
+        />
+        <p>{CONTENT.maturity.text}</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 not-prose">
+          {CONTENT.maturity.levels.map((level, i) => (
+            <div
+              key={i}
+              className={`bg-white p-6 rounded-2xl border ${i === 1 ? 'border-primary shadow-xl transform md:-translate-y-4' : 'border-gray-100 shadow-sm hover:border-primary'} transition-colors relative overflow-hidden group`}
+            >
+              {i === 1 && (
+                <div className="absolute right-4 top-4 bg-primary text-white text-xxxs font-black px-2 py-1 rounded uppercase tracking-widest">
+                  Polecane
+                </div>
+              )}
+              <div
+                className={`text-xs font-black uppercase ${i === 1 ? 'text-primary' : 'text-gray-400'} mb-2`}
+              >
+                {level.lvl}
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-2">{level.title}</h3>
+              <p className="text-sm text-gray-600 mb-4 min-h-[40px]">{level.desc}</p>
+              <ul className="space-y-2 text-sm">
+                {level.features.map((feature, j) => (
+                  <li key={j} className="flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-green-500" /> {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ROI */}
+      <div className="my-24 bg-blue-50 rounded-[3rem] p-10 border border-[#cce4ff] relative overflow-hidden">
+        <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/30 rounded-full blur-[60px]"></div>
+        <SectionHeader title={CONTENT.roi.title} subtitle={CONTENT.roi.subtitle} align="left" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-8 not-prose">
+          {CONTENT.roi.items.map((item, i) => (
+            <div key={i} className="flex gap-4 bg-white/50 p-6 rounded-2xl backdrop-blur-sm">
+              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-blue-600 font-bold shadow-sm shrink-0">
+                {i + 1}
+              </div>
+              <div>
+                <h4 className="font-bold text-dark">{item.title}</h4>
+                <p className="text-sm text-gray-600">{item.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="mt-32">
+        <AnimateOnScroll>
+          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600 rounded-full blur-[100px] opacity-20"></div>
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-500">
+                <Settings size={40} className="text-white animate-spin-slow" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white tracking-tight">
+                {CONTENT.cta.title}
+              </h2>
+              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
+                {CONTENT.cta.text}
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="shadow-xl shadow-primary/20 px-10"
+                  onClick={() => openModal('consultation')}
+                >
+                  {CONTENT.cta.primaryBtn}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10"
+                  size="lg"
+                  onClick={() => (window.location.href = '/baza-wiedzy')}
+                >
+                  {CONTENT.cta.secondaryBtn}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </AnimateOnScroll>
+      </div>
+    </ArticleShell>
   );
 };
 

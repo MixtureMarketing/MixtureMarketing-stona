@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import {
-  ArrowLeft,
   Palette,
   Fingerprint,
-  ArrowRight,
   Wand2,
   Monitor,
   Layout,
@@ -16,26 +14,27 @@ import {
   PenTool,
   Scale,
   Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
 import LazyHydrate from '../common/LazyHydrate';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../data/content';
-import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
+import RelatedArticles from '../articles/RelatedArticles';
 
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
+import StandardFaq from '../common/StandardFaq';
 import { DesignHeroVisual } from '../visuals/HeroVisuals';
 
 const DesignBranding: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
 
+  // ... (rest of the component logic remains same)
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -159,7 +158,7 @@ const DesignBranding: React.FC = () => {
       </section>
 
       {/* --- DESIGN ECOSYSTEM (NEW) --- */}
-      <section className="py-28 bg-[#F9FAFB] relative z-10 overflow-hidden">
+      <section className="py-28 bg-light-gray relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
 
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -400,7 +399,7 @@ const DesignBranding: React.FC = () => {
       </section>
 
       {/* --- ROI OF DESIGN --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden">
+      <section className="py-24 bg-light-gray relative overflow-hidden">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
             {CONTENT.roi.items.map((item, i) => {
@@ -424,8 +423,16 @@ const DesignBranding: React.FC = () => {
 
       {/* --- RELATED ARTICLES --- */}
       <LazyHydrate minHeight="600px">
-        <ServiceRelatedArticles category="design" />
+        <RelatedArticles category="design" layout="service" />
       </LazyHydrate>
+
+      {/* --- FAQ SECTION --- */}
+      <section className="py-24 bg-white relative z-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <SectionHeader title="Najczęstsze pytania" className="mb-12" />
+          <StandardFaq items={CONTENT.faqs} />
+        </div>
+      </section>
 
       {/* --- CTA --- */}
       <StandardCta

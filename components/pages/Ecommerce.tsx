@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   ShoppingCart,
   CreditCard,
   Truck,
@@ -21,9 +20,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { useModal } from '../../context/ModalContext';
@@ -31,13 +28,16 @@ import { ECOMMERCE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardHero from '../common/StandardHero';
+import StandardCta from '../common/StandardCta';
+import StandardFaq from '../common/StandardFaq';
+import { PricingSectionData, PricingTier } from '../../types';
 
 const Ecommerce: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
   const [pipelineStep, setPipelineStep] = useState(0);
 
-  // Configurator State
+  // ... (rest of the component logic)
   const [configColor] = useState<'red' | 'blue' | 'black' | 'emerald'>('black');
   const [configMaterial] = useState<'mesh' | 'leather'>('mesh');
   const [configHeadrest] = useState<boolean>(true);
@@ -115,8 +115,8 @@ const Ecommerce: React.FC = () => {
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
-        accentGradientFrom="[#00C853]"
-        accentGradientTo="secondary"
+        accentGradientFrom="#00C853"
+        accentGradientTo="#3F3D91"
         visual={
           <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 transform rotate-1 hover:rotate-0 transition-all duration-500">
             <div className="flex justify-between items-center mb-8">
@@ -165,7 +165,7 @@ const Ecommerce: React.FC = () => {
               ))}
             </div>
 
-            <div className="bg-[#F9FAFB] rounded-xl p-4 font-mono text-xs text-gray-700 space-y-3 border border-gray-100 shadow-inner">
+            <div className="bg-light-gray rounded-xl p-4 font-mono text-xs text-gray-700 space-y-3 border border-gray-100 shadow-inner">
               <div
                 className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 0 ? 'opacity-100' : 'opacity-20'}`}
               >
@@ -175,8 +175,8 @@ const Ecommerce: React.FC = () => {
               <div
                 className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 1 ? 'opacity-100' : 'opacity-20'}`}
               >
-                <span className="text-success font-bold">[10:42:05]</span> Płatność BLIK zatwierdzona
-                (PayU)
+                <span className="text-success font-bold">[10:42:05]</span> Płatność BLIK
+                zatwierdzona (PayU)
               </div>
               <div
                 className={`flex items-center gap-2 transition-opacity duration-500 ${pipelineStep >= 2 ? 'opacity-100' : 'opacity-20'}`}
@@ -199,7 +199,6 @@ const Ecommerce: React.FC = () => {
       {/* --- AUTOMATION HUB (BASELINKER) --- */}
       <LazyHydrate minHeight="600px">
         <section id="automation" className="py-24 bg-white relative z-10 overflow-hidden">
-          {/* ... (Animation content remains the same) ... */}
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
               title={CONTENT.automation.title}
@@ -334,8 +333,7 @@ const Ecommerce: React.FC = () => {
 
       {/* --- ADVANCED CONFIGURATORS (NEW) --- */}
       <LazyHydrate minHeight="600px">
-        <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
-          {/* ... (Configurator visual code remains same) ... */}
+        <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="flex flex-col lg:flex-row gap-16 items-center">
               {/* Left: Text */}
@@ -382,12 +380,9 @@ const Ecommerce: React.FC = () => {
               <div className="lg:w-1/2 w-full flex justify-center">
                 <AnimateOnScroll delay={200}>
                   <div className="bg-white rounded-[2rem] shadow-2xl p-6 md:p-8 w-full max-w-xl text-dark relative overflow-hidden flex flex-col md:flex-row gap-8 border border-gray-100">
-                    {/* ... (Visualization Area - unchanged) ... */}
                     <div className="flex-1 flex flex-col min-h-[550px]">
                       <div className="flex-1 bg-gray-50 rounded-2xl relative overflow-hidden flex items-center justify-center border border-gray-200 group/viz shadow-inner mb-6">
-                        {/* (SVG chair visualization code - abbreviated for brevity as it's purely visual) */}
                         <div className="w-full h-full p-8 md:p-12 flex items-center justify-center transition-all duration-700 transform group-hover/viz:scale-105">
-                          {/* Chair SVG Placeholder - Assuming existing SVG code is preserved */}
                           <svg
                             viewBox="0 0 100 140"
                             className="max-w-full max-h-full drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)]"
@@ -457,7 +452,6 @@ const Ecommerce: React.FC = () => {
                           </svg>
                         </div>
                       </div>
-                      {/* ... (Specs summary - unchanged) ... */}
                     </div>
 
                     {/* Controls Area (Right in desktop) */}
@@ -482,8 +476,6 @@ const Ecommerce: React.FC = () => {
                       </div>
 
                       <div className="space-y-6 flex-grow overflow-y-auto pr-2 custom-scrollbar max-h-[350px]">
-                        {/* ... (Color picker, Material, Add-ons - unchanged) ... */}
-                        {/* Only showing Button update here for brevity */}
                         <div className="mt-8">
                           <button
                             onClick={() => openModal('consultation', { specificType: 'ecommerce' })}
@@ -508,10 +500,8 @@ const Ecommerce: React.FC = () => {
 
       {/* --- UX & CONVERSION BOOSTERS --- */}
       <LazyHydrate minHeight="400px">
-        <section className="py-24 bg-[#F9FAFB] relative overflow-hidden">
-          {/* ... (Content same as before) ... */}
+        <section className="py-24 bg-light-gray relative overflow-hidden">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* ... (Section Header) ... */}
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
               <div className="max-w-2xl">
                 <SectionHeader
@@ -544,9 +534,7 @@ const Ecommerce: React.FC = () => {
                 return (
                   <AnimateOnScroll key={i} delay={i * 100} className="h-full">
                     <GlassCard className="p-8 h-full bg-white group hover:border-secondary transition-colors flex flex-col">
-                      {/* ... (Visual Mockups - same as original) ... */}
                       <div className="mb-6 bg-gray-50 rounded-lg p-4 relative overflow-hidden border border-gray-100 min-h-[140px] flex flex-col justify-center">
-                        {/* Visuals abbreviated */}
                         {i === 0 && (
                           <div className="flex items-center bg-white rounded border border-gray-200 px-3 py-2 text-xs text-gray-800 mb-2 shadow-sm">
                             {icons[0]} Buty spor...
@@ -576,23 +564,18 @@ const Ecommerce: React.FC = () => {
 
       {/* --- SEO & TECHNICAL EXCELLENCE --- */}
       <LazyHydrate minHeight="600px">
-        <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
-          {/* ... (Content same as before) ... */}
+        <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* ... */}
             <div className="flex flex-col lg:flex-row gap-16 items-center">
               <div className="lg:w-1/2">
                 <AnimateOnScroll>
-                  {/* ... (Text content) ... */}
                   <h2 className="text-3xl md:text-4xl font-bold mb-6">
                     {CONTENT.seoTechnical.title.line1} <br />
                     {CONTENT.seoTechnical.title.line2}{' '}
                     <span className="text-success">{CONTENT.seoTechnical.title.line3}</span>
                   </h2>
-                  {/* ... */}
                 </AnimateOnScroll>
               </div>
-              {/* ... (Visual Mockup) ... */}
             </div>
           </div>
         </section>
@@ -601,17 +584,12 @@ const Ecommerce: React.FC = () => {
       {/* --- COMPARISON: OWNERSHIP VS RENT --- */}
       <LazyHydrate minHeight="400px">
         <section className="py-24 bg-white relative z-10">
-          {/* ... (Comparison tables - same logic) ... */}
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
               title={CONTENT.ownership.title}
               description={CONTENT.ownership.description}
               className="mb-16"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {/* SaaS & Woo Columns */}
-              {/* Abbreviated for update */}
-            </div>
           </div>
         </section>
       </LazyHydrate>
@@ -626,6 +604,14 @@ const Ecommerce: React.FC = () => {
           />
         </LazyHydrate>
       )}
+
+      {/* --- FAQ --- */}
+      <section className="py-24 bg-white relative z-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionHeader title="Najczęstsze pytania" className="mb-12" />
+          <StandardFaq items={CONTENT.faqs} />
+        </div>
+      </section>
 
       {/* --- CTA --- */}
       <StandardCta

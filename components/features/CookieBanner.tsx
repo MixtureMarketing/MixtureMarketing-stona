@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Cookie,
   Check,
@@ -36,6 +36,7 @@ const CookieBanner: React.FC = () => {
     analytics: false,
     marketing: false,
   });
+  const bannerRef = useRef<HTMLDivElement>(null);
 
   const applyConsent = (consent: ConsentState) => {
     const consentSettings = {
@@ -85,6 +86,58 @@ const CookieBanner: React.FC = () => {
     }
   }, []);
 
+  // Focus trap logic
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+
+      if (e.key === 'Tab' && bannerRef.current) {
+        const focusableSelector =
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+        const focusableElements = bannerRef.current.querySelectorAll(focusableSelector);
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0] as HTMLElement;
+        const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey) {
+          if (
+            document.activeElement === firstElement ||
+            document.activeElement === bannerRef.current
+          ) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Focus first element or banner itself
+    const timer = setTimeout(() => {
+      const focusable = bannerRef.current?.querySelector('button, [href], input');
+      if (focusable instanceof HTMLElement) {
+        focusable.focus();
+      } else {
+        bannerRef.current?.focus();
+      }
+    }, 100);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(timer);
+    };
+  }, [isOpen]);
+
   const handleAcceptAll = () => {
     const fullConsent = { analytics: true, marketing: true };
     setPreferences(fullConsent);
@@ -132,7 +185,13 @@ const CookieBanner: React.FC = () => {
 
   // FULL BANNER STATE
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-fade-in-up">
+    <div
+      ref={bannerRef}
+      className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-fade-in-up"
+      role="complementary"
+      aria-label="Baner plików cookies"
+      tabIndex={-1}
+    >
       <div className="max-w-screen-lg mx-auto bg-white/95 backdrop-blur-md border border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden relative">
         {/* Close Button (X) */}
         <button

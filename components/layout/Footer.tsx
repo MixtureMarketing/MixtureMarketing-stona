@@ -165,7 +165,7 @@ const Footer: React.FC = () => {
                 href={SITE_CONFIG.social.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="LinkedIn"
+                aria-label="Odwiedź nasz profil na LinkedIn"
                 className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#0077b5] hover:shadow-[0_0_20px_rgba(0,119,181,0.4)] transition-all group"
               >
                 <Linkedin size={20} className="group-hover:scale-110 transition-transform" />
@@ -174,7 +174,7 @@ const Footer: React.FC = () => {
                 href={SITE_CONFIG.social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Facebook"
+                aria-label="Odwiedź nasz profil na Facebooku"
                 className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#1877f2] hover:shadow-[0_0_20px_rgba(24,119,242,0.4)] transition-all group"
               >
                 <Facebook size={20} className="group-hover:scale-110 transition-transform" />
@@ -183,7 +183,7 @@ const Footer: React.FC = () => {
                 href={SITE_CONFIG.social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
+                aria-label="Obserwuj nas na Instagramie"
                 className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#e1306c] hover:shadow-[0_0_20px_rgba(225,48,108,0.4)] transition-all group"
               >
                 <Instagram size={20} className="group-hover:scale-110 transition-transform" />
@@ -192,7 +192,7 @@ const Footer: React.FC = () => {
                 href={SITE_CONFIG.social.tiktok}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="TikTok"
+                aria-label="Obserwuj nas na TikToku"
                 className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-[#000000] hover:shadow-[0_0_20px_rgba(0,0,0,0.4)] transition-all group"
               >
                 <TikTokIcon size={20} className="group-hover:scale-110 transition-transform" />

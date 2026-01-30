@@ -40,9 +40,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
   const { openModal } = useModal();
   const navigate = useNavigate();
 
-  const fetcher = mode === 'industry' 
-    ? cmsService.getIndustryBySlug 
-    : cmsService.getLocationBySlug;
+  const fetcher = mode === 'industry' ? cmsService.getIndustryBySlug : cmsService.getLocationBySlug;
 
   const { data, loading, error } = usePseoData<SanityIndustry | SanityLocation>(slug, fetcher);
 
@@ -74,8 +72,8 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
   }
 
   // Type Guards
-  const isIndustry = (item: any): item is SanityIndustry => mode === 'industry';
-  const isLocation = (item: any): item is SanityLocation => mode === 'location';
+  const isIndustry = (item: unknown): item is SanityIndustry => mode === 'industry';
+  const isLocation = (item: unknown): item is SanityLocation => mode === 'location';
 
   return (
     <div className="min-h-screen bg-gray-50 text-dark">
@@ -88,6 +86,15 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
               ? urlFor(data.heroImage).width(1200).url()
               : '/assets/images/sygnet.png'
           }
+          breadcrumbs={[
+            { name: 'Strona Główna', item: '/' },
+            { name: `Branża: ${data.name}`, item: `/branza/${slug}` },
+          ]}
+          service={{
+            name: `Usługi IT i Marketingowe dla ${data.forWho}`,
+            description: `Dedykowane rozwiązania technologiczne i strategie wzrostu skrojone pod specyfikę branży ${data.name}.`,
+            serviceType: 'IT & Marketing Consulting',
+          }}
         />
       ) : (
         <Seo
@@ -97,6 +104,15 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
             `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }
           lcpImage="/assets/images/sygnet.png"
+          breadcrumbs={[
+            { name: 'Strona Główna', item: '/' },
+            { name: `Marketing i Strony WWW ${data.city}`, item: `/miasto/${slug}` },
+          ]}
+          service={{
+            name: `Marketing i Software House ${data.city}`,
+            description: `Kompleksowa obsługa technologiczna i reklamowa dla firm z lokalizacji: ${data.city} i okolic.`,
+            areaServed: data.city,
+          }}
         />
       )}
 
@@ -227,7 +243,8 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                     <div>
                       <h2 className="text-3xl font-bold mb-6">Wymagania Techniczne</h2>
                       <p className="text-gray-600 mb-8 text-lg">
-                        Twoja branża wymaga specjalistycznych narzędzi. Nasze rozwiązania są gotowe na:
+                        Twoja branża wymaga specjalistycznych narzędzi. Nasze rozwiązania są gotowe
+                        na:
                       </p>
                       <ul className="space-y-4">
                         {data.techRequirements.map((req, index) => (

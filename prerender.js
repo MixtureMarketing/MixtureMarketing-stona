@@ -7,9 +7,12 @@ import { routes } from './routes.js';
 import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
-import dotenv from 'dotenv';
 
-dotenv.config();
+try {
+  process.loadEnvFile();
+} catch (e) {
+  // .env might not exist
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
@@ -57,8 +60,7 @@ async function processRoute(browser, critters, route) {
     // Optimization: Intercept and abort unnecessary requests
     await page.setRequestInterception(true);
     page.on('request', (req) => {
-      const resourceType = req.resourceType();
-      if (['image', 'media', 'font'].includes(resourceType)) {
+      if (['image', 'media', 'font'].includes(req.resourceType())) {
         req.abort();
       } else {
         req.continue();
@@ -66,38 +68,35 @@ async function processRoute(browser, critters, route) {
     });
 
     const url = `http://localhost:${PORT}${route}`;
-    // console.log(`⏳ Processing: ${route}`);
-
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
     await page.waitForSelector('#root', { timeout: 90000 });
-    // Allow small delay for hydration/rendering final touches (Helmet etc.)
+
+    // Small delay for final hydration touches
     await new Promise((r) => setTimeout(r, 1000));
+
+    // Error detection
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
+      throw new Error(`React Error Boundary triggered on ${route}`);
+    }
 
     let html = await page.content();
     try {
       html = await critters.process(html);
     } catch (crittersError) {
       console.error(`⚠️ Critters error on ${route}:`, crittersError.message);
-      // Proceed with unoptimized HTML if Critters fails
     }
 
     // Calculate file path
-    let filePath;
-    if (route === '/') {
-      filePath = path.join(DIST_DIR, 'index.html');
-    } else {
-      // Remove leading/trailing slashes for path construction
-      const cleanRoute = route.replace(/^\/|\/$/g, '');
-      const routeDir = path.join(DIST_DIR, cleanRoute);
+    const cleanRoute = route === '/' ? '' : route.replace(/^\/|\/$/g, '');
+    const routeDir = path.join(DIST_DIR, cleanRoute);
+    const filePath = path.join(routeDir, 'index.html');
 
-      if (!fs.existsSync(routeDir)) {
-        fs.mkdirSync(routeDir, { recursive: true });
-      }
-      filePath = path.join(routeDir, 'index.html');
+    if (!fs.existsSync(routeDir)) {
+      fs.mkdirSync(routeDir, { recursive: true });
     }
 
     fs.writeFileSync(filePath, html);
-    // console.log(`✅ Prerendered & Optimized: ${route} -> ${filePath}`);
     console.log(`✅ Prerendered & Optimized: ${route}`);
   } catch (err) {
     console.error(`❌ Failed to prerender ${route}:`, err.message);
@@ -142,50 +141,6 @@ async function prerender() {
       reduceInlineStyles: true,
     });
 
-    // Custom processRoute with error checking
-    const processRouteWithCheck = async (browser, critters, route) => {
-      const page = await browser.newPage();
-      try {
-        await page.setViewport({ width: 1280, height: 800 });
-
-        await page.evaluateOnNewDocument(() => {
-          window.isPrerendering = true;
-        });
-
-        await page.setRequestInterception(true);
-        page.on('request', (req) => {
-          if (['image', 'media', 'font'].includes(req.resourceType())) req.abort();
-          else req.continue();
-        });
-
-        await page.goto(`http://localhost:${PORT}${route}`, {
-          waitUntil: 'networkidle0',
-          timeout: 90000,
-        });
-        await page.waitForSelector('#root', { timeout: 90000 });
-        await new Promise((r) => setTimeout(r, 1000));
-
-        const bodyText = await page.evaluate(() => document.body.innerText);
-        if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
-          throw new Error(`React Error Boundary triggered on ${route}`);
-        }
-
-        let html = await page.content();
-        html = await critters.process(html);
-
-        let filePath =
-          route === '/'
-            ? path.join(DIST_DIR, 'index.html')
-            : path.join(DIST_DIR, route.replace(/^\/|\/$/g, ''), 'index.html');
-        if (route !== '/') fs.mkdirSync(path.dirname(filePath), { recursive: true });
-
-        fs.writeFileSync(filePath, html);
-        console.log(`✅ Prerendered & Optimized: ${route}`);
-      } finally {
-        await page.close();
-      }
-    };
-
     // 5. Process Routes in Batches (Parallel)
     console.log('🔄 Fetching dynamic routes from Sanity...');
     let dynamicRoutes = [];
@@ -219,7 +174,7 @@ async function prerender() {
     const next = async () => {
       while (queue.length > 0) {
         const route = queue.shift();
-        if (route) await processRouteWithCheck(browser, critters, route);
+        if (route) await processRoute(browser, critters, route);
       }
     };
 

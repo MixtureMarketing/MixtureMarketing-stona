@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { contactSchema } from '../../types/validation';
 import Modal from '../common/Modal';
 import { useModal } from '../../context/ModalContext';
 import { leadService, LeadBase, Lead } from '../../services/leadService';
@@ -55,7 +57,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
     handleSubmit,
     reset,
     trigger,
-  } = useForm<ContactFormData>();
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    mode: 'onTouched',
+  });
 
   // Determine specific config based on additionalData.specificType
   const specificType = additionalData?.specificType as string | undefined;

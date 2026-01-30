@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   PenTool,
   BookOpen,
-  Target,
   Fingerprint,
   Award,
   CheckCircle2,
-  ArrowRight,
   Grid,
   Zap,
   Move,
@@ -16,7 +13,6 @@ import {
   Share2,
   Briefcase,
   ShieldCheck,
-  ChevronDown,
   FileBox,
   Users,
   MessageSquare,
@@ -25,13 +21,11 @@ import {
   Box,
   Download,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
+import StandardFaq from '../common/StandardFaq';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../data/content';
 
 import StandardHero from '../common/StandardHero';
@@ -40,18 +34,13 @@ import { UiUxHeroVisual } from '../visuals/HeroVisuals';
 
 const BrandIdentity: React.FC = () => {
   const [activeArchetype, setActiveArchetype] = useState<'sage' | 'rebel' | 'ruler'>('sage');
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [dna, setDna] = useState({ style: 50, energy: 50, weight: 50 });
 
-  const navigate = useNavigate();
   const { openModal } = useModal();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   // SEO Schema
   const structuredData = {
@@ -423,7 +412,7 @@ const BrandIdentity: React.FC = () => {
       </section>
 
       {/* --- ARCHETYPE EXPLORER --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative z-10 overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -545,7 +534,7 @@ const BrandIdentity: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[240px]">
             {/* DIGITAL - LARGE FEATURE CARD */}
             <AnimateOnScroll className="md:col-span-2 md:row-span-2">
-              <div className="group relative h-full bg-[#0B1120] rounded-[2.5rem] p-10 overflow-hidden border border-white/10 transition-all duration-500 hover:shadow-2xl hover:border-primary/50">
+              <div className="group relative h-full bg-deep-dark rounded-[2.5rem] p-10 overflow-hidden border border-white/10 transition-all duration-500 hover:shadow-2xl hover:border-primary/50">
                 <div className="absolute inset-0 bg-tech-grid opacity-20 group-hover:opacity-40 transition-opacity"></div>
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
 
@@ -597,7 +586,7 @@ const BrandIdentity: React.FC = () => {
 
             {/* PRINT - CLEAN MINIMAL CARD */}
             <AnimateOnScroll delay={200}>
-              <div className="group relative h-full bg-[#F9FAFB] rounded-[2.5rem] p-8 overflow-hidden border border-gray-100 transition-all duration-500 hover:bg-white hover:shadow-xl hover:border-dark/20">
+              <div className="group relative h-full bg-light-gray rounded-[2.5rem] p-8 overflow-hidden border border-gray-100 transition-all duration-500 hover:bg-white hover:shadow-xl hover:border-dark/20">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-5"></div>
 
                 <div className="relative z-10 flex flex-col h-full">
@@ -723,33 +712,7 @@ const BrandIdentity: React.FC = () => {
       <section className="py-24 bg-white relative z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader title="Pytania o Branding" className="mb-12" />
-
-          <div className="space-y-4">
-            {CONTENT.faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-gray-100 rounded-2xl overflow-hidden bg-[#F9FAFB]"
-              >
-                <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition-colors"
-                >
-                  <span className="font-bold text-dark text-lg pr-4">{faq.q}</span>
-                  <ChevronDown
-                    size={20}
-                    className={`text-primary transition-transform duration-300 shrink-0 ${openFaq === i ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 
@@ -759,8 +722,8 @@ const BrandIdentity: React.FC = () => {
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
         icon={Briefcase}
-        onClick={() => openModal('branding')}
-        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+        onClick={() => openModal('design', { specificType: 'branding' })}
+        bgClassName="bg-light-gray border-t border-gray-100"
       />
     </div>
   );

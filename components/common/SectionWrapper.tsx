@@ -1,0 +1,54 @@
+import React from 'react';
+
+interface SectionWrapperProps {
+  children: React.ReactNode;
+  id?: string;
+  className?: string;
+  containerClassName?: string;
+  variant?: 'white' | 'gray' | 'light-gray' | 'dark' | 'none';
+  padding?: 'none' | 'sm' | 'base' | 'lg';
+  overflow?: boolean;
+}
+
+/**
+ * A universal wrapper for page sections to ensure consistent spacing and themes.
+ */
+const SectionWrapper: React.FC<SectionWrapperProps> = ({
+  children,
+  id,
+  className = '',
+  containerClassName = '',
+  variant = 'white',
+  padding = 'base',
+  overflow = true,
+}) => {
+  const bgClasses = {
+    white: 'bg-white',
+    gray: 'bg-light-gray',
+    'light-gray': 'bg-light-gray',
+    dark: 'bg-deep-dark text-white',
+    none: '',
+  };
+
+  const paddingClasses = {
+    none: 'py-0',
+    sm: 'py-12 md:py-16',
+    base: 'py-20 md:py-24',
+    lg: 'py-24 md:py-32',
+  };
+
+  return (
+    <section
+      id={id}
+      className={`relative ${bgClasses[variant]} ${paddingClasses[padding]} ${overflow ? 'overflow-hidden' : ''} ${className}`}
+    >
+      <div
+        className={`max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 ${containerClassName}`}
+      >
+        {children}
+      </div>
+    </section>
+  );
+};
+
+export default SectionWrapper;

@@ -2,11 +2,23 @@ import React, { useEffect, useState } from 'react';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import PricingTable from '../common/PricingTable';
+import SectionHeader from '../common/SectionHeader';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
 import { SeoHeroVisual } from '../visuals/HeroVisuals';
-import { TrendingUp, Crosshair } from 'lucide-react';
+import { TrendingUp, Crosshair, Globe } from 'lucide-react';
+import { useModal } from '../../context/ModalContext';
+import { PricingSectionData, PricingTier } from '../../types';
+import { cmsService } from '../../services/cmsService';
+import { SEO_CONTENT as CONTENT } from '../../data/content';
+import SeoLocalSection from '../features/seo/SeoLocalSection';
+import SeoContentIntelligence from '../features/seo/SeoContentIntelligence';
+import SeoTechnicalSection from '../features/seo/SeoTechnicalSection';
+import SeoRoadmap from '../features/seo/SeoRoadmap';
+import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
+import StandardFaq from '../common/StandardFaq';
+import RelatedArticles from '../articles/RelatedArticles';
 
 const MarketingSeo: React.FC = () => {
   const { openModal } = useModal();
@@ -42,7 +54,6 @@ const MarketingSeo: React.FC = () => {
           serviceType: 'SEO Optimization',
           areaServed: 'Poland',
         }}
-        faq={CONTENT.faqs.map((f) => ({ question: f.q, answer: f.a }))}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Marketing', item: '/marketing' },
@@ -73,28 +84,28 @@ const MarketingSeo: React.FC = () => {
         />
       </div>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="700px">
         <SeoLocalSection />
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="800px">
         <SeoContentIntelligence />
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="900px">
         <SeoTechnicalSection />
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="1000px">
         <SeoRoadmap />
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="600px">
         <SeoRoiCalculator />
       </LazyHydrate>
 
       {pricingData && (
-        <LazyHydrate whenVisible>
+        <LazyHydrate minHeight="800px">
           <PricingTable
             title={pricingData.title}
             description={pricingData.description}
@@ -103,15 +114,20 @@ const MarketingSeo: React.FC = () => {
         </LazyHydrate>
       )}
 
-      <LazyHydrate whenVisible>
-        <SeoFaq />
+      <LazyHydrate minHeight="600px">
+        <section className="py-24 bg-light-gray">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Pytania o Pozycjonowanie" className="mb-12" />
+            <StandardFaq items={CONTENT.faqs} />
+          </div>
+        </section>
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="600px">
         <RelatedArticles currentSlug="seo" category="Marketing" />
       </LazyHydrate>
 
-      <LazyHydrate whenVisible>
+      <LazyHydrate minHeight="400px">
         <StandardCta
           title={CONTENT.cta.title}
           description={CONTENT.cta.description}

@@ -34,26 +34,32 @@ const StandardHero: React.FC<StandardHeroProps> = ({
   backLinkPath,
   backLinkLabel,
   visual,
-  accentGradientFrom = 'primary',
-  accentGradientTo = 'secondary',
+  accentGradientFrom = '#3F3D91',
+  accentGradientTo = '#61B6DE',
 }) => {
   const navigate = useNavigate();
 
   const renderTitle = () => {
     if (typeof title === 'string') return title;
+    const t = title || { line1: '', line2: '' };
     return (
       <>
-        {title.line1} <br />
-        <span className={`text-transparent bg-clip-text bg-gradient-to-r from-${accentGradientFrom} to-${accentGradientTo}`}>
-          {title.line2}
+        {t.line1} <br />
+        <span
+          className="text-transparent bg-clip-text"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${accentGradientFrom}, ${accentGradientTo})`,
+          }}
+        >
+          {t.line2}
         </span>
-        {title.accent && <span className="block text-primary">{title.accent}</span>}
+        {t.accent && <span className="block text-primary">{t.accent}</span>}
       </>
     );
   };
 
   return (
-    <section className="relative py-20 lg:py-28 bg-[#F9FAFB] overflow-hidden">
+    <section className="relative py-20 lg:py-28 bg-light-gray overflow-hidden">
       <AmbientBackground />
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -73,20 +79,30 @@ const StandardHero: React.FC<StandardHeroProps> = ({
               <BadgeIcon size={14} /> {badge}
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-tight animate-fade-in-up">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-[1.1] animate-fade-in-up break-words">
               {renderTitle()}
             </h1>
 
-            <p className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <p
+              className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up"
+              style={{ animationDelay: '0.1s' }}
+            >
               {description}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="flex flex-col sm:flex-row gap-4 animate-fade-in-up"
+              style={{ animationDelay: '0.2s' }}
+            >
               <Button onClick={ctaPrimaryOnClick} icon={<ArrowRight size={18} />}>
                 {ctaPrimaryText}
               </Button>
               {ctaSecondaryText && ctaSecondaryOnClick && (
-                <Button variant="secondary" onClick={ctaSecondaryOnClick} icon={CtaSecondaryIcon && <CtaSecondaryIcon size={18} />}>
+                <Button
+                  variant="secondary"
+                  onClick={ctaSecondaryOnClick}
+                  icon={CtaSecondaryIcon && <CtaSecondaryIcon size={18} />}
+                >
                   {ctaSecondaryText}
                 </Button>
               )}
@@ -94,7 +110,10 @@ const StandardHero: React.FC<StandardHeroProps> = ({
           </div>
 
           {visual && (
-            <div className="lg:w-1/2 w-full relative animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="lg:w-1/2 w-full relative animate-fade-in-up"
+              style={{ animationDelay: '0.3s' }}
+            >
               {visual}
             </div>
           )}

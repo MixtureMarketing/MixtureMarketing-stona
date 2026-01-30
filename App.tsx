@@ -158,18 +158,9 @@ const Home = () => {
 
       <Suspense fallback={<div className="h-screen" />}>
         <Services />
-
-        <LazyHydrate minHeight="600px">
-          <WhyUs />
-        </LazyHydrate>
-
-        <LazyHydrate minHeight="400px">
-          <LeadMagnet />
-        </LazyHydrate>
-
-        <LazyHydrate minHeight="600px">
-          <KnowledgeBaseTeaser />
-        </LazyHydrate>
+        <WhyUs />
+        <LeadMagnet />
+        <KnowledgeBaseTeaser />
       </Suspense>
     </>
   );

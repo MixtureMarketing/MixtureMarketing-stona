@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import PseoTemplate from '../../components/templates/pseo/PseoTemplate';
-import { cmsService } from '../../services/cmsService';
+import { cmsService, SanityIndustry } from '../../services/cmsService';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ModalProvider } from '../../context/ModalContext';
 import { HelmetProvider } from 'react-helmet-async';
@@ -30,7 +30,9 @@ describe('PseoTemplate', () => {
   });
 
   it('renders industry data correctly', async () => {
-    (cmsService.getIndustryBySlug as any).mockResolvedValue(mockIndustry);
+    vi.mocked(cmsService.getIndustryBySlug).mockResolvedValue(
+      mockIndustry as unknown as SanityIndustry,
+    );
 
     render(
       <HelmetProvider>
@@ -41,13 +43,16 @@ describe('PseoTemplate', () => {
             </Routes>
           </ModalProvider>
         </MemoryRouter>
-      </HelmetProvider>
+      </HelmetProvider>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(/Branża:/i)).toBeInTheDocument();
-      expect(screen.getAllByText(/E-commerce/i)[0]).toBeInTheDocument();
-      expect(screen.getByText(/Sklepów Internetowych/i)).toBeInTheDocument();
-    }, { timeout: 2000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Branża:/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/E-commerce/i)[0]).toBeInTheDocument();
+        expect(screen.getByText(/Sklepów Internetowych/i)).toBeInTheDocument();
+      },
+      { timeout: 2000 },
+    );
   });
 });

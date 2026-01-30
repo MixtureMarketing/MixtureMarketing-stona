@@ -22,10 +22,10 @@ import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
+import StandardFaq from '../common/StandardFaq';
 import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../data/content';
 
 const VisualAudit: React.FC = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [blurActive, setBlurActive] = useState(true);
   const [timer, setTimer] = useState(5.0);
   const [wcagLog, setWcagLog] = useState<string[]>([]);
@@ -85,10 +85,6 @@ const VisualAudit: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
-
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-instagram/30">
       <Seo
@@ -98,7 +94,7 @@ const VisualAudit: React.FC = () => {
       />
 
       {/* --- HERO SECTION: DIGITAL FORENSICS --- */}
-      <section className="relative py-20 lg:py-28 bg-[#0B1120] text-white overflow-hidden">
+      <section className="relative py-20 lg:py-28 bg-deep-dark text-white overflow-hidden">
         <AmbientBackground />
 
         {/* Matrix Grid Overlay */}
@@ -194,13 +190,13 @@ const VisualAudit: React.FC = () => {
                   </svg>
 
                   {/* Labels */}
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-xxs text-gray-600 font-bold uppercase bg-[#0B1120] px-2">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
                     Clarity
                   </div>
-                  <div className="absolute bottom-0 right-4 text-xxs text-gray-600 font-bold uppercase bg-[#0B1120] px-2">
+                  <div className="absolute bottom-0 right-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
                     Speed
                   </div>
-                  <div className="absolute bottom-0 left-4 text-xxs text-gray-600 font-bold uppercase bg-[#0B1120] px-2">
+                  <div className="absolute bottom-0 left-4 text-xxs text-gray-600 font-bold uppercase bg-deep-dark px-2">
                     Trust
                   </div>
                 </div>
@@ -238,7 +234,7 @@ const VisualAudit: React.FC = () => {
 
           <div className="relative w-full max-w-4xl mx-auto aspect-[16/9] rounded-2xl overflow-hidden shadow-2xl border-4 border-gray-900 group cursor-crosshair">
             {/* The "Website" Underneath */}
-            <div className="absolute inset-0 bg-[#F9FAFB] flex flex-col items-center justify-center p-8 text-center">
+            <div className="absolute inset-0 bg-light-gray flex flex-col items-center justify-center p-8 text-center">
               <h2 className="text-4xl md:text-5xl font-extrabold text-dark mb-6">
                 {CONTENT.test5s.mock.title}
               </h2>
@@ -299,7 +295,7 @@ const VisualAudit: React.FC = () => {
       </section>
 
       {/* --- WCAG & ACCESSIBILITY SCANNER (TECH) --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -384,7 +380,7 @@ const VisualAudit: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {CONTENT.heuristics.items.map((item, i) => (
               <AnimateOnScroll key={i} delay={i * 100}>
-                <div className="p-6 rounded-2xl bg-[#F9FAFB] border border-gray-100 hover:border-instagram transition-all group h-full flex flex-col">
+                <div className="p-6 rounded-2xl bg-light-gray border border-gray-100 hover:border-instagram transition-all group h-full flex flex-col">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-dark">{item.label}</h3>
                     <span
@@ -426,36 +422,10 @@ const VisualAudit: React.FC = () => {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-24 bg-[#F9FAFB]">
+      <section className="py-24 bg-light-gray">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Pytania o Audyt" className="mb-12" />
-
-          <div className="space-y-4">
-            {CONTENT.faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-gray-200 rounded-2xl overflow-hidden bg-white hover:border-instagram/50 transition-colors"
-              >
-                <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
-                >
-                  <span className="font-bold text-dark text-lg pr-4">{faq.q}</span>
-                  <ChevronDown
-                    size={20}
-                    className={`text-instagram transition-transform duration-300 shrink-0 ${openFaq === i ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 

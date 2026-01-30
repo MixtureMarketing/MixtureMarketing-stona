@@ -42,29 +42,28 @@ const StandardCta: React.FC<StandardCtaProps> = ({
       btnClass: '!bg-instagram hover:!bg-[#C13584] border-transparent',
     },
     success: {
-      iconBg: 'bg-green-50',
-      iconText: 'text-success',
-      btnClass: '!bg-success hover:!bg-emerald-600 border-transparent',
+      iconBg: 'bg-white/20 backdrop-blur-md',
+      iconText: 'text-white',
+      btnClass: '!bg-white !text-[#008a3a] hover:!bg-gray-100 border-transparent',
     },
   };
 
   const currentScheme = schemeClasses[colorScheme] || schemeClasses.blue;
 
   return (
-    <section className={`py-24 relative overflow-hidden ${bgClassName}`}>
+    <section
+      className={`py-24 relative overflow-hidden ${bgClassName} ${colorScheme === 'success' ? '!bg-[#008a3a] text-white' : ''}`}
+    >
       <div className="absolute inset-0 bg-tech-grid opacity-5 pointer-events-none"></div>
       <div className={`max-w-4xl mx-auto px-4 text-center relative z-10 ${className}`}>
-        <div className={`inline-block p-4 rounded-full mb-6 shadow-sm animate-pulse ${currentScheme.iconBg}`}>
-          <Icon size={32} className={currentScheme.iconText} />
-        </div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">{title}</h2>
-        <p className="text-xl text-gray-600 mb-10 font-medium">{description}</p>
-        <Button
-          onClick={onClick}
-          variant={variant}
-          size="lg"
-          className={currentScheme.btnClass}
+        <div
+          className={`inline-block p-4 rounded-full mb-6 shadow-sm animate-pulse ${currentScheme.iconBg}`}
         >
+          <Icon size={32} className={currentScheme.iconText} aria-hidden="true" />
+        </div>
+        <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
+        <p className="text-xl opacity-90 mb-10 font-medium">{description}</p>
+        <Button onClick={onClick} variant={variant} size="lg" className={currentScheme.btnClass}>
           {buttonText}
         </Button>
       </div>

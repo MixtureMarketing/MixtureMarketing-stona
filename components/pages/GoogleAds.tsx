@@ -31,6 +31,8 @@ import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardCta from '../common/StandardCta';
+import StandardFaq from '../common/StandardFaq';
+import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 
 const GoogleAds: React.FC = () => {
   // Hooks
@@ -81,22 +83,10 @@ const GoogleAds: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image || '/assets/images/google-ads.png'}
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: CONTENT.faqs.map((faq) => ({
-            '@type': 'Question',
-            name: faq.q,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: faq.a,
-            },
-          })),
-        }}
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-24 bg-[#F9FAFB] overflow-hidden">
+      <section className="relative py-20 lg:py-24 bg-light-gray overflow-hidden">
         <AmbientBackground />
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -199,9 +189,9 @@ const GoogleAds: React.FC = () => {
                             <span>twoja-firma.pl</span>
                           </div>
                         </div>
-                        <h3 className="text-[#1a0dab] text-lg font-medium group-hover:underline leading-snug mb-2">
+                        <div className="text-[#1a0dab] text-lg font-medium group-hover:underline leading-snug mb-2">
                           {CONTENT.hero.simulator.ad.title}
-                        </h3>
+                        </div>
                         <p className="text-gray-600 text-sm leading-relaxed mb-3">
                           {CONTENT.hero.simulator.ad.desc}
                         </p>
@@ -287,7 +277,7 @@ const GoogleAds: React.FC = () => {
       </section>
 
       {/* --- INDUSTRY STRATEGY --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden">
+      <section className="py-24 bg-light-gray relative overflow-hidden">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader
             title={CONTENT.industries.title}
@@ -372,7 +362,7 @@ const GoogleAds: React.FC = () => {
                 <Button
                   variant="primary"
                   onClick={() => openModal('marketing', { specificType: 'ads' })}
-                  className="!bg-[#34A853] hover:!bg-[#2E8B46] border-none"
+                  className="!bg-[#008a3a] hover:!bg-[#007a33] border-none"
                 >
                   {CONTENT.industries.ecommerce.cta}
                 </Button>
@@ -395,7 +385,7 @@ const GoogleAds: React.FC = () => {
       </section>
 
       {/* --- ALGORITHM --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -423,7 +413,7 @@ const GoogleAds: React.FC = () => {
                     </div>
 
                     <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-[#0B1120] flex items-center justify-center text-[#4285F4] border border-[#334155] group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-12 h-12 rounded-xl bg-deep-dark flex items-center justify-center text-[#4285F4] border border-[#334155] group-hover:scale-110 transition-transform shadow-lg">
                         {item.icon}
                       </div>
                       <div className="flex items-center gap-1.5 bg-[#4285F4]/10 px-2 py-1 rounded text-xxs font-bold text-[#4285F4] border border-[#4285F4]/20">
@@ -439,7 +429,7 @@ const GoogleAds: React.FC = () => {
                       {item.desc}
                     </p>
 
-                    <div className="mt-auto bg-[#0B1120] rounded-lg p-3 font-mono text-xxs text-gray-300 border border-[#334155] flex items-center gap-2 overflow-hidden">
+                    <div className="mt-auto bg-deep-dark rounded-lg p-3 font-mono text-xxs text-gray-300 border border-[#334155] flex items-center gap-2 overflow-hidden">
                       <Terminal size={12} className="text-[#34A853] shrink-0" />
                       <span className="truncate group-hover:text-[#34A853] transition-colors">
                         {item.cmd}
@@ -466,14 +456,7 @@ const GoogleAds: React.FC = () => {
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Pytania o Google Ads" className="mb-12" />
-
-          <div className="space-y-4" role="region" aria-label="FAQ">
-            {CONTENT.faqs.map((faq, i) => (
-              <Accordion key={i} title={faq.q}>
-                {faq.a}
-              </Accordion>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 

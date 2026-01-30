@@ -87,7 +87,7 @@ const ContactPage: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 bg-[#0B1120] text-white overflow-hidden">
+      <section className="relative py-20 bg-deep-dark text-white overflow-hidden">
         <AmbientBackground />
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -126,7 +126,7 @@ const ContactPage: React.FC = () => {
                       {features.map((feature, i) => (
                         <div
                           key={i}
-                          className="flex items-center gap-5 p-5 bg-[#F9FAFB] rounded-2xl border border-gray-100 hover:border-primary/30 transition-colors"
+                          className="flex items-center gap-5 p-5 bg-light-gray rounded-2xl border border-gray-100 hover:border-primary/30 transition-colors"
                         >
                           <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-secondary shrink-0">
                             <feature.icon size={24} />

@@ -5,7 +5,7 @@ interface LazyHydrateProps {
   rootMargin?: string;
   threshold?: number;
   minHeight?: string | number;
-  whenVisible?: boolean;
+  whenVisible?: boolean; // Default behavior, kept for compatibility
 }
 
 /**
@@ -19,51 +19,61 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
   threshold = 0.01,
   minHeight = '100px',
 }) => {
+  const [mounted, setMounted] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    // If we're in a browser and not hydrated yet
-    if (typeof window !== 'undefined' && !hydrated) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setHydrated(true);
-            observer.disconnect();
-          }
-        },
-        { rootMargin, threshold },
-      );
+  // Check for Prerendering (Puppeteer/Headless)
 
-      if (rootRef.current) {
-        observer.observe(rootRef.current);
-      }
-
-      return () => observer.disconnect();
-    }
-  }, [hydrated, rootMargin, threshold]);
-
-  // Check for Prerendering (Puppeteer/Headless) or Development Mode
   const isPrerendering =
     typeof window !== 'undefined' &&
-    (navigator.userAgent.includes('Headless') ||
-      (window as Window & { isPrerendering?: boolean }).isPrerendering);
+    (navigator.userAgent.includes('Headless') || window.isPrerendering);
 
-  const isDev = import.meta.env.DEV;
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    if (isPrerendering || hydrated) return;
 
-  // During SSR (Node.js), Prerendering, or Dev mode, always render children normally
-  if (typeof window === 'undefined' || isPrerendering || isDev) {
-    return <div style={{ minHeight }}>{children}</div>;
-  }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          // Use requestAnimationFrame to prioritize visual stability
+          requestAnimationFrame(() => {
+            setHydrated(true);
+          });
+          observer.disconnect();
+        }
+      },
+      { rootMargin, threshold },
+    );
+
+    if (rootRef.current) {
+      observer.observe(rootRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hydrated, rootMargin, threshold, isPrerendering]);
+
+  // For SEO and initial hydration match
+  // On the server AND on the first client render, we render children
+  const shouldRenderChildren = isPrerendering || !mounted || hydrated;
 
   return (
     <div
       ref={rootRef}
-      style={{ minHeight: hydrated ? undefined : minHeight }}
+      style={{
+        minHeight: shouldRenderChildren ? undefined : minHeight,
+        display: 'block',
+        width: '100%',
+      }}
       suppressHydrationWarning={true}
-      className={hydrated ? 'lazy-hydrated' : 'lazy-placeholder'}
+      className={`lazy-hydrate ${hydrated ? 'lazy-hydrated' : 'lazy-placeholder'}`}
     >
-      {hydrated ? children : <div dangerouslySetInnerHTML={{ __html: '' }} />}
+      {shouldRenderChildren ? (
+        children
+      ) : (
+        <div style={{ height: minHeight }} dangerouslySetInnerHTML={{ __html: '' }} />
+      )}
     </div>
   );
 };

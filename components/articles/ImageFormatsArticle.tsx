@@ -22,12 +22,10 @@ import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Image from '../common/Image';
-import AmbientBackground from '../common/AmbientBackground';
-import Seo from '../common/Seo';
-import RelatedArticles from './RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 import { ARTICLES } from '../../data/articles';
 import { IMAGE_FORMATS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/image-formats';
+import ArticleShell from './ArticleShell';
 
 const ImageWeightChart = React.lazy(() => import('./visuals/charts/ImageWeightChart'));
 
@@ -35,248 +33,211 @@ const ImageFormatsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'optymalizacja-obrazow-webp-avif');
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-dark selection:bg-primary/30 font-sans">
-      <Seo
-        title={articleData?.title || CONTENT.header.title.line1 + ' ' + CONTENT.header.title.line2}
-        description={
-          articleData?.description ||
-          'Poznaj WebP i AVIF – nowoczesne formaty graficzne, które zmniejszą wagę Twojej strony o 80% bez utraty jakości.'
-        }
-        image={articleData?.image}
-      />
-
-      <AmbientBackground />
-
-      <div className="pt-12 pb-24 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-          {/* Article Header */}
-          <header className="mb-16 mt-8 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-8 border border-[#cce4ff]">
-              <ImageIcon size={12} />
-              <span>{CONTENT.header.badge}</span>
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-8 text-dark leading-[1.1] tracking-tight">
-              {CONTENT.header.title.line1} <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-primary to-secondary">
-                {CONTENT.header.title.line2}
-              </span>
-            </h1>
-
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-              {CONTENT.header.subtitle}
-            </p>
-          </header>
-
-          {/* Hero Visual - Comparison Split */}
-          <div className="mb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Legacy Side */}
-              <div className="relative bg-gray-200 rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-gray-300">
-                <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dust.png')]"></div>
-                <Monitor size={80} className="text-gray-600 mb-4" />
-                <div className="bg-gray-800 text-white px-4 py-1 rounded-md font-mono text-sm mb-4">
-                  FORMAT: JPG (1992)
-                </div>
-                <div className="flex items-center gap-2 text-gray-700 font-bold">
-                  <Scale size={20} /> 10.0 kg (Ciężkie)
-                </div>
+    <ArticleShell
+      id="optymalizacja-obrazow-webp-avif"
+      title={articleData?.title || `${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      description={
+        articleData?.description ||
+        'Poznaj WebP i AVIF – nowoczesne formaty graficzne, które zmniejszą wagę Twojej strony o 80% bez utraty jakości.'
+      }
+      category="design"
+      categoryLabel={CONTENT.header.badge}
+      image={articleData?.image || '/assets/images/frontend.png'}
+      icon={ImageIcon}
+      accentColor="#61B6DE"
+      heroVisual={
+        <div className="mb-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Legacy Side */}
+            <div className="relative bg-gray-200 rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-gray-300">
+              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dust.png')]"></div>
+              <Monitor size={80} className="text-gray-600 mb-4" />
+              <div className="bg-gray-800 text-white px-4 py-1 rounded-md font-mono text-sm mb-4">
+                FORMAT: JPG (1992)
               </div>
-              {/* Next-Gen Side */}
-              <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
-                <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
-                <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
-                  FORMAT: AVIF (2025)
-                </div>
-                <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
-                  <Zap size={20} className="fill-current" /> 0.5 kg (Lekkie)
-                </div>
+              <div className="flex items-center gap-2 text-gray-700 font-bold">
+                <Scale size={20} /> 10.0 kg (Ciężkie)
+              </div>
+            </div>
+            {/* Next-Gen Side */}
+            <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
+              <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
+              <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
+                FORMAT: AVIF (2025)
+              </div>
+              <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
+                <Zap size={20} className="fill-current" /> 0.5 kg (Lekkie)
               </div>
             </div>
           </div>
+        </div>
+      }
+    >
+      <AnimateOnScroll>
+        <p
+          className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: CONTENT.lead.highlight }}
+        />
+      </AnimateOnScroll>
 
-          <article className="prose prose-lg prose-slate max-w-none prose-headings:text-dark prose-headings:font-bold prose-p:text-gray-600 prose-a:text-secondary hover:prose-a:text-primary prose-strong:text-dark prose-li:text-gray-600">
-            <AnimateOnScroll>
-              <p
-                className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: CONTENT.lead.highlight }}
-              />
-            </AnimateOnScroll>
+      <SectionHeader
+        title={CONTENT.definitions.title}
+        subtitle={CONTENT.definitions.subtitle}
+        centered={false}
+        align="left"
+      />
 
-            <SectionHeader
-              title={CONTENT.definitions.title}
-              subtitle={CONTENT.definitions.subtitle}
-              centered={false}
-              align="left"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose mb-16">
-              <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 className="text-xl font-bold text-dark mb-4">
-                  {CONTENT.definitions.webp.title}
-                </h3>
-                <p className="text-sm text-gray-700 mb-6">{CONTENT.definitions.webp.desc}</p>
-                <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold border border-emerald-100 inline-block">
-                  {CONTENT.definitions.webp.badge}
-                </div>
-              </div>
-              <div className="bg-white p-8 rounded-2xl border border-primary/20 shadow-lg shadow-primary/5">
-                <h3 className="text-xl font-bold text-dark mb-4">
-                  {CONTENT.definitions.avif.title}
-                </h3>
-                <p className="text-sm text-gray-700 mb-6">{CONTENT.definitions.avif.desc}</p>
-                <div className="bg-blue-50 text-secondary px-4 py-2 rounded-xl text-xs font-bold border border-[#cce4ff] inline-block">
-                  {CONTENT.definitions.avif.badge}
-                </div>
-              </div>
-            </div>
-
-            {/* THE GREAT DUEL: INTERACTIVE SLIDER */}
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.duel.title}
-                subtitle={CONTENT.duel.subtitle}
-                centered={false}
-                align="left"
-              />
-              <p className="mb-8">{CONTENT.duel.text}</p>
-              <ImageComparisonDuel />
-            </div>
-
-            {/* NEW SECTION: LOADING SIMULATOR */}
-            <SectionHeader
-              title={CONTENT.simulator.title}
-              subtitle={CONTENT.simulator.subtitle}
-              centered={false}
-              align="left"
-            />
-            <p>{CONTENT.simulator.text}</p>
-            <AnimateOnScroll>
-              <div className="my-12">
-                <LoadingSimulator />
-              </div>
-            </AnimateOnScroll>
-
-            {/* BUSINESS VALUE */}
-            <SectionHeader
-              title={CONTENT.value.title}
-              subtitle={CONTENT.value.subtitle}
-              centered={false}
-              align="left"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12 mb-24">
-              {CONTENT.value.items.map((item, i) => (
-                <ValueCard
-                  key={i}
-                  icon={
-                    i === 0 ? (
-                      <TrendingUp className="text-emerald-500" />
-                    ) : i === 1 ? (
-                      <Smartphone className="text-blue-500" />
-                    ) : (
-                      <Zap className="text-amber-500" />
-                    )
-                  }
-                  title={item.title}
-                  desc={item.desc}
-                />
-              ))}
-            </div>
-
-            {/* NEW SECTION: IMAGE SEO CHECKLIST */}
-            <div className="my-24">
-              <SectionHeader
-                title={CONTENT.checklist.title}
-                subtitle={CONTENT.checklist.subtitle}
-                centered={true}
-              />
-              <ImageSeoChecklist />
-            </div>
-
-            {/* BROWSER SUPPORT */}
-            <SectionHeader
-              title={CONTENT.support.title}
-              subtitle={CONTENT.support.subtitle}
-              centered={false}
-              align="left"
-            />
-            <p dangerouslySetInnerHTML={{ __html: CONTENT.support.text }} />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose my-16">
-              <React.Suspense
-                fallback={<div className="w-full h-64 bg-gray-50 animate-pulse rounded-3xl" />}
-              >
-                <LazyHydrate minHeight="250px">
-                  <BrowserSupportChart title="Wsparcie WebP" percent={96.8} color="#10B981" />
-                </LazyHydrate>
-              </React.Suspense>
-              <React.Suspense
-                fallback={<div className="w-full h-64 bg-gray-50 animate-pulse rounded-3xl" />}
-              >
-                <LazyHydrate minHeight="250px">
-                  <BrowserSupportChart title="Wsparcie AVIF" percent={91.2} color="#61B6DE" />
-                </LazyHydrate>
-              </React.Suspense>
-            </div>
-
-            {/* TECHNICAL SECTION */}
-            <div className="mt-24">
-              <SectionHeader
-                title={CONTENT.implementation.title}
-                subtitle={CONTENT.implementation.subtitle}
-                centered={false}
-                align="left"
-              />
-              <p
-                className="mb-8"
-                dangerouslySetInnerHTML={{ __html: CONTENT.implementation.text }}
-              />
-              <CodeBlockImplementation />
-            </div>
-
-            {/* CTA */}
-            <div className="mt-32">
-              <AnimateOnScroll>
-                <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                  <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-                  <div className="relative z-10 flex flex-col items-center">
-                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20">
-                      <Scale size={40} className="text-white animate-pulse" />
-                    </div>
-                    <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-                    <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                      {CONTENT.cta.text}
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4">
-                      <Button
-                        variant="white"
-                        size="lg"
-                        className="shadow-xl text-dark hover:bg-gray-100"
-                      >
-                        {CONTENT.cta.primaryBtn}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                        size="lg"
-                        onClick={() => (window.location.href = '/baza-wiedzy')}
-                      >
-                        {CONTENT.cta.secondaryBtn}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            </div>
-
-            <RelatedArticles currentArticleId="optymalizacja-obrazow-webp-avif" category="design" />
-          </article>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose mb-16">
+        <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+          <h3 className="text-xl font-bold text-dark mb-4">{CONTENT.definitions.webp.title}</h3>
+          <p className="text-sm text-gray-700 mb-6">{CONTENT.definitions.webp.desc}</p>
+          <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold border border-emerald-100 inline-block">
+            {CONTENT.definitions.webp.badge}
+          </div>
+        </div>
+        <div className="bg-white p-8 rounded-2xl border border-primary/20 shadow-lg shadow-primary/5">
+          <h3 className="text-xl font-bold text-dark mb-4">{CONTENT.definitions.avif.title}</h3>
+          <p className="text-sm text-gray-700 mb-6">{CONTENT.definitions.avif.desc}</p>
+          <div className="bg-blue-50 text-secondary px-4 py-2 rounded-xl text-xs font-bold border border-[#cce4ff] inline-block">
+            {CONTENT.definitions.avif.badge}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* THE GREAT DUEL: INTERACTIVE SLIDER */}
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.duel.title}
+          subtitle={CONTENT.duel.subtitle}
+          centered={false}
+          align="left"
+        />
+        <p className="mb-8">{CONTENT.duel.text}</p>
+        <ImageComparisonDuel />
+      </div>
+
+      {/* NEW SECTION: LOADING SIMULATOR */}
+      <SectionHeader
+        title={CONTENT.simulator.title}
+        subtitle={CONTENT.simulator.subtitle}
+        centered={false}
+        align="left"
+      />
+      <p>{CONTENT.simulator.text}</p>
+      <AnimateOnScroll>
+        <div className="my-12">
+          <LoadingSimulator />
+        </div>
+      </AnimateOnScroll>
+
+      {/* BUSINESS VALUE */}
+      <SectionHeader
+        title={CONTENT.value.title}
+        subtitle={CONTENT.value.subtitle}
+        centered={false}
+        align="left"
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12 mb-24">
+        {CONTENT.value.items.map((item, i) => (
+          <ValueCard
+            key={i}
+            icon={
+              i === 0 ? (
+                <TrendingUp className="text-emerald-500" />
+              ) : i === 1 ? (
+                <Smartphone className="text-blue-500" />
+              ) : (
+                <Zap className="text-amber-500" />
+              )
+            }
+            title={item.title}
+            desc={item.desc}
+          />
+        ))}
+      </div>
+
+      {/* NEW SECTION: IMAGE SEO CHECKLIST */}
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.checklist.title}
+          subtitle={CONTENT.checklist.subtitle}
+          centered={true}
+        />
+        <ImageSeoChecklist />
+      </div>
+
+      {/* BROWSER SUPPORT */}
+      <SectionHeader
+        title={CONTENT.support.title}
+        subtitle={CONTENT.support.subtitle}
+        centered={false}
+        align="left"
+      />
+      <p dangerouslySetInnerHTML={{ __html: CONTENT.support.text }} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose my-16">
+        <React.Suspense
+          fallback={<div className="w-full h-64 bg-gray-50 animate-pulse rounded-3xl" />}
+        >
+          <LazyHydrate minHeight="250px">
+            <BrowserSupportChart title="Wsparcie WebP" percent={96.8} color="#10B981" />
+          </LazyHydrate>
+        </React.Suspense>
+        <React.Suspense
+          fallback={<div className="w-full h-64 bg-gray-50 animate-pulse rounded-3xl" />}
+        >
+          <LazyHydrate minHeight="250px">
+            <BrowserSupportChart title="Wsparcie AVIF" percent={91.2} color="#61B6DE" />
+          </LazyHydrate>
+        </React.Suspense>
+      </div>
+
+      {/* TECHNICAL SECTION */}
+      <div className="mt-24">
+        <SectionHeader
+          title={CONTENT.implementation.title}
+          subtitle={CONTENT.implementation.subtitle}
+          centered={false}
+          align="left"
+        />
+        <p className="mb-8" dangerouslySetInnerHTML={{ __html: CONTENT.implementation.text }} />
+        <CodeBlockImplementation />
+      </div>
+
+      {/* CTA */}
+      <div className="mt-32">
+        <AnimateOnScroll>
+          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
+            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20">
+                <Scale size={40} className="text-white animate-pulse" />
+              </div>
+              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
+              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
+                {CONTENT.cta.text}
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Button variant="white" size="lg" className="shadow-xl text-dark hover:bg-gray-100">
+                  {CONTENT.cta.primaryBtn}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
+                  size="lg"
+                  onClick={() => (window.location.href = '/baza-wiedzy')}
+                >
+                  {CONTENT.cta.secondaryBtn}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </AnimateOnScroll>
+      </div>
+    </ArticleShell>
   );
 };
 

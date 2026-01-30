@@ -47,6 +47,7 @@ const CorporateWebsite: React.FC = () => {
   const [activeCms, setActiveCms] = useState<'wordpress' | 'headless'>('wordpress');
   const navigate = useNavigate();
   const { openModal } = useModal();
+  const [migrationStep, setMigrationStep] = useState(0);
 
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
@@ -131,7 +132,7 @@ const CorporateWebsite: React.FC = () => {
       />
 
       {/* --- BUSINESS MODULES --- */}
-      <section className="py-24 bg-[#F9FAFB] relative z-10">
+      <section className="py-24 bg-light-gray relative z-10">
         <LazyHydrate whenVisible>
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeader
@@ -245,7 +246,7 @@ const CorporateWebsite: React.FC = () => {
       </section>
 
       {/* --- COMPLIANCE & SECURITY --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <LazyHydrate whenVisible>
           {/* ... (Content same as original) ... */}
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">

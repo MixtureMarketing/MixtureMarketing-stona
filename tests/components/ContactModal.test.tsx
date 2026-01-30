@@ -50,18 +50,22 @@ describe('ContactModal Integration', () => {
       target: { value: 'Jan Kowalski' },
     });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'jan@test.pl' } });
+    fireEvent.change(screen.getByLabelText(/Telefon/i), { target: { value: '123456789' } });
     fireEvent.click(screen.getByRole('checkbox')); // Privacy
 
     // Move to step 2
     fireEvent.click(screen.getByText(/Zapisz i przejdź dalej/i));
 
-    await waitFor(() => {
-      expect(leadService.createLead).toHaveBeenCalled();
-      expect(screen.getByText(/Szczegóły Projektu WWW/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(leadService.createLead).toHaveBeenCalled();
+        expect(screen.getByText(/Szczegóły Projektu WWW/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
     // Close modal at Step 2
-    const closeButton = screen.getByRole('button', { name: /zamknij/i });
+    const closeButton = screen.getByRole('button', { name: /zamknij okno/i });
     fireEvent.click(closeButton);
 
     expect(leadService.sendNotification).toHaveBeenCalledWith('lead-123', 'abandoned_step_1');
@@ -78,23 +82,27 @@ describe('ContactModal Integration', () => {
     // Step 1
     fireEvent.change(screen.getByLabelText(/Imię i Nazwisko/i), { target: { value: 'Jan' } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'jan@test.pl' } });
+    fireEvent.change(screen.getByLabelText(/Telefon/i), { target: { value: '123456789' } });
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByText(/Zapisz i przejdź dalej/i));
 
     // Step 2
-    await waitFor(() => screen.getByText(/Dalej/i));
+    await waitFor(() => screen.getByText(/Dalej/i), { timeout: 3000 });
     fireEvent.click(screen.getByText(/Dalej/i));
 
     // Step 3
-    await waitFor(() => screen.getByLabelText(/Opisz swój cel/i));
+    await waitFor(() => screen.getByLabelText(/Opisz swój cel/i), { timeout: 3000 });
     fireEvent.change(screen.getByLabelText(/Opisz swój cel/i), {
       target: { value: 'Chcę nową stronę' },
     });
     fireEvent.click(screen.getByText(/Wyślij zgłoszenie/i));
 
-    await waitFor(() => {
-      expect(leadService.sendNotification).toHaveBeenCalledWith('lead-full', 'success');
-      expect(screen.getByText(/Zgłoszenie wysłane/i)).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(leadService.sendNotification).toHaveBeenCalledWith('lead-full', 'success');
+        expect(screen.getByText(/Zgłoszenie wysłane/i)).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
   });
 });

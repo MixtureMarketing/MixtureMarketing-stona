@@ -595,6 +595,24 @@ export const ECOMMERCE_CONTENT = {
     text: 'Nie trać czasu na walkę z technologią. My dostarczymy Ci gotowy, zatowarowany sklep, a Ty zajmij się sprzedażą.',
     button: 'Umów darmową konsultację',
   },
+  faqs: [
+    {
+      q: 'Czy integrujecie sklepy z Baselinkerem?',
+      a: 'Tak, Baselinker to standard w naszych wdrożeniach. Konfigurujemy dwukierunkową synchronizację stanów magazynowych, cen oraz automatyczne pobieranie zamówień ze sklepu i marketplace-ów (Allegro, Amazon, eBay).',
+    },
+    {
+      q: 'Dlaczego WooCommerce, a nie SaaS (np. Shopify)?',
+      a: 'WooCommerce daje Ci 100% własności nad kodem i danymi klientów bez miesięcznych prowizji od sprzedaży. Jest też znacznie bardziej elastyczny przy wdrażaniu nietypowych funkcji (np. konfiguratorów produktowych) i tańszy w utrzymaniu przy dużej skali.',
+    },
+    {
+      q: 'Jakie metody płatności i dostawy obsługuje sklep?',
+      a: 'Wdrażamy wszystkie popularne bramki: PayU, Przelewy24, Stripe, Tpay oraz PayPal. W zakresie dostaw integrujemy InPost (Paczkomaty), kurierów (DHL, DPD) oraz systemy takie jak Furgonetka.',
+    },
+    {
+      q: 'Czy sklep będzie gotowy pod SEO?',
+      a: 'Zdecydowanie tak. Każdy sklep posiada wdrożone dane strukturalne (Schema.org), zoptymalizowane pod kątem szybkości formaty obrazów (WebP/AVIF) oraz przyjazną architekturę URL, co ułatwia Google indeksowanie produktów.',
+    },
+  ],
 };
 
 export const CUSTOM_WEB_APP_CONTENT = {

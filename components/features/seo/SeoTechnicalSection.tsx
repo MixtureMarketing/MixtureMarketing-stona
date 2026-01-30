@@ -188,7 +188,7 @@ const SeoTechnicalSection: React.FC = () => {
                     >
                       {optStep}
                     </span>
-                    <span className="text-xxs font-bold text-gray-700 uppercase mt-2 tracking-widest">
+                    <span className="text-xxs font-bold text-gray-400 uppercase mt-2 tracking-widest">
                       Performance
                     </span>
                   </div>

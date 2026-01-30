@@ -6,13 +6,15 @@ import MarketingStrategy from '@/components/features/marketing/MarketingStrategy
 import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnichannel';
 import MarketingIndustries from '@/components/features/marketing/MarketingIndustries';
 import MarketingArsenal from '@/components/features/marketing/MarketingArsenal';
-import MarketingFaq from '@/components/features/marketing/MarketingFaq';
+import StandardFaq from '@/components/common/StandardFaq';
 import StandardCta from '@/components/common/StandardCta';
 import { Compass } from 'lucide-react';
 import LazyHydrate from '@/components/common/LazyHydrate';
-import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
+import RelatedArticles from '../articles/RelatedArticles';
+import { useModal } from '@/context/ModalContext';
 
 const Marketing: React.FC = () => {
+  const { openModal } = useModal();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -49,18 +51,6 @@ const Marketing: React.FC = () => {
               })),
             },
           },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: MARKETING_CONTENT.faqs.map((faq) => ({
-              '@type': 'Question',
-              name: faq.q,
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: faq.a,
-              },
-            })),
-          },
         ]}
       />
 
@@ -68,31 +58,35 @@ const Marketing: React.FC = () => {
 
       {/* Missing Pain Points Section - placeholder if needed or implemented later */}
 
-      <LazyHydrate>
+      <LazyHydrate minHeight="600px">
         <MarketingStrategy />
       </LazyHydrate>
 
-      <LazyHydrate>
+      <LazyHydrate minHeight="500px">
         <MarketingOmnichannel />
       </LazyHydrate>
 
-      <LazyHydrate>
+      <LazyHydrate minHeight="600px">
         <MarketingIndustries />
       </LazyHydrate>
 
-      <LazyHydrate>
+      <LazyHydrate minHeight="800px">
         <MarketingArsenal />
       </LazyHydrate>
 
-      <LazyHydrate>
-        <MarketingFaq />
+      <LazyHydrate minHeight="400px">
+        <section className="py-20 md:py-24 bg-white relative z-10">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <StandardFaq items={MARKETING_CONTENT.faqs} />
+          </div>
+        </section>
       </LazyHydrate>
 
       <LazyHydrate minHeight="600px">
-        <ServiceRelatedArticles category="marketing" />
+        <RelatedArticles category="marketing" layout="service" />
       </LazyHydrate>
 
-      <LazyHydrate>
+      <LazyHydrate minHeight="300px">
         <StandardCta
           title={MARKETING_CONTENT.cta.title}
           description={MARKETING_CONTENT.cta.description}
@@ -100,7 +94,7 @@ const Marketing: React.FC = () => {
           icon={Compass}
           onClick={() => openModal('consultation')}
           variant="white"
-          bgClassName="bg-[#0B1120] text-white"
+          bgClassName="bg-deep-dark text-white"
           className="text-white"
         />
       </LazyHydrate>

@@ -47,7 +47,7 @@ const ArticleTemplate = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F9FAFB]">
+      <div className="min-h-screen bg-light-gray">
         <div className="pt-32 pb-24 container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
           <div className="space-y-8 mb-16">
             <div className="w-32 h-6 bg-gray-200 animate-pulse rounded-full mx-auto"></div>

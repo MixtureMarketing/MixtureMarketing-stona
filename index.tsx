@@ -20,7 +20,7 @@ function reportWebVitals(metric: Metric) {
     console.log(`%c[RUM] ${name}: ${Math.round(value)}ms`, color, { id, delta });
   }
 
-  // Placeholder for future Supabase/GA4 ingestion
+  // Placeholder for future GA4 ingestion
   if (import.meta.env.PROD) {
     const body = JSON.stringify({ name, value, id, delta, url: window.location.href });
     if (navigator.sendBeacon) {
@@ -50,12 +50,8 @@ if (import.meta.env.DEV) {
 // Self-host fonts (Optimized weights and subset)
 import '@fontsource/manrope/latin-400.css';
 import '@fontsource/manrope/latin-ext-400.css';
-import '@fontsource/manrope/latin-600.css';
-import '@fontsource/manrope/latin-ext-600.css';
 import '@fontsource/manrope/latin-800.css';
 import '@fontsource/manrope/latin-ext-800.css';
-import '@fontsource/montserrat/latin-500.css';
-import '@fontsource/montserrat/latin-ext-500.css';
 import '@fontsource/montserrat/latin-900.css';
 import '@fontsource/montserrat/latin-ext-900.css';
 import '@fontsource/playfair-display/latin-400.css';

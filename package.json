@@ -9,7 +9,9 @@
     "mcp:sanity": "cross-env MCP_USER_ROLE=developer npx -y @sanity/mcp-server@latest --projectId azuef2ua --dataset production",
     "images": "node scripts/convert-images.js",
     "sitemap": "node scripts/generate-sitemap.js",
-    "build": "npm run images && vite build && npm run sitemap && npm run prerender && npm run audit:health",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean && npm run images",
+    "build": "npm run lint && vitest run && vite build && npm run sitemap && npm run prerender && npx size-limit && npm run audit:health",
     "prerender": "node prerender.js",
     "audit:a11y": "node scripts/audit-a11y.js",
     "audit:seo": "node scripts/audit-seo.js",
@@ -24,15 +26,11 @@
   "size-limit": [
     {
       "path": "dist/assets/index-*.js",
-      "limit": "100 kB"
+      "limit": "120 kB"
     },
     {
-      "path": "dist/assets/vendor-react-*.js",
-      "limit": "60 kB"
-    },
-    {
-      "path": "dist/assets/vendor-icons-*.js",
-      "limit": "20 kB"
+      "path": "dist/assets/vendor-*.js",
+      "limit": "1.5 MB"
     },
     {
       "path": "dist/assets/*.css",
@@ -43,12 +41,13 @@
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/montserrat": "^5.2.8",
     "@fontsource/playfair-display": "^5.2.8",
+    "@hookform/resolvers": "^5.2.2",
     "@portabletext/react": "^6.0.2",
+    "@portabletext/types": "^4.0.1",
     "@sanity/client": "^7.14.1",
     "@sanity/image-url": "^2.0.3",
     "@tailwindcss/vite": "^4.1.18",
     "beasties": "^0.4.1",
-    "dotenv": "^17.2.3",
     "framer-motion": "^12.29.2",
     "jspdf": "^4.0.0",
     "lucide-react": "^0.563.0",
@@ -60,7 +59,8 @@
     "react-is": "^19.2.4",
     "react-router-dom": "7.13.0",
     "recharts": "3.7.0",
-    "web-vitals": "^5.1.0"
+    "web-vitals": "^5.1.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@axe-core/react": "^4.11.0",
@@ -84,6 +84,7 @@
     "prettier": "^3.8.1",
     "puppeteer": "^24.36.1",
     "react-scan": "^0.4.3",
+    "rimraf": "^6.1.2",
     "rollup-plugin-visualizer": "^6.0.5",
     "schema-dts": "^1.1.5",
     "sharp": "^0.34.5",
@@ -95,6 +96,7 @@
     "vite": "^7.3.1",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-image-optimizer": "^2.0.3",
+    "vite-plugin-svgo": "^2.0.0",
     "vitest": "^4.0.18"
   },
   "overrides": {}

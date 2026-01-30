@@ -105,11 +105,7 @@ const WafArticle = () => {
         </div>
       </AnimateOnScroll>
 
-      <SectionHeader
-        title={CONTENT.blocks.title}
-        subtitle={CONTENT.blocks.subtitle}
-        align="left"
-      />
+      <SectionHeader title={CONTENT.blocks.title} subtitle={CONTENT.blocks.subtitle} align="left" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 not-prose my-12">
         {CONTENT.blocks.items.map((item, i) => (
           <AttackTypeCard key={i} title={item.title} desc={item.desc} impact={item.impact} />
@@ -148,11 +144,7 @@ const WafArticle = () => {
       </div>
 
       <div className="mt-24">
-        <SectionHeader
-          title={CONTENT.value.title}
-          subtitle={CONTENT.value.subtitle}
-          align="left"
-        />
+        <SectionHeader title={CONTENT.value.title} subtitle={CONTENT.value.subtitle} align="left" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12 mb-24">
           {CONTENT.value.items.map((item, i) => (
             <ValueCard

@@ -1,22 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   CheckCircle2,
   LayoutTemplate,
   Zap,
   Search,
-  Smartphone,
   Rocket,
   Building2,
   ShoppingCart,
   Database,
-  ChevronDown,
   ArrowRight,
-  Gauge,
   Lock,
   Settings,
   Server,
-  XCircle,
   FileCode,
   Terminal,
   ShieldCheck,
@@ -33,22 +28,20 @@ import {
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import AmbientBackground from '../common/AmbientBackground';
 import IntegrationGrid, { IntegrationCategory } from '../common/IntegrationGrid';
 import { useModal } from '../../context/ModalContext';
 import TechStack from '../sections/TechStack';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
+import StandardFaq from '../common/StandardFaq';
 import { WEB_DEV_CONTENT } from '../../data/content';
-import ServiceRelatedArticles from '../features/services/ServiceRelatedArticles';
+import RelatedArticles from '../articles/RelatedArticles';
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
 import { WebDevHeroVisual } from '../visuals/HeroVisuals';
 
 const WebDevelopment: React.FC = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [securityScanAngle, setSecurityScanAngle] = useState(0);
   const [blockedCount, setBlockedCount] = useState(1420);
 
@@ -70,10 +63,6 @@ const WebDevelopment: React.FC = () => {
     }, 100); // Slower updates
     return () => clearInterval(interval);
   }, []);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   // --- MEMOIZED DATA MAPPING ---
 
@@ -152,18 +141,6 @@ const WebDevelopment: React.FC = () => {
               })),
             },
           },
-          {
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: WEB_DEV_CONTENT.faqs.map((faq) => ({
-              '@type': 'Question',
-              name: faq.q,
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: faq.a,
-              },
-            })),
-          },
         ]}
       />
 
@@ -183,7 +160,7 @@ const WebDevelopment: React.FC = () => {
         visual={<WebDevHeroVisual />}
       />
 
-      <section className="bg-[#F9FAFB] pb-24">
+      <section className="bg-light-gray pb-24">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="pt-10 border-t border-gray-200/60 flex flex-wrap gap-x-8 gap-y-4 justify-center lg:justify-start">
             {['Next.js', 'React', 'TypeScript', 'WordPress Headless', 'Laravel', 'AWS Cloud'].map(
@@ -221,7 +198,7 @@ const WebDevelopment: React.FC = () => {
                   onClick={type.action}
                   className={`p-8 h-full flex flex-col cursor-pointer transition-all duration-500 group relative overflow-hidden border-t-4 border-l-0 border-r-0 border-b-0 ${type.highlight ? 'border-t-[#3F3D91] shadow-[0_20px_50px_-12px_rgba(63,61,145,0.15)] bg-white' : 'border-t-transparent hover:border-t-[#61B6DE] bg-white/60'}`}
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-[#F9FAFB] border border-gray-100 shadow-sm flex items-center justify-center text-dark mb-8 group-hover:bg-dark group-hover:text-white transition-all duration-500">
+                  <div className="w-14 h-14 rounded-2xl bg-light-gray border border-gray-100 shadow-sm flex items-center justify-center text-dark mb-8 group-hover:bg-dark group-hover:text-white transition-all duration-500">
                     {type.icon}
                   </div>
 
@@ -289,7 +266,7 @@ const WebDevelopment: React.FC = () => {
                   {WEB_DEV_CONTENT.wpCustom.features.map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-start gap-3 p-4 bg-[#F9FAFB] rounded-xl border border-gray-100 hover:border-secondary/30 transition-colors"
+                      className="flex items-start gap-3 p-4 bg-light-gray rounded-xl border border-gray-100 hover:border-secondary/30 transition-colors"
                     >
                       <CheckCircle2 size={20} className="text-secondary shrink-0 mt-0.5" />
                       <div>
@@ -433,7 +410,7 @@ const WebDevelopment: React.FC = () => {
                 <div className="space-y-6">
                   {WEB_DEV_CONTENT.adminPanel.sections.map((section, i) => (
                     <div key={i} className="flex items-start gap-4">
-                      <div className="mt-1 w-10 h-10 rounded-full bg-[#F9FAFB] flex items-center justify-center text-secondary shrink-0 border border-gray-100 shadow-sm">
+                      <div className="mt-1 w-10 h-10 rounded-full bg-light-gray flex items-center justify-center text-secondary shrink-0 border border-gray-100 shadow-sm">
                         {i === 0 ? <FileCode size={20} /> : <Database size={20} />}
                       </div>
                       <div>
@@ -541,7 +518,7 @@ const WebDevelopment: React.FC = () => {
                         </div>
 
                         <div className="border border-gray-200 rounded-xl overflow-hidden flex-1 shadow-sm">
-                          <div className="bg-[#F9FAFB] px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                          <div className="bg-light-gray px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                             <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
                               Ostatnie Transakcje
                             </span>
@@ -551,7 +528,7 @@ const WebDevelopment: React.FC = () => {
                             {[1, 2, 3].map((i) => (
                               <div
                                 key={i}
-                                className="px-4 py-3 flex items-center justify-between hover:bg-[#F9FAFB] transition-colors group cursor-pointer"
+                                className="px-4 py-3 flex items-center justify-between hover:bg-light-gray transition-colors group cursor-pointer"
                               >
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded bg-blue-50 flex items-center justify-center text-secondary font-bold text-xs">
@@ -585,7 +562,7 @@ const WebDevelopment: React.FC = () => {
       </section>
 
       {/* --- ECOSYSTEM & INTEGRATIONS --- */}
-      <section className="py-24 bg-[#F9FAFB] relative overflow-hidden">
+      <section className="py-24 bg-light-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <SectionHeader
@@ -600,7 +577,7 @@ const WebDevelopment: React.FC = () => {
       </section>
 
       {/* --- INFRASTRUCTURE & SECURITY --- */}
-      <section className="py-24 bg-[#0B1120] relative overflow-hidden">
+      <section className="py-24 bg-deep-dark relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
@@ -732,36 +709,13 @@ const WebDevelopment: React.FC = () => {
             subtitle={WEB_DEV_CONTENT.faq.subtitle}
             className="mb-12"
           />
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div
-                key={index}
-                className="border border-gray-200 rounded-2xl bg-white overflow-hidden hover:border-primary/50 transition-all group"
-              >
-                <button
-                  onClick={() => toggleFaq(index)}
-                  className="w-full px-6 py-5 text-left flex justify-between items-center"
-                >
-                  <span className="font-bold text-dark text-lg group-hover:text-secondary">
-                    {faq.q}
-                  </span>
-                  <ChevronDown
-                    size={18}
-                    className={`transition-all ${openFaq === index ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                {openFaq === index && (
-                  <div className="px-6 pb-6 text-gray-600 animate-fade-in">{faq.a}</div>
-                )}
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={faqs} />
         </div>
       </section>
 
       {/* --- RELATED ARTICLES --- */}
       <LazyHydrate minHeight="600px">
-        <ServiceRelatedArticles category="tech" />
+        <RelatedArticles category="web" layout="service" />
       </LazyHydrate>
 
       {/* --- FINAL CTA --- */}

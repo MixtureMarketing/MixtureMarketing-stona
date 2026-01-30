@@ -32,6 +32,7 @@ import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
 import { useParallax } from '../../hooks/useParallax';
 import Seo from '../common/Seo';
+import StandardFaq from '../common/StandardFaq';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content';
 
 import StandardHero from '../common/StandardHero';
@@ -40,7 +41,6 @@ import { UiUxHeroVisual } from '../visuals/HeroVisuals';
 
 const UiUxDesign: React.FC = () => {
   const [viewMode, setViewMode] = useState<'lofi' | 'hifi'>('hifi');
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Design System Configurator State
   const [sysColor, setSysColor] = useState('#61B6DE');
@@ -54,10 +54,6 @@ const UiUxDesign: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
@@ -84,7 +80,7 @@ const UiUxDesign: React.FC = () => {
       />
 
       {/* --- DESIGN SYSTEM PLAYGROUND (REFINED) --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative z-10 overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative z-10 overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -155,13 +151,13 @@ const UiUxDesign: React.FC = () => {
                   <div className="grid grid-cols-2 gap-3 bg-black/40 p-1.5 rounded-2xl border border-white/5">
                     <button
                       onClick={() => setSysDark(false)}
-                      className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-[#0B1120] shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                      className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
                     >
                       LIGHT
                     </button>
                     <button
                       onClick={() => setSysDark(true)}
-                      className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-[#0B1120] shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                      className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
                     >
                       DARK
                     </button>
@@ -183,7 +179,7 @@ const UiUxDesign: React.FC = () => {
               <AnimateOnScroll delay={200}>
                 <div
                   className="w-full aspect-auto min-h-[600px] lg:aspect-[16/10] rounded-[3rem] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] p-10 md:p-16 transition-all duration-700 overflow-hidden relative border border-white/5"
-                  style={{ backgroundColor: sysDark ? '#0F172A' : '#F9FAFB' }}
+                  style={{ backgroundColor: sysDark ? '#0F172A' : 'light-gray' }}
                 >
                   {/* Grid inside preview */}
                   <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
@@ -289,7 +285,7 @@ const UiUxDesign: React.FC = () => {
             {/* Phone */}
             <AnimateOnScroll delay={100} className="relative z-10">
               <div className="group flex flex-col items-center">
-                <div className="w-[140px] h-[280px] bg-[#0B1120] rounded-[2.5rem] border-[6px] border-[#1E293B] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all duration-500 hover:-translate-y-6 hover:shadow-primary/30">
+                <div className="w-[140px] h-[280px] bg-deep-dark rounded-[2.5rem] border-[6px] border-[#1E293B] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] relative overflow-hidden transition-all duration-500 hover:-translate-y-6 hover:shadow-primary/30">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-5 bg-[#1E293B] rounded-b-2xl z-20"></div>
                   <div className="w-full h-full bg-white pt-8 px-2.5 pb-2.5 flex flex-col gap-2.5">
                     <div className="w-full h-10 bg-dark rounded-xl mb-1 shrink-0 shadow-sm"></div>
@@ -303,7 +299,7 @@ const UiUxDesign: React.FC = () => {
                   </div>
                   <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-tr from-transparent via-white/[0.03] to-transparent pointer-events-none"></div>
                 </div>
-                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-[#F9FAFB] rounded-2xl border border-gray-100 shadow-sm">
+                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-light-gray rounded-2xl border border-gray-100 shadow-sm">
                   <Smartphone size={14} className="text-primary" />
                   <span className="text-xxs font-black uppercase tracking-widest text-gray-600">
                     {CONTENT.rwd.labels.compact}
@@ -340,7 +336,7 @@ const UiUxDesign: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-[#F9FAFB] rounded-2xl border border-gray-100 shadow-sm">
+                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-light-gray rounded-2xl border border-gray-100 shadow-sm">
                   <Tablet size={14} className="text-primary" />
                   <span className="text-xxs font-black uppercase tracking-widest text-gray-600">
                     {CONTENT.rwd.labels.adaptive}
@@ -359,7 +355,7 @@ const UiUxDesign: React.FC = () => {
                       <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
                       <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></div>
                     </div>
-                    <div className="ml-6 flex-1 h-6 bg-[#0B1120] rounded-lg flex items-center px-3 text-xxs text-gray-700 font-mono tracking-tighter">
+                    <div className="ml-6 flex-1 h-6 bg-deep-dark rounded-lg flex items-center px-3 text-xxs text-gray-700 font-mono tracking-tighter">
                       mixture-design-system.v3
                     </div>
                   </div>
@@ -383,7 +379,7 @@ const UiUxDesign: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-[#F9FAFB] rounded-2xl border border-gray-100 shadow-sm">
+                <div className="mt-8 flex items-center gap-2 px-5 py-2 bg-light-gray rounded-2xl border border-gray-100 shadow-sm">
                   <Laptop size={14} className="text-primary" />
                   <span className="text-xxs font-black uppercase tracking-widest text-gray-600">
                     {CONTENT.rwd.labels.full}
@@ -515,7 +511,7 @@ const UiUxDesign: React.FC = () => {
       </section>
 
       {/* --- ATOMIC DESIGN (ENGINEERING APPROACH) --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -618,7 +614,7 @@ const UiUxDesign: React.FC = () => {
                             </span>
                           </div>
                           {/* Visualizing the "Build" */}
-                          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-[#0B1120] rounded-lg text-xs font-black uppercase tracking-wider shadow-lg shadow-primary/20 transform group-hover/item:translate-x-2 transition-transform">
+                          <button className="flex items-center gap-2 px-4 py-2 bg-primary text-deep-dark rounded-lg text-xs font-black uppercase tracking-wider shadow-lg shadow-primary/20 transform group-hover/item:translate-x-2 transition-transform">
                             <Zap size={14} fill="currentColor" /> Action
                           </button>
                         </div>
@@ -642,7 +638,7 @@ const UiUxDesign: React.FC = () => {
                             <div className="flex-1 space-y-1.5">
                               <div className="h-2 w-2/3 bg-gray-200 rounded-full"></div>
                               <div className="flex items-center gap-2">
-                                <div className="px-2 py-1 bg-primary text-[#0B1120] text-xxxs font-black rounded uppercase">
+                                <div className="px-2 py-1 bg-primary text-deep-dark text-xxxs font-black rounded uppercase">
                                   Action
                                 </div>
                                 <div className="h-1.5 w-1/3 bg-gray-100 rounded-full"></div>
@@ -735,36 +731,10 @@ const UiUxDesign: React.FC = () => {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-24 bg-[#F9FAFB] relative z-10">
+      <section className="py-24 bg-light-gray relative z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <SectionHeader title="Pytania o UI/UX" className="mb-12" />
-
-          <div className="space-y-4">
-            {CONTENT.faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-gray-100 rounded-2xl overflow-hidden bg-white hover:border-primary/50 transition-colors shadow-sm sm:shadow-none"
-              >
-                <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-5 md:p-6 text-left focus:outline-none"
-                >
-                  <span className="font-bold text-dark text-base md:text-lg pr-4">{faq.q}</span>
-                  <ChevronDown
-                    size={20}
-                    className={`text-primary transition-transform duration-300 shrink-0 ${openFaq === i ? 'rotate-180' : ''}`}
-                  />
-                </button>
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="p-5 md:p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50 text-sm md:text-base">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 
@@ -775,7 +745,7 @@ const UiUxDesign: React.FC = () => {
         buttonText={CONTENT.cta.button}
         icon={Smartphone}
         onClick={() => openModal('design')}
-        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+        bgClassName="bg-light-gray border-t border-gray-100"
       />
     </div>
   );

@@ -298,7 +298,7 @@ const Offers: React.FC = () => {
                 style={{
                   left: scale === 'startup' ? '8px' : '50%',
                   width: 'calc(50% - 8px)',
-                  backgroundColor: scale === 'startup' ? '#61B6DE' : '#213261',
+                  backgroundColor: scale === 'startup' ? '#3F3D91' : '#213261',
                 }}
               ></div>
 
@@ -318,7 +318,7 @@ const Offers: React.FC = () => {
                   </span>
                 </div>
                 <span
-                  className={`text-xs font-medium ${scale === 'startup' ? 'text-white' : 'text-gray-600'}`}
+                  className={`text-xs font-medium ${scale === 'startup' ? 'text-white/90' : 'text-gray-500'}`}
                 >
                   {CONTENT.hero.buttons.startup.subtitle}
                 </span>
@@ -340,7 +340,7 @@ const Offers: React.FC = () => {
                   </span>
                 </div>
                 <span
-                  className={`text-xs font-medium ${scale === 'enterprise' ? 'text-white' : 'text-gray-600'}`}
+                  className={`text-xs font-medium ${scale === 'enterprise' ? 'text-white/90' : 'text-gray-500'}`}
                 >
                   {CONTENT.hero.buttons.enterprise.subtitle}
                 </span>
@@ -576,7 +576,7 @@ const Offers: React.FC = () => {
               {faqs.map((faq, i) => (
                 <div
                   key={i}
-                  className="border border-gray-100 rounded-2xl overflow-hidden bg-[#F9FAFB]"
+                  className="border border-gray-100 rounded-2xl overflow-hidden bg-light-gray"
                 >
                   <button
                     onClick={() => toggleFaq(i)}

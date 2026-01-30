@@ -59,6 +59,32 @@ async function convertImages() {
         await sharp(filePath).avif({ quality: 80 }).toFile(avifPath);
         console.log(`  ✅ Created/Updated AVIF: ${fileName}.avif`);
       }
+
+      // Optimize Original Fallback (PNG/JPG)
+      const stats = fs.statSync(filePath);
+      if (stats.size > 1024 * 500) {
+        // If original is > 500KB
+        console.log(`  ⚡ Optimizing original fallback: ${file}`);
+        const tempPath = path.join(IMAGES_DIR, `temp_${file}`);
+
+        const sharpInstance = sharp(filePath);
+        if (ext === '.png') {
+          await sharpInstance.png({ quality: 80, palette: true }).toFile(tempPath);
+        } else {
+          await sharpInstance.jpeg({ quality: 80, progressive: true }).toFile(tempPath);
+        }
+
+        const newStats = fs.statSync(tempPath);
+        if (newStats.size < stats.size) {
+          fs.renameSync(tempPath, filePath);
+          console.log(
+            `  ✅ Compressed ${file}: ${(stats.size / 1024 / 1024).toFixed(2)}MB -> ${(newStats.size / 1024 / 1024).toFixed(2)}MB`,
+          );
+        } else {
+          fs.unlinkSync(tempPath);
+          console.log(`  ⏩ Compression didn't reduce size for ${file}, keeping original.`);
+        }
+      }
     }
   }
 

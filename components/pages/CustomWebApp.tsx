@@ -196,7 +196,7 @@ const CustomWebApp: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {useCases.map((useCase, index) => (
                 <AnimateOnScroll key={index} delay={index * 100} className="h-full">
-                  <GlassCard className="p-8 h-full flex flex-col items-start hover:border-primary hover:shadow-xl transition-all group bg-[#F9FAFB] hover:bg-white border-t-4 border-t-transparent hover:border-t-[#61B6DE]">
+                  <GlassCard className="p-8 h-full flex flex-col items-start hover:border-primary hover:shadow-xl transition-all group bg-light-gray hover:bg-white border-t-4 border-t-transparent hover:border-t-[#61B6DE]">
                     <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-dark mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm border border-gray-100">
                       {useCase.icon}
                     </div>
@@ -224,7 +224,7 @@ const CustomWebApp: React.FC = () => {
 
       {/* --- TECH STACK --- */}
       <LazyHydrate minHeight="800px">
-        <section className="py-24 bg-[#0B1120] relative overflow-hidden">
+        <section className="py-24 bg-deep-dark relative overflow-hidden">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
 
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -391,7 +391,7 @@ const CustomWebApp: React.FC = () => {
 
       {/* --- QA PIPELINE --- */}
       <LazyHydrate minHeight="600px">
-        <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+        <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
           <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -464,7 +464,7 @@ const CustomWebApp: React.FC = () => {
         buttonText={CONTENT.cta.button}
         icon={Settings}
         onClick={() => openModal('consultation', { specificType: 'custom' })}
-        bgClassName="bg-[#F9FAFB] border-t border-gray-100"
+        bgClassName="bg-light-gray border-t border-gray-100"
       />
     </div>
   );

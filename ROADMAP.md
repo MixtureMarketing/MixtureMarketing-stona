@@ -1,240 +1,87 @@
-# Roadmap Projektu Mixture Marketing
+# Roadmap Projektu Mixture Marketing - Finalizacja i Wdrożenie
 
-Niniejszy dokument definiuje strategiczny plan rozwoju projektu, skupiając się na jakości kodu, wydajności, SEO, dostępności oraz bezpieczeństwie.
-
-## 🏗️ Faza 2: Code Quality & Refactoring (Fundamenty)
-
-**Cel:** Spłata długu technologicznego, zwiększenie czytelności kodu i ułatwienie przyszłego skalowania.
-
-### Module 1: Dekompozycja "God Components" ✅
-
-- **Zadania:**
-  - ✅ Identyfikacja i podział zbyt dużych plików (np. `SeoContent.tsx` > 600 linii, `Marketing.tsx`) na mniejsze, atomowe komponenty (np. `components/features/seo/AuditResults.tsx`).
-  - ✅ Wydzielenie logiki biznesowej do niestandardowych hooków (np. `useAuditCalculation`).
-- **Efekt:**
-  - Zwiększona czytelność i łatwość utrzymania kodu.
-  - Możliwość pisania precyzyjnych testów jednostkowych.
-  - Lepsze "tree-shaking" (mniejszy rozmiar paczek JS).
-
-### Module 2: Migracja i Czyszczenie CSS (Tailwind v4) ✅
-
-- **Zadania:**
-  - ✅ Skanowanie kodu w poszukiwaniu "magic values" (np. `text-[14px]`, `w-[350px]`) i zastąpienie ich klasami z konfiguracji (`text-sm`, `w-card`).
-  - ✅ Usunięcie pozostałości po stylach inline oraz starych plikach CSS/SCSS.
-  - ✅ Standaryzacja kolorów i odstępów zgodnie z Design Systemem.
-- **Efekt:**
-  - Spójny wygląd całej aplikacji.
-  - Mniejszy plik wyjściowy CSS.
-  - Łatwiejsze wprowadzanie globalnych zmian w designie.
-
-### Module 3: Strict TypeScript & Type Safety ✅
-
-- **Zadania:**
-  - ✅ Audyt kodu pod kątem typów `any` i zastąpienie ich ścisłymi interfejsami.
-  - ✅ Stworzenie/aktualizacja typów dla odpowiedzi z Sanity CMS oraz tabel Supabase.
-  - ✅ Weryfikacja typowania formularzy i propsów komponentów.
-- **Efekt:**
-  - Drastyczna redukcja błędów w czasie działania (runtime errors).
-  - Lepsze podpowiadanie kodu w IDE (IntelliSense).
-  - Bezpieczniejszy refactoring w przyszłości.
-
-### Module 4: Architektura Importów ✅
-
-- **Zadania:**
-  - ✅ Analiza i naprawa cyklicznych zależności (circular dependencies), np. między kontekstami a komponentami.
-  - ✅ Eliminacja problematycznych "barrel files" (index.ts), które powodują wciąganie nieużywanych modułów.
-  - ✅ Standaryzacja importów absolutnych (`@/components/...`).
-- **Efekt:**
-  - Szybsze budowanie aplikacji.
-  - Wyeliminowanie błędów inicjalizacji ("undefined is not a function").
+Dokument ten obejmuje "ostatnią prostą" przed pełnym wdrożeniem produkcyjnym.
 
 ---
 
-## ⚡ Faza 3: Performance & Core Web Vitals (Wydajność) ✅
+## 🏗️ Faza 11-14: ZAKOŃCZONE ✅
 
-**Cel:** Osiągnięcie wyniku 95-100/100 w Google Lighthouse Mobile oraz minimalizacja wskaźnika TBT (Total Blocking Time).
-
-### Module 1: Zaawansowana Hydracja (Lazy Hydration) ✅
-
-- **Zadania:**
-  - ✅ Wdrożenie `LazyHydrate` dla sekcji "below the fold" (poza pierwszym widokiem), stopki oraz ciężkich komponentów interaktywnych.
-  - ✅ Implementacja `content-visibility: auto` dla długich list elementów.
-- **Efekt:**
-  - Znacząca redukcja TBT (strona szybciej reaguje na kliknięcia).
-  - Szybszy czas do pełnej interaktywności (TTI).
-
-### Module 2: Bundle Splitting & Optymalizacja JS ✅
-
-- **Zadania:**
-  - ✅ Analiza wizualizacji paczek (bundle analyzer).
-  - ✅ Wydzielenie ciężkich bibliotek (np. `framer-motion`, `recharts`, mapy) do osobnych chunków ładowanych tylko wtedy, gdy są potrzebne.
-  - ✅ Usunięcie nieużywanego kodu (Dead Code Elimination).
-- **Efekt:**
-  - Szybsze ładowanie wstępne (LCP/FCP) na wolniejszych urządzeniach i sieciach 3G/4G.
-
-### Module 3: Optymalizacja Mediów ✅
-
-- **Zadania:**
-  - ✅ Weryfikacja pipeline'u konwersji do formatów nowej generacji (AVIF, WebP).
-  - ✅ Dodanie atrybutów `width` i `height` do wszystkich obrazów (zapobieganie CLS).
-  - ✅ Implementacja responsywnych obrazów (`srcset`) – serwowanie małych obrazków na telefony.
-- **Efekt:**
-  - Wskaźnik CLS (Layout Shift) bliski 0.
-  - Oszczędność transferu danych użytkownika.
-
-### Module 4: Optymalizacja Wykonywania JS ✅
-
-- **Zadania:**
-  - ✅ Przeniesienie ciężkich obliczeń (np. symulacje audytów) do `useEffect` (po renderowaniu) lub Web Workerów.
-  - ✅ Optymalizacja pętli animacji, aby nie blokowały głównego wątku przeglądarki.
-- **Efekt:**
-  - Płynne animacje (60 FPS).
-  - Brak "przycięć" podczas przewijania strony.
+- [x] Globalna Standaryzacja FAQ (StandardFaq.tsx)
+- [x] Migracja wszystkich 28 artykułów do ArticleShell.tsx
+- [x] Walidacja formularzy Zod + React Hook Form (ContactModal, Contact Section)
+- [x] Weryfikacja danych strukturalnych JSON-LD (Home, Blog, pSEO)
+- [x] Stress-test SSG (160+ podstron wyrenderowanych pomyślnie)
+- [x] **Stabilność wizualna i Hydracja:** Eliminacja migania sekcji i blokada wysokości (AnimateOnScroll, LazyHydrate).
+- [x] **Kompleksowe poprawki RWD:** Navbar, Fluid Typography w Hero, Grids & Cards, Modale.
+- [x] **Dostępność i Aria Labels:** Pełna weryfikacja etykiet i kontrastu (Footer, StandardCta).
+- [x] **Optymalizacja Rozmiaru:** Redukcja wagi obrazów o 140MB, konsolidacja CSS, manualChunks i czyszczenie zależności.
+- [x] **Eliminacja Redundancji:** Konsolidacja komponentów RelatedArticles, optymalizacja stylów PHP, scalenie typów i refaktoryzacja prerender.js.
 
 ---
 
-## 🔍 Faza 4: SEO & Content Engine (Widoczność)
+## 🧹 Faza 15: Operation Deep Clean & Weryfikacja Architektury ✅
 
-**Cel:** Maksymalizacja widoczności w organicznych wynikach wyszukiwania i perfekcyjna struktura danych.
+Faza dedykowana "sterylizacji" kodu przed wdrożeniem. Nie dodajemy nowych funkcji, tylko sprzątamy.
 
-### Module 1: Dane Strukturalne (Schema.org)
+### Krok 1: Weryfikacja Automatyczna (Smoke Test) ✅
 
-- **Zadania:**
-  - Implementacja JSON-LD dla każdego typu strony: Service, Article, FAQPage, BreadcrumbList, Organization, LocalBusiness.
-  - Weryfikacja poprawności w narzędziu Google Rich Results Test.
-- **Efekt:**
-  - Wyświetlanie elementów rozszerzonych w Google (gwiazdki, pytania FAQ, ceny).
-  - Wyższy współczynnik klikalności (CTR).
+- [x] **Type Check:** Uruchomienie `tsc --noEmit` (naprawiono 35 błędów w 11 plikach).
+- [x] **Linting:** Naprawa błędów ESLint v9 (w tym `set-state-in-effect` i Prettier).
+- [x] **Tests:** Uruchomienie `npm test` (Unit - 39 testów przeszło).
 
-### Module 2: Architektura Linkowania Wewnętrznego
+### Krok 2: Eliminacja Długu Technicznego (Tailwind & Style) ✅
 
-- **Zadania:**
-  - Stworzenie algorytmu "Powiązane treści" – automatyczne linkowanie usług do relewantnych artykułów i Case Studies.
-  - Dodanie sekcji "Sugerowane" na końcach artykułów.
-- **Efekt:**
-  - Głębsze indeksowanie strony przez roboty Google.
-  - Dłuższy czas spędzany na stronie (niższy Bounce Rate).
+- [x] **Audyt Kolorów:** Wyciągnięcie hex-kodów (`#0B1120`, `#F9FAFB`) do `index.css` (zmienne semantyczne: `deep-dark`, `light-gray`).
+- [x] **Refaktoryzacja:** Zamiana arbitralnych wartości `bg-[#...]` na klasy np. `bg-deep-dark`.
 
-### Module 3: Skalowalność SSG (Static Site Generation)
+### Krok 3: Czyszczenie Zależności i Bazy Danych ✅
 
-- **Zadania:**
-  - Optymalizacja skryptu `prerender.js` pod kątem obsługi tysięcy podstron pSEO (zarządzanie pamięcią, równoległość).
-  - Obsługa mapy witryny (`sitemap.xml`) dla dużej liczby adresów URL.
-- **Efekt:**
-  - Możliwość generowania 10k+ podstron bez awarii procesu budowania.
+- [x] **Supabase Purge:** Całkowite usunięcie resztek kodu/konfiguracji Supabase.
+- [x] **Analiza Bibliotek:** Przegląd `package.json` – dodano brakujące `zod` i `@portabletext/types`.
+- [x] **Martwy Kod:** Usunięto nieużywaną sekcję `Contact.tsx`.
 
----
+### Krok 4: Weryfikacja Treści (Hybrid Content System) ✅
 
-## ♿ Faza 5: Accessibility & UX (Dostępność i RWD)
+- [x] **Hardcoded Articles (Legacy - PROTECTED):** Weryfikacja 28 artykułów (pozostają jako komponenty React).
+- [x] **CMS Articles (New):** Weryfikacja `ArticleTemplate.tsx` dla treści z Sanity.
+- [x] **Zombie Text:** Tłumaczenie i oczyszczenie etykiet w `HeroVisuals.tsx`.
 
-**Cel:** Zgodność ze standardem WCAG 2.1 AA oraz doskonałe doświadczenie na urządzeniach mobilnych.
+## 💎 Faza 17: Hyper-Optimization & Sterilization (Deep Clean)
 
-### Module 1: Audyt i Poprawa Dostępności (WCAG)
+Faza skupiona na maksymalnym odchudzeniu kodu wynikowego i usunięciu redundancji logicznej.
 
-- **Zadania:**
-  - Uzupełnienie brakujących etykiet ARIA (`aria-label`, `role`) dla elementów interaktywnych.
-  - Zapewnienie alternatyw tekstowych dla wszystkich grafik znaczących.
-- **Efekt:**
-  - Zgodność z wymogami prawnymi (EAA 2025).
-  - Dostępność serwisu dla osób korzystających z czytników ekranowych.
+### Krok 1: Głęboka Analiza (Audit) ✅
 
-### Module 2: Nawigacja Klawiaturą
+- [x] **Vite Visualizer:** Analiza `stats.html` – identyfikacja i naprawa błędów importu.
+- [x] **Knip Advanced:** Wykrycie nieużywanych eksportów i typów.
+- [ ] **Font Audit:** Redukcja ładowanych wag czcionek (@fontsource) do niezbędnego minimum.
 
-- **Zadania:**
-  - Implementacja "Focus Trap" w modalach i panelach bocznych.
-  - Zapewnienie widocznych stanów `:focus` dla wszystkich przycisków i linków.
-  - Logiczna kolejność tabulacji (Tab Order).
-- **Efekt:**
-  - Możliwość pełnej obsługi strony bez użycia myszki.
+### Krok 2: Refaktoryzacja i Unifikacja ✅
 
-### Module 3: Mobile UX Polish (RWD)
+- [x] **Dictionary Extraction:** Wydzielenie powtarzających się fraz z `data/content` do `dictionary.ts`.
+- [x] **Semantic Wrappers:** Stworzenie `SectionWrapper` i wdrożenie na LandingPage.
+- [x] **SVG Sterilization:** Usunięcie redundancji SVG w `HeroVisuals.tsx` poprzez atomy UI.
 
-- **Zadania:**
-  - Weryfikacja wielkości stref dotyku (min. 44x44px) dla przycisków.
-  - Dostosowanie interfejsu do bezpiecznych stref ekranu (np. notch w iPhone).
-  - Optymalizacja wielkości czcionek na małych ekranach.
-- **Efekt:**
-  - Wygodniejsza obsługa na telefonach.
-  - Lepsza ocena w Google Mobile-Friendly Test.
+### Krok 3: Tuning Builda ✅
+
+- [x] **Advanced Minification:** Usunięcie zależności od `dotenv` na rzecz natywnych rozwiązań Node.js.
+- [x] **CSS De-bloat:** Wyciągnięcie ciężkich Data URI (grain/grid) z CSS do plików zewnętrznych.
+- [ ] **Bundle Fine-tuning:** Przeniesienie `html2canvas` i `zod` do dedykowanych vendor-chunków (wymaga weryfikacji stabilności).
+- [x] **Dynamic Service Loading:** Refaktoryzacja `pdfService.ts` na dynamiczne importy.
+
+### Krok 4: Optymalizacja Zasobów (Assets) ✅
+
+- [x] **Font Subsetting:** Ograniczenie ładowanych wag czcionek do niezbędnego minimum.
+- [x] **Lucide Tree-shaking:** Poprawa importów ikon i usunięcie błędów ReferenceError.
+- [x] **SVG Sterilization:** Automatyczne czyszczenie inline SVG za pomocą SVGO podczas builda.
 
 ---
 
-## 🛡️ Faza 6: Security & Stability (Bezpieczeństwo)
-
-**Cel:** Ochrona danych użytkowników i zapewnienie stabilności produkcyjnej.
-
-### Module 1: Bezpieczeństwo Backendowe (Supabase)
-
-- **Zadania:**
-  - Audyt i zaostrzenie reguł RLS (Row Level Security) w bazie danych.
-  - Weryfikacja uprawnień API keys (anon vs service_role).
-- **Efekt:**
-  - Ochrona przed wyciekiem lub nieautoryzowaną modyfikacją danych.
-
-### Module 2: Ochrona Formularzy i API
-
-- **Zadania:**
-  - Implementacja walidacji danych (Zod) po stronie klienta i serwera.
-  - Wdrożenie Rate Limitingu dla endpointów formularzy kontaktowych.
-  - Ochrona przed atakami XSS i Injection.
-- **Efekt:**
-  - Redukcja spamu.
-  - Zwiększone bezpieczeństwo infrastruktury.
-
-### Module 3: Obsługa Błędów (Resilience)
-
-- **Zadania:**
-  - Wdrożenie `Error Boundaries` w React – łapanie błędów komponentów bez "wywalania" całej strony.
-  - Stworzenie przyjaznych stron błędów 404 i 500.
-- **Efekt:**
-  - "Graceful degradation" – strona działa nawet przy awarii pojedynczego elementu.
-  - Lepsze wrażenie użytkownika w sytuacjach awaryjnych.
+## 🚀 Faza 18: Deployment & CI/CD (Automation)
 
 ---
 
-## 🔬 Faza 7: Deep Code Analysis & Optimization
+## 🎨 Faza 16: Final Polish
 
-**Cel:** Głęboka analiza statyczna kodu w celu wykrycia redundancji, martwego kodu i problemów architektonicznych, a następnie wdrożenie poprawek.
-
-### Module 1: Wielkie Czyszczenie (Dead Code Removal) ✅
-
-- **Zadania:**
-  - ✅ Analiza raportów `knip` (martwy kod) i `jscpd` (duplikacja).
-  - ✅ Usunięcie martwych komponentów (`Portfolio.tsx`, `PremiumWebsites.tsx`, `VisualContent.tsx`).
-  - ✅ Usunięcie starych plików danych (`articles-content.ts`, `pricing_archive.ts`).
-  - ✅ Eliminacja "barrel files" (`components/common/index.ts`).
-  - ✅ Usunięcie 34 martwych plików (skrypty, nieużywane wizualizacje).
-  - ✅ Wyczyszczenie nieużywanych zależności w `package.json` (`@google/genai`, `why-did-you-render`, `postcss`, `autoprefixer`).
-- **Efekt:**
-  - Zmniejszenie rozmiaru projektu i szumu informacyjnego.
-
-### Module 2: Deduplikacja UI (DRY) 🔄
-
-- **Zadania:**
-  - ✅ Refaktoryzacja `Input.tsx` i `Select.tsx` do `FieldWrapper.tsx`.
-  - ✅ Unifikacja logiki pobierania danych pSEO via `usePseoData` hook.
-  - ✅ Refaktoryzacja `GoogleAds.tsx` (wydzielenie kalkulatora i FAQ).
-  - Scalenie JSX w szablonach pSEO (`IndustryTemplate.tsx` i `LocationTemplate.tsx`) w jeden `PseoTemplate.tsx`.
-  - Standaryzacja sekcji powtarzalnych w Landing Page'ach (Hero, FAQ, Pricing).
-- **Efekt:**
-  - Łatwiejsze utrzymanie spójności wizualnej.
-
-### Module 3: Refaktoryzacja "God Objects" 🔄
-
-- **Zadania:**
-  - ✅ `ContactModal`: Wydzielenie konfiguracji formularza i podział na mniejsze sub-komponenty.
-  - `Marketing.tsx`: Dalsza atomizacja sekcji (Hero, Strategy, itp. są już osobno, ale wymagają standaryzacji).
-- **Efekt:**
-  - Lepsza czytelność i testowalność kluczowych elementów UI.
-
-### Module 4: Optymalizacja Artykułów ⏳
-
-- **Zadania:**
-  - Analiza duplikacji między komponentami artykułów (`...Article.tsx`) a ich wizualizacjami (`...Visuals.tsx`).
-  - Weryfikacja, czy wizualizacje nie renderują redundantnej treści.
-- **Efekt:**
-  - Eliminacja zduplikowanego kodu (ok. 5.5% całego TSX).
-
----
-
-## 🚀 Faza 8: Execution & Polish
+- [ ] **Review Animacji:** Wyłączenie ciężkich animacji dla `prefers-reduced-motion`.
+- [ ] **Mikrointerakcje:** Subtelne efekty hover w `StandardCta` i `TopicLink`.

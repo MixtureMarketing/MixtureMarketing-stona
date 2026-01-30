@@ -3,9 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routes } from '../routes.js';
 import { createClient } from '@sanity/client';
-import dotenv from 'dotenv';
 
-dotenv.config();
+try {
+  process.loadEnvFile();
+} catch (e) {
+  // Ignored
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SITEMAP_PATH = path.resolve(__dirname, '../public/sitemap.xml');

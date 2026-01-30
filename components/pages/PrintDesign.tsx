@@ -1,32 +1,29 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  ArrowLeft,
   Printer,
   Box,
   Scissors,
   CheckCircle2,
-  ArrowRight,
   Package,
   FileText,
   Ruler,
   Droplet,
   Scan,
   Palette,
-  Recycle,
-  Sheet,
   ShieldCheck,
+  Sheet,
+  Recycle,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import AmbientBackground from '../common/AmbientBackground';
 import { useModal } from '../../context/ModalContext';
-import { useParallax } from '../../hooks/useParallax';
 import StandardHero from '../common/StandardHero';
 import StandardCta from '../common/StandardCta';
+import StandardFaq from '../common/StandardFaq';
 import { PrintHeroVisual } from '../visuals/HeroVisuals';
+import Seo from '../common/Seo';
+import { PRINT_DESIGN_CONTENT as CONTENT } from '../../data/content';
 
 const TiltCard = ({ activeFinish }: { activeFinish: 'none' | 'gold' | 'uv' | 'emboss' }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -325,24 +322,13 @@ const TiltCard = ({ activeFinish }: { activeFinish: 'none' | 'gold' | 'uv' | 'em
 
 const PrintDesign: React.FC = () => {
   const [activeFinish, setActiveFinish] = useState<'none' | 'gold' | 'uv' | 'emboss'>('none');
-  const [activeLayer, setActiveLayer] = useState<number>(4);
   const [paperWeight, setPaperWeight] = useState(2);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const navigate = useNavigate();
   const { openModal } = useModal();
-
-  const heroRef = useRef<HTMLDivElement>(null);
-  const mousePos = useParallax(heroRef, 1);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const interval = setInterval(() => {
-      if (document.hidden) return;
-      setActiveLayer((prev) => (prev === 4 ? 0 : prev + 1));
-    }, 3000);
-    return () => clearInterval(interval);
   }, []);
 
   const toggleCheck = (index: number) => {
@@ -351,10 +337,6 @@ const PrintDesign: React.FC = () => {
     } else {
       setCheckedItems((prev) => [...prev, index]);
     }
-  };
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
   };
 
   const preflightChecklist = CONTENT.preflight.items.map((item, i) => {
@@ -384,8 +366,8 @@ const PrintDesign: React.FC = () => {
         ctaSecondaryIcon={Droplet}
         backLinkPath="/design/"
         backLinkLabel="Wróć do Designu"
-        accentGradientFrom="[#F4B400]"
-        accentGradientTo="[#FFD700]"
+        accentGradientFrom="#F4B400"
+        accentGradientTo="#FFD700"
         visual={<PrintHeroVisual />}
       />
 
@@ -450,7 +432,7 @@ const PrintDesign: React.FC = () => {
                   </div>
                   <div>
                     <h3
-                      className={`font-bold text-lg mb-1 transition-colors ${activeFinish === finish.id ? 'text-[#0B1120]' : 'text-gray-600'}`}
+                      className={`font-bold text-lg mb-1 transition-colors ${activeFinish === finish.id ? 'text-deep-dark' : 'text-gray-600'}`}
                     >
                       {finish.label}
                     </h3>
@@ -604,7 +586,7 @@ const PrintDesign: React.FC = () => {
       </section>
 
       {/* --- PACKAGING ENGINEERING --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -736,7 +718,7 @@ const PrintDesign: React.FC = () => {
                     )}
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors
-                                  ${isChecked ? 'bg-white/10 text-white' : 'bg-[#F9FAFB] text-dark group-hover:text-[#F4B400]'}
+                                  ${isChecked ? 'bg-white/10 text-white' : 'bg-light-gray text-dark group-hover:text-[#F4B400]'}
                               `}
                     >
                       {item.icon}
@@ -775,7 +757,7 @@ const PrintDesign: React.FC = () => {
               return (
                 <GlassCard
                   key={i}
-                  className="p-6 flex flex-col items-center justify-center text-center hover:border-[#F4B400] bg-[#F9FAFB] group cursor-default h-48"
+                  className="p-6 flex flex-col items-center justify-center text-center hover:border-[#F4B400] bg-light-gray group cursor-default h-48"
                 >
                   {i < 4 ? (
                     <div
@@ -804,36 +786,10 @@ const PrintDesign: React.FC = () => {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-24 bg-[#F9FAFB]">
+      <section className="py-24 bg-light-gray">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Najczęstsze pytania o Druk" className="mb-12" />
-          <div className="space-y-4">
-            {CONTENT.faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-gray-200 rounded-2xl overflow-hidden bg-white hover:border-[#F4B400]/50 transition-colors"
-              >
-                <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
-                >
-                  <span className="font-bold text-dark text-lg pr-4">{faq.q}</span>
-                  <div
-                    className={`transform transition-transform ${openFaq === i ? 'rotate-180' : ''} text-[#F4B400]`}
-                  >
-                    <ArrowRight size={20} className="rotate-90" />
-                  </div>
-                </button>
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 

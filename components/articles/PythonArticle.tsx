@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ShieldCheck,
   Zap,
   Terminal,
-  ChevronDown,
   CheckCircle2,
   Rocket,
   Info,
@@ -17,6 +16,7 @@ import {
   Bot,
   Server,
   Key,
+  Layout,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -153,7 +153,11 @@ const PythonArticle = () => {
       <div className="my-32">
         <div className="flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1">
-            <SectionHeader title={CONTENT.admin.title} subtitle={CONTENT.admin.subtitle} align="left" />
+            <SectionHeader
+              title={CONTENT.admin.title}
+              subtitle={CONTENT.admin.subtitle}
+              align="left"
+            />
             <p>{CONTENT.admin.text1}</p>
             <p dangerouslySetInnerHTML={{ __html: CONTENT.admin.text2 }} />
           </div>

@@ -1,22 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  ArrowLeft,
   BarChart3,
   Target,
   Eye,
-  ArrowRight,
   Activity,
   Database,
   Filter,
   Server,
   Lock,
-  TrendingUp,
   ShoppingCart,
   Users,
   CheckCircle2,
   AlertTriangle,
   ShieldCheck,
-  ChevronDown,
   FileSpreadsheet,
   GripVertical,
   Scale,
@@ -27,13 +23,12 @@ import {
   Terminal,
   Store,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
+import StandardFaq from '../common/StandardFaq';
 import { ANALYTICS_CONTENT as CONTENT } from '../../data/content';
 
 import StandardHero from '../common/StandardHero';
@@ -41,28 +36,20 @@ import StandardCta from '../common/StandardCta';
 import { AnalyticsHeroVisual } from '../visuals/HeroVisuals';
 
 const Analytics: React.FC = () => {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
   // Compliance Scan State
   const [scanProgress, setScanProgress] = useState(0);
   const [isCompliant, setIsCompliant] = useState(false);
 
   // Hooks
-  const navigate = useNavigate();
   const { openModal } = useModal();
 
-  const [randomData, setRandomData] = useState<string[]>([]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRandomData(
-      Array.from({ length: 120 }).map((_, i) =>
-        i < 6
-          ? ['Date', 'Source', 'Medium', 'Camp.', 'Click', 'Cost'][i]
-          : Math.floor(Math.random() * 1000).toString()
-      )
-    );
-  }, []);
+  const [randomData] = useState<string[]>(() =>
+    Array.from({ length: 120 }).map((_, i) =>
+      i < 6
+        ? ['Date', 'Source', 'Medium', 'Camp.', 'Click', 'Cost'][i]
+        : Math.floor(Math.random() * 1000).toString(),
+    ),
+  );
 
   // Slider State
   const [sliderPosition, setSliderPosition] = useState(50);
@@ -86,10 +73,6 @@ const Analytics: React.FC = () => {
     }, 50);
     return () => clearInterval(interval);
   }, []);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   const handleSliderChange = (
     e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
@@ -181,7 +164,7 @@ const Analytics: React.FC = () => {
       </section>
 
       {/* --- LEGAL & COMPLIANCE (DARK SECTION) --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -243,7 +226,7 @@ const Analytics: React.FC = () => {
                   </div>
 
                   <div className="space-y-3 font-mono text-xs">
-                    <div className="flex justify-between items-center p-3 bg-[#0B1120] rounded border border-[#334155]">
+                    <div className="flex justify-between items-center p-3 bg-deep-dark rounded border border-[#334155]">
                       <span className="text-gray-200 flex items-center gap-2">
                         <Lock size={12} /> GDPR Consent
                       </span>
@@ -253,7 +236,7 @@ const Analytics: React.FC = () => {
                         <span className="text-gray-400 font-bold animate-pulse">Pending...</span>
                       )}
                     </div>
-                    <div className="flex justify-between items-center p-3 bg-[#0B1120] rounded border border-[#334155]">
+                    <div className="flex justify-between items-center p-3 bg-deep-dark rounded border border-[#334155]">
                       <span className="text-gray-300 flex items-center gap-2">
                         <Scale size={12} /> Omnibus Directive
                       </span>
@@ -263,7 +246,7 @@ const Analytics: React.FC = () => {
                         <span className="text-gray-600">Pending...</span>
                       )}
                     </div>
-                    <div className="flex justify-between items-center p-3 bg-[#0B1120] rounded border border-[#334155]">
+                    <div className="flex justify-between items-center p-3 bg-deep-dark rounded border border-[#334155]">
                       <span className="text-gray-300 flex items-center gap-2">
                         <Server size={12} /> Google Consent v2
                       </span>
@@ -319,7 +302,7 @@ const Analytics: React.FC = () => {
               />
 
               {/* RIGHT IMAGE (AFTER - DASHBOARD) */}
-              <div className="absolute inset-0 bg-[#0B1120] flex flex-col p-6 overflow-hidden">
+              <div className="absolute inset-0 bg-deep-dark flex flex-col p-6 overflow-hidden">
                 {/* Top Bar */}
                 <div className="flex justify-between items-center mb-6">
                   <div className="text-white font-bold text-lg flex items-center gap-2">
@@ -353,7 +336,7 @@ const Analytics: React.FC = () => {
                       style={{ height: `${h}%` }}
                     ></div>
                   ))}
-                  <div className="absolute top-4 right-4 text-primary font-bold text-sm bg-[#0B1120]/80 px-2 py-1 rounded backdrop-blur-sm">
+                  <div className="absolute top-4 right-4 text-primary font-bold text-sm bg-deep-dark/80 px-2 py-1 rounded backdrop-blur-sm">
                     Conversion Rate: 3.8%
                   </div>
                 </div>
@@ -442,7 +425,7 @@ const Analytics: React.FC = () => {
       </section>
 
       {/* --- ENTERPRISE DATA WAREHOUSE (NEW DESIGN) --- */}
-      <section className="py-24 bg-[#0B1120] relative overflow-hidden text-white">
+      <section className="py-24 bg-deep-dark relative overflow-hidden text-white">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -656,37 +639,10 @@ const Analytics: React.FC = () => {
       </section>
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-24 bg-[#F9FAFB] relative z-10">
+      <section className="py-24 bg-light-gray relative z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title={CONTENT.faq.title} className="mb-12" />
-
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <div
-                key={i}
-                className="border border-gray-200 rounded-2xl overflow-hidden bg-white hover:border-primary/50 transition-colors"
-              >
-                <button
-                  onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center p-6 text-left focus:outline-none"
-                >
-                  <span className="font-bold text-dark text-lg pr-4">{faq.q}</span>
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 ${openFaq === i ? 'bg-primary text-white rotate-180' : 'bg-gray-100 text-gray-700'}`}
-                  >
-                    <ChevronDown size={18} />
-                  </div>
-                </button>
-                <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
-                >
-                  <div className="p-6 pt-0 text-gray-600 leading-relaxed border-t border-gray-100/50">
-                    {faq.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StandardFaq items={faqs} />
         </div>
       </section>
 

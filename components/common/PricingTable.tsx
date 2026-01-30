@@ -77,7 +77,7 @@ const PricingTable: React.FC<PricingTableProps> = ({
                       </div>
                     )}
                     <GlassCard
-                      className={`p-8 h-full flex flex-col transition-all duration-500 hover:shadow-2xl relative overflow-hidden ${
+                      className={`p-5 md:p-8 h-full flex flex-col transition-all duration-500 hover:shadow-2xl relative overflow-hidden ${
                         isHighlight
                           ? 'border-secondary shadow-xl ring-4 ring-[#E0EFFF] bg-white'
                           : 'border-gray-100 hover:border-primary/30 bg-white'

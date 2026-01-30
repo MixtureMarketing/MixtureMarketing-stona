@@ -97,7 +97,7 @@ const TermsOfService: React.FC = () => {
               <Scale size={24} className="text-primary" /> {sections.complaints.title}
             </h2>
             <p className="mb-4" dangerouslySetInnerHTML={{ __html: sections.complaints.intro }} />
-            <div className="p-5 bg-[#F9FAFB] rounded-2xl border border-gray-100 space-y-2 text-sm">
+            <div className="p-5 bg-light-gray rounded-2xl border border-gray-100 space-y-2 text-sm">
               {sections.complaints.steps.map((step, i) => (
                 <p key={i} dangerouslySetInnerHTML={{ __html: step }} />
               ))}

@@ -124,7 +124,9 @@ const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Scrollable Body */}
-        <div className="p-4 md:p-10 overflow-y-auto custom-scrollbar flex-grow">{children}</div>
+        <div className="p-4 md:p-8 lg:p-10 overflow-y-auto custom-scrollbar flex-grow">
+          {children}
+        </div>
       </div>
 
       <style>{`

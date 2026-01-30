@@ -3,6 +3,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import viteCompression from 'vite-plugin-compression';
+import svgo from 'vite-plugin-svgo';
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { visualizer } from 'rollup-plugin-visualizer';
 
@@ -23,6 +24,20 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(), // Tailwind v4 plugin
+      svgo({
+        plugins: [
+          {
+            name: 'preset-default',
+            params: {
+              overrides: {
+                removeViewBox: false,
+              },
+            },
+          },
+          'removeDimensions',
+          'cleanupIds',
+        ],
+      }),
       // Image optimization (compression)
       ViteImageOptimizer({
         test: /\.(jpe?g|png|gif|tiff|svg)$/i, // Exclude webp/avif from re-optimization (handled by script)
@@ -62,37 +77,21 @@ export default defineConfig(({ mode }) => {
       }),
     ],
     build: {
+      emptyOutDir: true,
       rollupOptions: {
         output: {
+          // Disabled manualChunks due to runtime initialization errors with specific libraries
           /*
           manualChunks(id) {
-            if (id.includes('node_modules')) {
-              // Standalone heavy libraries
-              if (id.includes('recharts')) return 'vendor-charts';
-              if (id.includes('framer-motion')) return 'vendor-motion';
-              if (id.includes('jspdf')) return 'vendor-pdf';
-              if (id.includes('@supabase')) return 'vendor-db';
-              if (id.includes('@google/genai')) return 'vendor-ai';
-              if (id.includes('@sanity/client')) return 'vendor-cms';
-              if (id.includes('lucide-react')) return 'vendor-utils';
-
-              // Group remaining standard react vendors
-              if (
-                id.includes('react') ||
-                id.includes('react-dom') ||
-                id.includes('react-router-dom')
-              ) {
-                return 'vendor-core';
-              }
-
-              // Generic vendor chunk for other small libs
-              return 'vendor-others';
-            }
-          },
+            ...
+          }
           */
         },
       },
       chunkSizeWarningLimit: 1000,
+    },
+    esbuild: {
+      drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
     define: {
       // Pozwala na dostęp do klucza przez process.env (użyteczne dla niektórych bibliotek)

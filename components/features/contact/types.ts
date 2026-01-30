@@ -1,13 +1,14 @@
 export interface ContactFormData {
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
+  company?: string;
   website_verify?: string; // Honeypot
   website?: string;
   projectType?: string;
   budget?: string;
   deadline?: string;
-  message: string;
+  message?: string;
   privacy: boolean;
   package_name?: string;
   // Dynamic fields

@@ -31,6 +31,8 @@ import { LANDING_PAGE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardCta from '../common/StandardCta';
+import { PricingSectionData, PricingTier } from '../../types/common';
+import SectionWrapper from '../common/SectionWrapper';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -131,7 +133,7 @@ const LandingPage: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-24 lg:py-32 bg-[#F9FAFB] overflow-hidden">
+      <section className="relative py-24 lg:py-32 bg-light-gray overflow-hidden">
         <AmbientBackground />
 
         <div className="absolute inset-0 bg-grid-pattern opacity-5 pointer-events-none"></div>
@@ -192,10 +194,10 @@ const LandingPage: React.FC = () => {
             >
               <div className="relative z-10 bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 max-w-lg mx-auto transform transition-all hover:scale-[1.01] duration-500">
                 <div className="flex justify-between items-center mb-8">
-                  <h3 className="font-bold text-dark flex items-center gap-2">
+                  <div className="font-bold text-dark flex items-center gap-2">
                     <Gauge size={20} className="text-instagram" />
                     {CONTENT.hero.simulator.title}
-                  </h3>
+                  </div>
                   <div className="flex items-center gap-2 text-xxs font-bold uppercase tracking-wider text-gray-600">
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div> Live
                     Check
@@ -254,12 +256,12 @@ const LandingPage: React.FC = () => {
                       ) : (
                         <CheckCircle2 size={12} className="text-green-500" aria-hidden="true" />
                       )}
-                      <span className={conversionDrop > 0 ? 'text-red-600' : 'text-green-600'}>
+                      <span className={conversionDrop > 0 ? 'text-red-600' : 'text-green-700'}>
                         {CONTENT.hero.simulator.labels.conversionLoss}
                       </span>
                     </div>
                     <div
-                      className={`text-xl font-black ${conversionDrop > 0 ? 'text-red-500' : 'text-green-500'}`}
+                      className={`text-xl font-black ${conversionDrop > 0 ? 'text-red-500' : 'text-green-700'}`}
                     >
                       {conversionDrop > 0 ? `-${conversionDrop}%` : '0%'}
                     </div>
@@ -290,65 +292,63 @@ const LandingPage: React.FC = () => {
 
       {/* --- USE CASES --- */}
       <LazyHydrate minHeight="600px">
-        <section className="py-24 bg-white relative z-10">
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader
-              title={CONTENT.useCases.title}
-              description={CONTENT.useCases.description}
-              className="mb-16"
-            />
+        <SectionWrapper variant="white" containerClassName="max-w-screen-2xl">
+          <SectionHeader
+            title={CONTENT.useCases.title}
+            description={CONTENT.useCases.description}
+            className="mb-16"
+          />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {useCases.map((item, index) => (
-                <AnimateOnScroll key={index} delay={index * 150} className="h-full">
-                  <GlassCard className="p-8 h-full flex flex-col transition-all duration-300 group bg-[#F9FAFB] hover:bg-white hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border-t-4 border-t-transparent hover:border-t-[#E1306C]">
-                    <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-dark mb-6 group-hover:bg-instagram group-hover:text-white transition-colors duration-300 shadow-sm border border-gray-100">
-                      {item.icon}
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {useCases.map((item, index) => (
+              <AnimateOnScroll key={index} delay={index * 150} className="h-full">
+                <GlassCard className="p-8 h-full flex flex-col transition-all duration-300 group bg-[#F9FAFB] hover:bg-white hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border-t-4 border-t-transparent hover:border-t-[#E1306C]">
+                  <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-dark mb-6 group-hover:bg-instagram group-hover:text-white transition-colors duration-300 shadow-sm border border-gray-100">
+                    {item.icon}
+                  </div>
 
-                    <h3 className="text-xl font-bold text-dark mb-2">{item.title}</h3>
-                    <p className="text-xxs font-black text-instagram uppercase tracking-[0.2em] mb-4">
-                      {item.subtitle}
-                    </p>
+                  <h3 className="text-xl font-bold text-dark mb-2">{item.title}</h3>
+                  <p className="text-xxs font-black text-instagram uppercase tracking-[0.2em] mb-4">
+                    {item.subtitle}
+                  </p>
 
-                    <p className="text-gray-700 leading-relaxed text-sm mb-8 flex-grow font-medium">
-                      {item.desc}
-                    </p>
+                  <p className="text-gray-700 leading-relaxed text-sm mb-8 flex-grow font-medium">
+                    {item.desc}
+                  </p>
 
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {item.tags.map((tag, i) => (
-                        <span
-                          key={i}
-                          className="text-xxs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase border border-gray-200 group-hover:border-instagram/20 transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {item.tags.map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xxs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase border border-gray-200 group-hover:border-instagram/20 transition-colors"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
 
-                    <div className="pt-4 border-t border-gray-100 w-full flex justify-between items-center">
-                      <div>
-                        <div className="text-xxs font-bold text-gray-600 uppercase tracking-widest">
-                          Main KPI
-                        </div>
-                        <div className="text-xs font-black text-dark">{item.kpi}</div>
+                  <div className="pt-4 border-t border-gray-100 w-full flex justify-between items-center">
+                    <div>
+                      <div className="text-xxs font-bold text-gray-600 uppercase tracking-widest">
+                        Main KPI
                       </div>
-                      <ArrowRight
-                        size={16}
-                        className="text-gray-300 group-hover:text-instagram transition-colors transform group-hover:translate-x-1"
-                      />
+                      <div className="text-xs font-black text-dark">{item.kpi}</div>
                     </div>
-                  </GlassCard>
-                </AnimateOnScroll>
-              ))}
-            </div>
+                    <ArrowRight
+                      size={16}
+                      className="text-gray-300 group-hover:text-instagram transition-colors transform group-hover:translate-x-1"
+                    />
+                  </div>
+                </GlassCard>
+              </AnimateOnScroll>
+            ))}
           </div>
-        </section>
+        </SectionWrapper>
       </LazyHydrate>
 
       {/* --- PSYCHOLOGY --- */}
       <LazyHydrate minHeight="800px">
-        <section id="anatomy" className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+        <SectionWrapper id="anatomy" variant="dark">
           <div
             className="absolute inset-0 pointer-events-none opacity-20"
             style={{
@@ -358,222 +358,214 @@ const LandingPage: React.FC = () => {
             }}
           ></div>
 
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:flex-row gap-16 items-start">
-              <div className="lg:w-3/5 w-full flex justify-center lg:justify-start order-2 lg:order-1">
-                <AnimateOnScroll delay={200} className="w-full">
-                  <div className="relative w-full max-w-xl mx-auto bg-[#0F172A] rounded-md border-2 border-[#1E293B] p-2 shadow-2xl">
-                    <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-primary"></div>
-                    <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-primary"></div>
-                    <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-primary"></div>
-                    <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-primary"></div>
+          <div className="flex flex-col lg:flex-row gap-16 items-start relative z-10">
+            <div className="lg:w-3/5 w-full flex justify-center lg:justify-start order-2 lg:order-1">
+              <AnimateOnScroll delay={200} className="w-full">
+                <div className="relative w-full max-w-xl mx-auto bg-[#0F172A] rounded-md border-2 border-[#1E293B] p-2 shadow-2xl">
+                  <div className="absolute -top-2 -left-2 w-4 h-4 border-t-2 border-l-2 border-primary"></div>
+                  <div className="absolute -top-2 -right-2 w-4 h-4 border-t-2 border-r-2 border-primary"></div>
+                  <div className="absolute -bottom-2 -left-2 w-4 h-4 border-b-2 border-l-2 border-primary"></div>
+                  <div className="absolute -bottom-2 -right-2 w-4 h-4 border-b-2 border-r-2 border-primary"></div>
 
-                    <div className="bg-[#0B1120] p-6 space-y-6 relative overflow-hidden">
-                      <div
-                        className="absolute inset-0 opacity-10 pointer-events-none"
-                        style={{
-                          backgroundImage: 'radial-gradient(#61B6DE 1px, transparent 1px)',
-                          backgroundSize: '10px 10px',
-                        }}
-                      ></div>
+                  <div className="bg-deep-dark p-6 space-y-6 relative overflow-hidden">
+                    <div
+                      className="absolute inset-0 opacity-10 pointer-events-none"
+                      style={{
+                        backgroundImage: 'radial-gradient(#61B6DE 1px, transparent 1px)',
+                        backgroundSize: '10px 10px',
+                      }}
+                    ></div>
 
-                      <div
-                        onMouseEnter={() => setActiveStep(0)}
-                        onMouseLeave={() => setActiveStep(null)}
-                        className={`relative border border-dashed border-instagram bg-instagram/5 p-6 rounded transition-all duration-300 cursor-pointer ${
-                          activeStep === 0
-                            ? 'ring-2 ring-[#E1306C] bg-instagram/10 scale-[1.02] shadow-[0_0_30px_rgba(225,48,108,0.2)] z-10'
-                            : activeStep !== null
-                              ? 'opacity-30 blur-[1px]'
-                              : ''
-                        }`}
-                      >
-                        <div className="absolute top-0 right-0 bg-instagram text-white text-xxs font-bold px-2 py-0.5">
-                          ATTENTION
-                        </div>
-                        <div className="flex gap-4">
-                          <div className="w-2/3 space-y-2">
-                            <div className="h-6 w-full bg-instagram/40 rounded-sm"></div>
-                            <div className="h-6 w-3/4 bg-instagram/40 rounded-sm"></div>
-                            <div className="h-3 w-full bg-instagram/20 mt-4 rounded-sm"></div>
-                            <div className="h-3 w-5/6 bg-instagram/20 rounded-sm"></div>
-                            <div className="h-8 w-32 bg-instagram mt-4 rounded flex items-center justify-center text-xxs font-bold text-white shadow-lg">
-                              CTA
-                            </div>
-                          </div>
-                          <div className="w-1/3 bg-instagram/10 border border-instagram/30 flex items-center justify-center text-instagram text-xs">
-                            Hero Img
+                    <div
+                      onMouseEnter={() => setActiveStep(0)}
+                      onMouseLeave={() => setActiveStep(null)}
+                      className={`relative border border-dashed border-instagram bg-instagram/5 p-6 rounded transition-all duration-300 cursor-pointer ${
+                        activeStep === 0
+                          ? 'ring-2 ring-[#E1306C] bg-instagram/10 scale-[1.02] shadow-[0_0_30px_rgba(225,48,108,0.2)] z-10'
+                          : activeStep !== null
+                            ? 'opacity-30 blur-[1px]'
+                            : ''
+                      }`}
+                    >
+                      <div className="absolute top-0 right-0 bg-instagram text-white text-xxs font-bold px-2 py-0.5">
+                        ATTENTION
+                      </div>
+                      <div className="flex gap-4">
+                        <div className="w-2/3 space-y-2">
+                          <div className="h-6 w-full bg-instagram/40 rounded-sm"></div>
+                          <div className="h-6 w-3/4 bg-instagram/40 rounded-sm"></div>
+                          <div className="h-3 w-full bg-instagram/20 mt-4 rounded-sm"></div>
+                          <div className="h-3 w-5/6 bg-instagram/20 rounded-sm"></div>
+                          <div className="h-8 w-32 bg-instagram mt-4 rounded flex items-center justify-center text-xxs font-bold text-white shadow-lg">
+                            CTA
                           </div>
                         </div>
-                      </div>
-
-                      <div
-                        onMouseEnter={() => setActiveStep(1)}
-                        onMouseLeave={() => setActiveStep(null)}
-                        className={`relative border border-dashed border-primary bg-primary/5 p-6 rounded transition-all duration-300 cursor-pointer ${
-                          activeStep === 1
-                            ? 'ring-2 ring-primary bg-primary/10 scale-[1.02] shadow-[0_0_30px_rgba(97,182,222,0.2)] z-10'
-                            : activeStep !== null
-                              ? 'opacity-30 blur-[1px]'
-                              : ''
-                        }`}
-                      >
-                        <div className="absolute top-0 right-0 bg-primary text-[#0B1120] text-xxs font-bold px-2 py-0.5">
-                          INTEREST
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                          {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex flex-col gap-2">
-                              <div className="h-12 bg-primary/20 rounded w-full"></div>
-                              <div className="h-2 w-full bg-primary/20 rounded-sm"></div>
-                              <div className="h-2 w-2/3 bg-primary/20 rounded-sm"></div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div
-                        onMouseEnter={() => setActiveStep(2)}
-                        onMouseLeave={() => setActiveStep(null)}
-                        className={`relative border border-dashed border-secondary bg-secondary/5 p-6 rounded transition-all duration-300 cursor-pointer ${
-                          activeStep === 2
-                            ? 'ring-2 ring-secondary bg-secondary/10 scale-[1.02] shadow-[0_0_30px_rgba(63,61,145,0.3)] z-10'
-                            : activeStep !== null
-                              ? 'opacity-30 blur-[1px]'
-                              : ''
-                        }`}
-                      >
-                        <div className="absolute top-0 right-0 bg-secondary text-white text-xxs font-bold px-2 py-0.5">
-                          DESIRE
-                        </div>
-                        <div className="flex gap-4 items-center justify-center">
-                          <div className="w-12 h-12 rounded-full bg-secondary/40 border-2 border-secondary shrink-0"></div>
-                          <div className="space-y-2 w-full max-w-sm">
-                            <div className="h-2 w-full bg-secondary/20 rounded-sm"></div>
-                            <div className="h-2 w-5/6 bg-secondary/20 rounded-sm"></div>
-                            <div className="flex gap-1 mt-2">
-                              {[1, 2, 3, 4, 5].map((s) => (
-                                <div key={s} className="w-3 h-3 bg-secondary rounded-full"></div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        onMouseEnter={() => setActiveStep(3)}
-                        onMouseLeave={() => setActiveStep(null)}
-                        className={`relative border border-success bg-success/5 p-6 rounded flex justify-center items-center flex-col transition-all duration-300 cursor-pointer ${
-                          activeStep === 3
-                            ? 'ring-2 ring-[#00C853] bg-success/10 scale-[1.02] shadow-[0_0_30px_rgba(0,200,83,0.3)] z-10'
-                            : activeStep !== null
-                              ? 'opacity-30 blur-[1px]'
-                              : ''
-                        }`}
-                      >
-                        <div className="absolute top-0 right-0 bg-success text-[#0B1120] text-xxs font-bold px-2 py-0.5">
-                          ACTION
-                        </div>
-                        <div className="h-14 w-full max-w-sm bg-success rounded-lg shadow-[0_0_20px_rgba(0,200,83,0.4)] animate-pulse flex items-center justify-center text-[#0B1120] font-black text-lg uppercase tracking-widest border-2 border-white/20">
-                          Odbierz Bonus
-                        </div>
-                        <div className="mt-3 text-xxs text-success/60 font-mono">
-                          Gwarancja Satysfakcji 100%
+                        <div className="w-1/3 bg-instagram/10 border border-instagram/30 flex items-center justify-center text-instagram text-xs">
+                          Hero Img
                         </div>
                       </div>
                     </div>
-                  </div>
-                </AnimateOnScroll>
-              </div>
 
-              <div className="lg:w-2/5 order-1 lg:order-2">
-                <AnimateOnScroll>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-instagram/10 border border-instagram/20 text-instagram text-xs font-bold uppercase tracking-wider mb-6">
-                    <Split size={14} /> {CONTENT.psychology.badge}
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-                    {CONTENT.psychology.title.line1}
-                    <br />
-                    <span className="text-instagram">{CONTENT.psychology.title.line2}</span>
-                  </h2>
-                  <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-                    {CONTENT.psychology.description}
-                  </p>
+                    <div
+                      onMouseEnter={() => setActiveStep(1)}
+                      onMouseLeave={() => setActiveStep(null)}
+                      className={`relative border border-dashed border-primary bg-primary/5 p-6 rounded transition-all duration-300 cursor-pointer ${
+                        activeStep === 1
+                          ? 'ring-2 ring-primary bg-primary/10 scale-[1.02] shadow-[0_0_30px_rgba(97,182,222,0.2)] z-10'
+                          : activeStep !== null
+                            ? 'opacity-30 blur-[1px]'
+                            : ''
+                      }`}
+                    >
+                      <div className="absolute top-0 right-0 bg-primary text-deep-dark text-xxs font-bold px-2 py-0.5">
+                        INTEREST
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        {[1, 2, 3].map((i) => (
+                          <div key={i} className="flex flex-col gap-2">
+                            <div className="h-12 bg-primary/20 rounded w-full"></div>
+                            <div className="h-2 w-full bg-primary/20 rounded-sm"></div>
+                            <div className="h-2 w-2/3 bg-primary/20 rounded-sm"></div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
-                  <div className="space-y-4">
-                    {anatomySteps.map((step, i) => (
-                      <div
-                        key={i}
-                        onMouseEnter={() => setActiveStep(i)}
-                        onMouseLeave={() => setActiveStep(null)}
-                        className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-default ${
-                          activeStep === i
-                            ? 'bg-white/10 border-white/30 translate-x-2'
-                            : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
-                        }`}
-                      >
-                        <div
-                          className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 shadow-lg font-mono border transition-all ${
-                            activeStep === i
-                              ? 'bg-white text-black border-transparent scale-110'
-                              : 'bg-transparent text-white border-white/10'
-                          }`}
-                          style={
-                            activeStep === i ? {} : { color: step.color, borderColor: step.color }
-                          }
-                        >
-                          {step.step}
-                        </div>
-                        <div>
-                          <h3
-                            className={`font-bold text-sm mb-1 flex items-center gap-2 transition-colors ${
-                              activeStep === i ? 'text-white' : 'text-gray-100'
-                            }`}
-                          >
-                            {step.name}
-                            <span
-                              className={`text-xxs px-2 py-0.5 rounded font-mono transition-colors ${
-                                activeStep === i
-                                  ? 'bg-white text-black'
-                                  : 'bg-white/10 text-gray-300'
-                              }`}
-                            >
-                              {step.tech}
-                            </span>
-                          </h3>
-                          <p
-                            className={`text-xs leading-relaxed transition-colors ${
-                              activeStep === i ? 'text-white' : 'text-gray-300'
-                            }`}
-                          >
-                            {step.desc}
-                          </p>
+                    <div
+                      onMouseEnter={() => setActiveStep(2)}
+                      onMouseLeave={() => setActiveStep(null)}
+                      className={`relative border border-dashed border-secondary bg-secondary/5 p-6 rounded transition-all duration-300 cursor-pointer ${
+                        activeStep === 2
+                          ? 'ring-2 ring-secondary bg-secondary/10 scale-[1.02] shadow-[0_0_30px_rgba(63,61,145,0.3)] z-10'
+                          : activeStep !== null
+                            ? 'opacity-30 blur-[1px]'
+                            : ''
+                      }`}
+                    >
+                      <div className="absolute top-0 right-0 bg-secondary text-white text-xxs font-bold px-2 py-0.5">
+                        DESIRE
+                      </div>
+                      <div className="flex gap-4 items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-secondary/40 border-2 border-secondary shrink-0"></div>
+                        <div className="space-y-2 w-full max-w-sm">
+                          <div className="h-2 w-full bg-secondary/20 rounded-sm"></div>
+                          <div className="h-2 w-5/6 bg-secondary/20 rounded-sm"></div>
+                          <div className="flex gap-1 mt-2">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <div key={s} className="w-3 h-3 bg-secondary rounded-full"></div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    ))}
+                    </div>
+
+                    <div
+                      onMouseEnter={() => setActiveStep(3)}
+                      onMouseLeave={() => setActiveStep(null)}
+                      className={`relative border border-success bg-success/5 p-6 rounded flex justify-center items-center flex-col transition-all duration-300 cursor-pointer ${
+                        activeStep === 3
+                          ? 'ring-2 ring-[#00C853] bg-success/10 scale-[1.02] shadow-[0_0_30px_rgba(0,200,83,0.3)] z-10'
+                          : activeStep !== null
+                            ? 'opacity-30 blur-[1px]'
+                            : ''
+                      }`}
+                    >
+                      <div className="absolute top-0 right-0 bg-success text-deep-dark text-xxs font-bold px-2 py-0.5">
+                        ACTION
+                      </div>
+                      <div className="h-14 w-full max-w-sm bg-success rounded-lg shadow-[0_0_20px_rgba(0,200,83,0.4)] animate-pulse flex items-center justify-center text-deep-dark font-black text-lg uppercase tracking-widest border-2 border-white/20">
+                        Odbierz Bonus
+                      </div>
+                      <div className="mt-3 text-xxs text-success/60 font-mono">
+                        Gwarancja Satysfakcji 100%
+                      </div>
+                    </div>
                   </div>
-                </AnimateOnScroll>
-              </div>
+                </div>
+              </AnimateOnScroll>
+            </div>
+
+            <div className="lg:w-2/5 order-1 lg:order-2">
+              <AnimateOnScroll>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-instagram/10 border border-instagram/20 text-instagram text-xs font-bold uppercase tracking-wider mb-6">
+                  <Split size={14} /> {CONTENT.psychology.badge}
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+                  {CONTENT.psychology.title.line1}
+                  <br />
+                  <span className="text-instagram">{CONTENT.psychology.title.line2}</span>
+                </h2>
+                <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                  {CONTENT.psychology.description}
+                </p>
+
+                <div className="space-y-4">
+                  {anatomySteps.map((step, i) => (
+                    <div
+                      key={i}
+                      onMouseEnter={() => setActiveStep(i)}
+                      onMouseLeave={() => setActiveStep(null)}
+                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-default ${
+                        activeStep === i
+                          ? 'bg-white/10 border-white/30 translate-x-2'
+                          : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div
+                        className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 shadow-lg font-mono border transition-all ${
+                          activeStep === i
+                            ? 'bg-white text-black border-transparent scale-110'
+                            : 'bg-transparent text-white border-white/10'
+                        }`}
+                        style={
+                          activeStep === i ? {} : { color: step.color, borderColor: step.color }
+                        }
+                      >
+                        {step.step}
+                      </div>
+                      <div>
+                        <h3
+                          className={`font-bold text-sm mb-1 flex items-center gap-2 transition-colors ${
+                            activeStep === i ? 'text-white' : 'text-gray-100'
+                          }`}
+                        >
+                          {step.name}
+                          <span
+                            className={`text-xxs px-2 py-0.5 rounded font-mono transition-colors ${
+                              activeStep === i ? 'bg-white text-black' : 'bg-white/10 text-gray-300'
+                            }`}
+                          >
+                            {step.tech}
+                          </span>
+                        </h3>
+                        <p
+                          className={`text-xs leading-relaxed transition-colors ${
+                            activeStep === i ? 'text-white' : 'text-gray-300'
+                          }`}
+                        >
+                          {step.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AnimateOnScroll>
             </div>
           </div>
-        </section>
+        </SectionWrapper>
       </LazyHydrate>
 
       {/* --- INTEGRATIONS --- */}
       <LazyHydrate minHeight="400px">
-        <section className="py-16 md:py-24 bg-[#F9FAFB] relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
+        <SectionWrapper variant="light-gray" containerClassName="text-center">
+          <SectionHeader
+            title={CONTENT.integrations.title}
+            description={CONTENT.integrations.description}
+            className="mb-16"
+          />
 
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-            <SectionHeader
-              title={CONTENT.integrations.title}
-              description={CONTENT.integrations.description}
-              className="mb-16"
-            />
-
-            <IntegrationGrid categories={integrationCategories} />
-          </div>
-        </section>
+          <IntegrationGrid categories={integrationCategories} />
+        </SectionWrapper>
       </LazyHydrate>
 
       {/* --- PRICING --- */}

@@ -55,7 +55,7 @@ const KnowledgeBase = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-dark selection:bg-primary/30 font-sans">
+    <div className="min-h-screen bg-light-gray text-dark selection:bg-primary/30 font-sans">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}

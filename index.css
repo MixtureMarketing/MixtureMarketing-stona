@@ -8,6 +8,20 @@
   --color-success: #00c853;
   --color-instagram: #e1306c;
 
+  /* Brand Semantic Colors */
+  --color-brand-blue: #61b6de;
+  --color-brand-indigo: #3f3d91;
+  --color-brand-navy: #213261;
+  --color-brand-pink: #e1306c;
+  --color-brand-green: #00c853;
+  --color-brand-yellow: #f4b400;
+
+  /* Backgrounds & UI Elements */
+  --color-deep-dark: #0b1120;
+  --color-light-gray: #f9fafb;
+  --color-slate-dark: #0f172a;
+  --color-slate-border: #1e293b;
+
   /* High contrast grays for WCAG AA compliance on light backgrounds */
   --color-gray-400: #4b5563;
   --color-gray-500: #374151;
@@ -22,6 +36,89 @@
   --animate-blob: blob 7s infinite;
   --animate-shimmer: shimmer 2s infinite linear;
   --animate-infinite-scroll: infinite-scroll 40s linear infinite;
+  --animate-scan: scan 4s linear infinite;
+  --animate-spin-slow-corp: spin-corp 40s linear infinite;
+  --animate-spin-slow-design: spin-design 30s linear infinite;
+  --animate-scan-line: scan-line 3s linear infinite;
+  --animate-energy-flow: energy-flow 3s linear infinite;
+  --animate-energy-flow-reverse: energy-flow-reverse 3s linear infinite;
+  --animate-circuit-h: circuit-flow-h 4s linear infinite;
+  --animate-rain: rain-flow 3s linear infinite;
+  --animate-energy-pulse: energy-pulse 3s ease-in-out infinite;
+  --animate-gradient-xy: gradient-xy 3s ease infinite;
+
+  @keyframes energy-flow {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes energy-flow-reverse {
+    to {
+      stroke-dashoffset: 1000;
+    }
+  }
+
+  @keyframes circuit-flow-h {
+    0% {
+      stroke-dashoffset: 600;
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes rain-flow {
+    0% {
+      stroke-dashoffset: 1000;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes energy-pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+      stroke-width: 1px;
+    }
+    50% {
+      opacity: 1;
+      stroke-width: 2px;
+    }
+  }
+
+  @keyframes gradient-xy {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes revealUp {
+    from {
+      transform: translateY(110%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 
   @keyframes fadeIn {
     from {
@@ -203,9 +300,32 @@
     background-size: 20px 20px;
   }
 
-  /* Inline SVG Noise (Zero HTTP Requests) */
+  .animate-energy-flow {
+    stroke-dashoffset: 1000;
+  }
+
+  .animate-energy-flow-reverse {
+    stroke-dashoffset: 0;
+  }
+
+  .animate-circuit-h {
+    stroke-dasharray: 100 500;
+  }
+
+  .animate-rain {
+    stroke-dasharray: 200 800;
+  }
+
+  .reveal-text-item {
+    display: inline-block;
+    transform: translateY(110%);
+    opacity: 0;
+    animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  /* External SVG Noise (Reduced CSS size) */
   .bg-grain {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-image: url('/assets/noise.svg');
     opacity: 0.04;
     animation: grain 8s steps(10) infinite;
     pointer-events: none;
@@ -220,6 +340,31 @@
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+}
+
+/* WCAG: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-float,
+  .animate-float-delayed,
+  .reveal-text-item,
+  .animate-gradient-xy,
+  .animate-energy-flow,
+  .animate-energy-pulse,
+  .animate-circuit-h,
+  .animate-rain {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {

@@ -224,15 +224,10 @@ const Navbar: React.FC = () => {
   const isAnyDropdownOpen = activeDropdown !== null;
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setActiveDropdown(null);
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOpen(false);
+    setActiveDropdown(null);
+  }, [location.pathname, location.search]);
 
   return (
     <header>
@@ -248,11 +243,11 @@ const Navbar: React.FC = () => {
               role="link"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && handleLogoClick()}
-              aria-label="Strona główna Mixture Marketing"
+              aria-label="Mixture Marketing - Strona Główna"
             >
               <img
                 src="/assets/images/logo.svg"
-                alt="Mixture Marketing Logo"
+                alt="Logo Mixture Marketing"
                 className="h-10 w-auto transition-transform group-hover:scale-105 duration-300"
                 width="102"
                 height="40"
@@ -589,7 +584,7 @@ const Navbar: React.FC = () => {
         role="navigation"
         aria-label="Menu mobilne"
       >
-        <div className="flex-1 px-6 pt-32 pb-8 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 px-6 pt-24 pb-8 overflow-y-auto custom-scrollbar">
           <div className="space-y-4">
             <a
               href="#about"

@@ -43,6 +43,7 @@ import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import StandardCta from '../common/StandardCta';
+import StandardFaq from '../common/StandardFaq';
 
 const MetaAds: React.FC = () => {
   const [strategyType, setStrategyType] = useState<'ecommerce' | 'b2b'>('ecommerce');
@@ -104,22 +105,10 @@ const MetaAds: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image || '/assets/images/meta-ads.png'}
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: CONTENT.faqs.map((faq) => ({
-            '@type': 'Question',
-            name: faq.q,
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text: faq.a,
-            },
-          })),
-        }}
       />
 
       {/* --- HERO SECTION --- */}
-      <section className="relative py-20 lg:py-28 bg-[#F9FAFB] overflow-hidden">
+      <section className="relative py-20 lg:py-28 bg-light-gray overflow-hidden">
         <AmbientBackground />
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -170,7 +159,7 @@ const MetaAds: React.FC = () => {
             </div>
 
             <div className="lg:w-1/2 w-full relative h-[500px] flex justify-center items-center overflow-hidden mask-fade-y">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAFB] via-transparent to-[#F9FAFB] z-10 pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-light-gray via-transparent to-light-gray z-10 pointer-events-none"></div>
 
               <div className="w-[320px] relative animate-infinite-scroll-y opacity-80 hover:opacity-100 transition-opacity duration-500">
                 {[1, 2, 3, 4].map((item) => (
@@ -370,7 +359,7 @@ const MetaAds: React.FC = () => {
             </div>
 
             <div className="lg:col-span-5">
-              <div className="bg-[#0B1120] rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden border border-white/10">
+              <div className="bg-deep-dark rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden border border-white/10">
                 <div className="flex justify-between items-start mb-12">
                   <div>
                     <div className="flex items-center gap-2 text-primary mb-2">
@@ -446,7 +435,7 @@ const MetaAds: React.FC = () => {
                   <Button
                     onClick={() => openModal('marketing', { specificType: 'ads' })}
                     variant="primary"
-                    className="w-full justify-center !bg-white !text-[#0B1120] hover:!bg-primary hover:!text-white border-none py-6 text-lg shadow-xl shadow-primary/20"
+                    className="w-full justify-center !bg-white !text-deep-dark hover:!bg-primary hover:!text-white border-none py-6 text-lg shadow-xl shadow-primary/20"
                   >
                     {CONTENT.funnel.commandCenter.button}
                   </Button>
@@ -459,7 +448,7 @@ const MetaAds: React.FC = () => {
       </section>
 
       {/* --- CAPI SECTION --- */}
-      <section className="py-24 bg-[#0B1120] text-white relative overflow-hidden">
+      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -519,7 +508,7 @@ const MetaAds: React.FC = () => {
                       <span className="text-red-400">Failed (Cookie Blocked)</span>
                     </div>
                     <div className="text-gray-700">{'>'} Switching to Server-Side...</div>
-                    <div className="text-white bg-[#0B1120] p-3 rounded border border-gray-700">
+                    <div className="text-white bg-deep-dark p-3 rounded border border-gray-700">
                       <span className="text-instagram">POST</span> /events <br />
                       {`{`} <br />
                       &nbsp;&nbsp;"event_name": "Purchase", <br />
@@ -592,7 +581,7 @@ const MetaAds: React.FC = () => {
       </section>
 
       {/* --- STRATEGY --- */}
-      <section className="py-24 bg-[#0B1120] relative overflow-hidden text-white">
+      <section className="py-24 bg-deep-dark relative overflow-hidden text-white">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -685,17 +674,17 @@ const MetaAds: React.FC = () => {
                   {strategyType === 'ecommerce' ? (
                     <div className="space-y-6 animate-fade-in">
                       <div className="grid grid-cols-3 gap-4 mb-8">
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">ROAS</div>
                           <div className="text-2xl font-black text-instagram">8.4x</div>
                         </div>
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">
                             Purchases
                           </div>
                           <div className="text-2xl font-black text-white">428</div>
                         </div>
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">CPR</div>
                           <div className="text-2xl font-black text-success">12zł</div>
                         </div>
@@ -728,7 +717,7 @@ const MetaAds: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="bg-[#0B1120] border border-[#334155] p-6 rounded-xl hover:border-[#405DE6] transition-colors group">
+                      <div className="bg-deep-dark border border-[#334155] p-6 rounded-xl hover:border-[#405DE6] transition-colors group">
                         <div className="flex items-start gap-4">
                           <div className="p-3 bg-[#1E293B] rounded-lg text-[#405DE6] group-hover:text-white group-hover:bg-[#405DE6] transition-colors">
                             <Repeat size={24} />
@@ -747,15 +736,15 @@ const MetaAds: React.FC = () => {
                   ) : (
                     <div className="space-y-6 animate-fade-in">
                       <div className="grid grid-cols-3 gap-4 mb-8">
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">Leads</div>
                           <div className="text-2xl font-black text-[#833AB4]">142</div>
                         </div>
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">CPL</div>
                           <div className="text-2xl font-black text-white">45zł</div>
                         </div>
-                        <div className="bg-[#0B1120] p-4 rounded-xl border border-[#334155]">
+                        <div className="bg-deep-dark p-4 rounded-xl border border-[#334155]">
                           <div className="text-xxs text-gray-300 uppercase font-bold">
                             Qual. Ratio
                           </div>
@@ -790,7 +779,7 @@ const MetaAds: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="bg-[#0B1120] border border-[#334155] p-6 rounded-xl hover:border-[#0084FF] transition-colors group">
+                      <div className="bg-deep-dark border border-[#334155] p-6 rounded-xl hover:border-[#0084FF] transition-colors group">
                         <div className="flex items-start gap-4">
                           <div className="p-3 bg-[#1E293B] rounded-lg text-[#0084FF] group-hover:text-white group-hover:bg-[#0084FF] transition-colors">
                             <MessageSquare size={24} />
@@ -827,14 +816,7 @@ const MetaAds: React.FC = () => {
       <section className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="Pytania o Social Ads" className="mb-12" />
-
-          <div className="space-y-4">
-            {CONTENT.faqs.map((faq, i) => (
-              <Accordion key={i} title={faq.q}>
-                {faq.a}
-              </Accordion>
-            ))}
-          </div>
+          <StandardFaq items={CONTENT.faqs} />
         </div>
       </section>
 

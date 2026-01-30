@@ -139,6 +139,24 @@ export const DESIGN_BRANDING_CONTENT = {
     text: 'Masz tylko 3 sekundy, aby zrobić dobre pierwsze wrażenie. Nie zmarnuj ich.',
     button: 'Zamów Darmowy Audyt Wizualny',
   },
+  faqs: [
+    {
+      q: 'Czy otrzymuję pełne prawa autorskie do projektów?',
+      a: 'Tak, po opłaceniu faktury końcowej przekazujemy pełne autorskie prawa majątkowe do wszystkich zaakceptowanych projektów. Możesz ich używać bez ograniczeń czasowych i terytorialnych.',
+    },
+    {
+      q: 'W jakich formatach otrzymam gotowe pliki?',
+      a: 'Dostarczamy kompletny pakiet produkcyjny: formaty wektorowe (AI, EPS, SVG, PDF) dla druku i skalowania, oraz formaty rastrowe (PNG, JPG) zoptymalizowane pod Internet i social media.',
+    },
+    {
+      q: 'Ile trwa proces projektowy?',
+      a: 'Czas realizacji zależy od stopnia skomplikowania. Prosty branding (logo + księga znaku) to zazwyczaj 2-3 tygodnie. Projektowanie UI/UX dla strony www trwa od 2 do 4 tygodni, wliczając fazę makietowania i prototypowania.',
+    },
+    {
+      q: 'Czy projektujecie również materiały do druku?',
+      a: 'Tak, oferujemy kompleksowe przygotowanie do druku (DTP). Projektujemy wizytówki, katalogi, opakowania, teczki ofertowe oraz banery wielkoformatowe, dbając o poprawność techniczną plików dla drukarni.',
+    },
+  ],
 };
 
 export const BRAND_IDENTITY_CONTENT = {

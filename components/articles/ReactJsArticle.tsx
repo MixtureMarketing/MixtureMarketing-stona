@@ -12,6 +12,7 @@ import {
   Globe,
   TrendingUp,
   ShieldCheck,
+  Repeat,
 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
@@ -168,7 +169,11 @@ const ReactJsArticle = () => {
 
       {/* SYNERGY: REACT NATIVE */}
       <div className="my-32">
-        <SectionHeader title={content.synergy.title} subtitle={content.synergy.subtitle} align="left" />
+        <SectionHeader
+          title={content.synergy.title}
+          subtitle={content.synergy.subtitle}
+          align="left"
+        />
         <p dangerouslySetInnerHTML={{ __html: content.synergy.text }}></p>
 
         <div className="not-prose mt-12">
@@ -178,7 +183,11 @@ const ReactJsArticle = () => {
 
       {/* REACT VS NEXT.JS */}
       <div className="my-32 bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden not-prose">
-        <SectionHeader title={content.nextJs.title} subtitle={content.nextJs.subtitle} align="left" />
+        <SectionHeader
+          title={content.nextJs.title}
+          subtitle={content.nextJs.subtitle}
+          align="left"
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
           <div className="p-8 bg-blue-50/50 rounded-3xl border border-blue-100 group hover:border-[#61DAFB] transition-all">
             <div className="flex items-center gap-4 mb-4">
@@ -226,7 +235,11 @@ const ReactJsArticle = () => {
 
       {/* TREND CHART */}
       <div className="my-32">
-        <SectionHeader title={content.trends.title} subtitle={content.trends.subtitle} align="center" />
+        <SectionHeader
+          title={content.trends.title}
+          subtitle={content.trends.subtitle}
+          align="center"
+        />
         <p className="text-center mb-12 max-w-2xl mx-auto">{content.trends.text}</p>
         <div className="not-prose">
           <ReactTrendChart />

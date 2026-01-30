@@ -672,7 +672,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                       </span>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="p-2 bg-gray-50 rounded-xl border border-gray-100/50 text-center">
                       <div className="text-xxxs text-gray-400 font-black uppercase tracking-widest mb-1">
                         Dostępność
@@ -765,7 +765,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
                     </h4>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     {[
                       {
                         label: 'Objętość Treści',
@@ -1148,7 +1148,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
           </div>
 
           {/* CTA */}
-          <div className="text-center pt-6 bg-white border-t border-gray-100 mt-12">
+          {/* <div className="text-center pt-6 bg-white border-t border-gray-100 mt-12">
             <Button
               variant="primary"
               size="lg"
@@ -1168,7 +1168,7 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, email, onReset })
             <p className="text-xs text-gray-400 mt-6 font-bold uppercase tracking-widest">
               Wysyłamy raport techniczny z instrukcją krok-po-kroku
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </motion.div>

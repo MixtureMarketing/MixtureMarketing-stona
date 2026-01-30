@@ -47,7 +47,7 @@ const IntegrationGrid: React.FC<IntegrationGridProps> = memo(({ categories }) =>
                   key={j}
                   className="px-2.5 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-semibold text-gray-600 flex items-center gap-1"
                 >
-                  <Link size={8} className="text-gray-600" /> {tool}
+                  <Link size={10} className="text-gray-400" /> {tool}
                 </span>
               ))}
             </div>

@@ -8,6 +8,11 @@ export const HEADLESS_ARTICLE_CONTENT = {
     subtitle:
       'Zyskaj prędkość, której potrzebujesz. Dowiedz się, dlaczego najwięksi gracze na rynku odcinają "głowę" swojemu WordPressowi.',
   },
+  contextBox: {
+    text: 'Szukasz wydajności bez kompromisów?',
+    linkText: 'Sprawdź nasz audyt technologiczny',
+    linkUrl: '/audyt-360/',
+  },
   lead: {
     highlight:
       'WordPress napędza 43% Internetu. Marketing go kocha, bo jest prosty. Ale deweloperzy i dyrektorzy IT często go... nienawidzą. Dlaczego?',

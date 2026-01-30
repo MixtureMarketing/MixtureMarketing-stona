@@ -158,11 +158,7 @@ const VueArticle = () => {
           <Globe size={200} className="text-emerald-900" />
         </div>
         <div className="relative z-10">
-          <SectionHeader
-            title={content.nuxt.title}
-            subtitle={content.nuxt.subtitle}
-            align="left"
-          />
+          <SectionHeader title={content.nuxt.title} subtitle={content.nuxt.subtitle} align="left" />
           <p
             className="text-gray-600 mb-8 max-w-2xl leading-relaxed text-lg"
             dangerouslySetInnerHTML={{ __html: content.nuxt.text }}

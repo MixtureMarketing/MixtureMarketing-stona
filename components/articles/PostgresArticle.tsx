@@ -235,8 +235,8 @@ WHERE settings @> '{"newsletter": true}';
             <SectionHeader title="Brak Vendor Lock-in" subtitle="Wolność wyboru" align="left" />
             <p className="text-sm leading-relaxed">
               Jeśli pokłócisz się ze swoim dostawcą chmury (AWS/Google), możesz przenieść bazę
-              Postgres na własny serwer bez zmieniania ani jednej linijki kodu aplikacji. W przypadku
-              baz komercyjnych jesteś "uwiązany" do jednego dostawcy.
+              Postgres na własny serwer bez zmieniania ani jednej linijki kodu aplikacji. W
+              przypadku baz komercyjnych jesteś "uwiązany" do jednego dostawcy.
             </p>
           </div>
           <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 flex flex-wrap justify-center gap-6 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
