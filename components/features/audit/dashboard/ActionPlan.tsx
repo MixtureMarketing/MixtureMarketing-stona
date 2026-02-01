@@ -8,6 +8,67 @@ interface ActionPlanProps {
   errorDetails: Record<string, ErrorDetail>;
 }
 
+const PriorityColumn: React.FC<{
+  title: string;
+  errors: [string, boolean][];
+  errorDetails: Record<string, ErrorDetail>;
+  priorityColor: 'red' | 'yellow';
+  icon: React.ReactNode;
+}> = ({ title, errors, errorDetails, priorityColor, icon }) => {
+  const colorClasses = {
+    red: {
+      bg: 'bg-red-50/50',
+      border: 'border-red-100',
+      text: 'text-red-600',
+      circleBorder: 'border-red-500',
+      dotBg: 'bg-red-500',
+    },
+    yellow: {
+      bg: 'bg-yellow-50/50',
+      border: 'border-yellow-100',
+      text: 'text-yellow-600',
+      circleBorder: 'border-yellow-400',
+      dotBg: 'bg-yellow-400',
+    },
+  };
+
+  const classes = colorClasses[priorityColor];
+
+  return (
+    <div className={`${classes.bg} rounded-2xl p-6 border ${classes.border} h-full`}>
+      <h4
+        className={`text-sm font-bold ${classes.text} uppercase tracking-widest mb-4 flex items-center gap-2`}
+      >
+        {icon} {title}
+      </h4>
+      <div className="space-y-3">
+        {errors.map(([k]) => (
+          <div
+            key={k}
+            className={`flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm border ${classes.border.replace('100', '50')}`}
+          >
+            <div className="mt-1 min-w-[20px]">
+              <div
+                className={`w-5 h-5 rounded-full border-2 ${classes.circleBorder} flex items-center justify-center`}
+              >
+                <div className={`w-2.5 h-2.5 ${classes.dotBg} rounded-full`}></div>
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-800 font-bold text-sm block">
+                {errorDetails[k]?.title}
+              </span>
+              <span className="text-gray-500 text-xs font-medium">
+                Działanie: {errorDetails[k]?.cta}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const ActionPlan: React.FC<ActionPlanProps> = ({ auditResults, errorDetails }) => {
   const redErrors = Object.entries(auditResults).filter(
     ([k, v]) => v && errorDetails[k]?.priority === 'red',
@@ -26,63 +87,23 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ auditResults, errorDetails }) =
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {redErrors.length > 0 && (
-            <div className="bg-red-50/50 rounded-2xl p-6 border border-red-100 h-full">
-              <h4 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <AlertCircle size={16} /> Priorytet: Krytyczny (Zrób to teraz)
-              </h4>
-              <div className="space-y-3">
-                {redErrors.map(([k]) => (
-                  <div
-                    key={k}
-                    className="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm border border-red-50"
-                  >
-                    <div className="mt-1 min-w-[20px]">
-                      <div className="w-5 h-5 rounded-full border-2 border-red-500 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 bg-red-500 rounded-full"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-gray-800 font-bold text-sm block">
-                        {errorDetails[k]?.title}
-                      </span>
-                      <span className="text-gray-500 text-xs font-medium">
-                        Działanie: {errorDetails[k]?.cta}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PriorityColumn
+              title="Priorytet: Krytyczny (Zrób to teraz)"
+              errors={redErrors}
+              errorDetails={errorDetails}
+              priorityColor="red"
+              icon={<AlertCircle size={16} />}
+            />
           )}
 
           {yellowErrors.length > 0 && (
-            <div className="bg-yellow-50/50 rounded-2xl p-6 border border-yellow-100 h-full">
-              <h4 className="text-sm font-bold text-yellow-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Zap size={16} /> Priorytet: Wysoki (Zaplanuj w tym tygodniu)
-              </h4>
-              <div className="space-y-3">
-                {yellowErrors.map(([k]) => (
-                  <div
-                    key={k}
-                    className="flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm border border-yellow-50"
-                  >
-                    <div className="mt-1 min-w-[20px]">
-                      <div className="w-5 h-5 rounded-full border-2 border-yellow-400 flex items-center justify-center">
-                        <div className="w-2.5 h-2.5 bg-yellow-400 rounded-full"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-gray-800 font-bold text-sm block">
-                        {errorDetails[k]?.title}
-                      </span>
-                      <span className="text-gray-500 text-xs font-medium">
-                        Działanie: {errorDetails[k]?.cta}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PriorityColumn
+              title="Priorytet: Wysoki (Zaplanuj w tym tygodniu)"
+              errors={yellowErrors}
+              errorDetails={errorDetails}
+              priorityColor="yellow"
+              icon={<Zap size={16} />}
+            />
           )}
         </div>
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">

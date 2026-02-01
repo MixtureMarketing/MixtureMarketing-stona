@@ -18,11 +18,11 @@ import {
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import { useModal } from '../../context/ModalContext';
-import { ARTICLES } from '../../data/articles';
-import { DATABASE_COMPENDIUM_CONTENT } from '../../data/content/articles/database-compendium';
+import BaseCta from '../common/BaseCta';
 import ArticleShell from './ArticleShell';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
+import { DATABASE_COMPENDIUM_CONTENT } from '../../data/content/articles/database-compendium';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import { DatabaseHeroVisual, DatabaseArchitectureVisual } from './visuals/DatabaseVisuals';
 
 interface DatabasePlayer {
@@ -42,7 +42,6 @@ interface DecisionStep {
 }
 
 const DatabaseCompendiumArticle = () => {
-  const { openModal } = useModal();
   const articleData = ARTICLES.find((a) => a.id === 'databases-compendium');
   const content = DATABASE_COMPENDIUM_CONTENT;
 
@@ -181,56 +180,12 @@ const DatabaseCompendiumArticle = () => {
       </div>
 
       {/* PART 2: DECISION MATRIX */}
-      <div className="my-32">
-        <SectionHeader
-          title={content.matrix.title}
-          description={content.matrix.text}
-          align="left"
-        />
-
-        <div className="my-12 overflow-x-auto not-prose rounded-3xl shadow-2xl border border-gray-100">
-          <table className="w-full text-left border-collapse bg-white">
-            <thead>
-              <tr className="bg-dark text-white">
-                <th className="p-6 font-bold uppercase tracking-wider text-xs">
-                  {content.matrix.headers[0]}
-                </th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs text-center bg-[#336791]/20 border-r border-white/10">
-                  {content.matrix.headers[1]}
-                </th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs text-center bg-[#47a248]/20 border-r border-white/10">
-                  {content.matrix.headers[2]}
-                </th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs text-center bg-[#dc382d]/20 border-r border-white/10">
-                  {content.matrix.headers[3]}
-                </th>
-                <th className="p-6 font-bold uppercase tracking-wider text-xs text-center bg-[#f1c40f]/20">
-                  {content.matrix.headers[4]}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {content.matrix.rows.map((row, i) => (
-                <tr key={i}>
-                  <td className="p-6 font-bold text-gray-900 bg-gray-50/50">{row.label}</td>
-                  <td
-                    className={`p-6 text-center text-sm ${row.label === 'Relacje (JOIN)' ? 'text-[#336791] font-bold bg-blue-50' : 'text-gray-600'}`}
-                  >
-                    {row.v1}
-                  </td>
-                  <td className="p-6 text-center text-sm text-gray-600">{row.v2}</td>
-                  <td
-                    className={`p-6 text-center text-sm ${row.label === 'Magazyn' ? 'font-bold text-[#dc382d]' : 'text-gray-600'}`}
-                  >
-                    {row.v3}
-                  </td>
-                  <td className="p-6 text-center text-sm text-gray-600">{row.v4}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ArticleComparisonTable
+        title={content.matrix.title}
+        subtitle={content.matrix.text}
+        headers={content.matrix.headers}
+        rows={content.matrix.rows}
+      />
 
       {/* PART 3: ARCHITECTURE */}
       <div className="my-32">
@@ -331,45 +286,17 @@ const DatabaseCompendiumArticle = () => {
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-8 backdrop-blur-md border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-500">
-                <Workflow size={48} className="text-white" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
-                {content.cta.title}
-              </h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
-                {content.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20 px-10 py-4 text-lg"
-                  onClick={() => openModal('consultation')}
-                >
-                  {content.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10 py-4 text-lg"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  {content.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Workflow}
+        title={content.cta.title}
+        description={content.cta.text}
+        buttonText={content.cta.primaryBtn}
+        buttonLink="/contact"
+        secondaryButtonText={content.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#336791"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

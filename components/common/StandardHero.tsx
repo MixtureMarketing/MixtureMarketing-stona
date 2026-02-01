@@ -3,6 +3,7 @@ import { LucideIcon, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AmbientBackground from './AmbientBackground';
 import { HeroTitle, HeroButtons } from './HeroSubComponents';
+import Container from './Container';
 
 interface StandardHeroProps {
   badge: string;
@@ -44,7 +45,7 @@ const StandardHero: React.FC<StandardHeroProps> = ({
   return (
     <section className="relative py-20 lg:py-28 bg-light-gray overflow-hidden">
       <AmbientBackground />
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <Container className="relative z-10">
         {backLinkPath && (
           <button
             onClick={() => navigate(backLinkPath)}
@@ -91,7 +92,7 @@ const StandardHero: React.FC<StandardHeroProps> = ({
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

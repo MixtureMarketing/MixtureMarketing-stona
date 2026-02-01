@@ -5,7 +5,7 @@ import PricingTable from '../common/PricingTable';
 import SectionHeader from '../common/SectionHeader';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import { SeoHeroVisual } from '../visuals/hero/SeoVisual';
 import { TrendingUp, Crosshair, Globe } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
@@ -128,15 +128,13 @@ const MarketingSeo: React.FC = () => {
       </LazyHydrate>
 
       <LazyHydrate minHeight="400px">
-        <StandardCta
+        <BaseCta
           title={CONTENT.cta.title}
           description={CONTENT.cta.description}
           buttonText={CONTENT.cta.button}
           icon={Crosshair}
           onClick={() => openModal('audit', { specificType: 'seo' })}
-          colorScheme="success"
-          bgClassName="bg-success text-white"
-          className="text-white"
+          variant="gradient"
         />
       </LazyHydrate>
     </div>

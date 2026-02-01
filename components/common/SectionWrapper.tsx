@@ -1,4 +1,5 @@
 import React from 'react';
+import Container from './Container';
 
 interface SectionWrapperProps {
   children: React.ReactNode;
@@ -42,11 +43,7 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({
       id={id}
       className={`relative ${bgClasses[variant]} ${paddingClasses[padding]} ${overflow ? 'overflow-hidden' : ''} ${className}`}
     >
-      <div
-        className={`max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 ${containerClassName}`}
-      >
-        {children}
-      </div>
+      <Container className={`relative z-10 ${containerClassName}`}>{children}</Container>
     </section>
   );
 };

@@ -1,11 +1,10 @@
 import React from 'react';
-import { Search, BarChart3, ArrowRight, Layers, Database } from 'lucide-react';
+import { Search, BarChart3, Layers, Database } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import LazyHydrate from '../common/LazyHydrate';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { ELASTICSEARCH_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/elasticsearch';
 import {
   ElasticHeroSearch,
@@ -14,6 +13,9 @@ import {
   KillerFeaturesInteractive,
 } from './visuals/ElasticsearchVisuals';
 import ArticleShell from './ArticleShell';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import BaseCta from '../common/BaseCta';
 
 const ElasticsearchArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'elasticsearch-inteligentna-wyszukiwarka');
@@ -35,21 +37,12 @@ const ElasticsearchArticle = () => {
       }
       slug="/baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce"
     >
-      <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
-        <Database className="text-secondary mt-1 shrink-0" size={20} />
-        <div>
-          <p
-            className="text-sm text-secondary m-0 font-medium"
-            dangerouslySetInnerHTML={{ __html: CONTENT.contextBox.text }}
-          />
-          <a
-            href={CONTENT.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
-          >
-            {CONTENT.contextBox.linkText} <ArrowRight size={14} />
-          </a>
-        </div>
-      </div>
+      <ArticleContextBox
+        icon={Database}
+        text={CONTENT.contextBox.text}
+        linkUrl={CONTENT.contextBox.linkUrl}
+        linkText={CONTENT.contextBox.linkText}
+      />
 
       <AnimateOnScroll>
         <p
@@ -76,39 +69,12 @@ const ElasticsearchArticle = () => {
       </div>
 
       {/* COMPARISON TABLE */}
-      <div className="my-24">
-        <SectionHeader
-          title={CONTENT.comparison.title}
-          subtitle={CONTENT.comparison.subtitle}
-          align="left"
-        />
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mt-8 not-prose">
-          <table className="w-full text-left bg-white">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">
-                  {CONTENT.comparison.headers[0]}
-                </th>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">
-                  {CONTENT.comparison.headers[1]}
-                </th>
-                <th className="p-4 text-xs font-black uppercase text-secondary">
-                  {CONTENT.comparison.headers[2]}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
-              {CONTENT.comparison.rows.map((row, i) => (
-                <tr key={i}>
-                  <td className="p-4 font-bold">{row.label}</td>
-                  <td className={`p-4 ${i === 0 || i === 3 ? 'text-red-500' : ''}`}>{row.v1}</td>
-                  <td className="p-4 text-emerald-600 font-bold">{row.v2}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ArticleComparisonTable
+        title={CONTENT.comparison.title}
+        subtitle={CONTENT.comparison.subtitle}
+        headers={CONTENT.comparison.headers}
+        rows={CONTENT.comparison.rows}
+      />
 
       {/* KILLER FEATURES */}
       <div className="my-24">
@@ -165,43 +131,17 @@ const ElasticsearchArticle = () => {
         </div>
       </div>
 
-      {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-secondary relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-dark rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                <Search size={40} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="white"
-                  size="lg"
-                  className="shadow-xl text-secondary hover:bg-gray-100"
-                  onClick={() => (window.location.href = '/web-development/ecommerce/')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy/')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Search}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/web-development/ecommerce/"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy/"
+        accentColor="#F4B400"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

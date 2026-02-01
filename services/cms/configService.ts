@@ -29,7 +29,7 @@ export interface CalculatorConfig {
   };
 }
 
-export interface SanityPricingSection {
+interface SanityPricingSection {
   title: string;
   description?: string;
   tiers: PricingTier[];

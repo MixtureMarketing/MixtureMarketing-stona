@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Article } from '../../data/articles';
+import { Article } from '../../types';
 import { SanityArticle } from '../../services/cmsService';
 import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
 import {

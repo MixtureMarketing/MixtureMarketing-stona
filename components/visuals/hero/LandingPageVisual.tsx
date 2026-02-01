@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Gauge, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { LANDING_PAGE_CONTENT } from '../../../data/content';
+import BaseCard from '../../common/BaseCard';
 
 export const LandingPageHeroVisual: React.FC = () => {
   const [loadTime, setLoadTime] = useState(0.8);
@@ -29,7 +30,12 @@ export const LandingPageHeroVisual: React.FC = () => {
   };
 
   return (
-    <div className="relative z-10 bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-8 md:p-10 max-w-lg mx-auto transform transition-all hover:scale-[1.01] duration-500">
+    <BaseCard
+      variant="solid"
+      padding="lg"
+      rounded="3xl"
+      className="relative z-10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 max-w-lg mx-auto transform transition-all hover:scale-[1.01] duration-500"
+    >
       <div className="flex justify-between items-center mb-8">
         <div className="font-bold text-dark flex items-center gap-2">
           <Gauge size={20} className="text-instagram" />
@@ -113,6 +119,6 @@ export const LandingPageHeroVisual: React.FC = () => {
           aria-label="Symulacja: Dostosuj czas ładowania strony"
         />
       </div>
-    </div>
+    </BaseCard>
   );
 };

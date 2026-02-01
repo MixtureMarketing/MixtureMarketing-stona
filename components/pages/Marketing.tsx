@@ -3,13 +3,13 @@ import Seo from '@/components/common/Seo';
 import { MARKETING_CONTENT } from '@/data/content';
 import StandardHero from '@/components/common/StandardHero';
 import { MarketingHeroVisual } from '@/components/visuals/hero/MarketingVisual';
-import { Compass, Target } from 'lucide-react';
+import { Target, Zap } from 'lucide-react';
 import MarketingStrategy from '@/components/features/marketing/MarketingStrategy';
 import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnichannel';
 import MarketingIndustries from '@/components/features/marketing/MarketingIndustries';
 import MarketingArsenal from '@/components/features/marketing/MarketingArsenal';
 import StandardFaq from '@/components/common/StandardFaq';
-import StandardCta from '@/components/common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '@/context/ModalContext';
@@ -99,18 +99,15 @@ const Marketing: React.FC = () => {
         <RelatedArticles category="marketing" layout="service" />
       </LazyHydrate>
 
-      <LazyHydrate minHeight="300px">
-        <StandardCta
-          title={MARKETING_CONTENT.cta.title}
-          description={MARKETING_CONTENT.cta.description}
-          buttonText={MARKETING_CONTENT.cta.button}
-          icon={Compass}
-          onClick={() => openModal('consultation')}
-          variant="white"
-          bgClassName="bg-deep-dark text-white"
-          className="text-white"
-        />
-      </LazyHydrate>
+      {/* --- CTA --- */}
+      <BaseCta
+        title={MARKETING_CONTENT.cta.title}
+        description={MARKETING_CONTENT.cta.description}
+        buttonText={MARKETING_CONTENT.cta.button}
+        icon={Zap}
+        onClick={() => openModal('consultation')}
+        variant="dark"
+      />
     </div>
   );
 };

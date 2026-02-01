@@ -18,15 +18,16 @@ import {
 
 import AmbientBackground from '../common/AmbientBackground';
 import SectionHeader from '../common/SectionHeader';
-import GlassCard from '../common/GlassCard';
+import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
 import Image from '../common/Image';
 import Breadcrumbs from '../common/Breadcrumbs';
 import Seo from '../common/Seo';
+import Container from '../common/Container';
 
-import { ARTICLES, Article } from '../../data/articles';
+import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
-import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
+import { useKnowledgeSearch } from '@/hooks/useKnowledgeSearch';
 import { formatDate } from '@/utils/date';
 
 // Categories Configuration
@@ -43,53 +44,14 @@ const CATEGORIES = [
 }));
 
 const KnowledgeBase = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [dynamicArticles, setDynamicArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchDynamic = async () => {
-      try {
-        const data: SanityArticle[] = await cmsService.getArticles();
-        const mapped: Article[] = data.map((art) => ({
-          id: art._id,
-          title: art.title,
-          description: art.excerpt,
-          category: (art.category?.title?.toLowerCase() as Article['category']) || 'tech',
-          categoryLabel: art.category?.title || 'Artykuł',
-          image: art.mainImage
-            ? urlFor(art.mainImage).width(800).url()
-            : '/assets/images/sygnet.png',
-          date: art.publishedAt,
-          readTime: art.readTime || '5 min',
-          slug: `/baza-wiedzy/${art.slug.current}`,
-          tags: art.tags || [],
-        }));
-        setDynamicArticles(mapped);
-      } catch (err) {
-        console.error('Failed to load CMS articles:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDynamic();
-  }, []);
-
-  // Filter and Merge articles
-  const allArticles = useMemo(() => {
-    return [...ARTICLES, ...dynamicArticles].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  }, [dynamicArticles]);
-
-  const filteredArticles = allArticles.filter((article) => {
-    const matchesCategory = activeCategory === 'all' || article.category === activeCategory;
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const {
+    activeCategory,
+    setActiveCategory,
+    searchQuery,
+    setSearchQuery,
+    filteredArticles,
+    loading,
+  } = useKnowledgeSearch();
 
   return (
     <div className="min-h-screen bg-light-gray text-dark selection:bg-primary/30 font-sans">
@@ -106,7 +68,7 @@ const KnowledgeBase = () => {
       <AmbientBackground />
 
       <div className="pt-24 pb-16 relative z-10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <Container>
           <Breadcrumbs />
 
           {/* Header Section */}
@@ -208,10 +170,11 @@ const KnowledgeBase = () => {
           ) : filteredArticles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
               {filteredArticles.map((article) => (
-                <GlassCard
+                <BaseCard
                   key={article.id}
+                  padding="none"
+                  hover="lift"
                   className="flex flex-col h-full group overflow-hidden border-gray-200/50 hover:border-primary/50"
-                  hoverEffect={true}
                 >
                   {/* Image Container */}
                   <div className="relative h-56 overflow-hidden">
@@ -280,7 +243,7 @@ const KnowledgeBase = () => {
                       </Link>
                     </div>
                   </div>
-                </GlassCard>
+                </BaseCard>
               ))}
             </div>
           ) : (
@@ -302,7 +265,7 @@ const KnowledgeBase = () => {
               </Button>
             </div>
           )}
-        </div>
+        </Container>
       </div>
     </div>
   );

@@ -43,8 +43,10 @@ try {
     http_response_code(201); // Created
 
 } catch (Exception $e) {
-    // RUM nie powinien nigdy rzucać błędów widocznych dla usera, po prostu milczymy
+    // RUM nie powinien nigdy rzucać błędów widocznych dla usera.
+    // Jeśli baza nie działa (np. na localhoście), po prostu zwracamy sukces (200),
+    // żeby nie spamować konsoli błędami 500.
     // error_log($e->getMessage()); 
-    http_response_code(500);
+    http_response_code(200); 
 }
 ?>

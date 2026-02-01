@@ -21,14 +21,20 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { TAILWIND_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/tailwind';
+import ArticleUseCases from './shared/ArticleUseCases';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
 import {
+  TailwindHeroVisual,
+  UtilityClassesVisual,
+  ResponsiveSimulator,
   TailwindButtonBuilder,
   LegoVsPlaymobil,
   BootstrapVsTailwindPreview,
 } from './visuals/TailwindVisuals';
-import ArticleShell from './ArticleShell';
 
 const TailwindArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'tailwind-css-przyszlosc-ui');
@@ -47,38 +53,35 @@ const TailwindArticle = () => {
       heroVisual={<TailwindButtonBuilder />}
       slug="/baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania"
     >
-      <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
-        <Layout className="text-secondary mt-1 shrink-0" size={20} />
-        <div>
-          <p className="text-sm text-secondary m-0 font-medium">
-            Ten artykuł jest częścią serii <strong>Frontend Architecture</strong>.
-          </p>
-          <div className="text-sm text-primary font-bold mt-1 flex flex-wrap items-center gap-1">
-            Zobacz pełne porównanie:
-            <Link
-              to="/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/"
-              className="hover:text-secondary underline"
-            >
-              React
-            </Link>{' '}
-            vs
-            <Link
-              to="/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/"
-              className="hover:text-secondary underline"
-            >
-              Next.js
-            </Link>{' '}
-            vs
-            <Link
-              to="/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/"
-              className="hover:text-secondary underline"
-            >
-              Vue
-            </Link>
-            <ArrowRight size={14} />
-          </div>
+      <ArticleContextBox
+        icon={Layout}
+        text="Ten artykuł jest częścią serii <strong>Frontend Architecture</strong>."
+      >
+        <div className="text-sm text-primary font-bold mt-1 flex flex-wrap items-center gap-1">
+          Zobacz pełne porównanie:
+          <Link
+            to="/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/"
+            className="hover:text-secondary underline"
+          >
+            React
+          </Link>{' '}
+          vs
+          <Link
+            to="/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/"
+            className="hover:text-secondary underline"
+          >
+            Next.js
+          </Link>{' '}
+          vs
+          <Link
+            to="/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/"
+            className="hover:text-secondary underline"
+          >
+            Vue
+          </Link>
+          <ArrowRight size={14} />
         </div>
-      </div>
+      </ArticleContextBox>
 
       <AnimateOnScroll>
         <p
@@ -226,42 +229,17 @@ const TailwindArticle = () => {
       </div>
 
       {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-white border border-gray-100 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/5 rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-gradient-to-tr from-secondary to-primary rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                <Palette size={40} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-dark">{CONTENT.cta.title}</h2>
-              <p className="text-gray-600 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20"
-                  onClick={() => (window.location.href = '/design/ui-ux/')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-gray-200 hover:border-primary hover:text-primary"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy/')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Zap}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/web-development"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#38BDF8"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

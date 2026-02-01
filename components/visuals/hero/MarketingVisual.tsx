@@ -1,6 +1,7 @@
 import React from 'react';
 import { Megaphone, Search, TrendingUp } from 'lucide-react';
 import LazyHydrate from '../../common/LazyHydrate';
+import BaseCard from '../../common/BaseCard';
 import { useCounter } from '../../../hooks/useCounter';
 import { MARKETING_CONTENT } from '../../../data/content';
 
@@ -12,7 +13,12 @@ export const MarketingHeroVisual: React.FC = () => {
 
   return (
     <LazyHydrate>
-      <div className="relative z-10 bg-[#0F172A] rounded-2xl border border-[#1E293B] shadow-2xl p-5 md:p-8">
+      <BaseCard
+        variant="dark"
+        padding="lg"
+        rounded="2xl"
+        className="relative z-10 border-[#1E293B] shadow-2xl"
+      >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
             <div className="text-xxs text-gray-300 uppercase font-bold tracking-widest mb-1">
@@ -68,7 +74,7 @@ export const MarketingHeroVisual: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </BaseCard>
     </LazyHydrate>
   );
 };

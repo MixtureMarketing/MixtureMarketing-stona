@@ -1,4 +1,4 @@
-import { Article } from '../../data/articles';
+import { Article } from '../../types';
 import { SanityArticle } from '../../services/cmsService';
 import { parseToIsoDate, parseReadTime } from './dateUtils';
 

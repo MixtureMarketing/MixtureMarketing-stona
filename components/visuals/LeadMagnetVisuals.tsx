@@ -1,11 +1,17 @@
 import React from 'react';
 import { ShieldAlert, BarChart3 } from 'lucide-react';
 import { LEAD_MAGNET_CONTENT as CONTENT } from '../../data/content';
+import BaseCard from '../common/BaseCard';
 
 export const AuditVisual: React.FC = () => (
   <div className="relative">
     <div className="absolute inset-0 bg-primary rounded-full blur-[100px] opacity-20 animate-pulse"></div>
-    <div className="relative bg-white/10 border border-white/20 rounded-3xl p-8 backdrop-blur-xl shadow-2xl">
+    <BaseCard
+      variant="glass"
+      padding="lg"
+      rounded="3xl"
+      className="relative border border-white/20 backdrop-blur-xl shadow-2xl"
+    >
       {/* Fake UI Chart */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex gap-2">
@@ -45,6 +51,6 @@ export const AuditVisual: React.FC = () => (
           </div>
         </div>
       </div>
-    </div>
+    </BaseCard>
   </div>
 );

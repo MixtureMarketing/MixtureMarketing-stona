@@ -9,21 +9,20 @@ import {
   Globe,
   Info,
   Layers,
-  Scissors,
-  ArrowRight,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { HEADLESS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/headless';
+import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
+import ArticleContextBox from './shared/ArticleContextBox';
 import {
   HeadlessHeroVisual,
   ArchitectureDiagram,
   OmnichannelVisual,
 } from './visuals/HeadlessVisuals';
-import ArticleShell from './ArticleShell';
 
 const HeadlessArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'headless-wordpress');
@@ -42,21 +41,12 @@ const HeadlessArticle = () => {
       heroVisual={<HeadlessHeroVisual />}
       slug="/baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo"
     >
-      <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
-        <Info className="text-secondary mt-1 shrink-0" size={20} />
-        <div>
-          <p
-            className="text-sm text-secondary m-0 font-medium"
-            dangerouslySetInnerHTML={{ __html: CONTENT.contextBox.text }}
-          />
-          <a
-            href={CONTENT.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
-          >
-            {CONTENT.contextBox.linkText} <ArrowRight size={14} />
-          </a>
-        </div>
-      </div>
+      <ArticleContextBox
+        icon={Info}
+        text={CONTENT.contextBox.text}
+        linkUrl={CONTENT.contextBox.linkUrl}
+        linkText={CONTENT.contextBox.linkText}
+      />
 
       <AnimateOnScroll>
         <p
@@ -217,42 +207,17 @@ const HeadlessArticle = () => {
       </div>
 
       {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                <Scissors size={40} className="text-white -rotate-45" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20"
-                  onClick={() => (window.location.href = '/web-development/corporate/')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy/')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Zap}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/web-development"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#3F3D91"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

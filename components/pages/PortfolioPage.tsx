@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Filter, Layers, Layout, Zap, PenTool } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cmsService } from '../../services/cmsService';
-import { SanityCaseStudy } from '../../types';
-import { SanityImage } from '../../types/sanity';
 import Seo from '../common/Seo';
+import PortfolioGrid from '../features/portfolio/PortfolioGrid';
+import { SanityCaseStudy } from '../../types/sanity';
+import Container from '../common/Container';
+import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
-import { ArrowRight, Filter, Layers, Zap, PenTool, Layout } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from '../../services/cmsService';
-
-const builder = imageUrlBuilder(client);
-function urlForImage(source: SanityImage) {
-  return builder.image(source);
-}
 
 const PortfolioPage = () => {
-  const navigate = useNavigate();
   const [projects, setProjects] = useState<SanityCaseStudy[]>([]);
   const [filter, setFilter] = useState<'all' | 'web' | 'marketing' | 'design'>('all');
   const [loading, setLoading] = useState(true);
@@ -60,7 +53,7 @@ const PortfolioPage = () => {
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-blue-100/50 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-gradient-to-t from-purple-100/50 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Container className="relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -70,9 +63,9 @@ const PortfolioPage = () => {
               <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4 pl-1">
                 Wybrane Realizacje
               </p>
-              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
+              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight text-dark">
                 Tworzymy cyfrowe <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-dark to-secondary">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">
                   doświadczenia
                 </span>
               </h1>
@@ -96,6 +89,7 @@ const PortfolioPage = () => {
                   <button
                     key={cat.id}
                     onClick={() => setFilter(cat.id as 'all' | 'web' | 'marketing' | 'design')}
+                    aria-pressed={isActive}
                     className={`relative px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 group overflow-hidden ${
                       isActive
                         ? 'text-white'
@@ -124,127 +118,18 @@ const PortfolioPage = () => {
                 );
               })}
             </motion.div>
-          </div>
+          </Container>
         </div>
 
         {/* --- PROJECTS GRID --- */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="h-[500px] bg-white rounded-[2rem] border border-gray-100 shadow-sm animate-pulse flex flex-col overflow-hidden"
-                >
-                  <div className="h-2/3 bg-gray-200 w-full" />
-                  <div className="p-8 space-y-4">
-                    <div className="h-4 bg-gray-200 rounded w-1/3" />
-                    <div className="h-8 bg-gray-200 rounded w-3/4" />
-                    <div className="h-4 bg-gray-200 rounded w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
-              <AnimatePresence mode="popLayout">
-                {filteredProjects.map((project) => (
-                  <motion.div
-                    key={project._id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                    onClick={() => navigate(`/portfolio/${project.slug}`)}
-                    className="group cursor-pointer h-full"
-                  >
-                    <div className="bg-white rounded-[2rem] overflow-hidden shadow-lg shadow-gray-200/50 border border-gray-100 h-full flex flex-col transition-all duration-500 hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2">
-                      {/* Image Container */}
-                      <div className="relative h-72 overflow-hidden bg-gray-100">
-                        {project.mainImage ? (
-                          <img
-                            src={urlForImage(project.mainImage).width(800).height(600).url()}
-                            alt={project.title}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="font-bold uppercase tracking-widest text-xs">
-                              Brak zdjęcia
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Overlay Tags */}
-                        <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                          <span
-                            className={`px-3 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg backdrop-blur-md shadow-sm border border-white/20 text-white ${
-                              project.category === 'web'
-                                ? 'bg-blue-600/90'
-                                : project.category === 'marketing'
-                                  ? 'bg-indigo-600/90'
-                                  : 'bg-purple-600/90'
-                            }`}
-                          >
-                            {project.category}
-                          </span>
-                        </div>
-
-                        {/* Hover Overlay */}
-                        <div className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                            <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
-                              Zobacz Case Study <ArrowRight size={16} />
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-8 flex flex-col flex-grow">
-                        <div className="mb-4">
-                          <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                            {project.title}
-                          </h3>
-                          <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-                            {project.client || 'Klient poufny'}
-                          </p>
-                        </div>
-
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-6 flex-grow">
-                          {project.excerpt}
-                        </p>
-
-                        {/* Tags */}
-                        {project.subcategory && (
-                          <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-100">
-                            {project.subcategory.slice(0, 3).map((sub, i) => (
-                              <span
-                                key={i}
-                                className="text-xxs font-bold uppercase text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100"
-                              >
-                                {sub}
-                              </span>
-                            ))}
-                            {project.subcategory.length > 3 && (
-                              <span className="text-xxs font-bold text-gray-400 px-1 py-1">
-                                + {project.subcategory.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {!loading && filteredProjects.length === 0 && (
-            <div className="text-center py-20 bg-white rounded-[3rem] shadow-sm border border-gray-100">
+        <Container className="pb-32">
+          {!loading && filteredProjects.length === 0 ? (
+            <BaseCard
+              variant="solid"
+              padding="lg"
+              rounded="3xl"
+              className="text-center py-20 border-dashed border-gray-200"
+            >
               <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-400">
                 <Filter size={32} />
               </div>
@@ -256,9 +141,11 @@ const PortfolioPage = () => {
               <Button variant="primary" onClick={() => setFilter('all')}>
                 Pokaż wszystkie projekty
               </Button>
-            </div>
+            </BaseCard>
+          ) : (
+            <PortfolioGrid projects={filteredProjects} loading={loading} />
           )}
-        </div>
+        </Container>
       </div>
     </>
   );

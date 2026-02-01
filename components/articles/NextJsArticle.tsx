@@ -20,7 +20,8 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import { ARTICLES, Article } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
+import { Article } from '../../types';
 import {
   NextHeroRace,
   GoogleVisionDiagram,
@@ -30,6 +31,8 @@ import {
 
 import { NEXTJS_ARTICLE_CONTENT } from '../../data/content/articles/nextjs';
 import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
 
 const NextJsArticle = () => {
   const articleData = (ARTICLES.find((a) => a.id === 'nextjs-zloty-standard') ||
@@ -188,44 +191,11 @@ const NextJsArticle = () => {
         </div>
       </div>
 
-      {/* COMPARISON TABLE */}
-      <h2 className="text-3xl font-bold text-dark mb-8">{content.comparison.title}</h2>
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mb-24 not-prose">
-        <table className="w-full text-left bg-white">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="p-4 text-xs font-black uppercase text-gray-500">
-                {content.comparison.headers[0]}
-              </th>
-              <th className="p-4 text-xs font-black uppercase text-secondary bg-blue-50/50">
-                {content.comparison.headers[1]}
-              </th>
-              <th className="p-4 text-xs font-black uppercase text-gray-500">
-                {content.comparison.headers[2]}
-              </th>
-              <th className="p-4 text-xs font-black uppercase text-gray-500">
-                {content.comparison.headers[3]}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {content.comparison.rows.map((row, i) => (
-              <tr key={i}>
-                <td className="p-4 font-bold">{row.feature}</td>
-                <td className="p-4 text-emerald-600 font-bold bg-blue-50/30">{row.next}</td>
-                <td className={`p-4 ${row.feature === 'SEO' ? 'text-orange-500' : ''}`}>
-                  {row.react}
-                </td>
-                <td
-                  className={`p-4 ${row.feature === 'UX / Interaktywność' ? 'text-red-500' : ''}`}
-                >
-                  {row.monolith}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ArticleComparisonTable
+        title={content.comparison.title}
+        headers={content.comparison.headers}
+        rows={content.comparison.rows}
+      />
 
       {/* BRAND GIANTS */}
       <div className="my-24 text-center">
@@ -323,58 +293,17 @@ export default async function Page() {
         <NextJsQuiz />
       </div>
 
-      {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-gradient-to-br from-dark to-secondary relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                <div className="relative">
-                  <Rocket size={48} className="text-secondary" />
-                  <div className="absolute -top-4 -right-4 bg-black text-white p-2 rounded-full text-xs font-black shadow-lg border-2 border-white">
-                    N
-                  </div>
-                </div>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
-                {content.cta.title}
-              </h2>
-              <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {content.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20"
-                  onClick={() => (window.location.href = '/web-development/custom-app/')}
-                >
-                  {content.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="white"
-                  className="text-dark hover:bg-gray-100"
-                  size="lg"
-                  onClick={() => (window.location.href = '/contact/')}
-                >
-                  {content.cta.secondaryBtn}
-                </Button>
-              </div>
-
-              <div className="mt-12 flex flex-wrap justify-center gap-8 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
-                {content.cta.badges.map((badge, i) => (
-                  <div key={i} className="flex items-center gap-2 text-white font-black text-sm">
-                    <CheckCircle2 size={16} /> {badge}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        title={content.cta.title}
+        description={content.cta.text}
+        buttonText={content.cta.primaryBtn}
+        buttonLink="/web-development/custom-app/"
+        secondaryButtonText={content.cta.secondaryBtn}
+        secondaryButtonLink="/contact/"
+        badges={content.cta.badges}
+        variant="gradient"
+        icon={Rocket}
+      />
     </ArticleShell>
   );
 };

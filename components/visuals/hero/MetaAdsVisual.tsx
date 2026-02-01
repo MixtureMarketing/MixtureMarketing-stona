@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, MessageSquare, Share2 } from 'lucide-react';
+import BaseCard from '../../common/BaseCard';
 
 export const MetaAdsHeroVisual: React.FC = () => {
   return (
@@ -8,9 +9,13 @@ export const MetaAdsHeroVisual: React.FC = () => {
 
       <div className="w-[320px] relative animate-infinite-scroll-y opacity-80 hover:opacity-100 transition-opacity duration-500">
         {[1, 2, 3, 4].map((item) => (
-          <div
+          <BaseCard
             key={item}
-            className="mb-6 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transform transition-transform hover:scale-[1.02]"
+            variant="solid"
+            padding="none"
+            rounded="2xl"
+            hover="zoom"
+            className="mb-6 shadow-xl border border-gray-100 overflow-hidden"
           >
             <div className="flex items-center gap-3 p-3">
               <div className="w-8 h-8 bg-gradient-to-tr from-yellow-400 to-purple-600 rounded-full p-[2px]">
@@ -48,7 +53,7 @@ export const MetaAdsHeroVisual: React.FC = () => {
               <div className="h-2 w-3/4 bg-gray-200 rounded mb-2"></div>
               <div className="h-2 w-1/2 bg-gray-200 rounded"></div>
             </div>
-          </div>
+          </BaseCard>
         ))}
       </div>
       <style>{`

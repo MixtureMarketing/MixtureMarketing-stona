@@ -16,7 +16,7 @@ import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Image from '../common/Image';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { REDIS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/redis';
 import {
   SystemFlowArchitecture,
@@ -28,8 +28,11 @@ import {
 import ArticleShell from './ArticleShell';
 import LazyHydrate from '../common/LazyHydrate';
 import Accordion from '../common/Accordion';
-
-const RedisUsageChart = React.lazy(() => import('./visuals/charts/RedisUsageChart'));
+import ArticleUseCases from './shared/ArticleUseCases';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import BaseCta from '../common/BaseCta';
+import RedisUsageChart from './visuals/charts/RedisUsageChart';
 
 const RedisArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'redis-optymalizacja');
@@ -45,22 +48,14 @@ const RedisArticle = () => {
       icon={Zap}
       accentColor="#213261"
       slug="/baza-wiedzy/redis-optymalizacja"
+      heroVisual={<RedisHeroVisual />}
     >
-      <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
-        <Database className="text-secondary mt-1 shrink-0" size={20} />
-        <div>
-          <p
-            className="text-sm text-secondary m-0 font-medium"
-            dangerouslySetInnerHTML={{ __html: CONTENT.contextBox.text }}
-          />
-          <a
-            href={CONTENT.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
-          >
-            {CONTENT.contextBox.linkText} <ArrowRight size={14} />
-          </a>
-        </div>
-      </div>
+      <ArticleContextBox
+        icon={Database}
+        text={CONTENT.contextBox.text}
+        linkUrl={CONTENT.contextBox.linkUrl}
+        linkText={CONTENT.contextBox.linkText}
+      />
 
       <AnimateOnScroll>
         <p
@@ -214,58 +209,11 @@ const RedisArticle = () => {
       </div>
 
       {/* COMPARISON TABLE */}
-      <h2 className="text-3xl font-bold text-dark mb-8">{CONTENT.comparison.title}</h2>
-      <AnimateOnScroll>
-        <div className="mb-16 overflow-hidden rounded-2xl border border-gray-200 shadow-lg bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
-                  <th className="p-5 border-b border-gray-200 font-bold sticky left-0 bg-gray-50 z-10">
-                    {CONTENT.comparison.headers[0]}
-                  </th>
-                  <th className="p-5 border-b border-gray-200 font-bold text-secondary bg-blue-50">
-                    {CONTENT.comparison.headers[1]}
-                  </th>
-                  <th className="p-5 border-b border-gray-200 font-bold">
-                    {CONTENT.comparison.headers[2]}
-                  </th>
-                  <th className="p-5 border-b border-gray-200 font-bold">
-                    {CONTENT.comparison.headers[3]}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="text-sm">
-                {CONTENT.comparison.rows.map((row, i) => (
-                  <tr
-                    key={i}
-                    className={`hover:bg-gray-50 transition-colors ${i < CONTENT.comparison.rows.length - 1 ? 'border-b border-gray-100' : ''}`}
-                  >
-                    <td className="p-5 font-bold text-dark sticky left-0 bg-white z-10 border-r border-gray-100 sm:border-none">
-                      {row.label}
-                    </td>
-                    <td
-                      className={`p-5 font-bold bg-blue-50/30 ${i === 2 || i === 3 ? 'text-emerald-600' : 'text-secondary'}`}
-                    >
-                      {row.v1}
-                    </td>
-                    <td
-                      className={`p-5 ${i === 2 || i === 3 ? 'text-emerald-600 font-bold' : 'text-gray-700'}`}
-                    >
-                      {row.v2}
-                    </td>
-                    <td
-                      className={`p-5 ${i === 2 || i === 3 ? 'text-red-500 font-bold' : 'text-gray-700'}`}
-                    >
-                      {row.v3}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </AnimateOnScroll>
+      <ArticleComparisonTable
+        title={CONTENT.comparison.title}
+        headers={CONTENT.comparison.headers}
+        rows={CONTENT.comparison.rows}
+      />
 
       {/* CHART */}
       <AnimateOnScroll>
@@ -299,38 +247,17 @@ const RedisArticle = () => {
         ))}
       </div>
 
-      {/* CTA */}
-      <AnimateOnScroll>
-        <div className="rounded-3xl p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-          <div className="relative z-10">
-            <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-            <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-              {CONTENT.cta.text}
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button
-                variant="white"
-                size="lg"
-                className="shadow-xl text-dark hover:bg-gray-100"
-                onClick={() => (window.location.href = '/web-development')}
-              >
-                {CONTENT.cta.primaryBtn}
-              </Button>
-              <Button
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                size="lg"
-                onClick={() => (window.location.href = '/baza-wiedzy')}
-              >
-                {CONTENT.cta.secondaryBtn}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </AnimateOnScroll>
+      <BaseCta
+        icon={Zap}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/web-development"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#213261"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

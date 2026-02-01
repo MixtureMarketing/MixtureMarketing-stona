@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { Fingerprint, Figma, Smartphone } from 'lucide-react';
+import { Fingerprint, Figma, Zap } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import { UiUxHeroVisual } from '../visuals/hero/UiUxVisual';
 
 // Refactored Sub-components
@@ -66,13 +66,13 @@ const UiUxDesign: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <StandardCta
-        title={`${CONTENT.cta.title.line1} ${CONTENT.cta.title.line2}`}
+      <BaseCta
+        title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Smartphone}
-        onClick={() => openModal('design')}
-        bgClassName="bg-light-gray border-t border-gray-100"
+        icon={Zap}
+        onClick={() => openModal('design', { specificType: 'ui-ux' })}
+        variant="dark"
       />
     </div>
   );

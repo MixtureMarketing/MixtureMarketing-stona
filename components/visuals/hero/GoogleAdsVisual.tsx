@@ -2,6 +2,7 @@ import React from 'react';
 import { MousePointerClick } from 'lucide-react';
 import { useTypewriter } from '../../../hooks/useTypewriter';
 import { GOOGLE_ADS_CONTENT } from '../../../data/content';
+import BaseCard from '../../common/BaseCard';
 
 export const GoogleAdsHeroVisual: React.FC = () => {
   const CONTENT = GOOGLE_ADS_CONTENT;
@@ -14,7 +15,12 @@ export const GoogleAdsHeroVisual: React.FC = () => {
   );
 
   return (
-    <div className="relative z-10 bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(66,133,244,0.2)] border border-gray-200 p-2 max-w-lg mx-auto transform rotate-1 hover:rotate-0 transition-all duration-500">
+    <BaseCard
+      variant="solid"
+      padding="none"
+      rounded="2xl"
+      className="relative z-10 shadow-[0_20px_60px_-15px_rgba(66,133,244,0.2)] border-gray-200 p-2 max-w-lg mx-auto transform rotate-1 hover:rotate-0 transition-all duration-500"
+    >
       <div className="bg-[#F1F3F4] rounded-t-xl px-4 py-3 flex items-center gap-4 border-b border-gray-200">
         <div className="flex gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
@@ -87,6 +93,6 @@ export const GoogleAdsHeroVisual: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+    </BaseCard>
   );
 };

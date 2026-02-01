@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Briefcase, Plus, Edit, ExternalLink, FilePlus, Trash2, X } from 'lucide-react';
 import Button from '../../common/Button';
-import { Project } from '../types';
+import BaseCard from '../../common/BaseCard';
+import { Project, Milestone } from '../types';
 
 interface AdminProjectsProps {
   projects: Project[];
@@ -75,9 +76,12 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.map((project) => (
-          <div
+          <BaseCard
             key={project.id}
-            className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group hover:border-primary transition-colors"
+            variant="solid"
+            hover="lift"
+            padding="md"
+            className="relative group"
           >
             <button
               onClick={() => onEdit(project)}
@@ -291,7 +295,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({
                 )}
               </div>
             </div>
-          </div>
+          </BaseCard>
         ))}
         {filteredProjects.length === 0 && (
           <div className="col-span-full py-12 text-center text-gray-400 bg-white rounded-xl border border-dashed">

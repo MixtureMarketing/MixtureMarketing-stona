@@ -1,35 +1,20 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowLeft,
   Globe,
   Users,
   Search,
   CheckCircle2,
-  ArrowRight,
   MessageSquare,
-  Briefcase,
-  Server,
-  ShieldCheck,
-  Lock,
-  Eye,
-  AlertTriangle,
-  Cloud,
-  Network,
   GitMerge,
-  Terminal,
   ArrowUpRight,
-  Activity,
-  Sparkles,
   BarChart3,
   Calculator,
+  Lock,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import GlassCard from '../common/GlassCard';
-import AmbientBackground from '../common/AmbientBackground';
 import LazyHydrate from '../common/LazyHydrate';
 import Seo from '../common/Seo';
 import { useModal } from '../../context/ModalContext';
@@ -37,18 +22,17 @@ import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
-import { useParallax } from '../../hooks/useParallax';
 
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import { CorporateHeroVisual } from '../visuals/hero/CorporateVisual';
 import SectionWrapper from '../common/SectionWrapper';
+import CorporateCmsComparison from '../features/web-development/CorporateCmsComparison';
+import CorporateSecurity from '../features/web-development/CorporateSecurity';
 
 const CorporateWebsite: React.FC = () => {
-  const [activeCms, setActiveCms] = useState<'wordpress' | 'headless'>('wordpress');
   const navigate = useNavigate();
   const { openModal } = useModal();
-  const [migrationStep, setMigrationStep] = useState(0);
 
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
@@ -69,14 +53,6 @@ const CorporateWebsite: React.FC = () => {
     });
   }, [openModal]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (document.hidden) return;
-      setMigrationStep((prev) => (prev + 1) % 4);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
   const businessModules = CONTENT.modules.items.map((mod, i) => {
     const icons = [
       <Users key="users" size={24} />,
@@ -85,16 +61,6 @@ const CorporateWebsite: React.FC = () => {
       <MessageSquare key="msg" size={24} />,
     ];
     return { ...mod, icon: icons[i] };
-  });
-
-  const complianceFeatures = CONTENT.compliance.items.map((feat, i) => {
-    const icons = [
-      <Eye key="eye" size={20} />,
-      <ShieldCheck key="shield" size={20} />,
-      <Cloud key="cloud" size={20} />,
-      <Server key="server" size={20} />,
-    ];
-    return { ...feat, icon: icons[i] };
   });
 
   const steps = CONTENT.migration.steps.map((step, i) => {
@@ -166,124 +132,12 @@ const CorporateWebsite: React.FC = () => {
 
       {/* --- CMS SECTION --- */}
       <LazyHydrate whenVisible>
-        <SectionWrapper variant="white">
-          <div className="text-center mb-16">
-            <SectionHeader title={CONTENT.cms.title} description={CONTENT.cms.description} />
-            <div
-              className="inline-flex bg-[#F1F5F9] p-1.5 rounded-full mt-8 border border-gray-200 shadow-inner relative"
-              role="group"
-              aria-label="Wybór silnika CMS"
-            >
-              <div
-                className={`absolute top-1.5 bottom-1.5 rounded-full bg-white shadow-sm border border-gray-200 transition-all duration-300 ease-in-out z-0`}
-                style={{
-                  left: activeCms === 'wordpress' ? '6px' : 'calc(50% + 3px)',
-                  width: 'calc(50% - 9px)',
-                }}
-              ></div>
-              <button
-                onClick={() => setActiveCms('wordpress')}
-                aria-pressed={activeCms === 'wordpress'}
-                className={`relative z-10 px-6 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-black transition-colors duration-300 flex items-center gap-2 ${activeCms === 'wordpress' ? 'text-dark' : 'text-gray-500 hover:text-dark'}`}
-              >
-                {CONTENT.cms.wordpress.label}
-              </button>
-              <button
-                onClick={() => setActiveCms('headless')}
-                aria-pressed={activeCms === 'headless'}
-                className={`relative z-10 px-6 md:px-8 py-2.5 rounded-full text-xs md:text-sm font-black transition-colors duration-300 flex items-center gap-2 ${activeCms === 'headless' ? 'text-dark' : 'text-gray-500 hover:text-dark'}`}
-              >
-                {CONTENT.cms.headless.label}
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-dark">
-                {activeCms === 'wordpress'
-                  ? CONTENT.cms.wordpress.title
-                  : CONTENT.cms.headless.title}
-              </h3>
-              <p className="text-gray-600 text-lg leading-relaxed font-medium">
-                {activeCms === 'wordpress' ? CONTENT.cms.wordpress.desc : CONTENT.cms.headless.desc}
-              </p>
-              <ul className="space-y-3">
-                {(activeCms === 'wordpress'
-                  ? CONTENT.cms.wordpress.features
-                  : CONTENT.cms.headless.features
-                ).map((feat, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-700 font-bold">
-                    <CheckCircle2 size={18} className="text-success shrink-0" /> {feat}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="relative order-first lg:order-2">
-              <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-primary/10 rounded-2xl transform rotate-2"></div>
-              <GlassCard className="relative bg-white shadow-xl overflow-hidden aspect-[16/10] flex flex-col p-0 border border-gray-200">
-                <div className="h-8 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]"></div>
-                </div>
-                <div className="p-6 flex flex-col gap-4 h-full animate-fade-in bg-gray-50/50 overflow-hidden">
-                  <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-32 w-full bg-white rounded border border-gray-100 shadow-sm"></div>
-                  <div className="space-y-2">
-                    <div className="h-3 w-full bg-gray-200 rounded"></div>
-                    <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
-                  </div>
-                </div>
-              </GlassCard>
-            </div>
-          </div>
-        </SectionWrapper>
+        <CorporateCmsComparison />
       </LazyHydrate>
 
       {/* --- COMPLIANCE & SECURITY --- */}
       <LazyHydrate whenVisible>
-        <SectionWrapper variant="dark" padding="lg">
-          <div className="bg-tech-grid absolute inset-0 opacity-10 pointer-events-none"></div>
-          <div className="flex flex-col lg:flex-row gap-16 items-center relative z-10">
-            <div className="lg:w-1/2">
-              <AnimateOnScroll>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-primary text-xxs font-black uppercase tracking-widest mb-6">
-                  <ShieldCheck size={14} /> Enterprise Ready
-                </div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 leading-tight">
-                  {CONTENT.compliance.title.line1} <br />
-                  <span className="text-primary">{CONTENT.compliance.title.line2}</span>
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                  {complianceFeatures.map((feat, i) => (
-                    <div
-                      key={i}
-                      className="p-5 bg-white/5 border border-white/5 rounded-2xl hover:border-primary/30 transition-all group"
-                    >
-                      <div className="text-primary mb-4 group-hover:scale-110 transition-transform">
-                        {feat.icon}
-                      </div>
-                      <h3 className="font-bold text-base mb-2">{feat.title}</h3>
-                      <p className="text-xs text-gray-400 leading-relaxed">{feat.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </AnimateOnScroll>
-            </div>
-            <div className="lg:w-1/2 w-full">
-              <AnimateOnScroll delay={200}>
-                <div className="relative max-w-md mx-auto aspect-square bg-blue-500/10 rounded-full flex items-center justify-center p-8 border border-white/5">
-                  <div className="absolute inset-0 border-2 border-dashed border-primary/20 rounded-full animate-spin-slow"></div>
-                  <div className="relative z-10 text-center">
-                    <Lock size={64} className="text-primary mx-auto mb-6 animate-pulse" />
-                    <div className="text-2xl font-black tracking-tighter">DATA SECURED</div>
-                    <div className="text-xxs font-mono text-primary mt-2">AES-256 ENCRYPTION</div>
-                  </div>
-                </div>
-              </AnimateOnScroll>
-            </div>
-          </div>
-        </SectionWrapper>
+        <CorporateSecurity />
       </LazyHydrate>
 
       {/* --- SAFE MIGRATION --- */}
@@ -329,13 +183,13 @@ const CorporateWebsite: React.FC = () => {
       )}
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Briefcase}
-        onClick={() => openModal('consultation', { specificType: 'corporate' })}
-        bgClassName="bg-white border-t border-gray-100"
+        icon={ShieldCheck}
+        onClick={() => openModal('web', { specificType: 'corporate' })}
+        variant="dark"
       />
     </div>
   );

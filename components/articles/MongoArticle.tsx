@@ -6,16 +6,18 @@ import {
   Infinity as InfinityIcon,
   ShoppingCart,
   Database,
-  ArrowRight,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { MONGO_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/mongo';
 import { MongoHeroVisual, CarGarageAnalogy, ShardingSimulator } from './visuals/MongoVisuals';
 import ArticleShell from './ArticleShell';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import ArticleUseCases from './shared/ArticleUseCases';
+import BaseCta from '../common/BaseCta';
 
 const MongoArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'mongodb-przyszlosc-big-data');
@@ -33,21 +35,12 @@ const MongoArticle = () => {
       heroVisual={<MongoHeroVisual />}
       slug="/baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji"
     >
-      <div className="mb-12 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-4 not-prose">
-        <Database className="text-secondary mt-1 shrink-0" size={20} />
-        <div>
-          <p
-            className="text-sm text-secondary m-0 font-medium"
-            dangerouslySetInnerHTML={{ __html: CONTENT.contextBox.text }}
-          />
-          <a
-            href={CONTENT.contextBox.linkUrl}
-            className="text-sm text-[#00684A] hover:text-[#00ED64] font-bold mt-1 inline-flex items-center gap-1"
-          >
-            {CONTENT.contextBox.linkText} <ArrowRight size={14} />
-          </a>
-        </div>
-      </div>
+      <ArticleContextBox
+        icon={Database}
+        text={CONTENT.contextBox.text}
+        linkUrl={CONTENT.contextBox.linkUrl}
+        linkText={CONTENT.contextBox.linkText}
+      />
 
       <AnimateOnScroll>
         <p
@@ -100,36 +93,15 @@ const MongoArticle = () => {
       </div>
 
       {/* 3 BUSINESS REASONS */}
-      <div className="my-24">
-        <SectionHeader
-          title={CONTENT.reasons.title}
-          subtitle={CONTENT.reasons.subtitle}
-          align="left"
-        />
-
-        <div className="space-y-12 mt-12 not-prose">
-          {CONTENT.reasons.items.map((reason, i) => (
-            <div
-              key={i}
-              className="flex flex-col md:flex-row gap-8 items-start p-8 bg-white rounded-3xl border border-gray-100 hover:shadow-xl transition-all group"
-            >
-              <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100 group-hover:bg-[#00ED64] group-hover:text-white transition-colors">
-                {i === 0 ? (
-                  <Zap size={24} />
-                ) : i === 1 ? (
-                  <Layers size={24} />
-                ) : (
-                  <InfinityIcon size={24} />
-                )}
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-dark mb-2">{reason.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed m-0">{reason.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ArticleUseCases
+        title={CONTENT.reasons.title}
+        accentColor="#00ED64"
+        items={[
+          { ...CONTENT.reasons.items[0], icon: <Zap size={24} /> },
+          { ...CONTENT.reasons.items[1], icon: <Layers size={24} /> },
+          { ...CONTENT.reasons.items[2], icon: <InfinityIcon size={24} /> },
+        ]}
+      />
 
       {/* SHARDING SIMULATOR */}
       <div className="my-24">
@@ -137,39 +109,12 @@ const MongoArticle = () => {
       </div>
 
       {/* COMPARISON TABLE */}
-      <div className="my-24">
-        <SectionHeader
-          title={CONTENT.comparison.title}
-          subtitle={CONTENT.comparison.subtitle}
-          align="left"
-        />
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mt-8 not-prose">
-          <table className="w-full text-left bg-white">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">
-                  {CONTENT.comparison.headers[0]}
-                </th>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">
-                  {CONTENT.comparison.headers[1]}
-                </th>
-                <th className="p-4 text-xs font-black uppercase text-[#00684A]">
-                  {CONTENT.comparison.headers[2]}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
-              {CONTENT.comparison.rows.map((row, i) => (
-                <tr key={i}>
-                  <td className="p-4 font-bold">{row.label}</td>
-                  <td className="p-4">{row.v1}</td>
-                  <td className="p-4 text-emerald-600 font-bold">{row.v2}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ArticleComparisonTable
+        title={CONTENT.comparison.title}
+        subtitle={CONTENT.comparison.subtitle}
+        headers={CONTENT.comparison.headers}
+        rows={CONTENT.comparison.rows}
+      />
 
       {/* CASE STUDY: E-COMMERCE */}
       <div className="my-24 bg-white p-8 md:p-12 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden not-prose">
@@ -219,58 +164,17 @@ const MongoArticle = () => {
         </div>
       </div>
 
-      {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-gradient-to-br from-[#00684A] to-[#00ED64] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-black/10 rounded-full blur-[100px] opacity-20"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl transform group-hover:scale-110 transition-all duration-500">
-                <Database size={48} className="text-[#00684A] animate-pulse" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-[#001E2B]">
-                {CONTENT.cta.title}
-              </h2>
-              <p className="text-emerald-900 mb-10 max-w-2xl mx-auto text-lg leading-relaxed font-medium">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl !bg-[#001E2B] border-none hover:!bg-black text-white"
-                  onClick={() => (window.location.href = '/web-development/custom-app')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="white"
-                  className="text-[#00684A] hover:bg-gray-100"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
-
-      <style>{`
-        .animate-spin-slow {
-            animation: spin 20s linear infinite;
-        }
-        .animate-shimmer {
-            animation: shimmer 2s infinite linear;
-        }
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-      `}</style>
+      <BaseCta
+        icon={Database}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/web-development/custom-app"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#001E2B"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

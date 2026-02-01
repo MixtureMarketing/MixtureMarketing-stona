@@ -3,10 +3,9 @@ import { ShieldCheck, Zap, Server, Database, Cloud, Activity } from 'lucide-reac
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import ArticleShell from './ArticleShell';
-import { ARTICLES } from '../../data/articles';
-import { SST_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/sst';
+import BaseCta from '../common/BaseCta';
 import { SstHeroVisual, TrackingComparisonVisual, CapiVisual } from './visuals/SstVisuals';
 
 const ServerSideTrackingArticle = () => {
@@ -117,43 +116,16 @@ const ServerSideTrackingArticle = () => {
         </div>
       </div>
 
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-8 backdrop-blur-md border border-white/20 group-hover:scale-110 transition-transform duration-500">
-                <Activity size={40} className="text-white" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
-                {CONTENT.cta.title}
-              </h2>
-              <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20 px-10 py-4"
-                  onClick={() => (window.location.href = '/contact/')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white px-10 py-4"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy/')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Activity}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/contact/"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy/"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

@@ -1,18 +1,7 @@
-export interface Article {
-  id: string;
-  title: string;
-  description: string;
-  category: 'tech' | 'marketing' | 'design' | 'analytics';
-  categoryLabel: string;
-  image: string;
-  date: string;
-  readTime: string;
-  slug: string;
-  tags: string[];
-  isFeatured?: boolean;
-}
+/* eslint-disable max-lines */
+import { Article } from '../../types';
 
-export const ARTICLES: Article[] = [
+export const LEGACY_ARTICLES: Article[] = [
   {
     id: 'server-side-tracking',
     title: 'Server-Side Tracking: Ratunek dla Twoich danych',
@@ -75,7 +64,7 @@ export const ARTICLES: Article[] = [
       'JPG i PNG to przeszłość. Poznaj nowoczesne formaty, które zmniejszą wagę strony o 80% bez utraty jakości. Popraw Core Web Vitals.',
     category: 'design',
     categoryLabel: 'Design & UX',
-    image: '/assets/images/frontend.png', // No specific image for image formats, using frontend
+    image: '/assets/images/frontend.png',
     date: '30 Grudnia 2025',
     readTime: '6 min',
     slug: '/baza-wiedzy/optymalizacja-obrazow-webp-avif',
@@ -182,7 +171,7 @@ export const ARTICLES: Article[] = [
       'TypeScript vs JavaScript – co wybrać do projektu IT? Dowiedz się, jak statyczne typowanie redukuje błędy o 15% i ułatwia skalowanie aplikacji biznesowych.',
     category: 'tech',
     categoryLabel: 'Technologia & Dev',
-    image: '/assets/images/nodejs.png', // Using nodejs as placeholder for TS
+    image: '/assets/images/nodejs.png',
     date: '26 Grudnia 2025',
     readTime: '12 min',
     slug: '/baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu',

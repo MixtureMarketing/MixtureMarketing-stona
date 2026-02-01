@@ -6,10 +6,9 @@ import { META_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
-import StandardCta from '../common/StandardCta';
-import StandardFaq from '../common/StandardFaq';
+import BaseCta from '../common/BaseCta';
+import FaqSection from '../sections/FaqSection';
 import StandardHero from '../common/StandardHero';
-import SectionHeader from '../common/SectionHeader';
 import { MetaAdsHeroVisual } from '../visuals/hero/MetaAdsVisual';
 
 // Refactored Sub-components
@@ -89,22 +88,16 @@ const MetaAds: React.FC = () => {
       )}
 
       {/* --- FAQ --- */}
-      <section className="py-24 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title="Pytania o Social Ads" className="mb-12" />
-          <StandardFaq items={CONTENT.faqs} />
-        </div>
-      </section>
+      <FaqSection title="Pytania o Social Ads" items={CONTENT.faqs} />
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
         icon={Play}
         onClick={() => openModal('marketing', { specificType: 'ads' })}
-        colorScheme="instagram"
-        bgClassName="bg-instagram/5"
+        variant="gradient"
       />
 
       <style>{`

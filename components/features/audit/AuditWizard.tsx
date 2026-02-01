@@ -4,6 +4,7 @@ import { Zap } from 'lucide-react';
 import { auditService, AuditResult } from '../../../services/auditService';
 import AuditInputStep from './AuditInputStep';
 import AuditEmailGateStep from './AuditEmailGateStep';
+import Container from '../../common/Container';
 
 // --- COMPONENTS (Lazy Loaded) ---
 const AuditProgress = lazy(() => import('./steps/AuditProgress'));
@@ -88,7 +89,7 @@ const AuditWizard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-[500px] bg-dark skew-y-3 origin-top-left z-0"></div>
-      <div className="relative z-10 w-full max-w-screen-2xl mx-auto px-4 py-12 flex-1 flex flex-col justify-center">
+      <Container className="relative z-10 py-12 flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">
           {step === 'INPUT' && (
             <AuditInputStep
@@ -132,7 +133,7 @@ const AuditWizard: React.FC = () => {
             </Suspense>
           )}
         </AnimatePresence>
-      </div>
+      </Container>
     </div>
   );
 };

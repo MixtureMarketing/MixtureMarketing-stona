@@ -13,16 +13,15 @@ import {
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import Image from '../common/Image';
-import { useModal } from '../../context/ModalContext';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { UX_AUDIT_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/ux-audit';
 import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
+import ArticleUseCases from './shared/ArticleUseCases';
 import { LeakyBucketVisual, MobileComparisonVisual, HeatmapVisual } from './visuals/UxAuditVisuals';
 
 const UxAuditArticle = () => {
-  const { openModal } = useModal();
   const articleData = ARTICLES.find((a) => a.id === 'ux-audit');
 
   return (
@@ -173,28 +172,16 @@ const UxAuditArticle = () => {
         <div className="my-12">
           <HeatmapVisual />
         </div>
-        <ul className="not-prose grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {CONTENT.tools.items.map((item, i) => (
-            <li
-              key={i}
-              className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm ${i === 2 ? 'md:col-span-2 lg:col-span-1' : ''}`}
-            >
-              <div
-                className={`w-12 h-12 ${i === 0 ? 'bg-orange-50 text-orange-500' : i === 1 ? 'bg-blue-50 text-blue-500' : 'bg-green-50 text-green-500'} rounded-xl flex items-center justify-center mb-4`}
-              >
-                {i === 0 ? (
-                  <Flame size={24} />
-                ) : i === 1 ? (
-                  <MousePointerClick size={24} />
-                ) : (
-                  <BarChart3 size={24} />
-                )}
-              </div>
-              <h3 className="font-bold text-dark mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-700">{item.desc}</p>
-            </li>
-          ))}
-        </ul>
+
+        <ArticleUseCases
+          title=""
+          accentColor="#3B82F6"
+          items={[
+            { ...CONTENT.tools.items[0], icon: <Flame size={24} /> },
+            { ...CONTENT.tools.items[1], icon: <MousePointerClick size={24} /> },
+            { ...CONTENT.tools.items[2], icon: <BarChart3 size={24} /> },
+          ]}
+        />
       </div>
 
       <div className="my-24 bg-blue-50 rounded-[3rem] p-10 md:p-16 relative overflow-hidden not-prose text-center md:text-left">
@@ -228,42 +215,17 @@ const UxAuditArticle = () => {
         </div>
       </div>
 
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-[0_0_30px_rgba(255,255,255,0.1)] group-hover:scale-110 transition-transform duration-500">
-                <Search size={40} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-primary/20"
-                  onClick={() => openModal('audit')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Search}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/design/visual-audit"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        accentColor="#E1306C"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

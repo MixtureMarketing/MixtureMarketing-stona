@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingCart, Calculator, Box } from 'lucide-react';
+import { ShoppingCart, Calculator } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import SectionHeader from '../common/SectionHeader';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { useModal } from '../../context/ModalContext';
@@ -9,17 +8,14 @@ import { ECOMMERCE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
-import StandardFaq from '../common/StandardFaq';
-import { PricingSectionData, PricingTier } from '../../types';
-
-// Refactored Sub-components
+import BaseCta from '../common/BaseCta';
 import { EcommerceHeroVisual } from '../visuals/hero/EcommerceVisual';
 import EcommerceAutomation from '../features/ecommerce/EcommerceAutomation';
 import EcommerceConfigurator from '../features/ecommerce/EcommerceConfigurator';
 import EcommerceBoosters from '../features/ecommerce/EcommerceBoosters';
 import EcommerceTechnical from '../features/ecommerce/EcommerceTechnical';
 import EcommerceComparison from '../features/ecommerce/EcommerceComparison';
+import FaqSection from '../sections/FaqSection';
 
 const Ecommerce: React.FC = () => {
   const navigate = useNavigate();
@@ -94,21 +90,16 @@ const Ecommerce: React.FC = () => {
       )}
 
       {/* --- FAQ --- */}
-      <section className="py-24 bg-white relative z-10">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title="Najczęstsze pytania" className="mb-12" />
-          <StandardFaq items={CONTENT.faqs} />
-        </div>
-      </section>
+      <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} />
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
-        description={CONTENT.cta.text}
+        description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Box}
-        onClick={() => openModal('consultation', { specificType: 'ecommerce' })}
-        bgClassName="bg-white border-t border-gray-100"
+        icon={ShoppingCart}
+        onClick={() => openModal('web', { specificType: 'ecommerce' })}
+        variant="dark"
       />
     </div>
   );

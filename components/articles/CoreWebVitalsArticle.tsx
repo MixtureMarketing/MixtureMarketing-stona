@@ -3,9 +3,8 @@ import { BarChart3, CheckCircle2, Gauge } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import Image from '../common/Image';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { CWV_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/cwv';
 import {
   LighthouseGauge,
@@ -18,6 +17,7 @@ import {
   CwvChecklist,
 } from './visuals/PerformanceVisuals';
 import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
 
 const CoreWebVitalsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'core-web-vitals-2025');
@@ -182,38 +182,15 @@ const CoreWebVitalsArticle = () => {
         <CwvChecklist />
       </div>
 
-      {/* CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20">
-                <Gauge size={40} className="text-white animate-pulse" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button variant="white" size="lg" className="shadow-xl text-dark hover:bg-gray-100">
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Gauge}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

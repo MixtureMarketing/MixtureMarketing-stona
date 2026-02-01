@@ -1,6 +1,7 @@
 import React from 'react';
 import { Server, ShieldCheck } from 'lucide-react';
 import { useParallax } from '../../../hooks/useParallax';
+import BaseCard from '../../common/BaseCard';
 
 export const CorporateHeroVisual: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -56,9 +57,14 @@ export const CorporateHeroVisual: React.FC = () => {
         />
         <Server x="188" y="188" size={24} className="text-primary" />
       </svg>
-      <div className="absolute top-0 right-0 p-4 bg-white/80 backdrop-blur shadow-xl rounded-2xl border border-gray-100 animate-float">
+      <BaseCard
+        variant="glass"
+        padding="sm"
+        rounded="2xl"
+        className="absolute top-0 right-0 shadow-xl border-gray-100 animate-float"
+      >
         <ShieldCheck size={16} className="text-emerald-500" />
-      </div>
+      </BaseCard>
     </div>
   );
 };

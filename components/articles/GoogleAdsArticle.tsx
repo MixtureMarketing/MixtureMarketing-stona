@@ -1,26 +1,18 @@
 import React from 'react';
-import {
-  TrendingUp,
-  Target,
-  AlertTriangle,
-  Bot,
-  Settings,
-  DollarSign,
-  Info,
-  Search,
-} from 'lucide-react';
-
+import { Target, TrendingUp, AlertTriangle, Bot, Info } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { GOOGLE_ADS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/google-ads';
 import {
   RoasProfitCalculator,
   AiFunnelDiagram,
   ScalingChecklist,
+  GoogleAdsHero,
+  ScalingTypeCard,
 } from './visuals/MarketingVisuals';
 import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
 
 const GoogleAdsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'google-ads-skalowanie-budzetu');
@@ -142,111 +134,19 @@ const GoogleAdsArticle = () => {
         <ScalingChecklist />
       </div>
 
-      {/* CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner">
-                <Target size={40} className="text-white animate-pulse" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                <Button
-                  variant="white"
-                  size="lg"
-                  className="shadow-xl text-dark hover:bg-gray-100"
-                  onClick={() => (window.location.href = '/marketing/google-ads/')}
-                >
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy/')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Target}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        buttonLink="/marketing/google-ads/"
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy/"
+        accentColor="#10B981"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };
-
-interface ScalingTypeCardProps {
-  type: 'vertical' | 'horizontal';
-  title: string;
-  desc: string;
-  risk: string;
-  suitability: string;
-}
-
-const ScalingTypeCard = ({ type, title, desc, risk, suitability }: ScalingTypeCardProps) => (
-  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col h-full">
-    <div
-      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${type === 'vertical' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
-    >
-      {type === 'vertical' ? <Target size={24} /> : <Search size={24} />}
-    </div>
-    <h3 className="text-xl font-bold text-dark mb-3">{title}</h3>
-    <p className="text-sm text-gray-700 mb-6 flex-grow">{desc}</p>
-    <div className="space-y-4">
-      <div className="bg-rose-50 p-3 rounded-xl border border-rose-100">
-        <div className="text-xxs font-black uppercase text-rose-600 mb-1">Ryzyko</div>
-        <p className="text-xs text-rose-800 m-0 leading-snug">{risk}</p>
-      </div>
-      <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-        <div className="text-xxs font-black uppercase text-emerald-600 mb-1">Kiedy stosować?</div>
-        <p className="text-xs text-emerald-800 m-0 leading-snug">{suitability}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const GoogleAdsHero = () => (
-  <div className="relative bg-[#0F172A] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
-    <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
-
-    <div className="relative z-10 flex items-center gap-12">
-      <div className="flex flex-col items-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-secondary to-dark rounded-3xl flex items-center justify-center shadow-2xl border border-white/10 relative overflow-hidden group-hover:scale-105 transition-transform">
-          <div className="absolute inset-0 bg-primary opacity-20 blur-xl animate-pulse"></div>
-          <Settings size={48} className="text-white relative z-10 animate-spin-slow" />
-        </div>
-        <span className="text-xxs font-black uppercase text-gray-700 mt-4 tracking-widest">
-          Twoja Kampania
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-4">
-        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent animate-shimmer"></div>
-        </div>
-        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-shimmer delay-500"></div>
-        </div>
-      </div>
-
-      <div className="flex flex-col items-center">
-        <div className="w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-          <DollarSign size={48} className="text-emerald-500" />
-        </div>
-        <span className="text-xxs font-black uppercase text-emerald-500 mt-4 tracking-widest">
-          Skalowanie Zysku
-        </span>
-      </div>
-    </div>
-  </div>
-);
 
 export default GoogleAdsArticle;

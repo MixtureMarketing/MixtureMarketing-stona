@@ -1,20 +1,22 @@
 import React from 'react';
-import { ImageIcon, Zap, TrendingUp, Smartphone, Monitor, Tablet, Scale } from 'lucide-react';
+import { ImageIcon, Zap, TrendingUp, Smartphone, Scale } from 'lucide-react';
 
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
+import { IMAGE_FORMATS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/image-formats';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import LazyHydrate from '../common/LazyHydrate';
-import { ARTICLES } from '../../data/articles';
-import { IMAGE_FORMATS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/image-formats';
-import ArticleShell from './ArticleShell';
 import {
   ImageComparisonDuel,
   BrowserSupportChart,
   CodeBlockImplementation,
   LoadingSimulator,
   ImageSeoChecklist,
+  ImageFormatsHero,
+  ValueCard,
 } from './visuals/ImageFormatsVisuals';
+import ArticleShell from './ArticleShell';
+import BaseCta from '../common/BaseCta';
 
 const ImageFormatsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'optymalizacja-obrazow-webp-avif');
@@ -33,32 +35,7 @@ const ImageFormatsArticle = () => {
       icon={ImageIcon}
       accentColor="#61B6DE"
       slug="/baza-wiedzy/optymalizacja-obrazow-webp-avif"
-      heroVisual={
-        <div className="mb-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative bg-gray-200 rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-gray-300">
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dust.png')]"></div>
-              <Monitor size={80} className="text-gray-600 mb-4" />
-              <div className="bg-gray-800 text-white px-4 py-1 rounded-md font-mono text-sm mb-4">
-                FORMAT: JPG (1992)
-              </div>
-              <div className="flex items-center gap-2 text-gray-700 font-bold">
-                <Scale size={20} /> 10.0 kg (Ciężkie)
-              </div>
-            </div>
-            <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
-              <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
-              <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
-                FORMAT: AVIF (2025)
-              </div>
-              <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
-                <Zap size={20} className="fill-current" /> 0.5 kg (Lekkie)
-              </div>
-            </div>
-          </div>
-        </div>
-      }
+      heroVisual={<ImageFormatsHero />}
     >
       <AnimateOnScroll>
         <p
@@ -177,60 +154,17 @@ const ImageFormatsArticle = () => {
         <CodeBlockImplementation />
       </div>
 
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20">
-                <Scale size={40} className="text-white animate-pulse" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">{CONTENT.cta.title}</h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {CONTENT.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button variant="white" size="lg" className="shadow-xl text-dark hover:bg-gray-100">
-                  {CONTENT.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  {CONTENT.cta.secondaryBtn}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Scale}
+        title={CONTENT.cta.title}
+        description={CONTENT.cta.text}
+        buttonText={CONTENT.cta.primaryBtn}
+        secondaryButtonText={CONTENT.cta.secondaryBtn}
+        secondaryButtonLink="/baza-wiedzy"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };
-
-const ValueCard = ({
-  icon,
-  title,
-  desc,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) => (
-  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all">
-    <div
-      className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-4"
-      aria-hidden="true"
-    >
-      {icon}
-    </div>
-    <h3 className="font-bold text-dark mb-2">{title}</h3>
-    <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
-  </div>
-);
 
 export default ImageFormatsArticle;

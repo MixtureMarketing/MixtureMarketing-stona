@@ -19,6 +19,7 @@ import {
   Check,
 } from 'lucide-react';
 import Button from '@/components/common/Button';
+import Container from '@/components/common/Container';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { SITE_CONFIG } from '@/config/site';
 import { ContactType } from '@/types';
@@ -141,7 +142,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
       role="region"
       aria-labelledby="offer-menu-button"
     >
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Container>
         <div className="bg-white rounded-b-[2.5rem] shadow-[0_40px_100px_-20px_rgba(33,50,97,0.2)] border border-gray-100 border-t-0 overflow-hidden flex flex-row">
           {/* Left Side: Services Grid */}
           <div className="flex-1 grid grid-cols-3 divide-x divide-gray-50 p-10">
@@ -236,7 +237,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
             </div>
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   );
 };

@@ -18,6 +18,7 @@ import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
+import Container from '../common/Container';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
@@ -90,7 +91,7 @@ const ContactPage: React.FC = () => {
       <section className="relative py-20 bg-deep-dark text-white overflow-hidden">
         <AmbientBackground />
 
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <Container className="relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
               <MessageSquare size={14} /> {CONTENT.hero.badge}
@@ -103,12 +104,12 @@ const ContactPage: React.FC = () => {
             </h1>
             <p className="text-gray-300 text-lg">{CONTENT.hero.description}</p>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* --- MAIN CONTENT GRID --- */}
       <section className="py-24 bg-gray-50 relative z-10">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Container className="max-w-screen-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* LEFT: CTA CARD (Replaces Form) */}
             <div className="lg:col-span-7">
@@ -244,7 +245,7 @@ const ContactPage: React.FC = () => {
               </AnimateOnScroll>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
     </div>
   );

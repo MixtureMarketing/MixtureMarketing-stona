@@ -9,6 +9,7 @@ import FooterBranding from './footer/FooterBranding';
 import FooterLinks from './footer/FooterLinks';
 import FooterSocials from './footer/FooterSocials';
 import FooterTrustBox from './footer/FooterTrustBox';
+import Container from '../common/Container';
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ const Footer: React.FC = () => {
       <div className="absolute inset-0 bg-tech-grid opacity-[0.03] pointer-events-none"></div>
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent"></div>
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <Container className="relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-16 mb-20">
           <FooterBranding about={CONTENT.about} />
 
@@ -108,7 +109,7 @@ const Footer: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 };

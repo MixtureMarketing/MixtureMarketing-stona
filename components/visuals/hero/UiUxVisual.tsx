@@ -1,7 +1,8 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import { useParallax } from '../../../hooks/useParallax';
-import { WindowControls } from './atoms/WindowControls';
+import WindowControls from '../../common/WindowControls';
+import BaseCard from '../../common/BaseCard';
 
 export const UiUxHeroVisual: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -13,8 +14,11 @@ export const UiUxHeroVisual: React.FC = () => {
       className="relative w-full max-w-[500px] aspect-[4/5] md:aspect-square flex items-center justify-center perspective-[2000px] mx-auto"
       style={{ transform: 'scale(var(--hero-scale))' }}
     >
-      <div
-        className="absolute top-1/2 left-1/2 w-[90%] md:w-[400px] h-64 md:h-72 bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white p-6 md:p-8 transition-transform duration-100 ease-out will-change-transform"
+      <BaseCard
+        variant="glass"
+        rounded="3xl"
+        padding="lg"
+        className="absolute top-1/2 left-1/2 w-[90%] md:w-[400px] h-64 md:h-72 shadow-2xl transition-transform duration-100 ease-out will-change-transform"
         style={{
           transform: `translate(-50%, -50%) translate(${mousePos.x * -25}px, ${mousePos.y * -25}px) rotateX(${mousePos.y * 8}deg) rotateY(${mousePos.x * 8}deg)`,
         }}
@@ -31,10 +35,13 @@ export const UiUxHeroVisual: React.FC = () => {
             <div className="w-2/3 h-3 bg-gray-100 rounded-full"></div>
           </div>
         </div>
-      </div>
+      </BaseCard>
 
-      <div
-        className="absolute top-1/2 left-[60%] w-[50%] md:w-56 h-[320px] md:h-[420px] bg-deep-dark rounded-[2.5rem] md:rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-[4px] md:border-[6px] border-slate-border p-4 md:p-6 transition-transform duration-100 ease-out flex flex-col justify-between overflow-hidden will-change-transform"
+      <BaseCard
+        variant="dark"
+        padding="lg"
+        rounded="3xl"
+        className="absolute top-1/2 left-[60%] w-[50%] md:w-56 h-[320px] md:h-[420px] border-[4px] md:border-[6px] border-slate-border transition-transform duration-100 ease-out flex flex-col justify-between overflow-hidden will-change-transform"
         style={{
           transform: `translate(-50%, -40%) translate(${mousePos.x * 50}px, ${mousePos.y * 50}px) rotateX(${mousePos.y * 12}deg) rotateY(${mousePos.x * 12}deg)`,
         }}
@@ -62,7 +69,7 @@ export const UiUxHeroVisual: React.FC = () => {
           Zacznij teraz
         </button>
         <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-[60px]"></div>
-      </div>
+      </BaseCard>
     </div>
   );
 };

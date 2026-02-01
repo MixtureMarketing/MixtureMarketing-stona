@@ -14,7 +14,13 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const errorId = `${generatedId}-error`;
 
     return (
-      <FieldWrapper error={error} errorId={errorId} className={className}>
+      <FieldWrapper
+        label={label}
+        id={generatedId}
+        error={error}
+        errorId={errorId}
+        className={className}
+      >
         <select
           id={generatedId}
           ref={ref}
@@ -44,21 +50,6 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <div className="absolute right-4 top-[2.1rem] -translate-y-1/2 pointer-events-none text-gray-600 group-focus-within:text-primary group-focus-within:scale-110 transition-all duration-300">
           <ChevronDown size={20} />
         </div>
-
-        {/* Floating Label */}
-        <label
-          htmlFor={generatedId}
-          className={`
-          absolute left-4 top-1.5
-          text-xxs font-black uppercase tracking-widest text-gray-600
-          transition-all duration-300
-          peer-focus:text-primary
-          pointer-events-none
-          ${error ? 'text-red-500' : ''}
-        `}
-        >
-          {label}
-        </label>
       </FieldWrapper>
     );
   },

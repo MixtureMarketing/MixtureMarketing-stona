@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, Search } from 'lucide-react';
-import { WindowControls } from './atoms/WindowControls';
+import WindowControls from '../../common/WindowControls';
+import BaseCard from '../../common/BaseCard';
 
 export const SeoHeroVisual: React.FC = () => {
   const [rankPosition, setRankPosition] = useState(6);
@@ -11,8 +12,11 @@ export const SeoHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div
-      className="relative z-10 w-full max-w-sm md:max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform rotate-y-6 rotate-x-6 hover:rotate-0 transition-transform duration-700 mx-auto"
+    <BaseCard
+      variant="solid"
+      padding="none"
+      rounded="2xl"
+      className="relative z-10 w-full max-w-sm md:max-w-md shadow-2xl border-gray-200 overflow-hidden transform rotate-y-6 rotate-x-6 hover:rotate-0 transition-transform duration-700 mx-auto"
       style={{ transform: 'scale(var(--hero-scale)) rotateX(6deg) rotateY(6deg)' }}
     >
       <div className="bg-gray-50 border-b border-gray-100 px-4 py-3 flex items-center gap-3">
@@ -47,6 +51,6 @@ export const SeoHeroVisual: React.FC = () => {
           );
         })}
       </div>
-    </div>
+    </BaseCard>
   );
 };

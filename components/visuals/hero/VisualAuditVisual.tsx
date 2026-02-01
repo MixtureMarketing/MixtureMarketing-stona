@@ -1,4 +1,5 @@
 import React from 'react';
+import BaseCard from '../../common/BaseCard';
 
 export const VisualAuditHeroVisual: React.FC = () => {
   return (
@@ -7,7 +8,12 @@ export const VisualAuditHeroVisual: React.FC = () => {
       <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-[100px] animate-pulse"></div>
       <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-secondary/20 rounded-full blur-[100px] animate-pulse delay-700"></div>
 
-      <div className="relative z-10 w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-700">
+      <BaseCard
+        variant="solid"
+        padding="none"
+        rounded="3xl"
+        className="relative z-10 w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-700"
+      >
         <div className="bg-gray-800 px-4 py-3 flex items-center gap-2 border-b border-gray-700">
           <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -43,7 +49,7 @@ export const VisualAuditHeroVisual: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </BaseCard>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 
-export const CountUp = ({ value, label }: { value: string; label: string }) => {
+const CountUp = ({ value, label }: { value: string; label: string }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 

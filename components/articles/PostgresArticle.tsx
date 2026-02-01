@@ -11,10 +11,11 @@ import {
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import ArticleShell from './ArticleShell';
-import { ARTICLES } from '../../data/articles';
-import { PostgresHeroVisual, AcidSimulator, TcoCostChart } from './visuals/PostgresVisuals';
+import BaseCta from '../common/BaseCta';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import { PostgresHeroVisual, TcoCostChart, AcidSimulator } from './visuals/PostgresVisuals';
 
 const PostgresArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'postgresql-krol-baz-danych');
@@ -136,52 +137,37 @@ const PostgresArticle = () => {
         </div>
       </div>
 
-      {/* COMPARISON TABLE */}
-      <div className="my-24">
-        <SectionHeader
-          title="Wielka Bitwa: PostgreSQL vs Reszta Świata"
-          subtitle="Porównanie Techniczne"
-          align="left"
-        />
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mt-8 not-prose">
-          <table className="w-full text-left bg-white">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">Cecha</th>
-                <th className="p-4 text-xs font-black uppercase text-[#336791]">PostgreSQL</th>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">MySQL</th>
-                <th className="p-4 text-xs font-black uppercase text-gray-500">MongoDB</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
-              <tr>
-                <td className="p-4 font-bold">Zastosowanie</td>
-                <td className="p-4 text-[#336791] font-bold">Złożone systemy B2B</td>
-                <td className="p-4">Proste strony WWW</td>
-                <td className="p-4">Dane niestrukturalne</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">Złożone zapytania</td>
-                <td className="p-4 text-emerald-600 font-bold">Król (Wydajny JOIN)</td>
-                <td className="p-4">Dobre, ale słabnie</td>
-                <td className="p-4 text-red-500">Słabe (Brak relacji)</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">Obsługa JSON</td>
-                <td className="p-4 text-emerald-600 font-bold">Doskonała (JSONB)</td>
-                <td className="p-4 text-orange-500">Podstawowa</td>
-                <td className="p-4">Natywna</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">Dane GIS (Mapy)</td>
-                <td className="p-4 text-emerald-600 font-bold">Najlepszy (PostGIS)</td>
-                <td className="p-4 text-orange-500">Podstawowa</td>
-                <td className="p-4 text-orange-500">Podstawowa</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ArticleComparisonTable
+        title="Wielka Bitwa: PostgreSQL vs Reszta Świata"
+        subtitle="Porównanie Techniczne"
+        headers={['Cecha', 'PostgreSQL', 'MySQL', 'MongoDB']}
+        rows={[
+          {
+            feature: 'Zastosowanie',
+            postgres: 'Złożone systemy B2B',
+            mysql: 'Proste strony WWW',
+            mongo: 'Dane niestrukturalne',
+          },
+          {
+            feature: 'Złożone zapytania',
+            postgres: 'Król (Wydajny JOIN)',
+            mysql: 'Dobre, ale słabnie',
+            mongo: 'Słabe (Brak relacji)',
+          },
+          {
+            feature: 'Obsługa JSON',
+            postgres: 'Doskonała (JSONB)',
+            mysql: 'Podstawowa',
+            mongo: 'Natywna',
+          },
+          {
+            feature: 'Dane GIS (Mapy)',
+            postgres: 'Najlepszy (PostGIS)',
+            mysql: 'Podstawowa',
+            mongo: 'Podstawowa',
+          },
+        ]}
+      />
 
       {/* KILLER FEATURE: JSONB */}
       <div className="my-24 bg-[#0B1120] rounded-[2rem] p-8 md:p-12 text-white relative overflow-hidden not-prose">
@@ -260,46 +246,16 @@ WHERE settings @> '{"newsletter": true}';
         </div>
       </div>
 
-      {/* SUMMARY & CTA */}
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-dark relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#336791] rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-40"></div>
-
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                <ShieldCheck size={40} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-6 text-white">
-                Przestań płacić za licencje. Zacznij inwestować w produkt.
-              </h2>
-              <p className="text-gray-200 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                Pomożemy Ci zmigrować Twoje dane z drogich, komercyjnych rozwiązań do wydajnego
-                PostgreSQL. Zróbmy analizę oszczędności dla Twojego biznesu.
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Button
-                  variant="white"
-                  size="lg"
-                  className="shadow-xl text-dark hover:bg-gray-100"
-                  onClick={() => (window.location.href = '/web-development/custom-app')}
-                >
-                  Oblicz oszczędności z migracji
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 hover:border-white"
-                  size="lg"
-                  onClick={() => (window.location.href = '/baza-wiedzy')}
-                >
-                  Wróć do Bazy Wiedzy
-                </Button>
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={ShieldCheck}
+        title="Przestań płacić za licencje. Zacznij inwestować w produkt."
+        description="Pomożemy Ci zmigrować Twoje dane z drogich, komercyjnych rozwiązań do wydajnego PostgreSQL. Zróbmy analizę oszczędności dla Twojego biznesu."
+        buttonText="Oblicz oszczędności z migracji"
+        buttonLink="/web-development/custom-app"
+        secondaryButtonText="Wróć do Bazy Wiedzy"
+        secondaryButtonLink="/baza-wiedzy"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

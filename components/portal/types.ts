@@ -1,8 +1,50 @@
-export interface Client {
+export interface BusinessEntity {
+  id: string;
+  name: string;
+  email?: string;
+  company_name?: string;
+  created_at?: string;
+  status?: string;
+}
+
+export interface Client extends BusinessEntity {
   id: string;
   name: string;
   email: string;
   company_name: string;
+}
+
+export interface Project extends BusinessEntity {
+  id: string;
+  user_id: string;
+  client_name: string; // This matches name in Client
+  company_name?: string;
+  name: string;
+  type: string;
+  status: string;
+  progress: number;
+  budget: string;
+  drive_link: string;
+  next_milestone: string;
+  next_milestone_date: string;
+  documents?: ProjectDoc[];
+  milestones?: Milestone[];
+}
+
+export interface Lead extends BusinessEntity {
+  id: string;
+  email: string;
+  name: string;
+  service_type: string;
+  package_name?: string;
+  status: string;
+  created_at: string;
+  message: string;
+  budget?: string;
+  company_name?: string; // Unified from 'company'
+  current_step: number;
+  details?: string;
+  service_interest?: string;
 }
 
 export interface MetricValue {
@@ -46,38 +88,6 @@ export interface Milestone {
   due_date: string;
   status: 'pending' | 'accepted' | 'corrections';
   feedback: string;
-}
-
-export interface Project {
-  id: string;
-  user_id: string;
-  client_name: string;
-  company_name?: string;
-  name: string;
-  type: string;
-  status: string;
-  progress: number;
-  budget: string;
-  drive_link: string;
-  next_milestone: string;
-  next_milestone_date: string;
-  documents?: ProjectDoc[];
-  milestones?: Milestone[];
-}
-
-export interface Lead {
-  id: string;
-  email: string;
-  name: string;
-  service_type: string;
-  package_name?: string;
-  status: string;
-  created_at: string;
-  message: string;
-  budget?: string;
-  company?: string;
-  current_step: number;
-  details?: string;
 }
 
 export interface Message {

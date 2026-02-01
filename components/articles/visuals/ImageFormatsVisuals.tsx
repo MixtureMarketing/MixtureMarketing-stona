@@ -1,8 +1,67 @@
 import React, { useState } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip } from 'recharts';
-import { FileCode, ChevronDown, ChevronUp, RefreshCw, Play, Zap, CheckCircle2 } from 'lucide-react';
+import {
+  FileCode,
+  ChevronDown,
+  ChevronUp,
+  RefreshCw,
+  Play,
+  Zap,
+  CheckCircle2,
+  Monitor,
+  Tablet,
+  Scale,
+} from 'lucide-react';
 import Image from '../../common/Image';
 import Button from '../../common/Button';
+
+export const ImageFormatsHero = () => (
+  <div className="mb-20">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="relative bg-gray-200 rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-gray-300">
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/dust.png')]"></div>
+        <Monitor size={80} className="text-gray-600 mb-4" />
+        <div className="bg-gray-800 text-white px-4 py-1 rounded-md font-mono text-sm mb-4">
+          FORMAT: JPG (1992)
+        </div>
+        <div className="flex items-center gap-2 text-gray-700 font-bold">
+          <Scale size={20} /> 10.0 kg (Ciężkie)
+        </div>
+      </div>
+      <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
+        <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
+        <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
+          FORMAT: AVIF (2025)
+        </div>
+        <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
+          <Zap size={20} className="fill-current" /> 0.5 kg (Lekkie)
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+export const ValueCard = ({
+  icon,
+  title,
+  desc,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) => (
+  <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all">
+    <div
+      className="w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center mb-4"
+      aria-hidden="true"
+    >
+      {icon}
+    </div>
+    <h3 className="font-bold text-dark mb-2">{title}</h3>
+    <p className="text-sm text-gray-600 leading-relaxed">{desc}</p>
+  </div>
+);
 
 export const ImageComparisonDuel = () => {
   const [selected, setSelected] = useState<'jpg' | 'webp' | 'avif'>('jpg');

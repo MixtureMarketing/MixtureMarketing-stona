@@ -12,6 +12,7 @@ import PortalChat from './client/PortalChat';
 import PortalSupport from './client/PortalSupport';
 import { ProfileModal } from './client/PortalModals';
 import { AlertCircle } from 'lucide-react';
+import { getStatusColor, getStatusLabel } from '../../utils/portalHelpers';
 
 const PortalDashboard: React.FC = () => {
   const { user, sessionToken, logout, updateUser, isLoading } = useAuth();
@@ -29,12 +30,6 @@ const PortalDashboard: React.FC = () => {
   // Detail View State
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
-  const [isUpdatingMilestone, setIsUpdatingMilestone] = useState(false);
-  const [milestoneFeedback, setMilestoneFeedback] = useState('');
-  const [activeMilestoneAction, setActiveMilestoneAction] = useState<{
-    id: string;
-    type: 'accepted' | 'corrections';
-  } | null>(null);
 
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -103,38 +98,6 @@ const PortalDashboard: React.FC = () => {
     }
   };
 
-  const handleUpdateMilestone = async (
-    milestoneId: string,
-    status: 'accepted' | 'corrections',
-    feedback: string = '',
-  ) => {
-    if (!sessionToken) return;
-    setIsUpdatingMilestone(true);
-
-    try {
-      const res = await fetch('/api/portal/update_milestone.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify({ id: milestoneId, status, feedback }),
-      });
-
-      if (res.ok) {
-        refreshProjects();
-        setActiveMilestoneAction(null);
-        setMilestoneFeedback('');
-        showNotification('Decyzja zapisana!', 'success');
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsUpdatingMilestone(false);
-    }
-  };
-
   const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !sessionToken) return;
@@ -181,32 +144,6 @@ const PortalDashboard: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-600 bg-green-50 border-green-200';
-      case 'in_progress':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'review':
-        return 'text-amber-600 bg-amber-50 border-amber-200';
-      default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'Zakończony';
-      case 'in_progress':
-        return 'W trakcie';
-      case 'review':
-        return 'Do akceptacji';
-      default:
-        return 'Oczekujący';
     }
   };
 
@@ -261,15 +198,7 @@ const PortalDashboard: React.FC = () => {
           <PortalProjectDetails
             project={selectedProject}
             onClose={() => setSelectedProjectId(null)}
-            getStatusColor={getStatusColor}
-            getStatusLabel={getStatusLabel}
-            activeMilestoneAction={activeMilestoneAction}
-            setActiveMilestoneAction={setActiveMilestoneAction}
-            milestoneFeedback={milestoneFeedback}
-            setMilestoneFeedback={setMilestoneFeedback}
-            onUpdateMilestone={handleUpdateMilestone}
-            isUpdatingMilestone={isUpdatingMilestone}
-            onDownload={handleDownload}
+            refreshProjects={refreshProjects}
           />
         )}
 

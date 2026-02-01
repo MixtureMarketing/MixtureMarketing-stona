@@ -9,7 +9,7 @@ import LazyHydrate from '../common/LazyHydrate';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import { WebAppHeroVisual } from '../visuals/hero/WebAppVisual';
 
 // Refactored Sub-components
@@ -85,13 +85,13 @@ const CustomWebApp: React.FC = () => {
       )}
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
         icon={Settings}
         onClick={() => openModal('consultation', { specificType: 'custom' })}
-        bgClassName="bg-light-gray border-t border-gray-100"
+        variant="dark"
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import Button from '../common/Button';
 import SectionHeader from '../common/SectionHeader';
+import Container from '../common/Container';
 import CalculatorProgress from './calculator/CalculatorProgress';
 import CalculatorStepType from './calculator/CalculatorStepType';
 import CalculatorStepDesign from './calculator/CalculatorStepDesign';
@@ -114,7 +115,7 @@ const PriceCalculator: React.FC = () => {
   if (isSuccess) {
     return (
       <section className="py-24 bg-[#F9FAFB]" id="calculator">
-        <div className="max-w-screen-md mx-auto px-4 text-center">
+        <Container className="max-w-screen-md text-center">
           <div className="bg-white rounded-3xl shadow-xl p-12 border border-green-100">
             <div className="inline-flex items-center justify-center p-6 bg-green-100 text-green-600 rounded-full mb-8 animate-bounce">
               <CheckCircle2 size={64} />
@@ -131,14 +132,14 @@ const PriceCalculator: React.FC = () => {
               </Button>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
     );
   }
 
   return (
     <section className="py-24 bg-[#F9FAFB] overflow-hidden" id="calculator">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Container className="max-w-screen-xl">
         <SectionHeader
           title="Smart Calculator"
           subtitle="Transparentna Wycena"
@@ -228,7 +229,7 @@ const PriceCalculator: React.FC = () => {
           {/* --- RIGHT: Live Summary --- */}
           <CalculatorSummary selections={selections} result={result} />
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

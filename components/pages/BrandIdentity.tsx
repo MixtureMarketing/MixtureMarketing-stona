@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { Fingerprint, Grid, Briefcase } from 'lucide-react';
+import { Fingerprint, Grid, Zap } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../data/content';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import SectionHeader from '../common/SectionHeader';
 import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
 
@@ -87,14 +87,14 @@ const BrandIdentity: React.FC = () => {
         </div>
       </section>
 
-      {/* --- FINAL CTA --- */}
-      <StandardCta
+      {/* --- CTA --- */}
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Briefcase}
-        onClick={() => openModal('design', { specificType: 'branding' })}
-        bgClassName="bg-light-gray border-t border-gray-100"
+        icon={Zap}
+        onClick={() => openModal('consultation')}
+        variant="dark"
       />
     </div>
   );

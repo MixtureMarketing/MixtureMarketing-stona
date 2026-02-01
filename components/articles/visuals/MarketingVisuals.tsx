@@ -10,10 +10,83 @@ import {
   Layers,
   Search,
   Target,
+  Settings,
+  DollarSign,
 } from 'lucide-react';
 import Button from '../../common/Button';
 import SectionHeader from '../../common/SectionHeader';
 import { useCounter } from '../../../hooks/useCounter';
+
+// --- GOOGLE ADS HERO ---
+export const GoogleAdsHero = () => (
+  <div className="relative bg-[#0F172A] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
+    <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
+
+    <div className="relative z-10 flex items-center gap-12">
+      <div className="flex flex-col items-center">
+        <div className="w-24 h-24 bg-gradient-to-br from-secondary to-dark rounded-3xl flex items-center justify-center shadow-2xl border border-white/10 relative overflow-hidden group-hover:scale-105 transition-transform">
+          <div className="absolute inset-0 bg-primary opacity-20 blur-xl animate-pulse"></div>
+          <Settings size={48} className="text-white relative z-10 animate-spin-slow" />
+        </div>
+        <span className="text-xxs font-black uppercase text-gray-700 mt-4 tracking-widest">
+          Twoja Kampania
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent animate-shimmer"></div>
+        </div>
+        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-shimmer delay-500"></div>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center">
+        <div className="w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+          <DollarSign size={48} className="text-emerald-500" />
+        </div>
+        <span className="text-xxs font-black uppercase text-emerald-500 mt-4 tracking-widest">
+          Skalowanie Zysku
+        </span>
+      </div>
+    </div>
+  </div>
+);
+
+export const ScalingTypeCard = ({
+  type,
+  title,
+  desc,
+  risk,
+  suitability,
+}: {
+  type: 'vertical' | 'horizontal';
+  title: string;
+  desc: string;
+  risk: string;
+  suitability: string;
+}) => (
+  <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all flex flex-col h-full">
+    <div
+      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${type === 'vertical' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}
+    >
+      {type === 'vertical' ? <Target size={24} /> : <Search size={24} />}
+    </div>
+    <h3 className="text-xl font-bold text-dark mb-3">{title}</h3>
+    <p className="text-sm text-gray-700 mb-6 flex-grow">{desc}</p>
+    <div className="space-y-4">
+      <div className="bg-rose-50 p-3 rounded-xl border border-rose-100">
+        <div className="text-xxs font-black uppercase text-rose-600 mb-1">Ryzyko</div>
+        <p className="text-xs text-rose-800 m-0 leading-snug">{risk}</p>
+      </div>
+      <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+        <div className="text-xxs font-black uppercase text-emerald-600 mb-1">Kiedy stosować?</div>
+        <p className="text-xs text-emerald-800 m-0 leading-snug">{suitability}</p>
+      </div>
+    </div>
+  </div>
+);
 
 // 1. ROAS VS PROFIT CALCULATOR
 export const RoasProfitCalculator = () => {

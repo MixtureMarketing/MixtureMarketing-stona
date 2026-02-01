@@ -1,21 +1,9 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import {
-  Code2,
-  Zap,
-  Users,
-  CheckCircle2,
-  ArrowRight,
-  Layout,
-  Smartphone,
-  Globe,
-  ShieldCheck,
-} from 'lucide-react';
+import { Code2, Zap, Users, CheckCircle2, Layout, ShieldCheck } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import ArticleShell from './ArticleShell';
-import { ARTICLES } from '../../data/articles';
+import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { REACT_ARTICLE_CONTENT } from '../../data/content/articles/react';
 import {
   ReactHeroNetwork,
@@ -23,6 +11,9 @@ import {
   ReactVennDiagram,
   ReactTrendChart,
 } from './visuals/ReactVisuals';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleUseCases from './shared/ArticleUseCases';
+import BaseCta from '../common/BaseCta';
 
 const ReactJsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'react-js-krol-frontendu');
@@ -43,25 +34,12 @@ const ReactJsArticle = () => {
       heroVisual={<ReactHeroNetwork />}
       slug="/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu"
     >
-      <div className="mb-16 p-6 bg-white border border-blue-100 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start gap-5 not-prose hover:shadow-md transition-shadow">
-        <div className="bg-blue-50 p-3 rounded-full shrink-0 text-secondary">
-          <Layout size={24} />
-        </div>
-        <div>
-          <p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">
-            {content.contextBox.title}
-          </p>
-          <h4 className="text-lg font-bold text-dark mb-2">{content.contextBox.subtitle}</h4>
-          <p className="text-sm text-gray-600 mb-3">{content.contextBox.text}</p>
-          <Link
-            to={content.contextBox.linkUrl}
-            className="text-sm text-[#00A3CC] hover:text-[#61DAFB] font-bold inline-flex items-center gap-2 group"
-          >
-            {content.contextBox.linkText}{' '}
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-      </div>
+      <ArticleContextBox
+        icon={Layout}
+        text={`<p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">${content.contextBox.title}</p><h4 className="text-lg font-bold text-dark mb-2">${content.contextBox.subtitle}</h4><p className="text-sm text-gray-600 mb-3">${content.contextBox.text}</p>`}
+        linkUrl={content.contextBox.linkUrl}
+        linkText={content.contextBox.linkText}
+      />
 
       <AnimateOnScroll>
         <p className="lead text-2xl text-dark mb-12 font-medium leading-relaxed border-l-4 border-[#61DAFB] pl-6 py-2 bg-blue-50/30 rounded-r-xl">
@@ -80,26 +58,16 @@ const ReactJsArticle = () => {
         <div className="not-prose mb-16">
           <InterfaceAssembly />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose">
-          {content.componentRevolution.cards.map((card, i) => (
-            <div
-              key={i}
-              className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg hover:border-[#61DAFB]/30 transition-all group"
-            >
-              <div className="w-12 h-12 bg-blue-50 text-[#0088AA] rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                {i === 0 ? (
-                  <Zap size={24} />
-                ) : i === 1 ? (
-                  <ShieldCheck size={24} />
-                ) : (
-                  <Layout size={24} />
-                )}
-              </div>
-              <h4 className="font-bold text-dark mb-2">{card.title}</h4>
-              <p className="text-sm text-gray-600 m-0 leading-relaxed">{card.desc}</p>
-            </div>
-          ))}
-        </div>
+
+        <ArticleUseCases
+          title=""
+          accentColor="#61DAFB"
+          items={[
+            { ...content.componentRevolution.cards[0], icon: <Zap size={24} /> },
+            { ...content.componentRevolution.cards[1], icon: <ShieldCheck size={24} /> },
+            { ...content.componentRevolution.cards[2], icon: <Layout size={24} /> },
+          ]}
+        />
       </div>
 
       <div className="my-32 bg-[#0F172A] rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden not-prose shadow-2xl group">
@@ -236,60 +204,17 @@ const ReactJsArticle = () => {
         </div>
       </div>
 
-      <div className="mt-32">
-        <AnimateOnScroll>
-          <div className="rounded-[3rem] p-12 text-center shadow-2xl bg-gradient-to-br from-[#0B1120] to-[#1e293b] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#61DAFB] rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-600 rounded-full blur-[100px] opacity-10"></div>
-            <div className="relative z-10 flex flex-col items-center">
-              <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-[2rem] flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(97,218,251,0.2)] border border-white/10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                <Zap size={48} className="text-[#61DAFB]" fill="currentColor" />
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
-                {content.cta.title}
-              </h2>
-              <p className="text-gray-300 mb-10 max-w-2xl mx-auto text-lg leading-relaxed">
-                {content.cta.text}
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="shadow-xl shadow-[#61DAFB]/20 !bg-[#61DAFB] border-none text-[#0B1120] font-black hover:!bg-[#00D8FF] px-10 py-4"
-                  onClick={() => (window.location.href = '/web-development/custom-app/')}
-                >
-                  {content.cta.primaryBtn}
-                </Button>
-                <Button
-                  variant="white"
-                  className="text-white border-white/20 hover:bg-white/10 px-10 py-4"
-                  size="lg"
-                  onClick={() => (window.location.href = '/contact/')}
-                >
-                  {content.cta.secondaryBtn}
-                </Button>
-              </div>
-              <div className="mt-16 flex flex-wrap justify-center gap-8 opacity-60">
-                {content.cta.badges.map((badge, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest"
-                  >
-                    {i === 0 ? (
-                      <ShieldCheck size={16} className="text-[#61DAFB]" />
-                    ) : i === 1 ? (
-                      <Globe size={16} className="text-[#61DAFB]" />
-                    ) : (
-                      <Smartphone size={16} className="text-[#61DAFB]" />
-                    )}
-                    {badge}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </AnimateOnScroll>
-      </div>
+      <BaseCta
+        icon={Zap}
+        title={content.cta.title}
+        description={content.cta.text}
+        buttonText={content.cta.primaryBtn}
+        buttonLink="/web-development/custom-app/"
+        secondaryButtonText={content.cta.secondaryBtn}
+        secondaryButtonLink="/contact/"
+        accentColor="#61DAFB"
+        variant="dark"
+      />
     </ArticleShell>
   );
 };

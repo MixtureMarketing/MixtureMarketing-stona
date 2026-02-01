@@ -3,17 +3,6 @@ export type ConsentState = {
   marketing: boolean;
 };
 
-export const gtag = (...args: unknown[]) => {
-  if (typeof window !== 'undefined') {
-    if (typeof window.gtag === 'function') {
-      window.gtag(...args);
-    } else {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push(args);
-    }
-  }
-};
-
 export const applyConsent = (consent: ConsentState) => {
   const consentSettings = {
     ad_storage: consent.marketing ? 'granted' : 'denied',

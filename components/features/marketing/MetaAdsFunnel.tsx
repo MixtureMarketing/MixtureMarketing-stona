@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Image as ImageIcon, MousePointerClick, ShoppingCart, Heart } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
+import SectionWrapper from '../../common/SectionWrapper';
 import { META_ADS_CONTENT as CONTENT } from '../../../data/content';
 import FunnelVisual from './funnel/FunnelVisual';
 import FunnelCommandCenter from './funnel/FunnelCommandCenter';
@@ -39,20 +40,18 @@ const MetaAdsFunnel: React.FC<MetaAdsFunnelProps> = ({ onCta }) => {
   });
 
   return (
-    <section className="py-24 bg-white relative z-10 overflow-hidden">
+    <SectionWrapper variant="white" overflow={true}>
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <SectionHeader
-          title={CONTENT.funnel.title}
-          description={CONTENT.funnel.description}
-          className="mb-24"
-        />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
-          <FunnelVisual funnelStep={funnelStep} particles={particles} funnelStages={funnelStages} />
-          <FunnelCommandCenter funnelStep={funnelStep} funnelStages={funnelStages} onCta={onCta} />
-        </div>
+      <SectionHeader
+        title={CONTENT.funnel.title}
+        description={CONTENT.funnel.description}
+        className="mb-24"
+      />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center">
+        <FunnelVisual funnelStep={funnelStep} particles={particles} funnelStages={funnelStages} />
+        <FunnelCommandCenter funnelStep={funnelStep} funnelStages={funnelStages} onCta={onCta} />
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

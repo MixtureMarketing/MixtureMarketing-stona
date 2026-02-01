@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, Sparkles } from 'lucide-react';
-import GlassCard from './GlassCard';
+import BaseCard from './BaseCard';
 import Button from './Button';
 import { PricingTier } from '../../types';
 
@@ -20,11 +20,12 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({ tier, isHighlight, on
           </span>
         </div>
       )}
-      <GlassCard
-        className={`p-5 md:p-8 h-full flex flex-col transition-all duration-500 hover:shadow-2xl relative overflow-hidden ${
-          isHighlight
-            ? 'border-secondary shadow-xl ring-4 ring-[#E0EFFF] bg-white'
-            : 'border-gray-100 hover:border-primary/30 bg-white'
+      <BaseCard
+        variant="solid"
+        hover={isHighlight ? 'none' : 'lift'}
+        padding="lg"
+        className={`h-full flex flex-col relative overflow-hidden ${
+          isHighlight ? 'border-secondary ring-4 ring-[#E0EFFF]' : ''
         }`}
       >
         {isHighlight && (
@@ -96,7 +97,7 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({ tier, isHighlight, on
         >
           {tier.buttonText || (tier.price === 'Wycena' ? 'Zapytaj o Ofertę' : 'Wybierz Pakiet')}
         </Button>
-      </GlassCard>
+      </BaseCard>
     </div>
   );
 };

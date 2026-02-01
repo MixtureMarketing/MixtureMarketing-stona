@@ -1,17 +1,25 @@
 import React, { useEffect } from 'react';
-import { Terminal, Calculator, Activity, CreditCard, Megaphone, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Terminal,
+  Calculator,
+  Activity,
+  CreditCard,
+  Megaphone,
+  Database,
+  Truck,
+} from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import TechStack from '../sections/TechStack';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
-import StandardFaq from '../common/StandardFaq';
 import { WEB_DEV_CONTENT } from '../../data/content';
 import RelatedArticles from '../articles/RelatedArticles';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import IntegrationGrid from '../common/IntegrationGrid';
+import Container from '../common/Container';
 import { WebDevHeroVisual } from '../visuals/hero/WebDevVisual';
 
 // Refactored Sub-components
@@ -20,6 +28,7 @@ import WebDevWpCustom from '../features/web-development/WebDevWpCustom';
 import WebDevAdminPanel from '../features/web-development/WebDevAdminPanel';
 import WebDevInfrastructure from '../features/web-development/WebDevInfrastructure';
 import WebDevComparison from '../features/web-development/WebDevComparison';
+import FaqSection from '../sections/FaqSection';
 
 const WebDevelopment: React.FC = () => {
   const navigate = useNavigate();
@@ -34,7 +43,7 @@ const WebDevelopment: React.FC = () => {
       <CreditCard key="payments" size={20} />,
       <Megaphone key="marketing" size={20} />,
       <Database key="erp" size={20} />,
-      <TruckIcon key="logistics" size={20} />,
+      <Truck key="logistics" size={20} />,
     ];
     return WEB_DEV_CONTENT.integrations.categories.map((cat, index) => ({
       ...cat,
@@ -94,7 +103,7 @@ const WebDevelopment: React.FC = () => {
       />
 
       <section className="bg-light-gray pb-24">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <Container className="relative z-10">
           <div className="pt-10 border-t border-gray-200/60 flex flex-wrap gap-x-8 gap-y-4 justify-center lg:justify-start">
             {['Next.js', 'React', 'TypeScript', 'WordPress Headless', 'Laravel', 'AWS Cloud'].map(
               (tech) => (
@@ -107,7 +116,7 @@ const WebDevelopment: React.FC = () => {
               ),
             )}
           </div>
-        </div>
+        </Container>
       </section>
 
       <WebDevProjectTypes />
@@ -121,7 +130,7 @@ const WebDevelopment: React.FC = () => {
       {/* --- ECOSYSTEM & INTEGRATIONS --- */}
       <section className="py-24 bg-light-gray relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none"></div>
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <Container className="relative z-10 text-center">
           <SectionHeader
             title={WEB_DEV_CONTENT.integrations.title}
             description={WEB_DEV_CONTENT.integrations.description}
@@ -130,7 +139,7 @@ const WebDevelopment: React.FC = () => {
           <LazyHydrate whenVisible>
             <IntegrationGrid categories={integrationCategories} />
           </LazyHydrate>
-        </div>
+        </Container>
       </section>
 
       <WebDevInfrastructure />
@@ -138,16 +147,11 @@ const WebDevelopment: React.FC = () => {
       <WebDevComparison />
 
       {/* --- FAQ --- */}
-      <section className="py-24 bg-white relative z-10">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            title={WEB_DEV_CONTENT.faq.title}
-            subtitle={WEB_DEV_CONTENT.faq.subtitle}
-            className="mb-12"
-          />
-          <StandardFaq items={WEB_DEV_CONTENT.faqs} />
-        </div>
-      </section>
+      <FaqSection
+        title={WEB_DEV_CONTENT.faq.title}
+        subtitle={WEB_DEV_CONTENT.faq.subtitle}
+        items={WEB_DEV_CONTENT.faqs}
+      />
 
       {/* --- RELATED ARTICLES --- */}
       <LazyHydrate minHeight="600px">
@@ -155,39 +159,16 @@ const WebDevelopment: React.FC = () => {
       </LazyHydrate>
 
       {/* --- FINAL CTA --- */}
-      <StandardCta
+      <BaseCta
         title={WEB_DEV_CONTENT.ctaSection.title}
         description={WEB_DEV_CONTENT.ctaSection.description}
         buttonText={WEB_DEV_CONTENT.ctaSection.buttonText}
         icon={Activity}
         onClick={() => openModal('consultation')}
-        variant="white"
-        bgClassName="bg-gradient-to-br from-dark to-secondary text-white"
-        className="text-white"
+        variant="gradient"
       />
     </div>
   );
 };
-
-// Simple Truck Icon Helper
-const TruckIcon = ({ size = 20 }: { size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M10 17h4V5H2v12h3" />
-    <path d="M20 17h2v-3.34a4 4 0 0 0-1.17-2.83L19 9h-5" />
-    <path d="M14 17h1" />
-    <circle cx="7.5" cy="17.5" r="2.5" />
-    <circle cx="17.5" cy="17.5" r="2.5" />
-  </svg>
-);
 
 export default WebDevelopment;

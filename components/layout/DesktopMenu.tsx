@@ -2,9 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown, Database, Megaphone, Palette, BarChart3, ArrowRight } from 'lucide-react';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
-import { ARTICLES } from '@/data/articles';
+import { LEGACY_ARTICLES } from '@/services/cms/legacyArticles';
 import Image from '@/components/common/Image';
 import Button from '@/components/common/Button';
+import Container from '@/components/common/Container';
 import MegaMenu from './MegaMenu';
 import { ContactType } from '@/types';
 
@@ -107,7 +108,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
           role="region"
           aria-labelledby="kb-menu-button"
         >
-          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Container>
             <div className="bg-white rounded-b-[2.5rem] shadow-[0_40px_100px_-20px_rgba(33,50,97,0.2)] border border-gray-100 border-t-0 overflow-hidden flex flex-row">
               {/* Categories */}
               <div className="flex-1 p-10 grid grid-cols-2 gap-4">
@@ -155,7 +156,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                   {CONTENT.knowledgeBase.badge}
                 </div>
                 <div className="space-y-4">
-                  {ARTICLES.filter((a) => a.isFeatured)
+                  {LEGACY_ARTICLES.filter((a) => a.isFeatured)
                     .slice(0, 2)
                     .map((art, i) => (
                       <Link
@@ -196,7 +197,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                 </Link>
               </div>
             </div>
-          </div>
+          </Container>
         </div>
       </div>
 

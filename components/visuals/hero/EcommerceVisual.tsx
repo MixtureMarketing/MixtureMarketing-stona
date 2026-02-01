@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, CreditCard, FileText, Truck } from 'lucide-react';
+import BaseCard from '../../common/BaseCard';
 
 export const EcommerceHeroVisual: React.FC = () => {
   const [pipelineStep, setPipelineStep] = useState(0);
@@ -12,7 +13,12 @@ export const EcommerceHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 transform rotate-1 hover:rotate-0 transition-all duration-500">
+    <BaseCard
+      variant="solid"
+      padding="lg"
+      rounded="2xl"
+      className="relative z-10 shadow-2xl border border-gray-200 transform rotate-1 hover:rotate-0 transition-all duration-500"
+    >
       <div className="flex justify-between items-center mb-8">
         <div className="text-xs font-bold text-gray-600 uppercase tracking-widest">
           Automatyzacja Zamówienia
@@ -84,6 +90,6 @@ export const EcommerceHeroVisual: React.FC = () => {
         </div>
       </div>
       <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-r from-[#00C853]/20 to-[#3F3D91]/20 blur-3xl rounded-full opacity-50"></div>
-    </div>
+    </BaseCard>
   );
 };

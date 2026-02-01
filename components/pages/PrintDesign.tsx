@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { Printer, Droplet, Package } from 'lucide-react';
-import SectionHeader from '../common/SectionHeader';
+import { Printer, Droplet, Zap } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import StandardFaq from '../common/StandardFaq';
+import SectionHeader from '../common/SectionHeader';
 import { PrintHeroVisual } from '../visuals/hero/PrintVisual';
 import Seo from '../common/Seo';
 import { PRINT_DESIGN_CONTENT as CONTENT } from '../../data/content';
@@ -67,13 +67,13 @@ const PrintDesign: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Package}
-        onClick={() => openModal('design')}
-        bgClassName="bg-white border-t border-gray-100"
+        icon={Zap}
+        onClick={() => openModal('design', { specificType: 'print' })}
+        variant="dark"
       />
     </div>
   );

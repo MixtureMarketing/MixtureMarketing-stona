@@ -1,21 +1,28 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, Clock, Tag } from 'lucide-react';
+import { ArrowRight, Clock, Tag } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
-import GlassCard from '../common/GlassCard';
+import BaseCard from '../common/BaseCard';
 import Image from '../common/Image';
-import { ARTICLES } from '../../data/articles';
+import Container from '../common/Container';
+import { cmsService } from '@/services/cmsService';
+import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
 
-const latestArticles = ARTICLES.filter((a) => a.isFeatured).slice(0, 3);
-
 const KnowledgeBaseTeaser: React.FC = () => {
+  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+
+  useEffect(() => {
+    cmsService.getArticles().then((data) => {
+      setLatestArticles(data.filter((a) => a.isFeatured).slice(0, 3));
+    });
+  }, []);
+
   return (
     <section className="py-24 bg-white relative overflow-hidden">
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <Container className="relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl text-left">
             <SectionHeader
@@ -43,7 +50,12 @@ const KnowledgeBaseTeaser: React.FC = () => {
                 className="group block h-full"
                 aria-label={`Czytaj artykuł: ${article.title}`}
               >
-                <GlassCard className="flex flex-col h-full overflow-hidden p-0 border-gray-100 group-hover:border-primary transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl">
+                <BaseCard
+                  variant="solid"
+                  padding="none"
+                  hover="lift"
+                  className="flex flex-col h-full overflow-hidden border-gray-100 group-hover:border-primary transition-all duration-500"
+                >
                   <div className="relative aspect-video overflow-hidden">
                     <Image
                       src={article.image}
@@ -55,7 +67,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                     <div className="absolute top-4 left-4">
                       <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-wider text-dark shadow-sm flex items-center gap-1.5">
                         <Tag size={10} className="text-accent-dark" aria-hidden="true" />{' '}
-                        {article.category}
+                        {article.categoryLabel}
                       </span>
                     </div>
                   </div>
@@ -71,12 +83,12 @@ const KnowledgeBaseTeaser: React.FC = () => {
                       Czytaj dalej <ArrowRight size={16} />
                     </div>
                   </div>
-                </GlassCard>
+                </BaseCard>
               </Link>
             </AnimateOnScroll>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 };

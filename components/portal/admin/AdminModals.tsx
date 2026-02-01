@@ -41,12 +41,12 @@ export const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({ lead, onClos
             <div className="text-sm font-bold text-green-600">{lead.budget || '-'}</div>
           </div>
         </div>
-        {lead.company && (
+        {lead.company_name && (
           <div>
-            <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+            <div className="text-xxs font-black text-gray-400 uppercase tracking-widest mb-1">
               Firma
             </div>
-            <div className="text-sm text-gray-700">{lead.company}</div>
+            <div className="text-sm text-gray-700">{lead.company_name}</div>
           </div>
         )}
         {lead.details && (

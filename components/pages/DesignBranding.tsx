@@ -8,7 +8,7 @@ import Seo from '../common/Seo';
 import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../data/content';
 import RelatedArticles from '../articles/RelatedArticles';
 import StandardHero from '../common/StandardHero';
-import StandardCta from '../common/StandardCta';
+import BaseCta from '../common/BaseCta';
 import StandardFaq from '../common/StandardFaq';
 import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
 
@@ -115,15 +115,13 @@ const DesignBranding: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.button}
         icon={Wand2}
         onClick={() => openModal('design')}
-        variant="white"
-        bgClassName="bg-dark text-white"
-        className="text-white"
+        variant="dark"
       />
     </div>
   );

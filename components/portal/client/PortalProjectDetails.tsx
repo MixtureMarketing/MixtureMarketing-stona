@@ -1,38 +1,25 @@
 import React from 'react';
-import { X, Check, RefreshCw, CheckCheck, FileDown } from 'lucide-react';
+import { X, FileDown } from 'lucide-react';
 import Button from '../../common/Button';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import { Project } from '../types';
+import { getStatusColor, getStatusLabel } from '../../../utils/portalHelpers';
+import ProjectTimeline from './ProjectTimeline';
+import { useProjectActions } from './useProjectActions';
 
 interface PortalProjectDetailsProps {
   project: Project;
   onClose: () => void;
-  getStatusColor: (status: string) => string;
-  getStatusLabel: (status: string) => string;
-  activeMilestoneAction: { id: string; type: 'accepted' | 'corrections' } | null;
-  setActiveMilestoneAction: React.Dispatch<
-    React.SetStateAction<{ id: string; type: 'accepted' | 'corrections' } | null>
-  >;
-  milestoneFeedback: string;
-  setMilestoneFeedback: (f: string) => void;
-  onUpdateMilestone: (id: string, status: 'accepted' | 'corrections', feedback: string) => void;
-  isUpdatingMilestone: boolean;
-  onDownload: (docId: string, fileName: string) => void;
+  refreshProjects: () => void;
 }
 
 const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
   project,
   onClose,
-  getStatusColor,
-  getStatusLabel,
-  activeMilestoneAction,
-  setActiveMilestoneAction,
-  milestoneFeedback,
-  setMilestoneFeedback,
-  onUpdateMilestone,
-  isUpdatingMilestone,
-  onDownload,
+  refreshProjects,
 }) => {
+  const { updateMilestone, downloadFile, isUpdating } = useProjectActions(refreshProjects);
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-md p-4 overflow-y-auto">
       <AnimateOnScroll className="w-full max-w-4xl my-auto">
@@ -66,127 +53,11 @@ const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
                   <h3 className="text-sm font-black uppercase text-gray-400 tracking-widest mb-6">
                     Harmonogram Projektu
                   </h3>
-
-                  <div className="relative space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100">
-                    {project.milestones && project.milestones.length > 0 ? (
-                      project.milestones.map((m) => (
-                        <div key={m.id} className="relative pl-10 group">
-                          <div
-                            className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white shadow-sm z-10 transition-colors ${
-                              m.status === 'accepted'
-                                ? 'bg-green-500'
-                                : m.status === 'corrections'
-                                  ? 'bg-red-500'
-                                  : 'bg-blue-500'
-                            }`}
-                          ></div>
-
-                          <div
-                            className={`p-6 rounded-2xl border transition-all ${
-                              m.status === 'accepted'
-                                ? 'bg-green-50/30 border-green-100'
-                                : m.status === 'corrections'
-                                  ? 'bg-red-50/30 border-red-100'
-                                  : 'bg-white border-gray-100 shadow-sm'
-                            }`}
-                          >
-                            <div className="flex justify-between items-start mb-2 gap-4">
-                              <h4 className="font-bold text-dark">{m.title}</h4>
-                              {m.due_date && (
-                                <span className="text-xxs font-bold text-gray-400 uppercase bg-gray-50 px-2 py-1 rounded">
-                                  Termin: {new Date(m.due_date).toLocaleDateString('pl-PL')}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-500 mb-4 leading-relaxed">
-                              {m.description}
-                            </p>
-
-                            {m.feedback && (
-                              <div className="mb-4 p-3 bg-white/50 rounded-xl border border-dashed border-gray-200 text-xs italic text-gray-600">
-                                <strong>Twoje uwagi:</strong>
-                                <br />
-                                {m.feedback}
-                              </div>
-                            )}
-
-                            {m.status === 'pending' || m.status === 'corrections' ? (
-                              <div className="flex gap-3 mt-4">
-                                {activeMilestoneAction?.id === m.id ? (
-                                  <div className="w-full space-y-3 animate-fade-in">
-                                    <textarea
-                                      className="w-full p-3 text-xs border rounded-xl focus:ring-2 focus:ring-indigo-50 outline-none"
-                                      placeholder={
-                                        activeMilestoneAction.type === 'accepted'
-                                          ? 'Opcjonalny komentarz (np. Super robota!)'
-                                          : 'Opisz co wymaga poprawy...'
-                                      }
-                                      value={milestoneFeedback}
-                                      onChange={(e) => setMilestoneFeedback(e.target.value)}
-                                      rows={3}
-                                    />
-                                    <div className="flex gap-2">
-                                      <Button
-                                        className="flex-1 py-2 text-xs"
-                                        onClick={() =>
-                                          onUpdateMilestone(
-                                            m.id,
-                                            activeMilestoneAction.type,
-                                            milestoneFeedback,
-                                          )
-                                        }
-                                        disabled={isUpdatingMilestone}
-                                      >
-                                        {isUpdatingMilestone ? 'Zapisywanie...' : 'Wyślij'}
-                                      </Button>
-                                      <Button
-                                        variant="outline"
-                                        className="py-2 text-xs"
-                                        onClick={() => setActiveMilestoneAction(null)}
-                                      >
-                                        Anuluj
-                                      </Button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <>
-                                    <button
-                                      onClick={() => {
-                                        setActiveMilestoneAction({ id: m.id, type: 'accepted' });
-                                        setMilestoneFeedback('');
-                                      }}
-                                      className="flex items-center gap-1.5 px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-colors"
-                                    >
-                                      <Check size={14} /> Akceptuję
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        setActiveMilestoneAction({ id: m.id, type: 'corrections' });
-                                        setMilestoneFeedback('');
-                                      }}
-                                      className="flex items-center gap-1.5 px-4 py-2 border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors"
-                                    >
-                                      <RefreshCw size={14} /> Zgłoś poprawki
-                                    </button>
-                                  </>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2 text-green-600 text-xs font-bold">
-                                <CheckCheck size={16} /> Etap Zaakceptowany
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-8 text-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <p className="text-gray-400 text-sm">
-                          Harmonogram nie został jeszcze dodany do tego projektu.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <ProjectTimeline
+                    milestones={project.milestones}
+                    onUpdateMilestone={updateMilestone}
+                    isUpdating={isUpdating}
+                  />
                 </div>
               </div>
 
@@ -229,6 +100,7 @@ const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
                     </div>
                   </div>
                 </div>
+
                 <div>
                   <h3 className="text-sm font-black uppercase text-gray-400 tracking-widest mb-4">
                     Pliki Projektowe
@@ -238,7 +110,7 @@ const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
                       project.documents.map((doc) => (
                         <button
                           key={doc.id}
-                          onClick={() => onDownload(doc.id, doc.name)}
+                          onClick={() => downloadFile(doc.id, doc.name)}
                           className="flex items-center justify-between p-3 bg-white border border-gray-100 rounded-xl hover:border-blue-200 hover:shadow-sm transition-all group w-full text-left"
                         >
                           <div className="flex items-center gap-3">

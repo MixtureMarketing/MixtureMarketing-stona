@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { useParallax } from '../../../hooks/useParallax';
+import BaseCard from '../../common/BaseCard';
 
 export const PrintHeroVisual: React.FC = () => {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -19,9 +20,12 @@ export const PrintHeroVisual: React.FC = () => {
       style={{ transform: 'scale(var(--hero-scale))' }}
     >
       {['cyan', 'magenta', 'yellow', 'black'].map((color, i) => (
-        <div
+        <BaseCard
           key={i}
-          className="absolute inset-0 bg-white rounded-xl shadow-lg border border-white/10 transition-all duration-1000 ease-in-out flex items-center justify-center overflow-hidden will-change-transform"
+          variant="solid"
+          padding="none"
+          rounded="xl"
+          className="absolute inset-0 shadow-lg border-white/10 transition-all duration-1000 ease-in-out flex items-center justify-center overflow-hidden will-change-transform"
           style={{
             transform:
               activeLayer >= i
@@ -48,10 +52,13 @@ export const PrintHeroVisual: React.FC = () => {
               opacity: 0.5,
             }}
           ></div>
-        </div>
+        </BaseCard>
       ))}
-      <div
-        className="absolute inset-0 bg-brand-yellow rounded-xl shadow-[0_0_50px_rgba(244,180,0,0.3)] flex items-center justify-center overflow-hidden transition-all duration-1000 will-change-transform"
+      <BaseCard
+        variant="solid"
+        padding="none"
+        rounded="xl"
+        className="absolute inset-0 bg-brand-yellow shadow-[0_0_50px_rgba(244,180,0,0.3)] flex items-center justify-center overflow-hidden transition-all duration-1000 will-change-transform"
         style={{
           transform: `translateZ(30px) translateX(40px) rotateY(-15deg) translate(${mousePos.x * -10}px, ${mousePos.y * -10}px)`,
           opacity: activeLayer === 4 ? 1 : 0,
@@ -62,7 +69,7 @@ export const PrintHeroVisual: React.FC = () => {
           <ShoppingCart size={40} className="mx-auto mb-4 md:w-12 md:h-12" />
           <h3 className="text-xl md:text-2xl font-bold uppercase tracking-widest">Premium</h3>
         </div>
-      </div>
+      </BaseCard>
     </div>
   );
 };

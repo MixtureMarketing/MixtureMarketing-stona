@@ -1,15 +1,21 @@
 import React from 'react';
 import { Activity, CheckCircle2, Gauge } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
+import BaseCard from '../../common/BaseCard';
 import { useCounter } from '../../../hooks/useCounter';
-import { WindowControls } from './atoms/WindowControls';
+import WindowControls from '../../common/WindowControls';
 
 export const WebDevHeroVisual: React.FC = () => {
   const perfScore = useCounter(98, { duration: 1500, delay: 500 });
 
   return (
     <AnimateOnScroll className="relative z-10 flex justify-center lg:justify-end">
-      <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-gray-100 p-6 md:p-10 w-full max-w-[320px] md:max-w-none relative overflow-hidden group hover:shadow-[0_40px_80px_-20px_rgba(63,61,145,0.15)] transition-all duration-500">
+      <BaseCard
+        variant="solid"
+        padding="lg"
+        rounded="3xl"
+        className="w-full max-w-[320px] md:max-w-none relative overflow-hidden group shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] hover:shadow-[0_40px_80px_-20px_rgba(63,61,145,0.15)] transition-all duration-500"
+      >
         <div className="flex justify-between items-center mb-6 md:mb-10">
           <WindowControls />
           <div className="px-2 py-1 bg-gray-50 rounded-lg text-xxxs md:text-xxs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2 border border-gray-100">
@@ -63,9 +69,14 @@ export const WebDevHeroVisual: React.FC = () => {
         </div>
 
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent animate-scan"></div>
-      </div>
+      </BaseCard>
 
-      <div className="absolute -bottom-4 -left-4 md:-bottom-8 md:-left-8 bg-white p-3 md:p-4 rounded-xl md:rounded-2xl shadow-xl border border-gray-100 animate-float z-20">
+      <BaseCard
+        variant="solid"
+        padding="sm"
+        rounded="2xl"
+        className="absolute -bottom-4 -left-4 md:-bottom-8 md:-left-8 shadow-xl animate-float z-20"
+      >
         <div className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#E8F5E9] flex items-center justify-center text-success">
             <Gauge size={16} />
@@ -77,7 +88,7 @@ export const WebDevHeroVisual: React.FC = () => {
             <div className="text-xs md:text-sm font-black text-dark">0.7s</div>
           </div>
         </div>
-      </div>
+      </BaseCard>
     </AnimateOnScroll>
   );
 };

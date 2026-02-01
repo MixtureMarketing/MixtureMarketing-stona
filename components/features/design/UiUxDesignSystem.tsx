@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sliders, Zap } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
+import SectionWrapper from '../../common/SectionWrapper';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content';
 
 const UiUxDesignSystem: React.FC = () => {
@@ -9,188 +10,186 @@ const UiUxDesignSystem: React.FC = () => {
   const [sysDark, setSysDark] = useState(false);
 
   return (
-    <section className="py-24 bg-deep-dark text-white relative z-10 overflow-hidden">
+    <SectionWrapper variant="dark" overflow={true}>
       <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-          {/* Left: Controls */}
-          <div className="lg:w-[35%] w-full bg-white/[0.03] backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl">
-            <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
-              <div className="p-3 bg-primary/20 rounded-2xl text-primary">
-                <Sliders size={24} />
-              </div>
-              <div>
-                <h3 className="font-black text-xl tracking-tight">{CONTENT.designTokens.title}</h3>
-                <p className="text-xxs text-gray-700 uppercase font-bold tracking-[0.2em]">
-                  {CONTENT.designTokens.subtitle}
-                </p>
-              </div>
+      <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
+        {/* Left: Controls */}
+        <div className="lg:w-[35%] w-full bg-white/[0.03] backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl">
+          <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
+            <div className="p-3 bg-primary/20 rounded-2xl text-primary">
+              <Sliders size={24} />
             </div>
-
-            <div className="space-y-10">
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <label className="text-xxs font-black text-gray-600 uppercase tracking-widest">
-                    {CONTENT.designTokens.labels.color}
-                  </label>
-                  <span className="text-xxs font-mono text-gray-700">{sysColor}</span>
-                </div>
-                <div className="flex gap-4">
-                  {['#61B6DE', '#E1306C', '#00C853', '#F4B400'].map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setSysColor(c)}
-                      aria-label={`Zmień kolor systemu na ${c}`}
-                      aria-pressed={sysColor === c}
-                      className={`w-10 h-10 rounded-2xl border-4 transition-all hover:scale-110 ${sysColor === c ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <label
-                    id="sys-radius-label"
-                    className="text-xxs font-black text-gray-600 uppercase tracking-widest"
-                  >
-                    {CONTENT.designTokens.labels.radius}
-                  </label>
-                  <span className="text-xs font-bold text-primary">{sysRadius}px</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="32"
-                  value={sysRadius}
-                  onChange={(e) => setSysRadius(parseInt(e.target.value))}
-                  className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#61B6DE]"
-                  aria-labelledby="sys-radius-label"
-                />
-              </div>
-
-              <div>
-                <label className="text-xxs font-black text-gray-600 uppercase tracking-widest mb-4 block">
-                  {CONTENT.designTokens.labels.theme}
-                </label>
-                <div className="grid grid-cols-2 gap-3 bg-black/40 p-1.5 rounded-2xl border border-white/5">
-                  <button
-                    onClick={() => setSysDark(false)}
-                    className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
-                  >
-                    LIGHT
-                  </button>
-                  <button
-                    onClick={() => setSysDark(true)}
-                    className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
-                  >
-                    DARK
-                  </button>
-                </div>
-              </div>
+            <div>
+              <h3 className="font-black text-xl tracking-tight">{CONTENT.designTokens.title}</h3>
+              <p className="text-xxs text-gray-700 uppercase font-bold tracking-[0.2em]">
+                {CONTENT.designTokens.subtitle}
+              </p>
             </div>
           </div>
 
-          {/* Right: Preview Area */}
-          <div className="lg:w-[65%] w-full relative">
-            <div className="absolute -top-10 left-0 flex gap-4 pointer-events-none opacity-40">
-              <div className="w-px h-20 bg-white/20"></div>
-              <span className="text-xxxs font-mono text-gray-700 transform rotate-90">
-                VIEWPORT_VAR
-              </span>
+          <div className="space-y-10">
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <label className="text-xxs font-black text-gray-600 uppercase tracking-widest">
+                  {CONTENT.designTokens.labels.color}
+                </label>
+                <span className="text-xxs font-mono text-gray-700">{sysColor}</span>
+              </div>
+              <div className="flex gap-4">
+                {['#61B6DE', '#E1306C', '#00C853', '#F4B400'].map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setSysColor(c)}
+                    aria-label={`Zmień kolor systemu na ${c}`}
+                    aria-pressed={sysColor === c}
+                    className={`w-10 h-10 rounded-2xl border-4 transition-all hover:scale-110 ${sysColor === c ? 'border-white shadow-lg scale-110' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
             </div>
 
-            <AnimateOnScroll delay={200}>
-              <div
-                className="w-full aspect-auto min-h-[600px] lg:aspect-[16/10] rounded-[3rem] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] p-10 md:p-16 transition-all duration-700 overflow-hidden relative border border-white/5"
-                style={{ backgroundColor: sysDark ? '#0F172A' : '#F9FAFB' }}
-              >
-                <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <label
+                  id="sys-radius-label"
+                  className="text-xxs font-black text-gray-600 uppercase tracking-widest"
+                >
+                  {CONTENT.designTokens.labels.radius}
+                </label>
+                <span className="text-xs font-bold text-primary">{sysRadius}px</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="32"
+                value={sysRadius}
+                onChange={(e) => setSysRadius(parseInt(e.target.value))}
+                className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#61B6DE]"
+                aria-labelledby="sys-radius-label"
+              />
+            </div>
 
-                <div className="relative z-10 flex justify-between items-center mb-12">
-                  <div>
-                    <h3
-                      className={`text-3xl font-black mb-2 tracking-tight ${sysDark ? 'text-white' : 'text-dark'}`}
-                    >
-                      {CONTENT.preview.title}
-                    </h3>
-                    <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">
-                      {CONTENT.preview.subtitle}
-                    </p>
-                  </div>
-                  <div
-                    className="w-14 h-14 rounded-3xl flex items-center justify-center text-white shadow-2xl transition-all duration-500"
-                    style={{
-                      backgroundColor: sysColor,
-                      boxShadow: `0 20px 40px -10px ${sysColor}60`,
-                    }}
+            <div>
+              <label className="text-xxs font-black text-gray-600 uppercase tracking-widest mb-4 block">
+                {CONTENT.designTokens.labels.theme}
+              </label>
+              <div className="grid grid-cols-2 gap-3 bg-black/40 p-1.5 rounded-2xl border border-white/5">
+                <button
+                  onClick={() => setSysDark(false)}
+                  className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                >
+                  LIGHT
+                </button>
+                <button
+                  onClick={() => setSysDark(true)}
+                  className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                >
+                  DARK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Preview Area */}
+        <div className="lg:w-[65%] w-full relative">
+          <div className="absolute -top-10 left-0 flex gap-4 pointer-events-none opacity-40">
+            <div className="w-px h-20 bg-white/20"></div>
+            <span className="text-xxxs font-mono text-gray-700 transform rotate-90">
+              VIEWPORT_VAR
+            </span>
+          </div>
+
+          <AnimateOnScroll delay={200}>
+            <div
+              className="w-full aspect-auto min-h-[600px] lg:aspect-[16/10] rounded-[3rem] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] p-10 md:p-16 transition-all duration-700 overflow-hidden relative border border-white/5"
+              style={{ backgroundColor: sysDark ? '#0F172A' : '#F9FAFB' }}
+            >
+              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
+
+              <div className="relative z-10 flex justify-between items-center mb-12">
+                <div>
+                  <h3
+                    className={`text-3xl font-black mb-2 tracking-tight ${sysDark ? 'text-white' : 'text-dark'}`}
                   >
-                    <Zap size={28} fill="currentColor" />
-                  </div>
+                    {CONTENT.preview.title}
+                  </h3>
+                  <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">
+                    {CONTENT.preview.subtitle}
+                  </p>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                  <div
-                    className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
-                    style={{ borderRadius: `${sysRadius}px` }}
-                  >
-                    <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
-                      {CONTENT.preview.stats.conversion}
-                    </div>
-                    <div
-                      className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
-                    >
-                      24.8%
-                    </div>
-                  </div>
-                  <div
-                    className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
-                    style={{ borderRadius: `${sysRadius}px` }}
-                  >
-                    <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
-                      {CONTENT.preview.stats.bounce}
-                    </div>
-                    <div
-                      className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
-                    >
-                      12.4%
-                    </div>
-                  </div>
+                <div
+                  className="w-14 h-14 rounded-3xl flex items-center justify-center text-white shadow-2xl transition-all duration-500"
+                  style={{
+                    backgroundColor: sysColor,
+                    boxShadow: `0 20px 40px -10px ${sysColor}60`,
+                  }}
+                >
+                  <Zap size={28} fill="currentColor" />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div
                   className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
                   style={{ borderRadius: `${sysRadius}px` }}
                 >
-                  <div className="flex items-center gap-6">
-                    <div
-                      className="w-16 h-16 bg-gray-200/20 animate-pulse transition-all duration-500"
-                      style={{ borderRadius: `${sysRadius * 0.8}px` }}
-                    ></div>
-                    <div className="space-y-3 flex-1">
-                      <div className="h-4 w-3/4 bg-gray-200/20 rounded-full animate-pulse"></div>
-                      <div className="h-3 w-1/2 bg-gray-200/10 rounded-full animate-pulse"></div>
-                    </div>
-                    <button
-                      className="px-10 py-4 text-white font-black text-xs uppercase tracking-widest transition-all duration-500 hover:scale-105 active:scale-95"
-                      style={{
-                        backgroundColor: sysColor,
-                        borderRadius: `${sysRadius}px`,
-                        boxShadow: `0 15px 30px -5px ${sysColor}66`,
-                      }}
-                    >
-                      {CONTENT.preview.button}
-                    </button>
+                  <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
+                    {CONTENT.preview.stats.conversion}
+                  </div>
+                  <div
+                    className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
+                  >
+                    24.8%
+                  </div>
+                </div>
+                <div
+                  className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
+                  style={{ borderRadius: `${sysRadius}px` }}
+                >
+                  <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
+                    {CONTENT.preview.stats.bounce}
+                  </div>
+                  <div
+                    className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
+                  >
+                    12.4%
                   </div>
                 </div>
               </div>
-            </AnimateOnScroll>
-          </div>
+
+              <div
+                className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
+                style={{ borderRadius: `${sysRadius}px` }}
+              >
+                <div className="flex items-center gap-6">
+                  <div
+                    className="w-16 h-16 bg-gray-200/20 animate-pulse transition-all duration-500"
+                    style={{ borderRadius: `${sysRadius * 0.8}px` }}
+                  ></div>
+                  <div className="space-y-3 flex-1">
+                    <div className="h-4 w-3/4 bg-gray-200/20 rounded-full animate-pulse"></div>
+                    <div className="h-3 w-1/2 bg-gray-200/10 rounded-full animate-pulse"></div>
+                  </div>
+                  <button
+                    className="px-10 py-4 text-white font-black text-xs uppercase tracking-widest transition-all duration-500 hover:scale-105 active:scale-95"
+                    style={{
+                      backgroundColor: sysColor,
+                      borderRadius: `${sysRadius}px`,
+                      boxShadow: `0 15px 30px -5px ${sysColor}66`,
+                    }}
+                  >
+                    {CONTENT.preview.button}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </AnimateOnScroll>
         </div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useNotification } from '../../context/NotificationContext';
 import { Activity } from 'lucide-react';
 import { useAdminData } from './admin/useAdminData';
 import AdminMetrics from './admin/AdminMetrics';
@@ -9,6 +8,7 @@ import AdminClients from './admin/AdminClients';
 import AdminProjects from './admin/AdminProjects';
 import AdminLeads from './admin/AdminLeads';
 import AdminChat from './admin/AdminChat';
+import { useAdminActions } from './admin/useAdminActions';
 import {
   LeadDetailsModal,
   ReplyModal,
@@ -20,7 +20,6 @@ import { Client, Project, Lead, Milestone } from './types';
 const AdminDashboard: React.FC = () => {
   const { user, sessionToken, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { showNotification } = useNotification();
 
   const [activeTab, setActiveTab] = useState<'clients' | 'projects' | 'leads' | 'chat' | 'metrics'>(
     'clients',
@@ -39,6 +38,24 @@ const AdminDashboard: React.FC = () => {
     refreshChat,
   } = useAdminData(activeTab, activeChatId);
 
+  const {
+    isUploadingDoc,
+    isSavingMilestone,
+    sendAdminMessage,
+    handleDownload,
+    handleDeleteDoc,
+    handleUploadDocument,
+    handleSaveMilestone,
+    handleConvertLead,
+    handleReply,
+    handleSaveItem,
+  } = useAdminActions({
+    sessionToken,
+    refreshData,
+    refreshLeads,
+    refreshChat,
+  });
+
   // Search & UI States
   const [searchTerm, setSearchTerm] = useState('');
   const [adminMessage, setAdminMessage] = useState('');
@@ -51,8 +68,6 @@ const AdminDashboard: React.FC = () => {
   const [replyMessage, setReplyMessage] = useState('');
   const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
   const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
-  const [isSavingMilestone, setIsSavingMilestone] = useState(false);
-  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [uploadDocData, setUploadDocData] = useState({
     project_id: '',
     name: '',
@@ -77,205 +92,54 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const sendAdminMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
+  const onSendAdminMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
-    if (!activeChatId || !adminMessage.trim() || !sessionToken) return;
-    try {
-      const res = await fetch('/api/admin/admin_reply_chat.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-        body: JSON.stringify({ user_id: activeChatId, content: adminMessage }),
-      });
-      if (res.ok) {
-        setAdminMessage('');
-        refreshChat();
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    if (!activeChatId) return;
+    const success = await sendAdminMessage(activeChatId, adminMessage);
+    if (success) setAdminMessage('');
   };
 
-  const handleDownload = async (docId: string, fileName: string) => {
-    if (!sessionToken) return;
-    try {
-      const res = await fetch(`/api/portal/download.php?id=${docId}`, {
-        headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken },
-      });
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      } else {
-        showNotification('Błąd pobierania pliku.', 'error');
-      }
-    } catch (e) {
-      console.error(e);
-      showNotification('Błąd połączenia.', 'error');
-    }
-  };
-
-  const handleDeleteDoc = async (id: string) => {
-    if (!confirm('Czy na pewno usunąć ten dokument?')) return;
-    try {
-      const res = await fetch('/api/admin/delete_document.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify({ id }),
-      });
-      if (res.ok) refreshData();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleUploadDocument = async (e: React.FormEvent) => {
+  const onUploadDoc = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uploadDocData.file || !sessionToken) return;
-    setIsUploadingDoc(true);
-    const formData = new FormData();
-    Object.entries(uploadDocData).forEach(([k, v]) => {
-      if (v) formData.append(k, v);
-    });
-    try {
-      const res = await fetch('/api/admin/upload_document.php', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken || '' },
-        body: formData,
+    const success = await handleUploadDocument(uploadDocData);
+    if (success) {
+      setUploadDocData({
+        project_id: '',
+        name: '',
+        type: 'document',
+        subtype: 'other',
+        file: null,
       });
-      if (res.ok) {
-        showNotification('Plik wgrany pomyślnie.', 'success');
-        setUploadDocData({
-          project_id: '',
-          name: '',
-          type: 'document',
-          subtype: 'other',
-          file: null,
-        });
-        refreshData();
-      } else {
-        const d = await res.json();
-        showNotification(d.message || 'Błąd wgrywania', 'error');
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsUploadingDoc(false);
     }
   };
 
-  const handleSaveMilestone = async (e?: React.FormEvent) => {
+  const onSaveMilestone = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!editingMilestone || !sessionToken) return;
-    setIsSavingMilestone(true);
-    try {
-      const res = await fetch('/api/admin/save_milestone.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify(editingMilestone),
-      });
-      if (res.ok) {
-        showNotification('Kamień milowy zapisany.', 'success');
-        setEditingMilestone(null);
-        setIsMilestoneModalOpen(false);
-        refreshData();
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsSavingMilestone(false);
+    if (!editingMilestone) return;
+    const success = await handleSaveMilestone(editingMilestone);
+    if (success) {
+      setEditingMilestone(null);
+      setIsMilestoneModalOpen(false);
     }
   };
 
-  const handleConvertLead = async (leadId: string) => {
-    if (!sessionToken || !confirm('Utworzyć konto klienta?')) return;
-    try {
-      const res = await fetch('/api/admin/convert_lead.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify({ lead_id: leadId }),
-      });
-      if (res.ok) {
-        showNotification('Lead skonwertowany!', 'success');
-        refreshLeads();
-        refreshData();
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleReply = async (e: React.FormEvent) => {
+  const onReply = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyingTo || !sessionToken) return;
-    try {
-      const res = await fetch('/api/admin/reply_lead.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify({
-          lead_id: replyingTo.id,
-          email: replyingTo.email,
-          message: replyMessage,
-        }),
-      });
-      if (res.ok) {
-        setReplyingTo(null);
-        setReplyMessage('');
-        refreshLeads();
-        showNotification('Odpowiedź wysłana!', 'success');
-      }
-    } catch (error) {
-      console.error(error);
+    if (!replyingTo) return;
+    const success = await handleReply(replyingTo, replyMessage);
+    if (success) {
+      setReplyingTo(null);
+      setReplyMessage('');
     }
   };
 
-  const handleSaveItem = async (e: React.FormEvent) => {
+  const onSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sessionToken) return;
-    const endpoint = activeTab === 'clients' ? 'save_client.php' : 'save_project.php';
-    try {
-      const res = await fetch(`/api/admin/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify(editingItem),
-      });
-      if (res.ok) {
-        setIsModalOpen(false);
-        refreshData();
-        setEditingItem(null);
-        showNotification('Zmiany zapisane.', 'success');
-      }
-    } catch (error) {
-      console.error(error);
+    if (!editingItem) return;
+    const success = await handleSaveItem(activeTab, editingItem);
+    if (success) {
+      setIsModalOpen(false);
+      setEditingItem(null);
     }
   };
 
@@ -319,7 +183,7 @@ const AdminDashboard: React.FC = () => {
             }}
             onDownload={handleDownload}
             onDeleteDoc={handleDeleteDoc}
-            onUploadDoc={handleUploadDocument}
+            onUploadDoc={onUploadDoc}
             uploadDocData={uploadDocData}
             setUploadDocData={setUploadDocData}
             isUploadingDoc={isUploadingDoc}
@@ -360,8 +224,8 @@ const AdminDashboard: React.FC = () => {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             handleChatScroll={handleChatScroll}
-            sendAdminMessage={sendAdminMessage}
-            handleKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendAdminMessage(e)}
+            sendAdminMessage={onSendAdminMessage}
+            handleKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendAdminMessage(e)}
             chatContainerRef={chatContainerRef}
           />
         )}
@@ -369,7 +233,7 @@ const AdminDashboard: React.FC = () => {
         <GenericEditModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveItem}
+          onSave={onSaveItem}
           item={editingItem}
           setItem={setEditingItem}
           activeTab={activeTab}
@@ -384,14 +248,14 @@ const AdminDashboard: React.FC = () => {
             onClose={() => setReplyingTo(null)}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
-            onReply={handleReply}
+            onReply={onReply}
           />
         )}
         {isMilestoneModalOpen && (
           <MilestoneModal
             milestone={editingMilestone}
             onClose={() => setIsMilestoneModalOpen(false)}
-            onSave={handleSaveMilestone}
+            onSave={onSaveMilestone}
             setMilestone={setEditingMilestone}
             isSaving={isSavingMilestone}
           />

@@ -22,11 +22,12 @@ import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSection, PricingTier } from '../../types';
 import AuditTeaser from '../features/audit/AuditTeaser';
-import StandardCta from '../common/StandardCta';
-import StandardFaq from '../common/StandardFaq';
+import BaseCta from '../common/BaseCta';
+import FaqSection from '../sections/FaqSection';
 import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
 import { GoogleAdsHeroVisual } from '../visuals/hero/GoogleAdsVisual';
+import Container from '../common/Container';
 
 const GoogleAds: React.FC = () => {
   const { openModal } = useModal();
@@ -99,7 +100,7 @@ const GoogleAds: React.FC = () => {
 
       {/* --- DIAGNOSIS --- */}
       <section className="py-24 bg-white relative z-10">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Container>
           <SectionHeader
             title={CONTENT.painPoints.title}
             description={CONTENT.painPoints.description}
@@ -125,12 +126,12 @@ const GoogleAds: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* --- INDUSTRY STRATEGY --- */}
       <section className="py-24 bg-light-gray relative overflow-hidden">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <Container className="relative z-10">
           <SectionHeader
             title={CONTENT.industries.title}
             description={CONTENT.industries.description}
@@ -221,26 +222,26 @@ const GoogleAds: React.FC = () => {
               </div>
             </AnimateOnScroll>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* --- CALCULATOR --- */}
       <section className="py-24 bg-white relative z-20">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Container>
           <SectionHeader
             title={CONTENT.calculator.title}
             description={CONTENT.calculator.description}
             className="mb-12"
           />
           <GoogleAdsCalculator />
-        </div>
+        </Container>
       </section>
 
       {/* --- ALGORITHM --- */}
       <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <Container className="relative z-10">
           <SectionHeader
             title={CONTENT.algorithm.title}
             subtitle={CONTENT.algorithm.subtitle}
@@ -292,7 +293,7 @@ const GoogleAds: React.FC = () => {
               ))}
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* --- PRICING --- */}
@@ -305,21 +306,16 @@ const GoogleAds: React.FC = () => {
       )}
 
       {/* --- FAQ SECTION --- */}
-      <section className="py-24 bg-white">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader title="Pytania o Google Ads" className="mb-12" />
-          <StandardFaq items={CONTENT.faqs} />
-        </div>
-      </section>
+      <FaqSection title="Pytania o Google Ads" items={CONTENT.faqs} />
 
       {/* --- CTA --- */}
-      <StandardCta
+      <BaseCta
         title={CONTENT.ctaAudit.title}
         description={CONTENT.ctaAudit.description}
         buttonText={CONTENT.ctaAudit.button}
         icon={Target}
         onClick={() => openModal('audit', { specificType: 'ads' })}
-        bgClassName="bg-blue-50/30"
+        variant="dark"
       />
     </div>
   );

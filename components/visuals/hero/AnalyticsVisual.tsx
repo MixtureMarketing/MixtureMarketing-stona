@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Lock, TrendingUp } from 'lucide-react';
+import BaseCard from '../../common/BaseCard';
 
 export const AnalyticsHeroVisual: React.FC = () => {
   const [counter, setCounter] = useState(0);
@@ -10,11 +11,14 @@ export const AnalyticsHeroVisual: React.FC = () => {
   }, []);
 
   return (
-    <div
-      className="relative z-10 w-full max-w-[480px] bg-slate-dark/90 backdrop-blur-xl rounded-2xl shadow-[0_0_50px_rgba(97,182,222,0.15)] border border-slate-border transform rotate-1 hover:rotate-0 transition-all duration-700 group overflow-hidden mx-auto"
+    <BaseCard
+      variant="dark"
+      padding="none"
+      rounded="2xl"
+      className="relative z-10 w-full max-w-[480px] backdrop-blur-xl border-slate-border transform rotate-1 hover:rotate-0 transition-all duration-700 group overflow-hidden mx-auto"
       style={{ transform: 'scale(var(--hero-scale)) rotate(1deg)' }}
     >
-      <div className="bg-slate-border px-4 py-3 flex items-center justify-between border-b border-slate-border">
+      <div className="bg-[#1E293B] px-4 py-3 flex items-center justify-between border-b border-[#334155]">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
@@ -25,7 +29,7 @@ export const AnalyticsHeroVisual: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-5 md:p-6 bg-deep-dark">
+      <div className="p-5 md:p-6 bg-deep-dark/50">
         <div className="flex justify-between items-end mb-6">
           <div>
             <div className="text-xxs md:text-xs text-gray-300 uppercase font-bold tracking-wider mb-1">
@@ -44,7 +48,7 @@ export const AnalyticsHeroVisual: React.FC = () => {
           </div>
         </div>
 
-        <div className="relative h-24 md:h-32 w-full mb-6 overflow-hidden rounded-lg bg-slate-border/30 border border-[#334155]/50">
+        <div className="relative h-24 md:h-32 w-full mb-6 overflow-hidden rounded-lg bg-[#1E293B]/30 border border-[#334155]/50">
           <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
             <path
               d={`M0,${60 + Math.sin(counter / 5) * 10} Q20,${50 + Math.cos(counter / 5) * 10} 40,55 T80,40 T120,45 T160,20 T200,10 V100 H0 Z`}
@@ -67,7 +71,7 @@ export const AnalyticsHeroVisual: React.FC = () => {
             { l: 'Konw.', v: '3.8%' },
             { l: 'CPC', v: '1.20' },
           ].map((s, i) => (
-            <div key={i} className="bg-slate-border p-2 md:p-3 rounded-lg border border-[#334155]">
+            <div key={i} className="bg-[#1E293B] p-2 md:p-3 rounded-lg border border-[#334155]">
               <div className="text-[10px] md:text-xxs text-gray-300 uppercase mb-1 font-bold">
                 {s.l}
               </div>
@@ -78,6 +82,6 @@ export const AnalyticsHeroVisual: React.FC = () => {
           ))}
         </div>
       </div>
-    </div>
+    </BaseCard>
   );
 };

@@ -7,6 +7,7 @@ import { useScroll } from '@/hooks/useScroll';
 import NavbarLogo from './NavbarLogo';
 import DesktopMenu from './DesktopMenu';
 import MobileMenu from './MobileMenu';
+import Container from '../common/Container';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -103,7 +104,7 @@ const Navbar: React.FC = () => {
         aria-label="Główna nawigacja"
         className={`fixed w-full z-[var(--z-nav)] transition-all duration-300 h-20 flex items-center ${isAnyDropdownOpen ? 'bg-white shadow-lg' : scrolled ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md border-b border-transparent'}`}
       >
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <Container className="w-full">
           <div className="flex justify-between items-center h-full">
             <NavbarLogo onClick={handleLogoClick} />
 
@@ -137,7 +138,7 @@ const Navbar: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </Container>
       </nav>
 
       <MobileMenu
