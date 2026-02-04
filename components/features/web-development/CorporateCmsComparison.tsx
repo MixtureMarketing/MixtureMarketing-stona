@@ -3,7 +3,7 @@ import { CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import GlassCard from '../../common/GlassCard';
 import SectionWrapper from '../../common/SectionWrapper';
-import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../../data/content';
+import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../../data/content/services/web-development/corporate';
 
 const CorporateCmsComparison: React.FC = () => {
   const [activeCms, setActiveCms] = useState<'wordpress' | 'headless'>('wordpress');

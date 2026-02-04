@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Sliders, Zap } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
-import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content';
+import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content/services/design/ui-ux';
 
 const UiUxDesignSystem: React.FC = () => {
   const [sysColor, setSysColor] = useState('#61B6DE');

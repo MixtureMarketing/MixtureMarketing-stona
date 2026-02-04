@@ -2,7 +2,7 @@ import React from 'react';
 import { Component, Layers, Box, Code2, Palette, Layout, Zap } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
-import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content';
+import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content/services/design/ui-ux';
 
 const UiUxAtomicDesign: React.FC = () => {
   return (

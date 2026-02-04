@@ -10,6 +10,7 @@ import {
   BarChart3,
   Calculator,
   Lock,
+  ShieldCheck,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -18,7 +19,7 @@ import GlassCard from '../common/GlassCard';
 import LazyHydrate from '../common/LazyHydrate';
 import Seo from '../common/Seo';
 import { useModal } from '../../context/ModalContext';
-import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../data/content';
+import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../data/content/services/web-development/corporate';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';

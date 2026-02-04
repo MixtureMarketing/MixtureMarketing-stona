@@ -3,7 +3,7 @@ import { CheckCircle2, Move } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import GlassCard from '../../common/GlassCard';
 import SectionWrapper from '../../common/SectionWrapper';
-import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content';
+import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content/services/design/ui-ux';
 
 const UiUxInteractions: React.FC = () => {
   return (

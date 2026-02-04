@@ -3,7 +3,7 @@ import { Grid, Palette, Zap } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import SectionWrapper from '../../common/SectionWrapper';
 import BaseCard from '../../common/BaseCard';
-import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content';
+import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content/services/design/ui-ux';
 
 const UiUxTransformation: React.FC = () => {
   const [viewMode, setViewMode] = useState<'lofi' | 'hifi'>('hifi');

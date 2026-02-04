@@ -4,7 +4,7 @@ import SectionHeader from '../../common/SectionHeader';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
 import { useAnimationFrameInterval } from '../../../hooks/useAnimationFrameInterval';
-import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content';
+import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content/services/design/visual-audit';
 
 const FiveSecondTest: React.FC = () => {
   const [timeLeft, setTimeStep] = useState(5);
@@ -29,12 +29,12 @@ const FiveSecondTest: React.FC = () => {
         <div className="lg:w-1/2">
           <SectionHeader
             align="left"
-            title={CONTENT.fiveSecond.title}
-            description={CONTENT.fiveSecond.description}
+            title={CONTENT.test5s.title}
+            description={CONTENT.test5s.description}
           />
 
           <div className="space-y-6 mt-10">
-            {CONTENT.fiveSecond.stats.map((stat, i) => (
+            {CONTENT.test5s.stats?.map((stat, i) => (
               <div key={i} className="flex items-center gap-4">
                 <div className="text-3xl font-black text-secondary w-16">{stat.val}</div>
                 <div className="text-sm font-bold text-gray-600 uppercase tracking-widest">

@@ -27,6 +27,11 @@ export const VISUAL_AUDIT_CONTENT = {
         'Co zapamiętałeś? Jeśli nie potrafisz powtórzyć głównej korzyści i wezwania do działania (CTA) – Twoja strona oblewa test.',
       retry: 'Spróbuj Ponownie',
     },
+    stats: [
+      { val: '5s', label: 'Czas uwagi' },
+      { val: '3', label: 'Kluczowe info' },
+      { val: '1', label: 'Główna akcja' },
+    ],
     mock: {
       title: 'Zwiększ Sprzedaż o 200%',
       desc: 'Kompleksowa obsługa marketingowa dla e-commerce. Płacisz tylko za efekty.',

@@ -4,7 +4,7 @@ import Seo from '../common/Seo';
 import StandardHero from '../common/StandardHero';
 import BaseCta from '../common/BaseCta';
 import { useModal } from '../../context/ModalContext';
-import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../data/content';
+import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../data/content/services/design/visual-audit';
 import { VisualAuditHeroVisual } from '../visuals/hero/VisualAuditVisual';
 import FiveSecondTest from '../features/audit/FiveSecondTest';
 import WcagTerminal from '../features/audit/WcagTerminal';

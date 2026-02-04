@@ -1,6 +1,4 @@
 <?php
-require_once 'db.php';
-
 // Endpoint RUM (Real User Metrics) - musi być ultra-szybki
 // Nie używamy sesji, auth ani zbędnych bibliotek
 
@@ -24,6 +22,11 @@ $isMobile = preg_match('/(android|iphone|ipad)/i', $userAgent);
 $deviceType = $isMobile ? 'mobile' : 'desktop';
 
 try {
+    if (!file_exists(__DIR__ . '/db.php')) {
+        throw new Exception("db.php not found");
+    }
+    require_once __DIR__ . '/db.php';
+
     $pdo = get_db_connection();
     
     $stmt = $pdo->prepare("INSERT INTO performance_metrics (metric_name, metric_value, page_url, user_agent, device_type) VALUES (?, ?, ?, ?, ?)");
@@ -42,7 +45,7 @@ try {
 
     http_response_code(201); // Created
 
-} catch (Exception $e) {
+} catch (Throwable $e) {
     // RUM nie powinien nigdy rzucać błędów widocznych dla usera.
     // Jeśli baza nie działa (np. na localhoście), po prostu zwracamy sukces (200),
     // żeby nie spamować konsoli błędami 500.

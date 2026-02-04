@@ -3,7 +3,7 @@ import { Terminal, Palette, ShieldAlert } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import Container from '../../common/Container';
 import { useAnimationFrameInterval } from '../../../hooks/useAnimationFrameInterval';
-import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content';
+import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content/services/design/visual-audit';
 
 const WcagTerminal: React.FC = () => {
   const [wcagLog, setWcagLog] = useState<string[]>([]);

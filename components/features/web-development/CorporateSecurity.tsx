@@ -2,7 +2,7 @@ import React from 'react';
 import { ShieldCheck, Eye, Cloud, Server, Lock } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
-import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../../data/content';
+import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../../data/content/services/web-development/corporate';
 
 const CorporateSecurity: React.FC = () => {
   const complianceFeatures = CONTENT.compliance.items.map((feat, i) => {

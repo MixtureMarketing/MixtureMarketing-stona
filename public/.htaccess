@@ -1,103 +1,48 @@
 # ----------------------------------------------------------------------
-# | Security & Options                                                 |
+# | Bezpieczna konfiguracja SPA (React/Vite)                           |
 # ----------------------------------------------------------------------
-# Ensure UTF-8 is used
-AddDefaultCharset UTF-8
 
-# Crucial for mod_rewrite on some servers
-Options +FollowSymLinks -MultiViews -Indexes
+# Wyłączamy listowanie katalogów (bezpieczeństwo)
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
 
-# Set the default page
+# Ustawienie strony startowej
 DirectoryIndex index.html
 
-# Block access to sensitive files
-<FilesMatch "^(config\.php|composer\.json|package\.json|README\.md|LICENSE|CHANGELOG\.md|\.env|\.git)">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    <IfModule !mod_authz_core.c>
-        Order deny,allow
-        Deny from all
-    </IfModule>
-</FilesMatch>
-
-<IfModule mod_headers.c>
-    # Security Headers
-    Header set X-XSS-Protection "1; mode=block"
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
-    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-</IfModule>
-
-# ----------------------------------------------------------------------
-# | Compression (Standard GZIP)                                        |
-# ----------------------------------------------------------------------
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json image/svg+xml
-</IfModule>
-
-# ----------------------------------------------------------------------
-# | Caching                                                            |
-# ----------------------------------------------------------------------
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresDefault "access plus 1 month"
-
-    # HTML - Always revalidate to ensure updates are seen
-    ExpiresByType text/html "access plus 0 seconds"
-
-    # Assets (hashed files can be cached forever)
-    ExpiresByType text/css "access plus 1 year"
-    ExpiresByType application/javascript "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-    ExpiresByType image/avif "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/x-icon "access plus 1 year"
-    ExpiresByType font/woff2 "access plus 1 year"
-    ExpiresByType font/woff "access plus 1 year"
-</IfModule>
-
-# ----------------------------------------------------------------------
-# | SPA Routing & Rewrite Rules                                        |
-# ----------------------------------------------------------------------
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # 1. Block access to sensitive API directories
-    RewriteRule ^api/(logs|includes|templates|PHPMailer)/ - [F,L]
-
-    # 2. Authorization Header Fix (for some shared hostings)
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # 3. Redirect www to non-www (optional, uncomment if needed)
-    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-    # RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
-
-    # 4. Canonical HTTPS redirect (optional, uncomment if needed)
-    # RewriteCond %{HTTPS} off
-    # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-
-    # 5. Don't rewrite actual files or directories
+    # 1. Jeśli żądanie dotyczy istniejącego pliku lub katalogu, nie rób nic (serwuj go)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # 6. API Fallback (Return 404 for missing API calls instead of index.html)
+    # 2. Blokada dostępu do wrażliwych plików konfiguracyjnych i katalogów API
+    RewriteRule ^(config\.php|composer\.json|package\.json|README\.md|\.env|\.git) - [F,L]
+    RewriteRule ^api/(logs|includes|templates|PHPMailer)/ - [F,L]
+
+    # 3. Jeśli żądanie dotyczy API, a plik nie istnieje (punkt 1 nie zadziałał), zwróć 404
+    #    Zapobiega to zwracaniu index.html dla błędnych zapytań API
     RewriteRule ^api/ - [L,R=404]
 
-    # 7. SPA Fallback (Everything else -> index.html)
+    # 4. Routing SPA: Wszystkie inne żądania kieruj do index.html
+    RewriteRule ^index\.html$ - [L]
     RewriteRule . /index.html [L]
 </IfModule>
 
 # ----------------------------------------------------------------------
-# | Error Pages                                                        |
+# | Nagłówki i Cache (Opcjonalne - odkomentuj jeśli serwer pozwala)    |
 # ----------------------------------------------------------------------
-# Force Apache to use index.html for 404s so React Router handles them
-ErrorDocument 404 /index.html
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|xml|gz|html)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# MIME Types (Dla pewności, że JS/CSS są poprawnie interpretowane)
+<IfModule mod_mime.c>
+    AddType text/javascript .js
+    AddType text/css .css
+</IfModule>

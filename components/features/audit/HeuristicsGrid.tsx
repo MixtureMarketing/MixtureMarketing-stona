@@ -3,7 +3,7 @@ import { MousePointer2, Zap, Layout, Terminal } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
-import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content';
+import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content/services/design/visual-audit';
 
 const HeuristicsGrid: React.FC = () => {
   return (

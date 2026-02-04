@@ -4,9 +4,10 @@ import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
-import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content';
+import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content/services/design/ui-ux';
 import StandardHero from '../common/StandardHero';
 import BaseCta from '../common/BaseCta';
+import LazyHydrate from '../common/LazyHydrate';
 import { UiUxHeroVisual } from '../visuals/hero/UiUxVisual';
 
 // Refactored Sub-components
@@ -47,15 +48,25 @@ const UiUxDesign: React.FC = () => {
         visual={<UiUxHeroVisual />}
       />
 
-      <UiUxDesignSystem />
+      <LazyHydrate whenVisible>
+        <UiUxDesignSystem />
+      </LazyHydrate>
 
-      <UiUxRwdShowcase />
+      <LazyHydrate whenVisible>
+        <UiUxRwdShowcase />
+      </LazyHydrate>
 
-      <UiUxTransformation />
+      <LazyHydrate whenVisible>
+        <UiUxTransformation />
+      </LazyHydrate>
 
-      <UiUxAtomicDesign />
+      <LazyHydrate whenVisible>
+        <UiUxAtomicDesign />
+      </LazyHydrate>
 
-      <UiUxInteractions />
+      <LazyHydrate whenVisible>
+        <UiUxInteractions />
+      </LazyHydrate>
 
       {/* --- FAQ SECTION --- */}
       <section className="py-24 bg-light-gray relative z-10">
