@@ -1,78 +1,58 @@
 # Roadmap Migracji do Cloudflare - Mixture Marketing
 
-Status: **Planning** (2026-02-05)
+Status: **In Progress (Faza 2)** (2026-02-05)
 
 ## Cel Strategiczny
-Przeniesienie całej infrastruktury z hostingu współdzielonego (Apache/PHP/MySQL) na nowoczesny stack Serverless (Cloudflare Pages, Workers, D1).
-**Korzyści:** Globalny CDN (TTFB < 50ms), brak kosztów utrzymania serwera, skalowalność, bezpieczeństwo (DDoS), spójność stacku (Full-Stack TypeScript).
+Zastąpienie infrastruktury opartej na PHP (Apache/MySQL/SMTP) nowoczesnym stackiem Edge (Cloudflare Pages, Workers, D1, KV).
 
 ---
 
-## FAZA 1: Frontend & Routing (Cloudflare Pages)
+## FAZA 1: Frontend & Routing (ZAKOŃCZONA)
 
-Celem tej fazy jest uruchomienie strony statycznej (SSG) na infrastrukturze Cloudflare.
-
-- [ ] **Konfiguracja Cloudflare Pages**:
-    - [ ] Połączenie repozytorium GitHub z Cloudflare Pages.
-    - [ ] Ustawienie komendy buildu: `npm run build`.
-    - [ ] Ustawienie katalogu wyjściowego: `dist`.
-- [ ] **Konfiguracja Routingu (SPA/SSG)**:
-    - [ ] Utworzenie pliku `public/_redirects` (dla Cloudflare) obsługującego routing SPA (fallback do index.html dla ścieżek klienckich, jeśli SSG nie pokrywa wszystkiego).
-    - [ ] Weryfikacja nagłówków Cache-Control dla zasobów statycznych (assets, images).
+- [x] **Konfiguracja Cloudflare Pages**:
+    - [x] Połączenie repozytorium GitHub.
+    - [x] Rozwiązanie konfliktu `react-helmet-async` przez `.npmrc` (legacy-peer-deps).
+    - [x] Konfiguracja zmiennych Sanity (`VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET`).
+- [x] **Konfiguracja Routingu (SPA/SSG)**:
+    - [x] Utworzenie pliku `public/_redirects`.
 - [ ] **Weryfikacja Domeny**:
-    - [ ] Przeniesienie DNS domeny `mixturemarketing.pl` do Cloudflare (opcjonalne, ale zalecane dla pełni funkcji).
-    - [ ] Konfiguracja rekordów DNS (CNAME/A) na Pages.
+    - [ ] Przeniesienie DNS domeny `mixturemarketing.pl` do Cloudflare.
 
-## FAZA 2: Backend & API (Cloudflare Workers)
+## FAZA 2: Backend & API (W TOKU)
 
-Celem tej fazy jest zastąpienie skryptów PHP (`send_mail.php`, `config.php`) nowoczesnymi funkcjami Serverless w TypeScript.
+Celem jest przeniesienie logiki z plików PHP (`public/api/*.php`) do Cloudflare Pages Functions.
 
-- [ ] **Inicjalizacja Wrangler**:
-    - [ ] Konfiguracja `wrangler.toml` w projekcie (narzędzie CLI Cloudflare).
-    - [ ] Utworzenie katalogu `functions/` (dla Cloudflare Pages Functions) lub osobnego Workera. *Rekomendacja: Pages Functions dla prostoty (katalog `functions/api/`).*
-- [ ] **Migracja Wysyłki Maili (Zastąpienie PHPMailer)**:
-    - [ ] Wybór dostawcy API mailowego (Resend, Mailgun, lub SendGrid). *Rekomendacja: Resend (darmowy tier, proste API).*
-    - [ ] Stworzenie funkcji `functions/api/send-email.ts`:
-        - [ ] Walidacja danych (Zod).
-        - [ ] Weryfikacja Google ReCaptcha (po stronie serwera!).
-        - [ ] Wysyłka maila przez `fetch` do API dostawcy.
-- [ ] **Obsługa Zmiennych Środowiskowych**:
-    - [ ] Dodanie sekretów do Cloudflare (API Keys, ReCaptcha Secret) zamiast plików `.env` na serwerze.
+### 2.1: Wysyłka Maili (Zastąpienie SMTP z config.php)
+- [ ] **Wybór dostawcy API**: Zamiast SMTP (jak w PHPMailer), użyjemy **Resend.com** (zalecane) lub innego API.
+- [ ] **Stworzenie endpointu `/api/send-email`**:
+    - [ ] Przeniesienie zmiennej `NOTIFY_EMAIL` i `EMAIL_SUBJECT` z `config.php` do konfiguracji Workera.
+    - [ ] Implementacja wysyłki przez `fetch`.
+- [ ] **Weryfikacja ReCaptcha**:
+    - [ ] Przeniesienie `RECAPTCHA_SECRET` z `config.php` do **Cloudflare Secrets**.
+    - [ ] Walidacja tokena po stronie serwera wewnątrz funkcji API.
 
-## FAZA 3: Baza Danych (Cloudflare D1 / Sanity)
+### 2.2: Logika Biznesowa (Zastąpienie submit.php)
+- [ ] **Endpoint `/api/contact`**: Zastąpienie `contact_submit.php`.
+- [ ] **Endpoint `/api/calculator`**: Zastąpienie `calculator_submit.php`.
 
-Celem tej fazy jest uniezależnienie się od MySQL na hostingu współdzielonym. Mamy dwie ścieżki:
+### 2.3: Cache (Zastąpienie Redis)
+- [ ] W `config.php` widnieje obsługa Redis. Na Cloudflare zastąpimy to przez **Cloudflare KV (Key-Value Storage)** dla globalnego cachowania danych z Sanity lub wyników audytów.
 
-### Ścieżka A: Cloudflare D1 (SQLite on Edge) - *Rekomendowana*
-- [ ] **Konfiguracja D1**:
-    - [ ] Utworzenie bazy danych D1 w panelu Cloudflare.
-    - [ ] Zdefiniowanie schematu tabeli `leads` (id, email, type, status, created_at).
-- [ ] **Backend (API)**:
-    - [ ] Aktualizacja `functions/api/send-email.ts` o zapis leada do bazy D1 przed wysyłką maila.
-- [ ] **Migracja Danych (Opcjonalna)**:
-    - [ ] Eksport starych leadów z MySQL i import do D1 (jeśli konieczne).
+## FAZA 3: Baza Danych (Zastąpienie MySQL)
 
-### Ścieżka B: Sanity jako Baza Danych (Headless CMS)
-- [ ] Zamiast D1, zapisywanie leadów bezpośrednio w Sanity jako dokumenty typu `lead`.
-- [ ] Wymaga stworzenia tokena API z uprawnieniami do zapisu.
+Zgodnie z `config.php`, obecnie posiadasz dwie bazy danych: `Główną` i `Audytową`.
+
+### 3.1: Cloudflare D1 (SQL on Edge)
+- [ ] **Baza Główna (Leady/Sesje)**: Migracja tabel `leads` i `sessions` z MySQL do Cloudflare D1.
+- [ ] **Baza Audytowa**: Jeśli dane audytowe są duże, rozważenie pozostawienia ich w zewnętrznym SQL z dostępem przez HTTP API lub migracja do D1.
+
+### 3.2: Auth (Zastąpienie auth_check.php)
+- [ ] Implementacja autoryzacji opartej na **JWT** lub **Cloudflare Access** zamiast sesji PHP.
 
 ## FAZA 4: Cleanup & Switch (Wdrożenie)
 
-- [ ] **Refaktoryzacja Frontendu**:
-    - [ ] Aktualizacja `apiClient.ts` i `leadService.ts` – zmiana endpointów z `.php` na `/api/...`.
-    - [ ] Usunięcie folderu `public/api/` (stary backend PHP).
-- [ ] **Testy E2E**:
-    - [ ] Przetestowanie pełnego przepływu: Formularz -> ReCaptcha -> Worker -> Zapis D1 -> Wysyłka Maila.
-- [ ] **Przepięcie Domeny**:
-    - [ ] Zmiana rekordów DNS na produkcję Cloudflare.
-- [ ] **Wyłączenie starego hostingu**:
-    - [ ] Wypowiedzenie umowy hostingu współdzielonego.
-
----
-
-## Notatki Techniczne
-*   **Wymagane Sekrety (Cloudflare Dashboard):**
-    *   `RESEND_API_KEY` (do maili)
-    *   `RECAPTCHA_SECRET_KEY` (do weryfikacji)
-    *   `SANITY_API_TOKEN` (jeśli używamy Sanity do zapisu)
-*   **Kompatybilność:** Cloudflare Workers używają standardu `fetch` i `Web Standards`, więc kod jest bardzo zbliżony do nowoczesnego JS w przeglądarce. Nie ma dostępu do `fs` (system plików) ani natywnych modułów Node.js (ale można używać polyfili lub API D1).
+- [ ] **Aktualizacja SITE_CONFIG**: Upewnienie się, że `recaptchaSiteKey` w `site.ts` zgadza się z nowym kluczem (jeśli będzie zmieniany).
+- [ ] **Usuwanie Remnantów PHP**:
+    - [ ] Skasowanie folderu `public/api/` (w tym `PHPMailer`).
+    - [ ] Skasowanie `.htaccess`.
+- [ ] **Testy E2E**: Weryfikacja formularzy na domenie `pages.dev`.
