@@ -47,8 +47,8 @@ Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal 
     - [x] Konwersja leadów i odpowiedzi.
 
 ### 2.4: Migracja Audyt 360 (Architektura Edge)
-- [ ] **Konfiguracja Hyperdrive**:
-    - [ ] Utworzenie połączenia do bazy `DB_AUDIT` (MySQL) - archiwum bota.
+- [x] **Konfiguracja Hyperdrive**:
+    - [x] Utworzenie połączenia do bazy `DB_AUDIT` (MySQL).
 - [x] **Funkcja: Pobieranie Raportu (`functions/api/audit/get_result.ts`)**:
     - [x] Odczyt z MySQL (wymaga Hyperdrive).
     - [x] Logika normalizacji JSON (v6.1-deep).

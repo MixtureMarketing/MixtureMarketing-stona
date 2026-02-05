@@ -30,6 +30,11 @@ class_name = "ChatRoom"
 tag = "v1"
 new_classes = ["ChatRoom"]
 
+# --- Hyperdrive (Legacy MySQL Audit DB) ---
+[[hyperdrive]]
+binding = "AUDIT_DB"
+id = "2bb2b8de63f746508f98afc804bb4374"
+
 # --- Environment Variables (Plaintext) ---
 [vars]
 NOTIFY_EMAIL = "info@mixturemarketing.pl"
