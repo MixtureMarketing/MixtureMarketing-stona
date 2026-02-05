@@ -3,56 +3,57 @@
 Status: **In Progress (Faza 2)** (2026-02-05)
 
 ## Cel Strategiczny
-Zastąpienie infrastruktury opartej na PHP (Apache/MySQL/SMTP) nowoczesnym stackiem Edge (Cloudflare Pages, Workers, D1, KV).
+Zastąpienie infrastruktury opartej na PHP (Apache/MySQL/SMTP) nowoczesnym stackiem Edge (Cloudflare Pages, Workers, D1, R2, Durable Objects, KV).
 
 ---
 
 ## FAZA 1: Frontend & Routing (ZAKOŃCZONA)
 
-- [x] **Konfiguracja Cloudflare Pages**:
-    - [x] Połączenie repozytorium GitHub.
-    - [x] Rozwiązanie konfliktu `react-helmet-async` przez `.npmrc` (legacy-peer-deps).
-    - [x] Konfiguracja zmiennych Sanity (`VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET`).
-- [x] **Konfiguracja Routingu (SPA/SSG)**:
-    - [x] Utworzenie pliku `public/_redirects`.
-- [ ] **Weryfikacja Domeny**:
-    - [ ] Przeniesienie DNS domeny `mixturemarketing.pl` do Cloudflare.
+- [x] **Konfiguracja Cloudflare Pages**: GitHub Actions, .npmrc, Zmienne Build.
+- [x] **Konfiguracja Routingu (SPA)**: Utworzono `_redirects`.
 
-## FAZA 2: Backend & API (W TOKU)
+## FAZA 2: Backend & Logic (W TOKU)
 
-Celem jest przeniesienie logiki z plików PHP (`public/api/*.php`) do Cloudflare Pages Functions.
+Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal i chat.
 
-### 2.1: Wysyłka Maili (Zastąpienie SMTP z config.php)
-- [ ] **Wybór dostawcy API**: Zamiast SMTP (jak w PHPMailer), użyjemy **Resend.com** (zalecane) lub innego API.
-- [ ] **Stworzenie endpointu `/api/send-email`**:
-    - [ ] Przeniesienie zmiennej `NOTIFY_EMAIL` i `EMAIL_SUBJECT` z `config.php` do konfiguracji Workera.
-    - [ ] Implementacja wysyłki przez `fetch`.
-- [ ] **Weryfikacja ReCaptcha**:
-    - [ ] Przeniesienie `RECAPTCHA_SECRET` z `config.php` do **Cloudflare Secrets**.
-    - [ ] Walidacja tokena po stronie serwera wewnątrz funkcji API.
+- [x] **Baza Danych (Cloudflare D1)**:
+    - [x] Utworzenie bazy `mixture-db`.
+    - [x] Zdefiniowanie schematu SQL (tabele: `users`, `leads`, `projects`, `messages`, `documents`).
+- [ ] **Migracja Danych**: Skrypt do importu obecnych użytkowników i leadów z MySQL do D1.
+- [x] **Cache & Sesje (Cloudflare KV)**:
+    - [x] Utworzenie namespace `mixture-cache`.
+    - [x] Implementacja cache'owania zapytań do Sanity w kodzie.
+- [x] **Magazyn Plików (Cloudflare R2)**:
+    - [x] Utworzenie bucketa `mixture-files`.
+- [ ] **Logika Chatu (Cloudflare Durable Objects)**:
+    - [ ] Implementacja klasy Durable Object dla pokoju czatu.
+    - [ ] Obsługa WebSocketów (Real-time).
+- [ ] **Funkcja: Obsługa Leadów (`functions/api/submit-lead.ts`)**:
+    - [ ] Walidacja, ReCaptcha, Zapis do D1, Wysyłka maila (Resend).
+- [ ] **Funkcja: Portal API (`functions/api/portal/[[path]].ts`)**:
+    - [ ] Autoryzacja JWT (zamiast sesji PHP).
+    - [ ] CRUD dla projektów i dokumentów (integracja z R2).
+    - [ ] Integracja z Chatem (Durable Objects + D1).
 
-### 2.2: Logika Biznesowa (Zastąpienie submit.php)
-- [ ] **Endpoint `/api/contact`**: Zastąpienie `contact_submit.php`.
-- [ ] **Endpoint `/api/calculator`**: Zastąpienie `calculator_submit.php`.
+### 2.4: Migracja Audyt 360 (Zasilanie danymi)
+- [ ] **Konfiguracja Hyperdrive**:
+    - [ ] Połączenie Workera z bazą `DB_AUDIT` (MySQL) przez Hyperdrive.
+- [ ] **Przepisanie Scrapera**:
+    - [ ] Przeniesienie logiki `curl_multi` na `Promise.all()` w TypeScript.
+    - [ ] Użycie `HTMLRewriter` lub lekkiej biblioteki DOM dla Workera do analizy tagów.
+- [ ] **Cache Audytów (KV)**:
+    - [ ] Zastąpienie logiki `classes/RedisCache.php` przez Cloudflare KV.
+- [ ] **Generowanie PDF**:
+    - [ ] Zastąpienie `generate_pdf.php` przez bibliotekę `jspdf` (już masz ją w projekcie!) działającą po stronie klienta lub lekkie API serverless.
 
-### 2.3: Cache (Zastąpienie Redis)
-- [ ] W `config.php` widnieje obsługa Redis. Na Cloudflare zastąpimy to przez **Cloudflare KV (Key-Value Storage)** dla globalnego cachowania danych z Sanity lub wyników audytów.
+## FAZA 3: Migracja Frontendu
 
-## FAZA 3: Baza Danych (Zastąpienie MySQL)
+- [ ] **Aktualizacja `apiClient.ts`**: Przepięcie z endpointów `.php` na nowe ścieżki API (`/api/...`).
+- [ ] **Refaktoryzacja `AuthContext.tsx`**: Zmiana logiki logowania na tokeny JWT z Workera.
+- [ ] **Integracja WebSocket w Portalu**: Połączenie `PortalChat` z nowym serwerem WebSocket.
 
-Zgodnie z `config.php`, obecnie posiadasz dwie bazy danych: `Główną` i `Audytową`.
+## FAZA 4: Cleanup & Switch
 
-### 3.1: Cloudflare D1 (SQL on Edge)
-- [ ] **Baza Główna (Leady/Sesje)**: Migracja tabel `leads` i `sessions` z MySQL do Cloudflare D1.
-- [ ] **Baza Audytowa**: Jeśli dane audytowe są duże, rozważenie pozostawienia ich w zewnętrznym SQL z dostępem przez HTTP API lub migracja do D1.
-
-### 3.2: Auth (Zastąpienie auth_check.php)
-- [ ] Implementacja autoryzacji opartej na **JWT** lub **Cloudflare Access** zamiast sesji PHP.
-
-## FAZA 4: Cleanup & Switch (Wdrożenie)
-
-- [ ] **Aktualizacja SITE_CONFIG**: Upewnienie się, że `recaptchaSiteKey` w `site.ts` zgadza się z nowym kluczem (jeśli będzie zmieniany).
-- [ ] **Usuwanie Remnantów PHP**:
-    - [ ] Skasowanie folderu `public/api/` (w tym `PHPMailer`).
-    - [ ] Skasowanie `.htaccess`.
-- [ ] **Testy E2E**: Weryfikacja formularzy na domenie `pages.dev`.
+- [ ] **Weryfikacja Domeny**: DNS na Cloudflare.
+- [ ] **Usuwanie PHP**: Kasacja folderu `public/api`.
+- [ ] **Finalne Testy E2E**: Pełny audyt sprawności portalu i formularzy.

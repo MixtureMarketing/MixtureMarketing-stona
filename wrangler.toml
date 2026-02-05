@@ -1,0 +1,35 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "mixturemarketing-stona"
+pages_build_output_dir = "dist"
+
+# Compatibility date for Cloudflare Workers/Pages
+compatibility_date = "2026-02-05"
+
+# --- D1 Database Binding ---
+[[d1_databases]]
+binding = "DB" # This is how we access it in code: env.DB
+database_name = "mixture-db"
+database_id = "8a11290b-b947-431a-996d-4bedd08ee988"
+
+# --- KV Namespace Binding (Cache) ---
+[[kv_namespaces]]
+binding = "CACHE"
+id = "538d11bc6e2c4f31b43a8e16db8577d9"
+
+# --- R2 Bucket Binding (Files) ---
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "mixture-files"
+
+# --- Durable Objects (Chat) ---
+# [durable_objects]
+# bindings = [
+#   { name = "CHAT_ROOM", class_name = "ChatRoom" }
+# ]
+
+# --- Environment Variables (Plaintext) ---
+[vars]
+NOTIFY_EMAIL = "info@mixturemarketing.pl"
+ALLOWED_ORIGIN = "https://mixturemarketing.pl"
+VITE_SANITY_PROJECT_ID = "azuef2ua"
+VITE_SANITY_DATASET = "production"
