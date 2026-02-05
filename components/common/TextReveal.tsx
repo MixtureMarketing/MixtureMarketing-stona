@@ -5,6 +5,7 @@ interface TextRevealProps {
   className?: string;
   delay?: number; // Initial delay before animation starts in ms
   stagger?: number; // Delay between each word in ms
+  priority?: boolean; // If true, start animation immediately (good for Hero LCP)
 }
 
 const TextReveal: React.FC<TextRevealProps> = ({
@@ -12,11 +13,14 @@ const TextReveal: React.FC<TextRevealProps> = ({
   className = '',
   delay = 0,
   stagger = 50,
+  priority = false,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(priority);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (priority) return; // Skip observer if priority is set
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -40,7 +44,7 @@ const TextReveal: React.FC<TextRevealProps> = ({
         observer.unobserve(currentRef);
       }
     };
-  }, []);
+  }, [priority]);
 
   // If children is not a string, render it as is inside the reveal container logic
   // but strictly speaking this component is designed for string splitting.

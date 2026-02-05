@@ -29,7 +29,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   return (
     <div
       id="mobile-menu"
-      className={`lg:hidden fixed inset-0 z-[var(--z-header)] bg-white/98 backdrop-blur-2xl transform transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}
+      className={`lg:hidden fixed inset-0 z-[var(--z-header)] bg-white/98 backdrop-blur-2xl transform transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-0 visible' : 'translate-x-full invisible'} flex flex-col`}
       aria-hidden={!isOpen}
       role="navigation"
       aria-label="Menu mobilne"

@@ -14,8 +14,8 @@ export const useAnimationFrameInterval = (
   interval: number,
   isActive: boolean,
 ) => {
-  const requestRef = useRef<number>();
-  const previousTimeRef = useRef<number>();
+  const requestRef = useRef<number | null>(null);
+  const previousTimeRef = useRef<number | undefined>(undefined);
   const callbackRef = useRef(callback);
 
   useEffect(() => {
@@ -40,12 +40,12 @@ export const useAnimationFrameInterval = (
     if (isActive) {
       requestRef.current = requestAnimationFrame(animate);
     } else {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (requestRef.current !== null) cancelAnimationFrame(requestRef.current);
       previousTimeRef.current = undefined;
     }
 
     return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      if (requestRef.current !== null) cancelAnimationFrame(requestRef.current);
     };
   }, [isActive, interval]);
 };

@@ -1,3 +1,16 @@
+declare global {
+  interface Window {
+    zaraz?: {
+      consent: {
+        set: (data: Record<string, boolean>) => void;
+      };
+      track: (event: string, data?: Record<string, unknown>) => void;
+    };
+    dataLayer: Record<string, unknown>[];
+  }
+  const gtag: (...args: unknown[]) => void;
+}
+
 export type ConsentState = {
   analytics: boolean;
   marketing: boolean;

@@ -7,10 +7,10 @@ export const AuditVisual: React.FC = () => (
   <div className="relative">
     <div className="absolute inset-0 bg-primary rounded-full blur-[100px] opacity-20 animate-pulse"></div>
     <BaseCard
-      variant="glass"
+      variant="dark"
       padding="lg"
       rounded="3xl"
-      className="relative border border-white/20 backdrop-blur-xl shadow-2xl"
+      className="relative border border-white/10 backdrop-blur-xl shadow-2xl"
     >
       {/* Fake UI Chart */}
       <div className="flex items-center justify-between mb-8">

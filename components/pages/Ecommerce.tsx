@@ -9,6 +9,7 @@ import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardHero from '../common/StandardHero';
 import BaseCta from '../common/BaseCta';
+import { PricingSectionData, PricingTier } from '../../types';
 import { EcommerceHeroVisual } from '../visuals/hero/EcommerceVisual';
 import EcommerceAutomation from '../features/ecommerce/EcommerceAutomation';
 import EcommerceConfigurator from '../features/ecommerce/EcommerceConfigurator';

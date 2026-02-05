@@ -5,6 +5,7 @@ import { LEGACY_ARTICLES } from './legacyArticles';
 
 export interface SanityArticle {
   _id: string;
+  _updatedAt: string;
   title: string;
   slug: { current: string };
   mainImage: SanityImage;
@@ -14,6 +15,11 @@ export interface SanityArticle {
   category: { title: string };
   tags: string[];
   readTime: string;
+  author?: {
+    name: string;
+    image?: SanityImage;
+    bio?: string;
+  };
 }
 
 interface SanityCategory {
@@ -27,6 +33,7 @@ export const articleService = {
     try {
       const query = `*[_type == "article"] | order(publishedAt desc) {
         _id,
+        _updatedAt,
         title,
         "slug": slug.current,
         mainImage,
@@ -34,7 +41,8 @@ export const articleService = {
         excerpt,
         category->{title},
         tags,
-        readTime
+        readTime,
+        author->{name, image, bio}
       }`;
       const sanityArticles: SanityArticle[] = await fetchWithCache(query);
 
@@ -64,6 +72,7 @@ export const articleService = {
     try {
       const query = `*[_type == "article" && slug.current == $slug][0] {
         _id,
+        _updatedAt,
         title,
         "slug": slug.current,
         mainImage,
@@ -72,7 +81,8 @@ export const articleService = {
         body,
         category->{title},
         tags,
-        readTime
+        readTime,
+        author->{name, image, bio}
       }`;
       return await fetchWithCache(query, { slug });
     } catch (error) {

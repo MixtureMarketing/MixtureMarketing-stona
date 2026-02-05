@@ -28,9 +28,6 @@ import ArticleContextBox from './shared/ArticleContextBox';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import {
-  TailwindHeroVisual,
-  UtilityClassesVisual,
-  ResponsiveSimulator,
   TailwindButtonBuilder,
   LegoVsPlaymobil,
   BootstrapVsTailwindPreview,

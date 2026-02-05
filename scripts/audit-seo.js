@@ -8,6 +8,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '../dist');
 const REPORT_PATH = path.resolve(__dirname, '../seo-report.json');
 
+function getAllHtmlFiles(dirPath, arrayOfFiles = []) {
+  const files = fs.readdirSync(dirPath);
+
+  files.forEach((file) => {
+    const fullPath = path.join(dirPath, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      arrayOfFiles = getAllHtmlFiles(fullPath, arrayOfFiles);
+    } else if (file === 'index.html') {
+      arrayOfFiles.push(fullPath);
+    }
+  });
+
+  return arrayOfFiles;
+}
+
 async function runSeoAudit() {
   console.log('🚀 Starting Technical SEO & Data Audit...');
 
@@ -18,14 +33,15 @@ async function runSeoAudit() {
 
   const results = {};
   const allInternalLinks = new Set();
+  const htmlFiles = getAllHtmlFiles(DIST_DIR);
 
-  for (const route of routes) {
-    const filePath = path.join(DIST_DIR, route === '/' ? 'index.html' : `${route}/index.html`);
+  console.log(`🔍 Found ${htmlFiles.length} pages to audit.`);
 
-    if (!fs.existsSync(filePath)) {
-      results[route] = { error: 'File missing in dist/' };
-      continue;
-    }
+  for (const filePath of htmlFiles) {
+    const route = filePath
+      .replace(DIST_DIR, '')
+      .replace(/\\/g, '/')
+      .replace(/\/index\.html$/, '') || '/';
 
     const html = fs.readFileSync(filePath, 'utf8');
     const dom = new JSDOM(html);
@@ -86,18 +102,19 @@ async function runSeoAudit() {
     }
   });
 
+  const auditedRoutes = Object.keys(results);
   const finalOutput = {
     pages: results,
     summary: {
-      totalPages: routes.length,
+      totalPages: auditedRoutes.length,
       brokenLinks: [...new Set(brokenLinks)],
-      missingTitles: routes.filter((r) => results[r] && results[r].title?.text === 'MISSING')
+      missingTitles: auditedRoutes.filter((r) => results[r] && results[r].title?.text === 'MISSING')
         .length,
-      missingDescriptions: routes.filter(
+      missingDescriptions: auditedRoutes.filter(
         (r) => results[r] && results[r].description?.text === 'MISSING',
       ).length,
-      missingH1: routes.filter((r) => results[r] && results[r].h1?.count === 0).length,
-      multipleH1: routes.filter((r) => results[r] && results[r].h1?.count > 1).length,
+      missingH1: auditedRoutes.filter((r) => results[r] && results[r].h1?.count === 0).length,
+      multipleH1: auditedRoutes.filter((r) => results[r] && results[r].h1?.count > 1).length,
     },
   };
 

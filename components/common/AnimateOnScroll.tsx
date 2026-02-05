@@ -37,7 +37,18 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
               observer.unobserve(entry.target);
             }
           } else if (!once) {
+            // Only hide if we want repeat animations
             setIsVisible(false);
+          } else {
+            // For 'once' animations, if we start visible (SSG) and user scrolls down,
+            // we might want to hide it if it wasn't seen yet?
+            // Actually, IntersectionObserver fires initially.
+            // If entry.isIntersecting is false on init, we should hide it to allow animation later.
+            // But we initialized with true.
+            if (entry.boundingClientRect.top > 0) {
+              // Only hide if it's below the viewport (not scrolled past)
+              setIsVisible(false);
+            }
           }
         },
         {
@@ -48,21 +59,12 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
 
       const currentRef = ref.current;
       if (currentRef) {
-        // Initial check: if NOT intersecting and JS is active, hide it to animate later
-        // But only if we are not already visible from SSG
-        const rect = currentRef.getBoundingClientRect();
-        const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
-
-        if (!isInViewport) {
-          setIsVisible(false);
-        }
-
         observer.observe(currentRef);
       }
 
       return () => {
         if (currentRef) {
-          observer.unobserve(currentRef);
+          observer.disconnect();
         }
       };
     });

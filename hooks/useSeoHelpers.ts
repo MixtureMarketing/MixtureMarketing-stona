@@ -12,6 +12,7 @@ export const useCanonicalUrl = (canonical?: string) => {
 
 export const getOgImage = (image?: string) => {
   const baseUrl = 'https://mixturemarketing.pl';
-  if (!image) return `${baseUrl}/assets/images/sygnet.png`;
+  // Use a dedicated 1200x630 banner for social media as default
+  if (!image) return `${baseUrl}/assets/images/og-main.png`;
   return image.startsWith('http') ? image : `${baseUrl}${image}`;
 };

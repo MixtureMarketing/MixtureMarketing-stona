@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Mouse } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -18,12 +18,6 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
   const navigate = useNavigate();
   const mousePosition = useMousePosition();
   const windowSize = useWindowSize();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsMounted(true);
-  }, []);
 
   const scrollToServices = () => {
     const element = document.getElementById('services');
@@ -44,13 +38,11 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
       <div className="absolute inset-0 z-[1] bg-grain pointer-events-none"></div>
 
       {/* --- FLOATING DECORATIONS (PARALLAX + FLOAT) --- */}
-      {isMounted && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          <BrowserMockup mousePosition={mousePosition} />
-          <CodeSnippet mousePosition={mousePosition} />
-          <AdsDashboardMini mousePosition={mousePosition} />
-        </div>
-      )}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <BrowserMockup mousePosition={mousePosition} />
+        <CodeSnippet mousePosition={mousePosition} />
+        <AdsDashboardMini mousePosition={mousePosition} />
+      </div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
@@ -66,10 +58,10 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
             </div>
 
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 md:mb-10 leading-[1.05] md:leading-[0.95]">
-              <TextReveal delay={100} className="text-dark">
+              <TextReveal delay={100} className="text-dark" priority>
                 {HERO_CONTENT.title.line1}
               </TextReveal>
-              <TextReveal delay={300} className="text-dark">
+              <TextReveal delay={300} className="text-dark" priority>
                 {HERO_CONTENT.title.line2}
               </TextReveal>
               <span
@@ -83,7 +75,9 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
                   backgroundSize: '200% 200%',
                 }}
               >
-                <TextReveal delay={700}>{HERO_CONTENT.title.line3}</TextReveal>
+                <TextReveal delay={700} priority>
+                  {HERO_CONTENT.title.line3}
+                </TextReveal>
                 <div className="absolute bottom-0 left-0 w-full h-[4px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-30 blur-[1px]"></div>
               </span>
             </h1>

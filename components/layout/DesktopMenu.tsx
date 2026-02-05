@@ -16,7 +16,7 @@ interface DesktopMenuProps {
   setActiveDropdown: (name: string | null) => void;
   handleAnchorLink: (anchorId: string, e: React.MouseEvent) => void;
   openModal: (type?: ContactType, data?: Record<string, unknown>) => void;
-  dropdownRef: React.RefObject<HTMLDivElement>;
+  dropdownRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const DesktopMenu: React.FC<DesktopMenuProps> = ({

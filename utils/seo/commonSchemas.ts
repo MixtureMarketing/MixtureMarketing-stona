@@ -1,3 +1,5 @@
+import { SITE_CONFIG } from '../../config/site';
+
 export const getBreadcrumbsSchema = (
   breadcrumbs: { name: string; item: string }[] | undefined,
   baseUrl: string,
@@ -32,25 +34,28 @@ export const getFaqSchema = (faq: { question: string; answer: string }[] | undef
 };
 
 export const getLocalBusinessSchema = (baseUrl: string) => {
+  const { address, phoneFull } = SITE_CONFIG.contact;
+  const socialLinks = Object.values(SITE_CONFIG.social);
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    name: 'Mixture Marketing',
+    name: SITE_CONFIG.name,
     image: `${baseUrl}/assets/images/sygnet.png`,
     '@id': baseUrl,
     url: baseUrl,
-    telephone: '+48733330335',
+    telephone: phoneFull,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'ul. Przykładowa 123',
-      addressLocality: 'Wrocław',
-      postalCode: '50-000',
-      addressCountry: 'PL',
+      streetAddress: address.street,
+      addressLocality: address.city,
+      postalCode: address.postalCode,
+      addressCountry: address.countryCode,
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 51.107883,
-      longitude: 17.038538,
+      latitude: 50.041187,
+      longitude: 21.999116,
     },
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',
@@ -59,5 +64,8 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
       closes: '17:00',
     },
     priceRange: '$$',
+    sameAs: socialLinks,
+    legalName: SITE_CONFIG.companyName,
+    vatID: SITE_CONFIG.contact.vatID,
   };
 };

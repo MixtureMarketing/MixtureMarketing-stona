@@ -11,7 +11,6 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import CursorGlow from '@/components/common/CursorGlow';
 import { SITE_CONFIG } from '@/config/site';
 import { leadService } from '@/services/leadService';
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { AuthProvider } from '@/context/AuthContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import CookieBanner from '@/components/features/CookieBanner';
@@ -165,9 +164,9 @@ function App() {
           </LazyHydrate>
 
           {/* Global Modal - Exclude during prerendering to avoid ReCaptcha context errors */}
-          {!isPrerendering && (
+          {!isPrerendering && isModalOpen && (
             <Suspense fallback={null}>
-              <ContactModal isOpen={isModalOpen} onClose={closeModal} type={modalType} />
+              <ContactModal isOpen={true} onClose={closeModal} type={modalType} />
             </Suspense>
           )}
         </div>
@@ -180,15 +179,7 @@ function App() {
     return appContent;
   }
 
-  return (
-    <GoogleReCaptchaProvider
-      reCaptchaKey={SITE_CONFIG.contact.recaptchaSiteKey}
-      language="pl"
-      useRecaptchaNet
-    >
-      {appContent}
-    </GoogleReCaptchaProvider>
-  );
+  return appContent;
 }
 
 export default App;

@@ -27,14 +27,18 @@ async function generateSitemap() {
   // Fetch dynamic routes
   let dynamicRoutes = [];
   try {
-    const articles = await sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }');
-    const industries = await sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }');
-    const locations = await sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }');
+    const [articles, industries, locations, projects] = await Promise.all([
+      sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }'),
+      sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }'),
+      sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }'),
+      sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }'),
+    ]);
 
     dynamicRoutes = [
       ...articles.map((a) => `/baza-wiedzy/${a.slug}`),
       ...industries.map((i) => `/branza/${i.slug}`),
       ...locations.map((l) => `/miasto/${l.slug}`),
+      ...projects.map((p) => `/portfolio/${p.slug}`),
     ];
     console.log(`✅ Found ${dynamicRoutes.length} dynamic routes.`);
   } catch (err) {
@@ -58,7 +62,8 @@ ${allRoutes
     } else if (
       route.startsWith('/web-development/') ||
       route.startsWith('/marketing/') ||
-      route.startsWith('/design/')
+      route.startsWith('/design/') ||
+      route.startsWith('/portfolio/')
     ) {
       priority = '0.8';
       changefreq = 'monthly';

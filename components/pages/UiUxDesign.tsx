@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Fingerprint, Figma, Zap } from 'lucide-react';
+import { Fingerprint, Figma, Palette } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
@@ -78,12 +78,12 @@ const UiUxDesign: React.FC = () => {
 
       {/* --- CTA --- */}
       <BaseCta
-        title={CONTENT.cta.title}
+        icon={Palette}
+        title={`${CONTENT.cta.title.line1} ${CONTENT.cta.title.line2}`}
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
-        icon={Zap}
-        onClick={() => openModal('design', { specificType: 'ui-ux' })}
-        variant="dark"
+        onClick={() => openModal('design')}
+        variant="glow"
       />
     </div>
   );

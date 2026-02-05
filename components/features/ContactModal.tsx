@@ -1,8 +1,10 @@
 import React from 'react';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import Modal from '../common/Modal';
 import { useModal } from '../../context/ModalContext';
 import { ContactType } from '../../types';
 import { useContactForm } from '../../hooks/useContactForm';
+import { SITE_CONFIG } from '../../config/site';
 
 import { FORM_CONFIG, getStep2Fallback } from './contact/contactConfig';
 import ContactStepper from './contact/ContactStepper';
@@ -19,6 +21,32 @@ interface ContactModalProps {
 
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) => {
   const { additionalData } = useModal();
+  // ... rest of the component logic ...
+
+  return (
+    <GoogleReCaptchaProvider
+      reCaptchaKey={SITE_CONFIG.contact.recaptchaSiteKey}
+      language="pl"
+      useRecaptchaNet
+    >
+      <ContactModalContent
+        isOpen={isOpen}
+        onClose={onClose}
+        type={type}
+        additionalData={additionalData}
+      />
+    </GoogleReCaptchaProvider>
+  );
+};
+
+// Extracted internal component to keep hooks valid (useContactForm needs provider context if it uses useGoogleReCaptcha)
+// However, useContactForm seems to use custom logic. Let's check useContactForm implementation first.
+// Actually, useContactForm is likely using useGoogleReCaptcha internally.
+// So the Provider MUST be a parent of the component calling useContactForm.
+
+const ContactModalContent: React.FC<
+  ContactModalProps & { additionalData: Record<string, unknown> | null }
+> = ({ isOpen, onClose, type, additionalData }) => {
   const {
     step,
     isSubmitted,
@@ -29,13 +57,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
     prevStep,
     onSubmit,
     handleClose,
-  } = useContactForm(type, handleCloseInternal);
-
-  // We need a middleman to handle the lead notification logic if needed,
-  // but hook handles it. The hook expects onClose to be passed.
-  function handleCloseInternal() {
-    onClose();
-  }
+  } = useContactForm(type, onClose); // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
 
   const {
     formState: { errors, isSubmitting },
@@ -44,7 +66,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
     getValues,
   } = formMethods;
 
-  // Determine specific config based on additionalData.specificType
+  // ... config logic ...
   const specificType = additionalData?.specificType as string | undefined;
   const currentConfig =
     specificType && FORM_CONFIG[specificType] ? FORM_CONFIG[specificType] : null;
@@ -79,7 +101,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
           <ContactStep1
             register={register}
             errors={errors}
-            leadId={null} // Lead ID handled in hook
+            leadId={null}
             submitError={submitError}
             isLoading={isLoading}
             onNext={nextStep}

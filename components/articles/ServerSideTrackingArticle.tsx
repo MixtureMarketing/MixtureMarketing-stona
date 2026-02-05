@@ -7,6 +7,7 @@ import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import { SstHeroVisual, TrackingComparisonVisual, CapiVisual } from './visuals/SstVisuals';
+import { SST_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/sst';
 
 const ServerSideTrackingArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'server-side-tracking');
@@ -61,7 +62,7 @@ const ServerSideTrackingArticle = () => {
         />
         <p>{CONTENT.solution.text}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 not-prose mt-12">
-          {CONTENT.whyBlind.items.map((item, i) => (
+          {CONTENT.whyBlind.items.map((item: { title: string; desc: string }, i: number) => (
             <div
               key={i}
               className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all group"
@@ -98,20 +99,22 @@ const ServerSideTrackingArticle = () => {
             className="mb-8"
           />
           <div className="space-y-6">
-            {CONTENT.whySoftwareHouse.items.map((item, i) => (
-              <div
-                key={i}
-                className="flex gap-6 items-center bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/50"
-              >
-                <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-black shrink-0 shadow-lg">
-                  {i + 1}
+            {CONTENT.whySoftwareHouse.items.map(
+              (item: { title: string; desc: string }, i: number) => (
+                <div
+                  key={i}
+                  className="flex gap-6 items-center bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/50"
+                >
+                  <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-black shrink-0 shadow-lg">
+                    {i + 1}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-dark mb-1">{item.title}</h4>
+                    <p className="text-sm text-gray-600 m-0">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-bold text-dark mb-1">{item.title}</h4>
-                  <p className="text-sm text-gray-600 m-0">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </div>
       </div>

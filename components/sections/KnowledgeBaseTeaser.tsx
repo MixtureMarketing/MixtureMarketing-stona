@@ -7,7 +7,6 @@ import Button from '../common/Button';
 import BaseCard from '../common/BaseCard';
 import Image from '../common/Image';
 import Container from '../common/Container';
-import { cmsService } from '@/services/cmsService';
 import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
 
@@ -15,8 +14,11 @@ const KnowledgeBaseTeaser: React.FC = () => {
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
 
   useEffect(() => {
-    cmsService.getArticles().then((data) => {
-      setLatestArticles(data.filter((a) => a.isFeatured).slice(0, 3));
+    // Dynamic import to reduce initial bundle size
+    import('@/services/cmsService').then(({ cmsService }) => {
+      cmsService.getArticles().then((data) => {
+        setLatestArticles(data.filter((a) => a.isFeatured).slice(0, 3));
+      });
     });
   }, []);
 
@@ -56,7 +58,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                   hover="lift"
                   className="flex flex-col h-full overflow-hidden border-gray-100 group-hover:border-primary transition-all duration-500"
                 >
-                  <div className="relative aspect-video overflow-hidden">
+                  <div className="relative h-64 overflow-hidden">
                     <Image
                       src={article.image}
                       alt={article.title}

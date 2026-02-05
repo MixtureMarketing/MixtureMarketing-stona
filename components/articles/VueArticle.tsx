@@ -1,25 +1,25 @@
 import React from 'react';
-import { Heart, Zap, Layout, Globe, Box, CheckCircle2 } from 'lucide-react';
+import { Zap, CheckCircle2, Code2, Layout, Globe, Heart, Box } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import ArticleShell from './ArticleShell';
 import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
-import { VUE_ARTICLE_CONTENT } from '../../data/content/articles/vue';
+import { VUE_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/vue';
+import ArticleUseCases from './shared/ArticleUseCases';
+import ArticleShell from './ArticleShell';
+import ArticleContextBox from './shared/ArticleContextBox';
+import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import {
   VueHeroVisual,
   FrameworkSpectrum,
   ProgressiveScalingVisual,
   VueSfcPreview,
 } from './visuals/VueVisuals';
-import ArticleContextBox from './shared/ArticleContextBox';
-import ArticleUseCases from './shared/ArticleUseCases';
-import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import BaseCta from '../common/BaseCta';
 
 const VueArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'vue-js-harmonijny-kompromis');
-  const content = VUE_ARTICLE_CONTENT;
+  const content = CONTENT;
 
   if (!articleData) return null;
 
