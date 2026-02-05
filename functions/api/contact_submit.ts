@@ -40,8 +40,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       // 1. CREATE LEAD
       if (currentAction === 'create') {
-        if (!lead) return new Response(JSON.stringify({ error: 'Missing lead object' }), { status: 400 });
-        
+        if (!lead)
+          return new Response(JSON.stringify({ error: 'Missing lead object' }), { status: 400 });
+
         const leadId = lead.id || crypto.randomUUID();
         const name = lead.name || 'Anonim';
         const email = lead.email;
@@ -60,12 +61,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             const verifyResult = await fetch(verifyUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-              body: `secret=${env.RECAPTCHA_SECRET}&response=${recaptcha_token}`
+              body: `secret=${env.RECAPTCHA_SECRET}&response=${recaptcha_token}`,
             });
-            
+
             const verifyJson: any = await verifyResult.json();
             if (!verifyJson.success) {
-              return new Response(JSON.stringify({ error: 'Turnstile verification failed', details: verifyJson }), { status: 403 });
+              return new Response(
+                JSON.stringify({ error: 'Turnstile verification failed', details: verifyJson }),
+                { status: 403 },
+              );
             }
           } catch (e: any) {
             console.error('Turnstile Verify Error:', e.message);
@@ -74,28 +78,35 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }
 
         try {
-          await env.DB.prepare(`
+          await env.DB.prepare(
+            `
             INSERT INTO leads (id, name, email, phone, service_type, source_url, status)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-          `).bind(
-            String(leadId), 
-            String(name), 
-            String(email), 
-            phone ? String(phone) : null, 
-            String(service_interest), 
-            source_url ? String(source_url) : null, 
-            'new'
-          ).run();
+          `,
+          )
+            .bind(
+              String(leadId),
+              String(name),
+              String(email),
+              phone ? String(phone) : null,
+              String(service_interest),
+              source_url ? String(source_url) : null,
+              'new',
+            )
+            .run();
         } catch (dbErr: any) {
-          return new Response(JSON.stringify({ 
-            error: 'Database Insert Failed', 
-            message: dbErr.message,
-            debug: { leadId, name, email } 
-          }), { status: 500 });
+          return new Response(
+            JSON.stringify({
+              error: 'Database Insert Failed',
+              message: dbErr.message,
+              debug: { leadId, name, email },
+            }),
+            { status: 500 },
+          );
         }
 
         return new Response(JSON.stringify({ status: 'success', id: leadId }), {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 
@@ -138,16 +149,21 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       if (currentAction === 'send_notification') {
         if (!id) return new Response('Missing ID for notification', { status: 400 });
 
-        const leadRow: any = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
-        
+        const leadRow: any = await env.DB.prepare('SELECT * FROM leads WHERE id = ?')
+          .bind(id)
+          .first();
+
         // If lead not found, we don't crash, we log it and try to use data from request if available
         if (!leadRow) {
           console.warn(`[API] Notification requested for non-existent lead: ${id}`);
           // Optional: Create a placeholder lead here if we want to be super safe
-          return new Response(JSON.stringify({ 
-            status: 'success', 
-            note: 'Lead row not found, but notification event acknowledged' 
-          }), { status: 200 });
+          return new Response(
+            JSON.stringify({
+              status: 'success',
+              note: 'Lead row not found, but notification event acknowledged',
+            }),
+            { status: 200 },
+          );
         }
 
         if (env.RESEND_API_KEY) {
@@ -155,9 +171,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             // Admin Notification
             await fetch('https://api.resend.com/emails', {
               method: 'POST',
-              headers: { 
-                'Authorization': `Bearer ${env.RESEND_API_KEY}`, 
-                'Content-Type': 'application/json' 
+              headers: {
+                Authorization: `Bearer ${env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({
                 from: 'Mixture Marketing <system@mixturemarketing.pl>',
@@ -173,14 +189,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                   <p><strong>Wiadomość:</strong> ${leadRow.message || '-'}</p>
                   <hr/>
                   <p><small>ID: ${id}</small></p>
-                `
-              })
+                `,
+              }),
             });
           }
         }
 
         return new Response(JSON.stringify({ status: 'success' }), {
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
         });
       }
 

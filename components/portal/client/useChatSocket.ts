@@ -10,16 +10,16 @@ interface UseChatSocketProps {
 export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseChatSocketProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
-  const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  function connect() {
+  // Use a ref to keep the connect function stable and accessible within itself
+  const connectRef = useRef<() => void>(() => {});
+
+  const connect = useCallback(() => {
     if (!userId || !sessionToken || socketRef.current?.readyState === WebSocket.OPEN) return;
 
-    // Determine protocol based on environment
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.host;
-    // Cloudflare Pages uses same host for API
     const socketUrl = `${protocol}//${host}/api/portal/chat`;
 
     const ws = new WebSocket(socketUrl);
@@ -41,7 +41,9 @@ export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseCh
     ws.onclose = () => {
       console.log('[Chat] WebSocket Disconnected. Retrying...');
       setIsConnected(false);
-      reconnectTimeoutRef.current = setTimeout(connect, 3000);
+      reconnectTimeoutRef.current = setTimeout(() => {
+        connectRef.current();
+      }, 3000);
     };
 
     ws.onerror = (err) => {
@@ -50,17 +52,20 @@ export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseCh
     };
 
     socketRef.current = ws;
-  }
+  }, [userId, sessionToken, onMessageReceived]);
 
-  const connectCallback = useCallback(connect, [userId, sessionToken, onMessageReceived, connect]);
+  // Update the ref whenever connect changes
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
-    connectCallback();
+    connect();
     return () => {
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       socketRef.current?.close();
     };
-  }, [connectCallback]);
+  }, [connect]);
 
   const sendMessage = useCallback(
     (content: string, extraData: Partial<Message> = {}) => {
