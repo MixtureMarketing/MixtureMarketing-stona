@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 05, 2026 at 03:27 PM
+-- Generation Time: Feb 05, 2026 at 03:46 PM
 -- Server version: 10.11.14-MariaDB-0+deb12u2
 -- PHP Version: 7.4.33
 
@@ -1988,7 +1988,15 @@ INSERT INTO `performance_metrics` (`id`, `metric_name`, `metric_value`, `page_ur
 (1701, 'FCP', 320, '/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0', 'desktop', '2026-02-05 14:25:01'),
 (1702, 'TTFB', 2, '/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0', 'desktop', '2026-02-05 14:25:01'),
 (1703, 'LCP', 677, '/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0', 'desktop', '2026-02-05 14:26:01'),
-(1704, 'LCP', 508, '/miasto/rzeszow/', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'desktop', '2026-02-05 14:26:05');
+(1704, 'LCP', 508, '/miasto/rzeszow/', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'desktop', '2026-02-05 14:26:05'),
+(1705, 'TTFB', 115.1, '/portfolio/', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36', 'desktop', '2026-02-05 14:35:29'),
+(1706, 'FCP', 416, '/portfolio/', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/136.0.0.0 Safari/537.36', 'desktop', '2026-02-05 14:35:29'),
+(1707, 'CLS', 0.00217015, '/portfolio/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.49 Safari/537.36', 'desktop', '2026-02-05 14:35:34'),
+(1708, 'LCP', 1560, '/portfolio/', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/136.0.7103.49 Safari/537.36', 'desktop', '2026-02-05 14:35:34'),
+(1709, 'TTFB', 135.8, '/portfolio/', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/100.0.4896.127 Safari/537.36', 'desktop', '2026-02-05 14:36:38'),
+(1710, 'FCP', 412, '/portfolio/', 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/100.0.4896.127 Safari/537.36', 'desktop', '2026-02-05 14:36:38'),
+(1711, 'FCP', 158, '/', 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_1_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1', 'mobile', '2026-02-05 14:46:47'),
+(1712, 'TTFB', 94, '/', 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_1_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1', 'mobile', '2026-02-05 14:46:47');
 
 -- --------------------------------------------------------
 
@@ -2183,7 +2191,7 @@ ALTER TABLE `milestones`
 -- AUTO_INCREMENT for table `performance_metrics`
 --
 ALTER TABLE `performance_metrics`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1705;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1713;
 
 --
 -- AUTO_INCREMENT for table `projects`

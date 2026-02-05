@@ -19,36 +19,50 @@ Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal 
 - [x] **Baza Danych (Cloudflare D1)**:
     - [x] Utworzenie bazy `mixture-db`.
     - [x] Zdefiniowanie schematu SQL (tabele: `users`, `leads`, `projects`, `messages`, `documents`).
-- [ ] **Migracja Danych**: Skrypt do importu obecnych użytkowników i leadów z MySQL do D1.
+- [x] **Migracja Danych**: Skrypt do importu obecnych użytkowników i leadów z MySQL do D1.
 - [x] **Cache & Sesje (Cloudflare KV)**:
     - [x] Utworzenie namespace `mixture-cache`.
     - [x] Implementacja cache'owania zapytań do Sanity w kodzie.
 - [x] **Magazyn Plików (Cloudflare R2)**:
     - [x] Utworzenie bucketa `mixture-files`.
-- [ ] **Logika Chatu (Cloudflare Durable Objects)**:
-    - [ ] Implementacja klasy Durable Object dla pokoju czatu.
-    - [ ] Obsługa WebSocketów (Real-time).
-- [ ] **Funkcja: Obsługa Leadów (`functions/api/submit-lead.ts`)**:
-    - [ ] Walidacja, ReCaptcha, Zapis do D1, Wysyłka maila (Resend).
-- [ ] **Funkcja: Portal API (`functions/api/portal/[[path]].ts`)**:
-    - [ ] Autoryzacja JWT (zamiast sesji PHP).
-    - [ ] CRUD dla projektów i dokumentów (integracja z R2).
-    - [ ] Integracja z Chatem (Durable Objects + D1).
+- [x] **Funkcja: Kalkulator Wycen (`functions/api/calculator_submit.ts`)**:
+    - [x] Generowanie maila z załącznikiem PDF (Resend).
+- [x] **Funkcja: Analityka RUM (`functions/api/rum-collect.ts`)**:
+    - [x] Zbieranie metryk Web Vitals do D1.
+- [x] **Logika Chatu (Cloudflare Durable Objects)**:
+    - [x] Implementacja klasy Durable Object dla pokoju czatu.
+    - [x] Obsługa WebSocketów (Real-time).
+    - [x] Integracja WebSocket w Portalu (klient).
+- [x] **Funkcja: Obsługa Leadów (`functions/api/contact_submit.ts`)**:
+    - [x] Walidacja, ReCaptcha, Zapis do D1, Wysyłka maila (Resend).
+- [x] **Funkcja: Portal API (`functions/api/portal/[[path]].ts`)**:
+    - [x] Autoryzacja JWT (Middleware + D1).
+    - [x] Dashboard (Projekty, Dokumenty, Kamienie milowe).
+    - [x] Download plików (Integracja z R2).
+    - [x] Historia wiadomości (D1 + KV Cache).
+    - [x] Integracja z Chatem Real-time (Durable Objects).
+- [x] **Logika Admina (`functions/api/admin/[[path]].ts`)**:
+    - [x] Zarządzanie klientami i projektami.
+    - [x] Upload/Delete dokumentów (R2).
+    - [x] Konwersja leadów i odpowiedzi.
 
-### 2.4: Migracja Audyt 360 (Zasilanie danymi)
+### 2.4: Migracja Audyt 360 (Architektura Edge)
 - [ ] **Konfiguracja Hyperdrive**:
-    - [ ] Połączenie Workera z bazą `DB_AUDIT` (MySQL) przez Hyperdrive.
-- [ ] **Przepisanie Scrapera**:
-    - [ ] Przeniesienie logiki `curl_multi` na `Promise.all()` w TypeScript.
-    - [ ] Użycie `HTMLRewriter` lub lekkiej biblioteki DOM dla Workera do analizy tagów.
-- [ ] **Cache Audytów (KV)**:
-    - [ ] Zastąpienie logiki `classes/RedisCache.php` przez Cloudflare KV.
+    - [ ] Utworzenie połączenia do bazy `DB_AUDIT` (MySQL) - archiwum bota.
+- [x] **Funkcja: Pobieranie Raportu (`functions/api/audit/get_result.ts`)**:
+    - [x] Odczyt z MySQL (wymaga Hyperdrive).
+    - [x] Logika normalizacji JSON (v6.1-deep).
+    - [x] Integracja z KV Cache.
+- [x] **Funkcja: Skaner Live (`functions/api/audit/run_audit.ts`)**:
+    - [x] Implementacja Scrapera opartego na `HTMLRewriter` (Edge).
+    - [x] Integracja z Google PageSpeed Insights & Places API.
+    - [x] Algorytm punktacji SEO/Performance.
 - [ ] **Generowanie PDF**:
-    - [ ] Zastąpienie `generate_pdf.php` przez bibliotekę `jspdf` (już masz ją w projekcie!) działającą po stronie klienta lub lekkie API serverless.
+    - [ ] Przeniesienie generowania na stronę klienta (jspdf/html2canvas).
 
 ## FAZA 3: Migracja Frontendu
 
-- [ ] **Aktualizacja `apiClient.ts`**: Przepięcie z endpointów `.php` na nowe ścieżki API (`/api/...`).
+- [/] **Aktualizacja `apiClient.ts`**: Przepięcie z endpointów `.php` na nowe ścieżki API (`/api/...`) - autoodszranianie `.php`.
 - [ ] **Refaktoryzacja `AuthContext.tsx`**: Zmiana logiki logowania na tokeny JWT z Workera.
 - [ ] **Integracja WebSocket w Portalu**: Połączenie `PortalChat` z nowym serwerem WebSocket.
 

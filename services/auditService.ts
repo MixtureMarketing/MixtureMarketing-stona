@@ -1,4 +1,5 @@
-// services/auditService.ts
+import MixtureApiClient from './apiClient';
+
 const API_URL = '/api/audit/run_audit.php';
 
 export interface AuditResult {
@@ -82,31 +83,24 @@ export const auditService = {
     placeId?: string,
     force: boolean = false,
   ): Promise<AuditResult> {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, competitorUrl, placeId, force }),
+    const json = await MixtureApiClient.post<{ data: AuditResult }>('/api/audit/run_audit', {
+      url,
+      competitorUrl,
+      placeId,
+      force,
     });
 
-    if (!response.ok) {
-      throw new Error('Audit failed');
-    }
-
-    const json = await response.json();
     return json.data;
   },
 
   async getAuditResult(
     auditId: string | number,
   ): Promise<{ data: AuditResult; meta: Record<string, unknown> }> {
-    const response = await fetch(`/api/audit/get_audit_result.php?auditId=${auditId}`);
+    const json = await MixtureApiClient.get<{ data: AuditResult; meta: Record<string, unknown> }>(
+      `/api/audit/get_result?auditId=${auditId}`,
+    );
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Failed to fetch audit result');
-    }
-
-    const json = await response.json();
     return { data: json.data, meta: json.meta };
   },
 };
+

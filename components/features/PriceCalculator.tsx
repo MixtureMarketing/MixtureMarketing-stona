@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useCalculator, ProjectType } from '../../hooks/useCalculator';
 import { ChevronRight, ChevronLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
+import MixtureApiClient from '../../services/apiClient';
 import Button from '../common/Button';
 import SectionHeader from '../common/SectionHeader';
 import Container from '../common/Container';
@@ -80,19 +81,10 @@ const PriceCalculator: React.FC = () => {
       formData.append('data', JSON.stringify({ selections, result }));
 
       // 4. Send to Backend
-      const response = await fetch('/api/calculator_submit.php', {
-        method: 'POST',
-        body: formData,
-      });
+      await MixtureApiClient.post('/api/calculator_submit.php', formData);
 
-      if (response.ok) {
-        setIsSuccess(true);
-        showNotification('Oferta została wysłana na Twój e-mail!', 'success');
-      } else {
-        const errorMsg = 'Wystąpił błąd podczas wysyłania. Spróbuj ponownie.';
-        setError(errorMsg);
-        showNotification(errorMsg, 'error');
-      }
+      setIsSuccess(true);
+      showNotification('Oferta została wysłana na Twój e-mail!', 'success');
     } catch (err) {
       console.error('Submission failed:', err);
       const errorMsg = 'Wystąpił błąd krytyczny. Sprawdź połączenie z internetem.';

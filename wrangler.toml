@@ -22,10 +22,13 @@ binding = "FILES"
 bucket_name = "mixture-files"
 
 # --- Durable Objects (Chat) ---
-# [durable_objects]
-# bindings = [
-#   { name = "CHAT_ROOM", class_name = "ChatRoom" }
-# ]
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ChatRoom"]
 
 # --- Environment Variables (Plaintext) ---
 [vars]

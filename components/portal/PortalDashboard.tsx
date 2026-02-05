@@ -13,6 +13,7 @@ import PortalSupport from './client/PortalSupport';
 import { ProfileModal } from './client/PortalModals';
 import { AlertCircle } from 'lucide-react';
 import { getStatusColor, getStatusLabel } from '../../utils/portalHelpers';
+import { useChatSocket } from './client/useChatSocket';
 
 const PortalDashboard: React.FC = () => {
   const { user, sessionToken, logout, updateUser, isLoading } = useAuth();
@@ -22,17 +23,22 @@ const PortalDashboard: React.FC = () => {
   const { projects, messages, loadingProjects, error, refreshProjects, refreshMessages } =
     usePortalData();
 
-  // Profile Edit State
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({ name: '', company_name: '' });
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-
   // Detail View State
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   const [newMessage, setNewMessage] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Real-time Chat Integration
+  const { sendMessage: sendWsMessage } = useChatSocket({
+    userId: user?.id,
+    sessionToken,
+    onMessageReceived: () => {
+      // Refresh list to show new message from admin
+      refreshMessages();
+    }
+  });
 
   // Initialize profile data
   useEffect(() => {
@@ -100,8 +106,21 @@ const PortalDashboard: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !sessionToken) return;
+    if (!newMessage.trim() || !user || !sessionToken) return;
 
+    // 1. Try WebSocket first (Real-time)
+    const sent = sendWsMessage(newMessage, {
+      sender_type: 'client',
+      project_id: selectedProjectId ? parseInt(selectedProjectId) : undefined
+    });
+
+    if (sent) {
+      setNewMessage('');
+      refreshMessages(); // Immediate local refresh
+      return;
+    }
+
+    // 2. Fallback to API if socket disconnected
     try {
       const res = await fetch('/api/portal/send_message.php', {
         method: 'POST',
@@ -121,7 +140,6 @@ const PortalDashboard: React.FC = () => {
       console.error(e);
     }
   };
-
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {

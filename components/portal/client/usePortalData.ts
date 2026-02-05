@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import MixtureApiClient from '../../../services/apiClient';
 import { Project, Message } from '../types';
 
 export const usePortalData = () => {
@@ -12,14 +13,10 @@ export const usePortalData = () => {
   const fetchProjects = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/dashboard.php?t=${Date.now()}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
-      if (!res.ok) throw new Error('API Error');
-      const data = await res.json();
+      const data = await MixtureApiClient.get<{ projects: Project[] }>(
+        `/api/portal/dashboard.php?t=${Date.now()}`,
+        sessionToken,
+      );
       setProjects(data.projects || []);
     } catch (e) {
       console.error('Projects Fetch Error:', e);
@@ -32,30 +29,27 @@ export const usePortalData = () => {
   const fetchMessages = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/get_messages.php?t=${Date.now()}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
+      const data = await MixtureApiClient.get<{ messages: Message[] }>(
+        `/api/portal/get_messages.php?t=${Date.now()}`,
+        sessionToken,
+      );
+      
+      setMessages((prev) => {
+        if (data.messages.length !== prev.length) {
+          return data.messages;
+        }
+        if (data.messages.length > 0 && prev.length > 0) {
+          const lastServer = data.messages[data.messages.length - 1];
+          const lastLocal = prev[prev.length - 1];
+          if (lastServer.id !== lastLocal.id) return data.messages;
+        }
+        return prev;
       });
-      const data = await res.json();
-      if (res.ok) {
-        setMessages((prev) => {
-          if (data.messages.length !== prev.length) {
-            return data.messages;
-          }
-          if (data.messages.length > 0 && prev.length > 0) {
-            const lastServer = data.messages[data.messages.length - 1];
-            const lastLocal = prev[prev.length - 1];
-            if (lastServer.id !== lastLocal.id) return data.messages;
-          }
-          return prev;
-        });
-      }
     } catch (e) {
       console.error(e);
     }
   }, [sessionToken]);
+
 
   useEffect(() => {
     if (sessionToken && user?.role !== 'admin') {

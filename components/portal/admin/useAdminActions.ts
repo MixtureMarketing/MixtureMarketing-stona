@@ -39,8 +39,8 @@ export const useAdminActions = ({
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download.php?id=${docId}`, {
-        headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken },
+      const res = await fetch(`/api/portal/download?id=${docId}`, {
+        headers: { Authorization: `Bearer ${sessionToken}` },
       });
       if (res.ok) {
         const blob = await res.blob();

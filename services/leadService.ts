@@ -1,3 +1,5 @@
+import MixtureApiClient from './apiClient';
+
 export interface LeadBase {
   name: string;
   email: string;
@@ -36,7 +38,7 @@ const API_URL = '/api/contact_submit.php';
 
 export const leadService = {
   /**
-   * Creates a new lead via PHP backend.
+   * Creates a new lead via Cloudflare/D1 backend.
    * Called after Step 1 of the contact form.
    */
   async createLead(data: LeadBase) {
@@ -62,26 +64,15 @@ export const leadService = {
     const id = generateUUID();
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await MixtureApiClient.post<{ status: string }>(API_URL, {
+        action: 'create',
+        source_url: window.location.href,
+        website_verify: data.website_verify || '', // Honeypot
+        lead: {
+          id: id,
+          ...data,
         },
-        body: JSON.stringify({
-          action: 'create',
-          source_url: window.location.href,
-          website_verify: data.website_verify || '', // Honeypot
-          lead: {
-            id: id,
-            ...data,
-          },
-        }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Server error');
-      }
 
       // Return the lead object with ID
       const result = { id, ...data };
@@ -102,28 +93,17 @@ export const leadService = {
   },
 
   /**
-   * Updates an existing lead with additional details via PHP backend.
+   * Updates an existing lead with additional details via Cloudflare/D1 backend.
    * Called after Step 2/3 of the contact form.
    */
   async updateLead(id: string, details: LeadDetails, step?: number) {
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'update',
-          id: id,
-          details: details,
-          step: step,
-        }),
+      await MixtureApiClient.post(API_URL, {
+        action: 'update',
+        id: id,
+        details: details,
+        step: step,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Server error');
-      }
 
       return true;
     } catch (error) {
@@ -133,28 +113,16 @@ export const leadService = {
   },
 
   /**
-   * Triggers a specific email notification via PHP backend.
+   * Triggers a specific email notification via Cloudflare/Resend backend.
    * Can be used for 'abandoned_step_1', 'abandoned_step_2', or 'success'.
    */
   async sendNotification(id: string, type: 'abandoned_step_1' | 'abandoned_step_2' | 'success') {
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'send_notification',
-          id: id,
-          type: type,
-        }),
+      await MixtureApiClient.post(API_URL, {
+        action: 'send_notification',
+        id: id,
+        type: type,
       });
-
-      if (!response.ok) {
-        // We generally don't want to throw/block UI for notification errors
-        console.warn('Notification failed but proceeding:', await response.text());
-        return false;
-      }
 
       // Track full conversion in Cloudflare Zaraz
       if (type === 'success' && typeof window !== 'undefined' && window.zaraz) {
@@ -175,11 +143,7 @@ export const leadService = {
    */
   async getLead(id: string) {
     try {
-      // Use GET request with query params
-      const response = await fetch(`${API_URL}?action=get_lead&id=${id}`);
-      if (!response.ok) return null;
-
-      const data = await response.json();
+      const data = await MixtureApiClient.get<{ lead: Lead }>(`${API_URL}?action=get_lead&id=${id}`);
       return data.lead || null;
     } catch (error) {
       console.error('Error fetching lead:', error);
@@ -187,3 +151,4 @@ export const leadService = {
     }
   },
 };
+

@@ -28,6 +28,26 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
+import MixtureApiClient from '../services/apiClient';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  company_name?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  sessionToken: string | null;
+  login: (email: string) => Promise<boolean>;
+  verifyToken: (token: string) => Promise<boolean>;
+  logout: () => void;
+  updateUser: (userData: User) => void;
+  isLoading: boolean;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -52,12 +72,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = useCallback(async (email: string) => {
     try {
-      const res = await fetch('/api/auth/send_magic_link.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      return res.ok;
+      await MixtureApiClient.post('/api/auth/send_magic_link.php', { email });
+      return true;
     } catch (e) {
       console.error(e);
       return false;
@@ -66,26 +82,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verifyToken = useCallback(async (token: string) => {
     try {
-      const res = await fetch('/api/auth/verify_token.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
+      const data = await MixtureApiClient.post<{ user: User; session_token: string }>(
+        '/api/auth/verify_token.php',
+        { token },
+      );
 
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-        setSessionToken(data.session_token);
-        localStorage.setItem('portal_user', JSON.stringify(data.user));
-        localStorage.setItem('portal_token', data.session_token);
-        return true;
-      }
-      return false;
+      setUser(data.user);
+      setSessionToken(data.session_token);
+      localStorage.setItem('portal_user', JSON.stringify(data.user));
+      localStorage.setItem('portal_token', data.session_token);
+      return true;
     } catch (e) {
       console.error(e);
       return false;
     }
   }, []);
+
 
   const updateUser = useCallback((userData: User) => {
     setUser(userData);

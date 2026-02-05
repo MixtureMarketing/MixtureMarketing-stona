@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
+import MixtureApiClient from '../../../services/apiClient';
 import { Client, Project, Lead, PerformanceData, Conversation, Message } from '../types';
 
 export const useAdminData = (activeTab: string, activeChatId: string | null) => {
@@ -15,12 +16,10 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
   const fetchLeads = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_leads.php?t=${Date.now()}`, { headers });
-      const data = await res.json();
+      const data = await MixtureApiClient.get<{ leads: Lead[] }>(
+        `/api/admin/get_leads.php?t=${Date.now()}`,
+        sessionToken,
+      );
       setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(data.leads) ? data.leads : prev));
     } catch (e) {
       console.error(e);
@@ -30,12 +29,10 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
   const fetchMetrics = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_performance_stats.php?t=${Date.now()}`, { headers });
-      const data = await res.json();
+      const data = await MixtureApiClient.get<PerformanceData>(
+        `/api/admin/get_performance_stats.php?t=${Date.now()}`,
+        sessionToken,
+      );
       setMetricsData(data);
     } catch (e) {
       console.error(e);
@@ -45,12 +42,10 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
   const fetchData = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_all_data.php?t=${Date.now()}`, { headers });
-      const data = await res.json();
+      const data = await MixtureApiClient.get<{ clients: Client[]; projects: Project[] }>(
+        `/api/admin/get_all_data.php?t=${Date.now()}`,
+        sessionToken,
+      );
       setClients((prev) =>
         JSON.stringify(prev) !== JSON.stringify(data.clients) ? data.clients : prev,
       );
@@ -71,13 +66,10 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
           ? `/api/admin/get_all_messages.php?user_id=${userId}&t=${timestamp}`
           : `/api/admin/get_all_messages.php?t=${timestamp}`;
 
-        const headers: Record<string, string> = {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        };
-
-        const res = await fetch(url, { headers });
-        const data = await res.json();
+        const data = await MixtureApiClient.get<{ conversations: Conversation[]; messages: Message[] }>(
+          url,
+          sessionToken,
+        );
 
         setConversations((prev) =>
           JSON.stringify(prev) !== JSON.stringify(data.conversations) ? data.conversations : prev,
@@ -93,6 +85,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
     },
     [sessionToken],
   );
+
 
   // Use a single effect for general data polling
   useEffect(() => {

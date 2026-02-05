@@ -1,0 +1,132 @@
+PRAGMA foreign_keys = OFF;
+
+INSERT INTO "auth_tokens" ("id", "email", "token", "expires_at", "used", "created_at") VALUES (18, 'info@mixturemarketing.pl', '6bbf209b900f87e9285a5359e905376a48cf7a4b22f865d04a89574b2adffb93', '2026-01-22 16:21:39', 1, '2026-01-22 15:06:39'),
+(19, 'info@mixturemarketing.pl', '9c863bb2d25ede9f1d967193bb5bef90ac0944f48f0c06d649e801c72ac8a7a6', '2026-01-22 16:22:02', 1, '2026-01-22 15:07:02'),
+(20, 'jakub@mixturemarketing.pl', '863d9d9f10be7e0e46726976172457b70778da45d3d56a20c79c39724b61542d', '2026-01-22 16:22:13', 0, '2026-01-22 15:07:13'),
+(21, 'info@mixturemarketing.pl', '7492b09442270e6fe2670bd493e8b4f56fd0f97cfea5ccb5ea42c26ddad48bf0', '2026-01-22 16:23:35', 1, '2026-01-22 15:08:35'),
+(22, 'info@mixturemarketing.pl', '94e956b90bcbc2c7732f30f645a40a22d6b80bfabb755a70b1f6e9ea7d09b070', '2026-01-22 16:23:57', 1, '2026-01-22 15:08:57'),
+(23, 'info@mixturemarketing.pl', 'c9fda96201cbdd2fef5c69c12b13ff1953606de4fca046fb760d61cc373e58e4', '2026-01-22 16:25:46', 1, '2026-01-22 15:10:46'),
+(24, 'info@mixturemarketing.pl', 'e12e31bdc46d045f0e65a3d79fc37e064628ab37c8b81a9a0185527d988515da', '2026-01-22 16:37:06', 1, '2026-01-22 15:22:06'),
+(25, 'jakub@mixturemarketing.pl', '395c33e9aeba519511c9869ef913cd03bdad047e1590c4e7b646f503fba11397', '2026-01-22 16:37:19', 1, '2026-01-22 15:22:19'),
+(26, 'info@mixturemarketing.pl', 'aca4f05c1e683e48a915dc560069161bae1aabc5205b704ea57b9fc6cb62aee6', '2026-01-22 16:47:01', 0, '2026-01-22 15:32:01'),
+(27, 'info@mixturemarketing.pl', '64a361af3ff18f3d99f4de9221f4812514e003df42e48e8d21ec8c21d47d6e45', '2026-01-22 16:48:00', 0, '2026-01-22 15:33:00'),
+(28, 'info@mixturemarketing.pl', '4b01f14b029b356e92424fff6304c3d4e473143936aa7f7240a1cc6668860126', '2026-01-22 19:50:39', 0, '2026-01-22 18:35:39'),
+(29, 'info@mixturemarketing.pl', '6ae55064ee29e817b981a57b29c34e38a379d756d1f68d9246f218434c903dbd', '2026-01-22 19:53:30', 0, '2026-01-22 18:38:30'),
+(30, 'jakub@mixturemarketing.pl', '05d93fe234907f9ed1e2d29559f5c6df5845e47614cc27074bf680f5b2bd651c', '2026-01-22 19:59:29', 0, '2026-01-22 18:44:29'),
+(31, 'jakub@mixturemarketing.pl', '786f5ecd1857ae7ee801868ed374e053a89d0ecc853250764f4890c12e9ff707', '2026-01-22 20:00:23', 0, '2026-01-22 18:45:23'),
+(32, 'jakub@mixturemarketing.pl', 'a0c8e593daeaebbd709b55f781677ef7735ef694cb593de7d642d76097423f6a', '2026-01-22 20:01:23', 1, '2026-01-22 18:46:23'),
+(33, 'info@mixturemarketing.pl', '3a69f54d30ac319851720e7ca433206076cd46264437acf738a14afa96332a3e', '2026-01-22 20:01:52', 1, '2026-01-22 18:46:52'),
+(34, 'info@mixturemarketing.pl', 'fa8e4b1e4956fbb514296a014f024821075880c02eee9837c6b94210855fff7c', '2026-01-22 20:05:07', 0, '2026-01-22 18:50:07'),
+(35, 'jakub@mixturemarketing.pl', 'eb788a2352c9ec49dd642933f175194799d8f8df5e76d8f9a61ca7b6cbc746b2', '2026-01-22 20:05:46', 0, '2026-01-22 18:50:46'),
+(36, 'jakub@mixturemarketing.pl', '01c718a69877df5ca0655971475063f91d2f399843a2ee836a32b96aba1a367f', '2026-01-22 20:08:02', 0, '2026-01-22 18:53:02'),
+(37, 'info@mixturemarketing.pl', '39ffe785165b9a70d8fb9dbb1a8afe923c8e6b20ba22d72f8d0e5d53a2d901f1', '2026-01-22 20:08:26', 0, '2026-01-22 18:53:26'),
+(38, 'info@mixturemarketing.pl', '78fcf47b2571dbfd233b34ed6f8a480a384f9f1663e04c36d456975717e3431a', '2026-01-22 20:19:15', 1, '2026-01-22 19:04:15'),
+(39, 'Jakub@mixturemarketing.pl', 'eb7ffee5715229c8cb6df9284ba31f79455d495ec0e0daea490f4075da0542d4', '2026-01-22 20:19:57', 1, '2026-01-22 19:04:57'),
+(40, 'Jakub@mixturemarketing.pl', 'b9b2fe98a2807162017ad03b4b4840d909c0ad86c4206f325a17d8a2d8f43eae', '2026-01-22 20:45:41', 1, '2026-01-22 19:30:41'),
+(41, 'jakub.niedziela626@gmail.com', 'ed98003cb5ab9f91af0349e2ac3f2abef8f53b00d3ff41e876def5e45899c433', '2026-01-22 22:03:35', 1, '2026-01-22 20:48:35'),
+(42, 'info@mixturemarketing.pl', 'a654d4bd8c94cadc5c4218b584dbcb188974a5c226ea9ee5a31d1b5d69fbd40e', '2026-01-23 10:02:37', 1, '2026-01-23 08:47:37'),
+(43, 'info@mixturemarketing.pl', 'f7cad35b2fd18f40923229aae02eee6b53e84ade91c69ef966418e62600f1dcc', '2026-01-23 10:03:14', 1, '2026-01-23 08:48:14'),
+(44, 'jakub@mixturemarketing.pl', '91f0f5092ed3593ff4cc088f636f639567757c1d0e7e373df3b7268693750052', '2026-01-23 10:04:05', 1, '2026-01-23 08:49:05'),
+(45, 'info@mixturemarketing.pl', '5d90af94b4c23ecccd3d1025ac901cbe873d45f012078bbaa96c7c789884bcec', '2026-01-23 18:37:46', 1, '2026-01-23 17:22:46'),
+(46, 'jakub@mixturemarketing.pl', '8f7af61e1dc902b46ee1b06b1c5acc37e93f09efd4dce24544c34076ea034c27', '2026-01-23 18:43:40', 1, '2026-01-23 17:28:40'),
+(47, 'info@mixturemarketing.pl', 'd8b225f0039840564ec78d5c9033ff620203238b70ea533ce812f177ce9ca9b7', '2026-01-24 14:46:29', 1, '2026-01-24 13:31:29'),
+(48, 'jakub@mixturemarketing.pl', '4ef7e5567217aae38c939762ea328e6382be877b2d0d0ab1178180ab4f4c2de8', '2026-01-24 14:47:50', 1, '2026-01-24 13:32:50'),
+(49, 'info@mixturemarketing.pl', '2ee24e7597b1de21de846bc108815e440055b05ea98f1debdab64174b61a532c', '2026-01-26 12:50:38', 1, '2026-01-26 11:35:38'),
+(50, 'info@mixturemarketing.pl', '40b72bb45f62f6d628edcd03807bcc61c05dd6a05f2743adf96b03872fcc8676', '2026-01-26 13:06:48', 1, '2026-01-26 11:51:48'),
+(51, 'info@mixturemarketing.pl', '4b9552c43c93fa69cf05e31def858bcbf845825f7ff1e3973b37a6714a8968b3', '2026-01-26 13:40:40', 1, '2026-01-26 12:25:40'),
+(52, 'info@mixturemarketing.pl', '4d37402408e658050b20b40018b38145d9cc9fb55151f7dbaf2eb1d2f7f011f2', '2026-01-27 11:41:27', 1, '2026-01-27 10:26:27');
+
+INSERT INTO "documents" ("id", "project_id", "name", "file_path", "type", "subtype", "created_at") VALUES (1, 1, 'Umowa', 'uploads/docs/4664d65ac1138e30e00799ed65b5e768.pdf', 'document', 'contract', '2026-01-22 20:13:00'),
+(2, 1, 'dsad', 'uploads/docs/c6f2a06ef40d10f5fe778c716430164e.pdf', 'document', 'other', '2026-01-22 20:15:30');
+
+INSERT INTO "leads" ("id", "user_id", "created_at", "name", "email", "phone", "service_type", "package_name", "source_url", "website", "budget", "message", "details", "email_abandoned_1_sent", "email_abandoned_2_sent", "status", "current_step") VALUES ('03474e5c-80b4-4d80-b669-0bbf2debbc12', NULL, '2026-01-25 10:30:06', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/ecommerce/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('0c2e8e02-b5da-4cbf-ab3f-986fb0d2fcaa', 4, '2026-01-22 20:57:44', 'Karol Mierzwa', 'karolmierzwa2003@gmail.com', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/landing-page/', NULL, NULL, NULL, NULL, 1, 0, 'converted', 1),
+('14649c15-e2c8-4a53-add5-bfd8a8342334', NULL, '2026-01-25 09:28:56', 'Karol Mierzwa', 'jakub@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('213536e3-f8b4-4542-8a50-aff9e3b818ec', NULL, '2026-01-25 08:50:47', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('217e08da-58ac-48fd-8b7f-036a37085f87', NULL, '2026-01-25 08:48:27', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('38bfc27c-4c3d-4d67-bd8b-992987ebcb6b', NULL, '2026-01-25 09:25:16', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/landing-page/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('3b38cafe-06c8-48ea-be0c-ce40ec19315c', NULL, '2026-01-25 10:29:57', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('406fa165-c38b-4129-b2e1-46fdf471cd1b', NULL, '2026-01-22 14:12:27', 'Karol Mierzwa', 'jakub@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/', NULL, 'low', 'fdsfds', '{"projectType":"landing","trafficSource":"ads","copywriting":"has_content"}', 0, 0, 'contacted', 1),
+('52303f5d-0bbb-4027-8486-9460abd0edd1', NULL, '2026-01-25 10:25:27', 'Jakub Niedziela', 'jakub@mixturemarketing.pl', '794443551', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 0, 1, 'new', 1),
+('5669ae01-2054-4f36-ab2c-4a5697a6ab29', NULL, '2026-01-24 14:30:06', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'consultation', NULL, 'https://mixturemarketing.pl/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('71deaff3-16b7-4a20-9dbf-00fbd98dc5e2', NULL, '2026-01-23 09:56:04', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'consultation', NULL, 'https://mixturemarketing.pl/', NULL, NULL, NULL, NULL, 1, 1, 'contacted', 1),
+('7b34cd21-5cd1-4389-aa3a-e3dde1accf9b', NULL, '2026-01-25 09:25:31', 'Karol Mierzwa', 'jakub@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/landing-page/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('93dbbc36-b117-4272-812d-853edecf8a85', NULL, '2026-01-25 09:28:46', 'Karol Mierzwa', 'jakub@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/landing-page/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('95bbcaf6-88e3-4e65-a056-e99bbd41d50e', NULL, '2026-01-25 10:25:43', 'Jakub Niedziela', 'jakub@mixturemarketing.pl', '794443551', 'web', NULL, 'https://mixturemarketing.pl/web-development/', NULL, NULL, NULL, NULL, 0, 1, 'new', 1),
+('a066d128-3f21-4f85-9fe8-0cc2e54cb5a6', NULL, '2026-01-25 08:55:11', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/landing-page/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('a57f3716-a400-418c-9197-0671688aaac5', NULL, '2026-01-25 10:25:56', 'Jakub Niedziela', 'jakub@mixturemarketing.pl', '794443551', 'web', NULL, 'https://mixturemarketing.pl/web-development/ecommerce/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('a8b4b7d0-4f34-4e16-b27e-b25ed3efd5f9', NULL, '2026-01-25 10:30:14', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/ecommerce/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('acdf2d19-e192-4cbd-a24b-0367e160f156', 1, '2026-01-23 18:21:51', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'consultation', NULL, 'https://mixturemarketing.pl/offers#calculator', NULL, NULL, NULL, NULL, 1, 0, 'converted', 1),
+('b03181be-e310-4768-b40c-c63732053ff8', NULL, '2026-01-25 10:26:07', 'Jakub Niedziela', 'jakub@mixturemarketing.pl', '794443551', 'web', NULL, 'https://mixturemarketing.pl/web-development/corporate/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('b6cf8c4f-f070-40c3-a98e-d36097ec49b0', 6, '2026-01-22 21:10:39', 'Jakub Niedziela', 'jakub.niedziela626@gmail.com', '453406309', 'consultation', NULL, 'https://mixturemarketing.pl/', NULL, NULL, NULL, NULL, 1, 1, 'contacted', 1),
+('bedd5851-e397-4e3b-9529-41391e5dc806', NULL, '2026-01-25 10:29:23', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/corporate/', NULL, NULL, NULL, '{"area":"pl","features":"hr","tech":"headless"}', 0, 1, 'new', 2),
+('c85c2221-bed6-4318-bc2e-6c577bc596d0', NULL, '2026-01-25 08:51:10', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/corporate/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('d1e6770b-2cd0-44fd-a9df-4528061758f2', NULL, '2026-01-25 10:29:39', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('f99960b9-06ec-4ef1-944b-d4378ddab0a1', NULL, '2026-01-25 10:31:07', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'marketing', NULL, 'https://mixturemarketing.pl/marketing/google-ads/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1),
+('fda0db5e-4854-4c34-afc1-d13b8d6518f2', NULL, '2026-01-25 10:29:49', 'Karol Mierzwa', 'info@mixturemarketing.pl', '570358080', 'web', NULL, 'https://mixturemarketing.pl/web-development/custom-app/', NULL, NULL, NULL, NULL, 1, 0, 'new', 1);
+
+INSERT INTO "messages" ("id", "user_id", "admin_id", "project_id", "content", "sender_type", "is_read", "created_at", "notification_sent") VALUES (24, 2, NULL, NULL, '4', 'client', 1, '2026-01-22 19:16:29', 0),
+(25, 2, NULL, NULL, 'asdsad', 'client', 1, '2026-01-22 19:20:43', 0),
+(26, 2, NULL, NULL, 'test', 'admin', 1, '2026-01-22 19:21:13', 0),
+(27, 2, NULL, NULL, '1', 'client', 1, '2026-01-22 19:25:05', 0),
+(28, 2, NULL, NULL, '2', 'admin', 1, '2026-01-22 19:25:07', 0),
+(29, 2, NULL, NULL, '3', 'client', 1, '2026-01-22 19:25:45', 0),
+(30, 2, NULL, NULL, '4', 'client', 1, '2026-01-22 19:25:46', 0),
+(31, 2, NULL, NULL, 'TEST', 'client', 1, '2026-01-22 19:25:56', 0),
+(32, 2, NULL, NULL, 'TEST ADMIN', 'admin', 1, '2026-01-22 19:26:03', 0),
+(33, 2, NULL, NULL, 'a', 'client', 1, '2026-01-22 19:27:40', 0),
+(34, 2, NULL, NULL, '2', 'admin', 1, '2026-01-22 19:30:15', 0),
+(35, 2, NULL, NULL, '2', 'client', 1, '2026-01-22 19:30:21', 0),
+(36, 2, NULL, NULL, 's', 'admin', 1, '2026-01-22 19:31:02', 0),
+(37, 2, NULL, NULL, 'd', 'client', 1, '2026-01-22 19:31:08', 0),
+(38, 2, NULL, NULL, 'test kleint', 'client', 1, '2026-01-22 19:31:35', 0),
+(39, 2, NULL, NULL, 'test admin', 'admin', 1, '2026-01-22 19:31:48', 0),
+(40, 2, NULL, NULL, 'asdasd', 'client', 1, '2026-01-22 19:33:05', 0),
+(41, 2, NULL, NULL, 'SDFGHJKHGFD', 'client', 1, '2026-01-22 19:33:23', 0),
+(42, 2, NULL, NULL, '2345678965432', 'client', 1, '2026-01-22 19:33:48', 0),
+(43, 2, NULL, NULL, 'DFSDF32432', 'client', 1, '2026-01-22 19:34:49', 0),
+(44, 2, NULL, NULL, 'TESTTEST', 'client', 1, '2026-01-22 19:34:58', 0),
+(45, 2, NULL, NULL, 'TESTTESTTEST', 'client', 1, '2026-01-22 19:35:10', 0),
+(46, 2, NULL, NULL, 'ju6ygerfsdc', 'client', 1, '2026-01-22 19:36:44', 0),
+(47, 2, NULL, NULL, '111', 'admin', 1, '2026-01-22 19:37:03', 0),
+(48, 2, NULL, NULL, '2', 'client', 1, '2026-01-22 19:40:59', 0),
+(49, 2, NULL, NULL, '4', 'client', 1, '2026-01-22 19:41:06', 0),
+(50, 2, NULL, NULL, '1', 'admin', 1, '2026-01-22 19:41:11', 0),
+(51, 2, NULL, NULL, '3', 'admin', 1, '2026-01-22 19:41:17', 0),
+(52, 2, NULL, NULL, 's', 'client', 1, '2026-01-22 19:41:26', 0),
+(53, 2, NULL, NULL, 'd', 'admin', 1, '2026-01-22 19:41:31', 0),
+(54, 2, NULL, NULL, 'czesc', 'client', 1, '2026-01-22 19:41:38', 0),
+(55, 2, NULL, NULL, 'co tam', 'admin', 1, '2026-01-22 19:41:42', 0),
+(56, 2, NULL, NULL, 'nw', 'client', 1, '2026-01-22 19:41:53', 0),
+(57, 2, NULL, NULL, '2', 'client', 1, '2026-01-22 19:47:19', 0),
+(58, 2, NULL, NULL, '3', 'admin', 1, '2026-01-22 19:47:22', 0),
+(59, 2, NULL, NULL, '4', 'client', 1, '2026-01-22 19:47:25', 0),
+(60, 2, NULL, NULL, 'siema stefan ', 'client', 1, '2026-01-23 08:49:54', 0);
+
+INSERT INTO "milestones" ("id", "project_id", "title", "description", "due_date", "status", "feedback", "order_index", "created_at") VALUES (1, 1, 'Makieta Ux', 'dsad', '2025-02-19', 'accepted', 'a', 0, '2026-01-22 20:34:10');
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (1, 'TTFB', 44.6, '/portal/', 'Mozilla/5.0 (Windows NT 10.0;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (264, 'TTFB', 62.8, '/', 'Mozilla/5.0 (Macintosh;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (525, 'LCP', 1268, '/', 'Mozilla/5.0 (Windows NT 10.0;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (794, 'INP', 72, '/', 'Mozilla/5.0 (Linux;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (1055, 'INP', 72, '/design/visual-audit/', 'Mozilla/5.0 (Windows NT 10.0;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (1315, 'CLS', 0, '/web-development/landing-page/', 'Mozilla/5.0 (Windows NT 10.0;
+
+INSERT INTO "performance_metrics" ("id", "metric_name", "metric_value", "page_url", "user_agent", "device_type", "created_at") VALUES (1572, 'CLS', 0.0000667868, '/web-development/', 'Mozilla/5.0 (Windows NT 10.0;
+
+INSERT INTO "projects" ("id", "user_id", "name", "type", "status", "progress", "drive_link", "next_milestone", "next_milestone_date", "created_at", "updated_at", "budget") VALUES (1, 2, 'test', 'web', 'in_progress', 14, 'https://drive.google.com/drive/folders/1ekhbdtQs6hWmXnXq14go3yaxNXjvidgw?usp=drive_link', 'testy', '2026-01-29', '2026-01-22 12:48:03', '2026-01-22 12:48:03', NULL);
+
+INSERT INTO "sessions" ("id", "user_id", "session_token", "role", "ip_address", "user_agent", "created_at", "expires_at") VALUES (1, 1, '311cb308b69b582bc09fc494d95392410e363d724657c8bdeca483ed19895e66', 'admin', '91.150.177.91', 'Mozilla/5.0 (Linux;
+
+INSERT INTO "users" ("id", "email", "name", "company_name", "role", "is_active", "created_at", "session_token", "session_expires") VALUES (1, 'info@mixturemarketing.pl', 'Admin Mixture', 'Mixture Marketing', 'admin', 1, '2026-01-22 12:25:15', 'd2e6f61fb0320acd2891aac2661a875bca673bed9ff40dc013a274eb8f3e0218', '2026-01-28 11:26:35'),
+(2, 'Jakub@mixturemarketing.pl', 'Jakub', 'Mixture Client', 'client', 1, '2026-01-22 12:25:26', '67a235d26d08d5feff1ad82983fff397ee0eac7ddf090af181b60eda791f8bec', '2026-01-25 14:32:56'),
+(4, 'karolmierzwa2003@gmail.com', 'Karol Mierzwa', '', 'client', 1, '2026-01-22 20:41:19', NULL, NULL),
+(6, 'jakub.niedziela626@gmail.com', 'Jakub Niedziela', '', 'client', 1, '2026-01-22 20:48:16', '4ae327c95ce178674743abb05110380a6a6cf19e09d89b6b6844cb0fcfe92568', '2026-01-23 21:48:43');
+
+
+PRAGMA foreign_keys = ON;

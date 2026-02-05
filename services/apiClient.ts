@@ -8,8 +8,22 @@ interface FetchOptions extends RequestInit {
 }
 
 class MixtureApiClient {
+  private static getBaseUrl(url: string): string {
+    // If it's an absolute URL, return as is
+    if (url.startsWith('http')) return url;
+    
+    // Facilitate migration: strip .php and ensure /api prefix
+    let cleanUrl = url.replace(/\.php$/, '');
+    
+    // Ensure leading slash
+    if (!cleanUrl.startsWith('/')) cleanUrl = '/' + cleanUrl;
+    
+    return cleanUrl;
+  }
+
   private static async request<T>(url: string, options: FetchOptions = {}): Promise<T> {
     const { token, headers, ...rest } = options;
+    const finalUrl = this.getBaseUrl(url);
 
     const defaultHeaders: Record<string, string> = {
       'Content-Type': 'application/json',

@@ -24,9 +24,9 @@ function reportWebVitals(metric: Metric) {
   if (import.meta.env.PROD) {
     const body = JSON.stringify({ name, value, id, delta, url: window.location.href });
     if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/rum-collect.php', body);
+      navigator.sendBeacon('/api/rum-collect', body);
     } else {
-      fetch('/api/rum-collect.php', { body, method: 'POST', keepalive: true });
+      fetch('/api/rum-collect', { body, method: 'POST', keepalive: true });
     }
   }
 }
