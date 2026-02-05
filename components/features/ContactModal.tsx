@@ -1,5 +1,5 @@
-import React from 'react';
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import React, { useState } from 'react';
+import { Turnstile } from '@marsidev/react-turnstile';
 import Modal from '../common/Modal';
 import { useModal } from '../../context/ModalContext';
 import { ContactType } from '../../types';
@@ -21,32 +21,35 @@ interface ContactModalProps {
 
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) => {
   const { additionalData } = useModal();
-  // ... rest of the component logic ...
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   return (
-    <GoogleReCaptchaProvider
-      reCaptchaKey={SITE_CONFIG.contact.recaptchaSiteKey}
-      language="pl"
-      useRecaptchaNet
-    >
+    <>
       <ContactModalContent
         isOpen={isOpen}
         onClose={onClose}
         type={type}
         additionalData={additionalData}
+        turnstileToken={turnstileToken}
       />
-    </GoogleReCaptchaProvider>
+      {isOpen && (
+        <div className="hidden">
+          <Turnstile
+            siteKey={SITE_CONFIG.contact.recaptchaSiteKey} // We reuse the key name for now, but you should update it in site.ts
+            onSuccess={(token) => setTurnstileToken(token)}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
-// Extracted internal component to keep hooks valid (useContactForm needs provider context if it uses useGoogleReCaptcha)
-// However, useContactForm seems to use custom logic. Let's check useContactForm implementation first.
-// Actually, useContactForm is likely using useGoogleReCaptcha internally.
-// So the Provider MUST be a parent of the component calling useContactForm.
-
 const ContactModalContent: React.FC<
-  ContactModalProps & { additionalData: Record<string, unknown> | null }
-> = ({ isOpen, onClose, type, additionalData }) => {
+  ContactModalProps & { 
+    additionalData: Record<string, unknown> | null;
+    turnstileToken: string | null;
+  }
+> = ({ isOpen, onClose, type, additionalData, turnstileToken }) => {
   const {
     step,
     isSubmitted,
@@ -57,7 +60,8 @@ const ContactModalContent: React.FC<
     prevStep,
     onSubmit,
     handleClose,
-  } = useContactForm(type, onClose); // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
+  } = useContactForm(type, onClose, turnstileToken); 
+ // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
 
   const {
     formState: { errors, isSubmitting },

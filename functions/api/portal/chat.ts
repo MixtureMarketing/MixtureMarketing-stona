@@ -71,18 +71,26 @@ export class ChatRoom {
 
 /**
  * Pages Function: chat endpoint
- * Path: /api/portal/chat
+ * Path: /api/portal/chat?userId=123
  */
 export const onRequest: PagesFunction<{ CHAT_ROOM: DurableObjectNamespace }> = async (context) => {
   const { request, env, data } = context;
-  const user = data.user as { id: number }; // Set by middleware
+  const currentUser = data.user as { id: number, role: string };
 
-  if (!user) {
+  if (!currentUser) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // Use user.id to create a unique room for this client-admin conversation
-  const id = env.CHAT_ROOM.idFromName(user.id.toString());
+  const url = new URL(request.url);
+  const targetUserId = url.searchParams.get('userId') || currentUser.id.toString();
+
+  // Security: Client can only join their own room. Admin can join any.
+  if (currentUser.role !== 'admin' && targetUserId !== currentUser.id.toString()) {
+    return new Response('Forbidden', { status: 403 });
+  }
+
+  // Use targetUserId to get the specific room
+  const id = env.CHAT_ROOM.idFromName(targetUserId);
   const room = env.CHAT_ROOM.get(id);
 
   return room.fetch(request);

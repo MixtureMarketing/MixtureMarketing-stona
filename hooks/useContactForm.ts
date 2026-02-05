@@ -5,18 +5,16 @@ import { contactSchema } from '../types/validation';
 import { useModal } from '../context/ModalContext';
 import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { ContactFormData } from '../components/features/contact/types';
-import { executeRecaptchaWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
+import { isLocalhost } from '../utils/contactFormHelpers';
 
-export const useContactForm = (type: ContactType, onClose: () => void) => {
+export const useContactForm = (type: ContactType, onClose: () => void, turnstileToken: string | null) => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { additionalData } = useModal();
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const isInitialized = useRef(false);
 
   const formMethods = useForm<ContactFormData>({
@@ -67,29 +65,20 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
           await leadService.updateLead(leadId, values, 1);
           setStep(2);
         } else {
-          try {
-            const token = await executeRecaptchaWithTimeout(executeRecaptcha, 'create_lead');
-            const createdLead = await leadService.createLead({
-              ...leadData,
-              recaptcha_token: token,
-            });
-            if (createdLead) {
-              setLeadId(createdLead.id);
-              setStep(2);
-            }
-          } catch (_err) {
-            if (isLocalhost()) {
-              const createdLead = await leadService.createLead({
-                ...leadData,
-                recaptcha_token: 'local_bypass',
-              });
-              if (createdLead) {
-                setLeadId(createdLead.id);
-                setStep(2);
-              }
-            } else {
-              setSubmitError('Weryfikacja reCAPTCHA nieudana.');
-            }
+          // Use Turnstile Token for lead creation
+          if (!turnstileToken && !isLocalhost()) {
+            setSubmitError('Weryfikacja bezpieczeństwa w toku...');
+            setIsLoading(false);
+            return;
+          }
+
+          const createdLead = await leadService.createLead({
+            ...leadData,
+            recaptcha_token: turnstileToken || 'local_bypass',
+          });
+          if (createdLead) {
+            setLeadId(createdLead.id);
+            setStep(2);
           }
         }
       } else if (step === 2) {
@@ -113,21 +102,9 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
   const onSubmit = async (data: ContactFormData) => {
     setSubmitError(null);
     try {
-      let token = leadId ? 'existing_lead_verified' : '';
-      if (!token) {
-        try {
-          token = await executeRecaptchaWithTimeout(executeRecaptcha, 'submit_form');
-        } catch {
-          token = isLocalhost() ? 'local_bypass' : '';
-          if (!token) {
-            setSubmitError('Błąd weryfikacji bezpieczeństwa.');
-            return;
-          }
-        }
-      }
       const finalData = {
         ...data,
-        recaptcha_token: token,
+        recaptcha_token: turnstileToken || 'existing_lead_verified',
         package_name: additionalData?.package as string,
       };
       if (leadId) {
@@ -139,7 +116,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
           email: data.email,
           phone: data.phone,
           service_interest: type,
-          recaptcha_token: token,
+          recaptcha_token: turnstileToken || 'local_bypass',
         });
         if (createdLead) {
           await leadService.updateLead(createdLead.id, finalData, 3);
@@ -151,6 +128,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
       setSubmitError('Błąd wysyłania formularza.');
     }
   };
+
 
   const handleClose = () => {
     if (leadId && !isSubmitted) {

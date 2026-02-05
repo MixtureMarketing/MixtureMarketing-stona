@@ -41,16 +41,18 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       if (currentAction === 'create') {
         const { recaptcha_token, name, email, phone, service_interest } = lead;
 
-        // Verify ReCaptcha
+        // Verify Turnstile Token (Cloudflare)
         if (recaptcha_token) {
-          const recaptchaVerify = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+          const verifyUrl = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+          const verifyResult = await fetch(verifyUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `secret=${env.RECAPTCHA_SECRET}&response=${recaptcha_token}`
           });
-          const recaptchaResult: any = await recaptchaVerify.json();
-          if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
-            return new Response(JSON.stringify({ error: 'ReCaptcha failed' }), { status: 403 });
+          
+          const verifyJson: any = await verifyResult.json();
+          if (!verifyJson.success) {
+            return new Response(JSON.stringify({ error: 'Turnstile verification failed' }), { status: 403 });
           }
         }
 
