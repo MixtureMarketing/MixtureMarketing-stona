@@ -26,7 +26,7 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Zaktualizowano do nowszej stabilnej wersji
+          node-version: '22'
           cache: 'npm'
 
       - name: 🐘 Setup PHP
@@ -63,14 +63,3 @@ jobs:
           name: dist-package
           path: dist/
           retention-days: 7
-
-      - name: 🚀 Deploy to Cloudflare Pages
-        if: success() && github.ref == 'refs/heads/cloudflare-migration'
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: mixture-marketing
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: cloudflare-migration
