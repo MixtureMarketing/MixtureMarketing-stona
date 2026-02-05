@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: portal/download
  * Path: /api/portal/download?id=123
@@ -18,12 +19,16 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   try {
     // 1. Permissions check
-    const doc: any = await env.DB.prepare(`
+    const doc: any = await env.DB.prepare(
+      `
       SELECT d.file_path, d.name, p.user_id 
       FROM documents d
       JOIN projects p ON d.project_id = p.id
       WHERE d.id = ?
-    `).bind(docId).first();
+    `,
+    )
+      .bind(docId)
+      .first();
 
     if (!doc) return new Response('File not found in database', { status: 404 });
 
@@ -36,7 +41,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const object = await env.FILES.get(doc.file_path);
 
     if (!object) {
-      return new Response('File not found in storage (R2). Please ensure files are migrated.', { status: 404 });
+      return new Response('File not found in storage (R2). Please ensure files are migrated.', {
+        status: 404,
+      });
     }
 
     const headers = new Headers();
@@ -46,7 +53,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     headers.set('Cache-Control', 'private, max-age=3600');
 
     return new Response(object.body, { headers });
-
   } catch (err: any) {
     return new Response(err.message, { status: 500 });
   }

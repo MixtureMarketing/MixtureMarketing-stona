@@ -20,12 +20,12 @@ interface AuditDashboardProps {
 const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, onReset }) => {
   const { client, competitor } = data;
   const score = client.total_score;
-  const lcp = client.metrics.lcp_value;
+  const lcp = client.metrics?.lcp_value ?? 2.5;
 
   const errorDetails = getErrorDetails(
     lcp,
-    client.reputation.reviews_count,
-    client.reputation.rating,
+    client.reputation?.reviews_count ?? 0,
+    client.reputation?.rating ?? 0,
   );
 
   return (

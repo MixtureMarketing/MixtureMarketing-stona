@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Cloudflare Pages Function: verify_token
+ * Cloudflare Pages Function: auth/verify_token
  * Path: /api/auth/verify_token
  */
 
@@ -18,17 +19,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     // 1. Find and validate token
-    const authRecord: any = await env.DB.prepare(`
+    const authRecord: any = await env.DB.prepare(
+      `
       SELECT email FROM auth_tokens 
       WHERE token = ? AND used = 0 AND expires_at > datetime('now')
-    `).bind(token).first();
+    `,
+    )
+      .bind(token)
+      .first();
 
     if (!authRecord) {
       return new Response(JSON.stringify({ error: 'Invalid or expired token' }), { status: 403 });
     }
 
     // 2. Get User
-    const user: any = await env.DB.prepare('SELECT id, email, name, role, company_name FROM users WHERE email = ? AND is_active = 1')
+    const user: any = await env.DB.prepare(
+      'SELECT id, email, name, role, company_name FROM users WHERE email = ? AND is_active = 1',
+    )
       .bind(authRecord.email)
       .first();
 
@@ -48,21 +55,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(sessionToken, sessionExpires, user.id)
       .run();
 
-    return new Response(JSON.stringify({
-      status: 'success',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        company_name: user.company_name
+    return new Response(
+      JSON.stringify({
+        status: 'success',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          company_name: user.company_name,
+        },
+        session_token: sessionToken,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
       },
-      session_token: sessionToken
-    }), { 
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-
+    );
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }

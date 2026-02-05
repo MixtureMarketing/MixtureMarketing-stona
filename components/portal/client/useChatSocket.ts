@@ -10,9 +10,10 @@ interface UseChatSocketProps {
 export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseChatSocketProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const connect = useCallback(() => {
+  function connect() {
     if (!userId || !sessionToken || socketRef.current?.readyState === WebSocket.OPEN) return;
 
     // Determine protocol based on environment
@@ -26,8 +27,6 @@ export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseCh
     ws.onopen = () => {
       console.log('[Chat] WebSocket Connected');
       setIsConnected(true);
-      // We don't need to send auth here if middleware handles it via cookies or we can use subprotocol
-      // But standard way for Pages Functions is to check Authorization header on initial upgrade
     };
 
     ws.onmessage = (event) => {
@@ -51,30 +50,35 @@ export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseCh
     };
 
     socketRef.current = ws;
-  }, [userId, sessionToken, onMessageReceived]);
+  }
+
+  const connectCallback = useCallback(connect, [userId, sessionToken, onMessageReceived, connect]);
 
   useEffect(() => {
-    connect();
+    connectCallback();
     return () => {
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       socketRef.current?.close();
     };
-  }, [connect]);
+  }, [connectCallback]);
 
-  const sendMessage = useCallback((content: string, extraData: Partial<Message> = {}) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      const payload = {
-        content,
-        user_id: userId,
-        created_at: new Date().toISOString(),
-        is_read: 0,
-        ...extraData
-      };
-      socketRef.current.send(JSON.stringify(payload));
-      return true;
-    }
-    return false;
-  }, [userId]);
+  const sendMessage = useCallback(
+    (content: string, extraData: Partial<Message> = {}) => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        const payload = {
+          content,
+          user_id: userId,
+          created_at: new Date().toISOString(),
+          is_read: 0,
+          ...extraData,
+        };
+        socketRef.current.send(JSON.stringify(payload));
+        return true;
+      }
+      return false;
+    },
+    [userId],
+  );
 
   return { isConnected, sendMessage };
 };

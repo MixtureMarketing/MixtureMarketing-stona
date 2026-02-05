@@ -84,10 +84,10 @@ async function processRoute(browser, critters, route) {
     }
 
     let html = await page.content();
-    
+
     // Ensure absolute paths for assets (Double check)
     html = html.replace(/(src|href)="assets\//g, '$1="/assets/');
-    
+
     try {
       html = await critters.process(html);
     } catch (crittersError) {

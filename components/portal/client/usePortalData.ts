@@ -33,7 +33,7 @@ export const usePortalData = () => {
         `/api/portal/get_messages?t=${Date.now()}`,
         sessionToken,
       );
-      
+
       setMessages((prev) => {
         if (data.messages.length !== prev.length) {
           return data.messages;
@@ -49,7 +49,6 @@ export const usePortalData = () => {
       console.error(e);
     }
   }, [sessionToken]);
-
 
   useEffect(() => {
     if (sessionToken && user?.role !== 'admin') {

@@ -98,7 +98,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-
   const updateUser = useCallback((userData: User) => {
     setUser(userData);
     localStorage.setItem('portal_user', JSON.stringify(userData));

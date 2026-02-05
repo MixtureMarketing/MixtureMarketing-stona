@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: calculator_submit
  * Path: /api/calculator_submit
@@ -30,8 +31,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'Mixture Marketing <biuro@mixturemarketing.pl>',
@@ -48,18 +49,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           attachments: [
             {
               filename: 'wycena_mixture.pdf',
-              content: pdfBase64
-            }
-          ]
-        })
+              content: pdfBase64,
+            },
+          ],
+        }),
       });
 
       // Also notify Admin
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'Mixture Marketing <system@mixturemarketing.pl>',
@@ -69,15 +70,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           attachments: [
             {
               filename: 'wycena_mixture.pdf',
-              content: pdfBase64
-            }
-          ]
-        })
+              content: pdfBase64,
+            },
+          ],
+        }),
       });
     }
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
-
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }

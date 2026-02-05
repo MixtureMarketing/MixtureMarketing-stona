@@ -64,7 +64,7 @@ export const leadService = {
     const id = generateUUID();
 
     try {
-      const response = await MixtureApiClient.post<{ status: string }>(API_URL, {
+      await MixtureApiClient.post<{ status: string }>(API_URL, {
         action: 'create',
         source_url: window.location.href,
         website_verify: data.website_verify || '', // Honeypot
@@ -143,7 +143,9 @@ export const leadService = {
    */
   async getLead(id: string) {
     try {
-      const data = await MixtureApiClient.get<{ lead: Lead }>(`${API_URL}?action=get_lead&id=${id}`);
+      const data = await MixtureApiClient.get<{ lead: Lead }>(
+        `${API_URL}?action=get_lead&id=${id}`,
+      );
       return data.lead || null;
     } catch (error) {
       console.error('Error fetching lead:', error);
@@ -151,4 +153,3 @@ export const leadService = {
     }
   },
 };
-

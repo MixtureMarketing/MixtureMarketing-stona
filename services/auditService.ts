@@ -1,7 +1,5 @@
 import MixtureApiClient from './apiClient';
 
-const API_URL = '/api/audit/run_audit';
-
 export interface AuditResult {
   client: {
     url: string;
@@ -103,4 +101,3 @@ export const auditService = {
     return { data: json.data, meta: json.meta };
   },
 };
-

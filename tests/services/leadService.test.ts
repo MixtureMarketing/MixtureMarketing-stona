@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { leadService } from '../../services/leadService';
 
@@ -28,13 +29,16 @@ describe('leadService', () => {
 
     const result = await leadService.createLead(mockData);
 
-    expect(MixtureApiClient.post).toHaveBeenCalledWith('/api/contact_submit', expect.objectContaining({
-      action: 'create',
-      lead: expect.objectContaining({
-        name: 'Test User',
-        email: 'test@example.com'
-      })
-    }));
+    expect(MixtureApiClient.post).toHaveBeenCalledWith(
+      '/api/contact_submit',
+      expect.objectContaining({
+        action: 'create',
+        lead: expect.objectContaining({
+          name: 'Test User',
+          email: 'test@example.com',
+        }),
+      }),
+    );
     expect(result).toHaveProperty('id');
     expect(result.name).toBe('Test User');
   });

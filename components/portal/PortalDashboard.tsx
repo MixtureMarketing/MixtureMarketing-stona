@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
@@ -25,7 +26,7 @@ const PortalDashboard: React.FC = () => {
 
   // Profile Edit State
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({ name: '', company_name: '' });
+  const [profileData, setProfileData] = useState<any>({ name: '', company_name: '' });
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Detail View State
@@ -42,7 +43,7 @@ const PortalDashboard: React.FC = () => {
     onMessageReceived: () => {
       // Refresh list to show new message from admin
       refreshMessages();
-    }
+    },
   });
 
   // Initialize profile data
@@ -80,147 +81,85 @@ const PortalDashboard: React.FC = () => {
     };
   }, [messages]);
 
-    const handleUpdateProfile = async (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      e.preventDefault();
+    if (!sessionToken) return;
 
-      if (!sessionToken) return;
+    setIsUpdatingProfile(true);
 
-      setIsUpdatingProfile(true);
+    try {
+      const data = await MixtureApiClient.post<{ user: any }>(
+        '/api/portal/update_profile',
 
-  
+        profileData,
 
-          try {
+        sessionToken,
+      );
 
-  
+      updateUser(data.user);
 
-            const data = await MixtureApiClient.post<{ user: any }>(
+      showNotification('Profil zaktualizowany!', 'success');
 
-  
+      setIsProfileModalOpen(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsUpdatingProfile(false);
+    }
+  };
 
-              '/api/portal/update_profile',
+  const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
+    e.preventDefault();
 
-  
+    if (!newMessage.trim() || !user || !sessionToken) return;
 
-              profileData,
+    // 1. Try WebSocket first (Real-time)
 
-  
+    const sent = sendWsMessage(newMessage, {
+      sender_type: 'client',
 
-              sessionToken,
+      project_id: selectedProjectId ? parseInt(selectedProjectId) : undefined,
+    });
 
-  
+    if (sent) {
+      setNewMessage('');
 
-            );
+      refreshMessages(); // Immediate local refresh
 
-        updateUser(data.user);
+      return;
+    }
 
-        showNotification('Profil zaktualizowany!', 'success');
+    // 2. Fallback to API if socket disconnected
 
-        setIsProfileModalOpen(false);
+    try {
+      await MixtureApiClient.post(
+        '/api/portal/send_message',
 
-      } catch (e) {
+        { content: newMessage, sender_type: 'client' },
 
-        console.error(e);
+        sessionToken,
+      );
 
-      } finally {
+      setNewMessage('');
 
-        setIsUpdatingProfile(false);
+      refreshMessages();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-      }
+  const handleDownload = async (docId: string, fileName: string) => {
+    if (!sessionToken) return;
 
-    };
-
-  
-
-    const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
-
-      e.preventDefault();
-
-      if (!newMessage.trim() || !user || !sessionToken) return;
-
-  
-
-      // 1. Try WebSocket first (Real-time)
-
-      const sent = sendWsMessage(newMessage, {
-
-        sender_type: 'client',
-
-        project_id: selectedProjectId ? parseInt(selectedProjectId) : undefined
-
+    try {
+      const res = await fetch(`/api/portal/download?id=${docId}`, {
+        headers: {
+          Authorization: `Bearer ${sessionToken}`,
+        },
       });
 
-  
-
-      if (sent) {
-
-        setNewMessage('');
-
-        refreshMessages(); // Immediate local refresh
-
-        return;
-
-      }
-
-  
-
-          // 2. Fallback to API if socket disconnected
-
-  
-
-          try {
-
-  
-
-            await MixtureApiClient.post(
-
-  
-
-              '/api/portal/send_message',
-
-  
-
-              { content: newMessage, sender_type: 'client' },
-
-  
-
-              sessionToken,
-
-  
-
-            );
-
-        setNewMessage('');
-
-        refreshMessages();
-
-      } catch (e) {
-
-        console.error(e);
-
-      }
-
-    };
-
-  
-
-    const handleDownload = async (docId: string, fileName: string) => {
-
-      if (!sessionToken) return;
-
-      try {
-
-        const res = await fetch(`/api/portal/download?id=${docId}`, {
-
-          headers: {
-
-            Authorization: `Bearer ${sessionToken}`,
-
-          },
-
-        });
-
-        if (res.ok) {
+      if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

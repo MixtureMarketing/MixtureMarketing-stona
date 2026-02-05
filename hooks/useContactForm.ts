@@ -8,7 +8,11 @@ import { ContactType } from '../types';
 import { ContactFormData } from '../components/features/contact/types';
 import { isLocalhost } from '../utils/contactFormHelpers';
 
-export const useContactForm = (type: ContactType, onClose: () => void, turnstileToken: string | null) => {
+export const useContactForm = (
+  type: ContactType,
+  onClose: () => void,
+  turnstileToken: string | null,
+) => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
@@ -128,7 +132,6 @@ export const useContactForm = (type: ContactType, onClose: () => void, turnstile
       setSubmitError('Błąd wysyłania formularza.');
     }
   };
-
 
   const handleClose = () => {
     if (leadId && !isSubmitted) {

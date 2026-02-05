@@ -78,7 +78,18 @@ const AuditWizard: React.FC = () => {
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !result) return;
+
+    // Non-blocking lead creation
+    leadService
+      .createLead({
+        name: companyName || result.client.url,
+        email: email,
+        service_interest: 'audit',
+        website_verify: result.client.url,
+      })
+      .catch((err) => console.error('Failed to save audit lead:', err));
+
     setStep('RESULT');
   };
 

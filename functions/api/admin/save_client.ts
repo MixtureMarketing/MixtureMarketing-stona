@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: admin/save_client
- * Updates client user data.
  * Path: /api/admin/save_client
  */
 
@@ -17,13 +17,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     if (!id) return new Response('Missing Client ID', { status: 400 });
 
-    await env.DB.prepare(`
+    await env.DB.prepare(
+      `
       UPDATE users SET name = ?, company_name = ?, is_active = ?
       WHERE id = ?
-    `).bind(name, company_name, is_active ? 1 : 0, id).run();
+    `,
+    )
+      .bind(name, company_name, is_active ? 1 : 0, id)
+      .run();
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
-
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }

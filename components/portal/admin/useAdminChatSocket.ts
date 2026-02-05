@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Message } from '../types';
+import { useEffect, useRef, useCallback } from 'react';
 
 interface UseAdminChatSocketProps {
   activeUserId: string | null;
@@ -7,7 +6,11 @@ interface UseAdminChatSocketProps {
   onMessageReceived: () => void;
 }
 
-export const useAdminChatSocket = ({ activeUserId, sessionToken, onMessageReceived }: UseAdminChatSocketProps) => {
+export const useAdminChatSocket = ({
+  activeUserId,
+  sessionToken,
+  onMessageReceived,
+}: UseAdminChatSocketProps) => {
   const socketRef = useRef<WebSocket | null>(null);
 
   const connect = useCallback(() => {
@@ -34,18 +37,23 @@ export const useAdminChatSocket = ({ activeUserId, sessionToken, onMessageReceiv
     return () => socketRef.current?.close();
   }, [connect]);
 
-  const sendMessage = useCallback((content: string) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({
-        content,
-        user_id: activeUserId,
-        sender_type: 'admin',
-        created_at: new Date().toISOString()
-      }));
-      return true;
-    }
-    return false;
-  }, [activeUserId]);
+  const sendMessage = useCallback(
+    (content: string) => {
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        socketRef.current.send(
+          JSON.stringify({
+            content,
+            user_id: activeUserId,
+            sender_type: 'admin',
+            created_at: new Date().toISOString(),
+          }),
+        );
+        return true;
+      }
+      return false;
+    },
+    [activeUserId],
+  );
 
   return { sendMessage };
 };

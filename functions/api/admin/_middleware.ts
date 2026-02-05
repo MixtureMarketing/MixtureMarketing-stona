@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Middleware: Admin Auth
  * Only allows users with role 'admin' to access /api/admin/*
@@ -18,10 +19,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const token = authHeader.split(' ')[1];
 
   // Verify token and check for admin role
-  const user: any = await env.DB.prepare(`
+  const user: any = await env.DB.prepare(
+    `
     SELECT id, role FROM users 
     WHERE session_token = ? AND session_expires > datetime('now') AND is_active = 1
-  `).bind(token).first();
+  `,
+  )
+    .bind(token)
+    .first();
 
   if (!user || user.role !== 'admin') {
     return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403 });

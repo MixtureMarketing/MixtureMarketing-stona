@@ -66,10 +66,10 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
           ? `/api/admin/get_all_messages?user_id=${userId}&t=${timestamp}`
           : `/api/admin/get_all_messages?t=${timestamp}`;
 
-        const data = await MixtureApiClient.get<{ conversations: Conversation[]; messages: Message[] }>(
-          url,
-          sessionToken,
-        );
+        const data = await MixtureApiClient.get<{
+          conversations: Conversation[];
+          messages: Message[];
+        }>(url, sessionToken);
 
         setConversations((prev) =>
           JSON.stringify(prev) !== JSON.stringify(data.conversations) ? data.conversations : prev,
@@ -85,7 +85,6 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
     },
     [sessionToken],
   );
-
 
   // Use a single effect for general data polling
   useEffect(() => {

@@ -11,13 +11,13 @@ class MixtureApiClient {
   private static getBaseUrl(url: string): string {
     // If it's an absolute URL, return as is
     if (url.startsWith('http')) return url;
-    
+
     // Facilitate migration: strip .php and ensure /api prefix
     let cleanUrl = url.replace(/\.php$/, '');
-    
+
     // Ensure leading slash
     if (!cleanUrl.startsWith('/')) cleanUrl = '/' + cleanUrl;
-    
+
     return cleanUrl;
   }
 

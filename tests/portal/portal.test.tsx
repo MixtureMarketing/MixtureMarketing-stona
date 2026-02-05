@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -79,24 +80,30 @@ const renderPortal = () => {
 describe('Portal Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     const storageMock = (() => {
       let store: Record<string, string> = {};
       return {
         getItem: (key: string) => store[key] || null,
-        setItem: (key: string, value: string) => { store[key] = value.toString(); },
-        removeItem: (key: string) => { delete store[key]; },
-        clear: () => { store = {}; },
+        setItem: (key: string, value: string) => {
+          store[key] = value.toString();
+        },
+        removeItem: (key: string) => {
+          delete store[key];
+        },
+        clear: () => {
+          store = {};
+        },
         length: 0,
-        key: (i: number) => ''
+        key: (_i: number) => '',
       };
     })();
-    
+
     vi.stubGlobal('localStorage', storageMock);
-    
+
     localStorage.setItem('portal_user', JSON.stringify(mockUser));
     localStorage.setItem('portal_token', 'mock_token_123');
-    
+
     (MixtureApiClient.get as any).mockImplementation((url: string) => {
       if (url.includes('dashboard')) return Promise.resolve({ projects: mockProjects });
       if (url.includes('get_messages')) return Promise.resolve({ messages: mockMessages });
@@ -107,7 +114,7 @@ describe('Portal Integration Tests', () => {
 
   test('PortalLogin sends magic link request', async () => {
     localStorage.clear();
-    
+
     render(
       <NotificationProvider>
         <AuthProvider>
@@ -120,14 +127,14 @@ describe('Portal Integration Tests', () => {
 
     const input = screen.getByPlaceholderText(/np\. jan@/i);
     fireEvent.change(input, { target: { value: 'test@example.com' } });
-    
+
     const submitBtn = screen.getByText(/Wyślij Link Logowania/i);
     fireEvent.click(submitBtn);
 
     await waitFor(() => {
       expect(MixtureApiClient.post).toHaveBeenCalledWith(
         '/api/auth/send_magic_link',
-        expect.objectContaining({ email: 'test@example.com' })
+        expect.objectContaining({ email: 'test@example.com' }),
       );
     });
   });

@@ -45,7 +45,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
 };
 
 const ContactModalContent: React.FC<
-  ContactModalProps & { 
+  ContactModalProps & {
     additionalData: Record<string, unknown> | null;
     turnstileToken: string | null;
   }
@@ -60,8 +60,8 @@ const ContactModalContent: React.FC<
     prevStep,
     onSubmit,
     handleClose,
-  } = useContactForm(type, onClose, turnstileToken); 
- // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
+  } = useContactForm(type, onClose, turnstileToken);
+  // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
 
   const {
     formState: { errors, isSubmitting },

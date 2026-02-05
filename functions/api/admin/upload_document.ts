@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: admin/upload_document
  * Path: /api/admin/upload_document
@@ -30,17 +31,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 2. Upload to R2
     await env.FILES.put(r2Key, await file.arrayBuffer(), {
-      httpMetadata: { contentType: file.type }
+      httpMetadata: { contentType: file.type },
     });
 
     // 3. Save reference to D1
-    await env.DB.prepare(`
+    await env.DB.prepare(
+      `
       INSERT INTO documents (project_id, name, file_path, type, subtype)
       VALUES (?, ?, ?, ?, ?)
-    `).bind(project_id, name || file.name, r2Key, type || 'document', subtype || 'other').run();
+    `,
+    )
+      .bind(project_id, name || file.name, r2Key, type || 'document', subtype || 'other')
+      .run();
 
     return new Response(JSON.stringify({ status: 'success', key: r2Key }), { status: 200 });
-
   } catch (err: any) {
     return new Response(err.message, { status: 500 });
   }

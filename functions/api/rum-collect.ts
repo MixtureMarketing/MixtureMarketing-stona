@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: rum-collect
  * Path: /api/rum-collect
@@ -21,27 +22,30 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const userAgent = request.headers.get('user-agent') || 'Unknown';
     const isMobile = /android|iphone|ipad/i.test(userAgent);
     const deviceType = isMobile ? 'mobile' : 'desktop';
-    
+
     const parsedUrl = new URL(url || request.url);
     const path = parsedUrl.pathname;
 
     // Use waitUntil to avoid blocking the response
     context.waitUntil(
-      env.DB.prepare(`
+      env.DB.prepare(
+        `
         INSERT INTO performance_metrics (metric_name, metric_value, page_url, user_agent, device_type)
         VALUES (?, ?, ?, ?, ?)
-      `).bind(
-        name.substring(0, 10),
-        parseFloat(value),
-        path.substring(0, 255),
-        userAgent.substring(0, 255),
-        deviceType
-      ).run()
+      `,
+      )
+        .bind(
+          name.substring(0, 10),
+          parseFloat(value),
+          path.substring(0, 255),
+          userAgent.substring(0, 255),
+          deviceType,
+        )
+        .run(),
     );
 
     return new Response(null, { status: 201 });
-
-  } catch (err) {
+  } catch {
     // Fail silently for RUM
     return new Response(null, { status: 200 });
   }

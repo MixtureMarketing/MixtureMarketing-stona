@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Cloudflare Pages Function: send_magic_link
+ * Cloudflare Pages Function: auth/send_magic_link
  * Path: /api/auth/send_magic_link
  */
 
@@ -19,13 +20,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     }
 
     // 1. Check if user exists
-    const user = await env.DB.prepare('SELECT id, name FROM users WHERE email = ? AND is_active = 1')
+    const user = await env.DB.prepare(
+      'SELECT id, name FROM users WHERE email = ? AND is_active = 1',
+    )
       .bind(email)
       .first();
 
     if (!user) {
       // For security, don't reveal if user exists. Just return 200.
-      return new Response(JSON.stringify({ status: 'success', note: 'If user exists, link sent' }), { status: 200 });
+      return new Response(
+        JSON.stringify({ status: 'success', note: 'If user exists, link sent' }),
+        { status: 200 },
+      );
     }
 
     // 2. Generate Token
@@ -40,12 +46,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // 4. Send Email via Resend
     if (env.RESEND_API_KEY) {
       const loginUrl = `https://mixturemarketing.pl/portal/verify?token=${token}`;
-      
+
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           from: 'Mixture Marketing <portal@mixturemarketing.pl>',
@@ -57,13 +63,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             <a href="${loginUrl}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Zaloguj się</a>
             <p>Link jest ważny przez 1 godzinę.</p>
             <p>Jeśli to nie Ty prosiłeś o ten link, zignoruj tę wiadomość.</p>
-          `
-        })
+          `,
+        }),
       });
     }
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
-
   } catch (err: any) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
