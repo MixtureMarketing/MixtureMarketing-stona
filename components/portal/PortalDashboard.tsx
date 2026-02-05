@@ -23,6 +23,11 @@ const PortalDashboard: React.FC = () => {
   const { projects, messages, loadingProjects, error, refreshProjects, refreshMessages } =
     usePortalData();
 
+  // Profile Edit State
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState({ name: '', company_name: '' });
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
   // Detail View State
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const selectedProject = projects.find((p) => p.id === selectedProjectId);

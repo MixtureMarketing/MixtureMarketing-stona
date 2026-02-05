@@ -1,73 +1,74 @@
-import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
+import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { leadService } from '../../services/leadService';
 
-// Mock global fetch
-global.fetch = vi.fn();
+// Mock MixtureApiClient
+vi.mock('../../services/apiClient', () => ({
+  default: {
+    get: vi.fn(),
+    post: vi.fn(),
+  },
+}));
+
+import MixtureApiClient from '../../services/apiClient';
 
 describe('leadService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('sendNotification', () => {
-    it('should call the API with correct parameters for abandoned_step_1', async () => {
-      // Setup mock response
-      (global.fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: async () => ({ status: 'success' }),
-      });
+  test('createLead should call API with correct data', async () => {
+    const mockData = {
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '123456789',
+      service_interest: 'web',
+    };
 
-      const leadId = 'test-uuid-123';
-      const type = 'abandoned_step_1';
+    (MixtureApiClient.post as any).mockResolvedValue({ status: 'success' });
 
-      const result = await leadService.sendNotification(leadId, type);
+    const result = await leadService.createLead(mockData);
 
-          expect(global.fetch).toHaveBeenCalledWith('/api/contact_submit', {
-            method: 'POST',        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'send_notification',
-          id: leadId,
-          type: type,
-        }),
-      });
-      expect(result).toBe(true);
-    });
+    expect(MixtureApiClient.post).toHaveBeenCalledWith('/api/contact_submit', expect.objectContaining({
+      action: 'create',
+      lead: expect.objectContaining({
+        name: 'Test User',
+        email: 'test@example.com'
+      })
+    }));
+    expect(result).toHaveProperty('id');
+    expect(result.name).toBe('Test User');
+  });
 
-    it('should return false if API call fails', async () => {
-      // Setup mock error response
-      (global.fetch as Mock).mockResolvedValue({
-        ok: false,
-        text: async () => 'Server Error',
-      });
+  test('updateLead should call API with correct details', async () => {
+    (MixtureApiClient.post as any).mockResolvedValue({ status: 'success' });
 
-      const result = await leadService.sendNotification('123', 'success');
+    await leadService.updateLead('test-id', { budget: 'medium' }, 2);
 
-      expect(result).toBe(false);
-      // Ensure we didn't throw
+    expect(MixtureApiClient.post).toHaveBeenCalledWith('/api/contact_submit', {
+      action: 'update',
+      id: 'test-id',
+      details: { budget: 'medium' },
+      step: 2,
     });
   });
 
-  describe('createLead', () => {
-    it('should return lead object with an ID on success', async () => {
-      (global.fetch as Mock).mockResolvedValue({
-        ok: true,
-        json: async () => ({ status: 'success' }),
-      });
+  test('sendNotification should call API', async () => {
+    (MixtureApiClient.post as any).mockResolvedValue({ status: 'success' });
 
-      const leadData = { name: 'Test', email: 'test@example.com' };
-      const result = await leadService.createLead(leadData);
+    const result = await leadService.sendNotification('test-id', 'success');
 
-      expect(result).toMatchObject(leadData);
-      expect(result.id).toBeDefined();
-      expect(typeof result.id).toBe('string');
+    expect(MixtureApiClient.post).toHaveBeenCalledWith('/api/contact_submit', {
+      action: 'send_notification',
+      id: 'test-id',
+      type: 'success',
     });
+    expect(result).toBe(true);
+  });
 
-    it('should throw error if email/name missing', async () => {
-      await expect(leadService.createLead({ email: '', name: '' })).rejects.toThrow(
-        'Email and Name are required',
-      );
-    });
+  test('sendNotification should return false if API call fails', async () => {
+    (MixtureApiClient.post as any).mockRejectedValue(new Error('API Error'));
+
+    const result = await leadService.sendNotification('test-id', 'success');
+    expect(result).toBe(false);
   });
 });

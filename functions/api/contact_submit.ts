@@ -39,7 +39,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       // 1. CREATE LEAD
       if (currentAction === 'create') {
-        const { recaptcha_token, name, email, phone, service_interest } = lead;
+        const { id: leadId, recaptcha_token, name, email, phone, service_interest } = lead;
 
         // Verify Turnstile Token (Cloudflare)
         if (recaptcha_token) {
@@ -60,7 +60,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           INSERT INTO leads (id, name, email, phone, service_type, source_url, status)
           VALUES (?, ?, ?, ?, ?, ?, ?)
         `).bind(
-          id, name, email, phone || null, service_interest || 'contact', 
+          leadId, name, email, phone || null, service_interest || 'contact', 
           source_url || null, 'new'
         ).run();
 
@@ -71,6 +71,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
       // 2. UPDATE LEAD
       if (currentAction === 'update') {
+        const leadId = id;
+        if (!leadId) return new Response('Missing lead ID for update', { status: 400 });
+
         const { budget, message, website, package_name, ...otherDetails } = details || {};
         
         await env.DB.prepare(`
@@ -84,7 +87,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
           WHERE id = ?
         `).bind(
           budget || null, message || null, website || null, package_name || null,
-          JSON.stringify(otherDetails), step || 1, id
+          JSON.stringify(otherDetails), step || 1, leadId
         ).run();
 
         return new Response(JSON.stringify({ status: 'success' }), {

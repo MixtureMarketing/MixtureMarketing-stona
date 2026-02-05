@@ -62,7 +62,7 @@ export const useChatSocket = ({ userId, sessionToken, onMessageReceived }: UseCh
   }, [connect]);
 
   const sendMessage = useCallback((content: string, extraData: Partial<Message> = {}) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       const payload = {
         content,
         user_id: userId,
