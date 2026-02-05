@@ -1,77 +1,78 @@
-# Roadmap Optymalizacji i Czystości Kodu - Mixture Marketing
+# Roadmap Migracji do Cloudflare - Mixture Marketing
 
-Status: **Completed** (2026-02-05)
+Status: **Planning** (2026-02-05)
 
-## FAZA 1: Fundamenty (ZAKOŃCZONA)
-
-- [x] Zadania 1.1.1 - 1.1.6 (Atomy UI, Animacje, Skeleton, WindowControls)
-- [x] Zadania 1.2.1 - 1.2.4 (MixtureApiClient, FieldWrapper, PortalHelpers, Checkbox)
-
-## FAZA 2: Integracja Systemowa (ZAKOŃCZONA)
-
-- [x] **Zadanie 2.1.1: Wdrożenie <Container />** (Zastosowano w 50+ plikach, usunięto redundancję layoutu).
-- [x] **Zadanie 2.2.1: Migracja do <BaseCard />** (Zunifikowano cienie i zaokrąglenia w 20+ komponentach i wizualizacjach).
-- [x] **Zadanie 2.3.1: Refaktoryzacja PortalProjectDetails.tsx** (Wydzielono logikę osi czasu).
-- [x] **Zadanie 2.3.2: Refaktoryzacja AdminDashboard.tsx** (Wdrożono MixtureApiClient i hook useAdminActions.ts).
-- [x] **Zadanie 2.3.3: Optymalizacja Interwałów (JS Performance)** (Wdrożono hook useAnimationFrameInterval dla płynnych symulacji).
-
-## FAZA 3: Konsolidacja Bazy Wiedzy (ZAKOŃCZONA)
-
-- [x] **Zadanie 3.1.1: Globalna migracja do <BaseCta />** (Ujednolicono sekcje CTA na wszystkich stronach i w artykułach).
-- [x] **Zadanie 3.1.2: Migracja Tabel do <ArticleComparisonTable />** (Zunifikowano tabele porównawcze).
-- [x] **Zadanie 3.1.3: Batchowe wydzielenie wizualizacji inline** (Wizualizacje przeniesione do osobnych plików).
-- [x] **Zadanie 3.2.1: Refaktoryzacja KnowledgeBase.tsx** (Wydzielono hook useKnowledgeSearch).
-- [x] **Zadanie 3.2.2: Refaktoryzacja PortfolioPage.tsx** (Wydzielono PortfolioGrid).
-- [x] **Zadanie 3.3.1: Migracja meta-danych artykułów do Sanity** (Metadane scentralizowane w cmsService, ARTICLES usunięte).
-
-## FAZA 4: Performance & Bundle Size (ZAKOŃCZONA)
-
-- [x] **Zadanie 4.1.1: Dynamic Import dla PDF Service** (Lazy load jspdf).
-- [x] **Zadanie 4.1.2: Skryptowy audyt nieużywanych grafik** (Przeprowadzono analizę, wykryto 65 plików do weryfikacji).
-- [x] **Zadanie 4.1.3: Redukcja Framer Motion** (Zastąpiono motion.div przez native CSS/AnimateOnScroll).
-
-## FAZA 5: Hardening (ZAKOŃCZONA)
-
-- [x] **Zadanie 5.1.1: Eliminacja "any"** (Poprawiono typowanie w cmsService i tabelach).
-- [x] **Zadanie 5.1.2: Stworzenie uniwersalnego interfejsu BusinessEntity** (Skonsolidowano typy Lead/Project/Client).
-
-## FAZA 6: Głęboka Analiza SEO i Weryfikacja Techniczna (ZAKOŃCZONA)
-
-### Moduł 6.1: Techniczne SEO (Crawling & Indexing)
-- [x] **Analiza `robots.txt`**: ✅ Poprawny.
-- [x] **Analiza `sitemap.xml`**: ⚠️ Brak projektów (portfolio) w mapie witryny.
-- [x] **Weryfikacja SSG (`prerender.js`)**: ✅ Poprawny.
-- [x] **Canonical URLs**: ✅ Logika poprawna.
-
-### Moduł 6.2: Dane Strukturalne (Schema.org / JSON-LD)
-- [x] **Audyt `LocalBusiness`**: ❌ Błąd krytyczny (Placeholdery).
-- [x] **Audyt `Organization`**: ⚠️ Brak linków `sameAs` i globalnego schematu.
-- [x] **Audyt `Article`**: ✅ Poprawny.
-
-### Moduł 6.3: On-Page SEO & Content Structure
-- [x] **Meta Tagi**: ✅ Poprawne (tytuły, opisy, lcpImage).
-- [x] **Struktura Nagłówków**: ✅ Poprawne H1 (nawet z TextReveal).
-- [x] **Obrazy**: ✅ Komponent `Image` wymusza alty i generuje `<picture>`.
-
-### Moduł 6.4: Social Media (Open Graph)
-- [x] **Weryfikacja `og:image`**: ⚠️ Fallback to sygnet (zbyt mały). Wymagana zmiana na dedykowany baner.
-
-### Moduł 6.5: Audyt Skryptów Weryfikujących
-- [x] **Analiza `audit-seo.js`**: ⚠️ Skanuje tylko trasy statyczne, pomija dynamiczne.
-
-## FAZA 7: Działania Naprawcze (ZAKOŃCZONA)
-
-- [x] **Zadanie 7.1: Naprawa Mapy Witryny** (Case Studies dodane do sitemap.xml).
-- [x] **Zadanie 7.2: Naprawa Schema.org** (LocalBusiness zasilany z SITE_CONFIG, usunięto placeholdery).
-- [x] **Zadanie 7.3: Ulepszenie Social Media Preview** (Wdrożono og-main.png jako domyślny og:image).
-- [x] **Zadanie 7.4: Rozszerzenie Audytu SEO** (Skrypt skanuje teraz rekurencyjnie cały katalog dist/).
-
-## FAZA 8: Ulepszenia Dodatkowe (ZAKOŃCZONA)
-
-- [x] **CMS Author Schema**: Pobieranie autora i daty aktualizacji (`_updatedAt`) z Sanity do Schema Article.
-- [x] **Asset Check**: Dodano `og-main.png` (placeholder) do `public/assets/images/`.
+## Cel Strategiczny
+Przeniesienie całej infrastruktury z hostingu współdzielonego (Apache/PHP/MySQL) na nowoczesny stack Serverless (Cloudflare Pages, Workers, D1).
+**Korzyści:** Globalny CDN (TTFB < 50ms), brak kosztów utrzymania serwera, skalowalność, bezpieczeństwo (DDoS), spójność stacku (Full-Stack TypeScript).
 
 ---
 
-**Projekt Mixture Marketing jest gotowy do deploymentu produkcyjnego.**
-Wszystkie krytyczne audyty SEO, Performance i Accessibility zostały zaadresowane.
+## FAZA 1: Frontend & Routing (Cloudflare Pages)
+
+Celem tej fazy jest uruchomienie strony statycznej (SSG) na infrastrukturze Cloudflare.
+
+- [ ] **Konfiguracja Cloudflare Pages**:
+    - [ ] Połączenie repozytorium GitHub z Cloudflare Pages.
+    - [ ] Ustawienie komendy buildu: `npm run build`.
+    - [ ] Ustawienie katalogu wyjściowego: `dist`.
+- [ ] **Konfiguracja Routingu (SPA/SSG)**:
+    - [ ] Utworzenie pliku `public/_redirects` (dla Cloudflare) obsługującego routing SPA (fallback do index.html dla ścieżek klienckich, jeśli SSG nie pokrywa wszystkiego).
+    - [ ] Weryfikacja nagłówków Cache-Control dla zasobów statycznych (assets, images).
+- [ ] **Weryfikacja Domeny**:
+    - [ ] Przeniesienie DNS domeny `mixturemarketing.pl` do Cloudflare (opcjonalne, ale zalecane dla pełni funkcji).
+    - [ ] Konfiguracja rekordów DNS (CNAME/A) na Pages.
+
+## FAZA 2: Backend & API (Cloudflare Workers)
+
+Celem tej fazy jest zastąpienie skryptów PHP (`send_mail.php`, `config.php`) nowoczesnymi funkcjami Serverless w TypeScript.
+
+- [ ] **Inicjalizacja Wrangler**:
+    - [ ] Konfiguracja `wrangler.toml` w projekcie (narzędzie CLI Cloudflare).
+    - [ ] Utworzenie katalogu `functions/` (dla Cloudflare Pages Functions) lub osobnego Workera. *Rekomendacja: Pages Functions dla prostoty (katalog `functions/api/`).*
+- [ ] **Migracja Wysyłki Maili (Zastąpienie PHPMailer)**:
+    - [ ] Wybór dostawcy API mailowego (Resend, Mailgun, lub SendGrid). *Rekomendacja: Resend (darmowy tier, proste API).*
+    - [ ] Stworzenie funkcji `functions/api/send-email.ts`:
+        - [ ] Walidacja danych (Zod).
+        - [ ] Weryfikacja Google ReCaptcha (po stronie serwera!).
+        - [ ] Wysyłka maila przez `fetch` do API dostawcy.
+- [ ] **Obsługa Zmiennych Środowiskowych**:
+    - [ ] Dodanie sekretów do Cloudflare (API Keys, ReCaptcha Secret) zamiast plików `.env` na serwerze.
+
+## FAZA 3: Baza Danych (Cloudflare D1 / Sanity)
+
+Celem tej fazy jest uniezależnienie się od MySQL na hostingu współdzielonym. Mamy dwie ścieżki:
+
+### Ścieżka A: Cloudflare D1 (SQLite on Edge) - *Rekomendowana*
+- [ ] **Konfiguracja D1**:
+    - [ ] Utworzenie bazy danych D1 w panelu Cloudflare.
+    - [ ] Zdefiniowanie schematu tabeli `leads` (id, email, type, status, created_at).
+- [ ] **Backend (API)**:
+    - [ ] Aktualizacja `functions/api/send-email.ts` o zapis leada do bazy D1 przed wysyłką maila.
+- [ ] **Migracja Danych (Opcjonalna)**:
+    - [ ] Eksport starych leadów z MySQL i import do D1 (jeśli konieczne).
+
+### Ścieżka B: Sanity jako Baza Danych (Headless CMS)
+- [ ] Zamiast D1, zapisywanie leadów bezpośrednio w Sanity jako dokumenty typu `lead`.
+- [ ] Wymaga stworzenia tokena API z uprawnieniami do zapisu.
+
+## FAZA 4: Cleanup & Switch (Wdrożenie)
+
+- [ ] **Refaktoryzacja Frontendu**:
+    - [ ] Aktualizacja `apiClient.ts` i `leadService.ts` – zmiana endpointów z `.php` na `/api/...`.
+    - [ ] Usunięcie folderu `public/api/` (stary backend PHP).
+- [ ] **Testy E2E**:
+    - [ ] Przetestowanie pełnego przepływu: Formularz -> ReCaptcha -> Worker -> Zapis D1 -> Wysyłka Maila.
+- [ ] **Przepięcie Domeny**:
+    - [ ] Zmiana rekordów DNS na produkcję Cloudflare.
+- [ ] **Wyłączenie starego hostingu**:
+    - [ ] Wypowiedzenie umowy hostingu współdzielonego.
+
+---
+
+## Notatki Techniczne
+*   **Wymagane Sekrety (Cloudflare Dashboard):**
+    *   `RESEND_API_KEY` (do maili)
+    *   `RECAPTCHA_SECRET_KEY` (do weryfikacji)
+    *   `SANITY_API_TOKEN` (jeśli używamy Sanity do zapisu)
+*   **Kompatybilność:** Cloudflare Workers używają standardu `fetch` i `Web Standards`, więc kod jest bardzo zbliżony do nowoczesnego JS w przeglądarce. Nie ma dostępu do `fs` (system plików) ani natywnych modułów Node.js (ale można używać polyfili lub API D1).
