@@ -22,7 +22,7 @@ export const useProjectActions = (refreshProjects: () => void) => {
 
     try {
       await MixtureApiClient.post(
-        '/api/portal/update_milestone.php',
+        '/api/portal/update_milestone',
         {
           id: milestoneId,
           status,

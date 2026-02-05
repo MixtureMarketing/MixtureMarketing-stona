@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = useCallback(async (email: string) => {
     try {
-      await MixtureApiClient.post('/api/auth/send_magic_link.php', { email });
+      await MixtureApiClient.post('/api/auth/send_magic_link', { email });
       return true;
     } catch (e) {
       console.error(e);
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const verifyToken = useCallback(async (token: string) => {
     try {
       const data = await MixtureApiClient.post<{ user: User; session_token: string }>(
-        '/api/auth/verify_token.php',
+        '/api/auth/verify_token',
         { token },
       );
 

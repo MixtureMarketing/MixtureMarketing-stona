@@ -81,7 +81,7 @@ const PriceCalculator: React.FC = () => {
       formData.append('data', JSON.stringify({ selections, result }));
 
       // 4. Send to Backend
-      await MixtureApiClient.post('/api/calculator_submit.php', formData);
+      await MixtureApiClient.post('/api/calculator_submit', formData);
 
       setIsSuccess(true);
       showNotification('Oferta została wysłana na Twój e-mail!', 'success');

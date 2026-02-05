@@ -34,7 +34,7 @@ function generateUUID() {
   });
 }
 
-const API_URL = '/api/contact_submit.php';
+const API_URL = '/api/contact_submit';
 
 export const leadService = {
   /**

@@ -1,6 +1,6 @@
 import MixtureApiClient from './apiClient';
 
-const API_URL = '/api/audit/run_audit.php';
+const API_URL = '/api/audit/run_audit';
 
 export interface AuditResult {
   client: {

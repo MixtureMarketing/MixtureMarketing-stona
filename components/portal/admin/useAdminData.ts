@@ -17,7 +17,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
     if (!sessionToken) return;
     try {
       const data = await MixtureApiClient.get<{ leads: Lead[] }>(
-        `/api/admin/get_leads.php?t=${Date.now()}`,
+        `/api/admin/get_leads?t=${Date.now()}`,
         sessionToken,
       );
       setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(data.leads) ? data.leads : prev));
@@ -30,7 +30,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
     if (!sessionToken) return;
     try {
       const data = await MixtureApiClient.get<PerformanceData>(
-        `/api/admin/get_performance_stats.php?t=${Date.now()}`,
+        `/api/admin/get_performance_stats?t=${Date.now()}`,
         sessionToken,
       );
       setMetricsData(data);
@@ -43,7 +43,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
     if (!sessionToken) return;
     try {
       const data = await MixtureApiClient.get<{ clients: Client[]; projects: Project[] }>(
-        `/api/admin/get_all_data.php?t=${Date.now()}`,
+        `/api/admin/get_all_data?t=${Date.now()}`,
         sessionToken,
       );
       setClients((prev) =>
@@ -63,8 +63,8 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
       try {
         const timestamp = Date.now();
         const url = userId
-          ? `/api/admin/get_all_messages.php?user_id=${userId}&t=${timestamp}`
-          : `/api/admin/get_all_messages.php?t=${timestamp}`;
+          ? `/api/admin/get_all_messages?user_id=${userId}&t=${timestamp}`
+          : `/api/admin/get_all_messages?t=${timestamp}`;
 
         const data = await MixtureApiClient.get<{ conversations: Conversation[]; messages: Message[] }>(
           url,

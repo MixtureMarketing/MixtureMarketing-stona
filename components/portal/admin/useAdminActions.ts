@@ -24,7 +24,7 @@ export const useAdminActions = ({
     if (!userId || !content.trim() || !sessionToken) return false;
     try {
       await MixtureApiClient.post(
-        '/api/admin/admin_reply_chat.php',
+        '/api/admin/admin_reply_chat',
         { user_id: userId, content },
         sessionToken,
       );
@@ -64,7 +64,7 @@ export const useAdminActions = ({
   const handleDeleteDoc = async (id: string) => {
     if (!sessionToken || !confirm('Czy na pewno usunąć ten dokument?')) return;
     try {
-      await MixtureApiClient.post('/api/admin/delete_document.php', { id }, sessionToken);
+      await MixtureApiClient.post('/api/admin/delete_document', { id }, sessionToken);
       refreshData();
       showNotification('Dokument usunięty.', 'success');
     } catch (e) {
@@ -82,7 +82,7 @@ export const useAdminActions = ({
     });
 
     try {
-      await MixtureApiClient.post('/api/admin/upload_document.php', formData, sessionToken);
+      await MixtureApiClient.post('/api/admin/upload_document', formData, sessionToken);
       showNotification('Plik wgrany pomyślnie.', 'success');
       refreshData();
       return true;
@@ -100,7 +100,7 @@ export const useAdminActions = ({
     if (!milestone || !sessionToken) return false;
     setIsSavingMilestone(true);
     try {
-      await MixtureApiClient.post('/api/admin/save_milestone.php', milestone, sessionToken);
+      await MixtureApiClient.post('/api/admin/save_milestone', milestone, sessionToken);
       showNotification('Kamień milowy zapisany.', 'success');
       refreshData();
       return true;
@@ -116,7 +116,7 @@ export const useAdminActions = ({
   const handleConvertLead = async (leadId: string) => {
     if (!sessionToken || !confirm('Utworzyć konto klienta?')) return;
     try {
-      await MixtureApiClient.post('/api/admin/convert_lead.php', { lead_id: leadId }, sessionToken);
+      await MixtureApiClient.post('/api/admin/convert_lead', { lead_id: leadId }, sessionToken);
       showNotification('Lead skonwertowany!', 'success');
       refreshLeads();
       refreshData();
@@ -130,7 +130,7 @@ export const useAdminActions = ({
     if (!lead || !message.trim() || !sessionToken) return false;
     try {
       await MixtureApiClient.post(
-        '/api/admin/reply_lead.php',
+        '/api/admin/reply_lead',
         {
           lead_id: lead.id,
           email: lead.email,
@@ -150,7 +150,7 @@ export const useAdminActions = ({
 
   const handleSaveItem = async (activeTab: string, item: Partial<Client & Project>) => {
     if (!sessionToken) return false;
-    const endpoint = activeTab === 'clients' ? 'save_client.php' : 'save_project.php';
+    const endpoint = activeTab === 'clients' ? 'save_client' : 'save_project';
     try {
       await MixtureApiClient.post(`/api/admin/${endpoint}`, item, sessionToken);
       refreshData();

@@ -61,7 +61,7 @@ describe('Portal Integration Tests', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/auth/send_magic_link.php',
+        '/api/auth/send_magic_link',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ email: 'test@example.com' }),
@@ -82,7 +82,7 @@ describe('Portal Integration Tests', () => {
 
     // Mock API responses
     (global.fetch as Mock).mockImplementation((url: string) => {
-      if (url.includes('dashboard.php')) {
+      if (url.includes('dashboard')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({
@@ -98,7 +98,7 @@ describe('Portal Integration Tests', () => {
           }),
         });
       }
-      if (url.includes('get_messages.php')) {
+      if (url.includes('get_messages')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({ messages: [] }),
@@ -129,13 +129,13 @@ describe('Portal Integration Tests', () => {
     localStorage.setItem('portal_token', 'mock_token_123');
 
     (global.fetch as Mock).mockImplementation((url: string) => {
-      if (url.includes('dashboard.php') || url.includes('get_messages.php')) {
+      if (url.includes('dashboard') || url.includes('get_messages')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({ projects: [], messages: [] }),
         });
       }
-      if (url.includes('send_message.php')) {
+      if (url.includes('send_message')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({ message: 'Sent' }),
@@ -164,7 +164,7 @@ describe('Portal Integration Tests', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/portal/send_message.php',
+        expect.stringContaining('/api/portal/send_message'),
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({

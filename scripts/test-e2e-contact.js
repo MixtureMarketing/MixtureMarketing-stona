@@ -39,21 +39,14 @@ async function runTest() {
 
     // 1.5 Mock API requests since preview server doesn't run PHP
     await page.setRequestInterception(true);
-    page.on('request', (request) => {
-      if (request.url().includes('/api/contact_submit.php')) {
-        console.log(`💉 Mocking API request: ${request.method()} ${request.url()}`);
-        request.respond({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            success: true,
-            lead: { id: 'test-uuid-123' },
-            message: 'Mocked Success',
-          }),
-        });
-      } else {
-        request.continue();
-      }
+    await page.route('**/api/contact_submit', (route) => {
+      const postData = route.request().postData();
+      console.log('Intercepted API call:', postData);
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ status: 'success' }),
+      });
     });
 
     // Set viewport to desktop

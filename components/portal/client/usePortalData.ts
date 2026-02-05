@@ -14,7 +14,7 @@ export const usePortalData = () => {
     if (!sessionToken) return;
     try {
       const data = await MixtureApiClient.get<{ projects: Project[] }>(
-        `/api/portal/dashboard.php?t=${Date.now()}`,
+        `/api/portal/dashboard?t=${Date.now()}`,
         sessionToken,
       );
       setProjects(data.projects || []);
@@ -30,7 +30,7 @@ export const usePortalData = () => {
     if (!sessionToken) return;
     try {
       const data = await MixtureApiClient.get<{ messages: Message[] }>(
-        `/api/portal/get_messages.php?t=${Date.now()}`,
+        `/api/portal/get_messages?t=${Date.now()}`,
         sessionToken,
       );
       

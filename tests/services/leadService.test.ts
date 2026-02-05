@@ -22,9 +22,8 @@ describe('leadService', () => {
 
       const result = await leadService.sendNotification(leadId, type);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/contact_submit.php', {
-        method: 'POST',
-        headers: {
+          expect(global.fetch).toHaveBeenCalledWith('/api/contact_submit', {
+            method: 'POST',        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

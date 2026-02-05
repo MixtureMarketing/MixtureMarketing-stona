@@ -85,17 +85,27 @@ const PortalDashboard: React.FC = () => {
 
   
 
-      try {
+          try {
 
-        const data = await MixtureApiClient.post<{ user: any }>(
+  
 
-          '/api/portal/update_profile.php',
+            const data = await MixtureApiClient.post<{ user: any }>(
 
-          profileData,
+  
 
-          sessionToken,
+              '/api/portal/update_profile',
 
-        );
+  
+
+              profileData,
+
+  
+
+              sessionToken,
+
+  
+
+            );
 
         updateUser(data.user);
 
@@ -149,19 +159,31 @@ const PortalDashboard: React.FC = () => {
 
   
 
-      // 2. Fallback to API if socket disconnected
+          // 2. Fallback to API if socket disconnected
 
-      try {
+  
 
-        await MixtureApiClient.post(
+          try {
 
-          '/api/portal/send_message.php',
+  
 
-          { content: newMessage, sender_type: 'client' },
+            await MixtureApiClient.post(
 
-          sessionToken,
+  
 
-        );
+              '/api/portal/send_message',
+
+  
+
+              { content: newMessage, sender_type: 'client' },
+
+  
+
+              sessionToken,
+
+  
+
+            );
 
         setNewMessage('');
 
