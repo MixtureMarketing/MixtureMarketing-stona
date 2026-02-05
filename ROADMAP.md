@@ -63,10 +63,11 @@ Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal 
 - [x] **Refaktoryzacja `AuthContext.tsx`**: Logika logowania na tokeny D1.
 - [x] **Integracja WebSocket w Portalu**: Połączenie `PortalChat` z Durable Objects.
 
-## FAZA 4: Cleanup & Switch (W TOKU)
+## FAZA 4: Cleanup & Switch (ZAKOŃCZONA)
 
 - [x] **Usuwanie PHP**: Kasacja folderu `public/api` i legacy plików.
-- [ ] **Weryfikacja Preview**: Testy na linku z Cloudflare.
+- [x] **Naprawa Routingu Assets**: Wdrożenie bezwzględnych ścieżek i poprawka `_redirects`.
+- [x] **Aktualizacja apiClient.ts**: Pełna eliminacja końcówek `.php`.
 - [ ] **Weryfikacja Domeny**: DNS na Cloudflare.
 - [ ] **Finalne Testy E2E**: Pełny audyt sprawności portalu i formularzy.
 

@@ -35,7 +35,7 @@ class MixtureApiClient {
     }
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(finalUrl, {
         headers: { ...defaultHeaders, ...headers },
         ...rest,
       });
@@ -53,7 +53,7 @@ class MixtureApiClient {
       // Return JSON for all successful requests
       return (await response.json()) as T;
     } catch (error) {
-      console.error(`[ApiClient] Error fetching ${url}:`, error);
+      console.error(`[ApiClient] Error fetching ${finalUrl}:`, error);
       throw error;
     }
   }

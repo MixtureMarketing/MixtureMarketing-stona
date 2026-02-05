@@ -75,81 +75,125 @@ const PortalDashboard: React.FC = () => {
     };
   }, [messages]);
 
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!sessionToken) return;
-    setIsUpdatingProfile(true);
+    const handleUpdateProfile = async (e: React.FormEvent) => {
 
-    try {
-      const res = await fetch('/api/portal/update_profile.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
-        body: JSON.stringify(profileData),
-      });
+      e.preventDefault();
 
-      if (res.ok) {
-        const data = await res.json();
+      if (!sessionToken) return;
+
+      setIsUpdatingProfile(true);
+
+  
+
+      try {
+
+        const data = await MixtureApiClient.post<{ user: any }>(
+
+          '/api/portal/update_profile.php',
+
+          profileData,
+
+          sessionToken,
+
+        );
+
         updateUser(data.user);
+
         showNotification('Profil zaktualizowany!', 'success');
+
         setIsProfileModalOpen(false);
+
+      } catch (e) {
+
+        console.error(e);
+
+      } finally {
+
+        setIsUpdatingProfile(false);
+
       }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsUpdatingProfile(false);
-    }
-  };
 
-  const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !user || !sessionToken) return;
+    };
 
-    // 1. Try WebSocket first (Real-time)
-    const sent = sendWsMessage(newMessage, {
-      sender_type: 'client',
-      project_id: selectedProjectId ? parseInt(selectedProjectId) : undefined
-    });
+  
 
-    if (sent) {
-      setNewMessage('');
-      refreshMessages(); // Immediate local refresh
-      return;
-    }
+    const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
 
-    // 2. Fallback to API if socket disconnected
-    try {
-      const res = await fetch('/api/portal/send_message.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-        body: JSON.stringify({ content: newMessage, sender_type: 'client' }),
+      e.preventDefault();
+
+      if (!newMessage.trim() || !user || !sessionToken) return;
+
+  
+
+      // 1. Try WebSocket first (Real-time)
+
+      const sent = sendWsMessage(newMessage, {
+
+        sender_type: 'client',
+
+        project_id: selectedProjectId ? parseInt(selectedProjectId) : undefined
+
       });
 
-      if (res.ok) {
+  
+
+      if (sent) {
+
         setNewMessage('');
-        refreshMessages();
+
+        refreshMessages(); // Immediate local refresh
+
+        return;
+
       }
-    } catch (e) {
-      console.error(e);
-    }
-  };
-  const handleDownload = async (docId: string, fileName: string) => {
-    if (!sessionToken) return;
-    try {
-      const res = await fetch(`/api/portal/download.php?id=${docId}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
-      if (res.ok) {
+
+  
+
+      // 2. Fallback to API if socket disconnected
+
+      try {
+
+        await MixtureApiClient.post(
+
+          '/api/portal/send_message.php',
+
+          { content: newMessage, sender_type: 'client' },
+
+          sessionToken,
+
+        );
+
+        setNewMessage('');
+
+        refreshMessages();
+
+      } catch (e) {
+
+        console.error(e);
+
+      }
+
+    };
+
+  
+
+    const handleDownload = async (docId: string, fileName: string) => {
+
+      if (!sessionToken) return;
+
+      try {
+
+        const res = await fetch(`/api/portal/download?id=${docId}`, {
+
+          headers: {
+
+            Authorization: `Bearer ${sessionToken}`,
+
+          },
+
+        });
+
+        if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
