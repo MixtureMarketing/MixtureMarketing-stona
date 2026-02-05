@@ -65,7 +65,7 @@ jobs:
           retention-days: 7
 
       - name: 🚀 Deploy to Cloudflare Pages
-        if: success() && github.ref == 'refs/heads/main'
+        if: success() && github.ref == 'refs/heads/cloudflare-migration'
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -73,4 +73,4 @@ jobs:
           projectName: mixture-marketing
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          branch: cloudflare-migration
