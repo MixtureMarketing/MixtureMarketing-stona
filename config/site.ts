@@ -19,7 +19,7 @@ export const SITE_CONFIG = {
       countryCode: 'PL',
     },
     vatID: 'PL5170435774',
-    turnstileSiteKey: '0x4AAAAAAA-TWOJ-SITE-KEY', // Replace with your actual Cloudflare Turnstile Site Key
+    turnstileSiteKey: '0x4AAAAAACYHLgkgk3FJUj06', // Replace with your actual Cloudflare Turnstile Site Key
   },
   social: {
     facebook: 'https://www.facebook.com/MixtureMarketing',
