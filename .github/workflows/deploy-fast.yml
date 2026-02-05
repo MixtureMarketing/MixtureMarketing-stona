@@ -31,7 +31,7 @@ jobs:
       - name: 🏗️ Build Project
         # Skip lint, test, audit, size-limit for speed. Just pure build.
         env:
-          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID || 'azuef2ua' }}
           VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
         run: |

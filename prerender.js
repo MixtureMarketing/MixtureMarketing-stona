@@ -76,11 +76,18 @@ async function processRoute(browser, critters, route) {
 
     // Error detection
     const bodyText = await page.evaluate(() => document.body.innerText);
+    if (bodyText.length < 10) {
+      throw new Error(`Empty render on ${route}`);
+    }
     if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
       throw new Error(`React Error Boundary triggered on ${route}`);
     }
 
     let html = await page.content();
+    
+    // Ensure absolute paths for assets (Double check)
+    html = html.replace(/(src|href)="assets\//g, '$1="/assets/');
+    
     try {
       html = await critters.process(html);
     } catch (crittersError) {

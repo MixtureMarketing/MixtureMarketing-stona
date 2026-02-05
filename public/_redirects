@@ -1,1 +1,4 @@
-/*  /index.html  200
+# SPA Routing: Fallback to index.html for all non-file requests
+/assets/*  /assets/:splat  200
+/api/*     /api/:splat     200
+/*         /index.html     200

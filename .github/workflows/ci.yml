@@ -29,14 +29,6 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: 🐘 Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-
-      - name: 🧪 PHP Syntax Check (Lint)
-        run: find public/api -name "*.php" -exec php -l {} \;
-
       - name: ⚙️ Configure NPM
         run: echo "legacy-peer-deps=true" > .npmrc
 

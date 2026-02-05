@@ -35,7 +35,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
       {isOpen && (
         <div className="hidden">
           <Turnstile
-            siteKey={SITE_CONFIG.contact.recaptchaSiteKey} // We reuse the key name for now, but you should update it in site.ts
+            siteKey={SITE_CONFIG.contact.turnstileSiteKey}
             onSuccess={(token) => setTurnstileToken(token)}
           />
         </div>

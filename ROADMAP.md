@@ -65,7 +65,21 @@ Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal 
 
 ## FAZA 4: Cleanup & Switch (W TOKU)
 
+- [x] **Usuwanie PHP**: Kasacja folderu `public/api` i legacy plików.
 - [ ] **Weryfikacja Preview**: Testy na linku z Cloudflare.
 - [ ] **Weryfikacja Domeny**: DNS na Cloudflare.
-- [ ] **Usuwanie PHP**: Kasacja folderu `public/api`.
 - [ ] **Finalne Testy E2E**: Pełny audyt sprawności portalu i formularzy.
+
+## FAZA 5: Visual Automation & AI (PLANOWANA)
+
+Cel: Wykorzystanie zaawansowanych możliwości Cloudflare do przewagi rynkowej.
+
+- [ ] **Automatyzacja Wizualna (Browser Rendering API)**:
+    - [ ] Generowanie realnych screenshotów stron klientów w Audycie 360.
+    - [ ] Skanowanie stron renderowanych w JavaScript (SPA).
+    - [ ] Automatyczne generowanie grafik OG (Open Graph) dla bloga.
+- [ ] **Inteligentna Analiza (Workers AI)**:
+    - [ ] Generowanie tekstowych podsumowań audytów przez LLM (np. Llama 3).
+    - [ ] Klasyfikacja leadów na podstawie treści wiadomości.
+- [ ] **Wyszukiwarka Semantyczna (Vectorize)**:
+    - [ ] Wdrożenie wyszukiwania opartego na znaczeniu (nie tylko słowach kluczowych) w Bazie Wiedzy.
