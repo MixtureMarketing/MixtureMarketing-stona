@@ -16,6 +16,8 @@
     "audit:a11y": "node scripts/audit-a11y.js",
     "audit:seo": "node scripts/audit-seo.js",
     "audit:health": "node scripts/audit-health.js",
+    "audit:cms": "node scripts/validate-cms.js",
+    "audit:sitemap": "node scripts/validate-sitemap.js",
     "audit:perf": "node scripts/audit-performance.js",
     "preview": "vite preview",
     "test": "vitest",

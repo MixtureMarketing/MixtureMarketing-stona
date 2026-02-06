@@ -2,23 +2,12 @@ import React, { useEffect, useRef } from 'react';
 
 const CursorGlow: React.FC = () => {
   const glowRef = useRef<HTMLDivElement>(null);
-  const isMobileRef = useRef(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      isMobileRef.current = window.innerWidth < 768;
-      if (glowRef.current) {
-        glowRef.current.style.display = isMobileRef.current ? 'none' : 'block';
-      }
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
     let rafId: number;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (isMobileRef.current || !glowRef.current) return;
+      if (!glowRef.current) return;
 
       if (rafId) cancelAnimationFrame(rafId);
 
@@ -43,7 +32,6 @@ const CursorGlow: React.FC = () => {
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', checkMobile);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
@@ -51,7 +39,7 @@ const CursorGlow: React.FC = () => {
   return (
     <div
       ref={glowRef}
-      className="pointer-events-none fixed inset-0 z-[100] transition-opacity duration-500 cursor-glow"
+      className="pointer-events-none fixed inset-0 z-[100] transition-opacity duration-500 cursor-glow hidden md:block"
       style={{
         background: `radial-gradient(600px at var(--cursor-x, -1000px) var(--cursor-y, -1000px), rgba(97, 182, 222, 0.08), transparent 80%)`,
       }}

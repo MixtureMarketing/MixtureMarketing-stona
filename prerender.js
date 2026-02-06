@@ -17,7 +17,7 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const PORT = 4173;
-const MAX_CONCURRENCY = 2; // Render 2 pages in parallel
+const MAX_CONCURRENCY = 10; // Render 10 pages in parallel for faster SSG
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
@@ -60,7 +60,17 @@ async function processRoute(browser, critters, route) {
     // Optimization: Intercept and abort unnecessary requests
     await page.setRequestInterception(true);
     page.on('request', (req) => {
-      if (['image', 'media', 'font'].includes(req.resourceType())) {
+      const resourceType = req.resourceType();
+      const url = req.url();
+
+      // Block images, media, fonts and common tracking scripts
+      if (
+        ['image', 'media', 'font'].includes(resourceType) ||
+        url.includes('google-analytics') ||
+        url.includes('facebook.com') ||
+        url.includes('googletagmanager.com') ||
+        url.includes('hotjar.com')
+      ) {
         req.abort();
       } else {
         req.continue();
@@ -145,7 +155,8 @@ async function prerender() {
       inlineFonts: true,
       preloadFonts: true,
       preload: 'swap',
-      reduceInlineStyles: true,
+      reduceInlineStyles: true, // Optimization: Remove duplicate styles
+      pruneSource: false, // Don't remove the original stylesheet
     });
 
     // 5. Process Routes in Batches (Parallel)

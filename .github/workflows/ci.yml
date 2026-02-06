@@ -35,14 +35,47 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: 📂 Cache Optimized Images
+        uses: actions/cache@v4
+        with:
+          path: public/assets/images/*.{webp,avif}
+          key: ${{ runner.os }}-images-${{ hashFiles('public/assets/images/*.{png,jpg,jpeg}') }}
+          restore-keys: |
+            ${{ runner.os }}-images-
+
+      - name: 📂 Cache Puppeteer Browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-puppeteer-
+
+      - name: 📂 Cache Vite
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.vite
+          key: ${{ runner.os }}-vite-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vite-
+
       - name: ⚙️ Configure NPM
         run: echo "legacy-peer-deps=true" > .npmrc
 
       - name: 📦 Install Dependencies
         run: npm ci
 
+      - name: 🛡️ Security Audit
+        run: npm audit --audit-level=high
+
       - name: 🎨 Linting & Formatting
         run: npm run lint
+
+      - name: 🔍 Validate CMS Content
+        env:
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
+        run: npm run audit:cms
 
       - name: 🧪 Unit Tests
         run: npm run test -- --run
@@ -53,6 +86,15 @@ jobs:
           VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
         run: npm run build
+
+      - name: 🗺️ Validate Sitemap
+        run: npm run audit:sitemap
+
+      - name: 🧪 E2E Contact Form Test
+        env:
+          VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
+          VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
+        run: npm run test:e2e
 
       - name: 🚀 Deploy to Cloudflare Pages
         if: success() && github.event_name == 'push'

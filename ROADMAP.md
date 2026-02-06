@@ -1,88 +1,46 @@
-# Roadmap Migracji do Cloudflare - Mixture Marketing
+# ROADMAP - Mixture Marketing
 
-Status: **Ready for Verification (Phase 4)** (2026-02-05)
+## 🚀 Optymalizacja Silnika Budowania i Prerenderingu
 
-## Cel Strategiczny
+- ✅ **Optymalizacja Obrazów (Bottleneck #1)**:
+  - ✅ **Smart Cache**: Naprawa sprawdzania `mtime` w CI poprzez `actions/cache`.
+  - ✅ **Parallel Sharp**: Przetwarzanie równoległe w `convert-images.js`.
+- ✅ **Prerender Parallelism (Bottleneck #2)**:
+  - ✅ **Scaling**: Zwiększenie `MAX_CONCURRENCY` do 10.
+  - ✅ **Resource Interception**: Blokowanie obrazów, fontów i tracking-scripts w Puppeteer.
+- ✅ **Infrastruktura CI (GitHub Actions)**:
+  - ✅ **Puppeteer Cache**: Dodanie `actions/cache` dla `~/.cache/puppeteer`.
+  - ✅ **Vite Cache**: Dodanie `actions/cache` dla `node_modules/.vite`.
+- ✅ **Optymalizacja Audit Health**:
+  - ✅ Równoległe sprawdzanie statusów stron w `audit-health.js`.
+- ✅ **Critters & Beasties**:
+  - ✅ Implementacja `reduceInlineStyles`.
 
-Zastąpienie infrastruktury opartej na PHP (Apache/MySQL/SMTP) nowoczesnym stackiem Edge (Cloudflare Pages, Workers, D1, R2, Durable Objects, KV).
+## 🛡️ Gwarancja Jakości 100% (Zero-Error Deploy)
 
----
+- ✅ **E2E Core Flow**: Integracja `test-e2e-contact.js` z CI (blokada deploya przy błędzie formularza).
+- ✅ **Dynamiczny Smoke Test**:
+  - ✅ Rozszerzenie `audit-health.js` o pobieranie tras z Sanity (sprawdzanie wszystkich 54+ stron).
+  - ✅ **Visual Check**: Weryfikacja obecności krytycznych selektorów (`#root`, `nav`, `footer`) na każdej stronie.
+- ✅ **Content Safety Gate**:
+  - ✅ Skrypt sprawdzający, czy Sanity nie zwraca pustych tablic dla kluczowych sekcji przed startem builda.
+- 🔵 **Automatyczny Rollback**: Wymagana konfiguracja w panelu Cloudflare (Health Checks).
 
-## FAZA 1: Frontend & Routing (ZAKOŃCZONA)
+## 🛠️ Infrastruktura i Bezpieczeństwo
 
-- [x] **Konfiguracja Cloudflare Pages**: GitHub Actions, .npmrc, Zmienne Build.
-- [x] **Konfiguracja Routingu (SPA)**: Utworzono `_redirects`.
+- ✅ **Dependency Audit**: Automatyczne `npm audit` w CI z progiem `high`.
+- ✅ **Sitemap Validation**: Sprawdzanie poprawności XML i dostępności linków po wygenerowaniu.
 
-## FAZA 2: Backend & Logic (ZAKOŃCZONA)
+## ⚡ Performance & Core Web Vitals (PSI Audit)
 
-Cel: Stworzenie API Serverless (zamiast PHP) obsługującego formularze, portal i chat.
+- ✅ **Advanced Code Splitting**: Przywrócenie `manualChunks` (rozbicie na vendor-pdf, vendor-charts, vendor-motion).
+- ✅ **Eliminacja Layout Thrashing**: Poprawa komponentów `CursorGlow`, `AmbientBackground` i `AnimateOnScroll`.
+- ✅ **GTM/GA4 Isolation**: Implementacja Lazy Loadingu analityki (3.5s delay / interaction).
+- ✅ **Icon Tree-shaking**: Optymalizacja paczki poprzez podział `manualChunks`.
+- ✅ **SEO Payload Reduction**: Implementacja memoizacji JSON-LD w komponencie `Seo.tsx`.
 
-- [x] **Baza Danych (Cloudflare D1)**:
-  - [x] Utworzenie bazy `mixture-db`.
-  - [x] Zdefiniowanie schematu SQL.
-- [x] **Migracja Danych**: Skrypt do importu obecnych użytkowników i leadów z MySQL do D1.
-- [x] **Cache & Sesje (Cloudflare KV)**:
-  - [x] Utworzenie namespace `mixture-cache`.
-  - [x] Implementacja cache'owania w kodzie (Wiadomości, Audyt).
-- [x] **Magazyn Plików (Cloudflare R2)**:
-  - [x] Utworzenie bucketa `mixture-files`.
-- [x] **Logika Chatu (Cloudflare Durable Objects)**:
-  - [x] Implementacja klasy Durable Object dla pokoju czatu.
-  - [x] Obsługa WebSocketów (Real-time).
-- [x] **Funkcja: Kalkulator Wycen (`functions/api/calculator_submit.ts`)**:
-  - [x] Generowanie maila z załącznikiem PDF (Resend).
-- [x] **Funkcja: Analityka RUM (`functions/api/rum-collect.ts`)**:
-  - [x] Zbieranie metryk Web Vitals do D1.
-- [x] **Funkcja: Obsługa Leadów (`functions/api/contact_submit.ts`)**:
-  - [x] Walidacja, ReCaptcha, Zapis do D1, Wysyłka maila (Resend).
-- [x] **Funkcja: Portal API (`functions/api/portal/[[path]].ts`)**:
-  - [x] Autoryzacja JWT (Middleware + D1).
-  - [x] Dashboard (Projekty, Dokumenty, Kamienie milowe).
-  - [x] Download plików (Integracja z R2).
-  - [x] Historia wiadomości (D1 + KV Cache).
-  - [x] Integracja z Chatem Real-time (Durable Objects).
-- [x] **Logika Admina (`functions/api/admin/[[path]].ts`)**:
-  - [x] Zarządzanie klientami i projektami.
-  - [x] Upload/Delete dokumentów (R2).
-  - [x] Konwersja leadów i odpowiedzi.
-- [x] **Integracja Cloudflare Turnstile**:
-  - [x] Zastąpienie Google ReCaptcha v3.
-  - [x] Weryfikacja tokenów na Edge.
+## Legenda statusów:
 
-### 2.4: Migracja Audyt 360 (Architektura Edge)
-
-- [x] **Konfiguracja Hyperdrive**: Połączenie do bazy `DB_AUDIT` (MySQL).
-- [x] **Funkcja: Pobieranie Raportu (`functions/api/audit/get_result.ts`)**:
-  - [x] Odczyt z MySQL (wymaga Hyperdrive).
-  - [x] Logika normalizacji JSON (v6.1-deep).
-- [x] **Funkcja: Skaner Live (`functions/api/audit/run_audit.ts`)**:
-  - [x] Implementacja Scrapera opartego na `HTMLRewriter` (Edge).
-- [x] **Generowanie PDF**: Przeniesienie generowania na stronę klienta (jspdf/html2canvas).
-
-## FAZA 3: Migracja Frontendu (ZAKOŃCZONA)
-
-- [x] **Aktualizacja `apiClient.ts`**: Przepięcie na nowe ścieżki API (`/api/...`).
-- [x] **Refaktoryzacja `AuthContext.tsx`**: Logika logowania na tokeny D1.
-- [x] **Integracja WebSocket w Portalu**: Połączenie `PortalChat` z Durable Objects.
-
-## FAZA 4: Cleanup & Switch (ZAKOŃCZONA)
-
-- [x] **Usuwanie PHP**: Kasacja folderu `public/api` i legacy plików.
-- [x] **Naprawa Routingu Assets**: Wdrożenie bezwzględnych ścieżek i poprawka `_redirects`.
-- [x] **Aktualizacja apiClient.ts**: Pełna eliminacja końcówek `.php`.
-- [ ] **Weryfikacja Domeny**: DNS na Cloudflare.
-- [ ] **Finalne Testy E2E**: Pełny audyt sprawności portalu i formularzy.
-
-## FAZA 5: Visual Automation & AI (PLANOWANA)
-
-Cel: Wykorzystanie zaawansowanych możliwości Cloudflare do przewagi rynkowej.
-
-- [ ] **Automatyzacja Wizualna (Browser Rendering API)**:
-  - [ ] Generowanie realnych screenshotów stron klientów w Audycie 360.
-  - [ ] Skanowanie stron renderowanych w JavaScript (SPA).
-  - [ ] Automatyczne generowanie grafik OG (Open Graph) dla bloga.
-- [ ] **Inteligentna Analiza (Workers AI)**:
-  - [ ] Generowanie tekstowych podsumowań audytów przez LLM (np. Llama 3).
-  - [ ] Klasyfikacja leadów na podstawie treści wiadomości.
-- [ ] **Wyszukiwarka Semantyczna (Vectorize)**:
-  - [ ] Wdrożenie wyszukiwania opartego na znaczeniu (nie tylko słowach kluczowych) w Bazie Wiedzy.
+- 🔵 Planowane
+- 🟡 W trakcie
+- ✅ Zakończone

@@ -145,6 +145,7 @@ const ContactPage: React.FC = () => {
                       variant="primary"
                       className="w-full sm:w-auto justify-center px-8 py-4 text-lg shadow-xl shadow-secondary/20 hover:scale-105 transition-transform"
                       icon={<ArrowRight size={20} />}
+                      data-testid="contact-cta"
                     >
                       {CONTENT.ctaCard.button}
                     </Button>

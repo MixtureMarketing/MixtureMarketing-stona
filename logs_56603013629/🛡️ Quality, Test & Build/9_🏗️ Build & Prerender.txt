@@ -1,0 +1,1388 @@
+﻿2026-02-06T10:25:23.1902873Z ##[group]Run npm run build
+2026-02-06T10:25:23.1903160Z [36;1mnpm run build[0m
+2026-02-06T10:25:23.1934336Z shell: /usr/bin/bash -e {0}
+2026-02-06T10:25:23.1934586Z env:
+2026-02-06T10:25:23.1935099Z   VITE_SANITY_PROJECT_ID: ***
+2026-02-06T10:25:23.1935368Z   VITE_SANITY_DATASET: production
+2026-02-06T10:25:23.1935649Z   PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
+2026-02-06T10:25:23.1935921Z ##[endgroup]
+2026-02-06T10:25:23.2912510Z 
+2026-02-06T10:25:23.2914946Z > mixture-marketing@0.0.0 prebuild
+2026-02-06T10:25:23.2919924Z > npm run clean && npm run images
+2026-02-06T10:25:23.2920501Z 
+2026-02-06T10:25:23.3910641Z 
+2026-02-06T10:25:23.3911562Z > mixture-marketing@0.0.0 clean
+2026-02-06T10:25:23.3912734Z > rimraf dist
+2026-02-06T10:25:23.3913125Z 
+2026-02-06T10:25:23.5586386Z 
+2026-02-06T10:25:23.5588500Z > mixture-marketing@0.0.0 images
+2026-02-06T10:25:23.5593647Z > node scripts/convert-images.js
+2026-02-06T10:25:23.5593996Z 
+2026-02-06T10:25:23.6235901Z 🖼️  Starting image conversion...
+2026-02-06T10:25:23.6240043Z Processing: CDN.png
+2026-02-06T10:25:23.6242417Z   ⏩ WebP up to date, skipping: CDN.webp
+2026-02-06T10:25:31.0463759Z   ✅ Created/Updated AVIF: CDN.avif
+2026-02-06T10:25:31.0466091Z   ⚡ Optimizing original fallback: CDN.png
+2026-02-06T10:25:31.7235833Z   ⏩ Compression didn't reduce size for CDN.png, keeping original.
+2026-02-06T10:25:31.7236976Z Processing: CICD.png
+2026-02-06T10:25:31.7239019Z   ⏩ WebP up to date, skipping: CICD.webp
+2026-02-06T10:25:42.9574823Z   ✅ Created/Updated AVIF: CICD.avif
+2026-02-06T10:25:42.9579947Z   ⚡ Optimizing original fallback: CICD.png
+2026-02-06T10:25:43.6212232Z   ✅ Compressed CICD.png: 0.66MB -> 0.66MB
+2026-02-06T10:25:43.6215664Z Processing: PostgreSQL.png
+2026-02-06T10:25:43.6216611Z   ⏩ WebP up to date, skipping: PostgreSQL.webp
+2026-02-06T10:25:55.8423078Z   ✅ Created/Updated AVIF: PostgreSQL.avif
+2026-02-06T10:25:55.8427152Z   ⚡ Optimizing original fallback: PostgreSQL.png
+2026-02-06T10:25:56.5953517Z   ⏩ Compression didn't reduce size for PostgreSQL.png, keeping original.
+2026-02-06T10:25:56.5954820Z Processing: WAF.png
+2026-02-06T10:25:56.5956891Z   ⏩ WebP up to date, skipping: WAF.webp
+2026-02-06T10:26:04.8464026Z   ✅ Created/Updated AVIF: WAF.avif
+2026-02-06T10:26:04.8464677Z Processing: audyt-ux.png
+2026-02-06T10:26:04.8465342Z   ⏩ WebP up to date, skipping: audyt-ux.webp
+2026-02-06T10:26:17.2909532Z   ✅ Created/Updated AVIF: audyt-ux.avif
+2026-02-06T10:26:17.2912068Z   ⚡ Optimizing original fallback: audyt-ux.png
+2026-02-06T10:26:17.8967259Z   ⏩ Compression didn't reduce size for audyt-ux.png, keeping original.
+2026-02-06T10:26:17.8970890Z Processing: aws.png
+2026-02-06T10:26:17.8971708Z   ⏩ WebP up to date, skipping: aws.webp
+2026-02-06T10:26:31.5149260Z   ✅ Created/Updated AVIF: aws.avif
+2026-02-06T10:26:31.5152762Z   ⚡ Optimizing original fallback: aws.png
+2026-02-06T10:26:32.1924450Z   ⏩ Compression didn't reduce size for aws.png, keeping original.
+2026-02-06T10:26:32.1935352Z Processing: backend.png
+2026-02-06T10:26:32.1936053Z   ⏩ WebP up to date, skipping: backend.webp
+2026-02-06T10:26:45.7652838Z   ✅ Created/Updated AVIF: backend.avif
+2026-02-06T10:26:45.7654033Z   ⚡ Optimizing original fallback: backend.png
+2026-02-06T10:26:46.4973960Z   ⏩ Compression didn't reduce size for backend.png, keeping original.
+2026-02-06T10:26:46.4975803Z Processing: core-web-vitals.png
+2026-02-06T10:26:46.4976521Z   ⏩ WebP up to date, skipping: core-web-vitals.webp
+2026-02-06T10:26:56.7086790Z   ✅ Created/Updated AVIF: core-web-vitals.avif
+2026-02-06T10:26:56.7088056Z   ⚡ Optimizing original fallback: core-web-vitals.png
+2026-02-06T10:26:57.3607103Z   ✅ Compressed core-web-vitals.png: 0.62MB -> 0.62MB
+2026-02-06T10:26:57.3607852Z Processing: database.png
+2026-02-06T10:26:57.3616474Z   ⏩ WebP up to date, skipping: database.webp
+2026-02-06T10:27:10.1942970Z   ✅ Created/Updated AVIF: database.avif
+2026-02-06T10:27:10.1944241Z   ⚡ Optimizing original fallback: database.png
+2026-02-06T10:27:10.8644670Z   ✅ Compressed database.png: 0.73MB -> 0.73MB
+2026-02-06T10:27:10.8646835Z Processing: devops.png
+2026-02-06T10:27:10.8648456Z   ⏩ WebP up to date, skipping: devops.webp
+2026-02-06T10:27:22.0391065Z   ✅ Created/Updated AVIF: devops.avif
+2026-02-06T10:27:22.0393671Z   ⚡ Optimizing original fallback: devops.png
+2026-02-06T10:27:22.7068336Z   ✅ Compressed devops.png: 0.68MB -> 0.68MB
+2026-02-06T10:27:22.7069630Z Processing: django.png
+2026-02-06T10:27:22.7071170Z   ⏩ WebP up to date, skipping: django.webp
+2026-02-06T10:27:35.5499122Z   ✅ Created/Updated AVIF: django.avif
+2026-02-06T10:27:35.5501120Z   ⚡ Optimizing original fallback: django.png
+2026-02-06T10:27:36.2869961Z   ✅ Compressed django.png: 0.99MB -> 0.99MB
+2026-02-06T10:27:36.2871915Z Processing: docker.png
+2026-02-06T10:27:36.2872962Z   ⏩ WebP up to date, skipping: docker.webp
+2026-02-06T10:27:47.6998894Z   ✅ Created/Updated AVIF: docker.avif
+2026-02-06T10:27:47.7001126Z   ⚡ Optimizing original fallback: docker.png
+2026-02-06T10:27:48.4174703Z   ⏩ Compression didn't reduce size for docker.png, keeping original.
+2026-02-06T10:27:48.4176760Z Processing: edge-computing.png
+2026-02-06T10:27:48.4177518Z   ⏩ WebP up to date, skipping: edge-computing.webp
+2026-02-06T10:27:58.9964805Z   ✅ Created/Updated AVIF: edge-computing.avif
+2026-02-06T10:27:58.9967234Z   ⚡ Optimizing original fallback: edge-computing.png
+2026-02-06T10:27:59.7314286Z   ⏩ Compression didn't reduce size for edge-computing.png, keeping original.
+2026-02-06T10:27:59.7316417Z Processing: elasticsearch.png
+2026-02-06T10:27:59.7317134Z   ⏩ WebP up to date, skipping: elasticsearch.webp
+2026-02-06T10:28:11.3748717Z   ✅ Created/Updated AVIF: elasticsearch.avif
+2026-02-06T10:28:11.3754315Z   ⚡ Optimizing original fallback: elasticsearch.png
+2026-02-06T10:28:12.0932689Z   ⏩ Compression didn't reduce size for elasticsearch.png, keeping original.
+2026-02-06T10:28:12.0933507Z Processing: frontend.png
+2026-02-06T10:28:12.0934388Z   ⏩ WebP up to date, skipping: frontend.webp
+2026-02-06T10:28:25.0568950Z   ✅ Created/Updated AVIF: frontend.avif
+2026-02-06T10:28:25.0570608Z   ⚡ Optimizing original fallback: frontend.png
+2026-02-06T10:28:25.7522859Z   ✅ Compressed frontend.png: 0.79MB -> 0.79MB
+2026-02-06T10:28:25.7526502Z Processing: go.png
+2026-02-06T10:28:25.7527093Z   ⏩ WebP up to date, skipping: go.webp
+2026-02-06T10:28:36.1154266Z   ✅ Created/Updated AVIF: go.avif
+2026-02-06T10:28:36.1156363Z   ⚡ Optimizing original fallback: go.png
+2026-02-06T10:28:36.8068228Z   ✅ Compressed go.png: 0.78MB -> 0.78MB
+2026-02-06T10:28:36.8069510Z Processing: google-ads.png
+2026-02-06T10:28:36.8071095Z   ⏩ WebP up to date, skipping: google-ads.webp
+2026-02-06T10:28:52.0171484Z   ✅ Created/Updated AVIF: google-ads.avif
+2026-02-06T10:28:52.0174096Z   ⚡ Optimizing original fallback: google-ads.png
+2026-02-06T10:28:52.7508296Z   ✅ Compressed google-ads.png: 1.14MB -> 1.14MB
+2026-02-06T10:28:52.7512188Z Processing: headless-wordpress.png
+2026-02-06T10:28:52.7512955Z   ⏩ WebP up to date, skipping: headless-wordpress.webp
+2026-02-06T10:29:01.7814514Z   ✅ Created/Updated AVIF: headless-wordpress.avif
+2026-02-06T10:29:01.7816705Z   ⚡ Optimizing original fallback: headless-wordpress.png
+2026-02-06T10:29:02.4375558Z   ⏩ Compression didn't reduce size for headless-wordpress.png, keeping original.
+2026-02-06T10:29:02.4381477Z Processing: kubernetes.png
+2026-02-06T10:29:02.4382221Z   ⏩ WebP up to date, skipping: kubernetes.webp
+2026-02-06T10:29:13.0089420Z   ✅ Created/Updated AVIF: kubernetes.avif
+2026-02-06T10:29:13.0091639Z   ⚡ Optimizing original fallback: kubernetes.png
+2026-02-06T10:29:13.6534700Z   ⏩ Compression didn't reduce size for kubernetes.png, keeping original.
+2026-02-06T10:29:13.6536511Z Processing: laravel.png
+2026-02-06T10:29:13.6537178Z   ⏩ WebP up to date, skipping: laravel.webp
+2026-02-06T10:29:29.0913613Z   ✅ Created/Updated AVIF: laravel.avif
+2026-02-06T10:29:29.0916406Z   ⚡ Optimizing original fallback: laravel.png
+2026-02-06T10:29:29.8274465Z   ⏩ Compression didn't reduce size for laravel.png, keeping original.
+2026-02-06T10:29:29.8276257Z Processing: mongodb.png
+2026-02-06T10:29:29.8276883Z   ⏩ WebP up to date, skipping: mongodb.webp
+2026-02-06T10:29:42.8286691Z   ✅ Created/Updated AVIF: mongodb.avif
+2026-02-06T10:29:42.8288502Z   ⚡ Optimizing original fallback: mongodb.png
+2026-02-06T10:29:43.5300347Z   ⏩ Compression didn't reduce size for mongodb.png, keeping original.
+2026-02-06T10:29:43.5302209Z Processing: nextjs.png
+2026-02-06T10:29:43.5302818Z   ⏩ WebP up to date, skipping: nextjs.webp
+2026-02-06T10:29:55.8420941Z   ✅ Created/Updated AVIF: nextjs.avif
+2026-02-06T10:29:55.8422979Z   ⚡ Optimizing original fallback: nextjs.png
+2026-02-06T10:29:56.4934985Z   ✅ Compressed nextjs.png: 0.57MB -> 0.57MB
+2026-02-06T10:29:56.4935592Z Processing: nodejs.png
+2026-02-06T10:29:56.4936522Z   ⏩ WebP up to date, skipping: nodejs.webp
+2026-02-06T10:30:00.5757739Z   ✅ Created/Updated AVIF: nodejs.avif
+2026-02-06T10:30:00.5758820Z Processing: og-main.png
+2026-02-06T10:30:00.5764767Z   ⏩ WebP up to date, skipping: og-main.webp
+2026-02-06T10:30:10.4554230Z   ✅ Created/Updated AVIF: og-main.avif
+2026-02-06T10:30:10.4556057Z Processing: react-js.png
+2026-02-06T10:30:10.4556719Z   ⏩ WebP up to date, skipping: react-js.webp
+2026-02-06T10:30:21.0043319Z   ✅ Created/Updated AVIF: react-js.avif
+2026-02-06T10:30:21.0046529Z Processing: redis.png
+2026-02-06T10:30:21.0047264Z   ⏩ WebP up to date, skipping: redis.webp
+2026-02-06T10:30:31.5440519Z   ✅ Created/Updated AVIF: redis.avif
+2026-02-06T10:30:31.5441772Z   ⚡ Optimizing original fallback: redis.png
+2026-02-06T10:30:32.2096670Z   ⏩ Compression didn't reduce size for redis.png, keeping original.
+2026-02-06T10:30:32.2097835Z Processing: server-side-tracking.png
+2026-02-06T10:30:32.2101811Z   ⏩ WebP up to date, skipping: server-side-tracking.webp
+2026-02-06T10:30:43.3992697Z   ✅ Created/Updated AVIF: server-side-tracking.avif
+2026-02-06T10:30:43.3994071Z   ⚡ Optimizing original fallback: server-side-tracking.png
+2026-02-06T10:30:44.0685669Z   ✅ Compressed server-side-tracking.png: 0.73MB -> 0.72MB
+2026-02-06T10:30:44.0689903Z Processing: sygnet.png
+2026-02-06T10:30:44.0690816Z   ⏩ WebP up to date, skipping: sygnet.webp
+2026-02-06T10:30:54.0013666Z   ✅ Created/Updated AVIF: sygnet.avif
+2026-02-06T10:30:54.0015408Z Processing: tailwind-css.png
+2026-02-06T10:30:54.0016094Z   ⏩ WebP up to date, skipping: tailwind-css.webp
+2026-02-06T10:31:03.0648889Z   ✅ Created/Updated AVIF: tailwind-css.avif
+2026-02-06T10:31:03.0651136Z   ⚡ Optimizing original fallback: tailwind-css.png
+2026-02-06T10:31:03.6914966Z   ⏩ Compression didn't reduce size for tailwind-css.png, keeping original.
+2026-02-06T10:31:03.6917382Z Processing: vuejs.png
+2026-02-06T10:31:03.6917982Z   ⏩ WebP up to date, skipping: vuejs.webp
+2026-02-06T10:31:03.6918597Z   ⏩ AVIF up to date, skipping: vuejs.avif
+2026-02-06T10:31:03.6919206Z 🎉 Image conversion complete!
+2026-02-06T10:31:03.7098142Z 
+2026-02-06T10:31:03.7099821Z > mixture-marketing@0.0.0 build
+2026-02-06T10:31:03.7101650Z > npm run lint && vitest run && vite build && npm run sitemap && npm run prerender && npx size-limit && npm run audit:health
+2026-02-06T10:31:03.7102929Z 
+2026-02-06T10:31:03.8062999Z 
+2026-02-06T10:31:03.8064631Z > mixture-marketing@0.0.0 lint
+2026-02-06T10:31:03.8066450Z > eslint . --report-unused-disable-directives --max-warnings 0
+2026-02-06T10:31:03.8066986Z 
+2026-02-06T10:31:40.6132570Z 
+2026-02-06T10:31:40.6135120Z [1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona[39m
+2026-02-06T10:31:40.6136020Z 
+2026-02-06T10:31:42.4671638Z  [32m✓[39m tests/components/ContactModal.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 549[2mms[22m[39m
+2026-02-06T10:31:42.4674713Z      [33m[2m✓[22m[39m should trigger abandoned_step_1 if closed at step 2 [33m 407[2mms[22m[39m
+2026-02-06T10:31:43.5934425Z  [32m✓[39m tests/hooks/useCalculator.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 287[2mms[22m[39m
+2026-02-06T10:31:44.7222330Z  [32m✓[39m tests/Image.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[32m 290[2mms[22m[39m
+2026-02-06T10:31:45.9307047Z  [32m✓[39m tests/Button.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 276[2mms[22m[39m
+2026-02-06T10:31:47.4326149Z  [32m✓[39m tests/portal/portal.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 213[2mms[22m[39m
+2026-02-06T10:31:48.8071366Z Not implemented: Window's scrollTo() method
+2026-02-06T10:31:48.8556353Z  [32m✓[39m tests/components/Marketing.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 171[2mms[22m[39m
+2026-02-06T10:31:49.9962460Z  [32m✓[39m tests/components/IndustryTemplate.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 115[2mms[22m[39m
+2026-02-06T10:31:50.9061268Z  [32m✓[39m tests/components/BaseCard.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+2026-02-06T10:31:51.7888284Z  [32m✓[39m tests/components/StatusPing.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+2026-02-06T10:31:52.6034623Z [90mstderr[2m | tests/services/leadService.test.ts[2m > [22m[2mleadService[2m > [22m[2msendNotification should return false if API call fails
+2026-02-06T10:31:52.6041163Z [22m[39mError sending notification: Error: API Error
+2026-02-06T10:31:52.6043655Z     at [90m/home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mtests/services/leadService.test.ts:73:54
+2026-02-06T10:31:52.6046889Z     at [90mfile:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+2026-02-06T10:31:52.6050365Z     at [90mfile:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+2026-02-06T10:31:52.6052646Z     at [90mfile:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+2026-02-06T10:31:52.6053903Z     at new Promise (<anonymous>)
+2026-02-06T10:31:52.6055600Z     at runWithTimeout [90m(file:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+2026-02-06T10:31:52.6057910Z     at [90mfile:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+2026-02-06T10:31:52.6059967Z     at Traces.$ [90m(file:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+2026-02-06T10:31:52.6062369Z     at trace [90m(file:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+2026-02-06T10:31:52.6064552Z     at runTest [90m(file:///home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+2026-02-06T10:31:52.6065585Z 
+2026-02-06T10:31:52.6066449Z  [32m✓[39m tests/services/leadService.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+2026-02-06T10:31:53.4572671Z  [32m✓[39m tests/validation.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+2026-02-06T10:31:53.4600621Z 
+2026-02-06T10:31:53.4622624Z [2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+2026-02-06T10:31:53.4694695Z [2m      Tests [22m [1m[32m43 passed[39m[22m[90m (43)[39m
+2026-02-06T10:31:53.4695476Z [2m   Start at [22m 10:31:40
+2026-02-06T10:31:53.4696615Z [2m   Duration [22m 12.84s[2m (transform 806ms, setup 1.88s, import 1.87s, tests 1.99s, environment 5.68s)[22m
+2026-02-06T10:31:53.4697287Z 
+2026-02-06T10:31:54.0728742Z [36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+2026-02-06T10:31:54.1437587Z transforming...
+2026-02-06T10:31:54.8041089Z 
+2026-02-06T10:31:54.8042821Z /assets/images/grid.svg referenced in /assets/images/grid.svg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+2026-02-06T10:32:04.0963576Z [32m✓[39m 3764 modules transformed.
+2026-02-06T10:32:05.0691224Z rendering chunks...
+2026-02-06T10:32:16.5800633Z computing gzip size...
+2026-02-06T10:32:16.7062468Z [2mdist/[22m[32mindex.html                                                   [39m[1m[2m  1.57 kB[22m[1m[22m[2m │ gzip:   0.69 kB[22m
+2026-02-06T10:32:16.7111480Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-ext-800-normal-DdFx7KEb.woff2           [39m[1m[2m  8.03 kB[22m[1m[22m
+2026-02-06T10:32:16.7141576Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-ext-400-normal-CMDvPJRp.woff2           [39m[1m[2m  8.29 kB[22m[1m[22m
+2026-02-06T10:32:16.7143546Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-ext-800-normal-BQAQsuQc.woff            [39m[1m[2m 11.11 kB[22m[1m[22m
+2026-02-06T10:32:16.7146103Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-ext-400-normal-C-X6QNXX.woff            [39m[1m[2m 11.32 kB[22m[1m[22m
+2026-02-06T10:32:16.7148485Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-ext-400-normal-BxlSGspa.woff2  [39m[1m[2m 12.34 kB[22m[1m[22m
+2026-02-06T10:32:16.7150484Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-ext-700-normal-C58ejOkc.woff2  [39m[1m[2m 12.90 kB[22m[1m[22m
+2026-02-06T10:32:16.7152234Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-800-normal-BfWYOv1c.woff2               [39m[1m[2m 13.65 kB[22m[1m[22m
+2026-02-06T10:32:16.7153857Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-400-normal-PaqtzbVb.woff2               [39m[1m[2m 14.11 kB[22m[1m[22m
+2026-02-06T10:32:16.7155482Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-ext-400-normal-qdZwdvNS.woff   [39m[1m[2m 15.87 kB[22m[1m[22m
+2026-02-06T10:32:16.7157178Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-ext-700-normal-D5HUU8GT.woff   [39m[1m[2m 16.47 kB[22m[1m[22m
+2026-02-06T10:32:16.7158837Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-800-normal-uHUdIJgA.woff                [39m[1m[2m 17.91 kB[22m[1m[22m
+2026-02-06T10:32:16.7179885Z [2mdist/[22m[2massets/[22m[32mmontserrat-latin-900-normal-B0TD3Qnu.woff2            [39m[1m[2m 18.02 kB[22m[1m[22m
+2026-02-06T10:32:16.7181719Z [2mdist/[22m[2massets/[22m[32mmanrope-latin-400-normal-8tf8FM3T.woff                [39m[1m[2m 18.29 kB[22m[1m[22m
+2026-02-06T10:32:16.7211297Z [2mdist/[22m[2massets/[22m[32mmontserrat-latin-900-normal-BDWDmVut.woff             [39m[1m[2m 19.50 kB[22m[1m[22m
+2026-02-06T10:32:16.7213005Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-400-normal-CFtfchNt.woff2      [39m[1m[2m 21.86 kB[22m[1m[22m
+2026-02-06T10:32:16.7214694Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-700-normal-CuDiGg7c.woff2      [39m[1m[2m 23.22 kB[22m[1m[22m
+2026-02-06T10:32:16.7216413Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-400-normal-DHYHbkg3.woff       [39m[1m[2m 26.90 kB[22m[1m[22m
+2026-02-06T10:32:16.7218121Z [2mdist/[22m[2massets/[22m[32mplayfair-display-latin-700-normal-Bc_1Q1cG.woff       [39m[1m[2m 28.30 kB[22m[1m[22m
+2026-02-06T10:32:16.7219773Z [2mdist/[22m[2massets/[22m[32mmontserrat-latin-ext-900-normal-BTaqesvP.woff2        [39m[1m[2m 32.42 kB[22m[1m[22m
+2026-02-06T10:32:16.7221638Z [2mdist/[22m[2massets/[22m[32mmontserrat-latin-ext-900-normal-DoASD5Eh.woff         [39m[1m[2m 40.34 kB[22m[1m[22m
+2026-02-06T10:32:16.7223370Z [2mdist/[22m[2massets/[22m[35mindex-CRNsb5cB.css                                    [39m[1m[2m285.57 kB[22m[1m[22m[2m │ gzip:  36.18 kB[22m
+2026-02-06T10:32:16.7242035Z [2mdist/[22m[2massets/[22m[36mcloud-C5x4PPkW.js                                     [39m[1m[2m  0.16 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7243742Z [2mdist/[22m[2massets/[22m[36mterminal-CCzozkRv.js                                  [39m[1m[2m  0.16 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+2026-02-06T10:32:16.7245414Z [2mdist/[22m[2massets/[22m[36mcode-uZa_Jvto.js                                      [39m[1m[2m  0.16 kB[22m[1m[22m[2m │ gzip:   0.15 kB[22m
+2026-02-06T10:32:16.7247051Z [2mdist/[22m[2massets/[22m[36marrow-left-B_-HBXKn.js                                [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+2026-02-06T10:32:16.7249032Z [2mdist/[22m[2massets/[22m[36marrow-up-right-Cx6MbdSZ.js                            [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+2026-02-06T10:32:16.7250889Z [2mdist/[22m[2massets/[22m[36mclock-BXTlqXZ2.js                                     [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7252569Z [2mdist/[22m[2massets/[22m[36minfinity-BEaHyeLl.js                                  [39m[1m[2m  0.17 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7254228Z [2mdist/[22m[2massets/[22m[36mgauge-D7KjE0yz.js                                     [39m[1m[2m  0.18 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7256122Z [2mdist/[22m[2massets/[22m[36mtrending-down-BP8hS9Rd.js                             [39m[1m[2m  0.18 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7257858Z [2mdist/[22m[2massets/[22m[36mcheck-check-DfakBtYJ.js                               [39m[1m[2m  0.18 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7259514Z [2mdist/[22m[2massets/[22m[36mdate-D6Ywu7WX.js                                      [39m[1m[2m  0.19 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7301459Z [2mdist/[22m[2massets/[22m[36mplay-CuSr_kA8.js                                      [39m[1m[2m  0.19 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+2026-02-06T10:32:16.7303126Z [2mdist/[22m[2massets/[22m[36muser-Fl4T76-J.js                                      [39m[1m[2m  0.20 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+2026-02-06T10:32:16.7304817Z [2mdist/[22m[2massets/[22m[36msmartphone-DDExcqmw.js                                [39m[1m[2m  0.20 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+2026-02-06T10:32:16.7306467Z [2mdist/[22m[2massets/[22m[36mlock-DEQahFt3.js                                      [39m[1m[2m  0.21 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7308152Z [2mdist/[22m[2massets/[22m[36mcredit-card-B89Q59Y6.js                               [39m[1m[2m  0.21 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7309863Z [2mdist/[22m[2massets/[22m[36mcircle-x-qTd3K0v8.js                                  [39m[1m[2m  0.21 kB[22m[1m[22m[2m │ gzip:   0.18 kB[22m
+2026-02-06T10:32:16.7311728Z [2mdist/[22m[2massets/[22m[36mcode-xml-RVtTjXqi.js                                  [39m[1m[2m  0.21 kB[22m[1m[22m[2m │ gzip:   0.17 kB[22m
+2026-02-06T10:32:16.7313393Z [2mdist/[22m[2massets/[22m[36mtablet-DV_-ucgU.js                                    [39m[1m[2m  0.21 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7315063Z [2mdist/[22m[2massets/[22m[36mdollar-sign-DD95EUog.js                               [39m[1m[2m  0.22 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7316742Z [2mdist/[22m[2massets/[22m[36mbriefcase-C8Oe6Y4G.js                                 [39m[1m[2m  0.22 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7318492Z [2mdist/[22m[2massets/[22m[36mtarget-1UmYfKer.js                                    [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+2026-02-06T10:32:16.7360338Z [2mdist/[22m[2massets/[22m[36mgit-merge-DfBAX5s0.js                                 [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7362173Z [2mdist/[22m[2massets/[22m[36mdownload-BfI3O-t0.js                                  [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7363890Z [2mdist/[22m[2massets/[22m[36mmessage-square-9DdGSfyi.js                            [39m[1m[2m  0.23 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7365601Z [2mdist/[22m[2massets/[22m[36mactivity-oSu_E7xZ.js                                  [39m[1m[2m  0.24 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7393480Z [2mdist/[22m[2massets/[22m[36mtimer-CxrVh-0p.js                                     [39m[1m[2m  0.24 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7395123Z [2mdist/[22m[2massets/[22m[36mglobe-DZmaP4w_.js                                     [39m[1m[2m  0.24 kB[22m[1m[22m[2m │ gzip:   0.19 kB[22m
+2026-02-06T10:32:16.7396784Z [2mdist/[22m[2massets/[22m[36mexternal-link-D1cdmJ1o.js                             [39m[1m[2m  0.25 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7398494Z [2mdist/[22m[2massets/[22m[36mmouse-pointer-2-BQr2Kp0m.js                           [39m[1m[2m  0.25 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7423644Z [2mdist/[22m[2massets/[22m[36mlink-8uoDjG-h.js                                      [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7425497Z [2mdist/[22m[2massets/[22m[36mfunnel-CbbB24Yt.js                                    [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7427194Z [2mdist/[22m[2massets/[22m[36mheart-BJewJxTx.js                                     [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7428857Z [2mdist/[22m[2massets/[22m[36mmonitor-DseOsU0v.js                                   [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+2026-02-06T10:32:16.7440831Z [2mdist/[22m[2massets/[22m[36manchor-Chn_WPi-.js                                    [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7442822Z [2mdist/[22m[2massets/[22m[36msplit-CRf-hLem.js                                     [39m[1m[2m  0.26 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7444725Z [2mdist/[22m[2massets/[22m[36mworkflow-9MtBujNX.js                                  [39m[1m[2m  0.27 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7446605Z [2mdist/[22m[2massets/[22m[36mimage-03evI32o.js                                     [39m[1m[2m  0.27 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7448380Z [2mdist/[22m[2massets/[22m[36mshield-CDrOhLQb.js                                    [39m[1m[2m  0.27 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7450032Z [2mdist/[22m[2massets/[22m[36mrepeat-gQiEpgmA.js                                    [39m[1m[2m  0.27 kB[22m[1m[22m[2m │ gzip:   0.20 kB[22m
+2026-02-06T10:32:16.7451875Z [2mdist/[22m[2massets/[22m[36maward-CGxZg2O-.js                                     [39m[1m[2m  0.28 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7453935Z [2mdist/[22m[2massets/[22m[36mbook-open-bkDAo62E.js                                 [39m[1m[2m  0.28 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+2026-02-06T10:32:16.7455788Z [2mdist/[22m[2massets/[22m[36msend-B5r32ZZe.js                                      [39m[1m[2m  0.29 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7457699Z [2mdist/[22m[2massets/[22m[36mbox-CquHkgAb.js                                       [39m[1m[2m  0.31 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7459579Z [2mdist/[22m[2massets/[22m[36mprinter-BUWauKSm.js                                   [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+2026-02-06T10:32:16.7511920Z [2mdist/[22m[2massets/[22m[36mrefresh-cw-D2nx2v97.js                                [39m[1m[2m  0.32 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7513886Z [2mdist/[22m[2massets/[22m[36museMousePosition-DprMxeoV.js                          [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+2026-02-06T10:32:16.7516371Z [2mdist/[22m[2massets/[22m[36mtag-BzuXVH5b.js                                       [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+2026-02-06T10:32:16.7518254Z [2mdist/[22m[2massets/[22m[36msave-Dn4GZDgD.js                                      [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7520925Z [2mdist/[22m[2massets/[22m[36mbot-QFvCkWvL.js                                       [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+2026-02-06T10:32:16.7522787Z [2mdist/[22m[2massets/[22m[36mscale-D4vkvyBa.js                                     [39m[1m[2m  0.33 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7524609Z [2mdist/[22m[2massets/[22m[36mserver-DL11LnP_.js                                    [39m[1m[2m  0.34 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+2026-02-06T10:32:16.7526467Z [2mdist/[22m[2massets/[22m[36mshopping-bag-maitykTa.js                              [39m[1m[2m  0.34 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+2026-02-06T10:32:16.7528569Z [2mdist/[22m[2massets/[22m[36mshield-alert-0SmQU1_T.js                              [39m[1m[2m  0.35 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+2026-02-06T10:32:16.7570632Z [2mdist/[22m[2massets/[22m[36mshare-2-wRYEe0rr.js                                   [39m[1m[2m  0.36 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+2026-02-06T10:32:16.7572699Z [2mdist/[22m[2massets/[22m[36mpackage-DJvhstqi.js                                   [39m[1m[2m  0.37 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+2026-02-06T10:32:16.7574575Z [2mdist/[22m[2massets/[22m[36mfile-code-9QEsOw_M.js                                 [39m[1m[2m  0.37 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+2026-02-06T10:32:16.7576466Z [2mdist/[22m[2massets/[22m[36mWindowControls-BKiowhRd.js                            [39m[1m[2m  0.38 kB[22m[1m[22m[2m │ gzip:   0.21 kB[22m
+2026-02-06T10:32:16.7578644Z [2mdist/[22m[2massets/[22m[36mfile-text-GtjjI98U.js                                 [39m[1m[2m  0.39 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+2026-02-06T10:32:16.7580909Z [2mdist/[22m[2massets/[22m[36mtruck-DkgD-1hi.js                                     [39m[1m[2m  0.41 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+2026-02-06T10:32:16.7583095Z [2mdist/[22m[2massets/[22m[36mmouse-pointer-click-BgQTFTiS.js                       [39m[1m[2m  0.42 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+2026-02-06T10:32:16.7585235Z [2mdist/[22m[2massets/[22m[36mcontainer-B2njSEt3.js                                 [39m[1m[2m  0.45 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+2026-02-06T10:32:16.7587192Z [2mdist/[22m[2massets/[22m[36mFaqSection-BrpQq9-m.js                                [39m[1m[2m  0.45 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+2026-02-06T10:32:16.7589289Z [2mdist/[22m[2massets/[22m[36mscan-eye-ClN1cH1l.js                                  [39m[1m[2m  0.46 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+2026-02-06T10:32:16.7621677Z [2mdist/[22m[2massets/[22m[36mpen-tool-DMpvNy2q.js                                  [39m[1m[2m  0.47 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+2026-02-06T10:32:16.7651480Z [2mdist/[22m[2massets/[22m[36mstar-Q_0fCBU3.js                                      [39m[1m[2m  0.47 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+2026-02-06T10:32:16.7653469Z [2mdist/[22m[2massets/[22m[36museAnimationFrameInterval-8M1KxtBX.js                 [39m[1m[2m  0.48 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+2026-02-06T10:32:16.7655494Z [2mdist/[22m[2massets/[22m[36mstore-DFtcshRV.js                                     [39m[1m[2m  0.50 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+2026-02-06T10:32:16.7657232Z [2mdist/[22m[2massets/[22m[36mcalculator-DrsZsRI0.js                                [39m[1m[2m  0.53 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+2026-02-06T10:32:16.7659155Z [2mdist/[22m[2massets/[22m[36museCounter-OtlMzr20.js                                [39m[1m[2m  0.56 kB[22m[1m[22m[2m │ gzip:   0.37 kB[22m
+2026-02-06T10:32:16.7701176Z [2mdist/[22m[2massets/[22m[36mSectionWrapper-DoFLqyA1.js                            [39m[1m[2m  0.56 kB[22m[1m[22m[2m │ gzip:   0.35 kB[22m
+2026-02-06T10:32:16.7703581Z [2mdist/[22m[2massets/[22m[36mmove-D2eD3fFt.js                                      [39m[1m[2m  0.57 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+2026-02-06T10:32:16.7705510Z [2mdist/[22m[2massets/[22m[36mArticleContextBox-DGR4ubQX.js                         [39m[1m[2m  0.60 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+2026-02-06T10:32:16.7707470Z [2mdist/[22m[2massets/[22m[36mfingerprint-pattern-Cnt966ju.js                       [39m[1m[2m  0.61 kB[22m[1m[22m[2m │ gzip:   0.36 kB[22m
+2026-02-06T10:32:16.7709383Z [2mdist/[22m[2massets/[22m[36mcpu-DCZYqBYf.js                                       [39m[1m[2m  0.64 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+2026-02-06T10:32:16.7711633Z [2mdist/[22m[2massets/[22m[36mGlassCard-CSWmVMN9.js                                 [39m[1m[2m  0.65 kB[22m[1m[22m[2m │ gzip:   0.40 kB[22m
+2026-02-06T10:32:16.7713529Z [2mdist/[22m[2massets/[22m[36mStandardFaq-BkeGrPZw.js                               [39m[1m[2m  0.66 kB[22m[1m[22m[2m │ gzip:   0.46 kB[22m
+2026-02-06T10:32:16.7715438Z [2mdist/[22m[2massets/[22m[36mArticleUseCases-DKforgYw.js                           [39m[1m[2m  0.72 kB[22m[1m[22m[2m │ gzip:   0.40 kB[22m
+2026-02-06T10:32:16.7717300Z [2mdist/[22m[2massets/[22m[36mTextReveal-Dm2ZcILE.js                                [39m[1m[2m  0.82 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+2026-02-06T10:32:16.7719167Z [2mdist/[22m[2massets/[22m[36mAnimateOnScroll-DEzfEM5N.js                           [39m[1m[2m  0.87 kB[22m[1m[22m[2m │ gzip:   0.55 kB[22m
+2026-02-06T10:32:16.7721184Z [2mdist/[22m[2massets/[22m[36mDesignVisual-DjC1u2aE.js                              [39m[1m[2m  0.93 kB[22m[1m[22m[2m │ gzip:   0.50 kB[22m
+2026-02-06T10:32:16.7723166Z [2mdist/[22m[2massets/[22m[36mArticleComparisonTable-ZKwa8mRB.js                    [39m[1m[2m  1.00 kB[22m[1m[22m[2m │ gzip:   0.54 kB[22m
+2026-02-06T10:32:16.7725087Z [2mdist/[22m[2massets/[22m[36mBaseCard-DrovKBI0.js                                  [39m[1m[2m  1.04 kB[22m[1m[22m[2m │ gzip:   0.57 kB[22m
+2026-02-06T10:32:16.7726947Z [2mdist/[22m[2massets/[22m[36museParallax-BIPSSChv.js                               [39m[1m[2m  1.06 kB[22m[1m[22m[2m │ gzip:   0.55 kB[22m
+2026-02-06T10:32:16.7728790Z [2mdist/[22m[2massets/[22m[36mAccordion-CLPSXVi8.js                                 [39m[1m[2m  1.15 kB[22m[1m[22m[2m │ gzip:   0.63 kB[22m
+2026-02-06T10:32:16.7730803Z [2mdist/[22m[2massets/[22m[36mAmbientBackground-UvsVGOft.js                         [39m[1m[2m  1.18 kB[22m[1m[22m[2m │ gzip:   0.57 kB[22m
+2026-02-06T10:32:16.7732761Z [2mdist/[22m[2massets/[22m[36mknowledge-base-B-rK5ODG.js                            [39m[1m[2m  1.19 kB[22m[1m[22m[2m │ gzip:   0.70 kB[22m
+2026-02-06T10:32:16.7734665Z [2mdist/[22m[2massets/[22m[36mPortalVerify-DnRr1yn6.js                              [39m[1m[2m  1.21 kB[22m[1m[22m[2m │ gzip:   0.66 kB[22m
+2026-02-06T10:32:16.7736578Z [2mdist/[22m[2massets/[22m[36mNotFound-DAyOZJsy.js                                  [39m[1m[2m  1.28 kB[22m[1m[22m[2m │ gzip:   0.70 kB[22m
+2026-02-06T10:32:16.7738469Z [2mdist/[22m[2massets/[22m[36mMarketGrowthChart-DM6i3imO.js                         [39m[1m[2m  1.32 kB[22m[1m[22m[2m │ gzip:   0.71 kB[22m
+2026-02-06T10:32:16.7740497Z [2mdist/[22m[2massets/[22m[36mSectionHeader-BhbGD2wq.js                             [39m[1m[2m  1.44 kB[22m[1m[22m[2m │ gzip:   0.71 kB[22m
+2026-02-06T10:32:16.7742483Z [2mdist/[22m[2massets/[22m[36mServerLoadChart-BkGbEy73.js                           [39m[1m[2m  1.72 kB[22m[1m[22m[2m │ gzip:   0.75 kB[22m
+2026-02-06T10:32:16.7744597Z [2mdist/[22m[2massets/[22m[36mIntegrationGrid-DV8-gDoQ.js                           [39m[1m[2m  2.10 kB[22m[1m[22m[2m │ gzip:   0.97 kB[22m
+2026-02-06T10:32:16.7746509Z [2mdist/[22m[2massets/[22m[36mPortalLogin-CpgWGZ8m.js                               [39m[1m[2m  2.37 kB[22m[1m[22m[2m │ gzip:   1.10 kB[22m
+2026-02-06T10:32:16.7748673Z [2mdist/[22m[2massets/[22m[36mWhyUs-Cqy_J_WG.js                                     [39m[1m[2m  2.42 kB[22m[1m[22m[2m │ gzip:   1.04 kB[22m
+2026-02-06T10:32:16.7750794Z [2mdist/[22m[2massets/[22m[36mBaseCta-DwNQtQvz.js                                   [39m[1m[2m  2.42 kB[22m[1m[22m[2m │ gzip:   1.04 kB[22m
+2026-02-06T10:32:16.7752681Z [2mdist/[22m[2massets/[22m[36mStandardHero-bMi7MRqL.js                              [39m[1m[2m  2.68 kB[22m[1m[22m[2m │ gzip:   1.11 kB[22m
+2026-02-06T10:32:16.7754601Z [2mdist/[22m[2massets/[22m[36mhome-Da0Tq2sO.js                                      [39m[1m[2m  2.73 kB[22m[1m[22m[2m │ gzip:   1.50 kB[22m
+2026-02-06T10:32:16.7756834Z [2mdist/[22m[2massets/[22m[36mpdfService-DhVATrBV.js                                [39m[1m[2m  2.92 kB[22m[1m[22m[2m │ gzip:   1.38 kB[22m
+2026-02-06T10:32:16.7758765Z [2mdist/[22m[2massets/[22m[36mKnowledgeBaseTeaser-DG6_R_Qq.js                       [39m[1m[2m  3.00 kB[22m[1m[22m[2m │ gzip:   1.35 kB[22m
+2026-02-06T10:32:16.7760918Z [2mdist/[22m[2massets/[22m[36mArticleShell-CRhryWC0.js                              [39m[1m[2m  3.35 kB[22m[1m[22m[2m │ gzip:   1.53 kB[22m
+2026-02-06T10:32:16.7762881Z [2mdist/[22m[2massets/[22m[36mPricingTable-G_wA203B.js                              [39m[1m[2m  3.84 kB[22m[1m[22m[2m │ gzip:   1.60 kB[22m
+2026-02-06T10:32:16.7764761Z [2mdist/[22m[2massets/[22m[36mPrivacyPolicy-B2ORBeWh.js                             [39m[1m[2m  3.87 kB[22m[1m[22m[2m │ gzip:   1.18 kB[22m
+2026-02-06T10:32:16.7766661Z [2mdist/[22m[2massets/[22m[36mLeadMagnet-DJF4jCwG.js                                [39m[1m[2m  4.07 kB[22m[1m[22m[2m │ gzip:   1.39 kB[22m
+2026-02-06T10:32:16.7768551Z [2mdist/[22m[2massets/[22m[36mTermsOfService-DONaeNBg.js                            [39m[1m[2m  4.46 kB[22m[1m[22m[2m │ gzip:   1.48 kB[22m
+2026-02-06T10:32:16.7770594Z [2mdist/[22m[2massets/[22m[36mcmsService-GgGRMQf0.js                                [39m[1m[2m  4.76 kB[22m[1m[22m[2m │ gzip:   1.33 kB[22m
+2026-02-06T10:32:16.7772479Z [2mdist/[22m[2massets/[22m[36mServices-DgCbTocj.js                                  [39m[1m[2m  5.09 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+2026-02-06T10:32:16.7774328Z [2mdist/[22m[2massets/[22m[36mRelatedArticles-DDi6qNW9.js                           [39m[1m[2m  5.44 kB[22m[1m[22m[2m │ gzip:   1.78 kB[22m
+2026-02-06T10:32:16.7776215Z [2mdist/[22m[2massets/[22m[36mArticleTemplate-CcrUD9vM.js                           [39m[1m[2m  6.01 kB[22m[1m[22m[2m │ gzip:   2.31 kB[22m
+2026-02-06T10:32:16.7778108Z [2mdist/[22m[2massets/[22m[36mAuditTeaser-ByI580Hs.js                               [39m[1m[2m  6.12 kB[22m[1m[22m[2m │ gzip:   2.18 kB[22m
+2026-02-06T10:32:16.7779930Z [2mdist/[22m[2massets/[22m[36mmain-9xNipYqG.js                                      [39m[1m[2m  6.42 kB[22m[1m[22m[2m │ gzip:   3.17 kB[22m
+2026-02-06T10:32:16.7781951Z [2mdist/[22m[2massets/[22m[36mAuditProgress--E0cciJu.js                             [39m[1m[2m  6.69 kB[22m[1m[22m[2m │ gzip:   2.62 kB[22m
+2026-02-06T10:32:16.7783808Z [2mdist/[22m[2massets/[22m[36mPortfolioPage-D5xBnWzu.js                             [39m[1m[2m  7.20 kB[22m[1m[22m[2m │ gzip:   2.69 kB[22m
+2026-02-06T10:32:16.7785644Z [2mdist/[22m[2massets/[22m[36mindex-CbQ-y0Zo.js                                     [39m[1m[2m  7.55 kB[22m[1m[22m[2m │ gzip:   2.71 kB[22m
+2026-02-06T10:32:16.7787483Z [2mdist/[22m[2massets/[22m[36mKnowledgeBase-CMJrtv90.js                             [39m[1m[2m  7.96 kB[22m[1m[22m[2m │ gzip:   2.99 kB[22m
+2026-02-06T10:32:16.7789365Z [2mdist/[22m[2massets/[22m[36mContactPage-OlE_wMqy.js                               [39m[1m[2m  8.25 kB[22m[1m[22m[2m │ gzip:   3.04 kB[22m
+2026-02-06T10:32:16.7791708Z [2mdist/[22m[2massets/[22m[36mstegaEncodeSourceMap-BNaa4SDe.js                      [39m[1m[2m  8.40 kB[22m[1m[22m[2m │ gzip:   3.46 kB[22m
+2026-02-06T10:32:16.7793610Z [2mdist/[22m[2massets/[22m[36mAuditPage-Djei81L2.js                                 [39m[1m[2m  9.14 kB[22m[1m[22m[2m │ gzip:   3.41 kB[22m
+2026-02-06T10:32:16.7795370Z [2mdist/[22m[2massets/[22m[36mHome-Cn7eokyW.js                                      [39m[1m[2m  9.83 kB[22m[1m[22m[2m │ gzip:   3.44 kB[22m
+2026-02-06T10:32:16.7797212Z [2mdist/[22m[2massets/[22m[36mtooltipContext-Dp4likuX.js                            [39m[1m[2m 10.94 kB[22m[1m[22m[2m │ gzip:   3.51 kB[22m
+2026-02-06T10:32:16.7799288Z [2mdist/[22m[2massets/[22m[36mbrowser-BX3VzlVB.js                                   [39m[1m[2m 12.39 kB[22m[1m[22m[2m │ gzip:   4.86 kB[22m
+2026-02-06T10:32:16.7801292Z [2mdist/[22m[2massets/[22m[36mPseoTemplate-Gw1f7yaj.js                              [39m[1m[2m 13.47 kB[22m[1m[22m[2m │ gzip:   4.36 kB[22m
+2026-02-06T10:32:16.7803283Z [2mdist/[22m[2massets/[22m[36mServerSideTrackingArticle-D4jSHpKc.js                 [39m[1m[2m 14.35 kB[22m[1m[22m[2m │ gzip:   4.92 kB[22m
+2026-02-06T10:32:16.7805212Z [2mdist/[22m[2massets/[22m[36mVisualAudit-Di4nzHMB.js                               [39m[1m[2m 15.48 kB[22m[1m[22m[2m │ gzip:   5.36 kB[22m
+2026-02-06T10:32:16.7807061Z [2mdist/[22m[2massets/[22m[36mCorporateWebsite-C8DnW9mx.js                          [39m[1m[2m 15.68 kB[22m[1m[22m[2m │ gzip:   5.94 kB[22m
+2026-02-06T10:32:16.7808899Z [2mdist/[22m[2massets/[22m[36mGoArticle-3QtD_Vo8.js                                 [39m[1m[2m 16.67 kB[22m[1m[22m[2m │ gzip:   5.17 kB[22m
+2026-02-06T10:32:16.7810920Z [2mdist/[22m[2massets/[22m[36mPriceCalculator-v_5K07M_.js                           [39m[1m[2m 16.77 kB[22m[1m[22m[2m │ gzip:   5.56 kB[22m
+2026-02-06T10:32:16.7812965Z [2mdist/[22m[2massets/[22m[36mPostgresArticle-BlKkTwPb.js                           [39m[1m[2m 17.26 kB[22m[1m[22m[2m │ gzip:   5.85 kB[22m
+2026-02-06T10:32:16.7814902Z [2mdist/[22m[2massets/[22m[36mLaravelArticle-BB7YruH8.js                            [39m[1m[2m 17.32 kB[22m[1m[22m[2m │ gzip:   5.99 kB[22m
+2026-02-06T10:32:16.7816841Z [2mdist/[22m[2massets/[22m[36mLandingPage-D_C6tqpJ.js                               [39m[1m[2m 17.42 kB[22m[1m[22m[2m │ gzip:   6.42 kB[22m
+2026-02-06T10:32:16.7818844Z [2mdist/[22m[2massets/[22m[36mAreaChart-DFOXHsjf.js                                 [39m[1m[2m 17.47 kB[22m[1m[22m[2m │ gzip:   5.44 kB[22m
+2026-02-06T10:32:16.7820855Z [2mdist/[22m[2massets/[22m[36mCiCdArticle-DHuz0BUK.js                               [39m[1m[2m 18.10 kB[22m[1m[22m[2m │ gzip:   5.52 kB[22m
+2026-02-06T10:32:16.7822817Z [2mdist/[22m[2massets/[22m[36mDockerArticle-BhN3S84Z.js                             [39m[1m[2m 18.46 kB[22m[1m[22m[2m │ gzip:   5.87 kB[22m
+2026-02-06T10:32:16.7824868Z [2mdist/[22m[2massets/[22m[36mDesignBranding-CPAbtp49.js                            [39m[1m[2m 18.52 kB[22m[1m[22m[2m │ gzip:   6.54 kB[22m
+2026-02-06T10:32:16.7826744Z [2mdist/[22m[2massets/[22m[36mOffers-CROi5bhh.js                                    [39m[1m[2m 18.72 kB[22m[1m[22m[2m │ gzip:   6.28 kB[22m
+2026-02-06T10:32:16.7828647Z [2mdist/[22m[2massets/[22m[36mVueArticle-COVqhii4.js                                [39m[1m[2m 18.96 kB[22m[1m[22m[2m │ gzip:   5.90 kB[22m
+2026-02-06T10:32:16.7830823Z [2mdist/[22m[2massets/[22m[36mTypeScriptArticle-BrF5a-o1.js                         [39m[1m[2m 18.96 kB[22m[1m[22m[2m │ gzip:   5.94 kB[22m
+2026-02-06T10:32:16.7832731Z [2mdist/[22m[2massets/[22m[36mDevOpsArticle-x8Aed_4X.js                             [39m[1m[2m 19.42 kB[22m[1m[22m[2m │ gzip:   6.04 kB[22m
+2026-02-06T10:32:16.7834611Z [2mdist/[22m[2massets/[22m[36mFrontendArticle-A3T8uAi8.js                           [39m[1m[2m 19.49 kB[22m[1m[22m[2m │ gzip:   5.21 kB[22m
+2026-02-06T10:32:16.7836738Z [2mdist/[22m[2massets/[22m[36mCustomWebApp-CARtGEAc.js                              [39m[1m[2m 19.57 kB[22m[1m[22m[2m │ gzip:   6.98 kB[22m
+2026-02-06T10:32:16.7838599Z [2mdist/[22m[2massets/[22m[36mTailwindArticle-BakrktE6.js                           [39m[1m[2m 19.98 kB[22m[1m[22m[2m │ gzip:   6.34 kB[22m
+2026-02-06T10:32:16.7840620Z [2mdist/[22m[2massets/[22m[36mMongoArticle-DOmru89i.js                              [39m[1m[2m 20.18 kB[22m[1m[22m[2m │ gzip:   6.53 kB[22m
+2026-02-06T10:32:16.7842563Z [2mdist/[22m[2massets/[22m[36mCoreWebVitalsArticle-DwU8M0ar.js                      [39m[1m[2m 20.29 kB[22m[1m[22m[2m │ gzip:   6.65 kB[22m
+2026-02-06T10:32:16.7844777Z [2mdist/[22m[2massets/[22m[36mDatabaseCompendiumArticle-Dlr3F0PK.js                 [39m[1m[2m 20.38 kB[22m[1m[22m[2m │ gzip:   6.45 kB[22m
+2026-02-06T10:32:16.7846731Z [2mdist/[22m[2massets/[22m[36mHeadlessArticle-DfYX9hZj.js                           [39m[1m[2m 20.47 kB[22m[1m[22m[2m │ gzip:   6.25 kB[22m
+2026-02-06T10:32:16.7848651Z [2mdist/[22m[2massets/[22m[36mPythonArticle-C-wVb4t8.js                             [39m[1m[2m 20.54 kB[22m[1m[22m[2m │ gzip:   6.61 kB[22m
+2026-02-06T10:32:16.7850629Z [2mdist/[22m[2massets/[22m[36mNodeArticle-DUUa4mUF.js                               [39m[1m[2m 20.63 kB[22m[1m[22m[2m │ gzip:   6.26 kB[22m
+2026-02-06T10:32:16.7852562Z [2mdist/[22m[2massets/[22m[36mCaseStudyTemplate-TTjixTbp.js                         [39m[1m[2m 20.69 kB[22m[1m[22m[2m │ gzip:   6.10 kB[22m
+2026-02-06T10:32:16.7854542Z [2mdist/[22m[2massets/[22m[36mElasticsearchArticle-DsuWQcu7.js                      [39m[1m[2m 20.74 kB[22m[1m[22m[2m │ gzip:   6.62 kB[22m
+2026-02-06T10:32:16.7856478Z [2mdist/[22m[2massets/[22m[36mGoogleAdsArticle-cjjxDuOf.js                          [39m[1m[2m 20.78 kB[22m[1m[22m[2m │ gzip:   6.77 kB[22m
+2026-02-06T10:32:16.7858378Z [2mdist/[22m[2massets/[22m[36mpurify.es-BjU8njvH.js                                 [39m[1m[2m 22.39 kB[22m[1m[22m[2m │ gzip:   8.59 kB[22m
+2026-02-06T10:32:16.7860377Z [2mdist/[22m[2massets/[22m[36mWafArticle-B4YYqGYu.js                                [39m[1m[2m 22.90 kB[22m[1m[22m[2m │ gzip:   7.04 kB[22m
+2026-02-06T10:32:16.7862241Z [2mdist/[22m[2massets/[22m[36mReactJsArticle-BGQ9-xyK.js                            [39m[1m[2m 24.26 kB[22m[1m[22m[2m │ gzip:   6.77 kB[22m
+2026-02-06T10:32:16.8162317Z [2mdist/[22m[2massets/[22m[36mGoogleAds-ts4S2khQ.js                                 [39m[1m[2m 24.35 kB[22m[1m[22m[2m │ gzip:   7.61 kB[22m
+2026-02-06T10:32:16.8164391Z [2mdist/[22m[2massets/[22m[36mMarketing-gnvUEheu.js                                 [39m[1m[2m 25.00 kB[22m[1m[22m[2m │ gzip:   7.56 kB[22m
+2026-02-06T10:32:16.8166294Z [2mdist/[22m[2massets/[22m[36mUxAuditArticle-D3IUXQqJ.js                            [39m[1m[2m 25.63 kB[22m[1m[22m[2m │ gzip:   7.28 kB[22m
+2026-02-06T10:32:16.8168253Z [2mdist/[22m[2massets/[22m[36mEdgeComputingArticle-C_5fi6IA.js                      [39m[1m[2m 25.84 kB[22m[1m[22m[2m │ gzip:   8.24 kB[22m
+2026-02-06T10:32:16.8170303Z [2mdist/[22m[2massets/[22m[36mNextJsArticle-xsDDtbSE.js                             [39m[1m[2m 27.74 kB[22m[1m[22m[2m │ gzip:   8.55 kB[22m
+2026-02-06T10:32:16.8172226Z [2mdist/[22m[2massets/[22m[36mMarketingSeo-DrbFjDhj.js                              [39m[1m[2m 28.26 kB[22m[1m[22m[2m │ gzip:   9.27 kB[22m
+2026-02-06T10:32:16.8174118Z [2mdist/[22m[2massets/[22m[36mBrandIdentity-CaJMPXXd.js                             [39m[1m[2m 28.30 kB[22m[1m[22m[2m │ gzip:   8.67 kB[22m
+2026-02-06T10:32:16.8176020Z [2mdist/[22m[2massets/[22m[36mCartesianChart-B3elnXaS.js                            [39m[1m[2m 28.65 kB[22m[1m[22m[2m │ gzip:   7.96 kB[22m
+2026-02-06T10:32:16.8178346Z [2mdist/[22m[2massets/[22m[36mPortalDashboard-5v9WebIB.js                           [39m[1m[2m 29.00 kB[22m[1m[22m[2m │ gzip:   8.19 kB[22m
+2026-02-06T10:32:16.8180356Z [2mdist/[22m[2massets/[22m[36mEcommerce-Brz4T-WH.js                                 [39m[1m[2m 29.01 kB[22m[1m[22m[2m │ gzip:   8.62 kB[22m
+2026-02-06T10:32:16.8182247Z [2mdist/[22m[2massets/[22m[36mCdnArticle-BMYow5Z9.js                                [39m[1m[2m 29.18 kB[22m[1m[22m[2m │ gzip:   9.41 kB[22m
+2026-02-06T10:32:16.8184119Z [2mdist/[22m[2massets/[22m[36mAnalytics-CHsvavQg.js                                 [39m[1m[2m 29.22 kB[22m[1m[22m[2m │ gzip:   8.92 kB[22m
+2026-02-06T10:32:16.8186242Z [2mdist/[22m[2massets/[22m[36mPrintDesign-B6Aj3n5y.js                               [39m[1m[2m 30.81 kB[22m[1m[22m[2m │ gzip:   9.67 kB[22m
+2026-02-06T10:32:16.8188172Z [2mdist/[22m[2massets/[22m[36mMetaAds-DMI45JKz.js                                   [39m[1m[2m 31.24 kB[22m[1m[22m[2m │ gzip:   8.98 kB[22m
+2026-02-06T10:32:16.8190431Z [2mdist/[22m[2massets/[22m[36mBackendCompendiumArticle-Ke2qdrnc.js                  [39m[1m[2m 32.28 kB[22m[1m[22m[2m │ gzip:   9.40 kB[22m
+2026-02-06T10:32:16.8192501Z [2mdist/[22m[2massets/[22m[36mImageFormatsArticle-pXtOQNwW.js                       [39m[1m[2m 35.09 kB[22m[1m[22m[2m │ gzip:  11.97 kB[22m
+2026-02-06T10:32:16.8194541Z [2mdist/[22m[2massets/[22m[36mWebDevelopment-XjlW3iPQ.js                            [39m[1m[2m 35.68 kB[22m[1m[22m[2m │ gzip:   8.90 kB[22m
+2026-02-06T10:32:16.8196535Z [2mdist/[22m[2massets/[22m[36mAdminDashboard-kkulhwFV.js                            [39m[1m[2m 36.65 kB[22m[1m[22m[2m │ gzip:   9.38 kB[22m
+2026-02-06T10:32:16.8198711Z [2mdist/[22m[2massets/[22m[36mUiUxDesign-DGUy-swK.js                                [39m[1m[2m 37.14 kB[22m[1m[22m[2m │ gzip:   9.18 kB[22m
+2026-02-06T10:32:16.8201006Z [2mdist/[22m[2massets/[22m[36mAuditDashboard-DMmzfxcY.js                            [39m[1m[2m 37.46 kB[22m[1m[22m[2m │ gzip:  10.65 kB[22m
+2026-02-06T10:32:16.8203362Z [2mdist/[22m[2massets/[22m[36mRedisArticle-ANrI_6YY.js                              [39m[1m[2m 49.50 kB[22m[1m[22m[2m │ gzip:  15.96 kB[22m
+2026-02-06T10:32:16.8205362Z [2mdist/[22m[2massets/[22m[36mSeo-CZZNJx0l.js                                       [39m[1m[2m100.82 kB[22m[1m[22m[2m │ gzip:  32.79 kB[22m
+2026-02-06T10:32:16.8207429Z [2mdist/[22m[2massets/[22m[36mContactModal-D_DFVzH9.js                              [39m[1m[2m117.11 kB[22m[1m[22m[2m │ gzip:  36.87 kB[22m
+2026-02-06T10:32:16.8209522Z [2mdist/[22m[2massets/[22m[36mindex.es-CvnN29Lx.js                                  [39m[1m[2m158.39 kB[22m[1m[22m[2m │ gzip:  52.88 kB[22m
+2026-02-06T10:32:16.8331940Z [2mdist/[22m[2massets/[22m[36mhtml2canvas.esm-DmLBsbfV.js                           [39m[1m[2m200.54 kB[22m[1m[22m[2m │ gzip:  47.30 kB[22m
+2026-02-06T10:32:16.8351737Z [2mdist/[22m[2massets/[22m[36mCategoricalChart-CwNb7E-j.js                          [39m[1m[2m293.10 kB[22m[1m[22m[2m │ gzip:  91.19 kB[22m
+2026-02-06T10:32:16.8366270Z [2mdist/[22m[2massets/[22m[36mjspdf.es.min-B1emD-54.js                              [39m[1m[2m385.05 kB[22m[1m[22m[2m │ gzip: 125.72 kB[22m
+2026-02-06T10:32:16.8368007Z [2mdist/[22m[2massets/[22m[36mindex-DvSu3Qh9.js                                     [39m[1m[2m479.55 kB[22m[1m[22m[2m │ gzip: 156.19 kB[22m
+2026-02-06T10:32:16.8368952Z [32m✓ built in 22.65s[39m
+2026-02-06T10:32:37.0342325Z 
+2026-02-06T10:32:37.0344145Z ✨ [vite-plugin-compression]:algorithm=gzip - compressed file successfully: 
+2026-02-06T10:32:37.0346699Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Accordion-CLPSXVi8.js.gz                   1.12kb / gzip: 0.61kb
+2026-02-06T10:32:37.0349178Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AdminDashboard-kkulhwFV.js.gz              35.79kb / gzip: 9.11kb
+2026-02-06T10:32:37.0353420Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AmbientBackground-UvsVGOft.js.gz           1.15kb / gzip: 0.55kb
+2026-02-06T10:32:37.0355757Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AreaChart-DFOXHsjf.js.gz                   17.06kb / gzip: 5.30kb
+2026-02-06T10:32:37.0357699Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ArticleShell-CRhryWC0.js.gz                3.27kb / gzip: 1.50kb
+2026-02-06T10:32:37.0359618Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ArticleTemplate-CcrUD9vM.js.gz             5.86kb / gzip: 2.25kb
+2026-02-06T10:32:37.0362169Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditDashboard-DMmzfxcY.js.gz              36.58kb / gzip: 10.36kb
+2026-02-06T10:32:37.0364282Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditPage-Djei81L2.js.gz                   8.93kb / gzip: 3.33kb
+2026-02-06T10:32:37.0366380Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditProgress--E0cciJu.js.gz               6.54kb / gzip: 2.56kb
+2026-02-06T10:32:37.0368425Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditTeaser-ByI580Hs.js.gz                 5.97kb / gzip: 2.13kb
+2026-02-06T10:32:37.0400606Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BaseCard-DrovKBI0.js.gz                    1.01kb / gzip: 0.56kb
+2026-02-06T10:32:37.0402570Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BaseCta-DwNQtQvz.js.gz                     2.37kb / gzip: 1.01kb
+2026-02-06T10:32:37.0404504Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BrandIdentity-CaJMPXXd.js.gz               27.63kb / gzip: 8.45kb
+2026-02-06T10:32:37.0406474Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BackendCompendiumArticle-Ke2qdrnc.js.gz    31.53kb / gzip: 9.16kb
+2026-02-06T10:32:37.0408418Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Analytics-CHsvavQg.js.gz                   28.53kb / gzip: 8.70kb
+2026-02-06T10:32:37.0410468Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CartesianChart-B3elnXaS.js.gz              27.98kb / gzip: 7.77kb
+2026-02-06T10:32:37.0412424Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CaseStudyTemplate-TTjixTbp.js.gz           20.20kb / gzip: 5.94kb
+2026-02-06T10:32:37.0414348Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CdnArticle-BMYow5Z9.js.gz                  28.49kb / gzip: 9.17kb
+2026-02-06T10:32:37.0416263Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CiCdArticle-DHuz0BUK.js.gz                 17.67kb / gzip: 5.38kb
+2026-02-06T10:32:37.0418152Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ContactPage-OlE_wMqy.js.gz                 8.05kb / gzip: 2.97kb
+2026-02-06T10:32:37.0420077Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CoreWebVitalsArticle-DwU8M0ar.js.gz        19.82kb / gzip: 6.49kb
+2026-02-06T10:32:37.0462283Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CorporateWebsite-C8DnW9mx.js.gz            15.31kb / gzip: 5.79kb
+2026-02-06T10:32:37.0464242Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CustomWebApp-CARtGEAc.js.gz                19.11kb / gzip: 6.81kb
+2026-02-06T10:32:37.0466193Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DatabaseCompendiumArticle-Dlr3F0PK.js.gz   19.91kb / gzip: 6.29kb
+2026-02-06T10:32:37.0468211Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DesignBranding-CPAbtp49.js.gz              18.09kb / gzip: 6.39kb
+2026-02-06T10:32:37.0470346Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DevOpsArticle-x8Aed_4X.js.gz               18.96kb / gzip: 5.88kb
+2026-02-06T10:32:37.0512784Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Ecommerce-Brz4T-WH.js.gz                   28.33kb / gzip: 8.40kb
+2026-02-06T10:32:37.0514746Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/EdgeComputingArticle-C_5fi6IA.js.gz        25.24kb / gzip: 8.03kb
+2026-02-06T10:32:37.0516715Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ElasticsearchArticle-DsuWQcu7.js.gz        20.26kb / gzip: 6.45kb
+2026-02-06T10:32:37.0518668Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/FrontendArticle-A3T8uAi8.js.gz             19.03kb / gzip: 5.08kb
+2026-02-06T10:32:37.0521134Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoArticle-3QtD_Vo8.js.gz                   16.28kb / gzip: 5.03kb
+2026-02-06T10:32:37.0523086Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoogleAdsArticle-cjjxDuOf.js.gz            20.29kb / gzip: 6.60kb
+2026-02-06T10:32:37.0525034Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/HeadlessArticle-DfYX9hZj.js.gz             19.99kb / gzip: 6.09kb
+2026-02-06T10:32:37.0526896Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Home-Cn7eokyW.js.gz                        9.60kb / gzip: 3.36kb
+2026-02-06T10:32:37.0528756Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/IntegrationGrid-DV8-gDoQ.js.gz             2.05kb / gzip: 0.94kb
+2026-02-06T10:32:37.0570833Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DockerArticle-BhN3S84Z.js.gz               18.03kb / gzip: 5.72kb
+2026-02-06T10:32:37.0572769Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoogleAds-ts4S2khQ.js.gz                   23.77kb / gzip: 7.42kb
+2026-02-06T10:32:37.0574655Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ImageFormatsArticle-pXtOQNwW.js.gz         34.26kb / gzip: 11.68kb
+2026-02-06T10:32:37.0576553Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/KnowledgeBase-CMJrtv90.js.gz               7.78kb / gzip: 2.92kb
+2026-02-06T10:32:37.0578427Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/KnowledgeBaseTeaser-DG6_R_Qq.js.gz         2.93kb / gzip: 1.31kb
+2026-02-06T10:32:37.0580424Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LaravelArticle-BB7YruH8.js.gz              16.91kb / gzip: 5.84kb
+2026-02-06T10:32:37.0582294Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LeadMagnet-DJF4jCwG.js.gz                  3.98kb / gzip: 1.35kb
+2026-02-06T10:32:37.0584183Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MarketGrowthChart-DM6i3imO.js.gz           1.29kb / gzip: 0.69kb
+2026-02-06T10:32:37.0586054Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Marketing-gnvUEheu.js.gz                   24.42kb / gzip: 7.38kb
+2026-02-06T10:32:37.0587913Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MarketingSeo-DrbFjDhj.js.gz                27.60kb / gzip: 9.04kb
+2026-02-06T10:32:37.0589760Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MetaAds-DMI45JKz.js.gz                     30.51kb / gzip: 8.74kb
+2026-02-06T10:32:37.0615110Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LandingPage-D_C6tqpJ.js.gz                 17.02kb / gzip: 6.26kb
+2026-02-06T10:32:37.0617053Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NextJsArticle-xsDDtbSE.js.gz               27.09kb / gzip: 8.32kb
+2026-02-06T10:32:37.0618959Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NodeArticle-DUUa4mUF.js.gz                 20.14kb / gzip: 6.10kb
+2026-02-06T10:32:37.0621037Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NotFound-DAyOZJsy.js.gz                    1.25kb / gzip: 0.68kb
+2026-02-06T10:32:37.0623155Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalDashboard-5v9WebIB.js.gz             28.32kb / gzip: 7.96kb
+2026-02-06T10:32:37.0625027Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalLogin-CpgWGZ8m.js.gz                 2.32kb / gzip: 1.08kb
+2026-02-06T10:32:37.0626881Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalVerify-DnRr1yn6.js.gz                1.18kb / gzip: 0.65kb
+2026-02-06T10:32:37.0628744Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortfolioPage-D5xBnWzu.js.gz               7.03kb / gzip: 2.62kb
+2026-02-06T10:32:37.0630955Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PostgresArticle-BlKkTwPb.js.gz             16.85kb / gzip: 5.70kb
+2026-02-06T10:32:37.0632873Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PriceCalculator-v_5K07M_.js.gz             16.37kb / gzip: 5.42kb
+2026-02-06T10:32:37.0634792Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PricingTable-G_wA203B.js.gz                3.75kb / gzip: 1.56kb
+2026-02-06T10:32:37.0636638Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PrintDesign-B6Aj3n5y.js.gz                 30.09kb / gzip: 9.42kb
+2026-02-06T10:32:37.0638497Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PrivacyPolicy-B2ORBeWh.js.gz               3.78kb / gzip: 1.15kb
+2026-02-06T10:32:37.0640507Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PythonArticle-C-wVb4t8.js.gz               20.05kb / gzip: 6.45kb
+2026-02-06T10:32:37.0642415Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ReactJsArticle-BGQ9-xyK.js.gz              23.69kb / gzip: 6.59kb
+2026-02-06T10:32:37.0644288Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/RedisArticle-ANrI_6YY.js.gz                48.34kb / gzip: 15.56kb
+2026-02-06T10:32:37.0646172Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/RelatedArticles-DDi6qNW9.js.gz             5.32kb / gzip: 1.74kb
+2026-02-06T10:32:37.0648050Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/SectionHeader-BhbGD2wq.js.gz               1.40kb / gzip: 0.70kb
+2026-02-06T10:32:37.0649892Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Offers-CROi5bhh.js.gz                      18.28kb / gzip: 6.12kb
+2026-02-06T10:32:37.0651876Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ServerLoadChart-BkGbEy73.js.gz             1.68kb / gzip: 0.73kb
+2026-02-06T10:32:37.0653783Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ServerSideTrackingArticle-D4jSHpKc.js.gz   14.02kb / gzip: 4.80kb
+2026-02-06T10:32:37.0655672Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Services-DgCbTocj.js.gz                    4.97kb / gzip: 1.82kb
+2026-02-06T10:32:37.0657536Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/StandardHero-bMi7MRqL.js.gz                2.62kb / gzip: 1.08kb
+2026-02-06T10:32:37.0659417Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TailwindArticle-BakrktE6.js.gz             19.51kb / gzip: 6.18kb
+2026-02-06T10:32:37.0661428Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TermsOfService-DONaeNBg.js.gz              4.36kb / gzip: 1.45kb
+2026-02-06T10:32:37.0663321Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TypeScriptArticle-BrF5a-o1.js.gz           18.52kb / gzip: 5.79kb
+2026-02-06T10:32:37.0665207Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MongoArticle-DOmru89i.js.gz                19.71kb / gzip: 6.37kb
+2026-02-06T10:32:37.0667072Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/UxAuditArticle-D3IUXQqJ.js.gz              25.03kb / gzip: 7.09kb
+2026-02-06T10:32:37.0669117Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/VisualAudit-Di4nzHMB.js.gz                 15.12kb / gzip: 5.23kb
+2026-02-06T10:32:37.0671127Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WafArticle-B4YYqGYu.js.gz                  22.36kb / gzip: 6.86kb
+2026-02-06T10:32:37.0672988Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/VueArticle-COVqhii4.js.gz                  18.51kb / gzip: 5.75kb
+2026-02-06T10:32:37.0674850Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PseoTemplate-Gw1f7yaj.js.gz                13.15kb / gzip: 4.24kb
+2026-02-06T10:32:37.0676846Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WhyUs-Cqy_J_WG.js.gz                       2.36kb / gzip: 1.02kb
+2026-02-06T10:32:37.0678646Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/browser-BX3VzlVB.js.gz                     12.09kb / gzip: 4.75kb
+2026-02-06T10:32:37.0680620Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/cmsService-GgGRMQf0.js.gz                  4.65kb / gzip: 1.29kb
+2026-02-06T10:32:37.0682452Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/home-Da0Tq2sO.js.gz                        2.67kb / gzip: 1.47kb
+2026-02-06T10:32:37.0684284Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/UiUxDesign-DGUy-swK.js.gz                  36.27kb / gzip: 8.92kb
+2026-02-06T10:32:37.0686142Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WebDevelopment-XjlW3iPQ.js.gz              34.85kb / gzip: 8.66kb
+2026-02-06T10:32:37.0687986Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-CbQ-y0Zo.js.gz                       7.37kb / gzip: 2.64kb
+2026-02-06T10:32:37.0689811Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/knowledge-base-B-rK5ODG.js.gz              1.16kb / gzip: 0.69kb
+2026-02-06T10:32:37.0691795Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/main-9xNipYqG.js.gz                        6.27kb / gzip: 3.09kb
+2026-02-06T10:32:37.0693613Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/pdfService-DhVATrBV.js.gz                  2.86kb / gzip: 1.35kb
+2026-02-06T10:32:37.0695468Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/purify.es-BjU8njvH.js.gz                   21.86kb / gzip: 8.39kb
+2026-02-06T10:32:37.0697337Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/stegaEncodeSourceMap-BNaa4SDe.js.gz        8.21kb / gzip: 3.38kb
+2026-02-06T10:32:37.0699224Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/tooltipContext-Dp4likuX.js.gz              10.68kb / gzip: 3.43kb
+2026-02-06T10:32:37.0701218Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/useParallax-BIPSSChv.js.gz                 1.03kb / gzip: 0.54kb
+2026-02-06T10:32:37.0703012Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/index.html.gz                                     1.53kb / gzip: 0.67kb
+2026-02-06T10:32:37.0704771Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Seo-CZZNJx0l.js.gz                         98.46kb / gzip: 31.96kb
+2026-02-06T10:32:37.0706605Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ContactModal-D_DFVzH9.js.gz                114.37kb / gzip: 35.97kb
+2026-02-06T10:32:37.0708454Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-CRNsb5cB.css.gz                      278.88kb / gzip: 34.51kb
+2026-02-06T10:32:37.0710472Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/html2canvas.esm-DmLBsbfV.js.gz             195.84kb / gzip: 45.94kb
+2026-02-06T10:32:37.0712345Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index.es-CvnN29Lx.js.gz                    154.68kb / gzip: 51.49kb
+2026-02-06T10:32:37.0714372Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CategoricalChart-CwNb7E-j.js.gz            286.23kb / gzip: 88.90kb
+2026-02-06T10:32:37.0716257Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/jspdf.es.min-B1emD-54.js.gz                376.02kb / gzip: 122.48kb
+2026-02-06T10:32:37.0718106Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-DvSu3Qh9.js.gz                       468.31kb / gzip: 152.22kb
+2026-02-06T10:32:37.0720301Z 
+2026-02-06T10:32:37.0720317Z 
+2026-02-06T10:32:37.0720325Z 
+2026-02-06T10:32:37.0721338Z ✨ [vite-plugin-compression]:algorithm=brotliCompress - compressed file successfully: 
+2026-02-06T10:32:37.0722974Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Accordion-CLPSXVi8.js.br                   1.12kb / brotliCompress: 0.52kb
+2026-02-06T10:32:37.0724994Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AmbientBackground-UvsVGOft.js.br           1.15kb / brotliCompress: 0.47kb
+2026-02-06T10:32:37.0727010Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Analytics-CHsvavQg.js.br                   28.53kb / brotliCompress: 7.81kb
+2026-02-06T10:32:37.0728996Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AdminDashboard-kkulhwFV.js.br              35.79kb / brotliCompress: 8.12kb
+2026-02-06T10:32:37.0731151Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ArticleShell-CRhryWC0.js.br                3.27kb / brotliCompress: 1.30kb
+2026-02-06T10:32:37.0733174Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ArticleTemplate-CcrUD9vM.js.br             5.86kb / brotliCompress: 1.99kb
+2026-02-06T10:32:37.0735206Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AreaChart-DFOXHsjf.js.br                   17.06kb / brotliCompress: 4.76kb
+2026-02-06T10:32:37.0737157Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditPage-Djei81L2.js.br                   8.93kb / brotliCompress: 2.98kb
+2026-02-06T10:32:37.0739126Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditProgress--E0cciJu.js.br               6.54kb / brotliCompress: 2.31kb
+2026-02-06T10:32:37.0741239Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditTeaser-ByI580Hs.js.br                 5.97kb / brotliCompress: 1.87kb
+2026-02-06T10:32:37.0743189Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BaseCard-DrovKBI0.js.br                    1.01kb / brotliCompress: 0.49kb
+2026-02-06T10:32:37.0745162Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BaseCta-DwNQtQvz.js.br                     2.37kb / brotliCompress: 0.91kb
+2026-02-06T10:32:37.0747156Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/AuditDashboard-DMmzfxcY.js.br              36.58kb / brotliCompress: 9.37kb
+2026-02-06T10:32:37.0749222Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BackendCompendiumArticle-Ke2qdrnc.js.br    31.53kb / brotliCompress: 8.22kb
+2026-02-06T10:32:37.0751415Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/BrandIdentity-CaJMPXXd.js.br               27.63kb / brotliCompress: 7.53kb
+2026-02-06T10:32:37.0753429Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CaseStudyTemplate-TTjixTbp.js.br           20.20kb / brotliCompress: 5.27kb
+2026-02-06T10:32:37.0755446Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CartesianChart-B3elnXaS.js.br              27.98kb / brotliCompress: 6.78kb
+2026-02-06T10:32:37.0757465Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CiCdArticle-DHuz0BUK.js.br                 17.67kb / brotliCompress: 4.83kb
+2026-02-06T10:32:37.0759426Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CdnArticle-BMYow5Z9.js.br                  28.49kb / brotliCompress: 8.21kb
+2026-02-06T10:32:37.0761695Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ContactPage-OlE_wMqy.js.br                 8.05kb / brotliCompress: 2.66kb
+2026-02-06T10:32:37.0763698Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CoreWebVitalsArticle-DwU8M0ar.js.br        19.82kb / brotliCompress: 5.92kb
+2026-02-06T10:32:37.0765733Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CorporateWebsite-C8DnW9mx.js.br            15.31kb / brotliCompress: 5.25kb
+2026-02-06T10:32:37.0767901Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CustomWebApp-CARtGEAc.js.br                19.11kb / brotliCompress: 6.09kb
+2026-02-06T10:32:37.0769900Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DesignBranding-CPAbtp49.js.br              18.09kb / brotliCompress: 5.77kb
+2026-02-06T10:32:37.0772105Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DatabaseCompendiumArticle-Dlr3F0PK.js.br   19.91kb / brotliCompress: 5.68kb
+2026-02-06T10:32:37.0774137Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DevOpsArticle-x8Aed_4X.js.br               18.96kb / brotliCompress: 5.29kb
+2026-02-06T10:32:37.0776117Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/DockerArticle-BhN3S84Z.js.br               18.03kb / brotliCompress: 5.19kb
+2026-02-06T10:32:37.0778083Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Ecommerce-Brz4T-WH.js.br                   28.33kb / brotliCompress: 7.53kb
+2026-02-06T10:32:37.0780064Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/EdgeComputingArticle-C_5fi6IA.js.br        25.24kb / brotliCompress: 7.19kb
+2026-02-06T10:32:37.0782239Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ElasticsearchArticle-DsuWQcu7.js.br        20.26kb / brotliCompress: 5.80kb
+2026-02-06T10:32:37.0784243Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoArticle-3QtD_Vo8.js.br                   16.28kb / brotliCompress: 4.56kb
+2026-02-06T10:32:37.0786205Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/FrontendArticle-A3T8uAi8.js.br             19.03kb / brotliCompress: 4.56kb
+2026-02-06T10:32:37.0788180Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoogleAds-ts4S2khQ.js.br                   23.77kb / brotliCompress: 6.64kb
+2026-02-06T10:32:37.0790296Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/GoogleAdsArticle-cjjxDuOf.js.br            20.29kb / brotliCompress: 5.98kb
+2026-02-06T10:32:37.0792348Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/HeadlessArticle-DfYX9hZj.js.br             19.99kb / brotliCompress: 5.44kb
+2026-02-06T10:32:37.0811555Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Home-Cn7eokyW.js.br                        9.60kb / brotliCompress: 2.96kb
+2026-02-06T10:32:37.0813543Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/IntegrationGrid-DV8-gDoQ.js.br             2.05kb / brotliCompress: 0.83kb
+2026-02-06T10:32:37.0815551Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/KnowledgeBaseTeaser-DG6_R_Qq.js.br         2.93kb / brotliCompress: 1.16kb
+2026-02-06T10:32:37.0817547Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/KnowledgeBase-CMJrtv90.js.br               7.78kb / brotliCompress: 2.60kb
+2026-02-06T10:32:37.0819520Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LeadMagnet-DJF4jCwG.js.br                  3.98kb / brotliCompress: 1.19kb
+2026-02-06T10:32:37.0821778Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MarketGrowthChart-DM6i3imO.js.br           1.29kb / brotliCompress: 0.63kb
+2026-02-06T10:32:37.0823970Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LandingPage-D_C6tqpJ.js.br                 17.02kb / brotliCompress: 5.59kb
+2026-02-06T10:32:37.0825963Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/LaravelArticle-BB7YruH8.js.br              16.91kb / brotliCompress: 5.25kb
+2026-02-06T10:32:37.0828000Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ImageFormatsArticle-pXtOQNwW.js.br         34.26kb / brotliCompress: 10.46kb
+2026-02-06T10:32:37.0830010Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Marketing-gnvUEheu.js.br                   24.42kb / brotliCompress: 6.65kb
+2026-02-06T10:32:37.0852383Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MarketingSeo-DrbFjDhj.js.br                27.60kb / brotliCompress: 8.11kb
+2026-02-06T10:32:37.0854408Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MongoArticle-DOmru89i.js.br                19.71kb / brotliCompress: 5.79kb
+2026-02-06T10:32:37.0856386Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/MetaAds-DMI45JKz.js.br                     30.51kb / brotliCompress: 7.80kb
+2026-02-06T10:32:37.0858321Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NotFound-DAyOZJsy.js.br                    1.25kb / brotliCompress: 0.60kb
+2026-02-06T10:32:37.0860426Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NodeArticle-DUUa4mUF.js.br                 20.14kb / brotliCompress: 5.48kb
+2026-02-06T10:32:37.0862419Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/NextJsArticle-xsDDtbSE.js.br               27.09kb / brotliCompress: 7.56kb
+2026-02-06T10:32:37.0864418Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalLogin-CpgWGZ8m.js.br                 2.32kb / brotliCompress: 0.94kb
+2026-02-06T10:32:37.0866398Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalVerify-DnRr1yn6.js.br                1.18kb / brotliCompress: 0.58kb
+2026-02-06T10:32:37.0868350Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Offers-CROi5bhh.js.br                      18.28kb / brotliCompress: 5.51kb
+2026-02-06T10:32:37.0890469Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortfolioPage-D5xBnWzu.js.br               7.03kb / brotliCompress: 2.37kb
+2026-02-06T10:32:37.0892476Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PricingTable-G_wA203B.js.br                3.75kb / brotliCompress: 1.40kb
+2026-02-06T10:32:37.0894490Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PortalDashboard-5v9WebIB.js.br             28.32kb / brotliCompress: 7.11kb
+2026-02-06T10:32:37.0896493Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PrivacyPolicy-B2ORBeWh.js.br               3.78kb / brotliCompress: 0.99kb
+2026-02-06T10:32:37.0898473Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PriceCalculator-v_5K07M_.js.br             16.37kb / brotliCompress: 4.87kb
+2026-02-06T10:32:37.0900609Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PostgresArticle-BlKkTwPb.js.br             16.85kb / brotliCompress: 5.15kb
+2026-02-06T10:32:37.0902604Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PseoTemplate-Gw1f7yaj.js.br                13.15kb / brotliCompress: 3.77kb
+2026-02-06T10:32:37.0904599Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PythonArticle-C-wVb4t8.js.br               20.05kb / brotliCompress: 5.83kb
+2026-02-06T10:32:37.0906592Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/PrintDesign-B6Aj3n5y.js.br                 30.09kb / brotliCompress: 8.44kb
+2026-02-06T10:32:37.0908555Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/SectionHeader-BhbGD2wq.js.br               1.40kb / brotliCompress: 0.60kb
+2026-02-06T10:32:37.0930922Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/RelatedArticles-DDi6qNW9.js.br             5.32kb / brotliCompress: 1.54kb
+2026-02-06T10:32:37.0932959Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ReactJsArticle-BGQ9-xyK.js.br              23.69kb / brotliCompress: 5.89kb
+2026-02-06T10:32:37.0935019Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ServerLoadChart-BkGbEy73.js.br             1.68kb / brotliCompress: 0.66kb
+2026-02-06T10:32:37.0936983Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Services-DgCbTocj.js.br                    4.97kb / brotliCompress: 1.61kb
+2026-02-06T10:32:37.0939112Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/StandardHero-bMi7MRqL.js.br                2.62kb / brotliCompress: 0.94kb
+2026-02-06T10:32:37.0941307Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ServerSideTrackingArticle-D4jSHpKc.js.br   14.02kb / brotliCompress: 4.36kb
+2026-02-06T10:32:37.0943362Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TermsOfService-DONaeNBg.js.br              4.36kb / brotliCompress: 1.27kb
+2026-02-06T10:32:37.0945397Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TailwindArticle-BakrktE6.js.br             19.51kb / brotliCompress: 5.56kb
+2026-02-06T10:32:37.0947423Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/TypeScriptArticle-BrF5a-o1.js.br           18.52kb / brotliCompress: 5.25kb
+2026-02-06T10:32:37.0949427Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/RedisArticle-ANrI_6YY.js.br                48.34kb / brotliCompress: 13.85kb
+2026-02-06T10:32:37.0971593Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/VisualAudit-Di4nzHMB.js.br                 15.12kb / brotliCompress: 4.72kb
+2026-02-06T10:32:37.0973603Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/UxAuditArticle-D3IUXQqJ.js.br              25.03kb / brotliCompress: 6.31kb
+2026-02-06T10:32:37.0975586Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/UiUxDesign-DGUy-swK.js.br                  36.27kb / brotliCompress: 7.88kb
+2026-02-06T10:32:37.0977542Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/VueArticle-COVqhii4.js.br                  18.51kb / brotliCompress: 5.17kb
+2026-02-06T10:32:37.0979453Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WhyUs-Cqy_J_WG.js.br                       2.36kb / brotliCompress: 0.89kb
+2026-02-06T10:32:37.0981520Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/browser-BX3VzlVB.js.br                     12.09kb / brotliCompress: 4.26kb
+2026-02-06T10:32:37.0983480Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WafArticle-B4YYqGYu.js.br                  22.36kb / brotliCompress: 6.17kb
+2026-02-06T10:32:37.0985423Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/home-Da0Tq2sO.js.br                        2.67kb / brotliCompress: 1.35kb
+2026-02-06T10:32:37.0987343Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/cmsService-GgGRMQf0.js.br                  4.65kb / brotliCompress: 1.13kb
+2026-02-06T10:32:37.0989260Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-CbQ-y0Zo.js.br                       7.37kb / brotliCompress: 2.43kb
+2026-02-06T10:32:37.1011427Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/WebDevelopment-XjlW3iPQ.js.br              34.85kb / brotliCompress: 7.65kb
+2026-02-06T10:32:37.1013479Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/knowledge-base-B-rK5ODG.js.br              1.16kb / brotliCompress: 0.61kb
+2026-02-06T10:32:37.1015439Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/main-9xNipYqG.js.br                        6.27kb / brotliCompress: 2.83kb
+2026-02-06T10:32:37.1017557Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/pdfService-DhVATrBV.js.br                  2.86kb / brotliCompress: 1.22kb
+2026-02-06T10:32:37.1019520Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/purify.es-BjU8njvH.js.br                   21.86kb / brotliCompress: 7.52kb
+2026-02-06T10:32:37.1021681Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/stegaEncodeSourceMap-BNaa4SDe.js.br        8.21kb / brotliCompress: 3.04kb
+2026-02-06T10:32:37.1023873Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/tooltipContext-Dp4likuX.js.br              10.68kb / brotliCompress: 3.09kb
+2026-02-06T10:32:37.1025891Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/useParallax-BIPSSChv.js.br                 1.03kb / brotliCompress: 0.47kb
+2026-02-06T10:32:37.1027779Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/index.html.br                                     1.53kb / brotliCompress: 0.48kb
+2026-02-06T10:32:37.1029665Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/ContactModal-D_DFVzH9.js.br                114.37kb / brotliCompress: 31.99kb
+2026-02-06T10:32:37.1036420Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/Seo-CZZNJx0l.js.br                         98.46kb / brotliCompress: 28.34kb
+2026-02-06T10:32:37.1038447Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-CRNsb5cB.css.br                      278.88kb / brotliCompress: 25.98kb
+2026-02-06T10:32:37.1040617Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index.es-CvnN29Lx.js.br                    154.68kb / brotliCompress: 44.96kb
+2026-02-06T10:32:37.1042699Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/html2canvas.esm-DmLBsbfV.js.br             195.84kb / brotliCompress: 37.34kb
+2026-02-06T10:32:37.1044845Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/CategoricalChart-CwNb7E-j.js.br            286.23kb / brotliCompress: 75.17kb
+2026-02-06T10:32:37.1046918Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/jspdf.es.min-B1emD-54.js.br                376.02kb / brotliCompress: 103.34kb
+2026-02-06T10:32:37.1048959Z dist//home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/assets/index-DvSu3Qh9.js.br                       468.31kb / brotliCompress: 129.94kb
+2026-02-06T10:32:37.1049937Z 
+2026-02-06T10:32:37.1049949Z 
+2026-02-06T10:32:37.4069331Z 
+2026-02-06T10:32:37.4084863Z ✨ [36m[vite-plugin-image-optimizer][39m - optimized images successfully: 
+2026-02-06T10:32:37.4086785Z [2mdist[22m/[94massets/noise.svg[39m                                      [90m[32m-14%[39m[90m   [39m [2m0.26 kB ⭢  0.23 kB[22m
+2026-02-06T10:32:37.4088643Z [2mdist[22m/[94mfavicon.png[39m                                           [90m[32m-69%[39m[90m   [39m [2m206.44 kB ⭢  65.54 kB[22m
+2026-02-06T10:32:37.4090848Z [2mdist[22m/[94massets/images/nodejs.png[39m                              [90m[32m-28%[39m[90m   [39m [2m367.14 kB ⭢  266.13 kB[22m
+2026-02-06T10:32:37.4093092Z [2mdist[22m/[94massets/images/nextjs.png[39m                              [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 586.94 kB <= optimized: 586.94 kB[22m
+2026-02-06T10:32:37.4095482Z [2mdist[22m/[94massets/images/WAF.png[39m                                 [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 254.92 kB <= optimized: 254.92 kB[22m
+2026-02-06T10:32:37.4097554Z [2mdist[22m/[94massets/images/vuejs.png[39m                               [90m[32m-14%[39m[90m   [39m [2m255.84 kB ⭢  220.08 kB[22m
+2026-02-06T10:32:37.4099692Z [2mdist[22m/[94massets/images/react-js.png[39m                            [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 477.52 kB <= optimized: 478.10 kB[22m
+2026-02-06T10:32:37.4102672Z [2mdist[22m/[94massets/images/redis.png[39m                               [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 719.48 kB <= optimized: 720.13 kB[22m
+2026-02-06T10:32:37.4104604Z [2mdist[22m/[94massets/images/og-main.png[39m                             [90m[32m-69%[39m[90m   [39m [2m206.44 kB ⭢  65.54 kB[22m
+2026-02-06T10:32:37.4106367Z [2mdist[22m/[94massets/images/sygnet.png[39m                              [90m[32m-69%[39m[90m   [39m [2m206.44 kB ⭢  65.54 kB[22m
+2026-02-06T10:32:37.4108775Z [2mdist[22m/[94massets/images/CDN.png[39m                                 [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 614.52 kB <= optimized: 614.52 kB[22m
+2026-02-06T10:32:37.4111485Z [2mdist[22m/[94massets/images/CICD.png[39m                                [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 676.91 kB <= optimized: 676.91 kB[22m
+2026-02-06T10:32:37.4113871Z [2mdist[22m/[94massets/images/audyt-ux.png[39m                            [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 539.43 kB <= optimized: 539.44 kB[22m
+2026-02-06T10:32:37.4116281Z [2mdist[22m/[94massets/images/PostgreSQL.png[39m                          [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 1006.48 kB <= optimized: 1007.00 kB[22m
+2026-02-06T10:32:37.4118578Z [2mdist[22m/[94massets/images/aws.png[39m                                 [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 733.18 kB <= optimized: 735.95 kB[22m
+2026-02-06T10:32:37.4121157Z [2mdist[22m/[94massets/images/backend.png[39m                             [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 919.47 kB <= optimized: 919.99 kB[22m
+2026-02-06T10:32:37.4143084Z [2mdist[22m/[94massets/images/core-web-vitals.png[39m                     [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 635.58 kB <= optimized: 635.58 kB[22m
+2026-02-06T10:32:37.4145483Z [2mdist[22m/[94massets/images/database.png[39m                            [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 744.70 kB <= optimized: 744.70 kB[22m
+2026-02-06T10:32:37.4147753Z [2mdist[22m/[94massets/images/devops.png[39m                              [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 695.10 kB <= optimized: 695.10 kB[22m
+2026-02-06T10:32:37.4150034Z [2mdist[22m/[94massets/images/django.png[39m                              [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 1017.21 kB <= optimized: 1017.21 kB[22m
+2026-02-06T10:32:37.4172621Z [2mdist[22m/[94massets/images/docker.png[39m                              [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 849.16 kB <= optimized: 849.16 kB[22m
+2026-02-06T10:32:37.4175002Z [2mdist[22m/[94massets/images/edge-computing.png[39m                      [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 846.48 kB <= optimized: 846.64 kB[22m
+2026-02-06T10:32:37.4177363Z [2mdist[22m/[94massets/images/elasticsearch.png[39m                       [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 832.19 kB <= optimized: 832.37 kB[22m
+2026-02-06T10:32:37.4179727Z [2mdist[22m/[94massets/images/frontend.png[39m                            [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 805.15 kB <= optimized: 805.15 kB[22m
+2026-02-06T10:32:37.4182163Z [2mdist[22m/[94massets/images/go.png[39m                                  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 796.49 kB <= optimized: 796.49 kB[22m
+2026-02-06T10:32:37.4184499Z [2mdist[22m/[94massets/images/headless-wordpress.png[39m                  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 619.35 kB <= optimized: 619.35 kB[22m
+2026-02-06T10:32:37.4187118Z [2mdist[22m/[94massets/images/kubernetes.png[39m                          [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 611.61 kB <= optimized: 611.61 kB[22m
+2026-02-06T10:32:37.4189459Z [2mdist[22m/[94massets/images/laravel.png[39m                             [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 923.49 kB <= optimized: 923.56 kB[22m
+2026-02-06T10:32:37.4191939Z [2mdist[22m/[94massets/images/mongodb.png[39m                             [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 883.09 kB <= optimized: 883.31 kB[22m
+2026-02-06T10:32:37.4194050Z [2mdist[22m/[94massets/images/logo.svg[39m                                [90m[32m-11%[39m[90m   [39m [2m11.03 kB ⭢  9.87 kB[22m
+2026-02-06T10:32:37.4195894Z [2mdist[22m/[94massets/images/sygnet-mixture-marketing-fioletowe.svg[39m  [90m[32m-3%[39m[90m    [39m [2m2.26 kB ⭢  2.21 kB[22m
+2026-02-06T10:32:37.4198211Z [2mdist[22m/[94massets/images/server-side-tracking.png[39m                [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 742.30 kB <= optimized: 742.30 kB[22m
+2026-02-06T10:32:37.4200766Z [2mdist[22m/[94massets/images/tailwind-css.png[39m                        [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 578.25 kB <= optimized: 578.55 kB[22m
+2026-02-06T10:32:37.4203141Z [2mdist[22m/[94massets/images/google-ads.png[39m                          [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 1168.47 kB <= optimized: 1168.47 kB[22m
+2026-02-06T10:32:37.4204135Z 
+2026-02-06T10:32:37.4204724Z 💰 total savings = [32m560.71kB[39m/[32m1255.86kB[39m ≈ [32m45%[39m
+2026-02-06T10:32:37.4205210Z 
+2026-02-06T10:32:37.4205220Z 
+2026-02-06T10:32:37.6609451Z 
+2026-02-06T10:32:37.6612104Z > mixture-marketing@0.0.0 sitemap
+2026-02-06T10:32:37.6614396Z > node scripts/generate-sitemap.js
+2026-02-06T10:32:37.6614767Z 
+2026-02-06T10:32:37.8688572Z 🚀 Generating sitemap.xml...
+2026-02-06T10:32:38.2365570Z ✅ Found 54 dynamic routes.
+2026-02-06T10:32:38.2372170Z ✅ Sitemap generated at: /home/runner/work/MixtureMarketing-stona/MixtureMarketing-stona/public/sitemap.xml
+2026-02-06T10:32:38.3430548Z 
+2026-02-06T10:32:38.3431553Z > mixture-marketing@0.0.0 prerender
+2026-02-06T10:32:38.3432743Z > node prerender.js
+2026-02-06T10:32:38.3433096Z 
+2026-02-06T10:32:38.7797745Z 🚀 Starting optimized prerendering...
+2026-02-06T10:32:38.7800817Z 📦 Starting preview server...
+2026-02-06T10:32:38.7835692Z ⏳ Waiting for server to be ready...
+2026-02-06T10:32:39.8125220Z 🟢 Server is ready!
+2026-02-06T10:32:41.5453246Z 🔄 Fetching dynamic routes from Sanity...
+2026-02-06T10:32:41.7663613Z ✅ Found 28 articles.
+2026-02-06T10:32:41.7665496Z ✅ Found 11 industries.
+2026-02-06T10:32:41.7666016Z ✅ Found 8 locations.
+2026-02-06T10:32:41.7666509Z ✅ Found 7 projects.
+2026-02-06T10:32:41.7667101Z 🚀 Total dynamic routes: 54
+2026-02-06T10:32:45.1667060Z [1m[34m[32mInlined 55.92 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:45.1757514Z [1m[34mTime 307ms[39m[22m
+2026-02-06T10:32:45.1777931Z ✅ Prerendered & Optimized: /offers/
+2026-02-06T10:32:45.7592400Z [1m[34m[32mInlined 64.26 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:45.7667704Z [1m[34mTime 230ms[39m[22m
+2026-02-06T10:32:45.7711663Z ✅ Prerendered & Optimized: /
+2026-02-06T10:32:47.2145986Z [1m[34m[32mInlined 50.15 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:47.2176837Z [1m[34mTime 100ms[39m[22m
+2026-02-06T10:32:47.2190798Z ✅ Prerendered & Optimized: /contact/
+2026-02-06T10:32:47.8248600Z [1m[34m[32mInlined 45.67 kB (71% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:47.8972419Z [1m[34m[32mInlined 46.71 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:48.0043021Z [1m[34m[32mInlined 46.71 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:48.0088846Z [1m[34mTime 226ms[39m[22m
+2026-02-06T10:32:48.0124836Z ✅ Prerendered & Optimized: /privacy-policy/
+2026-02-06T10:32:49.3920311Z [1m[34m[32mInlined 45.78 kB (71% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:49.4767294Z [1m[34m[32mInlined 46.84 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:49.5442156Z [1m[34m[32mInlined 46.84 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:49.5469815Z [1m[34mTime 216ms[39m[22m
+2026-02-06T10:32:49.5488514Z ✅ Prerendered & Optimized: /terms/
+2026-02-06T10:32:50.7035050Z [1m[34m[32mInlined 52.91 kB (82% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:50.7771776Z [1m[34m[32mInlined 66.59 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:50.8962329Z [1m[34m[32mInlined 66.59 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:50.9101334Z [1m[34mTime 238ms[39m[22m
+2026-02-06T10:32:50.9165144Z ✅ Prerendered & Optimized: /web-development/
+2026-02-06T10:32:52.1096187Z [1m[34m[32mInlined 51.13 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:52.1952509Z [1m[34m[32mInlined 60.96 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:52.2714413Z [1m[34m[32mInlined 60.96 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:52.2745859Z [1m[34mTime 192ms[39m[22m
+2026-02-06T10:32:52.2768705Z ✅ Prerendered & Optimized: /web-development/ecommerce/
+2026-02-06T10:32:53.5998200Z [1m[34m[32mInlined 51.36 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:53.6602487Z [1m[34m[32mInlined 60.30 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:53.7178359Z [1m[34m[32mInlined 60.30 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:53.7203260Z [1m[34mTime 141ms[39m[22m
+2026-02-06T10:32:53.7221766Z ✅ Prerendered & Optimized: /web-development/landing-page/
+2026-02-06T10:32:54.8663623Z [1m[34m[32mInlined 51.22 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:54.9243665Z [1m[34m[32mInlined 58.06 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:54.9843951Z [1m[34m[32mInlined 58.06 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:54.9868577Z [1m[34mTime 140ms[39m[22m
+2026-02-06T10:32:54.9888359Z ✅ Prerendered & Optimized: /web-development/corporate/
+2026-02-06T10:32:56.3258692Z [1m[34m[32mInlined 52.20 kB (81% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:56.3930689Z [1m[34m[32mInlined 59.36 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:56.4625610Z [1m[34m[32mInlined 59.36 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:56.4650503Z [1m[34mTime 166ms[39m[22m
+2026-02-06T10:32:56.4675013Z ✅ Prerendered & Optimized: /web-development/custom-app/
+2026-02-06T10:32:57.6312105Z [1m[34m[32mInlined 50.59 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:57.7018508Z [1m[34m[32mInlined 58.73 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:57.7619513Z [1m[34m[32mInlined 58.73 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:57.7628849Z [1m[34m[32mInlined 276 bytes (32% of original 857 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:57.7760480Z [1m[34mTime 178ms[39m[22m
+2026-02-06T10:32:57.7780079Z ✅ Prerendered & Optimized: /marketing/
+2026-02-06T10:32:59.1039095Z [1m[34m[32mInlined 50.99 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:32:59.2732367Z [1m[34m[32mInlined 61.83 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:59.3612356Z [1m[34m[32mInlined 61.83 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:32:59.3640908Z [1m[34mTime 298ms[39m[22m
+2026-02-06T10:32:59.3680839Z ✅ Prerendered & Optimized: /marketing/google-ads/
+2026-02-06T10:33:00.5762383Z [1m[34m[32mInlined 52.59 kB (81% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:00.6805892Z [1m[34m[32mInlined 64.62 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:00.7401297Z [1m[34m[32mInlined 64.62 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:00.7421993Z [1m[34m[32mInlined 340 bytes (70% of original 483 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:00.7425000Z [1m[34m[32mInlined 340 bytes (70% of original 483 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:00.7437894Z [1m[34mTime 212ms[39m[22m
+2026-02-06T10:33:00.7458195Z ✅ Prerendered & Optimized: /marketing/meta-ads/
+2026-02-06T10:33:02.0352458Z [1m[34m[32mInlined 51.08 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:02.1057857Z [1m[34m[32mInlined 64.06 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:02.1748522Z [1m[34m[32mInlined 64.06 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:02.1775948Z [1m[34mTime 162ms[39m[22m
+2026-02-06T10:33:02.1798285Z ✅ Prerendered & Optimized: /marketing/seo/
+2026-02-06T10:33:02.9261238Z [1m[34m[32mInlined 53.66 kB (83% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:03.0147139Z [1m[34m[32mInlined 64.17 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:03.0814745Z [1m[34m[32mInlined 64.17 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:03.0822425Z [1m[34m[32mInlined 54 bytes (18% of original 291 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:03.0857354Z [1m[34mTime 185ms[39m[22m
+2026-02-06T10:33:03.0870969Z ✅ Prerendered & Optimized: /marketing/analytics/
+2026-02-06T10:33:04.8468323Z [1m[34m[32mInlined 51.30 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:04.9054499Z [1m[34m[32mInlined 64.54 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:04.9629049Z [1m[34m[32mInlined 64.54 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:04.9649978Z [1m[34mTime 136ms[39m[22m
+2026-02-06T10:33:04.9669145Z ✅ Prerendered & Optimized: /design/
+2026-02-06T10:33:05.5124934Z [1m[34m[32mInlined 52.04 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:05.6032289Z [1m[34m[32mInlined 60.47 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:05.6634207Z [1m[34m[32mInlined 60.47 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:05.6657658Z [1m[34mTime 209ms[39m[22m
+2026-02-06T10:33:05.6674821Z ✅ Prerendered & Optimized: /design/branding/
+2026-02-06T10:33:07.6501800Z [1m[34m[32mInlined 53.70 kB (83% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:07.7157537Z [1m[34m[32mInlined 69.95 kB (25% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:07.7791914Z [1m[34m[32mInlined 69.95 kB (25% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:07.7809641Z [1m[34mTime 149ms[39m[22m
+2026-02-06T10:33:07.7832853Z ✅ Prerendered & Optimized: /design/ui-ux/
+2026-02-06T10:33:08.0799114Z [1m[34m[32mInlined 51.01 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:08.1542044Z [1m[34m[32mInlined 58.94 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:08.2279049Z [1m[34m[32mInlined 58.94 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:08.2282912Z [1m[34m[32mInlined 126 bytes (49% of original 253 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:08.2322839Z [1m[34mTime 185ms[39m[22m
+2026-02-06T10:33:08.2330668Z ✅ Prerendered & Optimized: /design/print/
+2026-02-06T10:33:09.9743523Z [1m[34m[32mInlined 50.21 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:10.0329697Z [1m[34m[32mInlined 55.21 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:10.0915570Z [1m[34m[32mInlined 55.21 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:10.0929900Z [1m[34mTime 145ms[39m[22m
+2026-02-06T10:33:10.0946983Z ✅ Prerendered & Optimized: /design/visual-audit/
+2026-02-06T10:33:11.3157952Z [1m[34m[32mInlined 49.19 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:11.3839317Z [1m[34m[32mInlined 53.25 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:11.4590093Z [1m[34m[32mInlined 53.25 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:11.4631688Z [1m[34mTime 198ms[39m[22m
+2026-02-06T10:33:11.4661641Z ✅ Prerendered & Optimized: /baza-wiedzy/
+2026-02-06T10:33:12.7005531Z [1m[34m[32mInlined 49.92 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:12.8118501Z [1m[34m[32mInlined 59.44 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:12.8713219Z [1m[34m[32mInlined 59.44 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:12.8738908Z [1m[34mTime 207ms[39m[22m
+2026-02-06T10:33:12.8759047Z ✅ Prerendered & Optimized: /baza-wiedzy/redis-optymalizacja/
+2026-02-06T10:33:14.1901052Z [1m[34m[32mInlined 51.47 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:14.2501878Z [1m[34m[32mInlined 58.29 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:14.3139223Z [1m[34m[32mInlined 58.29 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:14.3144176Z [1m[34m[32mInlined 91 bytes (30% of original 299 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:14.3166509Z [1m[34mTime 145ms[39m[22m
+2026-02-06T10:33:14.3184280Z ✅ Prerendered & Optimized: /baza-wiedzy/cdn-globalna-wydajnosc/
+2026-02-06T10:33:15.4476559Z [1m[34m[32mInlined 50.67 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:15.5212412Z [1m[34m[32mInlined 57.21 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:15.5791637Z [1m[34m[32mInlined 57.21 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:15.5813697Z [1m[34mTime 150ms[39m[22m
+2026-02-06T10:33:15.5827068Z ✅ Prerendered & Optimized: /baza-wiedzy/optymalizacja-obrazow-webp-avif/
+2026-02-06T10:33:16.9548257Z [1m[34m[32mInlined 49.50 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:17.0205018Z [1m[34m[32mInlined 55.02 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:17.0785874Z [1m[34m[32mInlined 55.02 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:17.0801376Z [1m[34m[32mInlined 681 bytes (80% of original 850 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:17.0812620Z [1m[34mTime 150ms[39m[22m
+2026-02-06T10:33:17.0827649Z ✅ Prerendered & Optimized: /baza-wiedzy/waf-bezpieczenstwo/
+2026-02-06T10:33:18.2311047Z [1m[34m[32mInlined 51.54 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:18.2896643Z [1m[34m[32mInlined 60.45 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:18.3436485Z [1m[34m[32mInlined 60.45 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:18.3451347Z [1m[34m[32mInlined 190 bytes (47% of original 403 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:18.3452753Z [1m[34m[32mInlined 240 bytes (77% of original 309 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:18.3457153Z [1m[34mTime 136ms[39m[22m
+2026-02-06T10:33:18.3472750Z ✅ Prerendered & Optimized: /baza-wiedzy/edge-computing/
+2026-02-06T10:33:19.6791441Z [1m[34m[32mInlined 49.16 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:19.7507188Z [1m[34m[32mInlined 53.46 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:19.8174826Z [1m[34m[32mInlined 53.46 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:19.8201097Z [1m[34mTime 185ms[39m[22m
+2026-02-06T10:33:19.8221303Z ✅ Prerendered & Optimized: /baza-wiedzy/core-web-vitals-2025/
+2026-02-06T10:33:20.9904733Z [1m[34m[32mInlined 51.04 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:21.0467070Z [1m[34m[32mInlined 62.23 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:21.0987098Z [1m[34m[32mInlined 62.23 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:21.1011728Z [1m[34mTime 140ms[39m[22m
+2026-02-06T10:33:21.1030477Z ✅ Prerendered & Optimized: /baza-wiedzy/google-ads-skalowanie-budzetu/
+2026-02-06T10:33:22.4831863Z [1m[34m[32mInlined 51.65 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:22.5445984Z [1m[34m[32mInlined 66.21 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:22.6103396Z [1m[34m[32mInlined 66.21 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:22.6121977Z [1m[34mTime 153ms[39m[22m
+2026-02-06T10:33:22.6137070Z ✅ Prerendered & Optimized: /baza-wiedzy/audyt-ux-sklepu-internetowego/
+2026-02-06T10:33:23.7761870Z [1m[34m[32mInlined 49.63 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:23.8346226Z [1m[34m[32mInlined 55.96 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:23.8962568Z [1m[34m[32mInlined 55.96 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:23.8964375Z [1m[34m[32mInlined 201 bytes (69% of original 288 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:23.8965920Z [1m[34m[32mInlined 135 bytes (51% of original 260 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:23.8967115Z [1m[34mTime 137ms[39m[22m
+2026-02-06T10:33:23.8982045Z ✅ Prerendered & Optimized: /baza-wiedzy/server-side-tracking-koniec-cookies/
+2026-02-06T10:33:25.2932085Z [1m[34m[32mInlined 50.46 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:25.3546824Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:25.4182798Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:25.4189593Z [1m[34m[32mInlined 238 bytes (61% of original 389 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:25.4212326Z [1m[34mTime 149ms[39m[22m
+2026-02-06T10:33:25.4232369Z ✅ Prerendered & Optimized: /baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/
+2026-02-06T10:33:26.6133309Z [1m[34m[32mInlined 50.24 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:26.7269236Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:26.7992333Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:26.7998971Z [1m[34m[32mInlined 92 bytes (54% of original 169 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:26.8027649Z [1m[34mTime 236ms[39m[22m
+2026-02-06T10:33:26.8047941Z ✅ Prerendered & Optimized: /baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/
+2026-02-06T10:33:27.9755650Z [1m[34m[32mInlined 49.88 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:28.0308635Z [1m[34m[32mInlined 56.91 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:28.0850006Z [1m[34m[32mInlined 56.91 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:28.0868892Z [1m[34mTime 128ms[39m[22m
+2026-02-06T10:33:28.0885274Z ✅ Prerendered & Optimized: /baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania/
+2026-02-06T10:33:29.4816599Z [1m[34m[32mInlined 49.61 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:29.5462223Z [1m[34m[32mInlined 54.64 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:29.5946086Z [1m[34m[32mInlined 54.64 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:29.5951094Z [1m[34m[32mInlined 132 bytes (58% of original 227 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:29.6062214Z [1m[34mTime 148ms[39m[22m
+2026-02-06T10:33:29.6080515Z ✅ Prerendered & Optimized: /baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu/
+2026-02-06T10:33:30.8072380Z [1m[34m[32mInlined 50.36 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:30.8672529Z [1m[34m[32mInlined 57.67 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:30.9318376Z [1m[34m[32mInlined 57.67 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:30.9325609Z [1m[34m[32mInlined 182 bytes (60% of original 299 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:30.9345515Z [1m[34mTime 164ms[39m[22m
+2026-02-06T10:33:30.9364816Z ✅ Prerendered & Optimized: /baza-wiedzy/postgresql-krol-baz-danych-open-source-dla-biznesu/
+2026-02-06T10:33:32.1022253Z [1m[34m[32mInlined 49.15 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:32.1595237Z [1m[34m[32mInlined 55.41 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:32.2144341Z [1m[34m[32mInlined 55.41 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:32.2166625Z [1m[34mTime 137ms[39m[22m
+2026-02-06T10:33:32.2186366Z ✅ Prerendered & Optimized: /baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji/
+2026-02-06T10:33:33.5512328Z [1m[34m[32mInlined 49.33 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:33.6448140Z [1m[34m[32mInlined 56.11 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:33.7068682Z [1m[34m[32mInlined 56.11 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:33.7111800Z [1m[34mTime 192ms[39m[22m
+2026-02-06T10:33:33.7152844Z ✅ Prerendered & Optimized: /baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce/
+2026-02-06T10:33:34.8689553Z [1m[34m[32mInlined 50.51 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:34.9332468Z [1m[34m[32mInlined 61.47 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:35.0062447Z [1m[34m[32mInlined 61.47 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:35.0075097Z [1m[34m[32mInlined 408 bytes (70% of original 579 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:35.0102302Z [1m[34mTime 159ms[39m[22m
+2026-02-06T10:33:35.0131997Z ✅ Prerendered & Optimized: /baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/
+2026-02-06T10:33:36.3052499Z [1m[34m[32mInlined 49.57 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:36.3742382Z [1m[34m[32mInlined 58.78 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:36.4373164Z [1m[34m[32mInlined 58.78 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:36.4382648Z [1m[34m[32mInlined 282 bytes (54% of original 513 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:36.4388688Z [1m[34m[32mInlined 54 bytes (60% of original 89 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:36.4421199Z [1m[34mTime 159ms[39m[22m
+2026-02-06T10:33:36.4431074Z ✅ Prerendered & Optimized: /baza-wiedzy/vue-js-harmonijny-kompromis-react-angular/
+2026-02-06T10:33:37.6091912Z [1m[34m[32mInlined 49.72 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:37.6742249Z [1m[34m[32mInlined 57.25 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:37.7290398Z [1m[34m[32mInlined 57.25 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:37.7297851Z [1m[34m[32mInlined 271 bytes (71% of original 380 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:37.7319118Z [1m[34mTime 149ms[39m[22m
+2026-02-06T10:33:37.7338455Z ✅ Prerendered & Optimized: /baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp/
+2026-02-06T10:33:39.0086007Z [1m[34m[32mInlined 49.25 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:39.0610707Z [1m[34m[32mInlined 58.63 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:39.1194538Z [1m[34m[32mInlined 58.63 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:39.1221506Z [1m[34m[32mInlined 131 bytes (45% of original 288 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:39.1222663Z [1m[34mTime 130ms[39m[22m
+2026-02-06T10:33:39.1245641Z ✅ Prerendered & Optimized: /baza-wiedzy/bazy-danych-kompendium-architekta/
+2026-02-06T10:33:40.3215010Z [1m[34m[32mInlined 50.41 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:40.3981808Z [1m[34m[32mInlined 65.38 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:40.4644562Z [1m[34m[32mInlined 65.38 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:40.4652643Z [1m[34m[32mInlined 711 bytes (81% of original 868 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:40.4672952Z [1m[34m[32mInlined 209 bytes (74% of original 281 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:40.4690815Z [1m[34mTime 182ms[39m[22m
+2026-02-06T10:33:40.4712727Z ✅ Prerendered & Optimized: /baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/
+2026-02-06T10:33:41.6202326Z [1m[34m[32mInlined 49.28 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:41.6768756Z [1m[34m[32mInlined 60.79 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:41.7352910Z [1m[34m[32mInlined 60.79 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:41.7369458Z [1m[34m[32mInlined 211 bytes (49% of original 428 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:41.7370928Z [1m[34m[32mInlined 150 bytes (48% of original 309 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:41.7380971Z [1m[34mTime 137ms[39m[22m
+2026-02-06T10:33:41.7388735Z ✅ Prerendered & Optimized: /baza-wiedzy/docker-konteneryzacja-przewodnik/
+2026-02-06T10:33:43.0352483Z [1m[34m[32mInlined 49.67 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:43.1005731Z [1m[34m[32mInlined 59.83 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:43.1641726Z [1m[34m[32mInlined 59.83 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:43.1648966Z [1m[34m[32mInlined 368 bytes (51% of original 713 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:43.1653715Z [1m[34m[32mInlined 53 bytes (42% of original 124 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:43.1674962Z [1m[34mTime 152ms[39m[22m
+2026-02-06T10:33:43.1706300Z ✅ Prerendered & Optimized: /baza-wiedzy/ci-cd-automatyzacja-wdrozen/
+2026-02-06T10:33:44.3228435Z [1m[34m[32mInlined 50.20 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:44.3851644Z [1m[34m[32mInlined 65.01 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:44.4489812Z [1m[34m[32mInlined 65.01 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:44.4496964Z [1m[34m[32mInlined 425 bytes (52% of original 809 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:44.4518403Z [1m[34mTime 152ms[39m[22m
+2026-02-06T10:33:44.4538363Z ✅ Prerendered & Optimized: /baza-wiedzy/devops-fundament-nowoczesnego-biznesu/
+2026-02-06T10:33:45.7342318Z [1m[34m[32mInlined 49.74 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:45.7932472Z [1m[34m[32mInlined 57.37 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:45.8435578Z [1m[34m[32mInlined 57.37 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:45.8453695Z [1m[34mTime 131ms[39m[22m
+2026-02-06T10:33:45.8468563Z ✅ Prerendered & Optimized: /baza-wiedzy/nodejs-jeden-jezyk/
+2026-02-06T10:33:47.1563249Z [1m[34m[32mInlined 49.89 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:47.2477034Z [1m[34m[32mInlined 56.15 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:47.3069119Z [1m[34m[32mInlined 56.15 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:47.3088348Z [1m[34mTime 190ms[39m[22m
+2026-02-06T10:33:47.3103329Z ✅ Prerendered & Optimized: /baza-wiedzy/go-golang-jezyk-chmury/
+2026-02-06T10:33:48.4432692Z [1m[34m[32mInlined 50.17 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:48.5040329Z [1m[34m[32mInlined 57.30 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:48.5672468Z [1m[34m[32mInlined 57.30 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:48.5685021Z [1m[34mTime 142ms[39m[22m
+2026-02-06T10:33:48.5703657Z ✅ Prerendered & Optimized: /baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/
+2026-02-06T10:33:49.9842031Z [1m[34m[32mInlined 51.23 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:50.0161797Z [1m[34m[32mInlined 62.11 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:50.0436167Z [1m[34m[32mInlined 62.11 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:50.0488348Z [1m[34mTime 80ms[39m[22m
+2026-02-06T10:33:50.0501201Z ✅ Prerendered & Optimized: /baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/
+2026-02-06T10:33:50.5445290Z [1m[34m[32mInlined 45.89 kB (71% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:50.5972103Z [1m[34m[32mInlined 46.45 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:50.6530016Z [1m[34m[32mInlined 46.45 kB (16% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:50.6560966Z [1m[34mTime 127ms[39m[22m
+2026-02-06T10:33:50.6561962Z ✅ Prerendered & Optimized: /portal
+2026-02-06T10:33:52.6802486Z [1m[34m[32mInlined 45.70 kB (71% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:52.7097784Z [1m[34m[32mInlined 48.93 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:52.7358278Z [1m[34m[32mInlined 48.93 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:52.7366705Z [1m[34mTime 69ms[39m[22m
+2026-02-06T10:33:52.7376068Z ✅ Prerendered & Optimized: /portfolio/
+2026-02-06T10:33:52.9172826Z [1m[34m[32mInlined 45.65 kB (71% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:52.9761844Z [1m[34m[32mInlined 48.30 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:53.0088219Z [1m[34m[32mInlined 48.30 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:53.0098668Z [1m[34mTime 159ms[39m[22m
+2026-02-06T10:33:53.0107910Z ✅ Prerendered & Optimized: /audyt-360/
+2026-02-06T10:33:55.6561990Z [1m[34m[32mInlined 51.47 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:55.7153177Z [1m[34m[32mInlined 58.29 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:55.7792867Z [1m[34m[32mInlined 58.29 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:55.7798765Z [1m[34m[32mInlined 91 bytes (30% of original 299 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:55.7818325Z [1m[34mTime 146ms[39m[22m
+2026-02-06T10:33:55.7835993Z ✅ Prerendered & Optimized: /baza-wiedzy/cdn-globalna-wydajnosc
+2026-02-06T10:33:56.4372766Z [1m[34m[32mInlined 50.41 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:56.5620774Z [1m[34m[32mInlined 65.38 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:56.6732395Z [1m[34m[32mInlined 65.38 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:56.6741329Z [1m[34m[32mInlined 711 bytes (81% of original 868 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:56.6761350Z [1m[34m[32mInlined 209 bytes (74% of original 281 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:56.6843094Z [1m[34mTime 271ms[39m[22m
+2026-02-06T10:33:56.6847818Z ✅ Prerendered & Optimized: /baza-wiedzy/backend-bez-tajemnic-przewodnik-cto
+2026-02-06T10:33:58.4695210Z [1m[34m[32mInlined 49.67 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:58.5279179Z [1m[34m[32mInlined 59.83 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:58.5844437Z [1m[34m[32mInlined 59.83 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:58.5851871Z [1m[34m[32mInlined 368 bytes (51% of original 713 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:58.5861398Z [1m[34m[32mInlined 53 bytes (42% of original 124 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:58.5976820Z [1m[34mTime 149ms[39m[22m
+2026-02-06T10:33:58.5998543Z ✅ Prerendered & Optimized: /baza-wiedzy/ci-cd-automatyzacja-wdrozen
+2026-02-06T10:33:59.0988753Z [1m[34m[32mInlined 49.16 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:33:59.1601873Z [1m[34m[32mInlined 53.46 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:59.2265043Z [1m[34m[32mInlined 53.46 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:33:59.2301057Z [1m[34mTime 158ms[39m[22m
+2026-02-06T10:33:59.2305930Z ✅ Prerendered & Optimized: /baza-wiedzy/core-web-vitals-2025
+2026-02-06T10:34:01.2526440Z [1m[34m[32mInlined 49.25 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:01.3478096Z [1m[34m[32mInlined 58.63 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:01.4223304Z [1m[34m[32mInlined 58.63 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:01.4224870Z [1m[34m[32mInlined 131 bytes (45% of original 288 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:01.4248696Z [1m[34mTime 204ms[39m[22m
+2026-02-06T10:34:01.4266153Z ✅ Prerendered & Optimized: /baza-wiedzy/bazy-danych-kompendium-architekta
+2026-02-06T10:34:01.8292492Z [1m[34m[32mInlined 50.20 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:01.9261548Z [1m[34m[32mInlined 65.01 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:01.9962565Z [1m[34m[32mInlined 65.01 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:01.9964463Z [1m[34m[32mInlined 425 bytes (52% of original 809 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:01.9988348Z [1m[34mTime 204ms[39m[22m
+2026-02-06T10:34:02.0027977Z ✅ Prerendered & Optimized: /baza-wiedzy/devops-fundament-nowoczesnego-biznesu
+2026-02-06T10:34:04.1067046Z [1m[34m[32mInlined 49.28 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.1630843Z [1m[34m[32mInlined 60.79 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:04.2200434Z [1m[34m[32mInlined 60.79 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:04.2205460Z [1m[34m[32mInlined 211 bytes (49% of original 428 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.2213354Z [1m[34m[32mInlined 150 bytes (48% of original 309 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.2232437Z [1m[34mTime 134ms[39m[22m
+2026-02-06T10:34:04.2249129Z ✅ Prerendered & Optimized: /baza-wiedzy/docker-konteneryzacja-przewodnik
+2026-02-06T10:34:04.5892335Z [1m[34m[32mInlined 51.54 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.6605689Z [1m[34m[32mInlined 60.45 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:04.7195940Z [1m[34m[32mInlined 60.45 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:04.7209644Z [1m[34m[32mInlined 190 bytes (47% of original 403 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.7216167Z [1m[34m[32mInlined 240 bytes (77% of original 309 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:04.7288650Z [1m[34mTime 181ms[39m[22m
+2026-02-06T10:34:04.7321553Z ✅ Prerendered & Optimized: /baza-wiedzy/edge-computing
+2026-02-06T10:34:06.7132302Z [1m[34m[32mInlined 49.33 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:06.7638753Z [1m[34m[32mInlined 56.11 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:06.8200342Z [1m[34m[32mInlined 56.11 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:06.8221572Z [1m[34mTime 132ms[39m[22m
+2026-02-06T10:34:06.8244897Z ✅ Prerendered & Optimized: /baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce
+2026-02-06T10:34:07.3152120Z [1m[34m[32mInlined 51.23 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:07.4355078Z [1m[34m[32mInlined 62.11 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:07.4985589Z [1m[34m[32mInlined 62.11 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:07.5010522Z [1m[34mTime 249ms[39m[22m
+2026-02-06T10:34:07.5029497Z ✅ Prerendered & Optimized: /baza-wiedzy/frontend-bez-tajemnic-kompendium-cto
+2026-02-06T10:34:09.4783800Z [1m[34m[32mInlined 49.89 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:09.5397056Z [1m[34m[32mInlined 56.15 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:09.5988355Z [1m[34m[32mInlined 56.15 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:09.6009095Z [1m[34mTime 139ms[39m[22m
+2026-02-06T10:34:09.6029666Z ✅ Prerendered & Optimized: /baza-wiedzy/go-golang-jezyk-chmury
+2026-02-06T10:34:09.9882303Z [1m[34m[32mInlined 51.04 kB (79% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:10.0698265Z [1m[34m[32mInlined 62.23 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:10.1284340Z [1m[34m[32mInlined 62.23 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:10.1414671Z [1m[34mTime 200ms[39m[22m
+2026-02-06T10:34:10.1432377Z ✅ Prerendered & Optimized: /baza-wiedzy/google-ads-skalowanie-budzetu
+2026-02-06T10:34:12.2583744Z [1m[34m[32mInlined 50.24 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:12.3102313Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:12.3660634Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:12.3662142Z [1m[34m[32mInlined 92 bytes (54% of original 169 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:12.3663086Z [1m[34mTime 129ms[39m[22m
+2026-02-06T10:34:12.3675774Z ✅ Prerendered & Optimized: /baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo
+2026-02-06T10:34:12.7731012Z [1m[34m[32mInlined 50.17 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:12.8365951Z [1m[34m[32mInlined 57.30 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:12.8952720Z [1m[34m[32mInlined 57.30 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:12.8974770Z [1m[34mTime 158ms[39m[22m
+2026-02-06T10:34:12.8994539Z ✅ Prerendered & Optimized: /baza-wiedzy/laravel-php-framework-szybkie-wdrozenie
+2026-02-06T10:34:15.0522031Z [1m[34m[32mInlined 49.15 kB (76% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:15.1550784Z [1m[34m[32mInlined 55.41 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:15.2301456Z [1m[34m[32mInlined 55.41 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:15.2326998Z [1m[34mTime 205ms[39m[22m
+2026-02-06T10:34:15.2345540Z ✅ Prerendered & Optimized: /baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji
+2026-02-06T10:34:15.4572626Z [1m[34m[32mInlined 50.46 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:15.5157463Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:15.5716525Z [1m[34m[32mInlined 57.57 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:15.5732056Z [1m[34m[32mInlined 238 bytes (61% of original 389 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:15.5815650Z [1m[34mTime 190ms[39m[22m
+2026-02-06T10:34:15.5838732Z ✅ Prerendered & Optimized: /baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych
+2026-02-06T10:34:18.5002100Z [1m[34m[32mInlined 50.67 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:18.6028912Z [1m[34m[32mInlined 57.21 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:18.7103371Z [1m[34m[32mInlined 57.21 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:18.7139751Z [1m[34mTime 265ms[39m[22m
+2026-02-06T10:34:18.7180076Z ✅ Prerendered & Optimized: /baza-wiedzy/optymalizacja-obrazow-webp-avif
+2026-02-06T10:34:18.9508175Z [1m[34m[32mInlined 49.74 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:19.0015687Z [1m[34m[32mInlined 57.37 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:19.0552149Z [1m[34m[32mInlined 57.37 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:19.0562491Z [1m[34mTime 134ms[39m[22m
+2026-02-06T10:34:19.0612077Z ✅ Prerendered & Optimized: /baza-wiedzy/nodejs-jeden-jezyk
+2026-02-06T10:34:21.7872114Z [1m[34m[32mInlined 50.36 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:21.8892309Z [1m[34m[32mInlined 57.67 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:21.9979633Z [1m[34m[32mInlined 57.67 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:22.0001594Z [1m[34m[32mInlined 182 bytes (60% of original 299 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:22.0041091Z [1m[34mTime 245ms[39m[22m
+2026-02-06T10:34:22.0072012Z ✅ Prerendered & Optimized: /baza-wiedzy/postgresql-krol-baz-danych-open-source-dla-biznesu
+2026-02-06T10:34:22.1542197Z [1m[34m[32mInlined 49.72 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:22.2438729Z [1m[34m[32mInlined 57.25 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:22.3273982Z [1m[34m[32mInlined 57.25 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:22.3281156Z [1m[34m[32mInlined 271 bytes (71% of original 380 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:22.3306862Z [1m[34mTime 227ms[39m[22m
+2026-02-06T10:34:22.3328149Z ✅ Prerendered & Optimized: /baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp
+2026-02-06T10:34:25.0791727Z [1m[34m[32mInlined 50.51 kB (78% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:25.1582419Z [1m[34m[32mInlined 61.47 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:25.2489598Z [1m[34m[32mInlined 61.47 kB (22% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:25.2491716Z [1m[34m[32mInlined 408 bytes (70% of original 579 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:25.2553304Z [1m[34mTime 211ms[39m[22m
+2026-02-06T10:34:25.2578878Z ✅ Prerendered & Optimized: /baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu
+2026-02-06T10:34:25.3964549Z [1m[34m[32mInlined 49.92 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:25.4836326Z [1m[34m[32mInlined 59.44 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:25.5475646Z [1m[34m[32mInlined 59.44 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:25.5506738Z [1m[34mTime 197ms[39m[22m
+2026-02-06T10:34:25.5535544Z ✅ Prerendered & Optimized: /baza-wiedzy/redis-optymalizacja
+2026-02-06T10:34:28.2609457Z [1m[34m[32mInlined 49.63 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:28.3772682Z [1m[34m[32mInlined 56.07 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:28.5223079Z [1m[34m[32mInlined 56.07 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:28.5262203Z [1m[34m[32mInlined 201 bytes (69% of original 288 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:28.5263615Z [1m[34m[32mInlined 135 bytes (51% of original 260 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:28.5289124Z [1m[34mTime 312ms[39m[22m
+2026-02-06T10:34:28.5376521Z ✅ Prerendered & Optimized: /baza-wiedzy/server-side-tracking-koniec-cookies
+2026-02-06T10:34:28.6886214Z [1m[34m[32mInlined 49.88 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:28.7646603Z [1m[34m[32mInlined 56.91 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:28.8236076Z [1m[34m[32mInlined 56.91 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:28.8254164Z [1m[34mTime 160ms[39m[22m
+2026-02-06T10:34:28.8273011Z ✅ Prerendered & Optimized: /baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania
+2026-02-06T10:34:31.7918715Z [1m[34m[32mInlined 51.65 kB (80% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:31.9075457Z [1m[34m[32mInlined 66.21 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:31.9767144Z [1m[34m[32mInlined 66.21 kB (23% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:31.9791047Z [1m[34mTime 251ms[39m[22m
+2026-02-06T10:34:31.9804421Z ✅ Prerendered & Optimized: /baza-wiedzy/audyt-ux-sklepu-internetowego
+2026-02-06T10:34:32.6432247Z [1m[34m[32mInlined 49.61 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:32.7009782Z [1m[34m[32mInlined 54.49 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:32.7592244Z [1m[34m[32mInlined 54.49 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:32.7610906Z [1m[34mTime 136ms[39m[22m
+2026-02-06T10:34:32.7616432Z ✅ Prerendered & Optimized: /baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu
+2026-02-06T10:34:34.6935769Z [1m[34m[32mInlined 49.57 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:34.7542148Z [1m[34m[32mInlined 58.78 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:34.8152248Z [1m[34m[32mInlined 58.78 kB (21% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:34.8161490Z [1m[34m[32mInlined 282 bytes (54% of original 513 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:34.8163684Z [1m[34m[32mInlined 54 bytes (60% of original 89 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:34.8178103Z [1m[34mTime 143ms[39m[22m
+2026-02-06T10:34:34.8196347Z ✅ Prerendered & Optimized: /baza-wiedzy/vue-js-harmonijny-kompromis-react-angular
+2026-02-06T10:34:35.2141973Z [1m[34m[32mInlined 49.50 kB (77% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:35.3022578Z [1m[34m[32mInlined 55.02 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:35.3539221Z [1m[34m[32mInlined 55.02 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:35.3551756Z [1m[34m[32mInlined 681 bytes (80% of original 850 bytes) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:35.3565867Z [1m[34mTime 176ms[39m[22m
+2026-02-06T10:34:35.3587687Z ✅ Prerendered & Optimized: /baza-wiedzy/waf-bezpieczenstwo
+2026-02-06T10:34:37.4632053Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:37.5183990Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:37.5784104Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:37.5787571Z [1m[34mTime 133ms[39m[22m
+2026-02-06T10:34:37.5807608Z ✅ Prerendered & Optimized: /branza/gabinety-psychologiczne-i-psychoterapia
+2026-02-06T10:34:37.8612330Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:37.9772165Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:38.0350525Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:38.0368029Z [1m[34mTime 209ms[39m[22m
+2026-02-06T10:34:38.0383369Z ✅ Prerendered & Optimized: /branza/biura-rachunkowe-i-doradztwo-podatkowe
+2026-02-06T10:34:40.5140005Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:40.5681363Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:40.6243447Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:40.6244388Z [1m[34mTime 126ms[39m[22m
+2026-02-06T10:34:40.6252333Z ✅ Prerendered & Optimized: /branza/e-commerce
+2026-02-06T10:34:40.9040472Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:40.9857276Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:41.0435588Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:41.0454258Z [1m[34mTime 163ms[39m[22m
+2026-02-06T10:34:41.0481656Z ✅ Prerendered & Optimized: /branza/budownictwo-oze
+2026-02-06T10:34:43.3082602Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:43.3673683Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:43.4256016Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:43.4271038Z [1m[34mTime 135ms[39m[22m
+2026-02-06T10:34:43.4284727Z ✅ Prerendered & Optimized: /branza/medycyna
+2026-02-06T10:34:43.5875016Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:43.6225529Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:43.6544179Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:43.6552919Z [1m[34mTime 122ms[39m[22m
+2026-02-06T10:34:43.6563138Z ✅ Prerendered & Optimized: /branza/edukacja
+2026-02-06T10:34:46.2811088Z [1m[34m[32mInlined 47.81 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:46.3862324Z [1m[34m[32mInlined 53.15 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:46.4520985Z [1m[34m[32mInlined 53.15 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:46.4535472Z [1m[34mTime 196ms[39m[22m
+2026-02-06T10:34:46.4548609Z ✅ Prerendered & Optimized: /branza/saas--startups
+2026-02-06T10:34:47.1041771Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:47.1842236Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:47.2462325Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:47.2479666Z [1m[34mTime 159ms[39m[22m
+2026-02-06T10:34:47.2497754Z ✅ Prerendered & Optimized: /branza/e-commerce
+2026-02-06T10:34:49.0951884Z [1m[34m[32mInlined 47.81 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:49.1513251Z [1m[34m[32mInlined 53.15 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:49.2044112Z [1m[34m[32mInlined 53.15 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:49.2111836Z [1m[34mTime 139ms[39m[22m
+2026-02-06T10:34:49.2126581Z ✅ Prerendered & Optimized: /branza/usugi-b2b
+2026-02-06T10:34:49.6942507Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:49.7542969Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:49.8170064Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:49.8189747Z [1m[34mTime 152ms[39m[22m
+2026-02-06T10:34:49.8206990Z ✅ Prerendered & Optimized: /branza/deweloperzy
+2026-02-06T10:34:51.8551886Z [1m[34m[32mInlined 47.92 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:51.9058728Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:51.9567259Z [1m[34m[32mInlined 53.65 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:51.9586105Z [1m[34mTime 122ms[39m[22m
+2026-02-06T10:34:51.9603315Z ✅ Prerendered & Optimized: /branza/prawo-finanse
+2026-02-06T10:34:52.2224230Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:52.3324072Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:52.4362456Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:52.4401012Z [1m[34mTime 244ms[39m[22m
+2026-02-06T10:34:52.4441194Z ✅ Prerendered & Optimized: /miasto/rzeszow
+2026-02-06T10:34:54.6219054Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:54.6749043Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:54.7272200Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:54.7288307Z [1m[34mTime 123ms[39m[22m
+2026-02-06T10:34:54.7302949Z ✅ Prerendered & Optimized: /miasto/warszawa
+2026-02-06T10:34:54.9733790Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:55.0301670Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:55.1104321Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:55.1128554Z [1m[34mTime 174ms[39m[22m
+2026-02-06T10:34:55.1146725Z ✅ Prerendered & Optimized: /miasto/lodz
+2026-02-06T10:34:57.3525608Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:57.4031332Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:57.4605409Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:57.4623264Z [1m[34mTime 126ms[39m[22m
+2026-02-06T10:34:57.4641120Z ✅ Prerendered & Optimized: /miasto/poznan
+2026-02-06T10:34:57.5671594Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:34:57.6552465Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:57.6849190Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:34:57.6857356Z [1m[34mTime 142ms[39m[22m
+2026-02-06T10:34:57.6867034Z ✅ Prerendered & Optimized: /miasto/gdansk
+2026-02-06T10:35:00.1316591Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:00.2171679Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:00.2947970Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:00.2962081Z [1m[34mTime 220ms[39m[22m
+2026-02-06T10:35:00.2975002Z ✅ Prerendered & Optimized: /miasto/katowice
+2026-02-06T10:35:00.3993488Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:00.4600964Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:00.4954647Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:00.4962370Z [1m[34mTime 120ms[39m[22m
+2026-02-06T10:35:00.4976030Z ✅ Prerendered & Optimized: /miasto/krakow
+2026-02-06T10:35:03.0897591Z [1m[34m[32mInlined 47.70 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:03.1178489Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:03.1455710Z [1m[34m[32mInlined 50.11 kB (17% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:03.1463530Z [1m[34mTime 68ms[39m[22m
+2026-02-06T10:35:03.1472781Z ✅ Prerendered & Optimized: /miasto/wroclaw
+2026-02-06T10:35:03.2488689Z [1m[34m[32mInlined 48.46 kB (75% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:03.3126764Z [1m[34m[32mInlined 56.66 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:03.3438744Z [1m[34m[32mInlined 56.66 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:03.3448474Z [1m[34mTime 120ms[39m[22m
+2026-02-06T10:35:03.3458959Z ✅ Prerendered & Optimized: /portfolio/impackt-edu
+2026-02-06T10:35:06.1517868Z [1m[34m[32mInlined 48.52 kB (75% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:06.1802065Z [1m[34m[32mInlined 56.52 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:06.2149775Z [1m[34m[32mInlined 56.52 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:06.2158079Z [1m[34mTime 73ms[39m[22m
+2026-02-06T10:35:06.2168520Z ✅ Prerendered & Optimized: /portfolio/bdb-biuro-strona
+2026-02-06T10:35:06.5233343Z [1m[34m[32mInlined 48.77 kB (75% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:06.6581085Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:06.7776454Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:06.7851926Z [1m[34mTime 341ms[39m[22m
+2026-02-06T10:35:06.7892915Z ✅ Prerendered & Optimized: /portfolio/driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding
+2026-02-06T10:35:08.9873876Z [1m[34m[32mInlined 48.77 kB (75% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:09.0165887Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:09.0455369Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:09.0464292Z [1m[34mTime 68ms[39m[22m
+2026-02-06T10:35:09.0474947Z ✅ Prerendered & Optimized: /portfolio/high-performance-landing-page-dla-aplikacji-mobilnej-pickme
+2026-02-06T10:35:09.4470829Z [1m[34m[32mInlined 48.12 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:09.5226732Z [1m[34m[32mInlined 55.35 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:09.5733671Z [1m[34m[32mInlined 55.35 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:09.5842522Z [1m[34mTime 199ms[39m[22m
+2026-02-06T10:35:09.5891961Z ✅ Prerendered & Optimized: /portfolio/fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance
+2026-02-06T10:35:11.7624179Z [1m[34m[32mInlined 48.08 kB (74% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:11.7922407Z [1m[34m[32mInlined 54.82 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:11.8171409Z [1m[34m[32mInlined 54.82 kB (19% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:11.8179490Z [1m[34mTime 67ms[39m[22m
+2026-02-06T10:35:11.8188953Z ✅ Prerendered & Optimized: /portfolio/glamspace
+2026-02-06T10:35:12.2350505Z [1m[34m[32mInlined 48.77 kB (75% of original 64.26 kB) of inline CSS.[34m[39m[22m
+2026-02-06T10:35:12.2644880Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:12.2947101Z [1m[34m[32mInlined 57.22 kB (20% of original 278.88 kB) of assets/index-CRNsb5cB.css.[34m[39m[22m
+2026-02-06T10:35:12.2956516Z [1m[34mTime 70ms[39m[22m
+2026-02-06T10:35:12.2967439Z ✅ Prerendered & Optimized: /portfolio/studentpi
+2026-02-06T10:35:12.3260027Z 🛑 Closing browser...
+2026-02-06T10:35:15.2064456Z [33m-[39m Running JS in headless Chrome
+2026-02-06T10:35:27.3535915Z [32m✔[39m Running JS in headless Chrome
+2026-02-06T10:35:27.3541682Z   
+2026-02-06T10:35:27.3544106Z   [1mdist/assets/index-CbQ-y0Zo.js, dist/assets/index-DvSu3Qh9.js[22m
+2026-02-06T10:35:27.3549221Z   Size limit:   [32m[1m300 kB[22m[39m
+2026-02-06T10:35:27.3550850Z   Size:         [32m[1m135.54 kB[22m[39m [90mbrotlied[39m
+2026-02-06T10:35:27.3551780Z   Loading time: [32m[1m2.7 s    [22m[39m [90mon slow 3G[39m
+2026-02-06T10:35:27.3552983Z   Running time: [32m[1m38 ms    [22m[39m [90mon Snapdragon 410[39m
+2026-02-06T10:35:27.3554243Z   Total time:   [32m[1m2.7 s[22m[39m
+2026-02-06T10:35:27.3554701Z   
+2026-02-06T10:35:27.3555155Z   [1mdist/assets/index-CRNsb5cB.css[22m
+2026-02-06T10:35:27.3556114Z   Size limit:   [32m[1m50 kB[22m[39m
+2026-02-06T10:35:27.3556792Z   Size:         [32m[1m26.6 kB[22m[39m [90mbrotlied[39m
+2026-02-06T10:35:27.3557560Z   Loading time: [32m[1m520 ms [22m[39m [90mon slow 3G[39m
+2026-02-06T10:35:27.3558477Z   Running time: [32m[1m0 ms   [22m[39m [90mon Snapdragon 410[39m
+2026-02-06T10:35:27.3559215Z   Total time:   [32m[1m520 ms[22m[39m
+2026-02-06T10:35:27.3559638Z   
+2026-02-06T10:35:27.4898786Z 
+2026-02-06T10:35:27.4899675Z > mixture-marketing@0.0.0 audit:health
+2026-02-06T10:35:27.4900999Z > node scripts/audit-health.js
+2026-02-06T10:35:27.4902706Z 
+2026-02-06T10:35:27.7411214Z 🛡️ Starting Site Health Audit (Smoke Test)...
+2026-02-06T10:35:33.1266828Z 🚀 Checking: /
+2026-02-06T10:35:35.2699381Z ✅ / is healthy.
+2026-02-06T10:35:35.3834164Z 🚀 Checking: /offers/
+2026-02-06T10:35:36.6339071Z ✅ /offers/ is healthy.
+2026-02-06T10:35:36.7098429Z 🚀 Checking: /contact/
+2026-02-06T10:35:37.6748905Z ✅ /contact/ is healthy.
+2026-02-06T10:35:37.7596319Z 🚀 Checking: /privacy-policy/
+2026-02-06T10:35:38.6508127Z ✅ /privacy-policy/ is healthy.
+2026-02-06T10:35:38.7229502Z 🚀 Checking: /terms/
+2026-02-06T10:35:39.5543792Z ✅ /terms/ is healthy.
+2026-02-06T10:35:39.6252046Z 🚀 Checking: /web-development/
+2026-02-06T10:35:40.9380002Z ✅ /web-development/ is healthy.
+2026-02-06T10:35:41.0262389Z 🚀 Checking: /web-development/ecommerce/
+2026-02-06T10:35:42.3858535Z ✅ /web-development/ecommerce/ is healthy.
+2026-02-06T10:35:42.4709950Z 🚀 Checking: /web-development/landing-page/
+2026-02-06T10:35:43.8101209Z ✅ /web-development/landing-page/ is healthy.
+2026-02-06T10:35:43.9228733Z 🚀 Checking: /web-development/corporate/
+2026-02-06T10:35:45.3272010Z ✅ /web-development/corporate/ is healthy.
+2026-02-06T10:35:45.4183100Z 🚀 Checking: /web-development/custom-app/
+2026-02-06T10:35:46.6782065Z ✅ /web-development/custom-app/ is healthy.
+2026-02-06T10:35:46.7605153Z 🚀 Checking: /marketing/
+2026-02-06T10:35:48.0246030Z ✅ /marketing/ is healthy.
+2026-02-06T10:35:48.1125059Z 🚀 Checking: /marketing/google-ads/
+2026-02-06T10:35:49.4180103Z ✅ /marketing/google-ads/ is healthy.
+2026-02-06T10:35:49.5114851Z 🚀 Checking: /marketing/meta-ads/
+2026-02-06T10:35:50.8635671Z ✅ /marketing/meta-ads/ is healthy.
+2026-02-06T10:35:50.9522025Z 🚀 Checking: /marketing/seo/
+2026-02-06T10:35:52.3012693Z ✅ /marketing/seo/ is healthy.
+2026-02-06T10:35:52.3835972Z 🚀 Checking: /marketing/analytics/
+2026-02-06T10:35:53.4403109Z ✅ /marketing/analytics/ is healthy.
+2026-02-06T10:35:53.5311791Z 🚀 Checking: /design/
+2026-02-06T10:35:54.7575093Z ✅ /design/ is healthy.
+2026-02-06T10:35:54.8448555Z 🚀 Checking: /design/branding/
+2026-02-06T10:35:55.7521914Z ✅ /design/branding/ is healthy.
+2026-02-06T10:35:55.8426321Z 🚀 Checking: /design/ui-ux/
+2026-02-06T10:35:56.8908628Z ✅ /design/ui-ux/ is healthy.
+2026-02-06T10:35:56.9947233Z 🚀 Checking: /design/print/
+2026-02-06T10:35:57.9061878Z ✅ /design/print/ is healthy.
+2026-02-06T10:35:57.9987596Z 🚀 Checking: /design/visual-audit/
+2026-02-06T10:35:58.9736839Z ✅ /design/visual-audit/ is healthy.
+2026-02-06T10:35:59.0661557Z 🚀 Checking: /baza-wiedzy/
+2026-02-06T10:36:00.5933181Z ✅ /baza-wiedzy/ is healthy.
+2026-02-06T10:36:00.6912106Z 🚀 Checking: /baza-wiedzy/redis-optymalizacja/
+2026-02-06T10:36:02.0134194Z ✅ /baza-wiedzy/redis-optymalizacja/ is healthy.
+2026-02-06T10:36:02.1027236Z 🚀 Checking: /baza-wiedzy/cdn-globalna-wydajnosc/
+2026-02-06T10:36:03.7329586Z ✅ /baza-wiedzy/cdn-globalna-wydajnosc/ is healthy.
+2026-02-06T10:36:03.8204792Z 🚀 Checking: /baza-wiedzy/optymalizacja-obrazow-webp-avif/
+2026-02-06T10:36:05.1655295Z ✅ /baza-wiedzy/optymalizacja-obrazow-webp-avif/ is healthy.
+2026-02-06T10:36:05.2677623Z 🚀 Checking: /baza-wiedzy/waf-bezpieczenstwo/
+2026-02-06T10:36:06.5617006Z ✅ /baza-wiedzy/waf-bezpieczenstwo/ is healthy.
+2026-02-06T10:36:06.6491087Z 🚀 Checking: /baza-wiedzy/edge-computing/
+2026-02-06T10:36:08.0266761Z ✅ /baza-wiedzy/edge-computing/ is healthy.
+2026-02-06T10:36:08.1168938Z 🚀 Checking: /baza-wiedzy/core-web-vitals-2025/
+2026-02-06T10:36:09.4309559Z ✅ /baza-wiedzy/core-web-vitals-2025/ is healthy.
+2026-02-06T10:36:09.5338809Z 🚀 Checking: /baza-wiedzy/google-ads-skalowanie-budzetu/
+2026-02-06T10:36:10.8311150Z ✅ /baza-wiedzy/google-ads-skalowanie-budzetu/ is healthy.
+2026-02-06T10:36:10.9342734Z 🚀 Checking: /baza-wiedzy/audyt-ux-sklepu-internetowego/
+2026-02-06T10:36:12.1926881Z ✅ /baza-wiedzy/audyt-ux-sklepu-internetowego/ is healthy.
+2026-02-06T10:36:12.3005410Z 🚀 Checking: /baza-wiedzy/server-side-tracking-koniec-cookies/
+2026-02-06T10:36:13.5617561Z ✅ /baza-wiedzy/server-side-tracking-koniec-cookies/ is healthy.
+2026-02-06T10:36:13.6612962Z 🚀 Checking: /baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/
+2026-02-06T10:36:14.9698360Z ✅ /baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/ is healthy.
+2026-02-06T10:36:15.0663257Z 🚀 Checking: /baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/
+2026-02-06T10:36:16.3462240Z ✅ /baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/ is healthy.
+2026-02-06T10:36:16.4414329Z 🚀 Checking: /baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania/
+2026-02-06T10:36:17.7246899Z ✅ /baza-wiedzy/tailwind-css-utility-first-przyszlosc-projektowania/ is healthy.
+2026-02-06T10:36:17.8223892Z 🚀 Checking: /baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu/
+2026-02-06T10:36:19.0672295Z ✅ /baza-wiedzy/typescript-polisa-ubezpieczeniowa-twojego-kodu/ is healthy.
+2026-02-06T10:36:19.1637580Z 🚀 Checking: /baza-wiedzy/postgresql-krol-baz-danych-open-source-dla-biznesu/
+2026-02-06T10:36:20.6674697Z ✅ /baza-wiedzy/postgresql-krol-baz-danych-open-source-dla-biznesu/ is healthy.
+2026-02-06T10:36:20.7555802Z 🚀 Checking: /baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji/
+2026-02-06T10:36:22.0087553Z ✅ /baza-wiedzy/mongodb-nosql-przyszlosc-big-data-i-dynamicznych-aplikacji/ is healthy.
+2026-02-06T10:36:22.0991800Z 🚀 Checking: /baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce/
+2026-02-06T10:36:23.3025708Z ✅ /baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce/ is healthy.
+2026-02-06T10:36:23.3990814Z 🚀 Checking: /baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/
+2026-02-06T10:36:24.6887566Z ✅ /baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/ is healthy.
+2026-02-06T10:36:24.7868618Z 🚀 Checking: /baza-wiedzy/vue-js-harmonijny-kompromis-react-angular/
+2026-02-06T10:36:26.0753395Z ✅ /baza-wiedzy/vue-js-harmonijny-kompromis-react-angular/ is healthy.
+2026-02-06T10:36:26.1738300Z 🚀 Checking: /baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp/
+2026-02-06T10:36:27.4601434Z ✅ /baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp/ is healthy.
+2026-02-06T10:36:27.5481905Z 🚀 Checking: /baza-wiedzy/bazy-danych-kompendium-architekta/
+2026-02-06T10:36:28.8318968Z ✅ /baza-wiedzy/bazy-danych-kompendium-architekta/ is healthy.
+2026-02-06T10:36:28.9285325Z 🚀 Checking: /baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/
+2026-02-06T10:36:30.2182735Z ✅ /baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/ is healthy.
+2026-02-06T10:36:30.3161336Z 🚀 Checking: /baza-wiedzy/docker-konteneryzacja-przewodnik/
+2026-02-06T10:36:31.5893215Z ✅ /baza-wiedzy/docker-konteneryzacja-przewodnik/ is healthy.
+2026-02-06T10:36:31.6841442Z 🚀 Checking: /baza-wiedzy/ci-cd-automatyzacja-wdrozen/
+2026-02-06T10:36:32.9903236Z ✅ /baza-wiedzy/ci-cd-automatyzacja-wdrozen/ is healthy.
+2026-02-06T10:36:33.1077206Z 🚀 Checking: /baza-wiedzy/devops-fundament-nowoczesnego-biznesu/
+2026-02-06T10:36:34.4314399Z ✅ /baza-wiedzy/devops-fundament-nowoczesnego-biznesu/ is healthy.
+2026-02-06T10:36:34.5266040Z 🚀 Checking: /baza-wiedzy/nodejs-jeden-jezyk/
+2026-02-06T10:36:35.7980868Z ✅ /baza-wiedzy/nodejs-jeden-jezyk/ is healthy.
+2026-02-06T10:36:35.8961124Z 🚀 Checking: /baza-wiedzy/go-golang-jezyk-chmury/
+2026-02-06T10:36:37.1612682Z ✅ /baza-wiedzy/go-golang-jezyk-chmury/ is healthy.
+2026-02-06T10:36:37.2520089Z 🚀 Checking: /baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/
+2026-02-06T10:36:38.5819542Z ✅ /baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/ is healthy.
+2026-02-06T10:36:38.6708952Z 🚀 Checking: /baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/
+2026-02-06T10:36:39.8879300Z ✅ /baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/ is healthy.
+2026-02-06T10:36:39.9807692Z 🚀 Checking: /portal
+2026-02-06T10:36:40.9638178Z ✅ /portal is healthy.
+2026-02-06T10:36:41.0465139Z 🚀 Checking: /portfolio/
+2026-02-06T10:36:43.0198165Z ✅ /portfolio/ is healthy.
+2026-02-06T10:36:43.0924895Z 🚀 Checking: /audyt-360/
+2026-02-06T10:36:43.9334552Z ✅ /audyt-360/ is healthy.
+2026-02-06T10:36:43.9509540Z 
+2026-02-06T10:36:43.9513992Z 📊 Health Summary:
+2026-02-06T10:36:43.9515622Z - Healthy: 52
+2026-02-06T10:36:43.9517122Z - Broken: 0

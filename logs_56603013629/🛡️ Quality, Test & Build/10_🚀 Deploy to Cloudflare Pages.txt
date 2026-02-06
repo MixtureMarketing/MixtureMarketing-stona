@@ -1,0 +1,26 @@
+﻿2026-02-06T10:36:44.1290671Z ##[group]Run cloudflare/pages-action@v1
+2026-02-06T10:36:44.1290999Z with:
+2026-02-06T10:36:44.1291362Z   apiToken: ***
+2026-02-06T10:36:44.1291609Z   accountId: ***
+2026-02-06T10:36:44.1291830Z   projectName: mixturemarketing-stona
+2026-02-06T10:36:44.1292094Z   directory: dist
+2026-02-06T10:36:44.1292431Z   gitHubToken: ***
+2026-02-06T10:36:44.1292654Z   branch: cloudflare-migration
+2026-02-06T10:36:44.1292897Z   wranglerVersion: 2
+2026-02-06T10:36:44.1293103Z ##[endgroup]
+2026-02-06T10:36:46.7705455Z [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mWarning: Your working directory is a git repo and has uncommitted changes[0m
+2026-02-06T10:36:46.7706407Z 
+2026-02-06T10:36:46.7706748Z   To silence this warning, pass in --commit-dirty=true
+2026-02-06T10:36:46.7707184Z 
+2026-02-06T10:36:46.7707207Z 
+2026-02-06T10:36:47.1005587Z ✨ Compiled Worker successfully
+2026-02-06T10:36:48.0343219Z Uploading... (104/578)
+2026-02-06T10:36:50.6233518Z Uploading... (262/578)
+2026-02-06T10:36:50.9871789Z Uploading... (420/578)
+2026-02-06T10:36:51.0959095Z Uploading... (578/578)
+2026-02-06T10:36:51.0961841Z ✨ Success! Uploaded 474 files (104 already uploaded) (3.43 sec)
+2026-02-06T10:36:51.0964212Z 
+2026-02-06T10:36:51.7326678Z ✨ Uploading _headers
+2026-02-06T10:36:51.7331708Z ✨ Uploading _redirects
+2026-02-06T10:36:51.7361066Z ✨ Uploading Functions bundle
+2026-02-06T10:36:52.6784318Z ✨ Deployment complete! Take a peek over at https://0a2f35a0.mixturemarketing-stona.pages.dev

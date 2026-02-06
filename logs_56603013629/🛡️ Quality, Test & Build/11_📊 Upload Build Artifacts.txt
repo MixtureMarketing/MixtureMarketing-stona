@@ -1,0 +1,26 @@
+﻿2026-02-06T10:36:53.5225786Z ##[group]Run actions/upload-artifact@v4
+2026-02-06T10:36:53.5226319Z with:
+2026-02-06T10:36:53.5226646Z   name: dist-package
+2026-02-06T10:36:53.5227022Z   path: dist/
+2026-02-06T10:36:53.5227352Z   retention-days: 7
+2026-02-06T10:36:53.5227728Z   if-no-files-found: warn
+2026-02-06T10:36:53.5228153Z   compression-level: 6
+2026-02-06T10:36:53.5228540Z   overwrite: false
+2026-02-06T10:36:53.5228910Z   include-hidden-files: false
+2026-02-06T10:36:53.5229340Z ##[endgroup]
+2026-02-06T10:36:53.9137489Z With the provided path, there will be 579 files uploaded
+2026-02-06T10:36:53.9138384Z Artifact name is valid!
+2026-02-06T10:36:53.9138871Z Root directory input is valid!
+2026-02-06T10:36:54.0629804Z Beginning upload of artifact content to blob storage
+2026-02-06T10:36:55.0422514Z Uploaded bytes 8388608
+2026-02-06T10:36:55.3140886Z Uploaded bytes 16777216
+2026-02-06T10:36:55.3743448Z Uploaded bytes 25165824
+2026-02-06T10:36:55.6051180Z Uploaded bytes 33554432
+2026-02-06T10:36:55.8690004Z Uploaded bytes 41943040
+2026-02-06T10:36:56.4485856Z Uploaded bytes 48337865
+2026-02-06T10:36:56.4841207Z Finished uploading artifact content to blob storage!
+2026-02-06T10:36:56.4845147Z SHA256 digest of uploaded artifact zip is 15e8edaa3d233887ac3870bb6fdec8cd61f5195d2a3662eeb5ccec8779d1064a
+2026-02-06T10:36:56.4847145Z Finalizing artifact upload
+2026-02-06T10:36:56.6061638Z Artifact dist-package.zip successfully finalized. Artifact ID 5404398073
+2026-02-06T10:36:56.6064498Z Artifact dist-package has been successfully uploaded! Final size is 48337865 bytes. Artifact ID is 5404398073
+2026-02-06T10:36:56.6068611Z Artifact download URL: https://github.com/MixtureMarketing/MixtureMarketing-stona/actions/runs/21747172398/artifacts/5404398073

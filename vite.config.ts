@@ -79,14 +79,24 @@ export default defineConfig(({ mode }) => {
     ],
     build: {
       emptyOutDir: true,
+      cssCodeSplit: true, // Split CSS to load only what's needed for the current page
+      modulePreload: {
+        polyfil: true,
+      },
       rollupOptions: {
         output: {
-          // Disabled manualChunks due to runtime initialization errors with specific libraries
-          /*
           manualChunks(id) {
-            ...
-          }
-          */
+            if (id.includes('node_modules')) {
+              // Critical heavy libs
+              if (id.includes('recharts') || id.includes('d3')) return 'vendor-charts';
+              if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
+              if (id.includes('framer-motion')) return 'vendor-motion';
+              if (id.includes('lucide-react')) return 'vendor-icons';
+              if (id.includes('react-dom')) return 'vendor-react-dom';
+
+              return 'vendor';
+            }
+          },
         },
       },
       chunkSizeWarningLimit: 1000,

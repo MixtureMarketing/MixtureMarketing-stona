@@ -23,13 +23,13 @@ const AmbientBackground: React.FC = () => {
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      {/* Decorative Orbs - Client Side Only to save DOM nodes during initial parse */}
+      {/* Decorative Orbs - Client Side Only with GPU acceleration hint */}
       {isMounted && (
-        <>
-          <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-instagram rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
-        </>
+        <div className="opacity-0 animate-fade-in duration-1000 fill-mode-forwards">
+          <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob will-change-transform"></div>
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000 will-change-transform"></div>
+          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-instagram rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000 will-change-transform"></div>
+        </div>
       )}
     </div>
   );

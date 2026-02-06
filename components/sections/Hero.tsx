@@ -96,6 +96,7 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
                   size="lg"
                   className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg shadow-2xl shadow-secondary/30 hover:scale-105 transition-transform duration-300"
                   icon={<ArrowRight size={22} />}
+                  data-testid="hero-cta"
                 >
                   Oblicz koszt projektu
                 </Button>
