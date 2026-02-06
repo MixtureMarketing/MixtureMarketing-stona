@@ -87,13 +87,13 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              // Critical heavy libs
+              // Critical heavy libs - split only non-core utilities
               if (id.includes('recharts') || id.includes('d3')) return 'vendor-charts';
               if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
               if (id.includes('framer-motion')) return 'vendor-motion';
               if (id.includes('lucide-react')) return 'vendor-icons';
-              if (id.includes('react-dom')) return 'vendor-react-dom';
 
+              // Keep core React and others together
               return 'vendor';
             }
           },

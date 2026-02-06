@@ -38,7 +38,7 @@ onCLS(reportWebVitals);
 onINP(reportWebVitals);
 onTTFB(reportWebVitals);
 
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && !window.isPrerendering) {
   // Scan for re-renders
   const { scan } = await import('react-scan');
   scan({
