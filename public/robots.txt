@@ -1,6 +1,13 @@
 User-agent: *
 Allow: /
-Disallow: /*?*wc-ajax*
-Disallow: /*?*wc-ajax=
+Disallow: /api/
+Disallow: /portal
+Disallow: /portal/
+Disallow: /admin
+Disallow: /?*search_term_string*
+
+# Specific bot settings
+User-agent: GPTBot
+Disallow: /
 
 Sitemap: https://mixturemarketing.pl/sitemap.xml

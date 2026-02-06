@@ -11,6 +11,7 @@ import StandardHero from '../common/StandardHero';
 import BaseCta from '../common/BaseCta';
 import StandardFaq from '../common/StandardFaq';
 import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
+import { DesignDecorations } from '../visuals/hero/DesignHeroDecorations';
 
 // Refactored Sub-components
 import DesignToolkit from '../features/design/DesignToolkit';
@@ -69,6 +70,7 @@ const DesignBranding: React.FC = () => {
         backLinkPath="/"
         backLinkLabel="Wróć do strony głównej"
         visual={<DesignHeroVisual />}
+        backgroundDecorations={<DesignDecorations />}
       />
 
       <DesignToolkit />

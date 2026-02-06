@@ -1,9 +1,11 @@
 import React from 'react';
 import { LucideIcon, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import AmbientBackground from './AmbientBackground';
 import { HeroTitle, HeroButtons } from './HeroSubComponents';
 import Container from './Container';
+import { useMousePosition } from '../../hooks/useMousePosition';
+import { useWindowSize } from '../../hooks/useWindowSize';
 
 interface StandardHeroProps {
   badge: string;
@@ -19,6 +21,7 @@ interface StandardHeroProps {
   backLinkPath?: string;
   backLinkLabel?: string;
   visual?: React.ReactNode;
+  backgroundDecorations?: React.ReactNode;
   accentGradientFrom?: string;
   accentGradientTo?: string;
 }
@@ -37,23 +40,34 @@ const StandardHero: React.FC<StandardHeroProps> = ({
   backLinkPath,
   backLinkLabel,
   visual,
+  backgroundDecorations,
   accentGradientFrom = '#3F3D91',
   accentGradientTo = '#61B6DE',
 }) => {
-  const navigate = useNavigate();
+  const mousePosition = useMousePosition();
+  const windowSize = useWindowSize();
 
   return (
     <section className="relative py-20 lg:py-28 bg-light-gray overflow-hidden">
       <AmbientBackground />
+
+      {/* Optional Background Decorations (Floating bits) */}
+      {backgroundDecorations && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          {backgroundDecorations}
+        </div>
+      )}
+
       <Container className="relative z-10">
         {backLinkPath && (
-          <button
-            onClick={() => navigate(backLinkPath)}
-            className="group flex items-center text-sm font-semibold text-gray-700 hover:text-secondary mb-8 transition-colors uppercase tracking-wider"
+          <Link
+            to={backLinkPath}
+            rel="prev"
+            className="group inline-flex items-center text-sm font-semibold text-gray-700 hover:text-secondary mb-8 transition-colors uppercase tracking-wider"
           >
             <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
             {backLinkLabel || 'Wróć'}
-          </button>
+          </Link>
         )}
 
         <div className="flex flex-col lg:flex-row gap-16 items-center">
@@ -66,6 +80,8 @@ const StandardHero: React.FC<StandardHeroProps> = ({
                 title={title}
                 accentGradientFrom={accentGradientFrom}
                 accentGradientTo={accentGradientTo}
+                mousePosition={mousePosition}
+                windowSize={windowSize}
               />
             </h1>
             <p

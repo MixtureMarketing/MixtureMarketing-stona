@@ -91,7 +91,15 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   </div>
                 ))
               : items.map((item) => (
-                  <Link key={item.slug} to={`/baza-wiedzy/${item.slug}`} className="group block">
+                  <Link
+                    key={item.slug}
+                    to={
+                      item._type === 'caseStudy'
+                        ? `/portfolio/${item.slug}`
+                        : `/baza-wiedzy/${item.slug}`
+                    }
+                    className="group block"
+                  >
                     <div className="relative h-64 rounded-2xl overflow-hidden mb-6 shadow-md group-hover:shadow-xl transition-all duration-500">
                       {item.mainImage?.asset ? (
                         <img

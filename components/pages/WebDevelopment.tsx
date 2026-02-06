@@ -21,6 +21,7 @@ import BaseCta from '../common/BaseCta';
 import IntegrationGrid from '../common/IntegrationGrid';
 import Container from '../common/Container';
 import { WebDevHeroVisual } from '../visuals/hero/WebDevVisual';
+import { TechDecorations } from '../visuals/hero/TechHeroDecorations';
 
 // Refactored Sub-components
 import WebDevProjectTypes from '../features/web-development/WebDevProjectTypes';
@@ -100,6 +101,7 @@ const WebDevelopment: React.FC = () => {
         backLinkPath="/"
         backLinkLabel="System.Return_To_Home()"
         visual={<WebDevHeroVisual />}
+        backgroundDecorations={<TechDecorations />}
       />
 
       <section className="bg-light-gray pb-24">

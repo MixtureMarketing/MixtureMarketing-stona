@@ -12,7 +12,7 @@ export const DESIGN_BRANDING_CONTENT = {
       line2: 'Design to inżynieria wizualna.',
     },
     description:
-      'Łączymy psychologię koloru, matematykę siatek i strategię biznesową. Projektujemy systemy, które nie tylko wyglądają, ale przede wszystkim – <strong>działają i sprzedają.</strong>',
+      'Łączymy psychologię koloru, matematykę siatek i strategię biznesową. Projektujemy systemy, które nie tylko wyglądają, ale przede wszystkim – działają i sprzedają.',
     cta: 'Konsultacja Wizualna',
   },
   toolkit: {

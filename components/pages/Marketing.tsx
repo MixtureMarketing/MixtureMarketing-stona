@@ -3,6 +3,7 @@ import Seo from '@/components/common/Seo';
 import { MARKETING_CONTENT } from '@/data/content';
 import StandardHero from '@/components/common/StandardHero';
 import { MarketingHeroVisual } from '@/components/visuals/hero/MarketingVisual';
+import { MarketingDecorations } from '@/components/visuals/hero/MarketingHeroDecorations';
 import { Target, Zap } from 'lucide-react';
 import MarketingStrategy from '@/components/features/marketing/MarketingStrategy';
 import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnichannel';
@@ -65,8 +66,9 @@ const Marketing: React.FC = () => {
         backLinkPath="/"
         backLinkLabel="Wróć do głównej"
         accentGradientFrom="#61B6DE"
-        accentGradientTo="#FFFFFF"
+        accentGradientTo="#3F3D91"
         visual={<MarketingHeroVisual />}
+        backgroundDecorations={<MarketingDecorations />}
       />
 
       {/* Missing Pain Points Section - placeholder if needed or implemented later */}

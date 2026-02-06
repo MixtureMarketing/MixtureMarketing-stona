@@ -8,6 +8,8 @@ import {
   getFaqSchema,
   getServiceSchema,
   getLocalBusinessSchema,
+  getWebSiteSchema,
+  getSiteNavigationSchema,
 } from '../../utils/seoSchemas';
 
 const Seo: React.FC<SeoProps> = ({
@@ -31,6 +33,8 @@ const Seo: React.FC<SeoProps> = ({
 
   const memoizedSchemas = React.useMemo(() => {
     return [
+      getWebSiteSchema(baseUrl),
+      getSiteNavigationSchema(baseUrl),
       getArticleSchema(article || null, ogImage, baseUrl, canonicalUrl),
       getBreadcrumbsSchema(breadcrumbs || [], baseUrl),
       getFaqSchema(faq || []),

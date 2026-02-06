@@ -1,5 +1,5 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import createImageUrlBuilder from '@sanity/image-url';
 import { SanityImage } from '@/types/sanity';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
@@ -13,7 +13,8 @@ export const client = createClient({
   useCdn: false,
 });
 
-const builder = imageUrlBuilder(client);
+// Using the builder as recommended by modern Sanity docs
+const builder = createImageUrlBuilder(client);
 
 export function urlFor(source: SanityImage | { asset: { _ref: string } }) {
   return builder.image(source);
