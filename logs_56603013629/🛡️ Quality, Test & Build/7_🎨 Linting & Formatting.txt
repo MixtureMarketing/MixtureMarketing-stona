@@ -1,8 +1,0 @@
-﻿2026-02-06T10:24:33.2524139Z ##[group]Run npm run lint
-2026-02-06T10:24:33.2524578Z [36;1mnpm run lint[0m
-2026-02-06T10:24:33.2565320Z shell: /usr/bin/bash -e {0}
-2026-02-06T10:24:33.2565727Z ##[endgroup]
-2026-02-06T10:24:33.3944896Z 
-2026-02-06T10:24:33.3945608Z > mixture-marketing@0.0.0 lint
-2026-02-06T10:24:33.3946419Z > eslint . --report-unused-disable-directives --max-warnings 0
-2026-02-06T10:24:33.3946946Z 

@@ -1,4 +1,0 @@
-﻿2026-02-06T10:24:14.6343606Z ##[group]Run echo "legacy-peer-deps=true" > .npmrc
-2026-02-06T10:24:14.6344036Z [36;1mecho "legacy-peer-deps=true" > .npmrc[0m
-2026-02-06T10:24:14.6709249Z shell: /usr/bin/bash -e {0}
-2026-02-06T10:24:14.6709535Z ##[endgroup]

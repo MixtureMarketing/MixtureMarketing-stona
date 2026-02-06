@@ -32,6 +32,7 @@ const AuditEmailGateStep: React.FC<AuditEmailGateStepProps> = ({ email, setEmail
         <input
           type="email"
           placeholder="twoj@email.pl"
+          aria-label="Twój adres e-mail"
           className="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-xl font-medium text-center"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

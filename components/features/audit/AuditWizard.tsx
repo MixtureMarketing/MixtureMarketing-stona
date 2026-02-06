@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Zap } from 'lucide-react';
 import { auditService, AuditResult } from '../../../services/auditService';
+import { leadService } from '../../../services/leadService';
 import AuditInputStep from './AuditInputStep';
 import AuditEmailGateStep from './AuditEmailGateStep';
 import Container from '../../common/Container';
