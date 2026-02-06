@@ -17,7 +17,7 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const PORT = 4173;
-const MAX_CONCURRENCY = 5; // Reduced from 10 for better stability in CI environments
+const MAX_CONCURRENCY = 3; // Even more conservative for CI stability
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
@@ -51,11 +51,11 @@ async function processRoute(browser, critters, route) {
   const page = await browser.newPage();
   const consoleErrors = [];
 
-  // Capture browser errors
+  // Capture ALL browser logs for debugging
   page.on('console', (msg) => {
-    if (msg.type() === 'error') consoleErrors.push(msg.text());
+    if (msg.type() === 'error') consoleErrors.push(`[BROWSER ERROR] ${msg.text()}`);
   });
-  page.on('pageerror', (err) => consoleErrors.push(err.message));
+  page.on('pageerror', (err) => consoleErrors.push(`[PAGE ERROR] ${err.message}`));
 
   try {
     await page.setViewport({ width: 1280, height: 800 });
@@ -70,7 +70,6 @@ async function processRoute(browser, critters, route) {
     page.on('request', (req) => {
       const resourceType = req.resourceType();
       const url = req.url();
-      
       if (
         ['image', 'media', 'font'].includes(resourceType) ||
         url.includes('google-analytics') ||
@@ -85,35 +84,46 @@ async function processRoute(browser, critters, route) {
     });
 
     const url = `http://localhost:${PORT}${route}`;
-    // Using networkidle2 for better compatibility with code-splitting
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 90000 });
+    console.log(`🔍 Prerendering: ${route}`);
+
+    // Fast navigation - wait only for initial DOM
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
     
-    // Wait for the #root element to have some content
-    await page.waitForFunction(
-      () => {
-        const root = document.getElementById('root');
-        return root && root.innerHTML.length > 50;
-      },
-      { timeout: 30000 }
-    );
+    // Explicit wait for the #root to be populated (with retry logic)
+    try {
+      await page.waitForFunction(
+        () => {
+          const root = document.getElementById('root');
+          return root && root.innerHTML.trim().length > 100;
+        },
+        { timeout: 45000 }
+      );
+    } catch (timeoutErr) {
+      console.error(`⚠️ Timeout on ${route}. Captured errors so far:\n`, consoleErrors.join('\n'));
+      throw timeoutErr;
+    }
 
-    // Small delay for final animations/hydration
-    await new Promise((r) => setTimeout(r, 1500));
+    // Small buffer for hydration stability
+    await new Promise((r) => setTimeout(r, 2000));
 
-    // Error detection
-    const bodyText = await page.evaluate(() => document.body.innerText);
-    if (bodyText.length < 10) {
-      if (consoleErrors.length > 0) {
-        console.error(`❌ Browser errors on ${route}:`, consoleErrors.join('\n'));
-      }
-      throw new Error(`Empty render on ${route}`);
-    }    if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
+    // Final check
+    const content = await page.evaluate(() => {
+      const bodyText = document.body.innerText;
+      const rootHtml = document.getElementById('root')?.innerHTML || '';
+      const isError = bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500;
+      return { textLength: bodyText.length, rootLength: rootHtml.length, isError };
+    });
+
+    if (content.isError) {
       throw new Error(`React Error Boundary triggered on ${route}`);
+    }
+    if (content.rootLength < 100) {
+      throw new Error(`Empty render on ${route} (Root length: ${content.rootLength})`);
     }
 
     let html = await page.content();
 
-    // Ensure absolute paths for assets (Double check)
+    // Ensure absolute paths for assets
     html = html.replace(/(src|href)="assets\//g, '$1="/assets/');
 
     try {
@@ -132,9 +142,12 @@ async function processRoute(browser, critters, route) {
     }
 
     fs.writeFileSync(filePath, html);
-    console.log(`✅ Prerendered & Optimized: ${route}`);
+    console.log(`✅ Success: ${route}`);
   } catch (err) {
-    console.error(`❌ Failed to prerender ${route}:`, err.message);
+    console.error(`❌ Failed: ${route} - ${err.message}`);
+    if (consoleErrors.length > 0) {
+      console.error(`📋 Browser Console for ${route}:\n${consoleErrors.join('\n')}`);
+    }
     throw err;
   } finally {
     await page.close();
@@ -142,43 +155,32 @@ async function processRoute(browser, critters, route) {
 }
 
 async function prerender() {
-  console.log('🚀 Starting optimized prerendering...');
+  console.log('🚀 Starting robust prerendering process...');
 
-  // 1. Start Server
-  console.log('📦 Starting preview server...');
   const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
     stdio: 'ignore',
     shell: true,
-    detached: true, // Allow killing process group
+    detached: true,
   });
 
   try {
-    // 2. Wait for server
-    console.log('⏳ Waiting for server to be ready...');
     await waitForServer(PORT);
-    console.log('🟢 Server is ready!');
+    console.log('🟢 Preview server ready.');
 
-    // 3. Launch Browser
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-      timeout: 60000,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--single-process'],
     });
 
-    // 4. Init Beasties
     const critters = new Beasties({
       path: DIST_DIR,
       publicPath: '/',
       compress: true,
-      inlineFonts: true,
-      preloadFonts: true,
-      preload: 'swap',
-      reduceInlineStyles: true, // Optimization: Remove duplicate styles
-      pruneSource: false, // Don't remove the original stylesheet
+      reduceInlineStyles: true,
+      pruneSource: false,
     });
 
-    // 5. Process Routes in Batches (Parallel)
-    console.log('🔄 Fetching dynamic routes from Sanity...');
+    console.log('🔄 Fetching dynamic routes...');
     let dynamicRoutes = [];
     try {
       const [articles, industries, locations, projects] = await Promise.all([
@@ -194,19 +196,15 @@ async function prerender() {
         ...locations.map((l) => `/miasto/${l.slug}`),
         ...projects.map((p) => `/portfolio/${p.slug}`),
       ];
-
-      console.log(`✅ Found ${articles.length} articles.`);
-      console.log(`✅ Found ${industries.length} industries.`);
-      console.log(`✅ Found ${locations.length} locations.`);
-      console.log(`✅ Found ${projects.length} projects.`);
-      console.log(`🚀 Total dynamic routes: ${dynamicRoutes.length}`);
+      console.log(`📊 Found ${dynamicRoutes.length} dynamic routes.`);
     } catch (err) {
-      console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
+      console.warn('⚠️ CMS Fetch failed, continuing with static routes only.');
     }
 
     const queue = [...routes, ...dynamicRoutes];
-    const workers = [];
+    console.log(`🚀 Total pages to render: ${queue.length}`);
 
+    const workers = [];
     const next = async () => {
       while (queue.length > 0) {
         const route = queue.shift();
@@ -217,15 +215,14 @@ async function prerender() {
     for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
 
-    console.log('🛑 Closing browser...');
     await browser.close();
+    console.log('✨ Prerendering complete!');
   } catch (err) {
-    console.error('❌ Critical Error during prerendering:', err);
+    console.error('❌ Critical Prerender Failure:', err);
     process.exit(1);
   } finally {
     if (server.pid) {
       try {
-        // Kill the entire process group on Unix-like systems
         process.kill(-server.pid, 'SIGTERM');
       } catch (e) {
         server.kill();
