@@ -17,7 +17,7 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const PORT = 4173;
-const MAX_CONCURRENCY = 10; // Render 10 pages in parallel for faster SSG
+const MAX_CONCURRENCY = 5; // Reduced from 10 for better stability in CI environments
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
@@ -49,6 +49,14 @@ async function waitForServer(port, timeout = 60000) {
 
 async function processRoute(browser, critters, route) {
   const page = await browser.newPage();
+  const consoleErrors = [];
+
+  // Capture browser errors
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') consoleErrors.push(msg.text());
+  });
+  page.on('pageerror', (err) => consoleErrors.push(err.message));
+
   try {
     await page.setViewport({ width: 1280, height: 800 });
 
@@ -62,8 +70,7 @@ async function processRoute(browser, critters, route) {
     page.on('request', (req) => {
       const resourceType = req.resourceType();
       const url = req.url();
-
-      // Block images, media, fonts and common tracking scripts
+      
       if (
         ['image', 'media', 'font'].includes(resourceType) ||
         url.includes('google-analytics') ||
@@ -78,18 +85,29 @@ async function processRoute(browser, critters, route) {
     });
 
     const url = `http://localhost:${PORT}${route}`;
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
-    await page.waitForSelector('#root', { timeout: 90000 });
+    // Using networkidle2 for better compatibility with code-splitting
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 90000 });
+    
+    // Wait for the #root element to have some content
+    await page.waitForFunction(
+      () => {
+        const root = document.getElementById('root');
+        return root && root.innerHTML.length > 50;
+      },
+      { timeout: 30000 }
+    );
 
-    // Small delay for final hydration touches
-    await new Promise((r) => setTimeout(r, 1000));
+    // Small delay for final animations/hydration
+    await new Promise((r) => setTimeout(r, 1500));
 
     // Error detection
     const bodyText = await page.evaluate(() => document.body.innerText);
     if (bodyText.length < 10) {
+      if (consoleErrors.length > 0) {
+        console.error(`❌ Browser errors on ${route}:`, consoleErrors.join('\n'));
+      }
       throw new Error(`Empty render on ${route}`);
-    }
-    if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
+    }    if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
       throw new Error(`React Error Boundary triggered on ${route}`);
     }
 
