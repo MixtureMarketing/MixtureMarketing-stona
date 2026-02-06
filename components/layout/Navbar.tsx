@@ -28,16 +28,35 @@ const Navbar: React.FC = () => {
     toggleScroll(nextState);
   };
 
+  // Improved outside click handler for dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // If mobile menu is open, it handles its own clicks
       if (isOpen) return;
+
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setActiveDropdown(null);
       }
     };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setActiveDropdown(null);
+        if (isOpen) {
+          setIsOpen(false);
+          toggleScroll(false);
+        }
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, toggleScroll]);
 
   const handleLogoClick = () => {
     navigate('/');
@@ -86,17 +105,14 @@ const Navbar: React.FC = () => {
 
   // Handle closing menu on route change
   useEffect(() => {
-    // Defer state updates to the next tick to avoid cascading renders warning
     const timer = setTimeout(() => {
       setActiveDropdown(null);
-      if (isOpen) {
-        setIsOpen(false);
-        toggleScroll(false);
-      }
+      setIsOpen(false);
+      toggleScroll(false);
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [location.pathname, location.search, toggleScroll, isOpen]);
+  }, [location.pathname, location.search, toggleScroll]);
 
   return (
     <header>

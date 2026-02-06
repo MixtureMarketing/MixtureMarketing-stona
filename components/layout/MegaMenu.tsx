@@ -131,7 +131,7 @@ const MEGA_MENU_DATA = [
   },
 ];
 
-const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModal }) => {
+const MegaMenu: React.FC<MegaMenuProps> = React.memo(({ activeDropdown, onClose, onOpenModal }) => {
   const isVisible = activeDropdown === CONTENT.offer.label;
 
   return (
@@ -240,6 +240,8 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
       </Container>
     </div>
   );
-};
+});
+
+MegaMenu.displayName = 'MegaMenu';
 
 export default MegaMenu;

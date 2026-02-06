@@ -4,7 +4,7 @@ interface NavbarLogoProps {
   onClick: () => void;
 }
 
-const NavbarLogo: React.FC<NavbarLogoProps> = ({ onClick }) => {
+const NavbarLogo: React.FC<NavbarLogoProps> = React.memo(({ onClick }) => {
   return (
     <div
       className="flex-shrink-0 flex items-center cursor-pointer group"
@@ -25,6 +25,8 @@ const NavbarLogo: React.FC<NavbarLogoProps> = ({ onClick }) => {
       />
     </div>
   );
-};
+});
+
+NavbarLogo.displayName = 'NavbarLogo';
 
 export default NavbarLogo;

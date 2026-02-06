@@ -2,14 +2,18 @@ name: CI Pipeline
 
 on:
   push:
-    branches: ['main', 'master']
+    branches: ['main', 'master', 'cloudflare-migration']
   pull_request:
-    branches: ['main', 'master']
+    branches: ['main', 'master', 'cloudflare-migration']
 
 jobs:
   quality-and-build:
     name: 🛡️ Quality, Test & Build
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: 📥 Checkout code
@@ -47,6 +51,17 @@ jobs:
           VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
         run: npm run build
+
+      - name: 🚀 Deploy to Cloudflare Pages
+        if: success()
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: mixturemarketing-stona
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref || github.ref_name }}
 
       - name: 📊 Upload Build Artifacts
         if: success()
