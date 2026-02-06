@@ -17,8 +17,10 @@ export const HeroTitle: React.FC<HeroTitleProps> = ({
   mousePosition,
   windowSize,
 }) => {
-  const spotlightX = mousePosition && windowSize ? (mousePosition.x / (windowSize.width || 1)) * 100 : 50;
-  const spotlightY = mousePosition && windowSize ? (mousePosition.y / (windowSize.height || 1)) * 100 : 50;
+  const spotlightX =
+    mousePosition && windowSize ? (mousePosition.x / (windowSize.width || 1)) * 100 : 50;
+  const spotlightY =
+    mousePosition && windowSize ? (mousePosition.y / (windowSize.height || 1)) * 100 : 50;
 
   if (typeof title === 'string') return <>{title}</>;
   const t = title || { line1: '', line2: '' };

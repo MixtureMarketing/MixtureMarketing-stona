@@ -1,6 +1,6 @@
 import React from 'react';
 import { LucideIcon, ArrowLeft } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AmbientBackground from './AmbientBackground';
 import { HeroTitle, HeroButtons } from './HeroSubComponents';
 import Container from './Container';

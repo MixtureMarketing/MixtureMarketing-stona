@@ -86,14 +86,24 @@ export const MarketingHeroVisual: React.FC = () => {
         </BaseCard>
 
         {/* Floating Secondary Badge - Scale Index */}
-        <div className="absolute -top-4 right-2 sm:-top-6 sm:right-4 hidden sm:block animate-float z-20" style={{ animationDelay: '0.5s' }}>
-          <BaseCard variant="solid" padding="sm" rounded="2xl" className="shadow-2xl border-white/50 bg-white/95 backdrop-blur-md px-4 py-2.5">
+        <div
+          className="absolute -top-4 right-2 sm:-top-6 sm:right-4 hidden sm:block animate-float z-20"
+          style={{ animationDelay: '0.5s' }}
+        >
+          <BaseCard
+            variant="solid"
+            padding="sm"
+            rounded="2xl"
+            className="shadow-2xl border-white/50 bg-white/95 backdrop-blur-md px-4 py-2.5"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                 <Target size={20} />
               </div>
               <div className="pr-1">
-                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1 whitespace-nowrap">Scale Index</div>
+                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1 whitespace-nowrap">
+                  Scale Index
+                </div>
                 <div className="text-base font-black text-dark tracking-tighter">9.8/10</div>
               </div>
             </div>

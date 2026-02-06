@@ -70,7 +70,9 @@ export const WebDevHeroVisual: React.FC = () => {
             <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
               Accessibility
             </div>
-            <div className="text-base md:text-xl font-black text-dark tracking-tighter">WCAG AA+</div>
+            <div className="text-base md:text-xl font-black text-dark tracking-tighter">
+              WCAG AA+
+            </div>
           </div>
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palette, Figma, Sparkles, Layers } from 'lucide-react';
+import { Figma, Sparkles, Layers } from 'lucide-react';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import BaseCard from '../../common/BaseCard';
 import WindowControls from '../../common/WindowControls';
@@ -29,19 +29,31 @@ export const DesignHeroVisual: React.FC = () => {
           <div className="space-y-5 relative z-10">
             <div className="flex gap-1.5 h-16">
               <div className="flex-1 bg-primary rounded-lg shadow-sm hover:scale-105 transition-transform cursor-pointer"></div>
-              <div className="flex-1 bg-secondary rounded-lg shadow-sm hover:scale-105 transition-transform cursor-pointer" style={{ animationDelay: '0.1s' }}></div>
-              <div className="flex-1 bg-dark rounded-lg shadow-sm hover:scale-105 transition-transform cursor-pointer" style={{ animationDelay: '0.2s' }}></div>
+              <div
+                className="flex-1 bg-secondary rounded-lg shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                style={{ animationDelay: '0.1s' }}
+              ></div>
+              <div
+                className="flex-1 bg-dark rounded-lg shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                style={{ animationDelay: '0.2s' }}
+              ></div>
             </div>
 
             <div className="space-y-2">
               <div className="h-3 w-2/3 bg-gray-50 rounded animate-pulse"></div>
-              <div className="h-3 w-full bg-gray-50 rounded" style={{ animationDelay: '0.1s' }}></div>
+              <div
+                className="h-3 w-full bg-gray-50 rounded"
+                style={{ animationDelay: '0.1s' }}
+              ></div>
             </div>
 
             <div className="pt-4 border-t border-gray-50 flex justify-between items-center">
               <div className="flex -space-x-1.5">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className={`w-6 h-6 rounded-full border-2 border-white bg-gray-${i * 100 + 100}`}></div>
+                  <div
+                    key={i}
+                    className={`w-6 h-6 rounded-full border-2 border-white bg-gray-${i * 100 + 100}`}
+                  ></div>
                 ))}
               </div>
               <div className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">
@@ -76,7 +88,10 @@ export const DesignHeroVisual: React.FC = () => {
         </div>
 
         {/* Floating Aesthetics Badge */}
-        <div className="absolute -bottom-6 -right-2 md:-right-6 z-20 animate-float" style={{ animationDelay: '1s' }}>
+        <div
+          className="absolute -bottom-6 -right-2 md:-right-6 z-20 animate-float"
+          style={{ animationDelay: '1s' }}
+        >
           <BaseCard
             variant="glass"
             padding="none"
