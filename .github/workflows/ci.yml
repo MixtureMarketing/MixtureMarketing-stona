@@ -4,7 +4,11 @@ on:
   push:
     branches: ['main', 'master', 'cloudflare-migration']
   pull_request:
-    branches: ['main', 'master', 'cloudflare-migration']
+    branches: ['main', 'master']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality-and-build:
@@ -53,7 +57,7 @@ jobs:
         run: npm run build
 
       - name: 🚀 Deploy to Cloudflare Pages
-        if: success()
+        if: success() && github.event_name == 'push'
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
