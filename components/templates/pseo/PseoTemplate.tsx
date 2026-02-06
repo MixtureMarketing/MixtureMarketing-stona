@@ -1,19 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { cmsService, SanityIndustry, SanityLocation, client } from '../../../services/cmsService';
+import { cmsService, SanityIndustry, SanityLocation, urlFor } from '../../../services/cmsService';
 import Seo from '../../common/Seo';
 import NotFound from '../../common/NotFound';
 import AmbientBackground from '../../common/AmbientBackground';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImage } from '../../../types/sanity';
 import { usePseoData } from '../../../hooks/usePseoData';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
-
-const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImage) {
-  return builder.image(source);
-}
 
 interface PseoTemplateProps {
   mode: 'industry' | 'location';
@@ -50,18 +43,19 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
   }
 
   if (error || !data) {
+    console.error(`[PSEO_ERROR] Failed to load data for slug: ${slug}, mode: ${mode}`);
     return <NotFound />;
   }
 
   // Type Guards
-  const isIndustry = (item: unknown): item is SanityIndustry => mode === 'industry';
+  const isIndustry = (item: any): item is SanityIndustry => mode === 'industry';
 
   return (
     <div className="min-h-screen bg-gray-50 text-dark">
       {isIndustry(data) ? (
         <Seo
-          title={`Marketing i Strony WWW dla ${data.forWho}`}
-          description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
+          title={`Marketing i Strony WWW dla ${data.forWho || data.name}`}
+          description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. ${data.painPoints?.length ? `Rozwiązujemy problemy: ${data.painPoints.slice(0, 2).join(', ')}.` : ''}`}
           lcpImage={
             data.heroImage?.asset?._ref
               ? urlFor(data.heroImage).width(1200).url()
@@ -72,7 +66,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
             { name: `Branża: ${data.name}`, item: `/branza/${slug}` },
           ]}
           service={{
-            name: `Usługi IT i Marketingowe dla ${data.forWho}`,
+            name: `Usługi IT i Marketingowe dla ${data.forWho || data.name}`,
             description: `Dedykowane rozwiązania technologiczne i strategie wzrostu skrojone pod specyfikę branży ${data.name}.`,
             serviceType: 'IT & Marketing Consulting',
           }}

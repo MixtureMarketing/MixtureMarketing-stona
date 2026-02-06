@@ -61,7 +61,8 @@ async function processRoute(browser, route, fullReport) {
   console.log(`🚀 Checking: ${route}`);
 
   try {
-    const response = await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+    // Use networkidle2 for more reliable checks
+    const response = await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
     if (!response || !response.ok()) {
       const status = response ? response.status() : 'No Response';
@@ -70,24 +71,27 @@ async function processRoute(browser, route, fullReport) {
 
     // Visual Check: Verify critical elements
     const visualStatus = await page.evaluate(() => {
-      const root = !!document.getElementById('root');
+      const root = document.getElementById('root');
+      const rootPopulated = root && root.innerHTML.trim().length > 100;
       const nav = !!document.querySelector('nav');
       const footer = !!document.querySelector('footer');
       const bodyText = document.body.innerText;
       const isErrorBoundary =
         bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500;
-      return { root, nav, footer, isErrorBoundary };
+      return { rootPopulated, nav, footer, isErrorBoundary };
     });
 
-    if (!visualStatus.root || !visualStatus.nav || !visualStatus.footer) {
+    if (!visualStatus.rootPopulated || !visualStatus.nav || !visualStatus.footer) {
       consoleErrors.push(
-        `[VISUAL_ERROR] Missing components: Root=${visualStatus.root}, Nav=${visualStatus.nav}, Footer=${visualStatus.footer}`,
+        `[VISUAL_ERROR] Missing components: RootPopulated=${visualStatus.rootPopulated}, Nav=${visualStatus.nav}, Footer=${visualStatus.footer}`,
       );
     }
 
     if (consoleErrors.length > 0 || visualStatus.isErrorBoundary) {
       fullReport.errors.push({ route, errors: consoleErrors });
-      console.log(`❌ Issues detected on ${route}`);
+      console.log(`❌ Issues detected on ${route}:`);
+      consoleErrors.slice(0, 5).forEach((err) => console.log(`   - ${err.substring(0, 200)}`));
+      if (visualStatus.isErrorBoundary) console.log('   - Error Boundary UI triggered');
     } else {
       fullReport.success.push(route);
       console.log(`✅ ${route} is healthy.`);
@@ -163,6 +167,13 @@ async function runHealthCheck() {
     console.log('\n📊 Health Summary:');
     console.log(`- Healthy: ${fullReport.success.length}`);
     console.log(`- Broken: ${fullReport.errors.length}`);
+
+    if (fullReport.errors.length > 0) {
+      console.log('\n❌ Breakdown of errors:');
+      fullReport.errors.forEach((e) => {
+        console.log(`  - ${e.route}: ${e.errors[0]?.substring(0, 150)}...`);
+      });
+    }
   } catch (err) {
     console.error('❌ Failed:', err);
   } finally {

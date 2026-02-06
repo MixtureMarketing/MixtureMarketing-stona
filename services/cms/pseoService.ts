@@ -4,7 +4,7 @@ import { fetchWithCache } from './client';
 export interface SanityLocation {
   _id: string;
   city: string;
-  slug: { current: string };
+  slug: string; // Changed from { current: string } to match flattened query result
   genitive: string;
   businessContext: string;
   seoTitle?: string;
@@ -14,7 +14,7 @@ export interface SanityLocation {
 export interface SanityIndustry {
   _id: string;
   name: string;
-  slug: { current: string };
+  slug: string; // Changed from { current: string } to match flattened query result
   forWho: string;
   painPoints: string[];
   techRequirements: string[];
