@@ -48,7 +48,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
   }
 
   // Type Guards
-  const isIndustry = (item: any): item is SanityIndustry => mode === 'industry';
+  const isIndustry = (item: unknown): item is SanityIndustry => mode === 'industry';
 
   return (
     <div className="min-h-screen bg-gray-50 text-dark">

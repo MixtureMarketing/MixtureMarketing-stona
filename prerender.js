@@ -88,7 +88,7 @@ async function processRoute(browser, critters, route) {
 
     // Fast navigation - wait only for initial DOM
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    
+
     // Explicit wait for the #root to be populated (with retry logic)
     try {
       await page.waitForFunction(
@@ -96,7 +96,7 @@ async function processRoute(browser, critters, route) {
           const root = document.getElementById('root');
           return root && root.innerHTML.trim().length > 100;
         },
-        { timeout: 45000 }
+        { timeout: 45000 },
       );
     } catch (timeoutErr) {
       console.error(`⚠️ Timeout on ${route}. Captured errors so far:\n`, consoleErrors.join('\n'));
@@ -110,7 +110,8 @@ async function processRoute(browser, critters, route) {
     const content = await page.evaluate(() => {
       const bodyText = document.body.innerText;
       const rootHtml = document.getElementById('root')?.innerHTML || '';
-      const isError = bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500;
+      const isError =
+        bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500;
       return { textLength: bodyText.length, rootLength: rootHtml.length, isError };
     });
 
@@ -169,7 +170,12 @@ async function prerender() {
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--single-process'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--single-process',
+      ],
     });
 
     const critters = new Beasties({
