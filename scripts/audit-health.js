@@ -26,6 +26,7 @@ const sanityClient = createClient({
 
 async function processRoute(browser, route, fullReport) {
   const page = await browser.newPage();
+  await page.setCacheEnabled(false);
   const consoleErrors = [];
 
   page.on('console', async (msg) => {
@@ -64,7 +65,7 @@ async function processRoute(browser, route, fullReport) {
     // Use networkidle2 for more reliable checks
     const response = await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
-    if (!response || !response.ok()) {
+    if (!response || (!response.ok() && response.status() !== 304)) {
       const status = response ? response.status() : 'No Response';
       consoleErrors.push(`[HTTP_ERROR] Status ${status}`);
     }
