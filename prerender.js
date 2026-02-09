@@ -17,7 +17,7 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const PORT = 4173;
-const MAX_CONCURRENCY = 3; // Even more conservative for CI stability
+const MAX_CONCURRENCY = 1; // Maximum stability
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
@@ -174,7 +174,7 @@ async function prerender() {
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
-        '--single-process',
+        '--disable-gpu',
       ],
     });
 
