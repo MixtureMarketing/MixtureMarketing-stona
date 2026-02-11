@@ -369,7 +369,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             Authorization: `Bearer ${env.RESEND_API_KEY}`,
             'Content-Type': 'application/json',
           };
-          const FROM_EMAIL = 'Mixture Marketing <system@mixturemarketing.pl>';
+          const FROM_EMAIL = 'Mixture Marketing <info@mixturemarketing.pl>';
 
           const sendEmail = async (body: any) => {
             const res = await fetch(RESEND_URL, {

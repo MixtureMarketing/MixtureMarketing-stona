@@ -35,7 +35,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Mixture Marketing <biuro@mixturemarketing.pl>',
+          from: 'Mixture Marketing <info@mixturemarketing.pl>',
           to: [email],
           subject: 'Twoja wycena projektu - Mixture Marketing',
           html: `
@@ -63,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Mixture Marketing <system@mixturemarketing.pl>',
+          from: 'Mixture Marketing <info@mixturemarketing.pl>',
           to: [env.NOTIFY_EMAIL],
           subject: `Nowa wycena: ${email}`,
           html: `<p>Użytkownik <strong>${email}</strong> wygenerował wycenę.</p><pre>${data}</pre>`,
