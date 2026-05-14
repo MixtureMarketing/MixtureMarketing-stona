@@ -4,6 +4,7 @@ import Seo from '../common/Seo';
 import Container from '../common/Container';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
+import LazyMap from '../common/LazyMap';
 import { useModal } from '../../context/ModalContext';
 import { caseStudyService } from '../../services/cms/caseStudyService';
 import { client } from '../../services/cms/client';
@@ -205,12 +206,9 @@ const AboutUs: React.FC = () => {
                 </p>
               </div>
               <div className="rounded-2xl overflow-hidden border border-gray-200 aspect-video">
-                <iframe
+                <LazyMap
                   src="https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w&output=embed"
                   title="Mapa — siedziba Mixture Marketing w Rzeszowie"
-                  loading="lazy"
-                  className="w-full h-full"
-                  referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
             </div>
