@@ -1,5 +1,6 @@
-import React from 'react';
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import React, { useRef } from 'react';
+import { Turnstile } from '@marsidev/react-turnstile';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import Modal from '../common/Modal';
 import { useModal } from '../../context/ModalContext';
 import { ContactType } from '../../types';
@@ -21,32 +22,8 @@ interface ContactModalProps {
 
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) => {
   const { additionalData } = useModal();
-  // ... rest of the component logic ...
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
-  return (
-    <GoogleReCaptchaProvider
-      reCaptchaKey={SITE_CONFIG.contact.recaptchaSiteKey}
-      language="pl"
-      useRecaptchaNet
-    >
-      <ContactModalContent
-        isOpen={isOpen}
-        onClose={onClose}
-        type={type}
-        additionalData={additionalData}
-      />
-    </GoogleReCaptchaProvider>
-  );
-};
-
-// Extracted internal component to keep hooks valid (useContactForm needs provider context if it uses useGoogleReCaptcha)
-// However, useContactForm seems to use custom logic. Let's check useContactForm implementation first.
-// Actually, useContactForm is likely using useGoogleReCaptcha internally.
-// So the Provider MUST be a parent of the component calling useContactForm.
-
-const ContactModalContent: React.FC<
-  ContactModalProps & { additionalData: Record<string, unknown> | null }
-> = ({ isOpen, onClose, type, additionalData }) => {
   const {
     step,
     isSubmitted,
@@ -57,7 +34,7 @@ const ContactModalContent: React.FC<
     prevStep,
     onSubmit,
     handleClose,
-  } = useContactForm(type, onClose); // Note: handleCloseInternal logic simplified here for brevity, assuming hook handles closing or we pass onClose directly
+  } = useContactForm(type, onClose, turnstileRef);
 
   const {
     formState: { errors, isSubmitting },
@@ -66,7 +43,6 @@ const ContactModalContent: React.FC<
     getValues,
   } = formMethods;
 
-  // ... config logic ...
   const specificType = additionalData?.specificType as string | undefined;
   const currentConfig =
     specificType && FORM_CONFIG[specificType] ? FORM_CONFIG[specificType] : null;
@@ -74,64 +50,92 @@ const ContactModalContent: React.FC<
 
   const step2Content = getStep2Fallback(type);
 
+  // Invisible Turnstile widget — render zawsze gdy modal otwarty, zeby
+  // executeAsync() byl gotowy. Widget jest poza modalem (fixed position)
+  // bo modal moze byc zamykany/otwierany dynamicznie a my chcemy stabilny ref.
+  const turnstileWidget = isOpen && (
+    <Turnstile
+      ref={turnstileRef}
+      siteKey={SITE_CONFIG.contact.turnstileSiteKey}
+      options={{
+        size: 'invisible',
+        execution: 'execute',
+        appearance: 'interaction-only',
+        language: 'pl',
+      }}
+      style={{ position: 'fixed', bottom: 0, right: 0, zIndex: -1 }}
+    />
+  );
+
   if (isSubmitted) {
     return (
-      <Modal isOpen={isOpen} onClose={handleClose} title="Zgłoszenie wysłane!" maxWidth="max-w-3xl">
-        <ContactSuccess userName={getValues('name')} onClose={handleClose} />
-      </Modal>
+      <>
+        {turnstileWidget}
+        <Modal
+          isOpen={isOpen}
+          onClose={handleClose}
+          title="Zgłoszenie wysłane!"
+          maxWidth="max-w-3xl"
+        >
+          <ContactSuccess userName={getValues('name')} onClose={handleClose} />
+        </Modal>
+      </>
     );
   }
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={
-        step === 1
-          ? 'Rozpocznijmy współpracę'
-          : step === 2
-            ? currentConfig?.title || step2Content?.title || 'Szczegóły'
-            : 'Ostatni krok'
-      }
-    >
-      <ContactStepper step={step} />
+    <>
+      {turnstileWidget}
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        title={
+          step === 1
+            ? 'Rozpocznijmy współpracę'
+            : step === 2
+              ? currentConfig?.title || step2Content?.title || 'Szczegóły'
+              : 'Ostatni krok'
+        }
+      >
+        <ContactStepper step={step} />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-8 md:px-4 pb-4">
-        {step === 1 && (
-          <ContactStep1
-            register={register}
-            errors={errors}
-            leadId={null}
-            submitError={submitError}
-            isLoading={isLoading}
-            onNext={nextStep}
-          />
-        )}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-8 md:px-4 pb-4">
+          {step === 1 && (
+            <ContactStep1
+              register={register}
+              errors={errors}
+              leadId={null}
+              submitError={submitError}
+              isLoading={isLoading}
+              onNext={nextStep}
+            />
+          )}
 
-        {step === 2 && (
-          <ContactStep2
-            register={register}
-            currentConfig={currentConfig}
-            step2Content={step2Content}
-            packageName={packageName}
-            projectTypeFromData={additionalData?.projectType as string}
-            submitError={submitError}
-            onPrev={prevStep}
-            onNext={nextStep}
-          />
-        )}
+          {step === 2 && (
+            <ContactStep2
+              register={register}
+              currentConfig={currentConfig}
+              step2Content={step2Content}
+              packageName={packageName}
+              projectTypeFromData={additionalData?.projectType as string}
+              submitError={submitError}
+              onPrev={prevStep}
+              onNext={nextStep}
+            />
+          )}
 
-        {step === 3 && (
-          <ContactStep3
-            register={register}
-            errors={errors}
-            submitError={submitError}
-            isSubmitting={isSubmitting}
-            onPrev={prevStep}
-          />
-        )}
-      </form>
-    </Modal>
+          {step === 3 && (
+            <ContactStep3
+              register={register}
+              errors={errors}
+              submitError={submitError}
+              isSubmitting={isSubmitting}
+              onPrev={prevStep}
+            />
+          )}
+        </form>
+      </Modal>
+    </>
   );
 };
 

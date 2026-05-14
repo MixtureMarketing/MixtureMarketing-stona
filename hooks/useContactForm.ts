@@ -1,23 +1,29 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { contactSchema } from '../types/validation';
 import { useModal } from '../context/ModalContext';
 import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
-import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { ContactFormData } from '../components/features/contact/types';
-import { executeRecaptchaWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
+import { executeTurnstileWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
 
-export const useContactForm = (type: ContactType, onClose: () => void) => {
+export const useContactForm = (
+  type: ContactType,
+  onClose: () => void,
+  turnstileRef?: RefObject<TurnstileInstance | null>,
+) => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [leadId, setLeadId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { additionalData } = useModal();
-  const { executeRecaptcha } = useGoogleReCaptcha();
   const isInitialized = useRef(false);
+
+  const getCaptchaToken = async () => executeTurnstileWithTimeout(turnstileRef?.current ?? null);
+  const resetCaptcha = () => turnstileRef?.current?.reset();
 
   const formMethods = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
@@ -68,27 +74,29 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
           setStep(2);
         } else {
           try {
-            const token = await executeRecaptchaWithTimeout(executeRecaptcha, 'create_lead');
+            const token = await getCaptchaToken();
             const createdLead = await leadService.createLead({
               ...leadData,
-              recaptcha_token: token,
+              captcha_token: token,
             });
             if (createdLead) {
               setLeadId(createdLead.id);
               setStep(2);
             }
+            resetCaptcha();
           } catch (_err) {
             if (isLocalhost()) {
               const createdLead = await leadService.createLead({
                 ...leadData,
-                recaptcha_token: 'local_bypass',
+                captcha_token: 'local_bypass',
               });
               if (createdLead) {
                 setLeadId(createdLead.id);
                 setStep(2);
               }
             } else {
-              setSubmitError('Weryfikacja reCAPTCHA nieudana.');
+              setSubmitError('Weryfikacja Turnstile nieudana. Spróbuj ponownie.');
+              resetCaptcha();
             }
           }
         }
@@ -116,7 +124,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
       let token = leadId ? 'existing_lead_verified' : '';
       if (!token) {
         try {
-          token = await executeRecaptchaWithTimeout(executeRecaptcha, 'submit_form');
+          token = await getCaptchaToken();
         } catch {
           token = isLocalhost() ? 'local_bypass' : '';
           if (!token) {
@@ -127,7 +135,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
       }
       const finalData = {
         ...data,
-        recaptcha_token: token,
+        captcha_token: token,
         package_name: additionalData?.package as string,
       };
       if (leadId) {
@@ -139,7 +147,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
           email: data.email,
           phone: data.phone,
           service_interest: type,
-          recaptcha_token: token,
+          captcha_token: token,
         });
         if (createdLead) {
           await leadService.updateLead(createdLead.id, finalData, 3);
@@ -147,6 +155,7 @@ export const useContactForm = (type: ContactType, onClose: () => void) => {
         }
       }
       setIsSubmitted(true);
+      resetCaptcha();
     } catch (_error) {
       setSubmitError('Błąd wysyłania formularza.');
     }

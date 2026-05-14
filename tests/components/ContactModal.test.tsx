@@ -6,13 +6,21 @@ import { ModalProvider } from '../../context/ModalContext';
 import { leadService } from '../../services/leadService';
 import { ContactType } from '../../types';
 
-// Mock dependencies
-vi.mock('react-google-recaptcha-v3', () => ({
-  useGoogleReCaptcha: () => ({
-    executeRecaptcha: vi.fn().mockResolvedValue('dummy-token'),
-  }),
-  GoogleReCaptchaProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
+// Mock dependencies — Turnstile widget z .executeAsync() na ref.
+// vi.mock factory jest hoisted; uzywamy React z await import wewnatrz.
+vi.mock('@marsidev/react-turnstile', async () => {
+  const ReactMod = await import('react');
+  const Turnstile = ReactMod.forwardRef<unknown, unknown>((_props, ref) => {
+    ReactMod.useImperativeHandle(ref, () => ({
+      executeAsync: () => Promise.resolve('dummy-turnstile-token'),
+      reset: () => undefined,
+      getResponse: () => 'dummy-turnstile-token',
+    }));
+    return null;
+  });
+  Turnstile.displayName = 'TurnstileMock';
+  return { Turnstile };
+});
 
 vi.mock('../../services/leadService', () => ({
   leadService: {

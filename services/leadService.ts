@@ -3,7 +3,7 @@ export interface LeadBase {
   email: string;
   phone?: string;
   service_interest?: string; // e.g., 'web', 'marketing'
-  recaptcha_token?: string;
+  captcha_token?: string;
   website_verify?: string;
 }
 

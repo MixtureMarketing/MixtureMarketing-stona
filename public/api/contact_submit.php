@@ -66,26 +66,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     $action = $data->action ?? null;
 }
 
-function verifyRecaptcha($token) {
-    $secret = RECAPTCHA_SECRET;
-    
-    // Akceptuj tokeny obejścia dla zaufanych operacji i testów lokalnych
+function verifyCaptcha($token) {
+    // Secret z env (CF Pages env vars / serwer PHP env). Fallback do legacy
+    // RECAPTCHA_SECRET dla wstecznej kompatybilnosci wdrozeniowej.
+    $secret = getenv('TURNSTILE_SECRET');
+    if (!$secret && defined('TURNSTILE_SECRET')) $secret = constant('TURNSTILE_SECRET');
+    if (!$secret && defined('RECAPTCHA_SECRET')) $secret = constant('RECAPTCHA_SECRET');
+
+    // Tokeny obejscia dla zaufanych operacji i testow lokalnych.
     if ($token === 'local_bypass' || $token === 'existing_lead_verified') {
         return true;
     }
 
-    // Jeśli klucz jest placeholderem, pozwól na testy
-    if ($secret === '6Ld_pL0qAAAAAF_secret_placeholder') {
-        return true; 
+    // Placeholder z konfiguracji lokalnej - pozwol testowac bez backendu.
+    if (!$secret || strpos($secret, 'placeholder') !== false) {
+        return true;
     }
 
-    $url = "https://www.google.com/recaptcha/api/siteverify";
-    
-    $response = file_get_contents($url . "?secret=" . $secret . "&response=" . $token);
+    // Cloudflare Turnstile siteverify (POST application/x-www-form-urlencoded).
+    $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+    $payload = http_build_query([
+        'secret' => $secret,
+        'response' => $token,
+        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+    ]);
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content' => $payload,
+            'timeout' => 5,
+            'ignore_errors' => true,
+        ],
+    ]);
+    $response = @file_get_contents($url, false, $ctx);
+    if ($response === false) return false;
     $result = json_decode($response);
-    
-    // Zwracamy wynik (success i score dla v3)
-    return $result->success && $result->score >= 0.5;
+    return isset($result->success) && $result->success === true;
+}
+
+// Wsteczna kompatybilnosc dla istniejacych wywolan w tym pliku.
+function verifyRecaptcha($token) {
+    return verifyCaptcha($token);
 }
 
 if (!$action) {
@@ -172,10 +194,10 @@ try {
     elseif ($action === 'create' && isset($data->lead)) {
         $lead = $data->lead;
         $uuid = $lead->id;
-        $token = $lead->recaptcha_token ?? null;
+        $token = $lead->captcha_token ?? null;
 
         // Weryfikacja reCAPTCHA
-        if (!$token || !verifyRecaptcha($token)) {
+        if (!$token || !verifyCaptcha($token)) {
             logError("ReCAPTCHA verification failed for lead: $uuid");
             http_response_code(403);
             echo json_encode(["message" => "Weryfikacja antyspamowa nie powiodła się. Spróbuj odświeżyć stronę."]);
@@ -229,7 +251,7 @@ try {
             $dynamicDetails->budget, 
             $dynamicDetails->message,
             $dynamicDetails->package_name,
-            $dynamicDetails->recaptcha_token,
+            $dynamicDetails->captcha_token,
             $dynamicDetails->website_verify,
             $dynamicDetails->privacy
         );
@@ -323,7 +345,7 @@ try {
                 'campaignGoal' => 'Główny cel kampanii'
             ];
 
-            $excludedKeys = ['id', 'name', 'email', 'phone', 'website', 'budget', 'message', 'privacy', 'recaptcha_token', 'website_verify', 'service_interest', 'source_url'];
+            $excludedKeys = ['id', 'name', 'email', 'phone', 'website', 'budget', 'message', 'privacy', 'captcha_token', 'website_verify', 'service_interest', 'source_url'];
             foreach ($details as $key => $val) {
                 if (is_string($val) && !empty($val) && !in_array($key, $excludedKeys)) {
                     // Tłumaczenie kluczy

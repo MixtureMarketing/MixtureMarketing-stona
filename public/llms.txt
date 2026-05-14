@@ -1,0 +1,74 @@
+# Mixture Marketing
+
+> Polska agencja marketingowa 360° i software house z siedzibą w Rzeszowie. Łączymy
+> inżynierską precyzję Software House'u z kreatywnością agencji marketingowej.
+> Specjalizujemy się w tworzeniu stron internetowych i aplikacji webowych, kampaniach
+> Google Ads i Meta Ads, pozycjonowaniu SEO, brandingu i projektowaniu UI/UX.
+> Obsługujemy klientów z Rzeszowa, Podkarpacia i całej Polski.
+
+## O nas
+
+- Nazwa firmy: Mixture Marketing Sp. z o.o.
+- Siedziba: Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów, Polska
+- Telefon: +48 794 443 551
+- E-mail: info@mixturemarketing.pl
+- NIP: PL5170435774
+- Obszar działalności: Polska (siedziba i fokus lokalny: Rzeszów, Podkarpackie)
+- Branże klientów: e-commerce, B2B, SaaS, startupy, usługi profesjonalne
+
+## Usługi
+
+- [Web Development](https://mixturemarketing.pl/web-development/): projektowanie i programowanie stron WWW, sklepów e-commerce, landing page'y i aplikacji webowych dedykowanych
+  - [E-commerce](https://mixturemarketing.pl/web-development/ecommerce/): wdrożenia sklepów internetowych zintegrowanych z płatnościami i kurierami
+  - [Landing Page](https://mixturemarketing.pl/web-development/landing-page/): konwersyjne strony pod kampanie reklamowe
+  - [Strona firmowa (Corporate)](https://mixturemarketing.pl/web-development/corporate/): strony www dla firm B2B i marek
+  - [Aplikacja dedykowana](https://mixturemarketing.pl/web-development/custom-app/): customowe aplikacje webowe
+- [Marketing cyfrowy](https://mixturemarketing.pl/marketing/): performance marketing z naciskiem na ROI/ROAS
+  - [Google Ads](https://mixturemarketing.pl/marketing/google-ads/): kampanie SEM, Search, Display, Shopping, YouTube
+  - [Meta Ads](https://mixturemarketing.pl/marketing/meta-ads/): reklamy Facebook i Instagram
+  - [SEO / Pozycjonowanie](https://mixturemarketing.pl/marketing/seo/): pozycjonowanie organiczne, audyty techniczne, content
+  - [Analityka GA4](https://mixturemarketing.pl/marketing/analytics/): wdrożenia Google Analytics 4, eventy, atrybucja
+- [Grafika i design](https://mixturemarketing.pl/design/): branding i projektowanie wizualne
+  - [Branding](https://mixturemarketing.pl/design/branding/): identyfikacja wizualna, logo, brandbook
+  - [UI/UX Design](https://mixturemarketing.pl/design/ui-ux/): projektowanie interfejsów aplikacji i stron
+  - [Materiały drukowane](https://mixturemarketing.pl/design/print/): wizytówki, broszury, opakowania
+  - [Audyt wizualny](https://mixturemarketing.pl/design/visual-audit/): ocena spójności wizualnej marki
+
+## Lokalizacja i obszar usług
+
+- Główna lokalizacja: [Rzeszów (Podkarpacie)](https://mixturemarketing.pl/miasto/rzeszow/) — spotkania na żywo w biurze przy Al. Piłsudskiego 17/4
+- Obsługa zdalna: cała Polska, w tym Mielec, Krosno, Stalowa Wola, Przemyśl, Dębica, Jasło
+- Współpraca z lokalnym ekosystemem IT: Politechnika Rzeszowska, RzeszowJS, Tech Tuesdays Rzeszów
+
+## Portfolio i case studies
+
+- [Realizacje](https://mixturemarketing.pl/portfolio/): edukacja (KorepetytorAI, Impackt Edu), e-commerce (Driftmark Marine), hospitality (GlamSpace), marketplace (FBX), fintech (BDB Biuro), mobilne (PickMe)
+- [Branże, w których działamy](https://mixturemarketing.pl/branza/e-commerce/): e-commerce, SaaS i startupy, B2B, profesjonalne usługi
+
+## Baza wiedzy (artykuły techniczne)
+
+- [Baza Wiedzy — wszystkie artykuły](https://mixturemarketing.pl/baza-wiedzy/)
+- Kluczowe artykuły:
+  - [Core Web Vitals 2025](https://mixturemarketing.pl/baza-wiedzy/core-web-vitals-2025/): aktualne progi LCP, INP, CLS i jak je poprawić
+  - [Audyt UX sklepu internetowego](https://mixturemarketing.pl/baza-wiedzy/audyt-ux-sklepu-internetowego/): metodologia audytu konwersji e-commerce
+  - [Server-side tracking — koniec cookies](https://mixturemarketing.pl/baza-wiedzy/server-side-tracking-koniec-cookies/): jak mierzyć konwersje po końcu third-party cookies
+  - [Next.js — złoty standard aplikacji webowych](https://mixturemarketing.pl/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/)
+  - [Headless WordPress — wydajność i bezpieczeństwo](https://mixturemarketing.pl/baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/)
+  - [Elasticsearch — inteligentna wyszukiwarka e-commerce](https://mixturemarketing.pl/baza-wiedzy/elasticsearch-inteligentna-wyszukiwarka-ecommerce/)
+  - [Optymalizacja obrazów WebP/AVIF](https://mixturemarketing.pl/baza-wiedzy/optymalizacja-obrazow-webp-avif/)
+  - [Skalowanie budżetu Google Ads](https://mixturemarketing.pl/baza-wiedzy/google-ads-skalowanie-budzetu/)
+
+## Kontakt i wycena
+
+- [Kontakt](https://mixturemarketing.pl/contact/): formularz, telefon, e-mail
+- [Wycena projektu / Audyt 360](https://mixturemarketing.pl/audyt-360/): bezpłatny audyt strategiczny i konsultacja
+- [Oferty i cennik orientacyjny](https://mixturemarketing.pl/offers/)
+
+## Polityki
+
+- [Polityka prywatności](https://mixturemarketing.pl/privacy-policy/)
+- [Regulamin](https://mixturemarketing.pl/terms/)
+
+## Sitemap maszynowa
+
+- [sitemap.xml](https://mixturemarketing.pl/sitemap.xml)

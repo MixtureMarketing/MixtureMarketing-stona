@@ -1,12 +1,18 @@
-export const executeRecaptchaWithTimeout = async (
-  executeRecaptcha: ((action: string) => Promise<string>) | undefined,
-  action: string,
-) => {
-  if (!executeRecaptcha) throw new Error('RECAPTCHA_NOT_READY');
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
+
+// Cloudflare Turnstile token executor z timeoutem.
+// `executeAsync()` wywoluje invisible challenge i zwraca token.
+// W razie braku widgetu lub timeoutu rzucamy oznaczonym bledem, ktory
+// hook formularza zlapie i (na localhost) zastapi tokenem testowym.
+export const executeTurnstileWithTimeout = async (
+  turnstile: TurnstileInstance | null,
+  timeoutMs = 8000,
+): Promise<string> => {
+  if (!turnstile) throw new Error('TURNSTILE_NOT_READY');
   return Promise.race([
-    executeRecaptcha(action),
+    turnstile.executeAsync(),
     new Promise<string>((_, reject) =>
-      setTimeout(() => reject(new Error('RECAPTCHA_TIMEOUT')), 8000),
+      setTimeout(() => reject(new Error('TURNSTILE_TIMEOUT')), timeoutMs),
     ),
   ]);
 };

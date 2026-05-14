@@ -19,7 +19,10 @@ export const SITE_CONFIG = {
       countryCode: 'PL',
     },
     vatID: 'PL5170435774',
-    recaptchaSiteKey: '6LclHlIsAAAAAPu6LkcByBnVo3Zo_Szh2Akysewm', // Change to your actual Site Key
+    // Cloudflare Turnstile Site Key. Publiczny - przeznaczony do osadzenia
+    // w kodzie frontend. Secret key trzymany jest jako env var TURNSTILE_SECRET
+    // na serwerze PHP (weryfikacja w public/api/contact_submit.php).
+    turnstileSiteKey: '0x4AAAAAACYHLgkgk3FJUj06',
   },
   social: {
     facebook: 'https://www.facebook.com/MixtureMarketing',
