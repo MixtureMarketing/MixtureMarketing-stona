@@ -80,12 +80,33 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       rollupOptions: {
         output: {
-          // Disabled manualChunks due to runtime initialization errors with specific libraries
-          /*
+          // Bezpieczne manualChunks: tylko biblioteki ladowane EAGERLY przez
+          // 100% stron (react/router/helmet). Vite juz aktywnie splituje
+          // wszystko inne lazy (jspdf, recharts, html2canvas, ContactModal itp.).
+          //
+          // Cel: poprawa caching (zmiana w app code nie invaliduje vendor-react),
+          // dodatkowo eliminuje czesc "unused JS" z PSI - vendor jest sciagany
+          // raz na cala wizyte zamiast wewnatrz main bundla.
+          //
+          // NIE splituj: framer-motion (uzywane w lazy chunks - naturalnie split),
+          // lucide-react (tree-shake), @sanity/* (uzywane w lazy templates),
+          // @portabletext/* (lazy), @marsidev/react-turnstile (ContactModal lazy).
           manualChunks(id) {
-            ...
-          }
-          */
+            if (!id.includes('node_modules')) return undefined;
+            if (
+              id.includes('/react/') ||
+              id.includes('/react-dom/') ||
+              id.includes('/react-router/') ||
+              id.includes('/react-router-dom/') ||
+              id.includes('/react-helmet-async/') ||
+              id.includes('/react-is/') ||
+              id.includes('/scheduler/') ||
+              id.includes('/use-sync-external-store/')
+            ) {
+              return 'vendor-react';
+            }
+            return undefined;
+          },
         },
       },
       chunkSizeWarningLimit: 1000,

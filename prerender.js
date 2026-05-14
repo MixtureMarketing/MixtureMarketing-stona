@@ -89,6 +89,21 @@ async function processRoute(browser, critters, route) {
       console.error(`⚠️ Critters error on ${route}:`, crittersError.message);
     }
 
+    // Dedup duplicate <link rel="preload"> tagi — Beasties czasem dodaje
+    // taki sam preload co Vite (ten sam href). Eliminuje zbedne network hint.
+    {
+      const seen = new Set();
+      html = html.replace(/<link\b[^>]*rel="preload"[^>]*>/g, (match) => {
+        const href = (match.match(/href="([^"]+)"/) || [])[1];
+        const as = (match.match(/\bas="([^"]+)"/) || [])[1];
+        const key = `${as || ''}|${href || ''}`;
+        if (!href) return match;
+        if (seen.has(key)) return '';
+        seen.add(key);
+        return match;
+      });
+    }
+
     // Calculate file path
     const cleanRoute = route === '/' ? '' : route.replace(/^\/|\/$/g, '');
     const routeDir = path.join(DIST_DIR, cleanRoute);
