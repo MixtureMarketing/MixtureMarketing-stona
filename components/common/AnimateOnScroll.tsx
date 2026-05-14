@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useDeferUntilLoad } from '../../hooks/useDeferUntilLoad';
 
 interface AnimateOnScrollProps {
   children: React.ReactNode;
@@ -8,6 +9,15 @@ interface AnimateOnScrollProps {
   once?: boolean;
 }
 
+/**
+ * Wrapper z animacja fade+rise gdy element wchodzi w viewport.
+ *
+ * Performance:
+ * - Hydratacja: `isVisible=true` (zachowuje SSG/prerender state, brak CLS).
+ * - IntersectionObserver odpalany dopiero po `window.load` (useDeferUntilLoad),
+ *   wiec NIE konkuruje z LCP painted o main thread w pierwszej sekundzie.
+ * - `motion-reduce` respektuje prefers-reduced-motion.
+ */
 const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
   children,
   className = '',
@@ -15,63 +25,42 @@ const AnimateOnScroll: React.FC<AnimateOnScrollProps> = ({
   threshold = 0.1,
   once = true,
 }) => {
-  const [isVisible, setIsVisible] = useState(true); // Default to true for SSG match
+  // Domyslnie visible — zgodne z prerender'em (HTML ma juz opacity-100).
+  const [isVisible, setIsVisible] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
+  const deferred = useDeferUntilLoad();
 
   useEffect(() => {
-    // Check if we are in a prerendering environment
-    const isPrerendering =
-      typeof window !== 'undefined' &&
-      (navigator.userAgent.includes('Headless') || window.isPrerendering);
+    // Nie ruszamy observer'a dopoki LCP sie nie ulozyl.
+    if (!deferred) return;
+    if (typeof window === 'undefined') return;
 
-    if (isPrerendering) return;
-
-    // Use requestAnimationFrame to ensure we don't flicker on initial mount
-    // We want to hide it only if it's NOT in viewport AFTER mounting
-    requestAnimationFrame(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            if (once) {
-              observer.unobserve(entry.target);
-            }
-          } else if (!once) {
-            // Only hide if we want repeat animations
-            setIsVisible(false);
-          } else {
-            // For 'once' animations, if we start visible (SSG) and user scrolls down,
-            // we might want to hide it if it wasn't seen yet?
-            // Actually, IntersectionObserver fires initially.
-            // If entry.isIntersecting is false on init, we should hide it to allow animation later.
-            // But we initialized with true.
-            if (entry.boundingClientRect.top > 0) {
-              // Only hide if it's below the viewport (not scrolled past)
-              setIsVisible(false);
-            }
-          }
-        },
-        {
-          threshold,
-          rootMargin: '0px 0px -50px 0px',
-        },
-      );
-
-      const currentRef = ref.current;
-      if (currentRef) {
-        observer.observe(currentRef);
-      }
-
-      return () => {
-        if (currentRef) {
-          observer.disconnect();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          if (once) observer.unobserve(entry.target);
+        } else if (!once) {
+          setIsVisible(false);
+        } else if (entry.boundingClientRect.top > 0) {
+          // Element jest ponizej viewportu - schowaj, niech animuje gdy doscrolluje.
+          setIsVisible(false);
         }
-      };
-    });
-  }, [once, threshold]);
+      },
+      {
+        threshold,
+        rootMargin: '0px 0px -50px 0px',
+      },
+    );
 
-  // For the first render (hydration), we MUST match the server HTML
-  // The server (prerender.js) renders this with isVisible=true (implicitly or explicitly)
+    const currentRef = ref.current;
+    if (currentRef) observer.observe(currentRef);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [deferred, once, threshold]);
+
   return (
     <div
       ref={ref}
