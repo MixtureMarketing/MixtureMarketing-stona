@@ -9,6 +9,7 @@
     "mcp:sanity": "cross-env MCP_USER_ROLE=developer npx -y @sanity/mcp-server@latest --projectId azuef2ua --dataset production",
     "images": "node scripts/convert-images.js",
     "sitemap": "node scripts/generate-sitemap.js",
+    "indexnow": "node scripts/indexnow-ping.js",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && npm run images",
     "build": "vite build && npm run sitemap && npm run prerender && npx size-limit",
