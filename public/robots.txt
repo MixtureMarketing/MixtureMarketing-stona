@@ -1,6 +1,91 @@
+# Content Signals Policy
+# (a) content-signal = yes  -> wolno wykorzystywac dla danego celu
+# (b) content-signal = no   -> nie wolno wykorzystywac dla danego celu
+# (c) brak sygnalu          -> brak zgody i brak zakazu
+#
+# search     - budowanie indeksu wyszukiwarki i wynikow wyszukiwania
+# ai-input   - wprowadzanie tresci do modeli AI (RAG, grounding, AI search answers)
+# ai-train   - trening lub fine-tuning modeli AI
+#
+# WSZELKIE OGRANICZENIA WYRAZONE PRZEZ CONTENT SIGNALS STANOWIA WYRAZNE ZASTRZEZENIE
+# PRAW NA PODSTAWIE ART. 4 DYREKTYWY UE 2019/790 O PRAWIE AUTORSKIM I PRAWACH POKREWNYCH
+# NA JEDNOLITYM RYNKU CYFROWYM.
+
 User-agent: *
+Content-signal: search=yes, ai-input=yes, ai-train=no
 Allow: /
+Disallow: /api/
+Disallow: /portal/
+Disallow: /admin/
 Disallow: /*?*wc-ajax*
 Disallow: /*?*wc-ajax=
+
+# === AI SEARCH (cytowanie w odpowiedziach AI) - DOZWOLONE ===
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# === TRENING MODELI AI / CRAWLERY MASOWE - ZABRONIONE ===
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
 
 Sitemap: https://mixturemarketing.pl/sitemap.xml

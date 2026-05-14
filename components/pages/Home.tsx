@@ -22,11 +22,17 @@ const Home = () => {
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
+          '@id': 'https://mixturemarketing.pl/#website',
           name: 'Mixture Marketing',
           url: 'https://mixturemarketing.pl',
+          inLanguage: 'pl-PL',
+          publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
           potentialAction: {
             '@type': 'SearchAction',
-            target: 'https://mixturemarketing.pl/search?q={search_term_string}',
+            target: {
+              '@type': 'EntryPoint',
+              urlTemplate: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
+            },
             'query-input': 'required name=search_term_string',
           },
         }}

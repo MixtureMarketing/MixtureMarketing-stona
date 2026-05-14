@@ -29,6 +29,12 @@ dist-ssr/
 *.local
 public/api/config.php
 public/api/audit/audit_secrets.php
+.gcp-service-account.json
+.gcp-service-account-*.json
+mixturecrm-*.json
+*-service-account*.json
+*-credentials.json
+zaraz-config.json
 
 # Unlighthouse & Audits
 .unlighthouse/

@@ -21,72 +21,90 @@ const sanityClient = createClient({
   useCdn: false,
 });
 
-async function generateSitemap() {
-  console.log('🚀 Generating sitemap.xml...');
+// Zwraca date w formacie YYYY-MM-DD (W3C Date subset wymagany przez <lastmod>).
+function formatLastmod(value) {
+  if (!value) return new Date().toISOString().split('T')[0];
+  return new Date(value).toISOString().split('T')[0];
+}
 
-  // Fetch dynamic routes
-  let dynamicRoutes = [];
+// Wymusza trailing slash poza root i URL-ami z query/hash. Kanoniczna forma.
+function withTrailingSlash(route) {
+  if (!route) return '/';
+  if (route === '/') return '/';
+  if (route.includes('?') || route.includes('#')) return route;
+  return route.endsWith('/') ? route : `${route}/`;
+}
+
+async function generateSitemap() {
+  console.log('Generating sitemap.xml...');
+
+  const todayIso = new Date().toISOString().split('T')[0];
+
+  // Statyczne sciezki - lastmod = data buildu.
+  const staticEntries = routes.map((route) => ({
+    url: `${BASE_URL}${withTrailingSlash(route)}`,
+    lastmod: todayIso,
+  }));
+
+  // Dynamiczne sciezki z Sanity - lastmod = _updatedAt z dokumentu.
+  let dynamicEntries = [];
   try {
     const [articles, industries, locations, projects] = await Promise.all([
-      sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }'),
-      sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }'),
-      sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }'),
-      sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }'),
+      sanityClient.fetch('*[_type == "article" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
+      sanityClient.fetch('*[_type == "industry" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
+      sanityClient.fetch('*[_type == "location" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
+      sanityClient.fetch('*[_type == "caseStudy" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
     ]);
 
-    dynamicRoutes = [
-      ...articles.map((a) => `/baza-wiedzy/${a.slug}`),
-      ...industries.map((i) => `/branza/${i.slug}`),
-      ...locations.map((l) => `/miasto/${l.slug}`),
-      ...projects.map((p) => `/portfolio/${p.slug}`),
+    dynamicEntries = [
+      ...articles.map((a) => ({
+        url: `${BASE_URL}${withTrailingSlash(`/baza-wiedzy/${a.slug}`)}`,
+        lastmod: formatLastmod(a._updatedAt),
+      })),
+      ...industries.map((i) => ({
+        url: `${BASE_URL}${withTrailingSlash(`/branza/${i.slug}`)}`,
+        lastmod: formatLastmod(i._updatedAt),
+      })),
+      ...locations.map((l) => ({
+        url: `${BASE_URL}${withTrailingSlash(`/miasto/${l.slug}`)}`,
+        lastmod: formatLastmod(l._updatedAt),
+      })),
+      ...projects.map((p) => ({
+        url: `${BASE_URL}${withTrailingSlash(`/portfolio/${p.slug}`)}`,
+        lastmod: formatLastmod(p._updatedAt),
+      })),
     ];
-    console.log(`✅ Found ${dynamicRoutes.length} dynamic routes.`);
+    console.log(`Found ${dynamicEntries.length} dynamic routes.`);
   } catch (err) {
-    console.warn('⚠️ Failed to fetch dynamic routes for sitemap:', err.message);
+    console.warn('Failed to fetch dynamic routes for sitemap:', err.message);
   }
 
-  const allRoutes = [...routes, ...dynamicRoutes];
-  const now = new Date().toISOString().split('T')[0];
+  // Deduplikacja po URL (statyczna lista ma korzenie typu /baza-wiedzy/,
+  // a Sanity moze zwrocic wpisy ktore by sie z czyms zazebialy).
+  // Zachowujemy pierwsze wystapienie -> statyczne maja priorytet nad dynamicznymi.
+  const seen = new Set();
+  const allEntries = [];
+  for (const entry of [...staticEntries, ...dynamicEntries]) {
+    if (seen.has(entry.url)) continue;
+    seen.add(entry.url);
+    allEntries.push(entry);
+  }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allRoutes
-  .map((route) => {
-    const fullUrl = `${BASE_URL}${route}`;
-    let priority = '0.5';
-    let changefreq = 'monthly';
-
-    if (route === '/') {
-      priority = '1.0';
-      changefreq = 'weekly';
-    } else if (
-      route.startsWith('/web-development/') ||
-      route.startsWith('/marketing/') ||
-      route.startsWith('/design/') ||
-      route.startsWith('/portfolio/')
-    ) {
-      priority = '0.8';
-      changefreq = 'monthly';
-    } else if (route.startsWith('/baza-wiedzy/')) {
-      priority = '0.7';
-      changefreq = 'monthly';
-    } else if (route.startsWith('/branza/') || route.startsWith('/miasto/')) {
-      priority = '0.6';
-      changefreq = 'monthly';
-    }
-
-    return `  <url>
-    <loc>${fullUrl}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`;
-  })
+${allEntries
+  .map(
+    (entry) => `  <url>
+    <loc>${entry.url}</loc>
+    <lastmod>${entry.lastmod}</lastmod>
+  </url>`
+  )
   .join('\n')}
-</urlset>`;
+</urlset>
+`;
 
   fs.writeFileSync(SITEMAP_PATH, xml);
-  console.log(`✅ Sitemap generated at: ${SITEMAP_PATH}`);
+  console.log(`Sitemap generated at: ${SITEMAP_PATH} (${allEntries.length} URLs)`);
 }
 
 generateSitemap();

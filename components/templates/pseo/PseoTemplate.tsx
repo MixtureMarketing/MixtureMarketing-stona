@@ -85,6 +85,11 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
             `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }
           lcpImage="/assets/images/sygnet.png"
+          // Strony miejskie inne niz siedziba (Rzeszow) sa tymczasowo noindex
+          // do czasu uzupelnienia unikalnej tresci per lokalizacja. Chroni przed
+          // doorway pages penalty Google. Zdjac noindex po dodaniu min. 600 slow
+          // unikalnej tresci (lokalne case studies, partnerzy, dojazd).
+          noindex={slug !== 'rzeszow'}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
             { name: `Marketing i Strony WWW ${data.city}`, item: `/miasto/${slug}` },
@@ -94,6 +99,35 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
             description: `Kompleksowa obsługa technologiczna i reklamowa dla firm z lokalizacji: ${data.city} i okolic.`,
             areaServed: data.city,
           }}
+          // FAQ ze strony /miasto/rzeszow/ — sygnal dla AI search (ChatGPT,
+          // Perplexity, Google AI Overviews) ze strona ma cytowalne odpowiedzi.
+          faq={
+            slug === 'rzeszow'
+              ? [
+                  {
+                    question: 'Czy oferujecie spotkania na żywo w Rzeszowie?',
+                    answer:
+                      'Tak. Po wcześniejszym umówieniu zapraszamy do biura przy Al. Piłsudskiego 17/4 albo spotykamy się w kawiarni w centrum miasta.',
+                  },
+                  {
+                    question: 'Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?',
+                    answer:
+                      'Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla, Dębicy i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy większych projektach.',
+                  },
+                  {
+                    question: 'Jak wygląda pierwsza konsultacja?',
+                    answer:
+                      'Bezpłatna rozmowa (45–60 minut) online lub w naszym biurze. Omawiamy cele biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i bez sztywnej oferty na siłę.',
+                  },
+                  {
+                    question:
+                      'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
+                    answer:
+                      "Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli, e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.",
+                  },
+                ]
+              : undefined
+          }
         />
       )}
 

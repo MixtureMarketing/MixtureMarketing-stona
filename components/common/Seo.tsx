@@ -19,6 +19,7 @@ interface SeoProps {
   canonical?: string;
   image?: string;
   lcpImage?: string;
+  noindex?: boolean;
   article?: Article | SanityArticle | Partial<Article & SanityArticle>;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   breadcrumbs?: { name: string; item: string }[];
@@ -40,6 +41,7 @@ const Seo: React.FC<SeoProps> = ({
   canonical,
   image,
   lcpImage,
+  noindex,
   article,
   jsonLd,
   breadcrumbs,
@@ -67,6 +69,7 @@ const Seo: React.FC<SeoProps> = ({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
+      {noindex && <meta name="robots" content="noindex, follow" />}
 
       {lcpBasePath && (
         <>

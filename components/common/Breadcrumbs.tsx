@@ -1,38 +1,18 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { BREADCRUMBS_PATH_MAP as pathMap } from '../../config/breadcrumbs';
 import Container from './Container';
 
+// Schema BreadcrumbList renderuje Seo.tsx na podstawie prop `breadcrumbs`.
+// Komponent jest wylacznie warstwa wizualna - nie emituje wlasnego JSON-LD,
+// zeby uniknac duplikatu schema na stronach przekazujacych breadcrumbs do Seo.
 const Breadcrumbs: React.FC = () => {
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
-  const domain = 'https://mixturemarketing.pl';
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: domain },
-      ...pathnames.map((name, index) => {
-        const routeTo = `/${pathnames.slice(0, index + 1).join('/')}/`;
-        const displayName = pathMap[routeTo.slice(0, -1)] || name.replace(/-/g, ' ');
-        return {
-          '@type': 'ListItem',
-          position: index + 2,
-          name: displayName,
-          item: `${domain}${routeTo}`,
-        };
-      }),
-    ],
-  };
 
   return (
     <>
-      <Helmet>
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-      </Helmet>
       <nav aria-label="Breadcrumb" className="text-sm font-medium text-gray-700 py-4 relative z-20">
         <Container>
           <ol className="flex items-center space-x-2">

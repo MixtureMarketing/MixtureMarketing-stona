@@ -34,17 +34,18 @@ export const getFaqSchema = (faq: { question: string; answer: string }[] | undef
 };
 
 export const getLocalBusinessSchema = (baseUrl: string) => {
-  const { address, phoneFull } = SITE_CONFIG.contact;
+  const { address, phoneFull, email } = SITE_CONFIG.contact;
   const socialLinks = Object.values(SITE_CONFIG.social);
 
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'ProfessionalService',
     name: SITE_CONFIG.name,
     image: `${baseUrl}/assets/images/sygnet.png`,
-    '@id': baseUrl,
+    '@id': `${baseUrl}/#organization`,
     url: baseUrl,
     telephone: phoneFull,
+    email,
     address: {
       '@type': 'PostalAddress',
       streetAddress: address.street,
@@ -57,6 +58,11 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
       latitude: 50.041187,
       longitude: 21.999116,
     },
+    areaServed: [
+      { '@type': 'Country', name: 'Polska' },
+      { '@type': 'City', name: 'Rzeszów' },
+      { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
+    ],
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],

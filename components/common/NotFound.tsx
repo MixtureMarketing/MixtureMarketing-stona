@@ -13,6 +13,7 @@ const NotFound: React.FC = () => {
       <Seo
         title="404 - Nie znaleziono strony"
         description="Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona."
+        noindex
       />
       <div className="mb-8">
         <div className="text-9xl font-black text-gray-100 absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none select-none">

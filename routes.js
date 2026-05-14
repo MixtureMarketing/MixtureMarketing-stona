@@ -1,25 +1,46 @@
+// Statyczne sciezki uzywane wylacznie przez scripts/generate-sitemap.js.
+// Dwa zrodla artykulow w /baza-wiedzy/:
+//   1) Hardcoded ponizej (RedisArticle, WafArticle itp.) - dedykowane komponenty
+//      React w config/routes.tsx, z custom UI i animacjami. MUSZA byc tutaj,
+//      bo nie pochodza z Sanity.
+//   2) Sanity blog posts - pobierane dynamicznie przez generator z _type=='article'.
+//      Generator deduplikuje, wiec jezeli slug pojawi sie w obu zrodlach,
+//      zachowywana jest wersja statyczna.
+// Wszystkie wpisy MUSZA konczyc sie trailing slashem (kanoniczna forma URL).
+// /portal NIE jest w tej liscie - jest zablokowany przez robots.txt.
 export const routes = [
   '/',
   '/offers/',
   '/contact/',
   '/privacy-policy/',
   '/terms/',
+  '/audyt-360/',
+
+  // Web Development
   '/web-development/',
   '/web-development/ecommerce/',
   '/web-development/landing-page/',
   '/web-development/corporate/',
   '/web-development/custom-app/',
+
+  // Marketing
   '/marketing/',
   '/marketing/google-ads/',
   '/marketing/meta-ads/',
   '/marketing/seo/',
   '/marketing/analytics/',
+
+  // Design
   '/design/',
   '/design/branding/',
   '/design/ui-ux/',
   '/design/print/',
   '/design/visual-audit/',
+
+  // Knowledge Base (lista glowna)
   '/baza-wiedzy/',
+
+  // Hardcoded premium articles (komponenty React z animacjami i custom UI)
   '/baza-wiedzy/redis-optymalizacja/',
   '/baza-wiedzy/cdn-globalna-wydajnosc/',
   '/baza-wiedzy/optymalizacja-obrazow-webp-avif/',
@@ -39,16 +60,16 @@ export const routes = [
   '/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/',
   '/baza-wiedzy/vue-js-harmonijny-kompromis-react-angular/',
   '/baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp/',
+  '/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/',
+  '/baza-wiedzy/go-golang-jezyk-chmury/',
+  '/baza-wiedzy/nodejs-jeden-jezyk/',
+  '/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/',
   '/baza-wiedzy/bazy-danych-kompendium-architekta/',
   '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/',
   '/baza-wiedzy/docker-konteneryzacja-przewodnik/',
   '/baza-wiedzy/ci-cd-automatyzacja-wdrozen/',
   '/baza-wiedzy/devops-fundament-nowoczesnego-biznesu/',
-  '/baza-wiedzy/nodejs-jeden-jezyk/',
-  '/baza-wiedzy/go-golang-jezyk-chmury/',
-  '/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/',
-  '/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/',
-  '/portal',
+
+  // Portfolio
   '/portfolio/',
-  '/audyt-360/',
 ];
