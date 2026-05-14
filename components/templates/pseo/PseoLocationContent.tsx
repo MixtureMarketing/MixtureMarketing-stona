@@ -103,8 +103,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             Jesteśmy z Rzeszowa. Stąd zaczynaliśmy.
           </h2>
           <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-            Mixture Marketing to agencja założona w sercu Podkarpacia. Codziennie pracujemy
-            z lokalnym biznesem i społecznością technologiczną Rzeszowa — i to nas wyróżnia.
+            Mixture Marketing to agencja założona w sercu Podkarpacia. Codziennie pracujemy z
+            lokalnym biznesem i społecznością technologiczną Rzeszowa — i to nas wyróżnia.
           </p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -115,8 +115,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               <h3 className="text-xl font-bold mb-3">Ekosystem IT Podkarpacia</h3>
               <p className="text-gray-600">
                 Działamy w środowisku rzeszowskich firm technologicznych. Wspólnie z lokalną
-                społecznością tworzymy klimat sprzyjający cyfryzacji MŚP z całego regionu —
-                od Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
+                społecznością tworzymy klimat sprzyjający cyfryzacji MŚP z całego regionu — od
+                Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
               </p>
             </div>
 
@@ -126,10 +126,10 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Politechnika Rzeszowska</h3>
               <p className="text-gray-600">
-                Rzeszów jako centrum techniczno-inżynierskie Podkarpacia daje dostęp do
-                high-skill developerów i projektantów kształconych m.in. na Wydziale
-                Elektrotechniki i Informatyki PRz. Bliska współpraca z uczelnią to dla nas
-                stały dopływ świeżych kompetencji.
+                Rzeszów jako centrum techniczno-inżynierskie Podkarpacia daje dostęp do high-skill
+                developerów i projektantów kształconych m.in. na Wydziale Elektrotechniki i
+                Informatyki PRz. Bliska współpraca z uczelnią to dla nas stały dopływ świeżych
+                kompetencji.
               </p>
             </div>
 
@@ -139,9 +139,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Lokalna społeczność tech</h3>
               <p className="text-gray-600">
-                Spotykamy się z lokalnym środowiskiem na meetupach takich jak RzeszowJS,
-                Tech Tuesdays Rzeszów i Podkarpackim Forum Technologii. Jeśli chcesz
-                porozmawiać o projekcie twarzą w twarz — znajdziesz nas tam.
+                Spotykamy się z lokalnym środowiskiem na meetupach takich jak RzeszowJS, Tech
+                Tuesdays Rzeszów i Podkarpackim Forum Technologii. Jeśli chcesz porozmawiać o
+                projekcie twarzą w twarz — znajdziesz nas tam.
               </p>
             </div>
 
@@ -151,9 +151,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Biuro w centrum miasta</h3>
               <p className="text-gray-600">
-                Mieścimy się przy Al. Józefa Piłsudskiego 17/4, w samym centrum Rzeszowa —
-                5 minut spacerem od Dworca PKP i Rynku. Spotykamy się na żywo w biurze albo
-                na kawie w wybranym miejscu — wystarczy dać znać.
+                Mieścimy się przy Al. Józefa Piłsudskiego 17/4, w samym centrum Rzeszowa — 5 minut
+                spacerem od Dworca PKP i Rynku. Spotykamy się na żywo w biurze albo na kawie w
+                wybranym miejscu — wystarczy dać znać.
               </p>
             </div>
           </div>
@@ -166,8 +166,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Czy oferujecie spotkania na żywo w Rzeszowie?
                 </p>
                 <p className="text-gray-600">
-                  Tak. Po wcześniejszym umówieniu zapraszamy do biura przy Al. Piłsudskiego
-                  17/4 albo spotykamy się w kawiarni w centrum miasta.
+                  Tak. Po wcześniejszym umówieniu zapraszamy do biura przy Al. Piłsudskiego 17/4
+                  albo spotykamy się w kawiarni w centrum miasta.
                 </p>
               </div>
               <div>
@@ -175,19 +175,17 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?
                 </p>
                 <p className="text-gray-600">
-                  Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla,
-                  Dębicy i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy
-                  większych projektach.
+                  Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla, Dębicy
+                  i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy większych
+                  projektach.
                 </p>
               </div>
               <div>
-                <p className="font-semibold text-dark mb-1">
-                  Jak wygląda pierwsza konsultacja?
-                </p>
+                <p className="font-semibold text-dark mb-1">Jak wygląda pierwsza konsultacja?</p>
                 <p className="text-gray-600">
                   Bezpłatna rozmowa (45–60 minut) online lub w naszym biurze. Omawiamy cele
-                  biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy —
-                  bez zobowiązań i bez sztywnej oferty na siłę.
+                  biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez
+                  zobowiązań i bez sztywnej oferty na siłę.
                 </p>
               </div>
               <div>
@@ -195,9 +193,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?
                 </p>
                 <p className="text-gray-600">
-                  Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej
-                  Woli, e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część
-                  realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.
+                  Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli,
+                  e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część realizacji jest
+                  objęta NDA — szczegóły omawiamy podczas spotkania.
                 </p>
               </div>
             </div>

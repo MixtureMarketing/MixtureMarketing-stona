@@ -120,8 +120,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                       'Bezpłatna rozmowa (45–60 minut) online lub w naszym biurze. Omawiamy cele biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i bez sztywnej oferty na siłę.',
                   },
                   {
-                    question:
-                      'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
+                    question: 'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
                     answer:
                       "Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli, e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.",
                   },
