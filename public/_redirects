@@ -1,1 +1,23 @@
-/*  /index.html  200
+# Cloudflare Pages _redirects
+#
+# Kolejnosc matcha (pierwsza pasujaca regula wygrywa):
+#  1) Konkretne prefixy z dynamic content -> serwuj /index.html z 200
+#     (React Router obsluzy routing po stronie klienta, dla nowych slugow
+#     Sanity ktore jeszcze nie sa prerendered).
+#  2) Catch-all -> serwuj /404.html z 404 (prerendered NotFound z noindex).
+#
+# Fizyczne pliki istniejace w dist/ (prerendered routes) sa serwowane
+# bezposrednio z 200, _redirects NIE jest dla nich wykonywany.
+
+# SPA fallback dla naszych dynamicznych prefiksow (Sanity-generated content):
+/baza-wiedzy/*      /index.html  200
+/branza/*           /index.html  200
+/miasto/*           /index.html  200
+/portfolio/*        /index.html  200
+/web-development/*  /index.html  200
+/marketing/*        /index.html  200
+/design/*           /index.html  200
+
+# Catch-all: nieznane URL-e -> 404 + /404.html (NotFound z noindex).
+# Google widzi 404 status, uzytkownik widzi friendly NotFound page.
+/*  /404.html  404

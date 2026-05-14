@@ -183,6 +183,42 @@ async function prerender() {
     for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
 
+    // CF Pages soft-404 fix: prerender NotFound jako dist/404.html.
+    // CF Pages automatycznie serwuje ten plik ze statusem 404 dla URL-i ktore
+    // nie maja fizycznego pliku w dist/. NotFound komponent ma <meta robots=noindex>
+    // wiec Google dostaje poprawny sygnal: 404 + noindex.
+    console.log('📄 Prerendering /404.html for Pages fallback...');
+    try {
+      const page = await browser.newPage();
+      await page.setViewport({ width: 1280, height: 800 });
+      await page.evaluateOnNewDocument(() => {
+        window.isPrerendering = true;
+      });
+      await page.setRequestInterception(true);
+      page.on('request', (req) => {
+        if (['image', 'media', 'font'].includes(req.resourceType())) req.abort();
+        else req.continue();
+      });
+      // Specjalny URL ktorego nie ma w routes - React Router pokaze NotFound (catchall '*').
+      await page.goto(`http://localhost:${PORT}/__prerender_404`, {
+        waitUntil: 'networkidle0',
+        timeout: 60000,
+      });
+      await page.waitForSelector('#root', { timeout: 60000 });
+      await new Promise((r) => setTimeout(r, 1000));
+      let html = await page.content();
+      try {
+        html = await critters.process(html);
+      } catch (e) {
+        console.warn('Critters 404 skip:', e.message);
+      }
+      fs.writeFileSync(path.join(DIST_DIR, '404.html'), html);
+      console.log('✅ Wrote dist/404.html (CF Pages soft-404 fix)');
+      await page.close();
+    } catch (e) {
+      console.warn('⚠️ Failed to prerender 404.html:', e.message);
+    }
+
     console.log('🛑 Closing browser...');
     await browser.close();
   } catch (err) {

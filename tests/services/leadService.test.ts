@@ -22,7 +22,7 @@ describe('leadService', () => {
 
       const result = await leadService.sendNotification(leadId, type);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/contact_submit.php', {
+      expect(global.fetch).toHaveBeenCalledWith('/api/contact-submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

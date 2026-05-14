@@ -22,7 +22,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
   setIsOpen,
   activeDropdown,
   toggleDropdownMobile,
-  handleAnchorLink,
+  handleAnchorLink: _handleAnchorLink,
   location,
   openModal,
 }) => {
@@ -36,18 +36,17 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
     >
       <div className="flex-1 px-6 pt-24 pb-8 overflow-y-auto custom-scrollbar">
         <div className="space-y-4">
-          <a
-            href="#about"
-            onClick={(e) => handleAnchorLink('about', e)}
-            className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-2xl font-black transition-all ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} ${location.pathname === '/' ? 'text-accent-dark' : 'text-dark'}`}
+          <Link
+            to="/o-nas/"
+            className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-2xl font-black transition-all ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} ${location.pathname === '/o-nas' || location.pathname === '/o-nas/' ? 'text-accent-dark' : 'text-dark'}`}
             style={{ transitionDelay: '100ms' }}
-            aria-label={`Przejdź do sekcji ${CONTENT.about.toLowerCase()}`}
+            aria-label="Przejdz do strony O nas"
           >
             <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 group-hover:bg-blue-50">
               <Users size={20} />
             </div>
             {CONTENT.about}
-          </a>
+          </Link>
 
           <Link
             to="/portfolio/"

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { ContactType } from '@/types';
+import { trackEvent } from '@/utils/analytics';
 
 interface ModalContextType {
   isModalOpen: boolean;
@@ -22,6 +23,33 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setModalType(type);
     setAdditionalData(data);
     setIsModalOpen(true);
+    // GA4 key events:
+    // - consultation_click: zawsze (intent zostania klientem)
+    // - audit_request: gdy uzytkownik prosi o audyt (typ 'audit')
+    // - calculator_submit: gdy modal otwierany z wynikiem kalkulatora w data
+    const source = typeof window !== 'undefined' ? window.location.pathname : '';
+    trackEvent('consultation_click', {
+      contact_type: type,
+      source,
+      package: data?.package,
+    });
+    if (type === 'audit') {
+      trackEvent('audit_request', {
+        source,
+        specific_type: data?.specificType,
+      });
+    }
+    if (
+      data &&
+      ('calculator_result' in data || 'estimatedPrice' in data || 'projectType' in data)
+    ) {
+      trackEvent('calculator_submit', {
+        source,
+        contact_type: type,
+        estimated_price: data?.estimatedPrice,
+        project_type: data?.projectType,
+      });
+    }
   }, []);
 
   const closeModal = useCallback(() => {

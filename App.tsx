@@ -11,6 +11,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import CursorGlow from '@/components/common/CursorGlow';
 import { SITE_CONFIG } from '@/config/site';
 import { leadService } from '@/services/leadService';
+import { installContactLinkTracking } from '@/utils/analytics';
 import { AuthProvider } from '@/context/AuthContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import CookieBanner from '@/components/features/CookieBanner';
@@ -73,6 +74,10 @@ function App() {
   const isPrerendering =
     typeof window !== 'undefined' &&
     (window.navigator.userAgent.includes('Headless') || window.isPrerendering);
+
+  // Global tracking dla klikniec tel:/mailto: linkow -> GA4 (phone_click, email_click).
+  // Single-time install na poziomie App, event delegation na document.
+  useEffect(() => installContactLinkTracking(), []);
 
   // Handle Resume Form from Email
   useEffect(() => {

@@ -8,6 +8,7 @@ import { ContactType } from '../types';
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { ContactFormData } from '../components/features/contact/types';
 import { executeTurnstileWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
+import { trackEvent } from '../utils/analytics';
 
 export const useContactForm = (
   type: ContactType,
@@ -120,6 +121,13 @@ export const useContactForm = (
 
   const onSubmit = async (data: ContactFormData) => {
     setSubmitError(null);
+    // GA4 key event: form_submit (mierzy intent ukonczenia formularza,
+    // niezalenie czy backend zwroci sukces).
+    trackEvent('form_submit', {
+      contact_type: type,
+      step: 3,
+      has_existing_lead: !!leadId,
+    });
     try {
       let token = leadId ? 'existing_lead_verified' : '';
       if (!token) {

@@ -66,6 +66,7 @@ const PseoTemplate = lazy(() => import('@/components/templates/pseo/PseoTemplate
 const PortfolioPage = lazy(() => import('@/components/pages/PortfolioPage'));
 const CaseStudyTemplate = lazy(() => import('@/components/templates/CaseStudyTemplate'));
 const Home = lazy(() => import('@/components/pages/Home')); // We will extract Home to a page component
+const AboutUs = lazy(() => import('@/components/pages/AboutUs'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
 
 export const appRoutes: RouteObject[] = [
@@ -73,6 +74,7 @@ export const appRoutes: RouteObject[] = [
   { path: '/', element: <Home /> },
   { path: '/offers', element: <Offers /> },
   { path: '/contact', element: <ContactPage /> },
+  { path: '/o-nas', element: <AboutUs /> },
   { path: '/privacy-policy', element: <PrivacyPolicy /> },
   { path: '/terms', element: <TermsOfService /> },
 

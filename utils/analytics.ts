@@ -46,3 +46,55 @@ export const applyConsent = (consent: ConsentState) => {
     });
   }
 };
+
+/**
+ * Wysyla event do Zaraz (-> GA4 jako custom event).
+ * Bezpieczny - nic nie robi gdy zaraz nie zaladowany lub w SSR.
+ *
+ * Eventy oznaczone jako key events w GA4 (konwersje):
+ * - lead_start, contact_form_success, form_submit
+ * - phone_click, email_click, consultation_click
+ * - calculator_submit, audit_request
+ */
+export const trackEvent = (eventName: string, data?: Record<string, unknown>): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.zaraz?.track(eventName, data);
+  } catch (e) {
+    // Zaraz moze nie byc gotowy - nic nie blokujemy.
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`trackEvent(${eventName}) failed:`, e);
+    }
+  }
+};
+
+/**
+ * Globalny listener na klikiniecia w `<a href="tel:...">` i `<a href="mailto:...">`.
+ * Wywolaj raz w App.tsx (useEffect). Wykrywa nawet linki w dynamicznie
+ * renderowanej tresci (event delegation na document).
+ */
+export const installContactLinkTracking = (): (() => void) => {
+  if (typeof window === 'undefined') return () => undefined;
+
+  const handler = (e: MouseEvent) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+    const anchor = target.closest('a') as HTMLAnchorElement | null;
+    if (!anchor) return;
+    const href = anchor.getAttribute('href') || '';
+    if (href.startsWith('tel:')) {
+      trackEvent('phone_click', {
+        phone: href.replace('tel:', ''),
+        source: window.location.pathname,
+      });
+    } else if (href.startsWith('mailto:')) {
+      trackEvent('email_click', {
+        email: href.replace('mailto:', '').split('?')[0],
+        source: window.location.pathname,
+      });
+    }
+  };
+
+  document.addEventListener('click', handler, { capture: true });
+  return () => document.removeEventListener('click', handler, { capture: true });
+};

@@ -32,7 +32,9 @@ function generateUUID() {
   });
 }
 
-const API_URL = '/api/contact_submit.php';
+// Nowy CF Pages Function (zastapil legacy PHP backend).
+// Implementacja: functions/api/contact-submit.ts
+const API_URL = '/api/contact-submit';
 
 export const leadService = {
   /**

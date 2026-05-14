@@ -16,6 +16,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/design/visual-audit': 'Audyt Wizualny',
   '/contact': 'Kontakt',
   '/offers': 'Oferta',
+  '/o-nas': 'O nas',
   '/baza-wiedzy': 'Baza Wiedzy',
   '/baza-wiedzy/redis-optymalizacja': 'Redis - Optymalizacja',
   '/baza-wiedzy/cdn-globalna-wydajnosc': 'CDN - Globalna Wydajność',

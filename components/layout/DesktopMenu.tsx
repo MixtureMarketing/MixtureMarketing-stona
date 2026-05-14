@@ -24,20 +24,19 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
   handleMouseEnter,
   handleMouseLeave,
   setActiveDropdown,
-  handleAnchorLink,
+  handleAnchorLink: _handleAnchorLink,
   openModal,
   dropdownRef,
 }) => {
   return (
     <div className="hidden lg:flex space-x-1 items-center h-full" ref={dropdownRef}>
-      <a
-        href="#about"
-        onClick={(e) => handleAnchorLink('about', e)}
+      <Link
+        to="/o-nas/"
         className="group relative px-4 py-2 text-sm font-bold text-dark hover:text-secondary transition-colors overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
       >
         <span className="relative z-10">{CONTENT.about}</span>
         <span className="absolute bottom-0 left-4 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-[calc(100%-2rem)]"></span>
-      </a>
+      </Link>
 
       <Link
         to="/portfolio/"

@@ -12,6 +12,7 @@ export const routes = [
   '/',
   '/offers/',
   '/contact/',
+  '/o-nas/',
   '/privacy-policy/',
   '/terms/',
   '/audyt-360/',
