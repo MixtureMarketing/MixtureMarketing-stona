@@ -3,19 +3,41 @@ name: CI Pipeline
 on:
   push:
     branches: ['main', 'master']
+    # Pomin build dla zmian tylko w dokumentacji/markdown.
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'docs/**'
   pull_request:
     branches: ['main', 'master']
+    paths-ignore:
+      - '**/*.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'docs/**'
+
+# Anuluj duplikaty (np. force-push, kolejne commity w PR) — oszczedza minuty CI.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  PHP_VERSION: '8.2'
 
 jobs:
-  quality-and-build:
-    name: 🛡️ Quality, Test & Build
+  # ============================================================
+  # JOB 1: QUALITY — lint + tests (parallel z install cache)
+  # ============================================================
+  quality:
+    name: 🛡️ Quality (lint + tests)
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1 # plytka kopia, ~5s szybciej
 
       - name: 🛡️ Gitleaks Security Scan
         uses: gitleaks/gitleaks-action@v2
@@ -26,21 +48,24 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Zaktualizowano do nowszej stabilnej wersji
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
-      - name: 🐘 Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-
-      - name: 🧪 PHP Syntax Check (Lint)
-        run: find public/api -name "*.php" -exec php -l {} \;
 
       - name: ⚙️ Configure NPM
         run: echo "legacy-peer-deps=true" > .npmrc
 
+      - name: 📦 Cache node_modules
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/puppeteer
+          key: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-
+
       - name: 📦 Install Dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: 🎨 Linting & Formatting
@@ -49,23 +74,106 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test -- --run
 
-      - name: 🏗️ Build & Prerender
+  # ============================================================
+  # JOB 2: PHP LINT — niezalezne od JS, idzie parallel z quality
+  # ============================================================
+  php-lint:
+    name: 🐘 PHP Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+
+      - name: 🧪 PHP Syntax Check
+        run: find public/api -name "*.php" -exec php -l {} \;
+
+  # ============================================================
+  # JOB 3: BUILD & PRERENDER — wymaga quality OK
+  # ============================================================
+  build:
+    name: 🏗️ Build & Prerender
+    runs-on: ubuntu-latest
+    needs: [quality, php-lint]
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: ⚙️ Configure NPM
+        run: echo "legacy-peer-deps=true" > .npmrc
+
+      - name: 📦 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/puppeteer
+          key: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-
+
+      - name: 📦 Install Dependencies (fallback)
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🖼️ Cache converted images
+        uses: actions/cache@v4
+        with:
+          path: public/assets/images/converted
+          key: images-${{ hashFiles('public/assets/images/**', 'scripts/convert-images.js') }}
+
+      - name: 🏗️ Build, Sitemap, Prerender, Size-check
         env:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
+          PRERENDER_CONCURRENCY: '4'
         run: npm run build
 
+      - name: 🩺 Health Audit (non-blocking)
+        run: npm run audit:health
+        continue-on-error: true
+
       - name: 📊 Upload Build Artifacts
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: dist-package
           path: dist/
           retention-days: 7
 
+  # ============================================================
+  # JOB 4: DEPLOY — tylko main, tylko jezeli build OK
+  # ============================================================
+  deploy:
+    name: 🚀 Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: 📥 Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-package
+          path: dist
+
       - name: 🚀 Deploy to Cloudflare Pages
-        if: success() && github.ref == 'refs/heads/main'
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

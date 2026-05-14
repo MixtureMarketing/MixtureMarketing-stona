@@ -17,7 +17,9 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
 const PORT = 4173;
-const MAX_CONCURRENCY = 2; // Render 2 pages in parallel
+// 4 daje najlepszy stosunek czasu do RAM/CPU na typowym ubuntu-latest CI runnerze.
+// Powyzej 4 puppeteer page pool zaczyna konkurowac o RAM (~500MB/page).
+const MAX_CONCURRENCY = parseInt(process.env.PRERENDER_CONCURRENCY || '4', 10);
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
