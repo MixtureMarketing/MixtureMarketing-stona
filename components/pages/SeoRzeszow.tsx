@@ -245,8 +245,8 @@ const SeoRzeszow: React.FC = () => {
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
               Pozycjonowanie ma sens tylko wtedy, gdy ruch z Google przekłada się na klientów.
-              Łączymy techniczne SEO z performance marketingiem i analityką — każda decyzja
-              opiera się na danych z GSC, GA4 i Senuto.
+              Łączymy techniczne SEO z performance marketingiem i analityką — każda decyzja opiera
+              się na danych z GSC, GA4 i Senuto.
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -265,8 +265,8 @@ const SeoRzeszow: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-2">Frazy biznesowe</h3>
                 <p className="text-sm text-gray-600">
-                  Nie gonimy za vanity metrics. Wybieramy frazy o realnej intencji zakupowej —
-                  nawet jeśli wolumen niższy, konwersja wyższa.
+                  Nie gonimy za vanity metrics. Wybieramy frazy o realnej intencji zakupowej — nawet
+                  jeśli wolumen niższy, konwersja wyższa.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -275,8 +275,8 @@ const SeoRzeszow: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-2">Transparentne raporty</h3>
                 <p className="text-sm text-gray-600">
-                  Miesięczny raport: pozycje, ruch, konwersje, co zrobiliśmy, co dalej. Bez
-                  ukrytych metryk i &quot;widoczności w TOP100&quot;.
+                  Miesięczny raport: pozycje, ruch, konwersje, co zrobiliśmy, co dalej. Bez ukrytych
+                  metryk i &quot;widoczności w TOP100&quot;.
                 </p>
               </div>
             </div>
@@ -288,9 +288,9 @@ const SeoRzeszow: React.FC = () => {
               Dlaczego SEO w Rzeszowie różni się od ogólnopolskiego
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Lokalne SEO w mieście średniej wielkości (Rzeszów — 195 tys. mieszkańców)
-              rządzi się innymi prawami niż walka o frazy ogólnopolskie. Krócej, taniej,
-              ale wymaga znajomości lokalnego rynku.
+              Lokalne SEO w mieście średniej wielkości (Rzeszów — 195 tys. mieszkańców) rządzi się
+              innymi prawami niż walka o frazy ogólnopolskie. Krócej, taniej, ale wymaga znajomości
+              lokalnego rynku.
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -410,8 +410,8 @@ const SeoRzeszow: React.FC = () => {
               Case study — SEO dla firm z Podkarpacia
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Wybrane przypadki realizacji (część anonimowa ze względu na NDA). Pełne dane prezentujemy
-              na spotkaniu.
+              Wybrane przypadki realizacji (część anonimowa ze względu na NDA). Pełne dane
+              prezentujemy na spotkaniu.
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -470,8 +470,8 @@ const SeoRzeszow: React.FC = () => {
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
               Widełki orientacyjne. Finalna wycena zależy od konkurencyjności branży, stanu
-              wyjściowego strony i zakresu prac. Bezpłatny audyt wstępny — wystarczy formularz
-              lub telefon.
+              wyjściowego strony i zakresu prac. Bezpłatny audyt wstępny — wystarczy formularz lub
+              telefon.
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -512,8 +512,8 @@ const SeoRzeszow: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 text-center mt-6">
-              Minimum współpracy: 3 miesiące. Po pierwszym kwartale otrzymujesz pełen raport
-              wpływu i decydujesz, czy kontynuujemy.
+              Minimum współpracy: 3 miesiące. Po pierwszym kwartale otrzymujesz pełen raport wpływu
+              i decydujesz, czy kontynuujemy.
             </p>
           </div>
 
@@ -525,7 +525,9 @@ const SeoRzeszow: React.FC = () => {
                   <Wrench size={14} />
                   <span>Połącz z web</span>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">SEO bez dobrej strony nie zadziała</h3>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                  SEO bez dobrej strony nie zadziała
+                </h3>
                 <p className="text-gray-600 mb-6">
                   Najlepsza optymalizacja SEO nic nie da, jeśli sama strona wczytuje się 6 sekund,
                   nie ma poprawnej struktury URL i schema. Jeśli planujesz większą zmianę — zacznij
@@ -548,8 +550,8 @@ const SeoRzeszow: React.FC = () => {
                   </p>
                   <h4 className="font-bold mb-2">Biuro Mixture przy Al. Piłsudskiego →</h4>
                   <p className="text-sm text-gray-600">
-                    Pełna oferta lokalna: marketing 360°, branding, Google Ads. Spotkania na żywo
-                    w centrum Rzeszowa.
+                    Pełna oferta lokalna: marketing 360°, branding, Google Ads. Spotkania na żywo w
+                    centrum Rzeszowa.
                   </p>
                 </Link>
               </div>

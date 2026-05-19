@@ -138,6 +138,10 @@ jobs:
         env:
           VITE_SANITY_PROJECT_ID: ${{ secrets.VITE_SANITY_PROJECT_ID }}
           VITE_SANITY_DATASET: ${{ vars.VITE_SANITY_DATASET || 'production' }}
+          # SaaS abonament — inline'owane przez Vite przy build (.env.local equivalent)
+          VITE_MM_PREONBOARD_KEY: ${{ secrets.VITE_MM_PREONBOARD_KEY }}
+          VITE_MM_HUB_URL: ${{ vars.VITE_MM_HUB_URL || 'https://api.mixturemarketing.pl' }}
+          VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
           PRERENDER_CONCURRENCY: '4'
         run: npm run build

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- mega menu z 3 kolumnami + featured panel, naturalnie dluzsze */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -214,7 +215,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
                 </div>
                 <p className="text-base font-black leading-tight mb-1">Strona w abonamencie</p>
                 <p className="text-xs text-emerald-50 font-medium">
-                  Strona + SEO + leady na telefon · od 149 zł/mc
+                  Strona + SEO + leady na telefon · od 179 zł/mc
                 </p>
               </Link>
 

@@ -1,9 +1,10 @@
+/* eslint-disable max-lines -- modal z form + walidacja + 2-step API + error handling */
 import React, { useEffect, useRef, useState } from 'react';
 import { X, Loader2, AlertTriangle, ShieldCheck, ArrowRight, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../../../utils/analytics';
 
-export type AbonamentTier = 'starter' | 'standard' | 'premium';
+export type AbonamentTier = 'starter' | 'standard' | 'premium' | 'professional';
 
 interface TierConfig {
   id: AbonamentTier;
@@ -11,17 +12,34 @@ interface TierConfig {
   price: number;
   priceGross: number;
   ctaPriceLabel: string;
+  hint?: string;
 }
 
+// Track 25 (2026-05-19): ceny 149/199/299 → 179/249/349 + Professional 549.
 const TIERS: Record<AbonamentTier, TierConfig> = {
-  starter: { id: 'starter', name: 'Starter', price: 149, priceGross: 183, ctaPriceLabel: '149 zł' },
-  standard: { id: 'standard', name: 'Standard', price: 199, priceGross: 245, ctaPriceLabel: '199 zł' },
-  premium: { id: 'premium', name: 'Premium', price: 299, priceGross: 368, ctaPriceLabel: '299 zł' },
+  starter: { id: 'starter', name: 'Starter', price: 179, priceGross: 220, ctaPriceLabel: '179 zł' },
+  standard: {
+    id: 'standard',
+    name: 'Standard',
+    price: 249,
+    priceGross: 306,
+    ctaPriceLabel: '249 zł',
+  },
+  premium: { id: 'premium', name: 'Premium', price: 349, priceGross: 429, ctaPriceLabel: '349 zł' },
+  professional: {
+    id: 'professional',
+    name: 'Professional',
+    price: 549,
+    priceGross: 675,
+    ctaPriceLabel: '549 zł',
+    hint: 'B2B regulowane (prawnik / lekarz / księgowy)',
+  },
 };
 
 // Konfiguracja wstrzykiwana przy build z .env.local (Vite inline'uje env vars).
 // CF Pages dashboard musi miec te same wartosci w Environment Variables.
-const HUB = (import.meta.env.VITE_MM_HUB_URL as string | undefined) || 'https://api.mixturemarketing.pl';
+const HUB =
+  (import.meta.env.VITE_MM_HUB_URL as string | undefined) || 'https://api.mixturemarketing.pl';
 const PANEL_URL = 'https://panel.mixturemarketing.pl/login';
 const PREONBOARD_KEY = import.meta.env.VITE_MM_PREONBOARD_KEY as string | undefined;
 const CONSENT_TEXT_VERSION = 'v1.0';
@@ -44,7 +62,11 @@ const normalizePhone = (raw: string): string => {
   // Jesli ma 9 cyfr — dodaj +48.
   if (digitsOnly.length === 9) return '+48' + digitsOnly;
   // Inne — uzytkownik wpisal cos miedzynarodowego, zachowaj + jesli byl.
-  return raw.trim().startsWith('+') ? '+' + digitsOnly : digitsOnly.length > 9 ? '+' + digitsOnly : '+48' + digitsOnly;
+  return raw.trim().startsWith('+')
+    ? '+' + digitsOnly
+    : digitsOnly.length > 9
+      ? '+' + digitsOnly
+      : '+48' + digitsOnly;
 };
 const isValidPhoneE164 = (v: string) => /^\+\d{8,15}$/.test(v);
 
@@ -68,6 +90,9 @@ interface OkBody<T> {
 }
 
 const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
+  // selectedTier — stan lokalny żeby user mógł zmienić tier po otwarciu modalu.
+  // Initial value z prop, ale UI dropdown może go nadpisać.
+  const [selectedTier, setSelectedTier] = useState<AbonamentTier | null>(tier);
   const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('+48 ');
@@ -80,6 +105,11 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
   const lastFocusableRef = useRef<HTMLButtonElement>(null);
+
+  // Sync selectedTier gdy prop się zmieni (np. user kliknął inny tier card)
+  useEffect(() => {
+    if (tier) setSelectedTier(tier);
+  }, [tier]);
 
   // Scroll lock + ESC + focus trap
   useEffect(() => {
@@ -121,8 +151,8 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     };
   }, [tier, onClose]);
 
-  if (!tier) return null;
-  const tierCfg = TIERS[tier];
+  if (!tier || !selectedTier) return null;
+  const tierCfg = TIERS[selectedTier];
 
   const handlePhoneChange = (raw: string) => {
     // Pozwalamy uzytkownikowi pisac swobodnie, ale czyscimy znaki niepoprawne.
@@ -140,6 +170,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     e.preventDefault();
     setError(null);
     setErrorCta(null);
+    // Shadow outer `tier` prop z selectedTier (user mógł zmienić w dropdownie).
+    // selectedTier jest gwarantowany non-null bo form jest renderowany tylko gdy
+    // selectedTier istnieje (guard wcześniej).
+    const tier = selectedTier as AbonamentTier;
     trackEvent('submit_preonboard_attempt', { tier });
 
     // Walidacja klient-side
@@ -173,9 +207,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
     if (!PREONBOARD_KEY) {
       trackEvent('preonboard_error', { tier, error_code: 'NO_KEY' });
-      setError(
-        'Konfiguracja płatności w toku. Skontaktuj się z nami: info@mixturemarketing.pl',
-      );
+      setError('Konfiguracja płatności w toku. Skontaktuj się z nami: info@mixturemarketing.pl');
       return;
     }
 
@@ -285,7 +317,8 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       }
 
       const url = checkoutJson.data.url;
-      if (!url) throw new Error('Brak adresu Stripe Checkout. Skontaktuj się: info@mixturemarketing.pl');
+      if (!url)
+        throw new Error('Brak adresu Stripe Checkout. Skontaktuj się: info@mixturemarketing.pl');
 
       trackEvent('stripe_redirect', {
         tier,
@@ -374,10 +407,42 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
         {/* Form (rendered tylko gdy mamy klucz) */}
         {PREONBOARD_KEY && (
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-4 max-h-[70vh] overflow-y-auto">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 sm:p-8 space-y-4 max-h-[70vh] overflow-y-auto"
+          >
+            {/* Tier select — uzytkownik moze zmienic pakiet po otwarciu modalu */}
+            <div>
+              <label htmlFor="pb-tier" className="block text-sm font-semibold text-dark mb-1.5">
+                Wybrany pakiet{' '}
+                <span className="text-rose-500" aria-label="wymagane">
+                  *
+                </span>
+              </label>
+              <select
+                id="pb-tier"
+                required
+                value={selectedTier || ''}
+                onChange={(e) => setSelectedTier(e.target.value as AbonamentTier)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark bg-white"
+              >
+                <option value="" disabled>
+                  — wybierz pakiet —
+                </option>
+                <option value="starter">Starter — 179 zł/mc (mikrofirmy)</option>
+                <option value="standard">Standard — 249 zł/mc (rozwijające się)</option>
+                <option value="premium">Premium — 349 zł/mc (wielolokalizacyjne)</option>
+                <option value="professional">Professional — 549 zł/mc (B2B regulowane)</option>
+              </select>
+              {tierCfg.hint && <p className="text-xs text-gray-500 mt-1">{tierCfg.hint}</p>}
+            </div>
+
             <div>
               <label htmlFor="pb-business" className="block text-sm font-semibold text-dark mb-1.5">
-                Nazwa firmy <span className="text-rose-500" aria-label="wymagane">*</span>
+                Nazwa firmy{' '}
+                <span className="text-rose-500" aria-label="wymagane">
+                  *
+                </span>
               </label>
               <input
                 ref={firstInputRef}
@@ -394,7 +459,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
             <div>
               <label htmlFor="pb-email" className="block text-sm font-semibold text-dark mb-1.5">
-                Email <span className="text-rose-500" aria-label="wymagane">*</span>
+                Email{' '}
+                <span className="text-rose-500" aria-label="wymagane">
+                  *
+                </span>
               </label>
               <input
                 id="pb-email"
@@ -410,7 +478,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
             <div>
               <label htmlFor="pb-phone" className="block text-sm font-semibold text-dark mb-1.5">
-                Telefon <span className="text-rose-500" aria-label="wymagane">*</span>
+                Telefon{' '}
+                <span className="text-rose-500" aria-label="wymagane">
+                  *
+                </span>
               </label>
               <input
                 id="pb-phone"
@@ -431,7 +502,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
             <div>
               <label htmlFor="pb-nip" className="block text-sm font-semibold text-dark mb-1.5">
-                NIP <span className="text-rose-500" aria-label="wymagane">*</span>
+                NIP{' '}
+                <span className="text-rose-500" aria-label="wymagane">
+                  *
+                </span>
               </label>
               <input
                 id="pb-nip"

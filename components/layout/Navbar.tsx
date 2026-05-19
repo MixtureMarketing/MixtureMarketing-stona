@@ -84,19 +84,25 @@ const Navbar: React.FC = () => {
 
   const isAnyDropdownOpen = activeDropdown !== null;
 
-  // Handle closing menu on route change
+  // Zamknij menu/dropdown TYLKO przy zmianie route'a (nie przy zmianie isOpen).
+  // Wczesniej deps zawieraly isOpen + toggleScroll co powodowalo ze open()
+  // natychmiast zamykal samo siebie (regression). Ref aktualizowany w useEffect
+  // (NIE w render body — react/no-access-state-during-render).
+  const closeMenuRef = useRef<() => void>(() => {});
   useEffect(() => {
-    // Defer state updates to the next tick to avoid cascading renders warning
-    const timer = setTimeout(() => {
+    closeMenuRef.current = () => {
       setActiveDropdown(null);
-      if (isOpen) {
-        setIsOpen(false);
-        toggleScroll(false);
-      }
-    }, 0);
+      setIsOpen((prev) => {
+        if (prev) toggleScroll(false);
+        return false;
+      });
+    };
+  });
 
+  useEffect(() => {
+    const timer = setTimeout(() => closeMenuRef.current(), 0);
     return () => clearTimeout(timer);
-  }, [location.pathname, location.search, toggleScroll, isOpen]);
+  }, [location.pathname, location.search]);
 
   return (
     <header>
@@ -121,7 +127,10 @@ const Navbar: React.FC = () => {
             <div className="lg:hidden flex items-center">
               <button
                 onClick={toggleMenu}
-                className="relative z-[var(--z-header)] text-dark focus:outline-none p-2 w-12 h-12 flex flex-col justify-center items-center gap-1.5 group"
+                /* z-[var(--z-tooltip)] (110) bo Mobile menu ma z-[var(--z-header)] (60)
+                   z fixed inset-0 — bez wyzszego stacking button (zamykajacy X)
+                   byl chowany pod tlem menu. */
+                className="relative z-[var(--z-tooltip)] text-dark focus:outline-none p-2 w-12 h-12 flex flex-col justify-center items-center gap-1.5 group"
                 aria-label={isOpen ? 'Zamknij menu nawigacyjne' : 'Otwórz menu nawigacyjne'}
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"

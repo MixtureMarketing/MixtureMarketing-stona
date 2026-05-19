@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- TODO: split into sub-sections */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -143,12 +142,13 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             </h2>
             <div className="max-w-3xl mx-auto text-gray-600 space-y-4 leading-relaxed">
               <p>
-                <strong>Agencja interaktywna</strong> to firma łącząca trzy światy: kreację (branding,
-                design), technologię (web, mobile, apps) i marketing (performance, content, social).
-                W odróżnieniu od czystej agencji marketingowej (która głównie planuje i prowadzi
-                kampanie) lub czystego software house&apos;u (który koduje), agencja interaktywna
-                bierze klienta &quot;od pomysłu do efektu&quot; — od strategii marki, przez identyfikację
-                wizualną, stronę, aplikację, aż po kampanie generujące ruch.
+                <strong>Agencja interaktywna</strong> to firma łącząca trzy światy: kreację
+                (branding, design), technologię (web, mobile, apps) i marketing (performance,
+                content, social). W odróżnieniu od czystej agencji marketingowej (która głównie
+                planuje i prowadzi kampanie) lub czystego software house&apos;u (który koduje),
+                agencja interaktywna bierze klienta &quot;od pomysłu do efektu&quot; — od strategii
+                marki, przez identyfikację wizualną, stronę, aplikację, aż po kampanie generujące
+                ruch.
               </p>
               <p>
                 Mixture Marketing działa w tej formule od początku. Pracujemy z biura przy Al.
@@ -227,9 +227,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
 
           {/* H2: Dla kogo */}
           <div className="mb-20">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-              Dla kogo pracujemy
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">Dla kogo pracujemy</h2>
             <div className="grid md:grid-cols-2 gap-6 mt-12">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <div className="flex items-center gap-3 mb-4">
@@ -345,12 +343,10 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   <Wrench size={14} />
                   <span>Cluster lokalny</span>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  Szukasz konkretnej usługi?
-                </h3>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">Szukasz konkretnej usługi?</h3>
                 <p className="text-gray-600 mb-6">
-                  Mamy dedykowane podstrony lokalne pod konkretne usługi — szczegółowe cenniki,
-                  case studies i FAQ.
+                  Mamy dedykowane podstrony lokalne pod konkretne usługi — szczegółowe cenniki, case
+                  studies i FAQ.
                 </p>
                 <ul className="space-y-2">
                   <li>
@@ -381,8 +377,8 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   </p>
                   <h4 className="font-bold mb-2">Mixture Marketing w Rzeszowie →</h4>
                   <p className="text-sm text-gray-600">
-                    Strona główna oferty lokalnej — pełna oferta 360° w jednym miejscu, model
-                    pracy z dojazdem do klienta na Podkarpaciu.
+                    Strona główna oferty lokalnej — pełna oferta 360° w jednym miejscu, model pracy
+                    z dojazdem do klienta na Podkarpaciu.
                   </p>
                 </Link>
               </div>
@@ -411,9 +407,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
           <div className="mb-20 bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                  Spotkajmy się w Rzeszowie
-                </h3>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4">Spotkajmy się w Rzeszowie</h3>
                 <p className="text-gray-600 mb-4">
                   Bezpłatna konsultacja (45–60 min) — online (Google Meet / Zoom), u Ciebie w
                   siedzibie lub w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele,
@@ -440,7 +434,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                     {SITE_CONFIG.contact.email}
                   </a>
                 </p>
-                <Button onClick={() => openModal('general', { specificType: 'interactive_rzeszow' })}>
+                <Button
+                  onClick={() => openModal('general', { specificType: 'interactive_rzeszow' })}
+                >
                   Zamów konsultację
                 </Button>
               </div>

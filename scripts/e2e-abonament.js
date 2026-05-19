@@ -40,7 +40,9 @@ const SCREENSHOTS = 'D:/tmp/abonament-e2e';
 
     // Scroll do pricing
     console.log('[3/6] Scrolling to pricing...');
-    await page.evaluate(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'instant', block: 'start' }));
+    await page.evaluate(() =>
+      document.getElementById('pricing')?.scrollIntoView({ behavior: 'instant', block: 'start' }),
+    );
     await new Promise((r) => setTimeout(r, 1000));
     await page.screenshot({ path: `${SCREENSHOTS}-02-pricing.png`, fullPage: false });
 
@@ -81,7 +83,7 @@ const SCREENSHOTS = 'D:/tmp/abonament-e2e';
     // Check consent
     await page.evaluate(() => {
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      if (checkboxes[0]) (checkboxes[0]).click();
+      if (checkboxes[0]) checkboxes[0].click();
     });
     await new Promise((r) => setTimeout(r, 400));
     await page.screenshot({ path: `${SCREENSHOTS}-04-modal-filled.png`, fullPage: false });
@@ -97,7 +99,9 @@ const SCREENSHOTS = 'D:/tmp/abonament-e2e';
 
     // Wait for either Stripe redirect or error message
     const result = await Promise.race([
-      page.waitForFunction(() => window.location.hostname.includes('stripe.com'), { timeout: 15000 }).then(() => 'stripe_redirect'),
+      page
+        .waitForFunction(() => window.location.hostname.includes('stripe.com'), { timeout: 15000 })
+        .then(() => 'stripe_redirect'),
       page.waitForSelector('[role="alert"]', { timeout: 15000 }).then(() => 'error_shown'),
     ]).catch((e) => `timeout: ${e.message}`);
 

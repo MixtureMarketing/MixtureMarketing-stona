@@ -38,10 +38,11 @@ async function runSeoAudit() {
   console.log(`🔍 Found ${htmlFiles.length} pages to audit.`);
 
   for (const filePath of htmlFiles) {
-    const route = filePath
-      .replace(DIST_DIR, '')
-      .replace(/\\/g, '/')
-      .replace(/\/index\.html$/, '') || '/';
+    const route =
+      filePath
+        .replace(DIST_DIR, '')
+        .replace(/\\/g, '/')
+        .replace(/\/index\.html$/, '') || '/';
 
     const html = fs.readFileSync(filePath, 'utf8');
     const dom = new JSDOM(html);

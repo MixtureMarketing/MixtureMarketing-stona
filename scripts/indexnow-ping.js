@@ -11,8 +11,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const KEY = 'aa29ae7090739ce39b53f5f06e8348ce';
-const HOST = 'mixturemarketing.pl';
+
+// IndexNow key — z definicji PUBLIC (musi byc weryfikowalny pod
+// https://${HOST}/${KEY}.txt). GitHub secret scanning daje false positive,
+// dlatego trzymamy w env var. Wartosc nadal jest jawna na produkcji.
+// Setup: INDEXNOW_KEY=... w .env.local + CF Pages env (build-time tylko).
+const KEY = process.env.INDEXNOW_KEY;
+if (!KEY) {
+  console.warn('IndexNow: INDEXNOW_KEY env var not set, skipping ping');
+  process.exit(0);
+}
+const HOST = process.env.INDEXNOW_HOST || 'mixturemarketing.pl';
 const SITEMAP_PATH = path.resolve(__dirname, '../public/sitemap.xml');
 const KEY_LOCATION = `https://${HOST}/${KEY}.txt`;
 

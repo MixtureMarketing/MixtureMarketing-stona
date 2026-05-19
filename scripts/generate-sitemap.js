@@ -97,10 +97,18 @@ async function generateSitemap() {
   let dynamicEntries = [];
   try {
     const [articles, industries, locations, projects] = await Promise.all([
-      sanityClient.fetch('*[_type == "article" && defined(slug.current)]{ "slug": slug.current, _updatedAt, mainImage }'),
-      sanityClient.fetch('*[_type == "industry" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
-      sanityClient.fetch('*[_type == "location" && defined(slug.current)]{ "slug": slug.current, _updatedAt }'),
-      sanityClient.fetch('*[_type == "caseStudy" && defined(slug.current)]{ "slug": slug.current, _updatedAt, title, "imageRef": gallery[0].asset._ref }'),
+      sanityClient.fetch(
+        '*[_type == "article" && defined(slug.current)]{ "slug": slug.current, _updatedAt, mainImage }',
+      ),
+      sanityClient.fetch(
+        '*[_type == "industry" && defined(slug.current)]{ "slug": slug.current, _updatedAt }',
+      ),
+      sanityClient.fetch(
+        '*[_type == "location" && defined(slug.current)]{ "slug": slug.current, _updatedAt }',
+      ),
+      sanityClient.fetch(
+        '*[_type == "caseStudy" && defined(slug.current)]{ "slug": slug.current, _updatedAt, title, "imageRef": gallery[0].asset._ref }',
+      ),
     ]);
 
     // Helper: zbuduj URL obrazu z Sanity asset ref.
@@ -180,9 +188,12 @@ ${allEntries
     let inner = `    <loc>${xmlEscape(entry.url)}</loc>\n    <lastmod>${entry.lastmod}</lastmod>`;
     if (entry.image && entry.image.loc) {
       inner += `\n    <image:image>\n      <image:loc>${xmlEscape(entry.image.loc)}</image:loc>`;
-      if (entry.image.title) inner += `\n      <image:title>${xmlEscape(entry.image.title)}</image:title>`;
-      if (entry.image.caption) inner += `\n      <image:caption>${xmlEscape(entry.image.caption)}</image:caption>`;
-      if (entry.image.geo) inner += `\n      <image:geo_location>${xmlEscape(entry.image.geo)}</image:geo_location>`;
+      if (entry.image.title)
+        inner += `\n      <image:title>${xmlEscape(entry.image.title)}</image:title>`;
+      if (entry.image.caption)
+        inner += `\n      <image:caption>${xmlEscape(entry.image.caption)}</image:caption>`;
+      if (entry.image.geo)
+        inner += `\n      <image:geo_location>${xmlEscape(entry.image.geo)}</image:geo_location>`;
       inner += `\n    </image:image>`;
     }
     return `  <url>\n${inner}\n  </url>`;

@@ -5,30 +5,34 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { ModalProvider } from './context/ModalContext';
 import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
+import { trackEvent } from './utils/analytics';
 import './index.css';
 
 // Performance Monitoring (Real User Metrics)
+// Wczesniej wysylane do /api/rum-collect.php (Apache PHP backend). Po migracji na
+// CF Pages PHP nie istnieje — endpoint zwracal 405. Teraz: forwardujemy do GA4
+// przez Cloudflare Zaraz wrapper (trackEvent). Naming: 'web_vital_lcp' itp.
 function reportWebVitals(metric: Metric) {
   const { name, value, id, delta } = metric;
 
-  // Skip RUM if prerendering (build time) to avoid console errors
+  // Skip podczas prerenderu (Puppeteer/build) — brak window/zaraz wtedy
   if (window.isPrerendering) return;
 
-  // Local log only in DEV
+  // Local log w DEV
   if (import.meta.env.DEV) {
     const color = value > 2500 ? 'color: #ff4d4f' : 'color: #52c41a';
     console.log(`%c[RUM] ${name}: ${Math.round(value)}ms`, color, { id, delta });
+    return;
   }
 
-  // Placeholder for future GA4 ingestion
-  if (import.meta.env.PROD) {
-    const body = JSON.stringify({ name, value, id, delta, url: window.location.href });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon('/api/rum-collect.php', body);
-    } else {
-      fetch('/api/rum-collect.php', { body, method: 'POST', keepalive: true });
-    }
-  }
+  // Production: forward do GA4 via Zaraz
+  trackEvent(`web_vital_${name.toLowerCase()}`, {
+    metric_name: name,
+    metric_value: Math.round(value),
+    metric_delta: Math.round(delta),
+    metric_id: id,
+    page_path: window.location.pathname,
+  });
 }
 
 // Initialize vitals

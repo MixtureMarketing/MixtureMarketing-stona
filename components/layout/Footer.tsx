@@ -122,10 +122,7 @@ const Footer: React.FC = () => {
             showCalculator
           />
 
-          <FooterLinks
-            title={CONTENT.columns.local.title}
-            links={CONTENT.columns.local.links}
-          />
+          <FooterLinks title={CONTENT.columns.local.title} links={CONTENT.columns.local.links} />
 
           <FooterLinks
             title={CONTENT.columns.company.title}

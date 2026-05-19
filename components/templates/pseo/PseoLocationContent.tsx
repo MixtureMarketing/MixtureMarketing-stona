@@ -182,9 +182,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Mobilnie po Rzeszowie i Podkarpaciu</h3>
               <p className="text-gray-600">
-                Adres rejestrowy: Al. Józefa Piłsudskiego 17/4, centrum Rzeszowa. Pracujemy
-                mobilnie — preferujemy spotkania u klienta z dojazdem na terenie Rzeszowa i
-                Podkarpacia, alternatywnie kawiarnia / coworking w centrum miasta lub online.
+                Adres rejestrowy: Al. Józefa Piłsudskiego 17/4, centrum Rzeszowa. Pracujemy mobilnie
+                — preferujemy spotkania u klienta z dojazdem na terenie Rzeszowa i Podkarpacia,
+                alternatywnie kawiarnia / coworking w centrum miasta lub online.
               </p>
             </div>
           </div>
@@ -198,8 +198,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 </p>
                 <p className="text-gray-600">
                   Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego
-                  Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni
-                  lub przestrzeni coworkingowej w centrum miasta, albo online.
+                  Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni lub
+                  przestrzeni coworkingowej w centrum miasta, albo online.
                 </p>
               </div>
               <div>
@@ -215,10 +215,10 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               <div>
                 <p className="font-semibold text-dark mb-1">Jak wygląda pierwsza konsultacja?</p>
                 <p className="text-gray-600">
-                  Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w
-                  siedzibie albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele
-                  biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez
-                  zobowiązań i bez sztywnej oferty na siłę.
+                  Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w siedzibie
+                  albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele biznesowe,
+                  sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i
+                  bez sztywnej oferty na siłę.
                 </p>
               </div>
               <div>
@@ -268,14 +268,14 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Jak wybrać agencję marketingową w Rzeszowie?
                 </p>
                 <p className="text-gray-600">
-                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania
-                  na żywo na terenie miasta (u klienta lub w neutralnej lokalizacji), (2) czy
-                  posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje
-                  web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4)
-                  czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną
-                  konsultację. Mixture Marketing spełnia wszystkie kryteria — model pracy oparty
-                  na dojeździe do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z
-                  Mielca i Stalowej Woli, wycena widełkowa od pierwszego maila.
+                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania na
+                  żywo na terenie miasta (u klienta lub w neutralnej lokalizacji), (2) czy posiada
+                  portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web
+                  development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy
+                  podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną
+                  konsultację. Mixture Marketing spełnia wszystkie kryteria — model pracy oparty na
+                  dojeździe do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z Mielca i
+                  Stalowej Woli, wycena widełkowa od pierwszego maila.
                 </p>
               </div>
               <div>
@@ -428,9 +428,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
               Pracujemy w modelu mobilnym: dojeżdżamy do klienta na terenie Rzeszowa i całego
-              Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Adres
-              rejestrowy: Al. Józefa Piłsudskiego 17/4 — używamy go również jako punkt orientacyjny
-              przy spotkaniach w centrum miasta.
+              Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Adres rejestrowy:
+              Al. Józefa Piłsudskiego 17/4 — używamy go również jako punkt orientacyjny przy
+              spotkaniach w centrum miasta.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -450,8 +450,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                     <h3 className="font-bold mb-1">Spotkanie u Ciebie</h3>
                     <p className="text-sm text-gray-600">
                       Standardowo dojeżdżamy do siedziby klienta — Rzeszów, Mielec, Stalowa Wola,
-                      Krosno, Przemyśl, Dębica, Jasło i cały region. Bez dodatkowych opłat za
-                      dojazd w obrębie Podkarpacia.
+                      Krosno, Przemyśl, Dębica, Jasło i cały region. Bez dodatkowych opłat za dojazd
+                      w obrębie Podkarpacia.
                     </p>
                   </div>
                 </div>
@@ -463,9 +463,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   <div>
                     <h3 className="font-bold mb-1">Neutralna lokalizacja w Rzeszowie</h3>
                     <p className="text-sm text-gray-600">
-                      Możemy spotkać się w wybranej kawiarni lub przestrzeni coworkingowej w
-                      centrum Rzeszowa (5 min od Dworca PKP). Wskazujemy konkretne miejsce po
-                      ustaleniu terminu.
+                      Możemy spotkać się w wybranej kawiarni lub przestrzeni coworkingowej w centrum
+                      Rzeszowa (5 min od Dworca PKP). Wskazujemy konkretne miejsce po ustaleniu
+                      terminu.
                     </p>
                   </div>
                 </div>
@@ -477,8 +477,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   <div>
                     <h3 className="font-bold mb-1">Godziny pracy zespołu</h3>
                     <p className="text-sm text-gray-600">
-                      Poniedziałek–Piątek 9:00–17:00. Spotkania (na żywo lub online — Google Meet
-                      / Zoom) ustalamy wcześniej mailem lub telefonicznie.
+                      Poniedziałek–Piątek 9:00–17:00. Spotkania (na żywo lub online — Google Meet /
+                      Zoom) ustalamy wcześniej mailem lub telefonicznie.
                     </p>
                   </div>
                 </div>
@@ -495,8 +495,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             Dla kogo pracujemy w Rzeszowie i na Podkarpaciu
           </h2>
           <p className="text-center text-gray-600 mb-10 max-w-3xl mx-auto">
-            Specjalizujemy się w branżach, które dominują w gospodarce Podkarpacia — od produkcji
-            i lotnictwa, przez handel internetowy, po lokalne firmy usługowe i software house'y.
+            Specjalizujemy się w branżach, które dominują w gospodarce Podkarpacia — od produkcji i
+            lotnictwa, przez handel internetowy, po lokalne firmy usługowe i software house'y.
           </p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
@@ -608,7 +608,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
                   </span>
-                  Nowość · od 149 zł/mc
+                  Nowość · od 179 zł/mc
                 </span>
                 <h3 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
                   Strona w abonamencie dla firm z Rzeszowa

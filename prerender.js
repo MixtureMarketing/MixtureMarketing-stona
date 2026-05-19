@@ -81,9 +81,7 @@ async function processRoute(browser, critters, route) {
       await page.waitForFunction(
         (placeholder) => {
           const titleOk = document.title && document.title !== placeholder;
-          const canonical = document.querySelector(
-            'link[rel="canonical"][data-rh="true"]',
-          );
+          const canonical = document.querySelector('link[rel="canonical"][data-rh="true"]');
           const metaDesc = document.querySelector('meta[name="description"][data-rh="true"]');
           return titleOk && canonical && metaDesc;
         },

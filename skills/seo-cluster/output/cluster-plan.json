@@ -181,7 +181,11 @@
         "intent": "Informational",
         "funnel_stage": "BOFU",
         "word_count_target": { "min": 1000, "max": 1200 },
-        "outbound_links": ["/miasto/rzeszow/", "/marketing/seo/rzeszow/", "/web-development/rzeszow/"]
+        "outbound_links": [
+          "/miasto/rzeszow/",
+          "/marketing/seo/rzeszow/",
+          "/web-development/rzeszow/"
+        ]
       },
       {
         "id": "art-ile-kosztuje-strona",
@@ -190,7 +194,11 @@
         "intent": "Informational",
         "funnel_stage": "MOFU",
         "word_count_target": { "min": 1200, "max": 1500 },
-        "outbound_links": ["/web-development/rzeszow/", "/miasto/rzeszow/", "/web-development/landing-page/"]
+        "outbound_links": [
+          "/web-development/rzeszow/",
+          "/miasto/rzeszow/",
+          "/web-development/landing-page/"
+        ]
       },
       {
         "id": "art-bledy-podkarpacie",
@@ -205,35 +213,123 @@
   },
   "link_matrix": {
     "mandatory_bidirectional": [
-      { "from": "/miasto/rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie stron w Rzeszowie" },
-      { "from": "/miasto/rzeszow/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron internetowych Rzeszów" },
-      { "from": "/miasto/rzeszow/", "to": "/miasto/rzeszow/agencja-interaktywna/", "anchor": "agencja interaktywna Rzeszów" },
-      { "from": "/miasto/rzeszow/", "to": "/miasto/rzeszow/agencja-reklamowa/", "anchor": "usługi reklamowe w Rzeszowie" },
-      { "from": "/marketing/seo/rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/web-development/rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/miasto/rzeszow/agencja-interaktywna/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/miasto/rzeszow/agencja-reklamowa/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" }
+      {
+        "from": "/miasto/rzeszow/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "pozycjonowanie stron w Rzeszowie"
+      },
+      {
+        "from": "/miasto/rzeszow/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "tworzenie stron internetowych Rzeszów"
+      },
+      {
+        "from": "/miasto/rzeszow/",
+        "to": "/miasto/rzeszow/agencja-interaktywna/",
+        "anchor": "agencja interaktywna Rzeszów"
+      },
+      {
+        "from": "/miasto/rzeszow/",
+        "to": "/miasto/rzeszow/agencja-reklamowa/",
+        "anchor": "usługi reklamowe w Rzeszowie"
+      },
+      {
+        "from": "/marketing/seo/rzeszow/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/web-development/rzeszow/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/miasto/rzeszow/agencja-interaktywna/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/miasto/rzeszow/agencja-reklamowa/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      }
     ],
     "recommended_spoke_to_spoke": [
-      { "from": "/web-development/rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie nowej strony w Rzeszowie" },
-      { "from": "/marketing/seo/rzeszow/", "to": "/web-development/rzeszow/", "anchor": "strony internetowe zoptymalizowane pod SEO" },
-      { "from": "/web-development/rzeszow/", "to": "/miasto/rzeszow/agencja-interaktywna/", "anchor": "kompleksowa obsługa digital w Rzeszowie" },
-      { "from": "/miasto/rzeszow/agencja-reklamowa/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie jako element strategii reklamowej" },
-      { "from": "/miasto/rzeszow/agencja-interaktywna/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron www Rzeszów" }
+      {
+        "from": "/web-development/rzeszow/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "pozycjonowanie nowej strony w Rzeszowie"
+      },
+      {
+        "from": "/marketing/seo/rzeszow/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "strony internetowe zoptymalizowane pod SEO"
+      },
+      {
+        "from": "/web-development/rzeszow/",
+        "to": "/miasto/rzeszow/agencja-interaktywna/",
+        "anchor": "kompleksowa obsługa digital w Rzeszowie"
+      },
+      {
+        "from": "/miasto/rzeszow/agencja-reklamowa/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "pozycjonowanie jako element strategii reklamowej"
+      },
+      {
+        "from": "/miasto/rzeszow/agencja-interaktywna/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "tworzenie stron www Rzeszów"
+      }
     ],
     "optional_from_parent_pages": [
       { "from": "/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/marketing/seo/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie lokalne Rzeszów" },
-      { "from": "/web-development/", "to": "/web-development/rzeszow/", "anchor": "strony internetowe dla firm z Rzeszowa" }
+      {
+        "from": "/marketing/seo/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "pozycjonowanie lokalne Rzeszów"
+      },
+      {
+        "from": "/web-development/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "strony internetowe dla firm z Rzeszowa"
+      }
     ],
     "from_articles": [
-      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "agencja SEO Rzeszów" },
-      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron Rzeszów" },
-      { "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron internetowych Rzeszów" },
-      { "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
-      { "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie Rzeszów" }
+      {
+        "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "agencja SEO Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "tworzenie stron Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/",
+        "to": "/web-development/rzeszow/",
+        "anchor": "tworzenie stron internetowych Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/",
+        "to": "/miasto/rzeszow/",
+        "anchor": "agencja marketingowa Rzeszów"
+      },
+      {
+        "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/",
+        "to": "/marketing/seo/rzeszow/",
+        "anchor": "pozycjonowanie Rzeszów"
+      }
     ]
   },
   "validation": {

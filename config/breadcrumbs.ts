@@ -30,6 +30,5 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/baza-wiedzy/edge-computing': 'Edge Computing',
   '/baza-wiedzy/core-web-vitals-2025': 'Core Web Vitals 2025',
   '/baza-wiedzy/google-ads-skalowanie-budzetu': 'Google Ads - Skalowanie',
-  '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026':
-    'Ile kosztuje strona Rzeszów 2026',
+  '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026': 'Ile kosztuje strona Rzeszów 2026',
 };

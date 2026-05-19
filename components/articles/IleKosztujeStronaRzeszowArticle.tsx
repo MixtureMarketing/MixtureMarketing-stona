@@ -36,7 +36,12 @@ const PRICING_TIERS = [
     border: 'border-blue-100',
     chip: 'bg-blue-100 text-blue-800',
     desc: 'Konwersyjna 1-strona pod kampanię Ads. Hero, CTA, oferta, dowody społeczne, formularz.',
-    includes: ['Copywriting bazowy', 'Schema.org + SEO on-page', 'Core Web Vitals audit', '1 wersja językowa'],
+    includes: [
+      'Copywriting bazowy',
+      'Schema.org + SEO on-page',
+      'Core Web Vitals audit',
+      '1 wersja językowa',
+    ],
   },
   {
     icon: Layers,
@@ -47,7 +52,12 @@ const PRICING_TIERS = [
     border: 'border-violet-100',
     chip: 'bg-violet-100 text-violet-800',
     desc: 'Pełna witryna 5–15 podstron + CMS (WordPress lub Sanity). Blog, formularze, integracje.',
-    includes: ['CMS dla zespołu non-tech', 'Blog z taxonomy', 'Schema LocalBusiness', 'Mailing integration'],
+    includes: [
+      'CMS dla zespołu non-tech',
+      'Blog z taxonomy',
+      'Schema LocalBusiness',
+      'Mailing integration',
+    ],
     featured: true,
   },
   {
@@ -59,7 +69,12 @@ const PRICING_TIERS = [
     border: 'border-emerald-100',
     chip: 'bg-emerald-100 text-emerald-700',
     desc: 'Shoper, WooCommerce lub dedykowany Next.js + Sanity. Płatności + kurierzy + analityka.',
-    includes: ['Do 100 SKU w cenie', 'Bramki płatności + kurierzy', 'Product schema', 'GA4 e-commerce'],
+    includes: [
+      'Do 100 SKU w cenie',
+      'Bramki płatności + kurierzy',
+      'Product schema',
+      'GA4 e-commerce',
+    ],
   },
   {
     icon: Cpu,
@@ -70,7 +85,12 @@ const PRICING_TIERS = [
     border: 'border-orange-100',
     chip: 'bg-orange-100 text-orange-700',
     desc: 'SaaS, portal klienta, system rezerwacji, panel B2B, dashboard z autoryzacją.',
-    includes: ['MVP w 6 tygodni', 'OAuth/JWT auth', 'Custom backend API', 'Skalowanie infrastruktury'],
+    includes: [
+      'MVP w 6 tygodni',
+      'OAuth/JWT auth',
+      'Custom backend API',
+      'Skalowanie infrastruktury',
+    ],
   },
 ];
 
@@ -110,9 +130,21 @@ const COST_FACTORS = [
 ];
 
 const ECOMMERCE_TIERS = [
-  { range: 'do 100 SKU', price: 'od 12 000 zł', detail: 'Shoper / WooCommerce, gotowe motywy + customization' },
-  { range: '100–500 SKU + filtry', price: '18 000–30 000 zł', detail: 'Filtry zaawansowane, atrybuty, warianty produktowe' },
-  { range: '500+ SKU + ERP / B2B', price: 'od 40 000 zł', detail: 'Integracja z ERP, hurtownie, ceny per-klient' },
+  {
+    range: 'do 100 SKU',
+    price: 'od 12 000 zł',
+    detail: 'Shoper / WooCommerce, gotowe motywy + customization',
+  },
+  {
+    range: '100–500 SKU + filtry',
+    price: '18 000–30 000 zł',
+    detail: 'Filtry zaawansowane, atrybuty, warianty produktowe',
+  },
+  {
+    range: '500+ SKU + ERP / B2B',
+    price: 'od 40 000 zł',
+    detail: 'Integracja z ERP, hurtownie, ceny per-klient',
+  },
 ];
 
 const MISTAKES = [
@@ -139,11 +171,17 @@ const MISTAKES = [
 ];
 
 const CONTRACT_CHECKLIST = [
-  { title: 'Przeniesienie praw autorskich', desc: 'Do kodu i grafiki — nie tylko licencja użytkowania.' },
+  {
+    title: 'Przeniesienie praw autorskich',
+    desc: 'Do kodu i grafiki — nie tylko licencja użytkowania.',
+  },
   { title: 'Dostęp do CMS i hostingu', desc: 'Jako administrator — nie tylko jako edytor.' },
   { title: 'Eksport bazy danych', desc: 'Klauzula portability — kopia .sql + obrazy na życzenie.' },
   { title: 'Gwarancja 30–90 dni', desc: 'Bezpłatne poprawki błędów po wdrożeniu.' },
-  { title: 'SLA opieki pogwarancyjnej', desc: 'Gwarantowany czas reakcji na błąd krytyczny (np. 4h).' },
+  {
+    title: 'SLA opieki pogwarancyjnej',
+    desc: 'Gwarantowany czas reakcji na błąd krytyczny (np. 4h).',
+  },
   { title: 'Audyt Core Web Vitals', desc: 'LCP < 2.5s, INP < 200ms, CLS < 0.1 przed odebraniem.' },
 ];
 
@@ -181,7 +219,9 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
                     Najczęściej
                   </div>
                 )}
-                <div className={`w-12 h-12 ${t.chip} rounded-xl flex items-center justify-center mb-4`}>
+                <div
+                  className={`w-12 h-12 ${t.chip} rounded-xl flex items-center justify-center mb-4`}
+                >
                   <t.icon size={24} />
                 </div>
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
@@ -204,8 +244,8 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
           W skrócie: <strong className="text-dark">landing page od 3 900 zł</strong>, strona firmowa
           z CMS <strong className="text-dark">od 7 500 zł</strong>, sklep internetowy{' '}
           <strong className="text-dark">od 12 000 zł</strong>, dedykowana aplikacja webowa{' '}
-          <strong className="text-dark">od 25 000 zł</strong>. Poniżej — co realnie wpływa na finalną
-          cenę i jak czytać oferty agencji z Rzeszowa, żeby nie zapłacić dwa razy.
+          <strong className="text-dark">od 25 000 zł</strong>. Poniżej — co realnie wpływa na
+          finalną cenę i jak czytać oferty agencji z Rzeszowa, żeby nie zapłacić dwa razy.
         </p>
       </AnimateOnScroll>
 
@@ -232,7 +272,9 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
               className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all"
             >
               <div className="flex flex-col md:flex-row md:items-start gap-6">
-                <div className={`w-16 h-16 ${t.chip} rounded-2xl flex items-center justify-center shrink-0`}>
+                <div
+                  className={`w-16 h-16 ${t.chip} rounded-2xl flex items-center justify-center shrink-0`}
+                >
                   <t.icon size={28} />
                 </div>
                 <div className="flex-1">
@@ -275,7 +317,9 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
               className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary/30 transition-all"
             >
               <div className="flex items-start gap-4 mb-3">
-                <div className={`w-12 h-12 ${f.bg} ${f.color} rounded-xl flex items-center justify-center shrink-0`}>
+                <div
+                  className={`w-12 h-12 ${f.bg} ${f.color} rounded-xl flex items-center justify-center shrink-0`}
+                >
                   <f.icon size={24} />
                 </div>
                 <div className="flex-1">
@@ -319,7 +363,9 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
                 <tr key={t.range} className="hover:bg-blue-50/30 transition-colors">
                   <td className="px-6 py-4 font-semibold text-dark">{t.range}</td>
                   <td className="px-6 py-4 font-extrabold text-secondary text-lg">{t.price}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">{t.detail}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600 hidden md:table-cell">
+                    {t.detail}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -578,7 +624,9 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
               className={`bg-gradient-to-br ${r.color} p-6 rounded-2xl border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all group no-underline`}
             >
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 ${r.chip} rounded-xl flex items-center justify-center shrink-0`}>
+                <div
+                  className={`w-12 h-12 ${r.chip} rounded-xl flex items-center justify-center shrink-0`}
+                >
                   <r.icon size={22} />
                 </div>
                 <div className="flex-1">
