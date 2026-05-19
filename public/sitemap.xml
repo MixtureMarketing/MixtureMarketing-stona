@@ -4,6 +4,12 @@
   <url>
     <loc>https://mixturemarketing.pl/</loc>
     <lastmod>2026-05-19</lastmod>
+    <image:image>
+      <image:loc>https://mixturemarketing.pl/assets/images/sygnet.png</image:loc>
+      <image:title>Mixture Marketing — Agencja Marketingowa Rzeszów</image:title>
+      <image:caption>Biuro Mixture Marketing przy Al. Józefa Piłsudskiego 17/4 w Rzeszowie</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
+    </image:image>
   </url>
   <url>
     <loc>https://mixturemarketing.pl/offers/</loc>
@@ -16,6 +22,12 @@
   <url>
     <loc>https://mixturemarketing.pl/o-nas/</loc>
     <lastmod>2026-05-19</lastmod>
+    <image:image>
+      <image:loc>https://mixturemarketing.pl/assets/images/sygnet.png</image:loc>
+      <image:title>Zespół Mixture Marketing — Rzeszów</image:title>
+      <image:caption>Eksperci web development, SEO i marketingu z biura w Rzeszowie</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
+    </image:image>
   </url>
   <url>
     <loc>https://mixturemarketing.pl/privacy-policy/</loc>
@@ -52,6 +64,12 @@
   <url>
     <loc>https://mixturemarketing.pl/web-development/rzeszow/</loc>
     <lastmod>2026-05-19</lastmod>
+    <image:image>
+      <image:loc>https://mixturemarketing.pl/assets/images/sygnet.png</image:loc>
+      <image:title>Tworzenie stron internetowych Rzeszów</image:title>
+      <image:caption>Strony WWW, sklepy, aplikacje dla firm z Rzeszowa i Podkarpacia</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
+    </image:image>
   </url>
   <url>
     <loc>https://mixturemarketing.pl/marketing/</loc>
@@ -70,7 +88,31 @@
     <lastmod>2026-05-19</lastmod>
   </url>
   <url>
+    <loc>https://mixturemarketing.pl/marketing/seo/rzeszow/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <image:image>
+      <image:loc>https://mixturemarketing.pl/assets/images/sygnet.png</image:loc>
+      <image:title>Pozycjonowanie stron Rzeszów</image:title>
+      <image:caption>Agencja SEO Rzeszów — lokalne i ogólnopolskie pozycjonowanie</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
+    </image:image>
+  </url>
+  <url>
     <loc>https://mixturemarketing.pl/marketing/analytics/</loc>
+    <lastmod>2026-05-19</lastmod>
+  </url>
+  <url>
+    <loc>https://mixturemarketing.pl/agencja-interaktywna-rzeszow/</loc>
+    <lastmod>2026-05-19</lastmod>
+    <image:image>
+      <image:loc>https://mixturemarketing.pl/assets/images/sygnet.png</image:loc>
+      <image:title>Agencja interaktywna Rzeszów</image:title>
+      <image:caption>Branding, web, marketing pod jednym dachem w Rzeszowie</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://mixturemarketing.pl/abonament/</loc>
     <lastmod>2026-05-19</lastmod>
   </url>
   <url>
@@ -123,6 +165,10 @@
   </url>
   <url>
     <loc>https://mixturemarketing.pl/baza-wiedzy/google-ads-skalowanie-budzetu/</loc>
+    <lastmod>2026-05-19</lastmod>
+  </url>
+  <url>
+    <loc>https://mixturemarketing.pl/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/</loc>
     <lastmod>2026-05-19</lastmod>
   </url>
   <url>
@@ -291,6 +337,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/e37f6f08c414bd3f5d4cd2aa8e5af9a108b58db0-1918x986.png</image:loc>
       <image:title>Impackt Edu – Platforma Edukacyjno-Turystyczna i Grands Google</image:title>
+      <image:caption>Realizacja Mixture Marketing — Impackt Edu – Platforma Edukacyjno-Turystyczna i Grands Google</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
   <url>
@@ -299,6 +347,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/ae9e04fb0063d032d52516a80ee184e32751736f-1309x492.png</image:loc>
       <image:title>Driftmark Marine – E-commerce z Konfiguratorem Łodzi i Rebranding</image:title>
+      <image:caption>Realizacja Mixture Marketing — Driftmark Marine – E-commerce z Konfiguratorem Łodzi i Rebranding</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
   <url>
@@ -307,6 +357,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/d5342431bcbf917e58e8aa487f42077f817f005d-1344x1574.png</image:loc>
       <image:title>BDB Biuro – Strona i  Zaawansowane Kalkulatory Finansowe</image:title>
+      <image:caption>Realizacja Mixture Marketing — BDB Biuro – Strona i  Zaawansowane Kalkulatory Finansowe</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
   <url>
@@ -315,6 +367,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/5649e197640665b817ef110ec66d54496d341be3-1920x1040.png</image:loc>
       <image:title>High-performance Landing Page dla aplikacji mobilnej PickMe</image:title>
+      <image:caption>Realizacja Mixture Marketing — High-performance Landing Page dla aplikacji mobilnej PickMe</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
   <url>
@@ -323,6 +377,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/7544ca15a74d562de564ab670f45add3d253cda4-548x896.png</image:loc>
       <image:title>FBX – Redesign Aplikacji Ogłoszeniowej i Kampania Performance</image:title>
+      <image:caption>Realizacja Mixture Marketing — FBX – Redesign Aplikacji Ogłoszeniowej i Kampania Performance</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
   <url>
@@ -335,6 +391,8 @@
     <image:image>
       <image:loc>https://cdn.sanity.io/images/azuef2ua/production/2e6a19986b2b651a6fa64aef0dc676a519da9c03-1920x3315.png</image:loc>
       <image:title>KorepetytorAI (StudentPI) – Inteligentna Platforma do Nauki Matematyki</image:title>
+      <image:caption>Realizacja Mixture Marketing — KorepetytorAI (StudentPI) – Inteligentna Platforma do Nauki Matematyki</image:caption>
+      <image:geo_location>Rzeszów, Podkarpacie, Polska</image:geo_location>
     </image:image>
   </url>
 </urlset>

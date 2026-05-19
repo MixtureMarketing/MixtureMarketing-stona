@@ -51,17 +51,50 @@ const Footer: React.FC = () => {
       latitude: 50.041187,
       longitude: 21.999116,
     },
+    location: {
+      '@type': 'Place',
+      '@id': SITE_CONFIG.domain + '/#office',
+      name: SITE_CONFIG.name + ' — Biuro Rzeszów',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: SITE_CONFIG.contact.address.street,
+        addressLocality: SITE_CONFIG.contact.address.city,
+        postalCode: SITE_CONFIG.contact.address.postalCode,
+        addressCountry: SITE_CONFIG.contact.address.countryCode,
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 50.041187,
+        longitude: 21.999116,
+      },
+      hasMap:
+        'https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w',
+    },
+    hasMap:
+      'https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w',
     areaServed: [
       { '@type': 'Country', name: 'Polska' },
       { '@type': 'City', name: 'Rzeszów' },
       { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
+      { '@type': 'City', name: 'Mielec' },
+      { '@type': 'City', name: 'Stalowa Wola' },
+      { '@type': 'City', name: 'Krosno' },
+      { '@type': 'City', name: 'Przemyśl' },
+      { '@type': 'City', name: 'Dębica' },
+      { '@type': 'City', name: 'Jasło' },
     ],
-    openingHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '09:00',
-      closes: '17:00',
-    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '09:00',
+        closes: '17:00',
+        validFrom: '2024-01-01',
+        validThrough: '2030-12-31',
+      },
+    ],
+    paymentAccepted: 'Przelew bankowy, Faktura VAT',
+    currenciesAccepted: 'PLN, EUR, USD',
     sameAs: [
       SITE_CONFIG.social.linkedin,
       SITE_CONFIG.social.facebook,
@@ -90,12 +123,17 @@ const Footer: React.FC = () => {
           />
 
           <FooterLinks
+            title={CONTENT.columns.local.title}
+            links={CONTENT.columns.local.links}
+          />
+
+          <FooterLinks
             title={CONTENT.columns.company.title}
             links={CONTENT.columns.company.links}
             onScroll={handleScrollTo}
           />
 
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-3">
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-8">
               {CONTENT.columns.community.title}
             </h3>

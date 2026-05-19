@@ -1,5 +1,15 @@
 import React from 'react';
-import { LucideIcon, FileText, Share2, Facebook, Linkedin, Link as LinkIcon } from 'lucide-react';
+import {
+  LucideIcon,
+  FileText,
+  Share2,
+  Facebook,
+  Linkedin,
+  Link as LinkIcon,
+  Calendar,
+  User as UserIcon,
+} from 'lucide-react';
+import { Link as RouterLink } from 'react-router-dom';
 import Seo from '../common/Seo';
 import AmbientBackground from '../common/AmbientBackground';
 import Breadcrumbs from '../common/Breadcrumbs';
@@ -19,7 +29,16 @@ interface ArticleShellProps {
   heroVisual?: React.ReactNode;
   children: React.ReactNode;
   slug: string;
+  author?: { name: string; role?: string; url?: string };
+  publishedDate?: string;
+  updatedDate?: string;
 }
+
+const DEFAULT_AUTHOR = {
+  name: 'Zespół Mixture Marketing',
+  role: 'Eksperci SEO & Web Development',
+  url: '/o-nas/',
+};
 
 const ArticleShell: React.FC<ArticleShellProps> = ({
   id = 'default-article',
@@ -33,6 +52,9 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   heroVisual,
   children,
   slug,
+  author = DEFAULT_AUTHOR,
+  publishedDate,
+  updatedDate,
 }: ArticleShellProps) => {
   const titleStr = typeof title === 'string' ? title : '';
   const titleParts = titleStr.includes(':') ? titleStr.split(':') : [titleStr, ''];
@@ -46,6 +68,46 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   ];
 
   const shareUrl = `https://mixturemarketing.pl${slug}`;
+  const baseUrl = 'https://mixturemarketing.pl';
+  const isoPublished = publishedDate
+    ? new Date(publishedDate).toISOString()
+    : new Date('2025-01-01').toISOString();
+  const isoUpdated = updatedDate ? new Date(updatedDate).toISOString() : isoPublished;
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: titleStr,
+    description,
+    image: [`${baseUrl}${image}`, `${baseUrl}/assets/images/sygnet.png`],
+    author: {
+      '@type': 'Person',
+      name: author.name,
+      ...(author.role && { jobTitle: author.role }),
+      url: `${baseUrl}${author.url || '/o-nas/'}`,
+      worksFor: {
+        '@type': 'Organization',
+        name: 'Mixture Marketing',
+        url: baseUrl,
+      },
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Mixture Marketing',
+      logo: { '@type': 'ImageObject', url: `${baseUrl}/assets/images/sygnet.png` },
+    },
+    datePublished: isoPublished,
+    dateModified: isoUpdated,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${slug}` },
+    articleSection: categoryLabel,
+  };
+
+  const formatPL = (iso: string) =>
+    new Date(iso).toLocaleDateString('pl-PL', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
   const shareActions = [
     {
@@ -78,6 +140,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
         image={image}
         type="article"
         breadcrumbs={breadcrumbs}
+        jsonLd={articleJsonLd}
       />
 
       <AmbientBackground />
@@ -132,6 +195,29 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
             <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
               {description}
             </p>
+
+            {/* Author byline — sygnal E-E-A-T (Expertise, Authoritativeness) dla Google + AI search */}
+            <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-600">
+              <RouterLink
+                to={author.url || '/o-nas/'}
+                className="inline-flex items-center gap-2 hover:text-primary transition-colors"
+                rel="author"
+              >
+                <UserIcon size={14} className="text-primary" />
+                <span className="font-semibold text-dark">{author.name}</span>
+                {author.role && <span className="text-gray-500">· {author.role}</span>}
+              </RouterLink>
+              <span className="hidden sm:inline text-gray-300">|</span>
+              <span className="inline-flex items-center gap-2">
+                <Calendar size={14} className="text-gray-400" />
+                <time dateTime={isoPublished}>{formatPL(isoPublished)}</time>
+                {isoUpdated !== isoPublished && (
+                  <span className="text-gray-400">
+                    · aktualizacja: <time dateTime={isoUpdated}>{formatPL(isoUpdated)}</time>
+                  </span>
+                )}
+              </span>
+            </div>
           </header>
 
           {/* Hero Visual Slot */}

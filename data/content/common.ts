@@ -94,10 +94,22 @@ export const FOOTER_CONTENT = {
       title: 'Oferta',
       links: [
         { label: 'Web Development', path: '/web-development/' },
+        { label: 'Strona w abonamencie', path: '/abonament/' },
         { label: 'Google Ads', path: '/marketing/google-ads/' },
         { label: 'Meta Ads', path: '/marketing/meta-ads/' },
         { label: 'Audyt SEO', path: '/marketing/seo/' },
         { label: 'Branding', path: '/design/branding/' },
+      ],
+    },
+    // Sekcja lokalna — sygnal dla Google ze strona ma realna ofertę dla Rzeszowa.
+    // Linkuje do pillar + 3 spoke'ow w cluster lokalnym.
+    local: {
+      title: 'Rzeszów',
+      links: [
+        { label: 'Agencja w Rzeszowie', path: '/miasto/rzeszow/' },
+        { label: 'Strony WWW Rzeszów', path: '/web-development/rzeszow/' },
+        { label: 'Pozycjonowanie Rzeszów', path: '/marketing/seo/rzeszow/' },
+        { label: 'Agencja interaktywna', path: '/agencja-interaktywna-rzeszow/' },
       ],
     },
     company: {

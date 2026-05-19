@@ -33,6 +33,9 @@ const ImageFormatsArticle = lazy(() => import('@/components/articles/ImageFormat
 const WafArticle = lazy(() => import('@/components/articles/WafArticle'));
 const EdgeComputingArticle = lazy(() => import('@/components/articles/EdgeComputingArticle'));
 const CoreWebVitalsArticle = lazy(() => import('@/components/articles/CoreWebVitalsArticle'));
+const IleKosztujeStronaRzeszowArticle = lazy(
+  () => import('@/components/articles/IleKosztujeStronaRzeszowArticle'),
+);
 const GoogleAdsArticle = lazy(() => import('@/components/articles/GoogleAdsArticle'));
 const UxAuditArticle = lazy(() => import('@/components/articles/UxAuditArticle'));
 const ServerSideTrackingArticle = lazy(
@@ -68,6 +71,12 @@ const CaseStudyTemplate = lazy(() => import('@/components/templates/CaseStudyTem
 const Home = lazy(() => import('@/components/pages/Home')); // We will extract Home to a page component
 const AboutUs = lazy(() => import('@/components/pages/AboutUs'));
 const WebDevRzeszow = lazy(() => import('@/components/pages/WebDevRzeszow'));
+const SeoRzeszow = lazy(() => import('@/components/pages/SeoRzeszow'));
+const AgencjaInteraktywnaRzeszow = lazy(
+  () => import('@/components/pages/AgencjaInteraktywnaRzeszow'),
+);
+const Abonament = lazy(() => import('@/components/pages/abonament/Abonament'));
+const AbonamentSuccess = lazy(() => import('@/components/pages/abonament/AbonamentSuccess'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
 
 export const appRoutes: RouteObject[] = [
@@ -94,7 +103,18 @@ export const appRoutes: RouteObject[] = [
   { path: '/marketing/google-ads', element: <GoogleAds /> },
   { path: '/marketing/meta-ads', element: <MetaAds /> },
   { path: '/marketing/seo', element: <MarketingSeo /> },
+  // Spoke lokalny SEO — Rzeszów. Frazy: "pozycjonowanie rzeszow" (320 vol)
+  // + "agencja seo rzeszow" (70 vol). Cluster pillar: /miasto/rzeszow/.
+  { path: '/marketing/seo/rzeszow', element: <SeoRzeszow /> },
   { path: '/marketing/analytics', element: <Analytics /> },
+
+  // Spoke "agencja interaktywna Rzeszów" — fraza 110 vol, MED realizm TOP10.
+  { path: '/agencja-interaktywna-rzeszow', element: <AgencjaInteraktywnaRzeszow /> },
+
+  // SaaS landing — produkt "Strona w abonamencie" (backend: binary-planet)
+  // self-serve Stripe Checkout flow. Success page noindex.
+  { path: '/abonament', element: <Abonament /> },
+  { path: '/abonament/dziekujemy', element: <AbonamentSuccess /> },
 
   // Design
   { path: '/design', element: <DesignBranding /> },
@@ -120,6 +140,11 @@ export const appRoutes: RouteObject[] = [
   {
     path: '/baza-wiedzy/google-ads-skalowanie-budzetu',
     element: <GoogleAdsArticle />,
+  },
+  {
+    // BOFU link bait — fraza "ile kosztuje strona internetowa rzeszów" + commercial intent.
+    path: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026',
+    element: <IleKosztujeStronaRzeszowArticle />,
   },
   {
     path: '/baza-wiedzy/audyt-ux-sklepu-internetowego',

@@ -17,6 +17,7 @@
 /web-development/*  /index.html  200
 /marketing/*        /index.html  200
 /design/*           /index.html  200
+/abonament/*        /index.html  200
 
 # Catch-all: nieznane URL-e -> 404 + /404.html (NotFound z noindex).
 # Google widzi 404 status, uzytkownik widzi friendly NotFound page.

@@ -17,7 +17,7 @@ const Home = () => {
     <>
       <Seo
         title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
-        description="Agencja marketingowa Rzeszów. Strony WWW, SEO, Google Ads, Meta Ads, branding. Biuro Al. Piłsudskiego 17/4. Realizacje dla firm z Podkarpacia i całej Polski. Wycena widełkowa."
+        description="Agencja marketingowa Rzeszów. Strony WWW, SEO, Google Ads, Meta Ads, branding. Pracujemy mobilnie — dojeżdżamy do klientów w Rzeszowie i na Podkarpaciu. Realizacje dla firm z całej Polski. Wycena widełkowa."
         lcpImage="/assets/images/sygnet.png"
         jsonLd={{
           '@context': 'https://schema.org',

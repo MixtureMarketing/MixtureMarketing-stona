@@ -8,7 +8,7 @@ interface FooterBrandingProps {
 
 const FooterBranding: React.FC<FooterBrandingProps> = ({ about }) => {
   return (
-    <div className="lg:col-span-4">
+    <div className="lg:col-span-3">
       <div className="flex items-center mb-8">
         <img
           src="/assets/images/logo.svg"

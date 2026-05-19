@@ -35,6 +35,7 @@ mixturecrm-*.json
 *-service-account*.json
 *-credentials.json
 zaraz-config.json
+.zaraz-backup-*.json
 
 # Unlighthouse & Audits
 .unlighthouse/

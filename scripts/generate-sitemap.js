@@ -41,10 +41,56 @@ async function generateSitemap() {
   const todayIso = new Date().toISOString().split('T')[0];
 
   // Statyczne sciezki - lastmod = data buildu.
-  const staticEntries = routes.map((route) => ({
-    url: `${BASE_URL}${withTrailingSlash(route)}`,
-    lastmod: todayIso,
-  }));
+  // Dla kluczowych stron lokalnych dodajemy image:image z geo_location -
+  // sygnal dla Google Image Search ze obrazy sa powiazane z Rzeszowem.
+  const LOCAL_IMAGE_OVERRIDES = {
+    '/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Mixture Marketing — Agencja Marketingowa Rzeszów',
+      caption: 'Biuro Mixture Marketing przy Al. Józefa Piłsudskiego 17/4 w Rzeszowie',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+    '/miasto/rzeszow/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Agencja Marketingowa Rzeszów',
+      caption: 'Mixture Marketing — agencja marketingowa i software house w Rzeszowie',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+    '/web-development/rzeszow/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Tworzenie stron internetowych Rzeszów',
+      caption: 'Strony WWW, sklepy, aplikacje dla firm z Rzeszowa i Podkarpacia',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+    '/marketing/seo/rzeszow/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Pozycjonowanie stron Rzeszów',
+      caption: 'Agencja SEO Rzeszów — lokalne i ogólnopolskie pozycjonowanie',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+    '/agencja-interaktywna-rzeszow/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Agencja interaktywna Rzeszów',
+      caption: 'Branding, web, marketing pod jednym dachem w Rzeszowie',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+    '/o-nas/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Zespół Mixture Marketing — Rzeszów',
+      caption: 'Eksperci web development, SEO i marketingu z biura w Rzeszowie',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
+  };
+
+  const staticEntries = routes.map((route) => {
+    const url = `${BASE_URL}${withTrailingSlash(route)}`;
+    const override = LOCAL_IMAGE_OVERRIDES[withTrailingSlash(route)];
+    return {
+      url,
+      lastmod: todayIso,
+      image: override || null,
+    };
+  });
 
   // Dynamiczne sciezki z Sanity - lastmod = _updatedAt z dokumentu.
   // Portfolio caseStudy dostaje image (xmlns:image) dla Google Image Search.
@@ -87,7 +133,17 @@ async function generateSitemap() {
         return {
           url: `${BASE_URL}${withTrailingSlash(`/portfolio/${p.slug}`)}`,
           lastmod: formatLastmod(p._updatedAt),
-          image: imgUrl ? { loc: imgUrl, title: p.title || p.slug } : null,
+          // Portfolio: domyślnie geo Rzeszów (siedziba agencji, większość klientów
+          // z Podkarpacia). Jeśli kiedyś w Sanity dojdą pola location per project,
+          // można to dynamicznie nadpisywać.
+          image: imgUrl
+            ? {
+                loc: imgUrl,
+                title: p.title || p.slug,
+                caption: `Realizacja Mixture Marketing — ${p.title || p.slug}`,
+                geo: 'Rzeszów, Podkarpacie, Polska',
+              }
+            : null,
         };
       }),
     ];
@@ -125,6 +181,8 @@ ${allEntries
     if (entry.image && entry.image.loc) {
       inner += `\n    <image:image>\n      <image:loc>${xmlEscape(entry.image.loc)}</image:loc>`;
       if (entry.image.title) inner += `\n      <image:title>${xmlEscape(entry.image.title)}</image:title>`;
+      if (entry.image.caption) inner += `\n      <image:caption>${xmlEscape(entry.image.caption)}</image:caption>`;
+      if (entry.image.geo) inner += `\n      <image:geo_location>${xmlEscape(entry.image.geo)}</image:geo_location>`;
       inner += `\n    </image:image>`;
     }
     return `  <url>\n${inner}\n  </url>`;

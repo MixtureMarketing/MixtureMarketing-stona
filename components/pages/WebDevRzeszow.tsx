@@ -55,7 +55,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Czy spotkamy się osobiście w Rzeszowie?',
       answer:
-        'Tak. Nasze biuro znajduje się przy Al. Józefa Piłsudskiego 17 / 4, w centrum miasta — 5 minut od Dworca PKP. Po wcześniejszym umówieniu zapraszamy na bezpłatną konsultację (45–60 minut). Spotkania możliwe też online lub w wybranej kawiarni.',
+        'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Alternatywnie ustalamy spotkanie w wybranej kawiarni lub przestrzeni coworkingowej w centrum Rzeszowa, albo online (Google Meet / Zoom). Standardowo bezpłatna konsultacja trwa 45–60 minut.',
     },
   ];
 
@@ -116,6 +116,10 @@ const WebDevRzeszow: React.FC = () => {
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
+      },
       mainEntity: faq.map((f) => ({
         '@type': 'Question',
         name: f.question,
@@ -206,8 +210,8 @@ const WebDevRzeszow: React.FC = () => {
             </h1>
             <p className="text-xl text-gray-600 mb-4">
               Tworzymy strony WWW, sklepy e-commerce i aplikacje webowe dla firm z Rzeszowa, Mielca,
-              Stalowej Woli, Krosna i Przemyśla. Lokalne wsparcie, biuro w centrum Rzeszowa, wycena
-              widełkowa od pierwszego maila.
+              Stalowej Woli, Krosna i Przemyśla. Pracujemy mobilnie — dojeżdżamy do klienta na
+              terenie Podkarpacia, wycena widełkowa od pierwszego maila.
             </p>
             <div className="flex flex-wrap gap-4 justify-center mt-8">
               <Button onClick={() => openModal('general', { specificType: 'webdev_rzeszow' })}>
@@ -241,8 +245,9 @@ const WebDevRzeszow: React.FC = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-2">Realna lokalność</h3>
                 <p className="text-sm text-gray-600">
-                  Biuro fizyczne w Rzeszowie. Spotkania na żywo, dojazd do klienta przy większych
-                  projektach (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło).
+                  Model pracy mobilnej w Rzeszowie. Spotkania u klienta, dojazd na terenie
+                  Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło) bez
+                  dodatkowych opłat.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -566,7 +571,7 @@ const WebDevRzeszow: React.FC = () => {
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                     Hub lokalny
                   </p>
-                  <h4 className="font-bold mb-2">Mixture jako agencja marketingowa Rzeszów →</h4>
+                  <h4 className="font-bold mb-2">Lokalny hub usług w Rzeszowie →</h4>
                   <p className="text-sm text-gray-600">
                     Pełna oferta lokalna: marketing 360°, branding, SEO, Google Ads. Biuro w centrum
                     Rzeszowa.
@@ -602,8 +607,9 @@ const WebDevRzeszow: React.FC = () => {
                   Porozmawiajmy o Twoim projekcie w Rzeszowie
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Bezpłatna konsultacja (45–60 min) — online lub w naszym biurze przy Al.
-                  Piłsudskiego 17/4. Omówimy cele, technologie i harmonogram.
+                  Bezpłatna konsultacja (45–60 min) — online (Google Meet / Zoom), u Ciebie w
+                  siedzibie lub w neutralnej lokalizacji w centrum Rzeszowa. Omówimy cele,
+                  technologie i harmonogram.
                 </p>
                 <p className="text-gray-700 mb-2">
                   <strong>Adres:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów

@@ -86,7 +86,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           }
           description={
             slug === 'rzeszow'
-              ? 'Agencja marketingowa Rzeszów — Mixture Marketing. Strony WWW, sklepy e-commerce, pozycjonowanie SEO, Google Ads, branding. Biuro Al. Piłsudskiego 17/4. Realizacje dla firm z Podkarpacia. Wycena 24h.'
+              ? 'Agencja marketingowa Rzeszów — Mixture Marketing. Strony WWW, sklepy e-commerce, pozycjonowanie SEO, Google Ads, branding. Spotkania u klienta na terenie Rzeszowa i Podkarpacia, online lub w centrum miasta. Wycena 24h.'
               : data.seoDescription ||
                 `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }
@@ -114,7 +114,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                   {
                     question: 'Czy oferujecie spotkania na żywo w Rzeszowie?',
                     answer:
-                      'Tak. Po wcześniejszym umówieniu zapraszamy do biura przy Al. Piłsudskiego 17/4 albo spotykamy się w kawiarni w centrum miasta.',
+                      'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni lub przestrzeni coworkingowej w centrum miasta, albo online (Google Meet / Zoom). Każda wizyta umawiana wcześniej mailem lub telefonicznie.',
                   },
                   {
                     question: 'Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?',
@@ -124,7 +124,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                   {
                     question: 'Jak wygląda pierwsza konsultacja?',
                     answer:
-                      'Bezpłatna rozmowa (45–60 minut) online lub w naszym biurze. Omawiamy cele biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i bez sztywnej oferty na siłę.',
+                      'Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w siedzibie albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i bez sztywnej oferty na siłę.',
                   },
                   {
                     question: 'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
@@ -134,7 +134,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                   {
                     question: 'Jak wybrać agencję marketingową w Rzeszowie?',
                     answer:
-                      'Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy ma fizyczne biuro w mieście i oferuje spotkania na żywo, (2) czy posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację bez zobowiązań. Mixture Marketing spełnia wszystkie te kryteria — biuro w centrum Rzeszowa (Al. Piłsudskiego 17/4), portfolio m.in. z Mielca, Stalowej Woli, Rzeszowa, wycena widełkowa od pierwszego maila.',
+                      'Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania na żywo (u klienta lub w neutralnej lokalizacji), (2) czy posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację bez zobowiązań. Mixture Marketing spełnia wszystkie te kryteria — model pracy z dojazdem do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z Mielca, Stalowej Woli i Rzeszowa, wycena widełkowa od pierwszego maila.',
                   },
                   {
                     question: 'Ile kosztuje strona internetowa w Rzeszowie?',

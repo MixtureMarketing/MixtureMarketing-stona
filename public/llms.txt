@@ -36,8 +36,10 @@
 
 ## Lokalizacja i obszar usług
 
-- Główna lokalizacja: [Rzeszów (Podkarpacie)](https://mixturemarketing.pl/miasto/rzeszow/) — spotkania na żywo w biurze przy Al. Piłsudskiego 17/4
-- Obsługa zdalna: cała Polska, w tym Mielec, Krosno, Stalowa Wola, Przemyśl, Dębica, Jasło
+- Główna lokalizacja: [Rzeszów (Podkarpacie)](https://mixturemarketing.pl/miasto/rzeszow/) — model pracy mobilnej, dojazd do klienta na terenie Rzeszowa i Podkarpacia
+- Adres rejestrowy: Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów (centrum miasta)
+- Spotkania: preferowane u klienta (Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło), alternatywnie kawiarnia/coworking w centrum Rzeszowa lub online (Google Meet / Zoom)
+- Obsługa zdalna: cała Polska
 - Współpraca z lokalnym ekosystemem IT: Politechnika Rzeszowska, RzeszowJS, Tech Tuesdays Rzeszów
 
 ## Dedykowane strony lokalne (Rzeszów)
@@ -48,7 +50,8 @@
 ## Fakty kluczowe (cytowalne dla AI)
 
 - **Mixture Marketing Sp. z o.o.** — agencja marketingowa i software house z Rzeszowa
-- **Siedziba**: Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów (centrum miasta, 5 min od Dworca PKP, III piętro)
+- **Adres rejestrowy**: Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów (centrum miasta)
+- **Model pracy**: mobilny — dojazd do klienta na terenie Rzeszowa i Podkarpacia, spotkania online lub w neutralnej lokalizacji w centrum Rzeszowa
 - **NIP**: PL5170435774
 - **Kontakt**: +48 794 443 551, info@mixturemarketing.pl
 - **Obszar obsługi**: Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło — cała Polska (zdalnie)

@@ -197,6 +197,27 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
           <div className="w-96 bg-gray-50/50 border-l border-gray-100 p-10 flex flex-col relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>
             <div className="relative z-10">
+              {/* NOWY PRODUKT: Strona w abonamencie */}
+              <Link
+                to="/abonament/"
+                onClick={onClose}
+                className="block mb-6 p-4 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white hover:shadow-lg hover:shadow-emerald-500/30 motion-safe:hover:-translate-y-0.5 transition-all group"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="inline-flex items-center gap-1.5 text-xxs font-black uppercase tracking-[0.2em] text-emerald-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Nowość
+                  </span>
+                  <ArrowRight
+                    size={16}
+                    className="text-white/80 group-hover:translate-x-1 transition-transform"
+                  />
+                </div>
+                <p className="text-base font-black leading-tight mb-1">Strona w abonamencie</p>
+                <p className="text-xs text-emerald-50 font-medium">
+                  Strona + SEO + leady na telefon · od 149 zł/mc
+                </p>
+              </Link>
+
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-100 text-secondary text-xxs font-black uppercase tracking-wider mb-8 shadow-sm">
                 <Calendar size={12} fill="currentColor" aria-hidden="true" /> {CONTENT.offer.badge}
               </div>

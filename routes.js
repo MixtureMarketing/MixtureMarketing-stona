@@ -30,7 +30,13 @@ export const routes = [
   '/marketing/google-ads/',
   '/marketing/meta-ads/',
   '/marketing/seo/',
+  '/marketing/seo/rzeszow/',
   '/marketing/analytics/',
+  '/agencja-interaktywna-rzeszow/',
+
+  // SaaS landing
+  '/abonament/',
+  // /abonament/dziekujemy/ - intencjonalnie pominięte (noindex, post-Stripe)
 
   // Design
   '/design/',
@@ -50,6 +56,7 @@ export const routes = [
   '/baza-wiedzy/edge-computing/',
   '/baza-wiedzy/core-web-vitals-2025/',
   '/baza-wiedzy/google-ads-skalowanie-budzetu/',
+  '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
   '/baza-wiedzy/audyt-ux-sklepu-internetowego/',
   '/baza-wiedzy/server-side-tracking-koniec-cookies/',
   '/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/',

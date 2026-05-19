@@ -22,6 +22,13 @@ export const getFaqSchema = (faq: { question: string; answer: string }[] | undef
   return {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
+    // SpeakableSpecification - sygnal dla Google Assistant + AI search (ChatGPT,
+    // Perplexity, AI Overviews) ze odpowiedzi FAQ sa cytowalne glosowo.
+    // CSS selectors targetuja schema.org Question/Answer w DOM.
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
+    },
     mainEntity: faq.map((item) => ({
       '@type': 'Question',
       name: item.question,
@@ -58,18 +65,56 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
       latitude: 50.041187,
       longitude: 21.999116,
     },
+    // Place reference dla biura — wymagane przez Google Map Pack.
+    // Place ma wlasne @id (#office), do ktorego moga linkowac eventy/oferty.
+    location: {
+      '@type': 'Place',
+      '@id': `${baseUrl}/#office`,
+      name: `${SITE_CONFIG.name} — Biuro Rzeszów`,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: address.street,
+        addressLocality: address.city,
+        postalCode: address.postalCode,
+        addressCountry: address.countryCode,
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 50.041187,
+        longitude: 21.999116,
+      },
+      hasMap: `https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w`,
+      publicAccess: false,
+      smokingAllowed: false,
+    },
     areaServed: [
       { '@type': 'Country', name: 'Polska' },
       { '@type': 'City', name: 'Rzeszów' },
       { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
+      { '@type': 'City', name: 'Mielec' },
+      { '@type': 'City', name: 'Stalowa Wola' },
+      { '@type': 'City', name: 'Krosno' },
+      { '@type': 'City', name: 'Przemyśl' },
+      { '@type': 'City', name: 'Dębica' },
+      { '@type': 'City', name: 'Jasło' },
     ],
-    openingHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '09:00',
-      closes: '17:00',
-    },
+    hasMap: `https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w`,
+    // OpeningHoursSpecification - per-day pelna granularnosc dla Google
+    // (single object z dayOfWeek[] dziala, ale array z osobnymi entry to
+    // bardziej kanoniczna forma akceptowana przez Map Pack).
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        opens: '09:00',
+        closes: '17:00',
+        validFrom: '2024-01-01',
+        validThrough: '2030-12-31',
+      },
+    ],
     priceRange: '$$',
+    paymentAccepted: 'Przelew bankowy, Faktura VAT',
+    currenciesAccepted: 'PLN, EUR, USD',
     sameAs: socialLinks,
     legalName: SITE_CONFIG.companyName,
     vatID: SITE_CONFIG.contact.vatID,

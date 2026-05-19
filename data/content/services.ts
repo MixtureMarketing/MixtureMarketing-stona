@@ -1,4 +1,4 @@
-import { Palette, Code, Megaphone } from 'lucide-react';
+import { Palette, Code, Megaphone, Sparkles } from 'lucide-react';
 import { SERVICES_CONTENT as CONTENT } from '../content';
 
 // We map icons here to avoid serializing React components in JSON
@@ -6,6 +6,7 @@ const ICONS = {
   Code,
   Megaphone,
   Palette,
+  Sparkles,
 };
 
 // Data structure for Services component
@@ -24,5 +25,10 @@ export const SERVICES_SECTION_DATA = [
     ...CONTENT.items[2],
     icon: ICONS.Palette,
     visualType: 'ui',
+  },
+  {
+    ...CONTENT.items[3],
+    icon: ICONS.Sparkles,
+    visualType: 'code',
   },
 ];

@@ -18,7 +18,6 @@ import {
   ShoppingBag,
   Code2,
   Train,
-  ParkingCircle,
 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '../../common/Button';
@@ -181,11 +180,11 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               <div className="w-12 h-12 bg-rose-100 text-rose-700 rounded-xl flex items-center justify-center mb-4">
                 <Car size={24} />
               </div>
-              <h3 className="text-xl font-bold mb-3">Biuro w centrum miasta</h3>
+              <h3 className="text-xl font-bold mb-3">Mobilnie po Rzeszowie i Podkarpaciu</h3>
               <p className="text-gray-600">
-                Mieścimy się przy Al. Józefa Piłsudskiego 17/4, w samym centrum Rzeszowa — 5 minut
-                spacerem od Dworca PKP i Rynku. Spotykamy się na żywo w biurze albo na kawie w
-                wybranym miejscu — wystarczy dać znać.
+                Adres rejestrowy: Al. Józefa Piłsudskiego 17/4, centrum Rzeszowa. Pracujemy
+                mobilnie — preferujemy spotkania u klienta z dojazdem na terenie Rzeszowa i
+                Podkarpacia, alternatywnie kawiarnia / coworking w centrum miasta lub online.
               </p>
             </div>
           </div>
@@ -198,8 +197,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Czy oferujecie spotkania na żywo w Rzeszowie?
                 </p>
                 <p className="text-gray-600">
-                  Tak. Po wcześniejszym umówieniu zapraszamy do biura przy Al. Piłsudskiego 17/4
-                  albo spotykamy się w kawiarni w centrum miasta.
+                  Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego
+                  Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni
+                  lub przestrzeni coworkingowej w centrum miasta, albo online.
                 </p>
               </div>
               <div>
@@ -215,7 +215,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               <div>
                 <p className="font-semibold text-dark mb-1">Jak wygląda pierwsza konsultacja?</p>
                 <p className="text-gray-600">
-                  Bezpłatna rozmowa (45–60 minut) online lub w naszym biurze. Omawiamy cele
+                  Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w
+                  siedzibie albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele
                   biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez
                   zobowiązań i bez sztywnej oferty na siłę.
                 </p>
@@ -267,13 +268,14 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Jak wybrać agencję marketingową w Rzeszowie?
                 </p>
                 <p className="text-gray-600">
-                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy ma fizyczne biuro w
-                  mieście i oferuje spotkania na żywo, (2) czy posiada portfolio z lokalnymi
-                  klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance
-                  marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik
-                  bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację. Mixture Marketing
-                  spełnia wszystkie kryteria — biuro w centrum Rzeszowa, portfolio m.in. z Mielca i
-                  Stalowej Woli, wycena widełkowa od pierwszego maila.
+                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania
+                  na żywo na terenie miasta (u klienta lub w neutralnej lokalizacji), (2) czy
+                  posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje
+                  web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4)
+                  czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną
+                  konsultację. Mixture Marketing spełnia wszystkie kryteria — model pracy oparty
+                  na dojeździe do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z
+                  Mielca i Stalowej Woli, wycena widełkowa od pierwszego maila.
                 </p>
               </div>
               <div>
@@ -419,47 +421,51 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             </div>
           </div>
 
-          {/* Mapa + kierunki dojazdu — sygnał geo + UX */}
+          {/* Obszar działania — model pracy mobilnej + neutralne lokalizacje spotkań */}
           <div className="mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
-              Jak do nas trafić — biuro w centrum Rzeszowa
+              Gdzie się spotkamy — Rzeszów i całe Podkarpacie
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Mieścimy się przy Al. Józefa Piłsudskiego 17/4, na III piętrze, w samym centrum miasta
-              — 5 minut spacerem od Dworca PKP, 10 minut od Rynku Starego Miasta.
+              Pracujemy w modelu mobilnym: dojeżdżamy do klienta na terenie Rzeszowa i całego
+              Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Adres
+              rejestrowy: Al. Józefa Piłsudskiego 17/4 — używamy go również jako punkt orientacyjny
+              przy spotkaniach w centrum miasta.
             </p>
 
             <div className="grid md:grid-cols-2 gap-8">
               <div className="rounded-2xl overflow-hidden border border-gray-200 aspect-video">
                 <LazyMap
                   src="https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w&output=embed"
-                  title="Mapa — biuro Mixture Marketing w Rzeszowie"
+                  title="Mapa — Mixture Marketing Rzeszów (adres rejestrowy)"
                 />
               </div>
 
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Train size={20} />
+                    <Car size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold mb-1">Komunikacją miejską</h3>
+                    <h3 className="font-bold mb-1">Spotkanie u Ciebie</h3>
                     <p className="text-sm text-gray-600">
-                      Od Dworca PKP Rzeszów Główny — 5 minut spacerem alejami Piłsudskiego.
-                      Najbliższy przystanek MPK: &quot;Słowackiego&quot; (linie 1, 6, 9).
+                      Standardowo dojeżdżamy do siedziby klienta — Rzeszów, Mielec, Stalowa Wola,
+                      Krosno, Przemyśl, Dębica, Jasło i cały region. Bez dodatkowych opłat za
+                      dojazd w obrębie Podkarpacia.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-4">
                   <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <ParkingCircle size={20} />
+                    <Train size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold mb-1">Samochodem</h3>
+                    <h3 className="font-bold mb-1">Neutralna lokalizacja w Rzeszowie</h3>
                     <p className="text-sm text-gray-600">
-                      Parking publiczny przy ul. Słowackiego, podziemny w Galerii Rzeszów (5 min
-                      spacerem) lub miejsca SPP wzdłuż Al. Piłsudskiego.
+                      Możemy spotkać się w wybranej kawiarni lub przestrzeni coworkingowej w
+                      centrum Rzeszowa (5 min od Dworca PKP). Wskazujemy konkretne miejsce po
+                      ustaleniu terminu.
                     </p>
                   </div>
                 </div>
@@ -469,15 +475,73 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                     <Award size={20} />
                   </div>
                   <div>
-                    <h3 className="font-bold mb-1">Godziny otwarcia</h3>
+                    <h3 className="font-bold mb-1">Godziny pracy zespołu</h3>
                     <p className="text-sm text-gray-600">
-                      Poniedziałek–Piątek 9:00–17:00. Spotkania na żywo zawsze po wcześniejszym
-                      umówieniu (mailem lub telefonicznie).
+                      Poniedziałek–Piątek 9:00–17:00. Spotkania (na żywo lub online — Google Meet
+                      / Zoom) ustalamy wcześniej mailem lub telefonicznie.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dla kogo pracujemy — branze (Rzeszow only) */}
+      {isHeadquartersCity && (
+        <div className="mb-20">
+          <h2 className="text-3xl font-bold mb-4 text-center">
+            Dla kogo pracujemy w Rzeszowie i na Podkarpaciu
+          </h2>
+          <p className="text-center text-gray-600 mb-10 max-w-3xl mx-auto">
+            Specjalizujemy się w branżach, które dominują w gospodarce Podkarpacia — od produkcji
+            i lotnictwa, przez handel internetowy, po lokalne firmy usługowe i software house'y.
+          </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: 'Produkcja i przemysł',
+                icon: <Factory size={24} />,
+                desc: 'Firmy produkcyjne z Mielca, Stalowej Woli, Rzeszowa, Dębicy — strony B2B z konfiguratorami, katalogami produktów, generowanie leadów eksportowych.',
+              },
+              {
+                title: 'E-commerce',
+                icon: <ShoppingBag size={24} />,
+                desc: 'Sklepy internetowe (WooCommerce, Shopify, dedykowane) — integracje z kurierami, płatnościami, hurtowniami. Pozycjonowanie i Google Ads dla e-commerce.',
+              },
+              {
+                title: 'Lotnictwo i Aviation Valley',
+                icon: <Award size={24} />,
+                desc: 'Klaster Lotnictwa Polskiego, poddostawcy MRO, firmy szkoleniowe — strony korporacyjne EN/PL, materiały marketingowe na targi (Paris Air Show, ILA).',
+              },
+              {
+                title: 'Software house i SaaS',
+                icon: <Code2 size={24} />,
+                desc: "Lokalne software house'y i startupy z Podkarpacia — landing page dla produktów SaaS, employer branding, kampanie rekrutacyjne IT.",
+              },
+              {
+                title: 'Usługi lokalne',
+                icon: <MapPin size={24} />,
+                desc: 'Kancelarie prawne, gabinety medyczne, fizjoterapia, salony beauty, restauracje, hotele, agroturystyka — strony konwertujące + Google Ads z geo-targetingiem.',
+              },
+              {
+                title: 'Edukacja i kursy',
+                icon: <GraduationCap size={24} />,
+                desc: 'Szkoły językowe, kursy zawodowe, studia podyplomowe, akademie biznesu — landing page rekrutacyjne, lead magnety, automatyzacja zapisów.',
+              },
+            ].map((industry, i) => (
+              <div
+                key={i}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary/30 transition-all"
+              >
+                <div className="w-12 h-12 bg-[#F0F7FF] rounded-xl flex items-center justify-center text-secondary mb-4">
+                  {industry.icon}
+                </div>
+                <h3 className="font-bold text-lg mb-2 text-dark">{industry.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{industry.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -528,6 +592,45 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
           ))}
         </div>
       </div>
+
+      {/* SaaS abonament callout (Rzeszow only) — promuje nowy produkt subskrypcyjny */}
+      {isHeadquartersCity && (
+        <div className="mb-20">
+          <Link
+            to="/abonament/"
+            className="group block bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-3xl p-8 md:p-10 text-white shadow-xl hover:shadow-emerald-500/40 motion-safe:hover:-translate-y-1 transition-all relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-emerald-400 rounded-full opacity-20 blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
+              <div className="flex-1">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-black uppercase tracking-[0.2em] text-emerald-50 mb-3 border border-white/10">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                  </span>
+                  Nowość · od 149 zł/mc
+                </span>
+                <h3 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
+                  Strona w abonamencie dla firm z Rzeszowa
+                </h3>
+                <p className="text-emerald-50 mb-1">
+                  Robimy stronę za Ciebie — strona WWW, Local SEO, Google Business Profile i leady
+                  na telefon w stałej miesięcznej cenie.
+                </p>
+                <p className="text-emerald-100 text-sm">
+                  Bez setupu. Bez umowy na rok. Setup w 24h.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <div className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-700 font-bold rounded-full shadow-lg group-hover:scale-105 transition-transform">
+                  Zobacz pakiety
+                  <ArrowRight size={18} />
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* CTA */}
       <div className="text-center bg-dark rounded-3xl p-12 text-white relative overflow-hidden">

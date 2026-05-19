@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Mouse } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Zap, Mouse, MapPin } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
@@ -122,6 +122,19 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
                 <span className="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
                 <span>{HERO_CONTENT.microCopy.noObligation}</span>
               </div>
+
+              {/* Lokalny anchor — wzmacnia istotne 'Agencja Marketingowa Rzeszów' i kieruje do pillar /miasto/rzeszow/ */}
+              <Link
+                to="/miasto/rzeszow/"
+                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors mt-2 underline-offset-4 hover:underline"
+                style={{ animationDelay: '1.7s' }}
+              >
+                <MapPin size={14} className="text-primary" />
+                <span>
+                  Z biura w Rzeszowie obsługujemy całą Polskę —{' '}
+                  <strong className="font-semibold">Agencja Marketingowa Rzeszów</strong>
+                </span>
+              </Link>
             </div>
           </AnimateOnScroll>
         </div>

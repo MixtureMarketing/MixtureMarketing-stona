@@ -172,8 +172,8 @@ const WebDevelopment: React.FC = () => {
                 Tworzenie stron internetowych dla firm z Rzeszowa →
               </h3>
               <p className="text-sm md:text-base text-gray-600">
-                Dedykowany cennik, lokalne case studies, spotkania w biurze przy Al. Piłsudskiego
-                17/4.
+                Dedykowany cennik, lokalne case studies, spotkania u klienta na terenie Rzeszowa
+                i Podkarpacia (online lub w centrum miasta).
               </p>
             </div>
           </div>

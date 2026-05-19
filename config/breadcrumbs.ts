@@ -9,7 +9,11 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/marketing/google-ads': 'Google Ads',
   '/marketing/meta-ads': 'Meta Ads',
   '/marketing/seo': 'SEO & Content',
+  '/marketing/seo/rzeszow': 'Rzeszów',
   '/marketing/analytics': 'Data & Analityka',
+  '/agencja-interaktywna-rzeszow': 'Agencja Interaktywna Rzeszów',
+  '/abonament': 'Strona w abonamencie',
+  '/abonament/dziekujemy': 'Dziękujemy',
   '/design': 'Grafika & Design',
   '/design/branding': 'Brand Identity',
   '/design/ui-ux': 'UI/UX Design',
@@ -26,4 +30,6 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/baza-wiedzy/edge-computing': 'Edge Computing',
   '/baza-wiedzy/core-web-vitals-2025': 'Core Web Vitals 2025',
   '/baza-wiedzy/google-ads-skalowanie-budzetu': 'Google Ads - Skalowanie',
+  '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026':
+    'Ile kosztuje strona Rzeszów 2026',
 };

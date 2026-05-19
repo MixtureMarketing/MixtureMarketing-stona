@@ -1,6 +1,6 @@
 import React from 'react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
@@ -118,6 +118,53 @@ const Services: React.FC = () => {
             );
           })}
         </div>
+
+        {/* Lokalny CTA-band — sygnał lokalny + crawl depth do spoke'ow Rzeszow */}
+        <AnimateOnScroll delay={400}>
+          <div className="mt-16 bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex items-start md:items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-secondary flex items-center justify-center shrink-0">
+                  <MapPin size={20} />
+                </div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500 mb-1">
+                    Lokalnie · Rzeszów
+                  </p>
+                  <p className="text-sm md:text-base text-gray-700">
+                    Szukasz konkretnej usługi dla firmy z Rzeszowa lub Podkarpacia?
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  to="/web-development/rzeszow/"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                >
+                  Strony WWW Rzeszów <ArrowRight size={12} />
+                </Link>
+                <Link
+                  to="/marketing/seo/rzeszow/"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                >
+                  Pozycjonowanie Rzeszów <ArrowRight size={12} />
+                </Link>
+                <Link
+                  to="/agencja-interaktywna-rzeszow/"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                >
+                  Agencja interaktywna <ArrowRight size={12} />
+                </Link>
+                <Link
+                  to="/miasto/rzeszow/"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-secondary text-white hover:bg-secondary/90 rounded-lg transition-colors"
+                >
+                  Hub lokalny <ArrowRight size={12} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </AnimateOnScroll>
       </div>
     </section>
   );

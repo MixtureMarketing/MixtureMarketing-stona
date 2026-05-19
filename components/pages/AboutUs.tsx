@@ -221,8 +221,9 @@ const AboutUs: React.FC = () => {
                 Porozmawiajmy o Twoim projekcie
               </h2>
               <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-                Bezpłatna konsultacja (45-60 min) online albo w naszym biurze. Bez zobowiązań i bez
-                sztywnej oferty na siłę.
+                Bezpłatna konsultacja (45-60 min) — online, u Ciebie w siedzibie lub w
+                neutralnej lokalizacji w centrum Rzeszowa. Bez zobowiązań i bez sztywnej oferty
+                na siłę.
               </p>
               <Button variant="primary" onClick={() => openModal('general')}>
                 Umów konsultację
