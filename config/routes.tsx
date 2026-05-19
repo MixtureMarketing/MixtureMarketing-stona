@@ -67,6 +67,7 @@ const PortfolioPage = lazy(() => import('@/components/pages/PortfolioPage'));
 const CaseStudyTemplate = lazy(() => import('@/components/templates/CaseStudyTemplate'));
 const Home = lazy(() => import('@/components/pages/Home')); // We will extract Home to a page component
 const AboutUs = lazy(() => import('@/components/pages/AboutUs'));
+const WebDevRzeszow = lazy(() => import('@/components/pages/WebDevRzeszow'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
 
 export const appRoutes: RouteObject[] = [
@@ -84,6 +85,9 @@ export const appRoutes: RouteObject[] = [
   { path: '/web-development/landing-page', element: <LandingPage /> },
   { path: '/web-development/corporate', element: <CorporateWebsite /> },
   { path: '/web-development/custom-app', element: <CustomWebApp /> },
+  // Spoke lokalny — Rzeszów. Targetuje frazy: "strony internetowe rzeszów" (590 vol)
+  // + "projektowanie stron www rzeszów" (70 vol). Cluster pillar: /miasto/rzeszow/.
+  { path: '/web-development/rzeszow', element: <WebDevRzeszow /> },
 
   // Marketing
   { path: '/marketing', element: <Marketing /> },

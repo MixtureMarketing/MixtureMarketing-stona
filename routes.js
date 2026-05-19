@@ -23,6 +23,7 @@ export const routes = [
   '/web-development/landing-page/',
   '/web-development/corporate/',
   '/web-development/custom-app/',
+  '/web-development/rzeszow/',
 
   // Marketing
   '/marketing/',

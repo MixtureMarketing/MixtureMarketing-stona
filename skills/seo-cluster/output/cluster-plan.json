@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "generated": "2026-05-19",
+    "seed": "agencja marketingowa Rzeszów",
+    "site": "mixturemarketing.pl",
+    "total_monthly_volume": 1730,
+    "target": "TOP10 dla 8 fraz lokalnych Rzeszów"
+  },
+  "serp_overlap_matrix": [
+    {
+      "keyword_a": "agencja marketingowa rzeszów",
+      "keyword_b": "agencja reklamowa rzeszów",
+      "shared_domains": ["oferteo.pl", "themad.pl"],
+      "score": 2,
+      "decision": "separate_pages_interlink"
+    },
+    {
+      "keyword_a": "agencja marketingowa rzeszów",
+      "keyword_b": "agencja interaktywna rzeszów",
+      "shared_domains": ["oferteo.pl", "m16.pl"],
+      "score": 2,
+      "decision": "separate_pages_interlink"
+    },
+    {
+      "keyword_a": "agencja reklamowa rzeszów",
+      "keyword_b": "agencja interaktywna rzeszów",
+      "shared_domains": ["oferteo.pl"],
+      "score": 1,
+      "decision": "separate_pages"
+    },
+    {
+      "keyword_a": "pozycjonowanie rzeszów",
+      "keyword_b": "agencja seo rzeszów",
+      "shared_domains": ["ks.pl", "sempire.pl", "widoczni.com", "eactive.pl", "octamedia.pl"],
+      "score": 5,
+      "decision": "same_page"
+    },
+    {
+      "keyword_a": "strony internetowe rzeszów",
+      "keyword_b": "projektowanie stron www rzeszów",
+      "shared_domains": ["pulawski.eu", "argonium.pl", "home.pl", "ameti.pl"],
+      "score": 4,
+      "decision": "same_page"
+    },
+    {
+      "keyword_a": "agencja marketingowa rzeszów",
+      "keyword_b": "marketing rzeszów",
+      "shared_domains": ["oferteo.pl", "m16.pl"],
+      "score": 2,
+      "decision": "consolidate_on_pillar_as_secondary"
+    },
+    {
+      "keyword_a": "agencja marketingowa rzeszów",
+      "keyword_b": "pozycjonowanie rzeszów",
+      "shared_domains": ["oferteo.pl", "m16.pl"],
+      "score": 2,
+      "decision": "separate_pages_crosslink"
+    }
+  ],
+  "cluster": {
+    "pillar": {
+      "id": "pillar-rzeszow",
+      "url": "/miasto/rzeszow/",
+      "primary_keyword": "agencja marketingowa Rzeszów",
+      "secondary_keywords": ["agencja reklamowa Rzeszów", "marketing Rzeszów"],
+      "monthly_volume_primary": 260,
+      "monthly_volume_secondary": 310,
+      "intent": "Commercial",
+      "word_count_target": { "min": 2800, "max": 3200 },
+      "schema": ["LocalBusiness", "Organization", "FAQPage"],
+      "h_outline": [
+        "H1: Agencja Marketingowa Rzeszów - Mixture Marketing",
+        "H2: Czym zajmuje się agencja marketingowa w Rzeszowie",
+        "H2: Usługi Mixture dla firm z Rzeszowa i Podkarpacia",
+        "H2: Dlaczego lokalna agencja marketingowa ma znaczenie",
+        "H2: Nasze realizacje w Rzeszowie",
+        "H2: Opinie klientów",
+        "H2: FAQ: Agencja marketingowa Rzeszów"
+      ],
+      "unique_angle": "Hub lokalny obejmujący wszystkie usługi Mixture z perspektywy klienta rzeszowskiego. Nie duplikuje treści ogólnopolskich podstron usługowych."
+    },
+    "spokes": [
+      {
+        "id": "spoke-seo-rzeszow",
+        "url": "/marketing/seo/rzeszow/",
+        "primary_keyword": "pozycjonowanie Rzeszów",
+        "secondary_keywords": ["agencja SEO Rzeszów"],
+        "monthly_volume_primary": 320,
+        "monthly_volume_secondary": 70,
+        "intent": "Commercial",
+        "word_count_target": { "min": 1400, "max": 1600 },
+        "schema": ["Service", "LocalBusiness", "FAQPage"],
+        "h_outline": [
+          "H1: Pozycjonowanie Stron Rzeszów - Agencja SEO Mixture",
+          "H2: Jak działamy - lokalne SEO w Rzeszowie",
+          "H2: Dlaczego SEO w Rzeszowie różni się od ogólnopolskiego",
+          "H3: Specyfika rynku podkarpackiego",
+          "H3: Google Maps vs wyniki organiczne",
+          "H2: Zakres usług SEO dla firm z Rzeszowa",
+          "H2: Case study - wyniki rzeszowskich klientów",
+          "H2: Cennik pozycjonowania Rzeszów 2026",
+          "H2: FAQ: Pozycjonowanie Rzeszów"
+        ],
+        "unique_angle": "Lokalny angle SEO. Obecna /marketing/seo/ targetuje ogólnopolskie frazy - ten spoke nie koliduje, obsługuje wyłącznie ruch lokalny rzeszowski.",
+        "cannibalization_risk": "LOW - /marketing/seo/ nie ma lokalnego targetowania. Nowy URL jest niezależny."
+      },
+      {
+        "id": "spoke-web-rzeszow",
+        "url": "/web-development/rzeszow/",
+        "primary_keyword": "strony internetowe Rzeszów",
+        "secondary_keywords": ["projektowanie stron www Rzeszów"],
+        "monthly_volume_primary": 590,
+        "monthly_volume_secondary": 70,
+        "intent": "Commercial",
+        "word_count_target": { "min": 1500, "max": 1800 },
+        "schema": ["Service", "LocalBusiness", "FAQPage"],
+        "h_outline": [
+          "H1: Strony Internetowe Rzeszów - Tworzenie i Projektowanie WWW",
+          "H2: Tworzenie stron internetowych dla firm z Rzeszowa i Podkarpacia",
+          "H2: Technologie - WordPress, Next.js, custom CMS",
+          "H3: Kiedy WordPress, kiedy custom aplikacja?",
+          "H3: Core Web Vitals jako standard",
+          "H2: Typy stron - wizytówka, landing page, sklep, portal",
+          "H2: Realizacje dla firm z Rzeszowa",
+          "H2: Proces i harmonogram realizacji",
+          "H2: Cennik tworzenia stron internetowych Rzeszów 2026",
+          "H2: FAQ: Strony internetowe Rzeszów"
+        ],
+        "unique_angle": "Konsoliduje dwie frazy (SERP overlap 4). Jedyna lokalna strona web dev - /web-development/ pozostaje ogólnopolskim hubem technologicznym.",
+        "cannibalization_risk": "LOW - /web-development/ nie targetuje lokalnie."
+      },
+      {
+        "id": "spoke-interaktywna-rzeszow",
+        "url": "/miasto/rzeszow/agencja-interaktywna/",
+        "primary_keyword": "agencja interaktywna Rzeszów",
+        "secondary_keywords": [],
+        "monthly_volume_primary": 110,
+        "monthly_volume_secondary": 0,
+        "intent": "Commercial",
+        "word_count_target": { "min": 1200, "max": 1400 },
+        "schema": ["Service", "LocalBusiness"],
+        "h_outline": [
+          "H1: Agencja Interaktywna Rzeszów - Mixture Marketing",
+          "H2: Co to jest agencja interaktywna i czym różni się od marketingowej?",
+          "H2: Usługi agencji interaktywnej Mixture w Rzeszowie",
+          "H3: UX/UI + development + kampanie - jeden spójny proces",
+          "H2: Dla kogo? - startupy, MSP, instytucje",
+          "H2: Wybrane projekty interaktywne",
+          "H2: FAQ"
+        ],
+        "unique_angle": "Angle: projekty digital end-to-end (design+dev+marketing w jednym). Odróżnia się od pillar (ogólnie agencja marketingowa) i spoke web-dev (tylko realizacja techniczna).",
+        "cannibalization_risk": "NONE - żadna inna strona nie targetuje tej frazy."
+      },
+      {
+        "id": "spoke-reklamowa-rzeszow",
+        "url": "/miasto/rzeszow/agencja-reklamowa/",
+        "primary_keyword": "agencja reklamowa Rzeszów",
+        "secondary_keywords": [],
+        "monthly_volume_primary": 260,
+        "monthly_volume_secondary": 0,
+        "intent": "Commercial",
+        "word_count_target": { "min": 1200, "max": 1400 },
+        "schema": ["Service", "LocalBusiness", "FAQPage"],
+        "h_outline": [
+          "H1: Agencja Reklamowa Rzeszów - Reklama dla Twojej Firmy",
+          "H2: Agencja reklamowa Rzeszów - reklama w internecie i poza nim",
+          "H2: Reklama Google Ads i Meta Ads dla firm z Rzeszowa",
+          "H2: Kampanie wizerunkowe i rebrandingi",
+          "H2: Materiały reklamowe - branding, druk, outdoor",
+          "H2: FAQ: Agencja reklamowa vs. agencja marketingowa"
+        ],
+        "unique_angle": "SERP tej frazy zawiera drukarnie i agencje outdoor (a4a5.pl, colourreactor.pl). Treść obejmuje digital+kreacja+print (we współpracy z partnerami) - szerszy angle niż sama agencja marketingowa.",
+        "cannibalization_risk": "LOW - pillar używa frazy jako secondary (1 zdanie w intro), spoke jest primary owner."
+      }
+    ],
+    "supporting_articles": [
+      {
+        "id": "art-jak-wybrac-agencje",
+        "url": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/",
+        "keyword": "jak wybrać agencję marketingową Rzeszów",
+        "intent": "Informational",
+        "funnel_stage": "BOFU",
+        "word_count_target": { "min": 1000, "max": 1200 },
+        "outbound_links": ["/miasto/rzeszow/", "/marketing/seo/rzeszow/", "/web-development/rzeszow/"]
+      },
+      {
+        "id": "art-ile-kosztuje-strona",
+        "url": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/",
+        "keyword": "ile kosztuje strona internetowa Rzeszów 2026",
+        "intent": "Informational",
+        "funnel_stage": "MOFU",
+        "word_count_target": { "min": 1200, "max": 1500 },
+        "outbound_links": ["/web-development/rzeszow/", "/miasto/rzeszow/", "/web-development/landing-page/"]
+      },
+      {
+        "id": "art-bledy-podkarpacie",
+        "url": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/",
+        "keyword": "błędy w marketingu firm z Podkarpacia",
+        "intent": "Informational",
+        "funnel_stage": "TOFU",
+        "word_count_target": { "min": 1000, "max": 1400 },
+        "outbound_links": ["/miasto/rzeszow/", "/marketing/seo/rzeszow/", "/marketing/analytics/"]
+      }
+    ]
+  },
+  "link_matrix": {
+    "mandatory_bidirectional": [
+      { "from": "/miasto/rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie stron w Rzeszowie" },
+      { "from": "/miasto/rzeszow/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron internetowych Rzeszów" },
+      { "from": "/miasto/rzeszow/", "to": "/miasto/rzeszow/agencja-interaktywna/", "anchor": "agencja interaktywna Rzeszów" },
+      { "from": "/miasto/rzeszow/", "to": "/miasto/rzeszow/agencja-reklamowa/", "anchor": "usługi reklamowe w Rzeszowie" },
+      { "from": "/marketing/seo/rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/web-development/rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/miasto/rzeszow/agencja-interaktywna/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/miasto/rzeszow/agencja-reklamowa/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" }
+    ],
+    "recommended_spoke_to_spoke": [
+      { "from": "/web-development/rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie nowej strony w Rzeszowie" },
+      { "from": "/marketing/seo/rzeszow/", "to": "/web-development/rzeszow/", "anchor": "strony internetowe zoptymalizowane pod SEO" },
+      { "from": "/web-development/rzeszow/", "to": "/miasto/rzeszow/agencja-interaktywna/", "anchor": "kompleksowa obsługa digital w Rzeszowie" },
+      { "from": "/miasto/rzeszow/agencja-reklamowa/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie jako element strategii reklamowej" },
+      { "from": "/miasto/rzeszow/agencja-interaktywna/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron www Rzeszów" }
+    ],
+    "optional_from_parent_pages": [
+      { "from": "/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/marketing/seo/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie lokalne Rzeszów" },
+      { "from": "/web-development/", "to": "/web-development/rzeszow/", "anchor": "strony internetowe dla firm z Rzeszowa" }
+    ],
+    "from_articles": [
+      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/marketing/seo/rzeszow/", "anchor": "agencja SEO Rzeszów" },
+      { "from": "/baza-wiedzy/jak-wybrac-agencje-marketingowa-rzeszow/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron Rzeszów" },
+      { "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/", "to": "/web-development/rzeszow/", "anchor": "tworzenie stron internetowych Rzeszów" },
+      { "from": "/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/", "to": "/miasto/rzeszow/", "anchor": "agencja marketingowa Rzeszów" },
+      { "from": "/baza-wiedzy/bledy-firm-podkarpacie-marketing-digitalny/", "to": "/marketing/seo/rzeszow/", "anchor": "pozycjonowanie Rzeszów" }
+    ]
+  },
+  "validation": {
+    "no_duplicate_primary_keywords": true,
+    "every_spoke_min_3_incoming_links": true,
+    "every_spoke_links_to_pillar": true,
+    "pillar_links_to_every_spoke": true,
+    "no_orphan_pages": true,
+    "template_matches_intent": true,
+    "word_count_within_spec": true,
+    "cluster_size_within_constraints": true,
+    "serp_overlap_supports_groupings": true,
+    "notes": [
+      "pozycjonowanie + agencja seo: overlap 5 - same page justified",
+      "strony internetowe + projektowanie stron: overlap 4 - same page justified",
+      "agencja reklamowa used as secondary on pillar (1 sentence) - not competing with spoke primary"
+    ]
+  }
+}

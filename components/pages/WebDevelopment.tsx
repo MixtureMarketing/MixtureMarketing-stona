@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import {
   Terminal,
   Calculator,
@@ -152,6 +153,32 @@ const WebDevelopment: React.FC = () => {
         subtitle={WEB_DEV_CONTENT.faq.subtitle}
         items={WEB_DEV_CONTENT.faqs}
       />
+
+      {/* --- LOKALNY LANDING — LINK DO SPOKE RZESZÓW --- */}
+      <Container className="py-12">
+        <Link
+          to="/web-development/rzeszow/"
+          className="group block bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 rounded-2xl p-6 md:p-8 transition-colors"
+        >
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="w-14 h-14 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-700 flex-shrink-0">
+              <MapPin size={28} />
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-bold uppercase tracking-wider text-blue-700 mb-1">
+                Lokalna oferta
+              </p>
+              <h3 className="text-xl md:text-2xl font-bold text-dark mb-1 group-hover:text-primary transition-colors">
+                Tworzenie stron internetowych dla firm z Rzeszowa →
+              </h3>
+              <p className="text-sm md:text-base text-gray-600">
+                Dedykowany cennik, lokalne case studies, spotkania w biurze przy Al. Piłsudskiego
+                17/4.
+              </p>
+            </div>
+          </div>
+        </Link>
+      </Container>
 
       {/* --- RELATED ARTICLES --- */}
       <LazyHydrate minHeight="600px">

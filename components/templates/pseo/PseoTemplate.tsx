@@ -79,10 +79,17 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
         />
       ) : (
         <Seo
-          title={data.seoTitle || `Agencja Marketingowa i Software House - ${data.city}`}
+          title={
+            data.seoTitle ||
+            (slug === 'rzeszow'
+              ? 'Agencja Marketingowa Rzeszów — Mixture Marketing'
+              : `Agencja Marketingowa ${data.city} — Mixture Marketing`)
+          }
           description={
             data.seoDescription ||
-            `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
+            (slug === 'rzeszow'
+              ? 'Mixture Marketing — lokalna agencja marketingowa i software house z Rzeszowa. Strony WWW, sklepy internetowe, pozycjonowanie SEO, Google Ads, branding. Biuro w centrum miasta. Bezpłatna konsultacja.'
+              : `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`)
           }
           lcpImage="/assets/images/sygnet.png"
           // Strony miejskie inne niz siedziba (Rzeszow) sa tymczasowo noindex
