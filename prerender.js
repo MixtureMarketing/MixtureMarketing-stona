@@ -73,8 +73,29 @@ async function processRoute(browser, critters, route) {
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
     await page.waitForSelector('#root', { timeout: 90000 });
 
-    // Small delay for final hydration touches
-    await new Promise((r) => setTimeout(r, 1000));
+    // Czekaj az React Helmet w pelni zhydratowal head: title + meta description +
+    // canonical link. Wszystkie trzy elementy ustawia Seo.tsx, wiec ich obecnosc
+    // sygnalizuje ze Helmet skonczyl prace.
+    const PLACEHOLDER_TITLE = 'Agencja Marketingowa Rzeszów — Mixture Marketing';
+    try {
+      await page.waitForFunction(
+        (placeholder) => {
+          const titleOk = document.title && document.title !== placeholder;
+          const canonical = document.querySelector(
+            'link[rel="canonical"][data-rh="true"]',
+          );
+          const metaDesc = document.querySelector('meta[name="description"][data-rh="true"]');
+          return titleOk && canonical && metaDesc;
+        },
+        { timeout: 18000, polling: 200 },
+        PLACEHOLDER_TITLE,
+      );
+    } catch {
+      console.warn(`⚠️ Helmet hydration timeout (18s) dla ${route} — fallback do default title`);
+    }
+
+    // Dodatkowy buffer dla async schemas (JSON-LD wstrzykiwany przez Helmet).
+    await new Promise((r) => setTimeout(r, 800));
 
     // Error detection
     const bodyText = await page.evaluate(() => document.body.innerText);

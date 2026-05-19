@@ -69,6 +69,9 @@ const Seo: React.FC<SeoProps> = ({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
+      {/* hreflang — sygnal dla Google ze strona jest po polsku (pl-PL) i jest defaultem */}
+      <link rel="alternate" hrefLang="pl-PL" href={canonicalUrl} />
+      <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
       {noindex && <meta name="robots" content="noindex, follow" />}
 
       {lcpBasePath && (

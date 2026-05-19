@@ -16,8 +16,8 @@ const Home = () => {
   return (
     <>
       <Seo
-        title="Agencja Marketingowa 360° i Software House"
-        description="Łączymy precyzję Software House'u z kreatywnością Agencji Reklamowej. Budujemy systemy, które działają i kampanie, które sprzedają. Poznaj naszą ofertę."
+        title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
+        description="Agencja marketingowa Rzeszów. Strony WWW, SEO, Google Ads, Meta Ads, branding. Biuro Al. Piłsudskiego 17/4. Realizacje dla firm z Podkarpacia i całej Polski. Wycena widełkowa."
         lcpImage="/assets/images/sygnet.png"
         jsonLd={{
           '@context': 'https://schema.org',

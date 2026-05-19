@@ -55,7 +55,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Czy spotkamy się osobiście w Rzeszowie?',
       answer:
-        'Tak. Nasze biuro znajduje się przy Al. Józefa Piłsudskiego 17/4, w centrum miasta — 5 minut od Dworca PKP. Po wcześniejszym umówieniu zapraszamy na bezpłatną konsultację (45–60 minut). Spotkania możliwe też online lub w wybranej kawiarni.',
+        'Tak. Nasze biuro znajduje się przy Al. Józefa Piłsudskiego 17 / 4, w centrum miasta — 5 minut od Dworca PKP. Po wcześniejszym umówieniu zapraszamy na bezpłatną konsultację (45–60 minut). Spotkania możliwe też online lub w wybranej kawiarni.',
     },
   ];
 
@@ -121,6 +121,53 @@ const WebDevRzeszow: React.FC = () => {
         name: f.question,
         acceptedAnswer: { '@type': 'Answer', text: f.answer },
       })),
+    },
+    // HowTo schema — proces 5-fazowy. Cytowalne przez AI Overviews dla zapytan
+    // "jak zamowic strone www w Rzeszowie" i podobnych long-tail informational.
+    {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: 'Jak zamówić stronę internetową w Rzeszowie',
+      description:
+        'Pięciofazowy proces realizacji strony internetowej w Mixture Marketing dla firm z Rzeszowa i Podkarpacia.',
+      totalTime: 'P4W',
+      estimatedCost: {
+        '@type': 'MonetaryAmount',
+        currency: 'PLN',
+        value: '7500',
+      },
+      step: [
+        {
+          '@type': 'HowToStep',
+          position: 1,
+          name: 'Discovery',
+          text: 'Bezpłatna konsultacja 45-60 minut. Omawiamy cele biznesowe, persony użytkowników, analizę konkurencji w Rzeszowie i KPI projektu.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 2,
+          name: 'UX/UI Design',
+          text: 'Architektura informacji, wireframes, projekt graficzny w Figma. Akceptacja design system przed kodowaniem.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 3,
+          name: 'Development',
+          text: 'Frontend (React/Next.js lub WordPress) + backend + CMS + integracje (płatności, kurierzy, analityka).',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 4,
+          name: 'Testing',
+          text: 'Audyt Core Web Vitals (LCP, INP, CLS), testy a11y (WCAG 2.2), cross-browser, security headers.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 5,
+          name: 'Launch & SLA',
+          text: 'Wdrożenie na produkcję, szkolenie zespołu klienta z CMS, opieka pogwarancyjna (SLA 99.5% uptime, czas reakcji 4h na błąd krytyczny).',
+        },
+      ],
     },
   ];
 
@@ -559,7 +606,7 @@ const WebDevRzeszow: React.FC = () => {
                   Piłsudskiego 17/4. Omówimy cele, technologie i harmonogram.
                 </p>
                 <p className="text-gray-700 mb-2">
-                  <strong>Adres:</strong> Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów
+                  <strong>Adres:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
                 </p>
                 <p className="text-gray-700 mb-2">
                   <strong>Telefon:</strong>{' '}

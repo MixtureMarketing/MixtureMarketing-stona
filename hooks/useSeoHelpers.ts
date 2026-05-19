@@ -7,7 +7,12 @@ export const useCanonicalUrl = (canonical?: string) => {
   if (pathname !== '/' && !pathname.endsWith('/')) {
     pathname += '/';
   }
-  return canonical || `${baseUrl}${pathname}${location.search}`;
+  // ZAWSZE zwracaj absolutny URL. Wczesniej canonical jako "/web-development/rzeszow/"
+  // bylo zapisywane przez prerender jako relatywny URL — Google ignoruje relative canonical.
+  if (canonical) {
+    return canonical.startsWith('http') ? canonical : `${baseUrl}${canonical}`;
+  }
+  return `${baseUrl}${pathname}${location.search}`;
 };
 
 export const getOgImage = (image?: string) => {

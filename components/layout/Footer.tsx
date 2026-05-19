@@ -23,14 +23,22 @@ const Footer: React.FC = () => {
     }
   };
 
+  // ProfessionalService z @id linkowanym do organization — Service na stronach
+  // spoke (np. /web-development/rzeszow/) odwoluje sie do tego samego @id przez
+  // provider.@id, tworzac jednolity schema graph dla calej domeny.
   const schemaData = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'ProfessionalService',
+    '@id': SITE_CONFIG.domain + '/#organization',
     name: SITE_CONFIG.companyName,
+    legalName: SITE_CONFIG.companyName,
+    vatID: SITE_CONFIG.contact.vatID,
     image: SITE_CONFIG.domain + '/assets/images/logo.svg',
-    '@id': SITE_CONFIG.domain,
+    logo: SITE_CONFIG.domain + '/assets/images/logo.svg',
     url: SITE_CONFIG.domain,
     telephone: SITE_CONFIG.contact.phoneFull,
+    email: SITE_CONFIG.contact.email,
+    priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
       streetAddress: SITE_CONFIG.contact.address.street,
@@ -40,9 +48,14 @@ const Footer: React.FC = () => {
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 50.0411,
-      longitude: 21.9991,
+      latitude: 50.041187,
+      longitude: 21.999116,
     },
+    areaServed: [
+      { '@type': 'Country', name: 'Polska' },
+      { '@type': 'City', name: 'Rzeszów' },
+      { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
+    ],
     openingHoursSpecification: {
       '@type': 'OpeningHoursSpecification',
       dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],

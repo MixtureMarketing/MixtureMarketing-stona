@@ -63,10 +63,22 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </>
             )}
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Lokalne zrozumienie rynku połączone z doświadczeniem w realizacji projektów
-            międzynarodowych.
-          </p>
+          {isHeadquartersCity ? (
+            <p className="text-xl text-gray-600 mb-8">
+              Mixture Marketing to agencja marketingowa i software house z siedzibą w Rzeszowie (Al.
+              Piłsudskiego 17/4), działająca w Podkarpaciu. Realizujemy projekty web development
+              (strony WWW, sklepy e-commerce, aplikacje Next.js), kampanie Google Ads i Meta Ads,
+              pozycjonowanie SEO oraz branding dla firm z Rzeszowa, Mielca, Stalowej Woli, Krosna i
+              Przemyśla. W 2025 roku agencja obsłużyła klientów m.in. z branży produkcyjnej (SSE
+              Mielec), e-commerce i usług B2B, osiągając +127% wzrostu ruchu organicznego dla
+              producenta z Mielca i −47% redukcji CPA dla e-commerce z Rzeszowa.
+            </p>
+          ) : (
+            <p className="text-xl text-gray-600 mb-8">
+              Lokalne zrozumienie rynku połączone z doświadczeniem w realizacji projektów
+              międzynarodowych.
+            </p>
+          )}
           <div className="flex flex-wrap gap-4">
             <Button onClick={() => openModal('consultation')}>
               Darmowa Konsultacja w {data.city}
@@ -246,6 +258,37 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                     className="text-primary hover:underline font-medium"
                   >
                     tworzenie stron internetowych Rzeszów
+                  </Link>
+                  .
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-dark mb-1">
+                  Jak wybrać agencję marketingową w Rzeszowie?
+                </p>
+                <p className="text-gray-600">
+                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy ma fizyczne biuro w
+                  mieście i oferuje spotkania na żywo, (2) czy posiada portfolio z lokalnymi
+                  klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance
+                  marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik
+                  bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację. Mixture Marketing
+                  spełnia wszystkie kryteria — biuro w centrum Rzeszowa, portfolio m.in. z Mielca i
+                  Stalowej Woli, wycena widełkowa od pierwszego maila.
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-dark mb-1">
+                  Ile kosztuje strona internetowa w Rzeszowie?
+                </p>
+                <p className="text-gray-600">
+                  Widełki cenowe Mixture: landing page od 3 900 zł, strona korporacyjna z CMS od 7
+                  500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł.
+                  Pełen cennik 2026 na stronie{' '}
+                  <Link
+                    to="/web-development/rzeszow/"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    strony internetowe Rzeszów
                   </Link>
                   .
                 </p>

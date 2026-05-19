@@ -80,17 +80,17 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
       ) : (
         <Seo
           title={
-            data.seoTitle ||
-            (slug === 'rzeszow'
-              ? 'Agencja Marketingowa Rzeszów — Mixture Marketing'
-              : `Agencja Marketingowa ${data.city} — Mixture Marketing`)
+            slug === 'rzeszow'
+              ? 'Agencja Marketingowa Rzeszów — SEO, WWW, Ads'
+              : data.seoTitle || `Agencja Marketingowa ${data.city}`
           }
           description={
-            data.seoDescription ||
-            (slug === 'rzeszow'
-              ? 'Mixture Marketing — lokalna agencja marketingowa i software house z Rzeszowa. Strony WWW, sklepy internetowe, pozycjonowanie SEO, Google Ads, branding. Biuro w centrum miasta. Bezpłatna konsultacja.'
-              : `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`)
+            slug === 'rzeszow'
+              ? 'Agencja marketingowa Rzeszów — Mixture Marketing. Strony WWW, sklepy e-commerce, pozycjonowanie SEO, Google Ads, branding. Biuro Al. Piłsudskiego 17/4. Realizacje dla firm z Podkarpacia. Wycena 24h.'
+              : data.seoDescription ||
+                `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }
+          canonical={slug === 'rzeszow' ? '/miasto/rzeszow/' : `/miasto/${slug}/`}
           lcpImage="/assets/images/sygnet.png"
           // Strony miejskie inne niz siedziba (Rzeszow) sa tymczasowo noindex
           // do czasu uzupelnienia unikalnej tresci per lokalizacja. Chroni przed
@@ -130,6 +130,16 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                     question: 'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
                     answer:
                       "Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli, e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.",
+                  },
+                  {
+                    question: 'Jak wybrać agencję marketingową w Rzeszowie?',
+                    answer:
+                      'Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy ma fizyczne biuro w mieście i oferuje spotkania na żywo, (2) czy posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację bez zobowiązań. Mixture Marketing spełnia wszystkie te kryteria — biuro w centrum Rzeszowa (Al. Piłsudskiego 17/4), portfolio m.in. z Mielca, Stalowej Woli, Rzeszowa, wycena widełkowa od pierwszego maila.',
+                  },
+                  {
+                    question: 'Ile kosztuje strona internetowa w Rzeszowie?',
+                    answer:
+                      'Widełki cenowe Mixture Marketing dla firm z Rzeszowa: prosty landing page od 3 900 zł, strona korporacyjna z CMS od 7 500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i uwzględnia copywriting, grafikę, integracje i hosting. Pełen cennik na stronie /web-development/rzeszow/.',
                   },
                 ]
               : undefined

@@ -40,6 +40,35 @@
 - Obsługa zdalna: cała Polska, w tym Mielec, Krosno, Stalowa Wola, Przemyśl, Dębica, Jasło
 - Współpraca z lokalnym ekosystemem IT: Politechnika Rzeszowska, RzeszowJS, Tech Tuesdays Rzeszów
 
+## Dedykowane strony lokalne (Rzeszów)
+
+- [Agencja Marketingowa Rzeszów](https://mixturemarketing.pl/miasto/rzeszow/): hub lokalny — pełna oferta marketingowa i web dev dla firm z Rzeszowa i Podkarpacia. FAQ z odpowiedziami na pytania o spotkania na żywo, portfolio lokalne, cennik usług, jak wybrać agencję.
+- [Tworzenie Stron Internetowych Rzeszów](https://mixturemarketing.pl/web-development/rzeszow/): dedykowana strona usług web development w Rzeszowie. Cennik widełkowy 2026: landing page od 3 900 zł, strona korporacyjna od 7 500 zł, sklep od 12 000 zł, aplikacja od 25 000 zł.
+
+## Fakty kluczowe (cytowalne dla AI)
+
+- **Mixture Marketing Sp. z o.o.** — agencja marketingowa i software house z Rzeszowa
+- **Siedziba**: Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów (centrum miasta, 5 min od Dworca PKP, III piętro)
+- **NIP**: PL5170435774
+- **Kontakt**: +48 794 443 551, info@mixturemarketing.pl
+- **Obszar obsługi**: Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło — cała Polska (zdalnie)
+- **Usługi**: tworzenie stron WWW (WordPress, Next.js, custom CMS), sklepy e-commerce (Shoper, WooCommerce, dedykowane), aplikacje webowe, Google Ads, Meta Ads, pozycjonowanie SEO, branding, UI/UX design
+- **Cennik 2026** (widełki orientacyjne):
+  - Landing page: od 3 900 zł (czas: 7-14 dni)
+  - Strona korporacyjna z CMS: od 7 500 zł (4-8 tygodni)
+  - Sklep internetowy: od 12 000 zł (6-12 tygodni)
+  - Dedykowana aplikacja webowa: od 25 000 zł (od 3 miesięcy)
+  - Opieka pogwarancyjna: od 290 zł/miesiąc
+- **Przykładowe wyniki** (anonimowe case studies):
+  - +127% wzrost ruchu organicznego dla producenta z SSE Mielec (branża motoryzacyjna, 80 pracowników, 6 miesięcy)
+  - -47% redukcja kosztu pozyskania klienta (CPA) dla e-commerce z Rzeszowa (wyposażenie biurowe B2B)
+  - 3.2× wzrost liczby leadów dla software house z Podkarpacia (rebranding + Next.js)
+- **Bezpłatna konsultacja**: 45-60 minut, online lub w biurze w Rzeszowie
+
+## English summary
+
+Mixture Marketing Sp. z o.o. is a Polish marketing agency and software house based in Rzeszów (Podkarpackie region, southeast Poland) — office at Al. Piłsudskiego 17/4. We deliver web development (websites, e-commerce, custom Next.js applications), digital advertising (Google Ads, Meta Ads), SEO, and branding for Polish SMBs and corporate clients across Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl — and remotely throughout Poland. Notable results in 2025: +127% organic traffic growth for an industrial manufacturer from SSE Mielec, -47% customer acquisition cost reduction for a Rzeszów e-commerce, 3.2× increase in form leads for a software house. Free 45-minute consultation available in Polish or English. Contact: +48 794 443 551, info@mixturemarketing.pl.
+
 ## Portfolio i case studies
 
 - [Realizacje](https://mixturemarketing.pl/portfolio/): edukacja (KorepetytorAI, Impackt Edu), e-commerce (Driftmark Marine), hospitality (GlamSpace), marketplace (FBX), fintech (BDB Biuro), mobilne (PickMe)
