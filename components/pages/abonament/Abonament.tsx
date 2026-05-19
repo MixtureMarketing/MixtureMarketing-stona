@@ -452,7 +452,7 @@ const Abonament: React.FC = () => {
     jobTitle: 'Założyciel & Fullstack Developer',
     worksFor: { '@id': 'https://mixturemarketing.pl/#organization' },
     url: 'https://mixturemarketing.pl/abonament/',
-    image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela.jpg',
+    image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela-400.jpg',
     sameAs: ['https://pl.linkedin.com/in/jakub-niedziela-9251a8254'],
     knowsAbout: [
       'Web Development',
@@ -1316,14 +1316,19 @@ const Abonament: React.FC = () => {
               <div className="grid md:grid-cols-3 gap-8 items-start">
                 <div className="md:col-span-1">
                   <div className="relative w-40 h-40 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-lg ring-4 ring-emerald-100">
-                    <img
-                      src="/assets/team/jakub-niedziela.jpg"
-                      alt="Jakub Niedziela — założyciel Mixture Marketing"
-                      width="160"
-                      height="160"
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                    />
+                    <picture>
+                      <source srcSet="/assets/team/jakub-niedziela-400.avif" type="image/avif" />
+                      <source srcSet="/assets/team/jakub-niedziela-400.webp" type="image/webp" />
+                      <img
+                        src="/assets/team/jakub-niedziela-400.jpg"
+                        alt="Jakub Niedziela — założyciel Mixture Marketing"
+                        width="160"
+                        height="160"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    </picture>
                   </div>
                 </div>
                 <div className="md:col-span-2">
