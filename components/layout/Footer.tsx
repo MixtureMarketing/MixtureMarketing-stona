@@ -143,18 +143,41 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-gray-300 text-xs font-medium">
-            &copy; {new Date().getFullYear()} {SITE_CONFIG.companyName} NIP:{' '}
-            {SITE_CONFIG.contact.vatID}.
+        {/* Pelne dane prawne — trust signal dla B2B (PL) */}
+        <div className="pt-12 border-t border-white/5">
+          <div className="grid md:grid-cols-2 gap-4 text-gray-300 text-xs font-medium mb-4">
+            <div className="space-y-1">
+              <p className="font-bold text-white">{SITE_CONFIG.companyName}</p>
+              <p>
+                {SITE_CONFIG.contact.address.street}, {SITE_CONFIG.contact.address.postalCode}{' '}
+                {SITE_CONFIG.contact.address.city}
+              </p>
+            </div>
+            <div className="space-y-1 md:text-right">
+              <p>
+                NIP: <span className="text-white">{SITE_CONFIG.contact.vatID}</span>
+                {/* TODO Track 25b: dodać KRS + REGON gdy Jakub poda */}
+              </p>
+              <p>
+                <a
+                  href={`mailto:${SITE_CONFIG.contact.email}`}
+                  className="hover:text-white transition-colors"
+                >
+                  {SITE_CONFIG.contact.email}
+                </a>
+              </p>
+            </div>
           </div>
-          <div className="flex gap-8 text-xxs font-black uppercase tracking-widest text-gray-300">
-            <span className="hover:text-white cursor-default transition-colors">
-              {CONTENT.bottom.copy}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xxs font-black uppercase tracking-widest text-gray-400">
+            <span>
+              &copy; {new Date().getFullYear()} {SITE_CONFIG.companyName}
             </span>
-            <span className="hover:text-white cursor-default transition-colors">
-              {SITE_CONFIG.contact.address.city}, {SITE_CONFIG.contact.address.countryCode}
-            </span>
+            <div className="flex gap-6">
+              <span>{CONTENT.bottom.copy}</span>
+              <span>
+                {SITE_CONFIG.contact.address.city}, {SITE_CONFIG.contact.address.countryCode}
+              </span>
+            </div>
           </div>
         </div>
       </Container>

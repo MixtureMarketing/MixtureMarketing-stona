@@ -25,13 +25,19 @@ import {
   Plus,
   CreditCard,
   Rocket,
-  PhoneCall,
   Wrench,
   Scissors,
   Stethoscope,
   Coffee,
   Calculator,
   Briefcase,
+  Bot,
+  Cpu,
+  Cog,
+  Target,
+  Wallet,
+  Lock,
+  ChevronRight,
 } from 'lucide-react';
 import Seo from '../../common/Seo';
 import Container from '../../common/Container';
@@ -151,7 +157,11 @@ const BENEFITS = [
   },
   { icon: Shield, title: 'RODO + DPA', desc: 'Wszystko zgodnie z prawem, DPA do podpisu.' },
   { icon: Receipt, title: 'Faktury VAT', desc: 'Automat 1. dnia miesiąca przez Fakturownia.pl.' },
-  { icon: Check, title: 'Stała cena', desc: 'Bez ukrytych kosztów. Rezygnacja w każdej chwili.' },
+  {
+    icon: Check,
+    title: 'Stała cena',
+    desc: 'Minimum 3 mies. współpracy, potem rozliczenie mc-to-mc. Bez ukrytych kosztów.',
+  },
 ];
 
 const INDUSTRIES = [
@@ -195,28 +205,32 @@ const INDUSTRIES = [
 
 const STEPS = [
   {
-    icon: CreditCard,
-    title: 'Wybierasz pakiet',
-    desc: 'Klikasz tier i płacisz pierwszą opłatę kartą — Stripe Checkout, 60 sekund.',
+    icon: FileText,
+    title: 'Wypełniasz formularz',
+    duration: '3 minuty',
+    desc: 'Wybierasz pakiet, podajesz NIP, nazwę firmy, branżę i miasto. Bez maili, bez telefonów.',
     chip: 'bg-blue-100 text-blue-800',
   },
   {
-    icon: LayoutDashboard,
-    title: 'Wizard onboardingu',
-    desc: '5 minut na wypełnienie pytań — godziny pracy, usługi, opinie, obszar.',
+    icon: CreditCard,
+    title: 'Płacisz przez Stripe',
+    duration: '1 minuta',
+    desc: 'BLIK, karta lub przelew. Pełna ochrona kupującego. Umowa minimum 3 miesiące.',
     chip: 'bg-violet-100 text-violet-800',
   },
   {
-    icon: Rocket,
-    title: 'Strona live w 24h',
-    desc: 'Robimy stronę za Ciebie. Pod twojafirma.pl + GBP zsynchronizowany.',
-    chip: 'bg-emerald-100 text-emerald-700',
+    icon: LayoutDashboard,
+    title: 'Uzupełniasz kreator',
+    duration: '10–15 minut',
+    desc: 'Logo, zdjęcia, godziny pracy, opis usług — w wygodnym wizardzie. Możesz uzupełnić w 2 turach.',
+    chip: 'bg-amber-100 text-amber-800',
   },
   {
-    icon: PhoneCall,
-    title: 'Leady przychodzą',
-    desc: 'SMS w 30 sekund. Telefon przed konkurencją.',
-    chip: 'bg-amber-100 text-amber-800',
+    icon: Rocket,
+    title: 'Strona idzie online',
+    duration: '6 minut',
+    desc: 'Provisioning automatyczny: domena, SSL, DNS, GBP, llms.txt — wszystko bez Twojego udziału.',
+    chip: 'bg-emerald-100 text-emerald-700',
   },
 ];
 
@@ -238,8 +252,16 @@ const FAQ = [
     a: 'Tak. Zmiana pakietu odbywa się w panelu klienta i wchodzi w życie od następnego okresu rozliczeniowego. Możesz upgradować (np. Starter → Standard) lub downgradować bez okresu wypowiedzenia.',
   },
   {
-    q: 'Czy mogę zrezygnować w każdej chwili?',
-    a: 'Tak. Anulujesz w panelu klienta, kolejny miesiąc nie zostanie pobrany. Nie ma umowy na rok.',
+    q: 'Jak długo trwa minimalna umowa?',
+    a: 'Minimum 3 miesiące, potem rozliczenie mc-to-mc — anulujesz w panelu klienta, kolejny miesiąc nie zostanie pobrany. Po pierwszych 3 mc masz pełną elastyczność.',
+  },
+  {
+    q: 'Czy strona należy do mnie czy do Mixture?',
+    a: 'Działamy w modelu wynajmu (jak Netflix vs zakup filmu): masz pełen dostęp do strony przez subskrypcję, ale infrastruktura, kod i konfiguracja pozostają własnością Mixture. Płacisz za usługę, nie za produkt. Domena jest oddzielnym tematem — patrz niżej.',
+  },
+  {
+    q: 'A co jeśli chcę odejść po roku i wziąć stronę ze sobą?',
+    a: 'Możesz wykupić stronę na własność po zakończeniu subskrypcji — wtedy doliczamy jednorazową opłatę za przeniesienie (kod + konfiguracja + content jako paczka). Wycena indywidualna w zależności od pakietu i ilości customizacji. Domena (jeśli była na Twoim NIP) zawsze zostaje u Ciebie.',
   },
   {
     q: 'Co jeśli mam już stronę?',
@@ -247,7 +269,7 @@ const FAQ = [
   },
   {
     q: 'Kto jest właścicielem domeny?',
-    a: 'Ty. Domena jest rejestrowana na NIP Twojej firmy w OVH — masz pełne prawa, możesz ją w każdej chwili przenieść do innego dostawcy.',
+    a: 'To zależy od ustaleń. Domyślnie rejestrujemy domenę na Twój NIP w OVH — masz pełne prawa, możesz ją w każdej chwili przenieść do innego dostawcy. Strona (kod, konfiguracja, infrastruktura) zostaje własnością Mixture przez czas subskrypcji.',
   },
   {
     q: 'Czy muszę cokolwiek robić technicznie?',
@@ -434,7 +456,7 @@ const Abonament: React.FC = () => {
     <div className="min-h-screen bg-white text-dark">
       <Seo
         title="Strona w abonamencie od 179 zł/mc — gotowa strona WWW dla małej firmy"
-        description="Strona w abonamencie od 179 zł/mc. 4 pakiety (179/249/349/549). Robimy stronę WWW, SEO lokalne i Google Business Profile za Ciebie. Setup w 24h, bez umowy na rok, bez opłat aktywacyjnych. Wybierz pakiet i zacznij dziś."
+        description="Strona w abonamencie od 179 zł/mc. 4 pakiety (179/249/349/549). Robimy stronę WWW, SEO lokalne i Google Business Profile za Ciebie. Setup w 24h, bez opłat aktywacyjnych, umowa od 3 miesięcy. Wybierz pakiet i zacznij dziś."
         canonical="/abonament/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
@@ -481,7 +503,9 @@ const Abonament: React.FC = () => {
             <p className="text-base md:text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
               Strona + SEO + Google Business + leady na&nbsp;telefon.
               <br className="hidden sm:block" />
-              <span className="font-semibold text-dark">Bez setupu. Bez umowy na rok.</span>
+              <span className="font-semibold text-dark">
+                Bez opłat aktywacyjnych. Minimum 3 mies., potem mc-to-mc.
+              </span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mb-10 max-w-xl mx-auto">
@@ -510,7 +534,7 @@ const Abonament: React.FC = () => {
             <div className="inline-flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-5 py-3 rounded-2xl bg-white/70 backdrop-blur-sm border border-gray-100 shadow-sm">
               {[
                 { icon: Zap, text: 'Setup w 24h' },
-                { icon: Check, text: 'Bez umowy na rok' },
+                { icon: Check, text: 'Min. 3 mies., potem mc-to-mc' },
                 { icon: X, text: 'Bez ukrytych kosztów' },
                 { icon: Globe, text: 'Twoja domena na zawsze' },
                 { icon: Shield, text: 'RODO + DPA' },
@@ -549,6 +573,89 @@ const Abonament: React.FC = () => {
           </div>
         </Container>
       )}
+
+      {/* ==================== DLACZEGO TAK TANIO ==================== */}
+      <section className="py-20 md:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-emerald-50 rounded-full blur-[150px] opacity-50" />
+        </div>
+        <Container className="relative z-10">
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+              Cena vs technologia
+            </p>
+            <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-5">
+              Dlaczego 179 zł/mc, a nie 1500?
+            </h2>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              <strong className="text-dark">Bo nie jesteśmy zwykłą agencją.</strong> Tradycyjne
+              agencje WordPress mają biuro w Warszawie, 5-osobowy zespół i osobny VPS dla każdego
+              klienta. To kosztuje 1500–3000 zł/mc. My zbudowaliśmy platformę od zera w 2025 — z
+              myślą o automatyzacji. Stąd 179 zł.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              {
+                icon: Bot,
+                title: 'AI pisze treści',
+                emoji: '🤖',
+                desc: 'Zamiast copywritera za 80 zł/h, Claude Sonnet generuje treści blogowe, opisy usług i odpowiedzi na opinie Google. Klient akceptuje jednym kliknięciem.',
+                chip: 'bg-violet-100 text-violet-800',
+              },
+              {
+                icon: Zap,
+                title: 'Cloudflare Workers (nie WordPress)',
+                emoji: '⚡',
+                desc: 'Twoja strona to edge worker — uruchamia się w 300+ data center na świecie, ładuje w 200 ms zamiast 3 s. Hosting kosztuje nas 3 zł/mc, nie 100.',
+                chip: 'bg-orange-100 text-orange-700',
+              },
+              {
+                icon: Cog,
+                title: 'Sami się automatyzujemy',
+                emoji: '🔧',
+                desc: 'Provisioning nowego klienta = 6 minut (nie 3 dni). Backup, SSL, monitoring, deploy — wszystko on autopilot. Bez działu IT, bez ręcznej pracy.',
+                chip: 'bg-blue-100 text-blue-800',
+              },
+              {
+                icon: MapPin,
+                title: 'Lokalne SEO w cenie',
+                emoji: '📊',
+                desc: 'Wizytówka Google, schema.org, sitemap, llms.txt (pod AI search) — w pakiecie. Inne agencje liczą to jako dodatek 200 zł/mc.',
+                chip: 'bg-emerald-100 text-emerald-700',
+              },
+              {
+                icon: Target,
+                title: 'Specjalizacja: tylko lokalne usługi',
+                emoji: '🎯',
+                desc: 'Robimy jedną rzecz dobrze — strony lokalnych usług w Polsce. Nie e-commerce, nie portale, nie SaaS. Mniejsza specjalizacja = niższy koszt = niższa cena.',
+                chip: 'bg-pink-100 text-pink-700',
+              },
+              {
+                icon: Wallet,
+                title: 'Cena to realny koszt 2026',
+                emoji: '💰',
+                desc: '179 zł to nie obniżka ani promocja kanibalizująca rynek. To prawdziwy koszt prowadzenia strony lokalnej firmy w 2026 — bez sztucznej marży za biuro i pośredników.',
+                chip: 'bg-amber-100 text-amber-700',
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-emerald-200 hover:-translate-y-1 transition-all"
+              >
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 ${item.chip} rounded-xl mb-4`}
+                >
+                  <item.icon size={22} aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-base text-dark mb-2 leading-tight">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
 
       {/* ==================== PROBLEM ↔ SOLUTION ==================== */}
       <section className="py-20 md:py-28 bg-gray-50/60">
@@ -783,8 +890,8 @@ const Abonament: React.FC = () => {
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-10">
-            Bez&nbsp;opłat aktywacyjnych. Rezygnacja w&nbsp;każdej chwili z&nbsp;panelu klienta.
-            Brak ukrytych opłat.
+            Bez&nbsp;opłat aktywacyjnych. Umowa minimum 3 miesiące, potem rozliczenie mc-to-mc. Po
+            roku możesz wykupić stronę na własność (opcja).
           </p>
 
           {/* ============ PROFESSIONAL TIER BANNER ============ */}
@@ -932,6 +1039,10 @@ const Abonament: React.FC = () => {
                     </div>
                     <div className="flex-1 text-left md:text-center">
                       <h3 className="font-extrabold text-dark mb-1">{s.title}</h3>
+                      <p className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-[0.15em] text-emerald-700 mb-2">
+                        <Clock size={11} aria-hidden="true" />
+                        {s.duration}
+                      </p>
                       <p className="text-sm text-gray-600 leading-relaxed">{s.desc}</p>
                     </div>
                   </div>
@@ -943,7 +1054,273 @@ const Abonament: React.FC = () => {
           <div className="text-center mt-16">
             <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold">
               <Clock size={16} aria-hidden="true" />
-              Średnio 24 godziny od pierwszej płatności do strony live
+              Razem ~25 minut od decyzji do działającej strony
+            </div>
+            <p className="text-sm text-gray-500 mt-4 max-w-2xl mx-auto">
+              Bez maili, bez telefonów, bez „spotkania zoom z konsultantem". Pełna automatyzacja od
+              formularza do live URL.
+            </p>
+          </div>
+        </Container>
+      </section>
+
+      {/* ==================== TRUST SIGNALS GRID ==================== */}
+      <section className="py-20 md:py-28 bg-gray-50/60">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+              Konkret, nie marketing
+            </p>
+            <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
+              Co stoi za tymi cenami
+            </h2>
+            <p className="text-lg text-gray-600">
+              Realne dane firmowe, infrastruktura, RODO. Możesz zweryfikować każdą pozycję.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              {
+                icon: Briefcase,
+                emoji: '🇵🇱',
+                title: 'Polska spółka z o.o.',
+                lines: [
+                  'Mixture Marketing Sp. z o.o.',
+                  'NIP: PL5170435774',
+                  'Al. Piłsudskiego 17/4, Rzeszów',
+                ],
+                chip: 'bg-blue-100 text-blue-800',
+              },
+              {
+                icon: Lock,
+                emoji: '🔐',
+                title: 'Backup szyfrowany',
+                lines: [
+                  'Codzienny backup do R2',
+                  'Szyfrowanie AES-GCM 256-bit',
+                  'Retention 30 dni',
+                ],
+                chip: 'bg-emerald-100 text-emerald-700',
+              },
+              {
+                icon: Cpu,
+                emoji: '⚡',
+                title: 'Cloudflare edge infra',
+                lines: [
+                  '300+ data center globalnie',
+                  'LCP < 1 sekunda',
+                  'SLA: best-effort uptime 99.9%',
+                ],
+                chip: 'bg-orange-100 text-orange-700',
+              },
+              {
+                icon: Shield,
+                emoji: '📜',
+                title: 'RODO + DPA',
+                lines: [
+                  'DPA template w pakiecie',
+                  'Per-tenant encryption',
+                  'Retencja leadów 24 mc',
+                ],
+                chip: 'bg-violet-100 text-violet-800',
+              },
+              {
+                icon: Wallet,
+                emoji: '💼',
+                title: 'Jasny model wynajmu',
+                lines: [
+                  'Minimum 3 mies., potem mc-to-mc',
+                  'Strona = własność Mixture',
+                  'Opcja wykupu po roku',
+                ],
+                chip: 'bg-pink-100 text-pink-700',
+              },
+              {
+                icon: FileText,
+                emoji: '🛠️',
+                title: 'Open source stack',
+                lines: [
+                  'Cloudflare Workers + Astro 5',
+                  'Stripe + Resend + Anthropic',
+                  'Bez black-box vendor lock-in',
+                ],
+                chip: 'bg-amber-100 text-amber-700',
+              },
+            ].map((box) => (
+              <div
+                key={box.title}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-emerald-200 transition-all"
+              >
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 ${box.chip} rounded-xl mb-4`}
+                >
+                  <box.icon size={22} aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-base text-dark mb-3">{box.title}</h3>
+                <ul className="space-y-1 m-0 p-0 list-none">
+                  {box.lines.map((line) => (
+                    <li
+                      key={line}
+                      className="text-xs text-gray-600 leading-relaxed flex items-start gap-1.5"
+                    >
+                      <ChevronRight
+                        size={12}
+                        className="shrink-0 mt-0.5 text-emerald-500"
+                        aria-hidden="true"
+                      />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ==================== COMPARISON TABLE ==================== */}
+      <section className="py-20 md:py-28">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+              Porównanie opcji
+            </p>
+            <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
+              Mixture vs Agencja vs Wix
+            </h2>
+            <p className="text-lg text-gray-600">
+              Realne porównanie 3 opcji dla mikrofirmy potrzebującej strony lokalnej.
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto overflow-x-auto">
+            <table className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <thead>
+                <tr className="border-b border-gray-100">
+                  <th className="text-left px-4 py-4 text-xs font-black uppercase tracking-[0.15em] text-gray-500">
+                    Cecha
+                  </th>
+                  <th className="text-center px-4 py-4 bg-emerald-50">
+                    <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-700 mb-1">
+                      Mixture
+                    </p>
+                    <p className="text-sm font-bold text-dark">179 zł/mc</p>
+                  </th>
+                  <th className="text-center px-4 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-1">
+                      Agencja
+                    </p>
+                    <p className="text-sm font-bold text-gray-700">1500 zł/mc</p>
+                  </th>
+                  <th className="text-center px-4 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-1">
+                      DIY Wix
+                    </p>
+                    <p className="text-sm font-bold text-gray-700">60 zł/mc</p>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 text-sm">
+                {[
+                  ['Czas do live', '25 min', '4–8 tygodni', '2–5 dni (sam)'],
+                  ['Lokalne SEO + GBP', '✅ w cenie', '🟡 +500 zł/mc', '❌'],
+                  ['Blog AI (treści)', '✅ Premium', '🟡 +400 zł/post', '❌'],
+                  ['Backup co 24h szyfrowany', '✅', '🟡 zależy', '❌'],
+                  ['Hosting + SSL', '✅ Cloudflare', '🟡 +100 zł/mc', '✅'],
+                  ['Sam edytujesz treści', '✅ CMS Sveltia', '❌ przez agencję', '✅'],
+                  ['Schema + llms.txt', '✅ auto', '🟡 +200 zł', '❌'],
+                  ['Wsparcie', '✅ email + tel', '✅ account manager', '❌ forum'],
+                  [
+                    'Lock-in / migracja',
+                    'Wynajem, wykup opcja',
+                    '🟡 negocjowalne',
+                    '❌ uzależnienie',
+                  ],
+                ].map(([label, mm, ag, wix]) => (
+                  <tr key={label} className="hover:bg-blue-50/20 transition-colors">
+                    <td className="px-4 py-3 font-semibold text-dark">{label}</td>
+                    <td className="px-4 py-3 text-center text-emerald-800 font-semibold bg-emerald-50/50">
+                      {mm}
+                    </td>
+                    <td className="px-4 py-3 text-center text-gray-700">{ag}</td>
+                    <td className="px-4 py-3 text-center text-gray-700">{wix}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="max-w-3xl mx-auto mt-10 space-y-4">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex items-start gap-3">
+              <span className="text-xl flex-shrink-0">💡</span>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                <strong className="text-dark">Agencja vs My:</strong> Agencja jest sensowna jeśli
+                masz unikalny projekt na 50 000 zł i potrzebujesz full custom. Dla zwykłej strony
+                lokalnej usługi — przepłacasz za biuro i marżę pośrednika.
+              </p>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 rounded-xl p-5 flex items-start gap-3">
+              <span className="text-xl flex-shrink-0">💡</span>
+              <p className="text-sm text-gray-700 leading-relaxed">
+                <strong className="text-dark">DIY Wix vs My:</strong> Wix/Squarespace działa jeśli
+                masz 10h tygodniowo na samodzielną pracę. Jeśli wolisz{' '}
+                <em>prowadzić swoją firmę a nie stronę</em> — bierz nas.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ==================== KTO ZA TYM STOI (placeholder) ==================== */}
+      <section className="py-20 md:py-28 bg-gray-50/60">
+        <Container>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+                Twarz za platformą
+              </p>
+              <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
+                Kto to buduje
+              </h2>
+            </div>
+
+            <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
+              <div className="grid md:grid-cols-3 gap-8 items-start">
+                <div className="md:col-span-1">
+                  <div className="w-32 h-32 mx-auto md:mx-0 rounded-2xl bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center text-5xl">
+                    👋
+                  </div>
+                </div>
+                <div className="md:col-span-2">
+                  <h3 className="text-2xl font-bold text-dark mb-2">Jakub · Mixture Marketing</h3>
+                  <p className="text-sm font-semibold text-emerald-700 mb-4">
+                    Założyciel · Fullstack developer · Rzeszów
+                  </p>
+                  <div className="text-gray-700 space-y-3 leading-relaxed">
+                    <p>
+                      Od 2020 prowadzę agencję marketingową w Rzeszowie. Setki konsultacji z
+                      lokalnymi firmami pokazały mi jedno: tradycyjny model agencji (3000 zł/mc za
+                      stronę WordPress + ręczna obsługa) nie pasuje do mikrofirmy na Podkarpaciu.
+                    </p>
+                    <p>
+                      W 2025 zacząłem budować Mixture jako odpowiedź — strona w abonamencie, którą
+                      mikrofirma uruchamia w 25 minut bez maili z konsultantem. Cloudflare Workers,
+                      Astro, AI Claude do treści. Cała platforma od zera, bez kompromisów na rzecz
+                      „przyszłości tańszej WordPress".
+                    </p>
+                    <p className="text-sm text-gray-500 italic">
+                      Możesz napisać do mnie bezpośrednio:{' '}
+                      <a
+                        href="mailto:info@mixturemarketing.pl"
+                        className="text-emerald-700 hover:underline font-semibold not-italic"
+                      >
+                        info@mixturemarketing.pl
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </Container>
