@@ -38,6 +38,8 @@ import {
   Wallet,
   Lock,
   ChevronRight,
+  Linkedin,
+  Mail,
 } from 'lucide-react';
 import Seo from '../../common/Seo';
 import Container from '../../common/Container';
@@ -438,6 +440,31 @@ const Abonament: React.FC = () => {
   };
 
   // FAQ schema z poprawnymi selectorami (details/summary, nie itemprop)
+  // Person schema dla zalozyciela — wzmacnia E-E-A-T (Expertise + Authoritativeness)
+  // dla AI search (ChatGPT, Perplexity, Google AI Overviews).
+  const founderJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://mixturemarketing.pl/#founder',
+    name: 'Jakub Niedziela',
+    givenName: 'Jakub',
+    familyName: 'Niedziela',
+    jobTitle: 'Założyciel & Fullstack Developer',
+    worksFor: { '@id': 'https://mixturemarketing.pl/#organization' },
+    url: 'https://mixturemarketing.pl/abonament/',
+    image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela.jpg',
+    sameAs: ['https://pl.linkedin.com/in/jakub-niedziela-9251a8254'],
+    knowsAbout: [
+      'Web Development',
+      'SEO',
+      'Cloudflare Workers',
+      'Astro',
+      'SaaS architecture',
+      'Local marketing',
+    ],
+    homeLocation: { '@type': 'Place', name: 'Rzeszów, Polska' },
+  };
+
   const faqJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -463,7 +490,7 @@ const Abonament: React.FC = () => {
           { name: 'Strona Główna', item: '/' },
           { name: 'Strona w abonamencie', item: '/abonament/' },
         ]}
-        jsonLd={[serviceJsonLd, faqJsonLd]}
+        jsonLd={[serviceJsonLd, faqJsonLd, founderJsonLd]}
       />
 
       <AmbientBackground />
@@ -1288,14 +1315,21 @@ const Abonament: React.FC = () => {
             <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-100">
               <div className="grid md:grid-cols-3 gap-8 items-start">
                 <div className="md:col-span-1">
-                  <div className="w-32 h-32 mx-auto md:mx-0 rounded-2xl bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center text-5xl">
-                    👋
+                  <div className="relative w-40 h-40 mx-auto md:mx-0 rounded-2xl overflow-hidden shadow-lg ring-4 ring-emerald-100">
+                    <img
+                      src="/assets/team/jakub-niedziela.jpg"
+                      alt="Jakub Niedziela — założyciel Mixture Marketing"
+                      width="160"
+                      height="160"
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
                 <div className="md:col-span-2">
-                  <h3 className="text-2xl font-bold text-dark mb-2">Jakub · Mixture Marketing</h3>
+                  <h3 className="text-2xl font-bold text-dark mb-1">Jakub Niedziela</h3>
                   <p className="text-sm font-semibold text-emerald-700 mb-4">
-                    Założyciel · Fullstack developer · Rzeszów
+                    Założyciel Mixture Marketing · Fullstack developer · Rzeszów
                   </p>
                   <div className="text-gray-700 space-y-3 leading-relaxed">
                     <p>
@@ -1307,17 +1341,28 @@ const Abonament: React.FC = () => {
                       W 2025 zacząłem budować Mixture jako odpowiedź — strona w abonamencie, którą
                       mikrofirma uruchamia w 25 minut bez maili z konsultantem. Cloudflare Workers,
                       Astro, AI Claude do treści. Cała platforma od zera, bez kompromisów na rzecz
-                      „przyszłości tańszej WordPress".
+                      „tańszej przyszłości WordPress".
                     </p>
-                    <p className="text-sm text-gray-500 italic">
-                      Możesz napisać do mnie bezpośrednio:{' '}
-                      <a
-                        href="mailto:info@mixturemarketing.pl"
-                        className="text-emerald-700 hover:underline font-semibold not-italic"
-                      >
-                        info@mixturemarketing.pl
-                      </a>
-                    </p>
+                  </div>
+
+                  {/* Kontakt + LinkedIn */}
+                  <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-gray-100">
+                    <a
+                      href="https://pl.linkedin.com/in/jakub-niedziela-9251a8254"
+                      target="_blank"
+                      rel="noopener noreferrer me"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#0A66C2] hover:bg-[#004182] text-white rounded-full text-sm font-bold transition-colors shadow-sm"
+                    >
+                      <Linkedin size={16} aria-hidden="true" />
+                      LinkedIn
+                    </a>
+                    <a
+                      href="mailto:info@mixturemarketing.pl"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:border-emerald-600 hover:text-emerald-700 text-dark rounded-full text-sm font-bold transition-colors"
+                    >
+                      <Mail size={16} aria-hidden="true" />
+                      info@mixturemarketing.pl
+                    </a>
                   </div>
                 </div>
               </div>
