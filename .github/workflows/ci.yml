@@ -159,12 +159,17 @@ jobs:
 
   # ============================================================
   # JOB 4: DEPLOY — tylko main, tylko jezeli build OK
+  # cloudflare/pages-action@v1 jest deprecated i wymaga deployments:write
+  # GITHUB_TOKEN perm. Migracja na wrangler-action@v3 (oficjalny).
   # ============================================================
   deploy:
     name: 🚀 Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -178,11 +183,8 @@ jobs:
           path: dist
 
       - name: 🚀 Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: mixturemarketing-stona
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+          command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true
