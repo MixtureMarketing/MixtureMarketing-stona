@@ -36,6 +36,9 @@ export const routes = [
 
   // SaaS landing
   '/abonament/',
+  '/abonament/professional/',
+  '/abonament/vs-wix/',
+  '/abonament/vs-orange-klikai/',
   // /abonament/dziekujemy/ - intencjonalnie pominięte (noindex, post-Stripe)
 
   // Design
