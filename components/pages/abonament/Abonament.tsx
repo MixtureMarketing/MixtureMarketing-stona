@@ -1150,7 +1150,10 @@ const Abonament: React.FC = () => {
               {STEPS.map((s, i) => (
                 <div key={i} className="relative text-center md:text-left">
                   <div className="flex md:block items-center gap-4">
-                    <div className="relative flex-shrink-0 mb-0 md:mb-5 mx-0 md:mx-auto">
+                    {/* w-20 EXPLICIT zeby outer wrapper byl 80x80 tak jak kolko —
+                        bez tego mx-auto centruje pelne fluid width, a absolute -top -right
+                        ikonka odlatuje do prawego rogu parent container, nie kolka. */}
+                    <div className="relative flex-shrink-0 w-20 h-20 mb-0 md:mb-5 mx-0 md:mx-auto">
                       <div className="w-20 h-20 rounded-full bg-white border-4 border-emerald-500 flex items-center justify-center font-extrabold text-2xl text-emerald-700 shadow-lg relative z-10">
                         {i + 1}
                       </div>
@@ -1313,27 +1316,32 @@ const Abonament: React.FC = () => {
 
           <div className="max-w-6xl mx-auto">
             {/* Single table — header cards jako thead z 4 kolumnami (label + 3 tier'y).
-                Wczesniej header byl osobnym grid'em poza table, kolumny sie rozjezdzaly. */}
+                Inline width na col + spojny padding p-5 we wszystkich th. */}
             <div className="overflow-x-auto">
               <table className="w-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden table-fixed">
                 <colgroup>
-                  <col className="w-1/4" />
-                  <col className="w-1/4" />
-                  <col className="w-1/4" />
-                  <col className="w-1/4" />
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '25%' }} />
+                  <col style={{ width: '25%' }} />
                 </colgroup>
                 <thead>
-                  <tr className="align-bottom">
-                    {/* Pusta lewa kolumna nad label'ami */}
-                    <th className="p-4 bg-gray-50 border-b border-gray-100"></th>
+                  <tr className="align-top">
+                    {/* Lewa kolumna z labelem "PORÓWNANIE" */}
+                    <th className="p-5 bg-gray-50 border-b border-gray-200 text-left">
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-400 mt-3">
+                        Porównanie
+                      </p>
+                      <p className="text-base font-bold text-gray-600 mt-1">3 modele zakupu</p>
+                    </th>
 
-                    {/* Mixture — featured */}
-                    <th className="relative p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white text-left border-b border-emerald-700">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.2em] shadow whitespace-nowrap">
+                    {/* Mixture — featured. Badge w GORZE cell, NIE absolute (nie wystaje poza table). */}
+                    <th className="p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white text-left border-b border-emerald-700">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.15em] shadow whitespace-nowrap">
                         <Sparkles size={10} aria-hidden="true" />
                         Mixture
-                      </div>
-                      <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-100 mb-2 mt-3">
+                      </span>
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-100 mt-3 mb-2">
                         Abonament
                       </p>
                       <p className="text-xl md:text-2xl font-extrabold mb-1">od 179 zł</p>
@@ -1343,8 +1351,12 @@ const Abonament: React.FC = () => {
                     </th>
 
                     {/* Klasyczne zlecenie */}
-                    <th className="p-5 bg-white text-left border-b border-gray-100">
-                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
+                    <th className="p-5 bg-white text-left border-b border-gray-200">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xxs font-black uppercase tracking-[0.15em] whitespace-nowrap">
+                        <Briefcase size={10} aria-hidden="true" />
+                        Agencja
+                      </span>
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mt-3 mb-2">
                         Klasyczne zlecenie
                       </p>
                       <p className="text-xl md:text-2xl font-extrabold text-dark mb-1">
@@ -1356,9 +1368,13 @@ const Abonament: React.FC = () => {
                     </th>
 
                     {/* DIY Wix */}
-                    <th className="p-5 bg-white text-left border-b border-gray-100">
-                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
-                        DIY (Wix / Squarespace)
+                    <th className="p-5 bg-white text-left border-b border-gray-200">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xxs font-black uppercase tracking-[0.15em] whitespace-nowrap">
+                        <Globe size={10} aria-hidden="true" />
+                        DIY
+                      </span>
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mt-3 mb-2">
+                        Wix / Squarespace
                       </p>
                       <p className="text-xl md:text-2xl font-extrabold text-dark mb-1">od 60 zł</p>
                       <p className="text-xxs text-gray-600 font-medium normal-case tracking-normal">
