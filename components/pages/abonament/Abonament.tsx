@@ -40,6 +40,10 @@ import {
   ChevronRight,
   Linkedin,
   Mail,
+  Minimize2,
+  Feather,
+  Activity,
+  BookOpen,
 } from 'lucide-react';
 import Seo from '../../common/Seo';
 import Container from '../../common/Container';
@@ -606,7 +610,7 @@ const Abonament: React.FC = () => {
         </Container>
       )}
 
-      {/* ==================== DEMO GALLERY (4 branze) ==================== */}
+      {/* ==================== DEMO GALLERY (4 style designu) ==================== */}
       <section id="demo" className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-16">
@@ -614,47 +618,48 @@ const Abonament: React.FC = () => {
               Live demo
             </p>
             <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
-              Zobacz przykładowe strony — 4 branże
+              Zobacz 4 style — wybierasz wygląd, my dopasujemy treść
             </h2>
             <p className="text-lg text-gray-600">
-              Te strony są zbudowane na tej samej platformie którą dostaniesz Ty. Każda inna branża
-              = inny content, inny kolor, ten sam silnik.
+              Każdy demo to ten sam silnik (Astro + Cloudflare) ale inny styl wizualny. Po zakupie
+              wybierasz styl i wypełniasz wizard — strona dostaje Twoje zdjęcia, opinie, kolory i
+              opisy.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {[
               {
-                url: 'https://demo-craftsman.mixturemarketing.pl',
-                title: 'Rzemieślnik',
-                subtitle: 'Ślusarz · stolarz · hydraulik',
-                icon: Wrench,
-                chip: 'bg-orange-100 text-orange-700',
-                accent: 'from-orange-50 to-white border-orange-100',
+                url: 'https://demo-minimalist.mixturemarketing.pl/',
+                title: 'Minimalist',
+                subtitle: 'Czysty, prostotny, dużo whitespace — pasuje do usług profesjonalnych',
+                icon: Minimize2,
+                chip: 'bg-slate-100 text-slate-700',
+                accent: 'from-slate-50 to-white border-slate-100',
               },
               {
-                url: 'https://demo-beauty.mixturemarketing.pl',
-                title: 'Beauty',
-                subtitle: 'Fryzjer · kosmetyczka · spa',
-                icon: Scissors,
-                chip: 'bg-pink-100 text-pink-700',
-                accent: 'from-pink-50 to-white border-pink-100',
+                url: 'https://demo-elegant.mixturemarketing.pl/',
+                title: 'Elegant',
+                subtitle: 'Luksusowy, klasyczny — beauty, fryzjer, spa, butiki',
+                icon: Feather,
+                chip: 'bg-rose-100 text-rose-700',
+                accent: 'from-rose-50 to-white border-rose-100',
               },
               {
-                url: 'https://demo-food.mixturemarketing.pl',
-                title: 'Gastronomia',
-                subtitle: 'Restauracja · kawiarnia · food truck',
-                icon: Coffee,
-                chip: 'bg-amber-100 text-amber-700',
-                accent: 'from-amber-50 to-white border-amber-100',
-              },
-              {
-                url: 'https://demo-professional.mixturemarketing.pl',
-                title: 'Professional',
-                subtitle: 'Adwokat · lekarz · księgowy',
-                icon: Briefcase,
+                url: 'https://demo-dynamic.mixturemarketing.pl/',
+                title: 'Dynamic',
+                subtitle: 'Energiczny, kolorowy — gastronomia, fitness, eventy',
+                icon: Activity,
                 chip: 'bg-violet-100 text-violet-700',
                 accent: 'from-violet-50 to-white border-violet-100',
+              },
+              {
+                url: 'https://demo-editorial.mixturemarketing.pl/',
+                title: 'Editorial',
+                subtitle: 'Magazynowy, typograficzny — eksperci, blog, branże kreatywne',
+                icon: BookOpen,
+                chip: 'bg-indigo-100 text-indigo-700',
+                accent: 'from-indigo-50 to-white border-indigo-100',
               },
             ].map((demo) => (
               <a
@@ -679,12 +684,13 @@ const Abonament: React.FC = () => {
           </div>
 
           <p className="text-center text-xs text-gray-500 mt-6">
-            Demo otwierają się w nowej karcie. Każda strona to prawdziwy produkcyjny Cloudflare
-            Worker — zobaczysz prędkość ładowania w realnych warunkach.
+            Demo otwierają się w nowej karcie. Każdy demo to prawdziwy produkcyjny Cloudflare Worker
+            — zobaczysz prędkość ładowania w realnych warunkach.
           </p>
           <p className="text-center text-xs text-gray-400 mt-3 max-w-2xl mx-auto italic">
-            Treści demo są generyczne — Twoja strona zostanie spersonalizowana podczas wizarda
-            (Twoje zdjęcia, opinie, opisy usług, kolory marki).
+            Treści w demo są ilustracyjne. Po zakupie wybierasz preferowany styl i wypełniasz wizard
+            — strona dostaje Twoje zdjęcia, opinie, opisy usług, kolory marki i funkcjonalności
+            (rezerwacje, formularze, mapa).
           </p>
         </Container>
       </section>
