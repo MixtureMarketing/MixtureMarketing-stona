@@ -19,6 +19,11 @@ export const SITE_CONFIG = {
       countryCode: 'PL',
     },
     vatID: 'PL5170435774',
+    krs: '0001034514',
+    regon: '525228202',
+    foundingDate: '2023-05-08',
+    shareCapital: '5 000 zł',
+    registryCourt: 'Sąd Rejonowy w Rzeszowie, XII Wydział Gospodarczy KRS',
     // Cloudflare Turnstile Site Key. Publiczny - przeznaczony do osadzenia
     // w kodzie frontend. Secret key trzymany jest jako env var TURNSTILE_SECRET
     // na serwerze PHP (weryfikacja w public/api/contact_submit.php).

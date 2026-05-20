@@ -58,17 +58,18 @@ const PRICING = [
     priceGross: 220,
     accent: 'border-gray-100',
     chip: 'bg-blue-100 text-blue-800',
+    // Bullety pisane biznesowo (nie tech) — "co Ci to da" zamiast "jaką technologię"
     features: [
-      { text: 'Strona w technologii Astro (ładowanie <1s)', isNew: false },
-      { text: 'Domena .pl w cenie pakietu', isNew: false },
-      { text: 'CMS Sveltia — edytujesz treści samodzielnie', isNew: false },
-      { text: 'Wizytówka Google (GBP) — podstawowy setup', isNew: true },
-      { text: 'Widget rezerwacji Booksy / Calendly', isNew: true },
-      { text: 'Live widget opinii Google na stronie', isNew: true },
-      { text: 'Click-to-call sticky button na mobile', isNew: true },
-      { text: 'LocalBusiness schema + mapa + NAP', isNew: false },
-      { text: 'Formularz lead + Turnstile anti-bot', isNew: false },
-      { text: 'Backup dobowy do R2 · SSL · Cloudflare DDoS', isNew: false },
+      { text: 'Klienci znajdą Cię w Google Maps i lokalnym SERP', isNew: false },
+      { text: 'Własna domena .pl (np. twojafirma.pl) — w cenie', isNew: false },
+      { text: 'Sam zmieniasz cennik i godziny pracy w panelu', isNew: false },
+      { text: 'Wizytówka Google — pełny setup za Ciebie', isNew: true },
+      { text: 'Rezerwacje przez Booksy / Calendly na stronie', isNew: true },
+      { text: 'Opinie z Google widoczne na stronie automatycznie', isNew: true },
+      { text: 'Telefon-jednym-tap z mobilki (Click-to-call)', isNew: true },
+      { text: 'Strona ładuje się <1 sekundę (Cloudflare edge)', isNew: false },
+      { text: 'Formularz kontaktowy z ochroną przed botami', isNew: false },
+      { text: 'Codzienna kopia zapasowa · SSL · ochrona DDoS', isNew: false },
     ],
   },
   {
@@ -82,13 +83,13 @@ const PRICING = [
     chip: 'bg-emerald-100 text-emerald-700',
     diff: 'Wszystko ze Starter + dodatkowo:',
     features: [
-      { text: 'Do 12 podstron + FAQ + 2 formularze lead', isNew: false },
-      { text: 'Galeria z filtrami (przed/po, kategorie)', isNew: true },
-      { text: 'Lokalne SEO dzielnicowe — auto-podstrony per dzielnica', isNew: true },
-      { text: 'SMS reminder przed wizytą (1 typ, basic)', isNew: true },
-      { text: 'Custom theme variant — Twoje kolory i logo', isNew: false },
-      { text: 'Schema rozszerzone (Service, Offer, AggregateRating)', isNew: false },
-      { text: 'Audyt SEO 1×/kwartał', isNew: false },
+      { text: 'Do 12 podstron + FAQ + 2 formularze (np. wycena/rezerwacja)', isNew: false },
+      { text: 'Galeria z filtrami (np. przed/po dla beauty, kategorie menu)', isNew: true },
+      { text: 'Strony pod każdą dzielnicę / okoliczne miejscowości', isNew: true },
+      { text: 'Automatyczny SMS-przypominajka dla klientów (1 typ)', isNew: true },
+      { text: 'Twoje logo + kolory marki — zindywidualizowany wygląd', isNew: false },
+      { text: 'Rozszerzone meta dane dla Google (więcej opinii w SERP)', isNew: false },
+      { text: 'Audyt SEO co kwartał + raport pozycji w Google', isNew: false },
     ],
   },
   {
@@ -101,14 +102,14 @@ const PRICING = [
     chip: 'bg-violet-100 text-violet-800',
     diff: 'Wszystko ze Standard + dodatkowo:',
     features: [
-      { text: 'Zarządzanie opiniami Google PRO (AI draft, klient akceptuje)', isNew: true },
-      { text: 'Wizytówka Google — 3 posty/mc (AI assist)', isNew: true },
-      { text: 'Call tracking — zliczanie połączeń ze strony + Map', isNew: true },
-      { text: 'Unlimited podstron', isNew: false },
-      { text: 'Blog AI — 2 posty/mc (Claude Haiku, klient akceptuje)', isNew: false },
-      { text: 'A/B testing CTA', isNew: false },
-      { text: 'Priorytetowy support 24h response', isNew: false },
-      { text: 'Audyt SEO comiesięczny', isNew: false },
+      { text: 'Odpowiedzi na opinie Google — AI proponuje, Ty akceptujesz', isNew: true },
+      { text: 'Posty w wizytówce Google co tydzień — automatycznie', isNew: true },
+      { text: 'Pomiar które słowa kluczowe dzwonią Ci telefonem (call tracking)', isNew: true },
+      { text: 'Nielimitowana liczba podstron', isNew: false },
+      { text: 'Blog ekspercki — 2 wpisy/miesiąc generowane przez AI', isNew: false },
+      { text: 'Testy A/B przycisków (sprawdzamy co lepiej konwertuje)', isNew: false },
+      { text: 'Priorytet w obsłudze — odpowiadamy do 24h', isNew: false },
+      { text: 'Audyt SEO co miesiąc + raport pozycji', isNew: false },
     ],
   },
 ];
@@ -258,12 +259,16 @@ const FAQ = [
     a: 'Minimum 3 miesiące, potem rozliczenie mc-to-mc — anulujesz w panelu klienta, kolejny miesiąc nie zostanie pobrany. Po pierwszych 3 mc masz pełną elastyczność.',
   },
   {
-    q: 'Czy strona należy do mnie czy do Mixture?',
-    a: 'Działamy w modelu wynajmu (jak Netflix vs zakup filmu): masz pełen dostęp do strony przez subskrypcję, ale infrastruktura, kod i konfiguracja pozostają własnością Mixture. Płacisz za usługę, nie za produkt. Domena jest oddzielnym tematem — patrz niżej.',
+    q: 'Co dokładnie kupuję — stronę czy usługę?',
+    a: 'Kupujesz subskrypcję serwisu strony — kompletną usługę: utrzymanie infrastruktury, hosting, SSL, backupy, lokalne SEO, Google Business Profile, generowanie leadów, panel klienta, content na bloga (Premium+), i ciągłe ulepszenia. Tak działa Office 365, Netflix, Spotify — płacisz za usługę i jej rozwój, nie za jednorazowe nabycie pliku. Domena jest osobnym tematem (patrz niżej).',
   },
   {
-    q: 'A co jeśli chcę odejść po roku i wziąć stronę ze sobą?',
-    a: 'Możesz wykupić stronę na własność po zakończeniu subskrypcji — wtedy doliczamy jednorazową opłatę za przeniesienie (kod + konfiguracja + content jako paczka). Wycena indywidualna w zależności od pakietu i ilości customizacji. Domena (jeśli była na Twoim NIP) zawsze zostaje u Ciebie.',
+    q: 'Czy mogę wykupić stronę na własność?',
+    a: 'Tak, w dowolnym momencie. Cennik wykupu jest jawny: 5 000 zł w pierwszym roku (pełna własność kodu, konfiguracji, contentu jako paczka eksportowa) lub 1 000 zł po przepracowaniu pełnych 12 miesięcy abonamentu (po roku pokrywamy tylko koszt prac przeniesienia). Domena na Twoim NIP zawsze zostaje u Ciebie, niezależnie od decyzji o wykupie.',
+  },
+  {
+    q: 'Dlaczego strona jest u Was, a nie u mnie od początku?',
+    a: 'Strona jest głęboko zintegrowana z naszą platformą — panel klienta, lead routing (SMS w 30s), AI Blog, GBP sync, monitoring uptime. Wyciągnięcie tego osobno wymaga prac. Dzięki temu modelowi możemy oferować pakiet 179 zł/mc (przy klasycznym projekcie własnościowym koszt to 6 000–15 000 zł setup + 200 zł/mc hosting/maintenance). Płacisz za wygodę i to że my zajmujemy się serwerem, kodem, aktualizacjami — Ty robisz biznes.',
   },
   {
     q: 'Co jeśli mam już stronę?',
@@ -676,6 +681,10 @@ const Abonament: React.FC = () => {
           <p className="text-center text-xs text-gray-500 mt-6">
             Demo otwierają się w nowej karcie. Każda strona to prawdziwy produkcyjny Cloudflare
             Worker — zobaczysz prędkość ładowania w realnych warunkach.
+          </p>
+          <p className="text-center text-xs text-gray-400 mt-3 max-w-2xl mx-auto italic">
+            Treści demo są generyczne — Twoja strona zostanie spersonalizowana podczas wizarda
+            (Twoje zdjęcia, opinie, opisy usług, kolory marki).
           </p>
         </Container>
       </section>
@@ -1231,11 +1240,11 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: Wallet,
-                title: 'Jasny model wynajmu',
+                title: 'Jawne warunki subskrypcji',
                 lines: [
-                  'Minimum 3 mies., potem mc-to-mc',
-                  'Strona = własność Mixture',
-                  'Opcja wykupu po roku',
+                  'Min. 3 mies., potem mc-to-mc',
+                  'Wykup w 1. roku: 5 000 zł',
+                  'Wykup po 12 mc: 1 000 zł',
                 ],
                 chip: 'bg-pink-100 text-pink-700',
               },
@@ -1381,7 +1390,7 @@ const Abonament: React.FC = () => {
                     },
                     {
                       label: 'Model własności',
-                      mm: { status: 'mid', text: 'wynajem (opcja wykupu po roku)' },
+                      mm: { status: 'ok', text: 'subskrypcja serwisu + opcja wykupu (1k–5k zł)' },
                       ag: { status: 'ok', text: 'pełne własność po zapłacie' },
                       wix: { status: 'mid', text: 'uzależnienie od platformy' },
                     },
@@ -1615,6 +1624,53 @@ const Abonament: React.FC = () => {
         </Container>
       </section>
 
+      {/* ==================== WOLISZ ZADZWONIĆ? (alternatywa do self-service) ==================== */}
+      <section className="py-12 md:py-16 bg-gradient-to-br from-emerald-50/40 to-blue-50/40">
+        <Container>
+          <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-10 shadow-sm border border-emerald-100">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+                  Wolisz porozmawiać?
+                </p>
+                <h3 className="text-2xl md:text-3xl font-bold text-dark mb-3 leading-tight">
+                  Niekoniecznie musisz klikać i płacić online
+                </h3>
+                <p className="text-gray-600 leading-relaxed mb-4">
+                  Wiemy że nie każdy lubi self-service. Możesz po prostu zadzwonić, porozmawiać
+                  z&nbsp;Jakubem, dostać fakturę proforma i&nbsp;zapłacić zwykłym przelewem
+                  bankowym. Bez Stripe'a, bez karty, bez kreatora.
+                </p>
+                <p className="text-xs text-gray-500">
+                  Pn–Pt 9:00–17:00 · Polski język · Konsultacja bez zobowiązań
+                </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                <a
+                  href="tel:+48794443551"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+                >
+                  <Phone size={20} aria-hidden="true" />
+                  <div className="text-left">
+                    <span className="block text-lg leading-none">+48 794 443 551</span>
+                    <span className="block text-xs text-emerald-100 font-medium">
+                      Zadzwoń do Jakuba
+                    </span>
+                  </div>
+                </a>
+                <a
+                  href="mailto:info@mixturemarketing.pl?subject=Pytanie%20o%20abonament%20-%20chc%C4%99%20przelew%20VAT"
+                  className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-gray-200 hover:border-emerald-600 hover:text-emerald-700 text-dark font-bold rounded-full transition-all"
+                >
+                  <Mail size={20} aria-hidden="true" />
+                  <span>Napisz — faktura VAT</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ==================== FAQ ==================== */}
       <section className="py-20 md:py-28 abonament-faq">
         <Container>
@@ -1745,6 +1801,17 @@ const Abonament: React.FC = () => {
 
       {/* Modal */}
       <PreonboardModal tier={openTier} onClose={() => setOpenTier(null)} />
+
+      {/* Sticky telefon CTA — mobile only. Marek-persona blocker:
+          self-service flow odpycha klientów 40+. Telefon = realny conversion path. */}
+      <a
+        href="tel:+48794443551"
+        className="md:hidden fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full shadow-lg shadow-emerald-500/40 transition-colors"
+        aria-label="Zadzwoń: +48 794 443 551"
+      >
+        <Phone size={18} aria-hidden="true" />
+        <span className="text-sm">Zadzwoń</span>
+      </a>
     </div>
   );
 };

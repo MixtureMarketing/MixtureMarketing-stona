@@ -33,6 +33,13 @@ const Footer: React.FC = () => {
     name: SITE_CONFIG.companyName,
     legalName: SITE_CONFIG.companyName,
     vatID: SITE_CONFIG.contact.vatID,
+    foundingDate: SITE_CONFIG.contact.foundingDate,
+    // Identifier dla KRS — pomaga Google Knowledge Graph zidentyfikowac firme
+    identifier: [
+      { '@type': 'PropertyValue', name: 'KRS', value: SITE_CONFIG.contact.krs },
+      { '@type': 'PropertyValue', name: 'REGON', value: SITE_CONFIG.contact.regon },
+      { '@type': 'PropertyValue', name: 'NIP', value: SITE_CONFIG.contact.vatID },
+    ],
     image: SITE_CONFIG.domain + '/assets/images/logo.svg',
     logo: SITE_CONFIG.domain + '/assets/images/logo.svg',
     url: SITE_CONFIG.domain,
@@ -143,32 +150,47 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Pelne dane prawne — trust signal dla B2B (PL) */}
+        {/* Pelne dane prawne sp. z o.o. — trust signal dla B2B (PL) + RODO */}
         <div className="pt-12 border-t border-white/5">
-          <div className="grid md:grid-cols-2 gap-4 text-gray-300 text-xs font-medium mb-4">
+          <div className="grid md:grid-cols-2 gap-6 text-gray-300 text-xs font-medium mb-6">
             <div className="space-y-1">
-              <p className="font-bold text-white">{SITE_CONFIG.companyName}</p>
+              <p className="font-bold text-white text-sm mb-2">{SITE_CONFIG.companyName}</p>
               <p>
-                {SITE_CONFIG.contact.address.street}, {SITE_CONFIG.contact.address.postalCode}{' '}
-                {SITE_CONFIG.contact.address.city}
+                {SITE_CONFIG.contact.address.street},<br />
+                {SITE_CONFIG.contact.address.postalCode} {SITE_CONFIG.contact.address.city},{' '}
+                {SITE_CONFIG.contact.address.country}
               </p>
-            </div>
-            <div className="space-y-1 md:text-right">
-              <p>
-                NIP: <span className="text-white">{SITE_CONFIG.contact.vatID}</span>
-                {/* TODO Track 25b: dodać KRS + REGON gdy Jakub poda */}
-              </p>
-              <p>
+              <p className="pt-1">
                 <a
                   href={`mailto:${SITE_CONFIG.contact.email}`}
                   className="hover:text-white transition-colors"
                 >
                   {SITE_CONFIG.contact.email}
                 </a>
+                {' · '}
+                <a
+                  href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+                  className="hover:text-white transition-colors"
+                >
+                  {SITE_CONFIG.contact.phone}
+                </a>
               </p>
             </div>
+            <div className="space-y-1 md:text-right">
+              <p>
+                NIP: <span className="text-white font-mono">{SITE_CONFIG.contact.vatID}</span>
+              </p>
+              <p>
+                KRS: <span className="text-white font-mono">{SITE_CONFIG.contact.krs}</span>
+              </p>
+              <p>
+                REGON: <span className="text-white font-mono">{SITE_CONFIG.contact.regon}</span>
+              </p>
+              <p className="pt-1 text-gray-400">{SITE_CONFIG.contact.registryCourt}</p>
+              <p className="text-gray-400">Kapitał zakładowy: {SITE_CONFIG.contact.shareCapital}</p>
+            </div>
           </div>
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xxs font-black uppercase tracking-widest text-gray-400">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xxs font-black uppercase tracking-widest text-gray-400 pt-4 border-t border-white/5">
             <span>
               &copy; {new Date().getFullYear()} {SITE_CONFIG.companyName}
             </span>
