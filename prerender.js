@@ -85,11 +85,11 @@ async function processRoute(browser, critters, route) {
           const metaDesc = document.querySelector('meta[name="description"][data-rh="true"]');
           return titleOk && canonical && metaDesc;
         },
-        { timeout: 18000, polling: 200 },
+        { timeout: 30000, polling: 200 },
         PLACEHOLDER_TITLE,
       );
     } catch {
-      console.warn(`⚠️ Helmet hydration timeout (18s) dla ${route} — fallback do default title`);
+      console.warn(`⚠️ Helmet hydration timeout (30s) dla ${route} — fallback do default title`);
     }
 
     // Dodatkowy buffer dla async schemas (JSON-LD wstrzykiwany przez Helmet).

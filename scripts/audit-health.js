@@ -68,8 +68,22 @@ async function runHealthCheck() {
       const url = `http://localhost:${PORT}${route}`;
       console.log(`🚀 Checking: ${route}`);
 
+      // Blokuj /cdn-cgi/* (Zaraz, CF features) — endpoint istnieje TYLKO na CF edge,
+      // w lokalnym vite preview zwraca 404 i blokuje networkidle0.
+      // Wczesniej audit-health potrafil zawiesic sie na 60s timeout per route × 30 routes
+      // = 30 min job wisu, mimo continue-on-error.
+      await page.setRequestInterception(true);
+      page.on('request', (req) => {
+        if (req.url().includes('/cdn-cgi/')) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
+
       try {
-        const response = await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
+        // 'load' zamiast 'networkidle0' — szybsze i nie blokuje sie na third-party trackerach
+        const response = await page.goto(url, { waitUntil: 'load', timeout: 30000 });
 
         if (!response || !response.ok()) {
           const status = response ? response.status() : 'No Response';

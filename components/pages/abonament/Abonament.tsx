@@ -549,11 +549,11 @@ const Abonament: React.FC = () => {
                 />
               </a>
               <a
-                href="#how-it-works"
-                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                href="#demo"
+                onClick={(e) => handleSmoothScroll(e, 'demo')}
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-dark hover:text-emerald-700 font-bold rounded-full text-lg border border-gray-200 hover:border-emerald-300 hover:shadow-md transition-all"
               >
-                Jak to działa?
+                Zobacz przykłady
               </a>
             </div>
 
@@ -601,6 +601,85 @@ const Abonament: React.FC = () => {
         </Container>
       )}
 
+      {/* ==================== DEMO GALLERY (4 branze) ==================== */}
+      <section id="demo" className="py-20 md:py-28 bg-gray-50/60">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+              Live demo
+            </p>
+            <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
+              Zobacz przykładowe strony — 4 branże
+            </h2>
+            <p className="text-lg text-gray-600">
+              Te strony są zbudowane na tej samej platformie którą dostaniesz Ty. Każda inna branża
+              = inny content, inny kolor, ten sam silnik.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
+            {[
+              {
+                url: 'https://demo-craftsman.mixturemarketing.pl',
+                title: 'Rzemieślnik',
+                subtitle: 'Ślusarz · stolarz · hydraulik',
+                icon: Wrench,
+                chip: 'bg-orange-100 text-orange-700',
+                accent: 'from-orange-50 to-white border-orange-100',
+              },
+              {
+                url: 'https://demo-beauty.mixturemarketing.pl',
+                title: 'Beauty',
+                subtitle: 'Fryzjer · kosmetyczka · spa',
+                icon: Scissors,
+                chip: 'bg-pink-100 text-pink-700',
+                accent: 'from-pink-50 to-white border-pink-100',
+              },
+              {
+                url: 'https://demo-food.mixturemarketing.pl',
+                title: 'Gastronomia',
+                subtitle: 'Restauracja · kawiarnia · food truck',
+                icon: Coffee,
+                chip: 'bg-amber-100 text-amber-700',
+                accent: 'from-amber-50 to-white border-amber-100',
+              },
+              {
+                url: 'https://demo-professional.mixturemarketing.pl',
+                title: 'Professional',
+                subtitle: 'Adwokat · lekarz · księgowy',
+                icon: Briefcase,
+                chip: 'bg-violet-100 text-violet-700',
+                accent: 'from-violet-50 to-white border-violet-100',
+              },
+            ].map((demo) => (
+              <a
+                key={demo.url}
+                href={demo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`group bg-gradient-to-br ${demo.accent} p-6 rounded-2xl border hover:shadow-xl hover:-translate-y-1 transition-all`}
+              >
+                <div
+                  className={`inline-flex items-center justify-center w-12 h-12 ${demo.chip} rounded-xl mb-4 group-hover:scale-110 transition-transform`}
+                >
+                  <demo.icon size={22} aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-base text-dark mb-1.5">{demo.title}</h3>
+                <p className="text-xs text-gray-600 mb-4 leading-relaxed">{demo.subtitle}</p>
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                  Otwórz live <ArrowRight size={12} aria-hidden="true" />
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <p className="text-center text-xs text-gray-500 mt-6">
+            Demo otwierają się w nowej karcie. Każda strona to prawdziwy produkcyjny Cloudflare
+            Worker — zobaczysz prędkość ładowania w realnych warunkach.
+          </p>
+        </Container>
+      </section>
+
       {/* ==================== DLACZEGO TAK TANIO ==================== */}
       <section className="py-20 md:py-28 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
@@ -614,11 +693,17 @@ const Abonament: React.FC = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-5">
               Dlaczego 179 zł/mc, a nie 1500?
             </h2>
+            <p className="text-lg text-gray-700 leading-relaxed mb-4">
+              <strong className="text-dark">Mixture jest agencją marketingową</strong> — robimy też
+              klasyczne, custom strony i kampanie SEO/Ads dla firm z większym budżetem (4 000 – 30
+              000 zł projekt). Tam koszt wynika z liczby osobogodzin: copywriter, designer,
+              programista, account manager.
+            </p>
             <p className="text-lg text-gray-700 leading-relaxed">
-              <strong className="text-dark">Bo nie jesteśmy zwykłą agencją.</strong> Tradycyjne
-              agencje WordPress mają biuro w Warszawie, 5-osobowy zespół i osobny VPS dla każdego
-              klienta. To kosztuje 1500–3000 zł/mc. My zbudowaliśmy platformę od zera w 2025 — z
-              myślą o automatyzacji. Stąd 179 zł.
+              <strong className="text-dark">Strona w abonamencie to osobny produkt</strong> —
+              zbudowany od zera w 2025 dla mikrofirm, których nie stać na klasyczne zlecenie.
+              Większość pracy wykonuje platforma (AI + Cloudflare + automatyzacja) zamiast ludzi.
+              Stąd 179 zł zamiast 1500.
             </p>
           </div>
 
@@ -626,44 +711,38 @@ const Abonament: React.FC = () => {
             {[
               {
                 icon: Bot,
-                title: 'AI pisze treści',
-                emoji: '🤖',
-                desc: 'Zamiast copywritera za 80 zł/h, Claude Sonnet generuje treści blogowe, opisy usług i odpowiedzi na opinie Google. Klient akceptuje jednym kliknięciem.',
+                title: 'AI generuje treści',
+                desc: 'Claude Sonnet pisze treści blogowe, opisy usług i odpowiedzi na opinie Google. Klient akceptuje jednym kliknięciem — zamiast godzin copywritera.',
                 chip: 'bg-violet-100 text-violet-800',
               },
               {
                 icon: Zap,
-                title: 'Cloudflare Workers (nie WordPress)',
-                emoji: '⚡',
-                desc: 'Twoja strona to edge worker — uruchamia się w 300+ data center na świecie, ładuje w 200 ms zamiast 3 s. Hosting kosztuje nas 3 zł/mc, nie 100.',
+                title: 'Cloudflare Workers (nie VPS)',
+                desc: 'Twoja strona to edge worker w 300+ data center na świecie, ładuje w ~200 ms. Hosting nie wymaga osobnego VPS-a per klient (jak przy klasycznym WordPressie).',
                 chip: 'bg-orange-100 text-orange-700',
               },
               {
                 icon: Cog,
-                title: 'Sami się automatyzujemy',
-                emoji: '🔧',
-                desc: 'Provisioning nowego klienta = 6 minut (nie 3 dni). Backup, SSL, monitoring, deploy — wszystko on autopilot. Bez działu IT, bez ręcznej pracy.',
+                title: 'Self-service provisioning',
+                desc: 'Klient idzie sam przez wizard (25 min), system automatycznie rejestruje domenę, konfiguruje SSL, wgrywa content. Zero ręcznej koordynacji projektu.',
                 chip: 'bg-blue-100 text-blue-800',
               },
               {
                 icon: MapPin,
-                title: 'Lokalne SEO w cenie',
-                emoji: '📊',
-                desc: 'Wizytówka Google, schema.org, sitemap, llms.txt (pod AI search) — w pakiecie. Inne agencje liczą to jako dodatek 200 zł/mc.',
+                title: 'Local SEO w pakiecie',
+                desc: 'Wizytówka Google, schema.org, sitemap, llms.txt — zintegrowane. W klasycznym projekcie agencyjnym to dodatkowa pozycja (1 500–3 000 zł setup).',
                 chip: 'bg-emerald-100 text-emerald-700',
               },
               {
                 icon: Target,
-                title: 'Specjalizacja: tylko lokalne usługi',
-                emoji: '🎯',
-                desc: 'Robimy jedną rzecz dobrze — strony lokalnych usług w Polsce. Nie e-commerce, nie portale, nie SaaS. Mniejsza specjalizacja = niższy koszt = niższa cena.',
+                title: 'Stała architektura, nie custom',
+                desc: 'Wszystkie strony używają tej samej kombinacji (Astro + Sanity + Cloudflare). Nie projektujemy od zera per klient — wymieniamy tylko content, kolory i logo.',
                 chip: 'bg-pink-100 text-pink-700',
               },
               {
                 icon: Wallet,
-                title: 'Cena to realny koszt 2026',
-                emoji: '💰',
-                desc: '179 zł to nie obniżka ani promocja kanibalizująca rynek. To prawdziwy koszt prowadzenia strony lokalnej firmy w 2026 — bez sztucznej marży za biuro i pośredników.',
+                title: 'Bez marży za czas zespołu',
+                desc: 'Klasyczny projekt 8 000 zł = 60% to wynagrodzenia osób pracujących nad NIM. Abonament zastępuje większość tych godzin platformą — koszt to głównie infra + support.',
                 chip: 'bg-amber-100 text-amber-700',
               },
             ].map((item) => (
@@ -833,8 +912,9 @@ const Abonament: React.FC = () => {
                 } transition-all flex flex-col h-full`}
               >
                 {tier.featured && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg whitespace-nowrap">
-                    ⭐ Najpopularniejszy
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg whitespace-nowrap">
+                    <Sparkles size={12} aria-hidden="true" />
+                    Najpopularniejszy
                   </div>
                 )}
 
@@ -931,7 +1011,8 @@ const Abonament: React.FC = () => {
                 {/* Lewa kolumna — heading + cena + CTA */}
                 <div className="lg:col-span-2">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/15 backdrop-blur-sm text-amber-200 text-xs font-black uppercase tracking-[0.2em] mb-5 border border-amber-500/30">
-                    <span>🏛️ Branże regulowane</span>
+                    <Briefcase size={12} aria-hidden="true" />
+                    <span>Branże regulowane</span>
                   </div>
                   <h3 className="text-3xl md:text-4xl font-extrabold leading-tight mb-3">
                     Pakiet Professional
@@ -1110,7 +1191,6 @@ const Abonament: React.FC = () => {
             {[
               {
                 icon: Briefcase,
-                emoji: '🇵🇱',
                 title: 'Polska spółka z o.o.',
                 lines: [
                   'Mixture Marketing Sp. z o.o.',
@@ -1121,7 +1201,6 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: Lock,
-                emoji: '🔐',
                 title: 'Backup szyfrowany',
                 lines: [
                   'Codzienny backup do R2',
@@ -1132,7 +1211,6 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: Cpu,
-                emoji: '⚡',
                 title: 'Cloudflare edge infra',
                 lines: [
                   '300+ data center globalnie',
@@ -1143,7 +1221,6 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: Shield,
-                emoji: '📜',
                 title: 'RODO + DPA',
                 lines: [
                   'DPA template w pakiecie',
@@ -1154,7 +1231,6 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: Wallet,
-                emoji: '💼',
                 title: 'Jasny model wynajmu',
                 lines: [
                   'Minimum 3 mies., potem mc-to-mc',
@@ -1165,7 +1241,6 @@ const Abonament: React.FC = () => {
               },
               {
                 icon: FileText,
-                emoji: '🛠️',
                 title: 'Open source stack',
                 lines: [
                   'Cloudflare Workers + Astro 5',
@@ -1211,89 +1286,253 @@ const Abonament: React.FC = () => {
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-16">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
-              Porównanie opcji
+              Porównanie modeli
             </p>
             <h2 className="text-3xl md:text-5xl font-bold text-dark leading-tight mb-4">
-              Mixture vs Agencja vs Wix
+              Abonament vs klasyczne zlecenie vs DIY
             </h2>
             <p className="text-lg text-gray-600">
-              Realne porównanie 3 opcji dla mikrofirmy potrzebującej strony lokalnej.
+              Trzy modele zakupu strony WWW. Każdy ma sens dla innego budżetu i potrzeb.
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto overflow-x-auto">
-            <table className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left px-4 py-4 text-xs font-black uppercase tracking-[0.15em] text-gray-500">
-                    Cecha
-                  </th>
-                  <th className="text-center px-4 py-4 bg-emerald-50">
-                    <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-700 mb-1">
-                      Mixture
-                    </p>
-                    <p className="text-sm font-bold text-dark">179 zł/mc</p>
-                  </th>
-                  <th className="text-center px-4 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-1">
-                      Agencja
-                    </p>
-                    <p className="text-sm font-bold text-gray-700">1500 zł/mc</p>
-                  </th>
-                  <th className="text-center px-4 py-4">
-                    <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-1">
-                      DIY Wix
-                    </p>
-                    <p className="text-sm font-bold text-gray-700">60 zł/mc</p>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 text-sm">
-                {[
-                  ['Czas do live', '25 min', '4–8 tygodni', '2–5 dni (sam)'],
-                  ['Lokalne SEO + GBP', '✅ w cenie', '🟡 +500 zł/mc', '❌'],
-                  ['Blog AI (treści)', '✅ Premium', '🟡 +400 zł/post', '❌'],
-                  ['Backup co 24h szyfrowany', '✅', '🟡 zależy', '❌'],
-                  ['Hosting + SSL', '✅ Cloudflare', '🟡 +100 zł/mc', '✅'],
-                  ['Sam edytujesz treści', '✅ CMS Sveltia', '❌ przez agencję', '✅'],
-                  ['Schema + llms.txt', '✅ auto', '🟡 +200 zł', '❌'],
-                  ['Wsparcie', '✅ email + tel', '✅ account manager', '❌ forum'],
-                  [
-                    'Lock-in / migracja',
-                    'Wynajem, wykup opcja',
-                    '🟡 negocjowalne',
-                    '❌ uzależnienie',
-                  ],
-                ].map(([label, mm, ag, wix]) => (
-                  <tr key={label} className="hover:bg-blue-50/20 transition-colors">
-                    <td className="px-4 py-3 font-semibold text-dark">{label}</td>
-                    <td className="px-4 py-3 text-center text-emerald-800 font-semibold bg-emerald-50/50">
-                      {mm}
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-700">{ag}</td>
-                    <td className="px-4 py-3 text-center text-gray-700">{wix}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="max-w-6xl mx-auto">
+            {/* Karty nagłówków — wizualne porównanie 3 modeli */}
+            <div className="grid sm:grid-cols-3 gap-4 mb-2">
+              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-t-2xl p-5 shadow-lg relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.2em] shadow">
+                  <Sparkles size={10} aria-hidden="true" />
+                  Mixture
+                </div>
+                <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-100 mb-2 mt-3">
+                  Abonament Mixture
+                </p>
+                <p className="text-2xl font-extrabold mb-1">od 179 zł</p>
+                <p className="text-xs text-emerald-50">miesięcznie · min. 3 mies.</p>
+              </div>
+              <div className="bg-white border-2 border-gray-100 rounded-t-2xl p-5 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
+                  Klasyczne zlecenie
+                </p>
+                <p className="text-2xl font-extrabold text-dark mb-1">4–30 tys. zł</p>
+                <p className="text-xs text-gray-600">jednorazowo · agencja / freelancer</p>
+              </div>
+              <div className="bg-white border-2 border-gray-100 rounded-t-2xl p-5 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
+                  DIY (Wix / Squarespace)
+                </p>
+                <p className="text-2xl font-extrabold text-dark mb-1">od 60 zł</p>
+                <p className="text-xs text-gray-600">miesięcznie · sam ją robisz</p>
+              </div>
+            </div>
+
+            {/* Tabela porównawcza */}
+            <div className="overflow-x-auto">
+              <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
+                <tbody className="divide-y divide-gray-50 text-sm">
+                  {[
+                    {
+                      label: 'Czas do uruchomienia',
+                      mm: { status: 'ok', text: '25 minut' },
+                      ag: { status: 'mid', text: '4–8 tygodni' },
+                      wix: { status: 'mid', text: '2–5 dni (sam)' },
+                    },
+                    {
+                      label: 'Lokalne SEO + Google Business',
+                      mm: { status: 'ok', text: 'w cenie' },
+                      ag: { status: 'mid', text: 'dodatkowy zakres' },
+                      wix: { status: 'no', text: 'brak' },
+                    },
+                    {
+                      label: 'Blog AI (treści automatyczne)',
+                      mm: { status: 'ok', text: 'Premium+' },
+                      ag: { status: 'mid', text: '+ copywriter / post' },
+                      wix: { status: 'no', text: 'brak' },
+                    },
+                    {
+                      label: 'Backup szyfrowany co 24h',
+                      mm: { status: 'ok', text: 'AES-GCM 256' },
+                      ag: { status: 'mid', text: 'zależy od agencji' },
+                      wix: { status: 'mid', text: 'platforma' },
+                    },
+                    {
+                      label: 'Hosting + SSL w cenie',
+                      mm: { status: 'ok', text: 'Cloudflare Workers' },
+                      ag: { status: 'mid', text: 'osobno (~100 zł/mc)' },
+                      wix: { status: 'ok', text: 'w cenie' },
+                    },
+                    {
+                      label: 'Edycja treści przez klienta',
+                      mm: { status: 'ok', text: 'CMS Sveltia' },
+                      ag: { status: 'mid', text: 'zależy od agencji' },
+                      wix: { status: 'ok', text: 'drag & drop' },
+                    },
+                    {
+                      label: 'Schema.org + llms.txt (AI search)',
+                      mm: { status: 'ok', text: 'automatycznie' },
+                      ag: { status: 'mid', text: 'dodatkowy zakres' },
+                      wix: { status: 'no', text: 'brak' },
+                    },
+                    {
+                      label: 'Wsparcie po wdrożeniu',
+                      mm: { status: 'ok', text: 'email + telefon' },
+                      ag: { status: 'ok', text: 'account manager' },
+                      wix: { status: 'no', text: 'tylko forum / chat' },
+                    },
+                    {
+                      label: 'Model własności',
+                      mm: { status: 'mid', text: 'wynajem (opcja wykupu po roku)' },
+                      ag: { status: 'ok', text: 'pełne własność po zapłacie' },
+                      wix: { status: 'mid', text: 'uzależnienie od platformy' },
+                    },
+                    {
+                      label: 'Najlepsze dla',
+                      mm: { status: 'ok', text: 'mikrofirmy 1–5 osób' },
+                      ag: { status: 'ok', text: 'unikalny projekt 4k+ zł' },
+                      wix: { status: 'mid', text: 'hobby / portfolio' },
+                    },
+                  ].map((row) => {
+                    const StatusCell = ({
+                      status,
+                      text,
+                      featured,
+                    }: {
+                      status: 'ok' | 'mid' | 'no';
+                      text: string;
+                      featured?: boolean;
+                    }) => {
+                      const Icon = status === 'ok' ? CheckCircle2 : status === 'no' ? X : Plus;
+                      const color =
+                        status === 'ok'
+                          ? 'text-emerald-600'
+                          : status === 'no'
+                            ? 'text-rose-400'
+                            : 'text-amber-500';
+                      return (
+                        <td className={`px-4 py-4 ${featured ? 'bg-emerald-50/30' : ''}`}>
+                          <div className="flex items-start gap-2">
+                            <Icon
+                              size={16}
+                              className={`${color} shrink-0 mt-0.5 ${
+                                status === 'mid' ? 'rotate-45' : ''
+                              }`}
+                              aria-hidden="true"
+                            />
+                            <span
+                              className={`text-sm ${
+                                featured ? 'font-semibold text-dark' : 'text-gray-700'
+                              }`}
+                            >
+                              {text}
+                            </span>
+                          </div>
+                        </td>
+                      );
+                    };
+                    return (
+                      <tr key={row.label} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="px-4 py-4 font-semibold text-dark text-xs uppercase tracking-wide w-1/4">
+                          {row.label}
+                        </td>
+                        <StatusCell {...row.mm} featured />
+                        <StatusCell {...row.ag} />
+                        <StatusCell {...row.wix} />
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-xs text-gray-500 text-center mt-4 italic">
+              Mixture jest też klasyczną agencją marketingową — zlecenia 4 000–30 000 zł realizujemy
+              w tradycyjnym modelu. Abonament to osobny produkt dla mikrofirm bez budżetu na full
+              custom.
+            </p>
           </div>
 
-          <div className="max-w-3xl mx-auto mt-10 space-y-4">
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">💡</span>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                <strong className="text-dark">Agencja vs My:</strong> Agencja jest sensowna jeśli
-                masz unikalny projekt na 50 000 zł i potrzebujesz full custom. Dla zwykłej strony
-                lokalnej usługi — przepłacasz za biuro i marżę pośrednika.
-              </p>
+          {/* Decyzyjne tipki — kiedy który model wybrać */}
+          <div className="max-w-5xl mx-auto mt-12 grid md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                  <Briefcase size={18} aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-dark">Wybierz klasyczne zlecenie, jeśli…</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-blue-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>masz unikalny projekt z budżetem 5–30 tys. zł</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-blue-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>potrzebujesz custom designu lub dedykowanych integracji</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-blue-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>chcesz mieć pełne prawa do kodu i grafiki od dnia 1</span>
+                </li>
+              </ul>
+              <Link
+                to="/web-development/"
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-700 hover:underline mt-4"
+              >
+                Zobacz ofertę klasycznej agencji <ArrowRight size={12} aria-hidden="true" />
+              </Link>
             </div>
-            <div className="bg-amber-50 border border-amber-100 rounded-xl p-5 flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">💡</span>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                <strong className="text-dark">DIY Wix vs My:</strong> Wix/Squarespace działa jeśli
-                masz 10h tygodniowo na samodzielną pracę. Jeśli wolisz{' '}
-                <em>prowadzić swoją firmę a nie stronę</em> — bierz nas.
-              </p>
+            <div className="bg-white rounded-2xl p-6 border-2 border-emerald-200 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <Sparkles size={18} aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-dark">Wybierz abonament Mixture, jeśli…</h3>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-emerald-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>masz mikrofirmę (1–5 osób) bez budżetu na 5+ tys. zł setupu</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-emerald-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>nie chcesz robić strony sam (DIY) ani prowadzić projektu z agencją</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2
+                    size={14}
+                    className="text-emerald-600 shrink-0 mt-1"
+                    aria-hidden="true"
+                  />
+                  <span>potrzebujesz lokalnych leadów i SEO Google Business — od razu</span>
+                </li>
+              </ul>
+              <a
+                href="#pricing"
+                onClick={(e) => handleSmoothScroll(e, 'pricing')}
+                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 hover:underline mt-4"
+              >
+                Wybierz pakiet abonamentu <ArrowRight size={12} aria-hidden="true" />
+              </a>
             </div>
           </div>
         </Container>
