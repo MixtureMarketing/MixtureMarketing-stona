@@ -182,9 +182,19 @@ jobs:
           name: dist-package
           path: dist
 
+      # Sanityzacja commit message — wrangler 3.x/4.x ma bug z UTF-8 w commit msg
+      # gdy zawiera unicode (—, polskie znaki). CF API zwraca code 8000111.
+      # Sklejamy short SHA + bezpieczny prefix zamiast `git log -1`.
+      - name: 🧹 Sanitize commit message
+        id: commit
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "msg=CI deploy $SHORT_SHA (main)" >> $GITHUB_OUTPUT
+
       - name: 🚀 Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true
+          wranglerVersion: '4'
+          command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
