@@ -1306,38 +1306,61 @@ const Abonament: React.FC = () => {
           </div>
 
           <div className="max-w-6xl mx-auto">
-            {/* Karty nagłówków — wizualne porównanie 3 modeli */}
-            <div className="grid sm:grid-cols-3 gap-4 mb-2">
-              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-t-2xl p-5 shadow-lg relative">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.2em] shadow">
-                  <Sparkles size={10} aria-hidden="true" />
-                  Mixture
-                </div>
-                <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-100 mb-2 mt-3">
-                  Abonament Mixture
-                </p>
-                <p className="text-2xl font-extrabold mb-1">od 179 zł</p>
-                <p className="text-xs text-emerald-50">miesięcznie · min. 3 mies.</p>
-              </div>
-              <div className="bg-white border-2 border-gray-100 rounded-t-2xl p-5 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
-                  Klasyczne zlecenie
-                </p>
-                <p className="text-2xl font-extrabold text-dark mb-1">4–30 tys. zł</p>
-                <p className="text-xs text-gray-600">jednorazowo · agencja / freelancer</p>
-              </div>
-              <div className="bg-white border-2 border-gray-100 rounded-t-2xl p-5 shadow-sm">
-                <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
-                  DIY (Wix / Squarespace)
-                </p>
-                <p className="text-2xl font-extrabold text-dark mb-1">od 60 zł</p>
-                <p className="text-xs text-gray-600">miesięcznie · sam ją robisz</p>
-              </div>
-            </div>
-
-            {/* Tabela porównawcza */}
+            {/* Single table — header cards jako thead z 4 kolumnami (label + 3 tier'y).
+                Wczesniej header byl osobnym grid'em poza table, kolumny sie rozjezdzaly. */}
             <div className="overflow-x-auto">
-              <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
+              <table className="w-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden table-fixed">
+                <colgroup>
+                  <col className="w-1/4" />
+                  <col className="w-1/4" />
+                  <col className="w-1/4" />
+                  <col className="w-1/4" />
+                </colgroup>
+                <thead>
+                  <tr className="align-bottom">
+                    {/* Pusta lewa kolumna nad label'ami */}
+                    <th className="p-4 bg-gray-50 border-b border-gray-100"></th>
+
+                    {/* Mixture — featured */}
+                    <th className="relative p-5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white text-left border-b border-emerald-700">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.2em] shadow whitespace-nowrap">
+                        <Sparkles size={10} aria-hidden="true" />
+                        Mixture
+                      </div>
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-emerald-100 mb-2 mt-3">
+                        Abonament
+                      </p>
+                      <p className="text-xl md:text-2xl font-extrabold mb-1">od 179 zł</p>
+                      <p className="text-xxs text-emerald-50 font-medium normal-case tracking-normal">
+                        miesięcznie · min. 3 mies.
+                      </p>
+                    </th>
+
+                    {/* Klasyczne zlecenie */}
+                    <th className="p-5 bg-white text-left border-b border-gray-100">
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
+                        Klasyczne zlecenie
+                      </p>
+                      <p className="text-xl md:text-2xl font-extrabold text-dark mb-1">
+                        4–30 tys. zł
+                      </p>
+                      <p className="text-xxs text-gray-600 font-medium normal-case tracking-normal">
+                        jednorazowo · agencja / freelancer
+                      </p>
+                    </th>
+
+                    {/* DIY Wix */}
+                    <th className="p-5 bg-white text-left border-b border-gray-100">
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-gray-500 mb-2 mt-3">
+                        DIY (Wix / Squarespace)
+                      </p>
+                      <p className="text-xl md:text-2xl font-extrabold text-dark mb-1">od 60 zł</p>
+                      <p className="text-xxs text-gray-600 font-medium normal-case tracking-normal">
+                        miesięcznie · sam ją robisz
+                      </p>
+                    </th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-50 text-sm">
                   {[
                     {
