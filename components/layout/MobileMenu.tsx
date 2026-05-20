@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Layout, Zap, ChevronDown, ArrowRight, Layers, Phone } from 'lucide-react';
+import { Users, Layout, Zap, ChevronDown, ArrowRight, Layers, Phone, X } from 'lucide-react';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { SITE_CONFIG } from '@/config/site';
 import Button from '@/components/common/Button';
@@ -34,6 +34,18 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
       role="navigation"
       aria-label="Menu mobilne"
     >
+      {/* Dedykowany X close button — wewnatrz mobile menu, zawsze na wierzchu.
+          Hamburger w Navbar nie dziala bo nav z-index < mobile menu (parent stacking
+          context). Ten button jest fixed wewnatrz menu, niezalezny od nav. */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(false)}
+        className={`absolute top-5 right-5 w-12 h-12 rounded-full bg-white shadow-lg border border-gray-100 flex items-center justify-center text-dark hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all z-10 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-label="Zamknij menu nawigacyjne"
+      >
+        <X size={22} aria-hidden="true" />
+      </button>
+
       <div className="flex-1 px-6 pt-24 pb-8 overflow-y-auto custom-scrollbar">
         <div className="space-y-4">
           <Link
