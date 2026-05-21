@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- TODO: split into sub-sections (Hero, FAQ, Realizacje) */
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sparkles,
@@ -13,17 +13,22 @@ import {
   Briefcase,
   Wrench,
   Eye,
+  Phone,
 } from 'lucide-react';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
+import FounderCard from '../common/FounderCard';
+import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
 const AgencjaInteraktywnaRzeszow: React.FC = () => {
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
 
   const faq = [
     {
@@ -106,7 +111,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
       <div className="pt-32 pb-20 relative z-10">
         <Container>
           {/* HERO */}
-          <div className="max-w-4xl mx-auto text-center mb-20">
+          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-800 text-sm font-bold uppercase tracking-wider mb-6">
               <Sparkles size={16} />
               <span>Agencja Interaktywna · Rzeszów</span>
@@ -121,19 +126,21 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
               Strategia + design + technologia + marketing pod jednym dachem. Tworzymy strony,
               aplikacje, brandy i kampanie dla firm z Rzeszowa, Mielca, Krosna i całej Polski.
             </p>
-            <div className="flex flex-wrap gap-4 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
               <Button onClick={() => openModal('general', { specificType: 'interactive_rzeszow' })}>
                 Bezpłatna konsultacja
               </Button>
-              <Button
-                variant="outline"
-                onClick={() =>
-                  document.getElementById('uslugi')?.scrollIntoView({ behavior: 'smooth' })
-                }
+              <a
+                href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-pink-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
               >
-                Zobacz usługi
-              </Button>
+                <Phone size={18} aria-hidden="true" />
+                Zadzwoń: {SITE_CONFIG.contact.phone}
+              </a>
             </div>
+            <p className="text-xs text-gray-500 mt-3">
+              Pn–Pt 9–17 · Odpowiadamy w 24h · Bezpłatna konsultacja 45–60 min
+            </p>
           </div>
 
           {/* H2: Co to jest agencja interaktywna */}
@@ -413,6 +420,21 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             </div>
           </div>
 
+          {/* CH1 — Founder trust card: lokalny B2B kupuje od czlowieka */}
+          <div ref={contactRef} className="mb-12 max-w-4xl mx-auto">
+            <FounderCard
+              intro="Spotkasz się z Jakubem"
+              bio={
+                <>
+                  Od 2020 prowadzę agencję marketingową w Rzeszowie. Setki briefów dla firm z
+                  Podkarpacia nauczyły mnie jednego: strategia, design i kod muszą trafić do jednej
+                  osoby — inaczej projekt utknie w pingu między 3 dostawcami. W Mixture spotkasz się
+                  bezpośrednio ze mną, bez handlowca-pośrednika.
+                </>
+              }
+            />
+          </div>
+
           {/* Mapa + dojazd */}
           <div className="mb-20 bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -464,6 +486,18 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
           </div>
         </Container>
       </div>
+
+      {/* CH5 — Sticky mobile CTA bar */}
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={contactRef}
+        label="Bezpłatna konsultacja"
+        sublabel="45–60 min · u Ciebie lub online"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Zapytaj"
+        onPrimary={() => openModal('general', { specificType: 'interactive_rzeszow' })}
+      />
     </div>
   );
 };

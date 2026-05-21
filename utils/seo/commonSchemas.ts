@@ -71,7 +71,7 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
     location: {
       '@type': 'Place',
       '@id': `${baseUrl}/#office`,
-      name: `${SITE_CONFIG.name} — Biuro Rzeszów`,
+      name: `${SITE_CONFIG.name} — adres rejestrowy Rzeszów`,
       address: {
         '@type': 'PostalAddress',
         streetAddress: address.street,

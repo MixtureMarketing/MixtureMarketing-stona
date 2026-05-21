@@ -333,52 +333,71 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               także zdalnie z klientami z całej Polski.
             </p>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               <Link
                 to="/web-development/rzeszow/"
-                className="group bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg transition-all"
+                className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg motion-safe:focus-visible:-translate-y-0.5 transition-all"
               >
                 <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-4">
-                  <Layout size={24} />
+                  <Layout size={24} aria-hidden="true" />
                 </div>
-                <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  Strony internetowe Rzeszów{' '}
+                <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                  Strony internetowe{' '}
                   <ArrowRight
-                    size={16}
+                    size={14}
+                    aria-hidden="true"
                     className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary"
                   />
                 </h3>
-                <p className="text-gray-600 mb-3">
-                  Tworzenie stron WWW, sklepów e-commerce, landing page&apos;y i dedykowanych
-                  aplikacji webowych dla firm z Rzeszowa i Podkarpacia. Stack: WordPress, Next.js,
-                  React, custom CMS.
+                <p className="text-sm text-gray-600 mb-2">
+                  Strony WWW, sklepy e-commerce, landing page&apos;y, dedykowane aplikacje.
+                  WordPress, Next.js, React.
                 </p>
-                <span className="text-sm text-primary font-semibold">
-                  Zobacz ofertę web dev w Rzeszowie →
-                </span>
+                <span className="text-xs text-primary font-semibold">Web dev Rzeszów →</span>
               </Link>
 
               <Link
                 to="/marketing/seo/rzeszow/"
-                className="group bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg transition-all"
+                className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg motion-safe:focus-visible:-translate-y-0.5 transition-all"
               >
                 <div className="w-12 h-12 bg-violet-100 text-violet-700 rounded-xl flex items-center justify-center mb-4">
-                  <Search size={24} />
+                  <Search size={24} aria-hidden="true" />
                 </div>
-                <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  Pozycjonowanie SEO Rzeszów{' '}
+                <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                  Pozycjonowanie SEO{' '}
                   <ArrowRight
-                    size={16}
+                    size={14}
+                    aria-hidden="true"
                     className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary"
                   />
                 </h3>
-                <p className="text-gray-600 mb-3">
-                  Lokalne pozycjonowanie stron, audyty techniczne, Google Maps / Local Pack, link
-                  building w mediach podkarpackich, content SEO. Cennik widełkowy w ofercie.
+                <p className="text-sm text-gray-600 mb-2">
+                  Lokalne SEO + Local Pack, audyty techniczne, link building, content SEO. Cennik
+                  widełkowy.
                 </p>
-                <span className="text-sm text-primary font-semibold">
-                  Zobacz ofertę SEO w Rzeszowie →
-                </span>
+                <span className="text-xs text-primary font-semibold">SEO Rzeszów →</span>
+              </Link>
+
+              <Link
+                to="/agencja-interaktywna-rzeszow/"
+                className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg motion-safe:focus-visible:-translate-y-0.5 transition-all"
+              >
+                <div className="w-12 h-12 bg-pink-100 text-pink-700 rounded-xl flex items-center justify-center mb-4">
+                  <Smartphone size={24} aria-hidden="true" />
+                </div>
+                <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+                  Agencja interaktywna{' '}
+                  <ArrowRight
+                    size={14}
+                    aria-hidden="true"
+                    className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary"
+                  />
+                </h3>
+                <p className="text-sm text-gray-600 mb-2">
+                  Pełna oferta 360°: strategia, branding, design, web, performance marketing,
+                  narzędzia interaktywne.
+                </p>
+                <span className="text-xs text-primary font-semibold">Agencja interaktywna →</span>
               </Link>
             </div>
           </div>

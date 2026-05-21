@@ -1,5 +1,5 @@
 /* eslint-disable max-lines -- TODO: split into sub-sections (Hero, Cennik, FAQ, Realizacje) */
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Code2,
@@ -14,17 +14,22 @@ import {
   Building2,
   Wrench,
   Sparkles,
+  Phone,
 } from 'lucide-react';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
+import FounderCard from '../common/FounderCard';
+import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
 const WebDevRzeszow: React.FC = () => {
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
 
   const faq = [
     {
@@ -195,7 +200,7 @@ const WebDevRzeszow: React.FC = () => {
       <div className="pt-32 pb-20 relative z-10">
         <Container>
           {/* HERO */}
-          <div className="max-w-4xl mx-auto text-center mb-20">
+          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-bold uppercase tracking-wider mb-6">
               <Globe size={16} />
               <span>Web Development · Rzeszów</span>
@@ -213,19 +218,21 @@ const WebDevRzeszow: React.FC = () => {
               Stalowej Woli, Krosna i Przemyśla. Pracujemy mobilnie — dojeżdżamy do klienta na
               terenie Podkarpacia, wycena widełkowa od pierwszego maila.
             </p>
-            <div className="flex flex-wrap gap-4 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
               <Button onClick={() => openModal('general', { specificType: 'webdev_rzeszow' })}>
                 Bezpłatna wycena
               </Button>
-              <Button
-                variant="outline"
-                onClick={() =>
-                  document.getElementById('cennik')?.scrollIntoView({ behavior: 'smooth' })
-                }
+              <a
+                href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
               >
-                Zobacz cennik
-              </Button>
+                <Phone size={18} aria-hidden="true" />
+                Zadzwoń: {SITE_CONFIG.contact.phone}
+              </a>
             </div>
+            <p className="text-xs text-gray-500 mt-3">
+              Pn–Pt 9–17 · Wycena widełkowa w 24h · Bezpłatna konsultacja 45–60 min
+            </p>
           </div>
 
           {/* H2: Dla firm z Rzeszowa i Podkarpacia */}
@@ -558,12 +565,21 @@ const WebDevRzeszow: React.FC = () => {
                   pozostanie wizytówką. Po wdrożeniu warto zadbać o widoczność w Google — zarówno
                   organicznie, jak i płatnie.
                 </p>
-                <Link
-                  to="/marketing/seo/rzeszow/"
-                  className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
-                >
-                  Zobacz ofertę pozycjonowania w Rzeszowie <ArrowRight size={16} />
-                </Link>
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/marketing/seo/rzeszow/"
+                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                  >
+                    Pozycjonowanie SEO w Rzeszowie <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                  <Link
+                    to="/agencja-interaktywna-rzeszow/"
+                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                  >
+                    Agencja interaktywna Rzeszów (pełna oferta 360°){' '}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </div>
               </div>
               <div>
                 <Link
@@ -573,10 +589,10 @@ const WebDevRzeszow: React.FC = () => {
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                     Hub lokalny
                   </p>
-                  <h4 className="font-bold mb-2">Lokalny hub usług w Rzeszowie →</h4>
+                  <h4 className="font-bold mb-2">Mixture w Rzeszowie — pełna oferta →</h4>
                   <p className="text-sm text-gray-600">
-                    Pełna oferta lokalna: marketing 360°, branding, SEO, Google Ads. Biuro w centrum
-                    Rzeszowa.
+                    Marketing 360°, branding, SEO, Google Ads. Pracujemy mobilnie — dojeżdżamy do
+                    klienta na Podkarpaciu.
                   </p>
                 </Link>
               </div>
@@ -607,6 +623,20 @@ const WebDevRzeszow: React.FC = () => {
                 </details>
               ))}
             </div>
+          </div>
+
+          {/* CH1 — Founder trust card */}
+          <div ref={contactRef} className="mb-12 max-w-4xl mx-auto">
+            <FounderCard
+              intro="Z kim się spotkasz"
+              bio={
+                <>
+                  Od 2020 buduję strony WWW i aplikacje webowe dla firm z Podkarpacia. Sam koduję,
+                  projektuję i prowadzę projekt — od briefu po launch. Bez gry w głuchy telefon
+                  między grafikiem a developerem.
+                </>
+              }
+            />
           </div>
 
           {/* Mapa + dojazd */}
@@ -660,6 +690,18 @@ const WebDevRzeszow: React.FC = () => {
           </div>
         </Container>
       </div>
+
+      {/* CH5 — Sticky mobile CTA bar */}
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={contactRef}
+        label="Bezpłatna wycena projektu"
+        sublabel="Wycena widełkowa w 24h"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wycena"
+        onPrimary={() => openModal('general', { specificType: 'webdev_rzeszow' })}
+      />
     </div>
   );
 };
