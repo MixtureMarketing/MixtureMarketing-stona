@@ -28,6 +28,7 @@ import BaseCta from '../common/BaseCta';
 import SectionWrapper from '../common/SectionWrapper';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
+import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import { LandingPageHeroVisual } from '../visuals/hero/LandingPageVisual';
 import { PricingSectionData, PricingTier } from '../../types';
 import LandingPagePsychology from '../features/web-development/LandingPagePsychology';
@@ -216,6 +217,18 @@ const LandingPage: React.FC = () => {
           <IntegrationGrid categories={integrationCategories} />
         </SectionWrapper>
       </LazyHydrate>
+
+      {/* --- FOUNDER TRUST + SPOKE CROSS-LINKS --- */}
+      <WebDevSpokeFooter
+        currentType="landing"
+        founderBio={
+          <>
+            Od 2020 buduję landing page&apos;y pod kampanie performance (Google/Meta Ads). Robię UX
+            wireframes w Figma, koduję w Astro lub Next.js, integruję z analityką i CRM. Sam testuję
+            A/B — bez "wycofań do backendu".
+          </>
+        }
+      />
 
       {/* --- CTA --- */}
       <BaseCta

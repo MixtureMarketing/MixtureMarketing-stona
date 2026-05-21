@@ -9,6 +9,7 @@ import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
+import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import BaseCta from '../common/BaseCta';
 import { PricingSectionData, PricingTier } from '../../types';
 import { EcommerceHeroVisual } from '../visuals/hero/EcommerceVisual';
@@ -104,6 +105,18 @@ const Ecommerce: React.FC = () => {
 
       {/* --- FAQ --- */}
       <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} />
+
+      {/* --- FOUNDER TRUST + SPOKE CROSS-LINKS --- */}
+      <WebDevSpokeFooter
+        currentType="ecommerce"
+        founderBio={
+          <>
+            Od 2020 buduję sklepy internetowe i marketplace&apos;y dla firm z Podkarpacia. Stack:
+            Shoper, WooCommerce, dedykowany Next.js+Sanity. Integracje płatności (Przelewy24,
+            Stripe), kurierów i ERP. Sam koduję — bez "kogoś z agencji od backendu".
+          </>
+        }
+      />
 
       {/* --- CTA --- */}
       <BaseCta

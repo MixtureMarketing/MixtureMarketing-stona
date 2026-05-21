@@ -120,9 +120,10 @@ const WebDevelopment: React.FC = () => {
               (tech) => (
                 <span
                   key={tech}
-                  className="text-xs font-bold font-mono tracking-wider text-gray-600 hover:text-dark transition-colors flex items-center gap-2 cursor-default"
+                  className="text-xs font-bold font-mono tracking-wider text-gray-600 flex items-center gap-2"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary"></span> {tech}
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true"></span>{' '}
+                  {tech}
                 </span>
               ),
             )}

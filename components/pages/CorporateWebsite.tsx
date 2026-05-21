@@ -26,6 +26,7 @@ import { PricingSectionData, PricingTier } from '../../types';
 
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
+import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import BaseCta from '../common/BaseCta';
 import { CorporateHeroVisual } from '../visuals/hero/CorporateVisual';
 import SectionWrapper from '../common/SectionWrapper';
@@ -108,7 +109,7 @@ const CorporateWebsite: React.FC = () => {
         ctaSecondaryText="Wyceń stronę firmową"
         ctaSecondaryOnClick={() => navigate('/offers#calculator?type=corporate')}
         ctaSecondaryIcon={Calculator}
-        backLinkPath="/web-development"
+        backLinkPath="/web-development/"
         backLinkLabel="Web Development"
         visual={<CorporateHeroVisual />}
       />
@@ -205,6 +206,18 @@ const CorporateWebsite: React.FC = () => {
           />
         </LazyHydrate>
       )}
+
+      {/* --- FOUNDER TRUST + SPOKE CROSS-LINKS --- */}
+      <WebDevSpokeFooter
+        currentType="corporate"
+        founderBio={
+          <>
+            Od 2020 buduję strony firmowe i portale korporacyjne dla średnich i dużych
+            przedsiębiorstw. Migrowałem stack z WordPress na Next.js+Sanity, wdrażałem RODO
+            compliance i wielojęzyczność. Sam koordynuję projekt — od briefu po szkolenie zespołu.
+          </>
+        }
+      />
 
       {/* --- CTA --- */}
       <BaseCta

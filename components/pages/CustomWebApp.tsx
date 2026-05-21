@@ -10,6 +10,7 @@ import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
+import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import BaseCta from '../common/BaseCta';
 import { WebAppHeroVisual } from '../visuals/hero/WebAppVisual';
 
@@ -74,7 +75,7 @@ const CustomWebApp: React.FC = () => {
         ctaSecondaryText="Wyceń aplikację"
         ctaSecondaryOnClick={() => navigate('/offers#calculator?type=custom')}
         ctaSecondaryIcon={Calculator}
-        backLinkPath="/web-development"
+        backLinkPath="/web-development/"
         backLinkLabel="Web Development"
         visual={<WebAppHeroVisual />}
       />
@@ -97,6 +98,18 @@ const CustomWebApp: React.FC = () => {
           />
         </LazyHydrate>
       )}
+
+      {/* --- FOUNDER TRUST + SPOKE CROSS-LINKS --- */}
+      <WebDevSpokeFooter
+        currentType="custom"
+        founderBio={
+          <>
+            Od 2020 buduję dedykowane aplikacje webowe (SaaS, B2B, portale klienckie). Stack:
+            Next.js + Node.js + PostgreSQL + Cloudflare Workers. Architektura, kod i SLA — wszystko
+            ze mną, bez handlowca-pośrednika i bez 3 dostawców do koordynowania.
+          </>
+        }
+      />
 
       {/* --- CTA --- */}
       <BaseCta

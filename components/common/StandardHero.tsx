@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import AmbientBackground from './AmbientBackground';
 import { HeroTitle, HeroButtons } from './HeroSubComponents';
 import Container from './Container';
+import HeroBadge from './HeroBadge';
 
 interface StandardHeroProps {
   badge: string;
-  badgeIcon: LucideIcon;
+  /** @deprecated icon ignorowany odkad StandardHero uzywa HeroBadge z live-dot (Sprint E3) */
+  badgeIcon?: LucideIcon;
   title: string | { line1: string; line2: string; accent?: string };
   description: string;
   ctaPrimaryText: string;
@@ -30,7 +32,7 @@ interface StandardHeroProps {
 
 const StandardHero: React.FC<StandardHeroProps> = ({
   badge,
-  badgeIcon: BadgeIcon,
+  badgeIcon: _BadgeIcon,
   title,
   description,
   ctaPrimaryText,
@@ -65,9 +67,9 @@ const StandardHero: React.FC<StandardHeroProps> = ({
 
         <div className="flex flex-col lg:flex-row gap-16 items-center">
           <div className="lg:w-1/2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in border border-secondary/20">
-              <BadgeIcon size={14} /> {badge}
-            </div>
+            <HeroBadge accent="secondary" className="mb-6">
+              {badge}
+            </HeroBadge>
             <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl font-extrabold text-dark mb-6 leading-[1.1] animate-fade-in-up break-words">
               <HeroTitle
                 title={title}
