@@ -132,10 +132,15 @@ async function generateSitemap() {
         url: `${BASE_URL}${withTrailingSlash(`/branza/${i.slug}`)}`,
         lastmod: formatLastmod(i._updatedAt),
       })),
-      ...locations.map((l) => ({
-        url: `${BASE_URL}${withTrailingSlash(`/miasto/${l.slug}`)}`,
-        lastmod: formatLastmod(l._updatedAt),
-      })),
+      // Tylko /miasto/rzeszow/ trafia do sitemap — pozostale 7 miast jest noindex
+      // (doorway pages risk) i nie powinny byc zglaszane Google. Po dodaniu unikalnej
+      // tresci per miasto (min 600 slow lokalne case studies/partnerzy) zdjac filtr.
+      ...locations
+        .filter((l) => l.slug === 'rzeszow')
+        .map((l) => ({
+          url: `${BASE_URL}${withTrailingSlash(`/miasto/${l.slug}`)}`,
+          lastmod: formatLastmod(l._updatedAt),
+        })),
       ...projects.map((p) => {
         const imgUrl = sanityImageUrl(p.imageRef);
         return {
