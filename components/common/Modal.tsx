@@ -27,11 +27,22 @@ const Modal: React.FC<ModalProps> = ({
   useEffect(() => {
     const dlg = dialogRef.current;
     if (!dlg) return;
+    // jsdom (testy vitest) nie implementuje showModal/close — fallback ustawiajacy
+    // `open` attribute zachowuje funkcjonalnosc komponentu w SR/keyboard tests bez
+    // crashy, a w real browser zachowuje sie identycznie jak natywne API.
     if (isOpen && !dlg.open) {
-      dlg.showModal();
+      if (typeof dlg.showModal === 'function') {
+        dlg.showModal();
+      } else {
+        dlg.setAttribute('open', '');
+      }
     }
     if (!isOpen && dlg.open) {
-      dlg.close();
+      if (typeof dlg.close === 'function') {
+        dlg.close();
+      } else {
+        dlg.removeAttribute('open');
+      }
     }
   }, [isOpen]);
 

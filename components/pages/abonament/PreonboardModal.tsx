@@ -183,19 +183,28 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     writeDraft({ businessName, email, phone, nip, consentMarketing, selectedTier });
   }, [businessName, email, phone, nip, consentMarketing, selectedTier]);
 
-  // Native <dialog>: showModal() daje za darmo focus trap, ESC, inert background, Top Layer (above z-index).
-  // Wystarczy sterować open/close + onClose handler reaguje na ESC oraz programatyczne close().
+  // Native <dialog>: showModal() daje za darmo focus trap, ESC, inert background, Top Layer.
+  // Defensive guard: jsdom (vitest) nie implementuje showModal/close — fallback ustawia
+  // `open` attribute, zachowuje funkcjonalnosc komponentu w testach bez crashy.
   useEffect(() => {
     const dlg = dialogRef.current;
     if (!dlg) return;
     if (tier && !dlg.open) {
-      dlg.showModal();
+      if (typeof dlg.showModal === 'function') {
+        dlg.showModal();
+      } else {
+        dlg.setAttribute('open', '');
+      }
       // Mały delay żeby screen reader zdążył odczytać dialog title przed focusem inputu
       const t = setTimeout(() => firstInputRef.current?.focus(), 100);
       return () => clearTimeout(t);
     }
     if (!tier && dlg.open) {
-      dlg.close();
+      if (typeof dlg.close === 'function') {
+        dlg.close();
+      } else {
+        dlg.removeAttribute('open');
+      }
     }
   }, [tier]);
 
