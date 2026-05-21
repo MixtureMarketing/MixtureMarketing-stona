@@ -110,7 +110,9 @@ const Offers: React.FC = () => {
               ></div>
 
               <button
+                type="button"
                 onClick={() => setScale('startup')}
+                aria-pressed={scale === 'startup'}
                 className={`relative z-10 w-48 py-4 rounded-full text-sm font-bold transition-colors duration-300 flex flex-col items-center gap-1 group ${scale === 'startup' ? 'text-white' : 'text-gray-600 hover:text-secondary'}`}
               >
                 <div className="flex items-center gap-2">
@@ -130,7 +132,9 @@ const Offers: React.FC = () => {
               </button>
 
               <button
+                type="button"
                 onClick={() => setScale('enterprise')}
+                aria-pressed={scale === 'enterprise'}
                 className={`relative z-10 w-48 py-4 rounded-full text-sm font-bold transition-colors duration-300 flex flex-col items-center gap-1 group ${scale === 'enterprise' ? 'text-white' : 'text-gray-600 hover:text-secondary'}`}
               >
                 <div className="flex items-center gap-2">

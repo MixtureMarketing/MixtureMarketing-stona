@@ -3,7 +3,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  MessageSquare,
   FileText,
   Building2,
   Copy,
@@ -14,6 +13,7 @@ import AnimateOnScroll from '../common/AnimateOnScroll';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
+import HeroBadge from '../common/HeroBadge';
 import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
@@ -74,9 +74,9 @@ const ContactPage: React.FC = () => {
 
         <Container className="relative z-10">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider mb-6 animate-fade-in">
-              <MessageSquare size={14} /> {CONTENT.hero.badge}
-            </div>
+            <HeroBadge accent="primary" className="mb-6">
+              {CONTENT.hero.badge}
+            </HeroBadge>
             <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
               {CONTENT.hero.title.line1} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">

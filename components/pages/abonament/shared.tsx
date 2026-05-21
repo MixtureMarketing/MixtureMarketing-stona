@@ -1,69 +1,15 @@
 /**
  * Wspólne komponenty grupy /abonament/* (C5 + C2 consistency).
- * HeroBadge: jednolity wzorzec "live-dot" badge nad H1.
  * GhostButton: secondary CTA (border ghost) cross-page consistent.
+ * HeroBadge: re-export z common dla backwards compat.
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// Re-export wspolnego HeroBadge (moved to common/HeroBadge.tsx w Sprint B3)
+export { default as HeroBadge } from '../../common/HeroBadge';
+
 type Accent = 'emerald' | 'amber';
-
-interface HeroBadgeProps {
-  accent?: Accent;
-  /** Czy renderować animowaną kropkę "ping" (live signal). Default: true */
-  live?: boolean;
-  /** Opcjonalna Lucide ikona (zastępuje kropkę gdy live=false) */
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}
-
-const HERO_BADGE_ACCENTS: Record<
-  Accent,
-  { bg: string; border: string; text: string; dot: string; ping: string }
-> = {
-  emerald: {
-    bg: 'bg-white',
-    border: 'border-emerald-200',
-    text: 'text-emerald-800',
-    dot: 'bg-emerald-600',
-    ping: 'bg-emerald-500',
-  },
-  amber: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
-    text: 'text-amber-800',
-    dot: 'bg-amber-600',
-    ping: 'bg-amber-500',
-  },
-};
-
-export const HeroBadge: React.FC<HeroBadgeProps> = ({
-  accent = 'emerald',
-  live = true,
-  icon,
-  children,
-  className = '',
-}) => {
-  const c = HERO_BADGE_ACCENTS[accent];
-  return (
-    <div
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${c.bg} border ${c.border} ${c.text} text-xs font-black uppercase tracking-[0.2em] shadow-sm ${className}`}
-    >
-      {live ? (
-        <span className="relative flex h-2 w-2" aria-hidden="true">
-          <span
-            className={`motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full ${c.ping} opacity-75`}
-          />
-          <span className={`relative inline-flex rounded-full h-2 w-2 ${c.dot}`} />
-        </span>
-      ) : icon ? (
-        <span aria-hidden="true">{icon}</span>
-      ) : null}
-      <span>{children}</span>
-    </div>
-  );
-};
 
 interface GhostButtonBaseProps {
   accent?: Accent;

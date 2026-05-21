@@ -4,6 +4,7 @@ import { ArrowRight, Zap, Mouse, MapPin } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
+import HeroBadge from '../common/HeroBadge';
 import TextReveal from '../common/TextReveal';
 import { BrowserMockup, CodeSnippet, AdsDashboardMini } from '../visuals/hero/HomeHeroDecorations';
 import { useMousePosition } from '../../hooks/useMousePosition';
@@ -47,15 +48,9 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
           <AnimateOnScroll>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-gray-100 shadow-xl mb-8 md:mb-10 relative group cursor-default hover:border-primary transition-all duration-500">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
-              </span>
-              <span className="text-xxs md:text-xs font-black tracking-[0.2em] uppercase text-dark">
-                {HERO_CONTENT.badge}
-              </span>
-            </div>
+            <HeroBadge accent="primary" className="mb-8 md:mb-10">
+              {HERO_CONTENT.badge}
+            </HeroBadge>
 
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 md:mb-10 leading-[1.05] md:leading-[0.95]">
               <TextReveal delay={100} className="text-dark" priority>
@@ -110,16 +105,18 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
                 </Button>
               </div>
 
-              {/* Micro-copy under CTA */}
+              {/* Micro-copy under CTA — trust signals (BH3 legal-biznesowy) */}
               <div
-                className="flex items-center gap-4 text-xxs font-black text-gray-600 uppercase tracking-[0.2em] mt-4 animate-fade-in"
+                className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xxs font-black text-gray-600 uppercase tracking-[0.2em] mt-4 animate-fade-in"
                 style={{ animationDelay: '1.5s' }}
               >
                 <span className="flex items-center gap-2">
-                  <Zap size={14} className="text-amber-400 fill-amber-400" />{' '}
+                  <Zap size={14} className="text-amber-400 fill-amber-400" aria-hidden="true" />
                   {HERO_CONTENT.microCopy.responseTime}
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-200"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-200" aria-hidden="true"></span>
+                <span>Sp. z&nbsp;o.o. PL · NIP w&nbsp;stopce</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-200" aria-hidden="true"></span>
                 <span>{HERO_CONTENT.microCopy.noObligation}</span>
               </div>
 

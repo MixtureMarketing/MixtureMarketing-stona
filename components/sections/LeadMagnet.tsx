@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, CheckCircle2, ShieldAlert, Zap, BarChart3 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
+import HeroBadge from '../common/HeroBadge';
 import { LEAD_MAGNET_CONTENT as CONTENT } from '../../data/content';
 import { AuditVisual } from '../visuals/LeadMagnetVisuals';
 
@@ -12,18 +13,25 @@ const LeadMagnet: React.FC = () => {
 
   return (
     <section className="py-24 relative overflow-hidden bg-dark">
-      {/* Background Decorations */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-[120px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-[120px] opacity-20 translate-y-1/2 -translate-x-1/2"></div>
+      {/* Background Decorations — animate-blob dla spojnosci z grupa A */}
+      <div
+        className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-[120px] opacity-20 -translate-y-1/2 translate-x-1/2 motion-safe:animate-blob"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-[120px] opacity-20 translate-y-1/2 -translate-x-1/2 motion-safe:animate-blob"
+        style={{ animationDelay: '2s' }}
+        aria-hidden="true"
+      />
       <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] p-8 md:p-16 overflow-hidden relative group">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <AnimateOnScroll>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-xxs font-bold uppercase tracking-widest mb-6 border border-primary/20">
-                <Zap size={12} fill="currentColor" /> {CONTENT.badge}
-              </div>
+              <HeroBadge accent="primary" className="mb-6">
+                {CONTENT.badge}
+              </HeroBadge>
 
               <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
                 {CONTENT.title.line1} <br className="hidden md:block" />
