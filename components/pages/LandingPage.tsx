@@ -27,6 +27,7 @@ import { cmsService } from '../../services/cmsService';
 import BaseCta from '../common/BaseCta';
 import SectionWrapper from '../common/SectionWrapper';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import { LandingPageHeroVisual } from '../visuals/hero/LandingPageVisual';
 import { PricingSectionData, PricingTier } from '../../types';
 import LandingPagePsychology from '../features/web-development/LandingPagePsychology';
@@ -117,6 +118,8 @@ const LandingPage: React.FC = () => {
         badgeIcon={MousePointerClick}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 3 900 zł · gotowy LP w 7–14 dni · A/B testy w cenie"
+        trustLine={<HeroTrustLine />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'landing' })}
         ctaSecondaryText="Wyceń stronę"
@@ -185,6 +188,17 @@ const LandingPage: React.FC = () => {
         </SectionWrapper>
       </LazyHydrate>
 
+      {/* --- PRICING --- (EH4: PRZED Psychology — high-intent LP klient szuka ceny najpierw) */}
+      {pricingData && (
+        <LazyHydrate minHeight="600px">
+          <PricingTable
+            title={pricingData.title}
+            description={pricingData.description}
+            tiers={pricingData.tiers}
+          />
+        </LazyHydrate>
+      )}
+
       {/* --- PSYCHOLOGY --- */}
       <LazyHydrate minHeight="800px">
         <LandingPagePsychology />
@@ -202,17 +216,6 @@ const LandingPage: React.FC = () => {
           <IntegrationGrid categories={integrationCategories} />
         </SectionWrapper>
       </LazyHydrate>
-
-      {/* --- PRICING --- */}
-      {pricingData && (
-        <LazyHydrate minHeight="600px">
-          <PricingTable
-            title={pricingData.title}
-            description={pricingData.description}
-            tiers={pricingData.tiers}
-          />
-        </LazyHydrate>
-      )}
 
       {/* --- CTA --- */}
       <BaseCta

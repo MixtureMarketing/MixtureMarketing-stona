@@ -8,6 +8,7 @@ import { ECOMMERCE_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import { PricingSectionData, PricingTier } from '../../types';
 import { EcommerceHeroVisual } from '../visuals/hero/EcommerceVisual';
@@ -66,6 +67,8 @@ const Ecommerce: React.FC = () => {
         badgeIcon={ShoppingCart}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 12 000 zł · Shoper / WooCommerce / dedykowany · 6–12 tygodni"
+        trustLine={<HeroTrustLine />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'ecommerce' })}
         ctaSecondaryText="Wyceń sklep"
@@ -82,13 +85,7 @@ const Ecommerce: React.FC = () => {
 
       <EcommerceConfigurator onCta={() => openModal('web', { specificType: 'ecommerce' })} />
 
-      <EcommerceBoosters />
-
-      <EcommerceTechnical />
-
-      <EcommerceComparison />
-
-      {/* --- PRICING TIERS --- */}
+      {/* --- PRICING TIERS --- (EH4: PRZED Boosters/Technical/Comparison — klient szuka ceny najpierw) */}
       {pricingData && (
         <LazyHydrate minHeight="600px">
           <PricingTable
@@ -98,6 +95,12 @@ const Ecommerce: React.FC = () => {
           />
         </LazyHydrate>
       )}
+
+      <EcommerceBoosters />
+
+      <EcommerceTechnical />
+
+      <EcommerceComparison />
 
       {/* --- FAQ --- */}
       <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} />

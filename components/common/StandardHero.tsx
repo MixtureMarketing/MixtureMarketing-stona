@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- akceptowalne max-lines dla shared hero z 7 opcjonalnymi propami */
 import React from 'react';
 import { LucideIcon, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,10 @@ interface StandardHeroProps {
   visual?: React.ReactNode;
   accentGradientFrom?: string;
   accentGradientTo?: string;
+  /** Mikro-anchor cenowy pod opisem (np. "od 3 900 zł · 4-8 tygodni"). EH1 — redukcja "ukrytej ceny" porzucen. */
+  priceHint?: string;
+  /** Trust line pod CTA — np. founder ("Jakub Niedziela odpowiada osobiscie w 24h"). EH3. */
+  trustLine?: React.ReactNode;
 }
 
 const StandardHero: React.FC<StandardHeroProps> = ({
@@ -39,6 +44,8 @@ const StandardHero: React.FC<StandardHeroProps> = ({
   visual,
   accentGradientFrom = '#3F3D91',
   accentGradientTo = '#61B6DE',
+  priceHint,
+  trustLine,
 }) => {
   const navigate = useNavigate();
 
@@ -69,11 +76,20 @@ const StandardHero: React.FC<StandardHeroProps> = ({
               />
             </h1>
             <p
-              className="text-xl text-gray-600 mb-8 leading-relaxed animate-fade-in-up"
+              className="text-xl text-gray-600 mb-4 leading-relaxed animate-fade-in-up"
               style={{ animationDelay: '0.1s' }}
             >
               {description}
             </p>
+            {priceHint && (
+              <p
+                className="text-sm font-semibold text-secondary mb-6 animate-fade-in-up"
+                style={{ animationDelay: '0.15s' }}
+              >
+                {priceHint}
+              </p>
+            )}
+            {!priceHint && <div className="mb-4" />}
             <HeroButtons
               ctaPrimaryText={ctaPrimaryText}
               ctaPrimaryOnClick={ctaPrimaryOnClick}
@@ -82,6 +98,11 @@ const StandardHero: React.FC<StandardHeroProps> = ({
               ctaSecondaryIcon={ctaSecondaryIcon}
               ctaSecondaryNode={ctaSecondaryNode}
             />
+            {trustLine && (
+              <div className="mt-5 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                {trustLine}
+              </div>
+            )}
           </div>
           {visual && (
             <div

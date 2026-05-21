@@ -25,6 +25,7 @@ import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import { CorporateHeroVisual } from '../visuals/hero/CorporateVisual';
 import SectionWrapper from '../common/SectionWrapper';
@@ -100,6 +101,8 @@ const CorporateWebsite: React.FC = () => {
         badgeIcon={Globe}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 7 500 zł · CMS z RODO · migracja w 4 tygodnie"
+        trustLine={<HeroTrustLine />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'corporate' })}
         ctaSecondaryText="Wyceń stronę firmową"

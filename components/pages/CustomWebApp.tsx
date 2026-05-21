@@ -9,6 +9,7 @@ import LazyHydrate from '../common/LazyHydrate';
 import { cmsService } from '../../services/cmsService';
 import { PricingSectionData, PricingTier } from '../../types';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import { WebAppHeroVisual } from '../visuals/hero/WebAppVisual';
 
@@ -66,6 +67,8 @@ const CustomWebApp: React.FC = () => {
         badgeIcon={Code2}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 25 000 zł · od 3 miesięcy · SLA 99.5% uptime"
+        trustLine={<HeroTrustLine />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'custom' })}
         ctaSecondaryText="Wyceń aplikację"

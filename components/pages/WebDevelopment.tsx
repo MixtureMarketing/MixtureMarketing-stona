@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import {
@@ -18,7 +18,11 @@ import LazyHydrate from '../common/LazyHydrate';
 import { WEB_DEV_CONTENT } from '../../data/content';
 import RelatedArticles from '../articles/RelatedArticles';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
+import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
+import { CountUp } from './abonament/shared';
+import { SITE_CONFIG } from '../../config/site';
 import IntegrationGrid from '../common/IntegrationGrid';
 import Container from '../common/Container';
 import { WebDevHeroVisual } from '../visuals/hero/WebDevVisual';
@@ -34,6 +38,8 @@ import FaqSection from '../sections/FaqSection';
 const WebDevelopment: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -88,20 +94,24 @@ const WebDevelopment: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={WEB_DEV_CONTENT.hero.badge}
-        badgeIcon={Terminal}
-        title={{ line1: WEB_DEV_CONTENT.hero.title, line2: WEB_DEV_CONTENT.hero.titleAccent }}
-        description={WEB_DEV_CONTENT.hero.description}
-        ctaPrimaryText="Umów się na konsultację"
-        ctaPrimaryOnClick={() => openModal('web')}
-        ctaSecondaryText="Wyceń projekt"
-        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=webApp')}
-        ctaSecondaryIcon={Calculator}
-        backLinkPath="/"
-        backLinkLabel="System.Return_To_Home()"
-        visual={<WebDevHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={WEB_DEV_CONTENT.hero.badge}
+          badgeIcon={Terminal}
+          title={{ line1: WEB_DEV_CONTENT.hero.title, line2: WEB_DEV_CONTENT.hero.titleAccent }}
+          description={WEB_DEV_CONTENT.hero.description}
+          priceHint="od 3 900 zł · realizacja 4–8 tygodni · płatność etapami"
+          trustLine={<HeroTrustLine />}
+          ctaPrimaryText="Umów się na konsultację"
+          ctaPrimaryOnClick={() => openModal('web')}
+          ctaSecondaryText="Wyceń projekt"
+          ctaSecondaryOnClick={() => navigate('/offers#calculator?type=webApp')}
+          ctaSecondaryIcon={Calculator}
+          backLinkPath="/"
+          backLinkLabel="System.Return_To_Home()"
+          visual={<WebDevHeroVisual />}
+        />
+      </div>
 
       <section className="bg-light-gray pb-24">
         <Container className="relative z-10">
@@ -116,6 +126,47 @@ const WebDevelopment: React.FC = () => {
                 </span>
               ),
             )}
+          </div>
+        </Container>
+      </section>
+
+      {/* EH5 — Social proof / metryki hub (CountUp on scroll-into-view) */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <Container>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto text-center">
+            <div>
+              <p className="text-3xl md:text-4xl font-extrabold text-secondary">
+                <CountUp to={30} />+
+              </p>
+              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mt-1">
+                Wdrożeń webowych
+              </p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-extrabold text-primary">
+                <CountUp to={3} />+
+              </p>
+              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mt-1">
+                Lata na rynku PL
+              </p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-extrabold text-success">
+                <CountUp to={24} />
+                <span className="text-lg">h</span>
+              </p>
+              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mt-1">
+                Wycena widełkowa
+              </p>
+            </div>
+            <div>
+              <p className="text-3xl md:text-4xl font-extrabold text-dark">
+                <CountUp to={99.5} decimals={1} suffix="%" />
+              </p>
+              <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mt-1">
+                Uptime SLA
+              </p>
+            </div>
           </div>
         </Container>
       </section>
@@ -186,13 +237,27 @@ const WebDevelopment: React.FC = () => {
       </LazyHydrate>
 
       {/* --- FINAL CTA --- */}
-      <BaseCta
-        title={WEB_DEV_CONTENT.ctaSection.title}
-        description={WEB_DEV_CONTENT.ctaSection.description}
-        buttonText={WEB_DEV_CONTENT.ctaSection.buttonText}
-        icon={Activity}
-        onClick={() => openModal('consultation')}
-        variant="gradient"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          title={WEB_DEV_CONTENT.ctaSection.title}
+          description={WEB_DEV_CONTENT.ctaSection.description}
+          buttonText={WEB_DEV_CONTENT.ctaSection.buttonText}
+          icon={Activity}
+          onClick={() => openModal('web')}
+          variant="gradient"
+        />
+      </div>
+
+      {/* EH2 — Sticky mobile CTA bar (hub ma 200+ linii scroll) */}
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatna konsultacja"
+        sublabel="Wycena widełkowa w 24h"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={() => openModal('web')}
       />
     </div>
   );
