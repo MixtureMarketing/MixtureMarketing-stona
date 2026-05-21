@@ -1,14 +1,18 @@
-import React, { useEffect } from 'react';
-import { Fingerprint, Figma, Palette } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Fingerprint, Palette } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../data/content/services/design/ui-ux';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
+import DesignSpokeFooter from '../common/DesignSpokeFooter';
+import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import LazyHydrate from '../common/LazyHydrate';
 import { UiUxHeroVisual } from '../visuals/hero/UiUxVisual';
+import { SITE_CONFIG } from '../../config/site';
 
 // Refactored Sub-components
 import UiUxDesignSystem from '../features/design/UiUxDesignSystem';
@@ -19,6 +23,8 @@ import UiUxInteractions from '../features/design/UiUxInteractions';
 
 const UiUxDesign: React.FC = () => {
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,23 +36,35 @@ const UiUxDesign: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Design', item: '/design/' },
+          { name: 'UI / UX', item: '/design/ui-ux/' },
+        ]}
+        service={{
+          name: 'UI / UX Design',
+          description:
+            'Projektowanie interfejsów użytkownika i doświadczeń. Web, mobile, dashboardy. Design system, prototyping w Figma, user testing, atomic design.',
+          serviceType: 'UI/UX Design',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={Fingerprint}
-        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
-        description={CONTENT.hero.description}
-        ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('design', { specificType: 'uiux' })}
-        ctaSecondaryText={`${CONTENT.hero.microCopy.label}: ${CONTENT.hero.microCopy.value}`}
-        ctaSecondaryOnClick={() => {}}
-        ctaSecondaryIcon={Figma}
-        backLinkPath="/design"
-        backLinkLabel="Wróć do Designu"
-        visual={<UiUxHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={CONTENT.hero.badge}
+          badgeIcon={Fingerprint}
+          title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+          description={CONTENT.hero.description}
+          priceHint="od 4 500 zł / projekt · Figma + design system · prototyping w cenie"
+          trustLine={<HeroTrustLine promise="Sam projektuję w Figma, sam buduję design system" />}
+          ctaPrimaryText={CONTENT.hero.cta}
+          ctaPrimaryOnClick={() => openModal('design', { specificType: 'uiux' })}
+          backLinkPath="/design/"
+          backLinkLabel="Wróć do Designu"
+          visual={<UiUxHeroVisual />}
+        />
+      </div>
 
       <LazyHydrate whenVisible>
         <UiUxDesignSystem />
@@ -76,14 +94,39 @@ const UiUxDesign: React.FC = () => {
         </div>
       </section>
 
+      {/* FC1+FC2 — FounderCard + spoke cross-linking */}
+      <DesignSpokeFooter
+        currentType="ui-ux"
+        founderBio={
+          <>
+            Od 2020 projektuję interfejsy w Figma — dashboardy SaaS, sklepy, aplikacje. Sam buduję
+            design system, sam piszę prototypy interaktywne, sam testuję z userami. Bez "konsultanta
+            UX" i bez "agencji od kreacji".
+          </>
+        }
+      />
+
       {/* --- CTA --- */}
-      <BaseCta
-        icon={Palette}
-        title={`${CONTENT.cta.title.line1} ${CONTENT.cta.title.line2}`}
-        description={CONTENT.cta.description}
-        buttonText={CONTENT.cta.button}
-        onClick={() => openModal('design')}
-        variant="glow"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          icon={Palette}
+          title={`${CONTENT.cta.title.line1} ${CONTENT.cta.title.line2}`}
+          description={CONTENT.cta.description}
+          buttonText={CONTENT.cta.button}
+          onClick={() => openModal('design', { specificType: 'uiux' })}
+          variant="glow"
+        />
+      </div>
+
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatna konsultacja UI/UX"
+        sublabel="Figma + design system"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={() => openModal('design', { specificType: 'uiux' })}
       />
     </div>
   );

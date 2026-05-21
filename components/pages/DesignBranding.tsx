@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Palette, Wand2 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
@@ -8,9 +8,12 @@ import Seo from '../common/Seo';
 import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../data/content';
 import RelatedArticles from '../articles/RelatedArticles';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
+import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import StandardFaq from '../common/StandardFaq';
 import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
+import { SITE_CONFIG } from '../../config/site';
 
 // Refactored Sub-components
 import DesignToolkit from '../features/design/DesignToolkit';
@@ -20,6 +23,8 @@ import DesignPillars from '../features/design/DesignPillars';
 
 const DesignBranding: React.FC = () => {
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -59,17 +64,21 @@ const DesignBranding: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={Palette}
-        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
-        description={CONTENT.hero.description}
-        ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('design')}
-        backLinkPath="/"
-        backLinkLabel="Wróć do strony głównej"
-        visual={<DesignHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={CONTENT.hero.badge}
+          badgeIcon={Palette}
+          title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+          description={CONTENT.hero.description}
+          priceHint="od 800 zł / Print · od 4 500 zł UI-UX · od 3 500 zł Branding · audyt od 2 500 zł"
+          trustLine={<HeroTrustLine />}
+          ctaPrimaryText={CONTENT.hero.cta}
+          ctaPrimaryOnClick={() => openModal('design')}
+          backLinkPath="/"
+          backLinkLabel="Wróć do strony głównej"
+          visual={<DesignHeroVisual />}
+        />
+      </div>
 
       <DesignToolkit />
 
@@ -115,13 +124,26 @@ const DesignBranding: React.FC = () => {
       </section>
 
       {/* --- CTA --- */}
-      <BaseCta
-        title={CONTENT.cta.title}
-        description={CONTENT.cta.text}
-        buttonText={CONTENT.cta.button}
-        icon={Wand2}
-        onClick={() => openModal('design')}
-        variant="dark"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          title={CONTENT.cta.title}
+          description={CONTENT.cta.text}
+          buttonText={CONTENT.cta.button}
+          icon={Wand2}
+          onClick={() => openModal('design')}
+          variant="dark"
+        />
+      </div>
+
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatna konsultacja Design"
+        sublabel="Branding · UI/UX · Print · Audyt"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={() => openModal('design')}
       />
     </div>
   );

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Briefcase,
   ArrowRight,
   Calculator,
   AlertTriangle,
@@ -10,6 +9,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../common/Button';
+import HeroBadge from '../../common/HeroBadge';
+import FounderCard from '../../common/FounderCard';
 import { useModal } from '../../../context/ModalContext';
 import AuditTeaser from '../../features/audit/AuditTeaser';
 import { SanityIndustry } from '../../../services/cmsService';
@@ -26,10 +27,9 @@ const PseoIndustryContent: React.FC<PseoIndustryContentProps> = ({ data }) => {
     <>
       {/* HERO SECTION */}
       <div className="text-center max-w-4xl mx-auto mb-20">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-bold uppercase tracking-wider mb-6">
-          <Briefcase size={16} />
-          <span>Branża: {data.name}</span>
-        </div>
+        <HeroBadge accent="secondary" className="mb-6">
+          Branża: {data.name}
+        </HeroBadge>
         <h1 className="text-4xl md:text-6xl font-extrabold mb-8 text-dark leading-tight">
           Dedykowane rozwiązania IT <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -136,6 +136,20 @@ const PseoIndustryContent: React.FC<PseoIndustryContentProps> = ({ data }) => {
         </div>
       )}
 
+      {/* FounderCard — local B2B trust signal (memory: brak biura, mobilny) */}
+      <div className="mb-12 max-w-4xl mx-auto">
+        <FounderCard
+          intro={`Branża ${data.name} — z kim pracujesz`}
+          bio={
+            <>
+              Od 2020 prowadzę projekty IT i marketingowe dla różnych branż na Podkarpaciu. Każda ma
+              swoją specyfikę — od regulacji prawnych po cykle decyzyjne. Spotkasz się bezpośrednio
+              ze mną, bez konsultanta-pośrednika i bez juniora od briefu.
+            </>
+          }
+        />
+      </div>
+
       {/* CTA */}
       <div className="text-center bg-dark rounded-3xl p-12 text-white relative overflow-hidden">
         <div className="relative z-10">
@@ -149,8 +163,15 @@ const PseoIndustryContent: React.FC<PseoIndustryContentProps> = ({ data }) => {
             </Button>
           </div>
         </div>
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-primary rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-secondary rounded-full opacity-40 blur-3xl"></div>
+        <div
+          aria-hidden="true"
+          className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-primary rounded-full opacity-20 blur-3xl motion-safe:animate-blob"
+        ></div>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-secondary rounded-full opacity-40 blur-3xl motion-safe:animate-blob"
+          style={{ animationDelay: '2s' }}
+        ></div>
       </div>
     </>
   );
