@@ -7,7 +7,7 @@ import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
 import BaseCta from '../common/BaseCta';
 import { SeoHeroVisual } from '../visuals/hero/SeoVisual';
-import { TrendingUp, Crosshair, Globe } from 'lucide-react';
+import { TrendingUp, Crosshair } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import { PricingSectionData, PricingTier } from '../../types';
 import { cmsService } from '../../services/cmsService';
@@ -68,10 +68,7 @@ const MarketingSeo: React.FC = () => {
         description={CONTENT.hero.description}
         ctaPrimaryText={CONTENT.hero.cta}
         ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'seo' })}
-        ctaSecondaryText={CONTENT.hero.microCopy}
-        ctaSecondaryOnClick={() => {}}
-        ctaSecondaryIcon={Globe}
-        backLinkPath="/marketing"
+        backLinkPath="/marketing/"
         backLinkLabel="Wróć do Marketingu"
         visual={<SeoHeroVisual />}
       />

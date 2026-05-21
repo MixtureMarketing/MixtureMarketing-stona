@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import DOMPurify from 'dompurify';
 import {
   ShieldCheck,
   TrendingUp,
@@ -28,6 +29,17 @@ import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
 import { GoogleAdsHeroVisual } from '../visuals/hero/GoogleAdsVisual';
 import Container from '../common/Container';
+
+/**
+ * FB3 — sanityzacja CMS content z whitelistą tylko bezpiecznych tagow.
+ * Eliminuje XSS risk z `dangerouslySetInnerHTML` bez utraty formatowania
+ * (<strong>, <em>) z Sanity. Whitelist explicit — wszystko inne wyciete.
+ */
+const sanitize = (html: string): string =>
+  DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['strong', 'em', 'b', 'i'],
+    ALLOWED_ATTR: [],
+  });
 
 const GoogleAds: React.FC = () => {
   const { openModal } = useModal();
@@ -66,6 +78,17 @@ const GoogleAds: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image || '/assets/images/google-ads.png'}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Marketing', item: '/marketing/' },
+          { name: 'Google Ads', item: '/marketing/google-ads/' },
+        ]}
+        service={{
+          name: 'Google Ads / Performance Marketing',
+          description:
+            'Kampanie Google Ads: Search, Performance Max, Shopping, Display. Optymalizacja CPA i ROAS dla e-commerce, B2B i lokalnych usług. Zarządzanie budżetem, A/B testy kreacji, integracje z GA4.',
+          serviceType: 'Google Ads / PPC Management',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
@@ -166,7 +189,7 @@ const GoogleAds: React.FC = () => {
                       <CheckCircle2 size={18} className="text-[#4285F4] mt-0.5 shrink-0" />
                       <span
                         className="text-sm text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: feat }}
+                        dangerouslySetInnerHTML={{ __html: sanitize(feat) }}
                       />
                     </li>
                   ))}
@@ -207,7 +230,7 @@ const GoogleAds: React.FC = () => {
                       <CheckCircle2 size={18} className="text-[#34A853] mt-0.5 shrink-0" />
                       <span
                         className="text-sm text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: feat }}
+                        dangerouslySetInnerHTML={{ __html: sanitize(feat) }}
                       />
                     </li>
                   ))}

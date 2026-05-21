@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Activity, CheckCircle2 } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { ANALYTICS_CONTENT as CONTENT } from '../../data/content';
@@ -28,6 +28,17 @@ const Analytics: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Marketing', item: '/marketing/' },
+          { name: 'Analytics', item: '/marketing/analytics/' },
+        ]}
+        service={{
+          name: 'Analytics — GA4, GTM, server-side tracking',
+          description:
+            'Wdrażanie i konfiguracja Google Analytics 4, Google Tag Manager, server-side tracking, Conversions API. Dashboardy, atrybucja, raporty per kanał i lejek konwersji.',
+          serviceType: 'Web Analytics Implementation',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
@@ -37,11 +48,8 @@ const Analytics: React.FC = () => {
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
         ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('marketing')}
-        ctaSecondaryText={CONTENT.hero.trustBadge}
-        ctaSecondaryOnClick={() => {}}
-        ctaSecondaryIcon={CheckCircle2}
-        backLinkPath="/marketing"
+        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'analytics' })}
+        backLinkPath="/marketing/"
         backLinkLabel="Wróć do Marketingu"
         accentGradientFrom="primary"
         accentGradientTo="secondary"

@@ -44,6 +44,17 @@ const MetaAds: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image || '/assets/images/meta-ads.png'}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Marketing', item: '/marketing/' },
+          { name: 'Meta Ads', item: '/marketing/meta-ads/' },
+        ]}
+        service={{
+          name: 'Meta Ads — Facebook & Instagram',
+          description:
+            'Kampanie Facebook Ads i Instagram Ads. Targetowanie behawioralne, kreacje video, retargeting, lookalike audiences. Pixel + Conversions API + integracja z CRM.',
+          serviceType: 'Meta Ads / Social Media Advertising',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
