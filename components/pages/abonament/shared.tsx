@@ -102,6 +102,72 @@ const GHOST_ACCENTS: Record<Accent, string> = {
 const GHOST_BASE =
   'inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5';
 
+/**
+ * CountUp — animuje liczbę od 0 do `to` gdy element wjedzie w viewport.
+ * Respektuje prefers-reduced-motion — natychmiast pokazuje finalną wartość.
+ */
+interface CountUpProps {
+  to: number;
+  /** Liczba miejsc po przecinku */
+  decimals?: number;
+  /** Sufix (np. "%", " s") */
+  suffix?: string;
+  /** Czas animacji w ms */
+  duration?: number;
+  className?: string;
+}
+export const CountUp: React.FC<CountUpProps> = ({
+  to,
+  decimals = 0,
+  suffix = '',
+  duration = 1200,
+  className,
+}) => {
+  const [value, setValue] = React.useState(0);
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const startedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    const prefersReducedMotion = window.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    )?.matches;
+    if (prefersReducedMotion) {
+      setValue(to);
+      return;
+    }
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !startedRef.current) {
+            startedRef.current = true;
+            const start = performance.now();
+            const tick = (now: number) => {
+              const t = Math.min(1, (now - start) / duration);
+              // easeOutCubic
+              const eased = 1 - Math.pow(1 - t, 3);
+              setValue(to * eased);
+              if (t < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.4 },
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [to, duration]);
+
+  return (
+    <span ref={ref} className={className}>
+      {value.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+};
+
 export const GhostButton: React.FC<GhostProps> = (props) => {
   const accent = props.accent || 'emerald';
   const cls = `${GHOST_BASE} ${GHOST_ACCENTS[accent]} ${props.className || ''}`;

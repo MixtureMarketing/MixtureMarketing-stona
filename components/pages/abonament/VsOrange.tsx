@@ -232,7 +232,10 @@ const VsOrange: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-50 text-sm">
                   {COMPARE_ROWS.map((row) => (
-                    <tr key={row.label} className="hover:bg-blue-50/20 transition-colors">
+                    <tr
+                      key={row.label}
+                      className="even:bg-gray-50/50 hover:bg-emerald-50/30 transition-colors"
+                    >
                       <th
                         scope="row"
                         className="text-left px-4 py-4 font-semibold text-dark text-xs uppercase tracking-wide w-1/3"

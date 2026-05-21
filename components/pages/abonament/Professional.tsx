@@ -25,7 +25,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal from './PreonboardModal';
 import MagneticButton from './MagneticButton';
-import { HeroBadge, GhostButton } from './shared';
+import { HeroBadge, GhostButton, CountUp } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 
 const PROFESSIONAL_PRICE = 549;
@@ -111,11 +111,45 @@ const PRO_NEGATIVES = [
   },
 ];
 
-const SLA = [
-  { label: 'Uptime SLA (mierzone publicznie)', value: '99.9%', icon: Cpu },
-  { label: 'RTO dla błędu krytycznego', value: '4 godziny', icon: Clock },
-  { label: 'RPO (max utrata danych)', value: '24 godziny', icon: Shield },
-  { label: 'Kara za downtime >8h/mc', value: '1/30 abonamentu × dzień', icon: AlertTriangle },
+interface SlaEntry {
+  label: string;
+  icon: React.ElementType;
+  /** Numeryczna wartość do animacji count-up (gdy null — pokaż tylko text) */
+  num: number | null;
+  decimals?: number;
+  suffix?: string;
+  /** Statyczny fallback / pełna treść gdy num=null */
+  text: string;
+}
+const SLA: SlaEntry[] = [
+  {
+    label: 'Uptime SLA (mierzone publicznie)',
+    icon: Cpu,
+    num: 99.9,
+    decimals: 1,
+    suffix: '%',
+    text: '99.9%',
+  },
+  {
+    label: 'RTO dla błędu krytycznego',
+    icon: Clock,
+    num: 4,
+    suffix: ' godziny',
+    text: '4 godziny',
+  },
+  {
+    label: 'RPO (max utrata danych)',
+    icon: Shield,
+    num: 24,
+    suffix: ' godziny',
+    text: '24 godziny',
+  },
+  {
+    label: 'Kara za downtime >8h/mc',
+    icon: AlertTriangle,
+    num: null,
+    text: '1/30 abonamentu × dzień',
+  },
 ];
 
 const SUBPROCESSORS = [
@@ -212,7 +246,7 @@ const Professional: React.FC = () => {
       {/* ============ HERO ============ */}
       <section className="relative pt-32 pb-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-amber-100/40 rounded-full blur-[150px] opacity-50" />
+          <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-amber-100/40 rounded-full blur-[150px] opacity-50 motion-safe:animate-blob" />
         </div>
         <Container className="relative z-10">
           <div className="max-w-4xl mx-auto text-center">
@@ -407,7 +441,13 @@ const Professional: React.FC = () => {
                 <p className="text-xs font-black uppercase tracking-[0.15em] text-amber-700 mb-1">
                   {s.label}
                 </p>
-                <p className="text-xl font-extrabold text-dark">{s.value}</p>
+                <p className="text-xl font-extrabold text-dark">
+                  {s.num !== null ? (
+                    <CountUp to={s.num} decimals={s.decimals} suffix={s.suffix} />
+                  ) : (
+                    s.text
+                  )}
+                </p>
               </div>
             ))}
           </div>

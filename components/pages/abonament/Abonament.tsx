@@ -322,6 +322,14 @@ const Abonament: React.FC = () => {
   const stripeCanceled = searchParams.get('stripe') === 'canceled';
   const pricingRef = useRef<HTMLElement | null>(null);
   const heroRef = useRef<HTMLElement | null>(null);
+
+  // N5: scroll z offsetem 80px (sticky header) zamiast scrollIntoView — fix WCAG 2.4.11
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
   const viewPricingTracked = useRef(false);
   // H5: sticky mobile CTA bar po wyjściu z hero, ukryty gdy pricing widoczny
   const [showStickyMobileBar, setShowStickyMobileBar] = useState(false);
@@ -368,7 +376,7 @@ const Abonament: React.FC = () => {
   useEffect(() => {
     if (stripeCanceled) {
       trackEvent('purchase_canceled', { recovery_offered: true });
-      document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+      scrollToId('pricing');
     }
   }, [stripeCanceled]);
 
@@ -427,7 +435,7 @@ const Abonament: React.FC = () => {
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToId(id);
   };
 
   // ============ JSON-LD ============
@@ -531,9 +539,12 @@ const Abonament: React.FC = () => {
         ref={heroRef}
         className="relative pt-32 pb-24 md:pb-32 overflow-hidden"
       >
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-40 left-1/4 w-96 h-96 bg-emerald-200/40 rounded-full blur-[120px]" />
-          <div className="absolute top-20 right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute top-40 left-1/4 w-96 h-96 bg-emerald-200/40 rounded-full blur-[120px] motion-safe:animate-blob" />
+          <div
+            className="absolute top-20 right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-[120px] motion-safe:animate-blob"
+            style={{ animationDelay: '2s' }}
+          />
         </div>
 
         <Container className="relative z-10">
@@ -569,7 +580,7 @@ const Abonament: React.FC = () => {
               <a
                 href="#pricing"
                 onClick={(e) => handleSmoothScroll(e, 'pricing')}
-                className="group flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full text-lg shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 motion-safe:hover:-translate-y-1 transition-all"
+                className="group flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full text-lg shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 motion-safe:hover:-translate-y-1 motion-safe:focus-visible:-translate-y-1 transition-all"
               >
                 Wybierz pakiet
                 <ArrowRight
@@ -688,6 +699,7 @@ const Abonament: React.FC = () => {
                 href={demo.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Otwórz demo stylu ${demo.title} (nowa karta)`}
                 className={`group bg-gradient-to-br ${demo.accent} p-6 rounded-2xl border hover:shadow-xl hover:-translate-y-1 transition-all`}
               >
                 <div
@@ -1088,7 +1100,7 @@ const Abonament: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handlePickTier(PROFESSIONAL_TIER.id)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-bold rounded-full shadow-lg hover:shadow-amber-500/40 motion-safe:hover:-translate-y-0.5 transition-all"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-bold rounded-full shadow-lg hover:shadow-amber-500/40 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-y-0.5 transition-all"
                   >
                     Zapytaj o Professional
                     <ArrowRight size={18} aria-hidden="true" />
@@ -1895,9 +1907,7 @@ const Abonament: React.FC = () => {
           </a>
           <button
             type="button"
-            onClick={() =>
-              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-            }
+            onClick={() => scrollToId('pricing')}
             className="inline-flex items-center gap-1.5 px-5 h-11 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-md text-sm"
           >
             Wybierz pakiet

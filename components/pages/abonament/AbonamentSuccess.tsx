@@ -114,7 +114,7 @@ const AbonamentSuccess: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <a
                 href={PANEL_URL}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] motion-safe:hover:-translate-y-1 transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] motion-safe:hover:-translate-y-1 motion-safe:focus-visible:-translate-y-1 transition-all"
               >
                 <LayoutDashboard size={18} />
                 Otwórz panel klienta
