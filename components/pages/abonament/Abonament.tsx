@@ -1108,14 +1108,23 @@ const Abonament: React.FC = () => {
                     Przy stawkach 300–500 zł/h jeden lead zwraca rok abonamentu.
                   </p>
 
-                  <button
-                    type="button"
-                    onClick={() => handlePickTier(PROFESSIONAL_TIER.id)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-bold rounded-full shadow-lg hover:shadow-amber-500/40 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-y-0.5 transition-all"
-                  >
-                    Zapytaj o Professional
-                    <ArrowRight size={18} aria-hidden="true" />
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handlePickTier(PROFESSIONAL_TIER.id)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-900 font-bold rounded-full shadow-lg hover:shadow-amber-500/40 motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-y-0.5 transition-all"
+                    >
+                      Zapytaj o Professional
+                      <ArrowRight size={18} aria-hidden="true" />
+                    </button>
+                    <Link
+                      to="/abonament/professional/"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-amber-100 hover:text-white font-semibold rounded-full border border-amber-200/20 hover:border-amber-200/40 transition-colors"
+                    >
+                      Pełna oferta (RODO+ / SLA / DPA)
+                      <ArrowRight size={16} aria-hidden="true" />
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Prawa kolumna — lista ficzerów */}
@@ -1761,6 +1770,69 @@ const Abonament: React.FC = () => {
                 </a>
               </div>
             </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ==================== POROWNAJ Z KONKURENCJA — internal linking + decision aid ==================== */}
+      <section className="py-20 md:py-28 bg-gray-50/60">
+        <Container>
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 mb-3">
+              Porównaj z konkurencją
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-dark leading-tight mb-4">
+              Sprawdzasz alternatywy?
+            </h2>
+            <p className="text-lg text-gray-600">
+              Zrobiliśmy szczegółowe porównanie z dwiema najpopularniejszymi opcjami w PL.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-5 max-w-4xl mx-auto">
+            <Link
+              to="/abonament/vs-wix/"
+              className="group bg-white p-6 rounded-2xl border border-gray-200 hover:border-emerald-400 hover:shadow-lg motion-safe:hover:-translate-y-1 transition-all"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="text-xs font-black uppercase tracking-[0.15em] text-gray-500">
+                  Mixture vs Wix
+                </div>
+                <ArrowRight
+                  size={20}
+                  className="text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all"
+                  aria-hidden="true"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-2">Managed vs DIY</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Wix to dobry produkt jeśli chcesz sam robić stronę. Mixture robi to za Ciebie. 14
+                cech porównanych: Local SEO, GBP, faktury VAT, support PL.
+              </p>
+              <p className="text-sm font-semibold text-emerald-700">Zobacz pełne porównanie →</p>
+            </Link>
+
+            <Link
+              to="/abonament/vs-orange-klikai/"
+              className="group bg-white p-6 rounded-2xl border border-gray-200 hover:border-emerald-400 hover:shadow-lg motion-safe:hover:-translate-y-1 transition-all"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="text-xs font-black uppercase tracking-[0.15em] text-gray-500">
+                  Mixture vs Orange KlikAI
+                </div>
+                <ArrowRight
+                  size={20}
+                  className="text-gray-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all"
+                  aria-hidden="true"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-dark mb-2">Managed vs AI DIY (39 zł)</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Orange KlikAI to przyzwoita oferta startowa za 39 zł/mc. Mixture pozycjonuje się 5×
+                drożej — sprawdź czy ROI ma sens dla Twojej branży.
+              </p>
+              <p className="text-sm font-semibold text-emerald-700">Zobacz pełne porównanie →</p>
+            </Link>
           </div>
         </Container>
       </section>
