@@ -98,6 +98,17 @@ const LandingPage: React.FC = () => {
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
         lcpImage={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Web Development', item: '/web-development/' },
+          { name: 'Landing pages', item: '/web-development/landing-page/' },
+        ]}
+        service={{
+          name: 'Landing page — strony konwersyjne',
+          description:
+            'Projektowanie i tworzenie landing pages: szybkie strony konwersyjne pod kampanie Google/Meta Ads. A/B testy, integracje z CRM i email marketing, optymalizacja Core Web Vitals.',
+          serviceType: 'Landing Page Development',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
@@ -209,7 +220,7 @@ const LandingPage: React.FC = () => {
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
         icon={AlertTriangle}
-        onClick={() => openModal('consultation', { specificType: 'landing' })}
+        onClick={() => openModal('web', { specificType: 'landing' })}
         variant="gradient"
       />
     </div>

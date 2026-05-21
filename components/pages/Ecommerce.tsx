@@ -47,6 +47,17 @@ const Ecommerce: React.FC = () => {
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
         lcpImage={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Web Development', item: '/web-development/' },
+          { name: 'Sklepy internetowe', item: '/web-development/ecommerce/' },
+        ]}
+        service={{
+          name: 'Sklepy internetowe i e-commerce',
+          description:
+            'Tworzenie sklepów internetowych: Shoper, WooCommerce, dedykowane Next.js+Sanity. Integracje płatności (Przelewy24, BLIK, Stripe), kurierów (InPost, DPD, DHL) i ERP.',
+          serviceType: 'E-commerce Development',
+        }}
       />
 
       {/* --- HERO SECTION (Direct usage of StandardHero) --- */}
@@ -69,9 +80,7 @@ const Ecommerce: React.FC = () => {
 
       <EcommerceAutomation />
 
-      <EcommerceConfigurator
-        onCta={() => openModal('consultation', { specificType: 'ecommerce' })}
-      />
+      <EcommerceConfigurator onCta={() => openModal('web', { specificType: 'ecommerce' })} />
 
       <EcommerceBoosters />
 

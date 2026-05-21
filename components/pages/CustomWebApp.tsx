@@ -47,6 +47,17 @@ const CustomWebApp: React.FC = () => {
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
         lcpImage={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Web Development', item: '/web-development/' },
+          { name: 'Aplikacje dedykowane', item: '/web-development/custom-app/' },
+        ]}
+        service={{
+          name: 'Aplikacje webowe dedykowane',
+          description:
+            'Tworzenie dedykowanych aplikacji webowych SaaS / B2B / portali klienckich. Stack: Next.js + Node.js + PostgreSQL / Sanity / Cloudflare Workers. SLA 99.5% uptime.',
+          serviceType: 'Custom Web Application Development',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
@@ -90,7 +101,7 @@ const CustomWebApp: React.FC = () => {
         description={CONTENT.cta.description}
         buttonText={CONTENT.cta.button}
         icon={Settings}
-        onClick={() => openModal('consultation', { specificType: 'custom' })}
+        onClick={() => openModal('web', { specificType: 'custom' })}
         variant="dark"
       />
     </div>

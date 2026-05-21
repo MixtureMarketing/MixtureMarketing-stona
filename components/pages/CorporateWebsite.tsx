@@ -81,6 +81,17 @@ const CorporateWebsite: React.FC = () => {
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
         lcpImage={CONTENT.seo.image}
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Web Development', item: '/web-development/' },
+          { name: 'Strony korporacyjne', item: '/web-development/corporate/' },
+        ]}
+        service={{
+          name: 'Strony korporacyjne i firmowe',
+          description:
+            'Tworzenie stron firmowych z CMS dla średnich i dużych przedsiębiorstw. Migracja z WordPress, integracje ERP/CRM, RODO compliance, wielojęzyczność.',
+          serviceType: 'Corporate Website Development',
+        }}
       />
 
       {/* --- HERO SECTION --- */}
@@ -150,25 +161,34 @@ const CorporateWebsite: React.FC = () => {
             description={CONTENT.migration.description}
             className="mb-16"
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {/* Semantic <ol> dla kolejnosci krokow migracji (WCAG 1.3.1 - SR czyta jako uporządkowaną listę) */}
+          <ol className="list-none grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step, i) => (
-              <AnimateOnScroll key={i} delay={i * 100} className="relative">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-secondary mb-6 border border-gray-100 shadow-sm relative z-10 group-hover:bg-blue-50 transition-colors">
-                    {step.icon}
-                    <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-black text-dark">
-                      {i + 1}
+              <li key={i}>
+                <AnimateOnScroll delay={i * 100} className="relative">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-secondary mb-6 border border-gray-100 shadow-sm relative z-10 group-hover:bg-blue-50 transition-colors">
+                      {step.icon}
+                      <div
+                        aria-hidden="true"
+                        className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white shadow-md border border-gray-100 flex items-center justify-center text-xs font-black text-dark"
+                      >
+                        {i + 1}
+                      </div>
                     </div>
+                    <h3 className="font-bold text-dark text-lg mb-3">{step.title}</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium">{step.desc}</p>
                   </div>
-                  <h3 className="font-bold text-dark text-lg mb-3">{step.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed font-medium">{step.desc}</p>
-                </div>
-                {i < 3 && (
-                  <div className="hidden lg:block absolute top-8 left-[calc(100%-2rem)] w-full h-px bg-gradient-to-r from-gray-200 to-transparent z-0"></div>
-                )}
-              </AnimateOnScroll>
+                  {i < 3 && (
+                    <div
+                      aria-hidden="true"
+                      className="hidden lg:block absolute top-8 left-[calc(100%-2rem)] w-full h-px bg-gradient-to-r from-gray-200 to-transparent z-0"
+                    ></div>
+                  )}
+                </AnimateOnScroll>
+              </li>
             ))}
-          </div>
+          </ol>
         </SectionWrapper>
       </LazyHydrate>
 
