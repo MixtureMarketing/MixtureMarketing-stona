@@ -49,6 +49,7 @@ import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
+import MagneticButton from './MagneticButton';
 import { trackEvent } from '../../../utils/analytics';
 
 // Track 25 (2026-05-19): cennik update 149/199/299 → 179/249/349 + Professional 549.
@@ -995,18 +996,19 @@ const Abonament: React.FC = () => {
                   ))}
                 </ul>
 
-                <button
+                <MagneticButton
                   type="button"
+                  strength={tier.featured ? 0.35 : 0.25}
                   onClick={() => handlePickTier(tier.id)}
                   className={
                     tier.featured
-                      ? 'w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:shadow-emerald-500/30 motion-safe:hover:-translate-y-0.5 transition-all'
-                      : 'w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-gray-200 text-dark hover:border-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 font-bold rounded-full transition-all'
+                      ? 'w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl hover:shadow-emerald-500/30 transition-shadow'
+                      : 'w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-gray-200 text-dark hover:border-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 font-bold rounded-full transition-colors'
                   }
                 >
                   Wybierz {tier.name}
                   <ArrowRight size={18} aria-hidden="true" />
-                </button>
+                </MagneticButton>
               </div>
             ))}
           </div>

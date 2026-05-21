@@ -102,54 +102,29 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorCta, setErrorCta] = useState<'panel' | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
-  const lastFocusableRef = useRef<HTMLButtonElement>(null);
 
   // Sync selectedTier gdy prop się zmieni (np. user kliknął inny tier card)
   useEffect(() => {
     if (tier) setSelectedTier(tier);
   }, [tier]);
 
-  // Scroll lock + ESC + focus trap
+  // Native <dialog>: showModal() daje za darmo focus trap, ESC, inert background, Top Layer (above z-index).
+  // Wystarczy sterować open/close + onClose handler reaguje na ESC oraz programatyczne close().
   useEffect(() => {
-    if (!tier) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-      // Focus trap: zatrzymaj tab w obrebie dialogu
-      if (e.key === 'Tab' && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, input, select, textarea, a[href], [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusable.length === 0) return;
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener('keydown', onKey);
-
-    // Po opening, focus na first input (po krótkim delay żeby screen reader zdążył odczytać dialog title)
-    const focusTimer = setTimeout(() => firstInputRef.current?.focus(), 100);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKey);
-      clearTimeout(focusTimer);
-    };
-  }, [tier, onClose]);
+    const dlg = dialogRef.current;
+    if (!dlg) return;
+    if (tier && !dlg.open) {
+      dlg.showModal();
+      // Mały delay żeby screen reader zdążył odczytać dialog title przed focusem inputu
+      const t = setTimeout(() => firstInputRef.current?.focus(), 100);
+      return () => clearTimeout(t);
+    }
+    if (!tier && dlg.open) {
+      dlg.close();
+    }
+  }, [tier]);
 
   if (!tier || !selectedTier) return null;
   const tierCfg = TIERS[selectedTier];
@@ -360,17 +335,19 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-dark/60 backdrop-blur-sm animate-fade-in"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
+    <dialog
+      ref={dialogRef}
+      onClose={onClose}
+      onClick={(e) => {
+        // Backdrop click: native dialog::backdrop nie jest dzieckiem, więc target === dialog element
+        // gdy kliknięto poza wewnętrzny kontener.
+        if (e.target === dialogRef.current) onClose();
+      }}
       aria-labelledby="preonboard-title"
       aria-describedby="preonboard-desc"
+      className="preonboard-dialog fixed inset-0 m-0 p-0 w-full h-full max-w-none max-h-none bg-transparent open:flex hidden items-end sm:items-center justify-center sm:p-4 backdrop:bg-dark/60 backdrop:backdrop-blur-sm"
     >
       <div
-        ref={dialogRef}
-        onClick={(e) => e.stopPropagation()}
         className="relative bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden focus:outline-none"
       >
         {/* Header */}
@@ -625,7 +602,6 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
             )}
 
             <button
-              ref={lastFocusableRef}
               type="submit"
               disabled={submitting}
               className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold rounded-full px-8 py-4 shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] transition-all motion-safe:hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
@@ -650,7 +626,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
           </form>
         )}
       </div>
-    </div>
+    </dialog>
   );
 };
 
