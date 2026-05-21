@@ -399,6 +399,20 @@ const Abonament: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  // H5 — toggle body data-attribute żeby CookieFloatingButton wiedział że bar jest aktywny
+  // (CSS w index.css przesuwa cookie button w górę gdy data-sticky-mobile-bar="true").
+  useEffect(() => {
+    const active = showStickyMobileBar && !pricingInView;
+    if (active) {
+      document.body.dataset.stickyMobileBar = 'true';
+    } else {
+      delete document.body.dataset.stickyMobileBar;
+    }
+    return () => {
+      delete document.body.dataset.stickyMobileBar;
+    };
+  }, [showStickyMobileBar, pricingInView]);
+
   // H5 — sticky mobile bar appearance: po wyjściu hero z viewportu (0% widoczny)
   useEffect(() => {
     if (!heroRef.current) return;

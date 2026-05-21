@@ -9,7 +9,7 @@ const CookieFloatingButton: React.FC<CookieFloatingButtonProps> = ({ onClick }) 
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-4 left-4 z-[90] p-3 bg-white text-secondary rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-transform duration-300 group"
+      className="cookie-floating-btn fixed bottom-4 left-4 z-[90] p-3 bg-white text-secondary rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-[transform,bottom] duration-300 group"
       aria-label="Ustawienia plików cookies"
     >
       <Cookie size={24} className="group-hover:rotate-12 transition-transform" />

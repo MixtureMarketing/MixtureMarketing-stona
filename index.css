@@ -392,6 +392,16 @@
     border-radius: inherit;
   }
 
+  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny (np. /abonament/) */
+  body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+    bottom: 6.5rem;
+  }
+  @media (min-width: 768px) {
+    body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+      bottom: 1rem;
+    }
+  }
+
   /* prefers-reduced-motion respect — wycisz wszystkie animacje globalnie */
   @media (prefers-reduced-motion: reduce) {
     *,
