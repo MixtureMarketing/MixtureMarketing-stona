@@ -187,18 +187,42 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     }
     if (!isValidEmail(email)) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'email' });
-      return setError('Niepoprawny adres email.');
+      // Adaptacyjny komunikat — wskazuje konkretny problem
+      if (!email.includes('@')) {
+        return setError('W adresie email brakuje znaku @. Np. biuro@twojafirma.pl');
+      }
+      if (!email.includes('.')) {
+        return setError('W adresie email brakuje kropki w domenie. Np. biuro@twojafirma.pl');
+      }
+      return setError('Sprawdź format adresu email. Np. biuro@twojafirma.pl');
     }
     const phoneNormalized = normalizePhone(phone);
     if (!isValidPhoneE164(phoneNormalized)) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'phone' });
-      return setError(
-        'Sprawdź numer telefonu. Wystarczy 9 cyfr polskiego numeru, np. 600 100 200.',
-      );
+      // Adaptacyjny komunikat na bazie tego co user wpisal
+      const digitsOnly = phone.replace(/\D/g, '');
+      if (digitsOnly.length === 0) {
+        return setError('Wpisz numer telefonu. Np. 600 100 200 (dodamy +48 automatycznie).');
+      }
+      if (digitsOnly.length < 9) {
+        return setError(
+          `Numer ma ${digitsOnly.length} cyfr — w Polsce numer to 9 cyfr. Dodaj brakującą.`,
+        );
+      }
+      return setError('Numer wygląda dziwnie. Sprawdź czy to 9 cyfr polskiego numeru.');
     }
     if (!isValidNip(nip)) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'nip' });
-      return setError('NIP musi mieć dokładnie 10 cyfr.');
+      // Adaptacyjny komunikat
+      if (nip.length === 0) {
+        return setError('Wpisz NIP firmy — potrzebny do wystawienia faktury VAT.');
+      }
+      if (nip.length < 10) {
+        return setError(
+          `NIP ma ${nip.length} cyfr — w PL NIP ma 10 cyfr. Dodaj brakujące ${10 - nip.length}.`,
+        );
+      }
+      return setError('NIP powinien mieć dokładnie 10 cyfr (bez myślników i kresek).');
     }
     if (!consentProcessing) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'consent' });
@@ -454,6 +478,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 onChange={(e) => setBusinessName(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark"
                 placeholder="np. Ślusarstwo Kowalski"
+                autoComplete="organization"
+                autoCapitalize="words"
+                autoCorrect="off"
+                spellCheck="false"
               />
             </div>
 
@@ -467,12 +495,16 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
               <input
                 id="pb-email"
                 type="email"
+                inputMode="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark"
                 placeholder="biuro@twojafirma.pl"
                 autoComplete="email"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck="false"
               />
             </div>
 
@@ -512,26 +544,31 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 type="text"
                 required
                 inputMode="numeric"
+                pattern="[0-9]{10}"
                 value={nip}
                 onChange={(e) => handleNipChange(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark font-mono"
                 placeholder="1234567890"
                 maxLength={10}
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck="false"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {nip.length}/10 cyfr · potrzebny do faktury VAT
               </p>
             </div>
 
-            {/* Consents */}
-            <div className="space-y-3 pt-2">
-              <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700">
+            {/* Consents — WCAG 2.5.8 target size: label ma py-2 dla większej tap area */}
+            <div className="space-y-1 pt-2">
+              <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="checkbox"
                   required
                   checked={consentProcessing}
                   onChange={(e) => setConsentProcessing(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <span>
                   Akceptuję{' '}
@@ -546,15 +583,18 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                   >
                     polityką prywatności
                   </Link>
-                  . <span className="text-rose-500">*</span>
+                  .{' '}
+                  <span className="text-rose-500" aria-label="wymagane">
+                    *
+                  </span>
                 </span>
               </label>
-              <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700">
+              <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="checkbox"
                   checked={consentMarketing}
                   onChange={(e) => setConsentMarketing(e.target.checked)}
-                  className="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
                 <span>Wyrażam zgodę na kontakt marketingowy (opcjonalnie).</span>
               </label>
@@ -588,7 +628,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
               ref={lastFocusableRef}
               type="submit"
               disabled={submitting}
-              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold rounded-full px-8 py-4 shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] transition-all motion-safe:hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold rounded-full px-8 py-4 shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] transition-all motion-safe:hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <>

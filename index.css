@@ -376,6 +376,32 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* WCAG 2.4.11 Focus Not Obscured — sticky nav ma h-20 (5rem), oddaj padding
+       żeby focusowane elementy nie wpadały pod nav podczas Tab nav. */
+    scroll-padding-top: 5rem;
+  }
+
+  /* WCAG 2.4.13 Focus Appearance — universal focus-visible dla wszystkich
+     interaktywnych elementów. Dwukolorowy box-shadow działa na light i dark bg. */
+  :focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--color-secondary, #3f3d91);
+    border-radius: inherit;
+  }
+
+  /* prefers-reduced-motion respect — wycisz wszystkie animacje globalnie */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Accessibility: Ensure links in text blocks are distinguishable by more than just color */
