@@ -49,9 +49,6 @@ interface PreonboardModalProps {
   onClose: () => void;
 }
 
-const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-const isValidNip = (v: string) => /^\d{10}$/.test(v.replace(/[-\s]/g, ''));
-
 // PL phone auto-mask: parsuje cokolwiek user wpisze, normalizuje do +48 + 9 cyfr.
 // "600 100 200" → "+48600100200", "+48 600-100-200" → "+48600100200", "48 6001..." → "+486001..."
 const normalizePhone = (raw: string): string => {
@@ -89,19 +86,90 @@ interface OkBody<T> {
   data: T;
 }
 
+// H1: draft persistence — przeżywa errors sieciowe, Stripe cancel, accidental close
+const DRAFT_KEY = 'mm_preonboard_draft';
+interface DraftShape {
+  businessName: string;
+  email: string;
+  phone: string;
+  nip: string;
+  consentMarketing: boolean;
+  selectedTier: AbonamentTier | null;
+}
+const readDraft = (): Partial<DraftShape> => {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as Partial<DraftShape>;
+  } catch {
+    return {};
+  }
+};
+const writeDraft = (d: Partial<DraftShape>) => {
+  try {
+    const current = readDraft();
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...current, ...d }));
+  } catch {
+    /* ignore quota / private mode */
+  }
+};
+const clearDraft = () => {
+  try {
+    sessionStorage.removeItem(DRAFT_KEY);
+  } catch {
+    /* ignore */
+  }
+};
+
+// H2: inline validators (zwracają komunikat lub null gdy OK)
+const validateBusinessName = (v: string): string | null => {
+  if (!v.trim()) return 'Podaj nazwę firmy.';
+  if (v.trim().length > 200) return 'Nazwa firmy jest za długa (max 200 znaków).';
+  return null;
+};
+const validateEmail = (v: string): string | null => {
+  if (!v.trim()) return 'Wpisz adres email.';
+  if (!v.includes('@')) return 'Brak znaku @. Np. biuro@twojafirma.pl';
+  if (!v.includes('.')) return 'Brak kropki w domenie. Np. biuro@twojafirma.pl';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Sprawdź format. Np. biuro@twojafirma.pl';
+  return null;
+};
+const validatePhone = (v: string): string | null => {
+  const digits = v.replace(/\D/g, '');
+  if (digits.length === 0) return 'Wpisz numer telefonu. Np. 600 100 200.';
+  if (digits.length < 9) return `${digits.length}/9 cyfr — w Polsce numer ma 9 cyfr.`;
+  // pełna normalizacja — sprawdzi +48 logikę
+  return null;
+};
+const validateNip = (v: string): string | null => {
+  if (v.length === 0) return 'Wpisz NIP firmy — potrzebny do faktury VAT.';
+  if (v.length < 10) return `${v.length}/10 cyfr — w PL NIP ma 10 cyfr.`;
+  if (!/^\d{10}$/.test(v)) return 'NIP to 10 cyfr (bez myślników).';
+  return null;
+};
+
 const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
-  // selectedTier — stan lokalny żeby user mógł zmienić tier po otwarciu modalu.
-  // Initial value z prop, ale UI dropdown może go nadpisać.
-  const [selectedTier, setSelectedTier] = useState<AbonamentTier | null>(tier);
-  const [businessName, setBusinessName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('+48 ');
-  const [nip, setNip] = useState('');
-  const [consentProcessing, setConsentProcessing] = useState(false);
-  const [consentMarketing, setConsentMarketing] = useState(false);
+  // H1: hydratacja z sessionStorage — przeżywa Stripe cancel + accidental close
+  const draft = readDraft();
+  const [selectedTier, setSelectedTier] = useState<AbonamentTier | null>(
+    tier || draft.selectedTier || null,
+  );
+  const [businessName, setBusinessName] = useState(draft.businessName || '');
+  const [email, setEmail] = useState(draft.email || '');
+  const [phone, setPhone] = useState(draft.phone || '+48 ');
+  const [nip, setNip] = useState(draft.nip || '');
+  const [consentProcessing, setConsentProcessing] = useState(false); // świadomy opt-in, nie persistujemy
+  const [consentMarketing, setConsentMarketing] = useState(draft.consentMarketing || false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorCta, setErrorCta] = useState<'panel' | null>(null);
+  // H2: per-pole errors widoczne pod inputem (touched=true po blur)
+  const [fieldErrors, setFieldErrors] = useState<{
+    businessName?: string;
+    email?: string;
+    phone?: string;
+    nip?: string;
+  }>({});
   const dialogRef = useRef<HTMLDialogElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
 
@@ -109,6 +177,11 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   useEffect(() => {
     if (tier) setSelectedTier(tier);
   }, [tier]);
+
+  // H1: zapisuj draft do sessionStorage przy każdej zmianie (poza consentProcessing — wymaga świadomego klik per session)
+  useEffect(() => {
+    writeDraft({ businessName, email, phone, nip, consentMarketing, selectedTier });
+  }, [businessName, email, phone, nip, consentMarketing, selectedTier]);
 
   // Native <dialog>: showModal() daje za darmo focus trap, ESC, inert background, Top Layer (above z-index).
   // Wystarczy sterować open/close + onClose handler reaguje na ESC oraz programatyczne close().
@@ -145,60 +218,35 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     e.preventDefault();
     setError(null);
     setErrorCta(null);
-    // Shadow outer `tier` prop z selectedTier (user mógł zmienić w dropdownie).
-    // selectedTier jest gwarantowany non-null bo form jest renderowany tylko gdy
-    // selectedTier istnieje (guard wcześniej).
     const tier = selectedTier as AbonamentTier;
     trackEvent('submit_preonboard_attempt', { tier });
 
-    // Walidacja klient-side
-    if (!businessName.trim()) {
-      trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'business_name' });
-      return setError('Podaj nazwę firmy.');
-    }
-    if (businessName.trim().length > 200) {
-      trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'business_name' });
-      return setError('Nazwa firmy jest za długa (max 200 znaków).');
-    }
-    if (!isValidEmail(email)) {
-      trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'email' });
-      // Adaptacyjny komunikat — wskazuje konkretny problem
-      if (!email.includes('@')) {
-        return setError('W adresie email brakuje znaku @. Np. biuro@twojafirma.pl');
-      }
-      if (!email.includes('.')) {
-        return setError('W adresie email brakuje kropki w domenie. Np. biuro@twojafirma.pl');
-      }
-      return setError('Sprawdź format adresu email. Np. biuro@twojafirma.pl');
-    }
+    // H2: walidacja wszystkich pól na raz przy submit, błędy widoczne inline pod każdym
     const phoneNormalized = normalizePhone(phone);
-    if (!isValidPhoneE164(phoneNormalized)) {
-      trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'phone' });
-      // Adaptacyjny komunikat na bazie tego co user wpisal
-      const digitsOnly = phone.replace(/\D/g, '');
-      if (digitsOnly.length === 0) {
-        return setError('Wpisz numer telefonu. Np. 600 100 200 (dodamy +48 automatycznie).');
-      }
-      if (digitsOnly.length < 9) {
-        return setError(
-          `Numer ma ${digitsOnly.length} cyfr — w Polsce numer to 9 cyfr. Dodaj brakującą.`,
-        );
-      }
-      return setError('Numer wygląda dziwnie. Sprawdź czy to 9 cyfr polskiego numeru.');
+    const newFieldErrors = {
+      businessName: validateBusinessName(businessName) || undefined,
+      email: validateEmail(email) || undefined,
+      phone:
+        validatePhone(phone) ||
+        (isValidPhoneE164(phoneNormalized) ? undefined : 'Numer wygląda dziwnie.'),
+      nip: validateNip(nip) || undefined,
+    };
+    setFieldErrors(newFieldErrors);
+
+    const firstError = Object.entries(newFieldErrors).find(([, v]) => v);
+    if (firstError) {
+      trackEvent('preonboard_error', {
+        tier,
+        error_code: 'VALIDATION',
+        field: firstError[0],
+      });
+      // Focus pierwszego pola z błędem
+      const fieldId = `pb-${firstError[0].replace('businessName', 'business')}`;
+      const el = document.getElementById(fieldId) as HTMLInputElement | null;
+      el?.focus();
+      return;
     }
-    if (!isValidNip(nip)) {
-      trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'nip' });
-      // Adaptacyjny komunikat
-      if (nip.length === 0) {
-        return setError('Wpisz NIP firmy — potrzebny do wystawienia faktury VAT.');
-      }
-      if (nip.length < 10) {
-        return setError(
-          `NIP ma ${nip.length} cyfr — w PL NIP ma 10 cyfr. Dodaj brakujące ${10 - nip.length}.`,
-        );
-      }
-      return setError('NIP powinien mieć dokładnie 10 cyfr (bez myślników i kresek).');
-    }
+
     if (!consentProcessing) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'consent' });
       return setError('Aby kontynuować, zaakceptuj regulamin i zgodę na przetwarzanie danych.');
@@ -326,6 +374,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       });
 
       // ===== 3. Redirect do Stripe =====
+      clearDraft(); // H1: user dotarł do Stripe — draft niepotrzebny
       window.location.href = url;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Nieznany błąd. Spróbuj ponownie.';
@@ -452,14 +501,36 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 required
                 maxLength={200}
                 value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark"
+                onChange={(e) => {
+                  setBusinessName(e.target.value);
+                  if (fieldErrors.businessName)
+                    setFieldErrors((p) => ({ ...p, businessName: undefined }));
+                }}
+                onBlur={() =>
+                  setFieldErrors((p) => ({
+                    ...p,
+                    businessName: validateBusinessName(businessName) || undefined,
+                  }))
+                }
+                aria-invalid={!!fieldErrors.businessName}
+                aria-describedby={fieldErrors.businessName ? 'pb-business-err' : undefined}
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark ${fieldErrors.businessName ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20'}`}
                 placeholder="np. Ślusarstwo Kowalski"
                 autoComplete="organization"
                 autoCapitalize="words"
                 autoCorrect="off"
                 spellCheck="false"
               />
+              {fieldErrors.businessName && (
+                <p
+                  id="pb-business-err"
+                  className="text-xs text-rose-600 mt-1.5 flex items-center gap-1.5"
+                  role="alert"
+                >
+                  <AlertTriangle size={12} aria-hidden="true" />
+                  {fieldErrors.businessName}
+                </p>
+              )}
             </div>
 
             <div>
@@ -475,14 +546,35 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 inputMode="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (fieldErrors.email) setFieldErrors((p) => ({ ...p, email: undefined }));
+                }}
+                onBlur={() =>
+                  setFieldErrors((p) => ({
+                    ...p,
+                    email: validateEmail(email) || undefined,
+                  }))
+                }
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? 'pb-email-err' : undefined}
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark ${fieldErrors.email ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20'}`}
                 placeholder="biuro@twojafirma.pl"
                 autoComplete="email"
                 autoCapitalize="off"
                 autoCorrect="off"
                 spellCheck="false"
               />
+              {fieldErrors.email && (
+                <p
+                  id="pb-email-err"
+                  className="text-xs text-rose-600 mt-1.5 flex items-center gap-1.5"
+                  role="alert"
+                >
+                  <AlertTriangle size={12} aria-hidden="true" />
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             <div>
@@ -497,16 +589,38 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 type="tel"
                 required
                 value={phone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                onBlur={() => setPhone((p) => formatPhoneDisplay(normalizePhone(p)) || p)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark"
+                onChange={(e) => {
+                  handlePhoneChange(e.target.value);
+                  if (fieldErrors.phone) setFieldErrors((p) => ({ ...p, phone: undefined }));
+                }}
+                onBlur={() => {
+                  setPhone((p) => formatPhoneDisplay(normalizePhone(p)) || p);
+                  setFieldErrors((p) => ({
+                    ...p,
+                    phone: validatePhone(phone) || undefined,
+                  }));
+                }}
+                aria-invalid={!!fieldErrors.phone}
+                aria-describedby={fieldErrors.phone ? 'pb-phone-err' : 'pb-phone-hint'}
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark ${fieldErrors.phone ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20'}`}
                 placeholder="600 100 200"
                 autoComplete="tel"
                 inputMode="tel"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Wystarczy 9 cyfr polskiego numeru. Automatycznie dodamy +48.
-              </p>
+              {fieldErrors.phone ? (
+                <p
+                  id="pb-phone-err"
+                  className="text-xs text-rose-600 mt-1.5 flex items-center gap-1.5"
+                  role="alert"
+                >
+                  <AlertTriangle size={12} aria-hidden="true" />
+                  {fieldErrors.phone}
+                </p>
+              ) : (
+                <p id="pb-phone-hint" className="text-xs text-gray-500 mt-1">
+                  Wystarczy 9 cyfr polskiego numeru. Automatycznie dodamy +48.
+                </p>
+              )}
             </div>
 
             <div>
@@ -523,8 +637,19 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 inputMode="numeric"
                 pattern="[0-9]{10}"
                 value={nip}
-                onChange={(e) => handleNipChange(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark font-mono"
+                onChange={(e) => {
+                  handleNipChange(e.target.value);
+                  if (fieldErrors.nip) setFieldErrors((p) => ({ ...p, nip: undefined }));
+                }}
+                onBlur={() =>
+                  setFieldErrors((p) => ({
+                    ...p,
+                    nip: validateNip(nip) || undefined,
+                  }))
+                }
+                aria-invalid={!!fieldErrors.nip}
+                aria-describedby={fieldErrors.nip ? 'pb-nip-err' : 'pb-nip-hint'}
+                className={`w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark font-mono ${fieldErrors.nip ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20'}`}
                 placeholder="1234567890"
                 maxLength={10}
                 autoComplete="off"
@@ -532,9 +657,20 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
                 autoCorrect="off"
                 spellCheck="false"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                {nip.length}/10 cyfr · potrzebny do faktury VAT
-              </p>
+              {fieldErrors.nip ? (
+                <p
+                  id="pb-nip-err"
+                  className="text-xs text-rose-600 mt-1.5 flex items-center gap-1.5"
+                  role="alert"
+                >
+                  <AlertTriangle size={12} aria-hidden="true" />
+                  {fieldErrors.nip}
+                </p>
+              ) : (
+                <p id="pb-nip-hint" className="text-xs text-gray-500 mt-1">
+                  {nip.length}/10 cyfr · potrzebny do faktury VAT
+                </p>
+              )}
             </div>
 
             {/* Consents — WCAG 2.5.8 target size: label ma py-2 dla większej tap area */}
@@ -619,10 +755,34 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
               )}
             </button>
 
-            <p className="flex items-center justify-center gap-2 text-xs text-gray-500 pt-2">
-              <ShieldCheck size={14} className="text-emerald-600" aria-hidden="true" />
-              Płatność obsługuje Stripe — bezpieczna, 256-bit SSL
-            </p>
+            {/* H3: Trust micro-copy + payment marks tuż pod CTA (NN/g: +10-15% konwersji) */}
+            <div className="pt-2 space-y-2">
+              <ul className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-600">
+                <li className="flex items-center gap-1.5">
+                  <ShieldCheck size={12} className="text-emerald-600" aria-hidden="true" />
+                  Anulujesz w panelu — 1 klikiem
+                </li>
+                <li aria-hidden="true" className="text-gray-300">
+                  ·
+                </li>
+                <li>Faktura VAT 1. dnia mc</li>
+                <li aria-hidden="true" className="text-gray-300">
+                  ·
+                </li>
+                <li>Bez opłaty aktywacyjnej</li>
+              </ul>
+              <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xxs text-gray-400">
+                <span>Płatność: Stripe · 256-bit SSL</span>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold tracking-wide">VISA</span>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold tracking-wide">Mastercard</span>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold tracking-wide">BLIK</span>
+                <span aria-hidden="true">·</span>
+                <span className="font-semibold tracking-wide">Apple Pay</span>
+              </p>
+            </div>
           </form>
         )}
       </div>

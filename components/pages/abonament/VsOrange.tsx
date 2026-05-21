@@ -68,6 +68,12 @@ const COMPARE_ROWS = [
   },
 ];
 
+const STATUS_LABEL: Record<'ok' | 'mid' | 'no', string> = {
+  ok: 'Tak',
+  mid: 'Częściowo',
+  no: 'Nie',
+};
+
 const StatusCell: React.FC<{ status: 'ok' | 'mid' | 'no'; text: string; featured?: boolean }> = ({
   status,
   text,
@@ -84,6 +90,7 @@ const StatusCell: React.FC<{ status: 'ok' | 'mid' | 'no'; text: string; featured
           className={`${color} shrink-0 mt-0.5 ${status === 'mid' ? 'rotate-45' : ''}`}
           aria-hidden="true"
         />
+        <span className="sr-only">{STATUS_LABEL[status]}:</span>
         <span className={`text-sm ${featured ? 'font-semibold text-dark' : 'text-gray-700'}`}>
           {text}
         </span>
@@ -187,7 +194,7 @@ const VsOrange: React.FC = () => {
       <section className="py-16 bg-gray-50/60">
         <Container>
           <div className="max-w-5xl mx-auto">
-            <div className="grid sm:grid-cols-2 gap-4 mb-2">
+            <div className="grid sm:grid-cols-2 gap-4 mb-2" aria-hidden="true">
               <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-t-2xl p-5 shadow-lg relative">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-emerald-700 text-xxs font-black uppercase tracking-[0.2em] shadow">
                   <Sparkles size={10} aria-hidden="true" />
@@ -210,12 +217,26 @@ const VsOrange: React.FC = () => {
 
             <div className="overflow-x-auto">
               <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
+                <caption className="sr-only">
+                  Porównanie 12 cech: Mixture (abonament managed, od 179 zł/mc) vs Orange KlikAI
+                  (DIY, 39 zł/mc).
+                </caption>
+                <thead className="sr-only">
+                  <tr>
+                    <th scope="col">Cecha</th>
+                    <th scope="col">Mixture (abonament)</th>
+                    <th scope="col">Orange KlikAI</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-gray-50 text-sm">
                   {COMPARE_ROWS.map((row) => (
                     <tr key={row.label} className="hover:bg-blue-50/20 transition-colors">
-                      <td className="px-4 py-4 font-semibold text-dark text-xs uppercase tracking-wide w-1/3">
+                      <th
+                        scope="row"
+                        className="text-left px-4 py-4 font-semibold text-dark text-xs uppercase tracking-wide w-1/3"
+                      >
                         {row.label}
-                      </td>
+                      </th>
                       <StatusCell {...row.mixture} featured />
                       <StatusCell {...row.orange} />
                     </tr>

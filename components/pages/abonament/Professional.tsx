@@ -468,7 +468,8 @@ const Professional: React.FC = () => {
                         href={`https://${s.dpa}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-amber-700 hover:underline text-xs"
+                        aria-label={`Otwórz DPA dla ${s.name} (nowa karta)`}
+                        className="inline-block py-1.5 text-amber-700 hover:underline text-xs"
                       >
                         Link DPA →
                       </a>
