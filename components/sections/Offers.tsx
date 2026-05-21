@@ -83,9 +83,20 @@ const Offers: React.FC = () => {
               </span>
             </h1>
 
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-12">
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
               {CONTENT.hero.subtitle}
             </p>
+
+            {/* Price floor — redukuje 48% porzucen z "nieznanej ceny" (Baymard).
+                Konkretne widelki: landing page od 3 900 zl, sklep od 12 000 zl. */}
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 mb-12">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-200 text-emerald-700 text-sm font-bold shadow-sm">
+                Strony WWW od 3 900 zł netto
+              </span>
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-secondary/20 text-secondary text-sm font-bold shadow-sm">
+                Wycena widełkowa w 24h
+              </span>
+            </div>
 
             {/* Scale Switcher */}
             <div className="relative inline-flex bg-white p-2 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100">

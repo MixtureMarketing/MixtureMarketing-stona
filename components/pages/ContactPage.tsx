@@ -4,10 +4,6 @@ import {
   Phone,
   MapPin,
   MessageSquare,
-  Zap,
-  Clock,
-  ShieldCheck,
-  ArrowRight,
   FileText,
   Building2,
   Copy,
@@ -15,17 +11,15 @@ import {
   Briefcase,
 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
-import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
-import { useModal } from '../../context/ModalContext';
+import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
 
 const ContactPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
-  const { openModal } = useModal();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -66,21 +60,6 @@ const ContactPage: React.FC = () => {
     },
   ];
 
-  const features = [
-    {
-      ...CONTENT.ctaCard.features[0],
-      icon: Zap,
-    },
-    {
-      ...CONTENT.ctaCard.features[1],
-      icon: Clock,
-    },
-    {
-      ...CONTENT.ctaCard.features[2],
-      icon: ShieldCheck,
-    },
-  ];
-
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans">
       <Seo
@@ -113,48 +92,10 @@ const ContactPage: React.FC = () => {
       <section className="py-24 bg-gray-50 relative z-10">
         <Container className="max-w-screen-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* LEFT: CTA CARD (Replaces Form) */}
+            {/* LEFT: INLINE CONTACT FORM (BH2 — eliminuje "klik na modal" friction) */}
             <div className="lg:col-span-7">
               <AnimateOnScroll className="h-full">
-                <div className="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100 h-full relative overflow-hidden flex flex-col justify-center items-start">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/20 to-transparent rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none blur-3xl"></div>
-
-                  <div className="relative z-10 w-full">
-                    <h2 className="text-3xl font-bold text-dark mb-4">{CONTENT.ctaCard.title}</h2>
-                    <p className="text-gray-700 text-lg mb-8 leading-relaxed max-w-lg">
-                      {CONTENT.ctaCard.description}
-                    </p>
-
-                    <div className="space-y-4 mb-10">
-                      {features.map((feature, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-5 p-5 bg-light-gray rounded-2xl border border-gray-100 hover:border-primary/30 transition-colors"
-                        >
-                          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-secondary shrink-0">
-                            <feature.icon size={24} />
-                          </div>
-                          <div>
-                            <div className="font-bold text-dark text-lg">{feature.title}</div>
-                            <div className="text-sm text-gray-500 font-medium">{feature.desc}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <Button
-                      onClick={() => openModal('general')}
-                      variant="primary"
-                      className="w-full sm:w-auto justify-center px-8 py-4 text-lg shadow-xl shadow-secondary/20 hover:scale-105 transition-transform"
-                      icon={<ArrowRight size={20} />}
-                    >
-                      {CONTENT.ctaCard.button}
-                    </Button>
-                    <p className="mt-4 text-xs text-gray-600 text-center sm:text-left">
-                      {CONTENT.ctaCard.microCopy}
-                    </p>
-                  </div>
-                </div>
+                <InlineContactForm type="general" />
               </AnimateOnScroll>
             </div>
 
