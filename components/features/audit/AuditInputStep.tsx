@@ -94,11 +94,25 @@ const AuditInputStep: React.FC<AuditInputStepProps> = ({
                       size={20}
                     />
                     <input
-                      type="text"
+                      type="url"
+                      inputMode="url"
+                      autoComplete="url"
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder="np. twoja-strona.pl"
-                      className="w-full pl-12 pr-4 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-lg font-medium"
+                      className="w-full pl-12 pr-4 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/40 outline-none transition-all text-lg font-medium"
                       value={url}
                       onChange={(e) => setUrl(e.target.value)}
+                      onBlur={(e) => {
+                        // Auto-prepend https:// + trim — eliminuje typo 'twoja-strona.pl' bez schematu
+                        const v = e.target.value.trim();
+                        if (v && !/^https?:\/\//i.test(v)) {
+                          setUrl(`https://${v}`);
+                        } else if (v !== e.target.value) {
+                          setUrl(v);
+                        }
+                      }}
                       required
                     />
                   </div>
@@ -115,8 +129,12 @@ const AuditInputStep: React.FC<AuditInputStepProps> = ({
                     />
                     <input
                       type="text"
+                      autoComplete="organization"
+                      autoCapitalize="words"
+                      autoCorrect="off"
+                      spellCheck={false}
                       placeholder="Wyszukaj firmę w Google..."
-                      className="w-full pl-12 pr-4 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-lg font-medium"
+                      className="w-full pl-12 pr-4 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/40 outline-none transition-all text-lg font-medium"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                     />{' '}

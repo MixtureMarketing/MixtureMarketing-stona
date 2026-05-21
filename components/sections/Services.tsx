@@ -1,9 +1,8 @@
 import React from 'react';
 import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import GlassCard from '../common/GlassCard';
 import { SERVICES_CONTENT as CONTENT } from '../../data/content';
@@ -17,8 +16,6 @@ const VisualMap = {
 };
 
 const Services: React.FC = () => {
-  const navigate = useNavigate();
-
   return (
     <section id="services" className="py-32 relative bg-gray-50 overflow-hidden">
       <AmbientBackground />
@@ -51,10 +48,9 @@ const Services: React.FC = () => {
               >
                 <GlassCard
                   className={`
-                    group p-0 overflow-hidden flex flex-col h-full z-10 transition-all duration-500
-                    hover:border-primary hover:shadow-2xl hover:-translate-y-2 cursor-pointer
+                    group relative p-0 overflow-hidden flex flex-col h-full z-10 transition-all duration-500
+                    hover:border-primary hover:shadow-2xl motion-safe:hover:-translate-y-2
                 `}
-                  onClick={() => navigate(service.path)}
                 >
                   {/* Card Header with Icon */}
                   <div className="p-6 md:p-8 pb-0">
@@ -98,20 +94,21 @@ const Services: React.FC = () => {
                       {VisualMap[service.visualType as keyof typeof VisualMap]}
                     </div>
 
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between group-hover:bg-blue-50 group-hover:text-secondary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(service.path);
-                      }}
+                    {/* Stretched link (WCAG 4.1.2): jedyny focusable element karty.
+                        Link sam jest static, ale jego ::after jest absolute pokrywajacy
+                        GlassCard (najblizszy `relative` ancestor) — cala karta klikalna,
+                        ale tylko 1 element interaktywny dla SR/klawiatury. */}
+                    <Link
+                      to={service.path}
+                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 text-sm font-bold rounded-lg text-dark group-hover:bg-blue-50 group-hover:text-secondary transition-colors after:absolute after:content-[''] after:inset-0 after:rounded-2xl"
                     >
-                      <span>{service.button}</span>
+                      <span className="relative z-10">{service.button}</span>
                       <ArrowRight
                         size={18}
-                        className="transform group-hover:translate-x-1 transition-transform"
+                        aria-hidden="true"
+                        className="relative z-10 transform group-hover:translate-x-1 transition-transform"
                       />
-                    </Button>
+                    </Link>
                   </div>
                 </GlassCard>
               </AnimateOnScroll>

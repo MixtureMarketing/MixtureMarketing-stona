@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight, CheckCircle2, ShieldAlert, Zap, BarChart3 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
-import { useModal } from '../../context/ModalContext';
 import { LEAD_MAGNET_CONTENT as CONTENT } from '../../data/content';
 import { AuditVisual } from '../visuals/LeadMagnetVisuals';
 
 const LeadMagnet: React.FC = () => {
-  const { openModal } = useModal();
+  const navigate = useNavigate();
 
   return (
     <section className="py-24 relative overflow-hidden bg-dark">
@@ -47,7 +47,7 @@ const LeadMagnet: React.FC = () => {
                 variant="primary"
                 size="lg"
                 className="w-full sm:w-auto justify-center shadow-xl shadow-primary/20 text-sm sm:text-lg px-4 sm:px-8 h-12 sm:h-16"
-                onClick={() => openModal('audit')}
+                onClick={() => navigate('/audyt-360/')}
                 icon={<ArrowRight size={18} className="sm:w-5 sm:h-5" />}
               >
                 {CONTENT.button}

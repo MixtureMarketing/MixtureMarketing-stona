@@ -50,7 +50,7 @@ export const CONTACT_PAGE_CONTENT = {
       sub: 'Odpowiadamy w 24h',
     },
     office: {
-      label: 'Odwiedź nas',
+      label: 'Adres rejestrowy',
     },
   },
   invoiceData: {

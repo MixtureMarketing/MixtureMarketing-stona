@@ -43,6 +43,10 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
       </div>
       <Input
         label="Imię i Nazwisko"
+        autoComplete="name"
+        autoCapitalize="words"
+        autoCorrect="off"
+        spellCheck={false}
         {...register('name', { required: 'Jak mamy się do Ciebie zwracać?' })}
         error={errors.name?.message}
         icon={<User size={18} />}
@@ -54,6 +58,11 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
         <Input
           label="Email"
           type="email"
+          inputMode="email"
+          autoComplete="email"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
           {...register('email', {
             required: 'Potrzebujemy emaila, by wysłać wycenę.',
             pattern: { value: /^\S+@\S+$/i, message: 'To nie wygląda na poprawny email.' },
@@ -61,7 +70,14 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
           error={errors.email?.message}
           icon={<Mail size={18} />}
         />
-        <Input label="Telefon" type="tel" {...register('phone')} icon={<Phone size={18} />} />
+        <Input
+          label="Telefon (opcjonalnie)"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          {...register('phone')}
+          icon={<Phone size={18} />}
+        />
       </div>
       <div className="pt-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
         <label className="flex items-start gap-4 cursor-pointer group">

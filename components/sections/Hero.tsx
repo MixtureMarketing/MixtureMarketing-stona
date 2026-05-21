@@ -91,22 +91,22 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
             <div className="flex flex-col gap-6 items-center relative z-20 px-4 sm:px-0">
               <div className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center items-center w-full">
                 <Button
-                  onClick={() => navigate('/offers#calculator')}
+                  onClick={() => navigate('/audyt-360/')}
                   variant="primary"
                   size="lg"
-                  className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg shadow-2xl shadow-secondary/30 hover:scale-105 transition-transform duration-300"
+                  className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg shadow-2xl shadow-secondary/30 motion-safe:hover:scale-105 transition-transform duration-300"
                   icon={<ArrowRight size={22} />}
                 >
-                  Oblicz koszt projektu
+                  Darmowy audyt strony w 60s
                 </Button>
 
                 <Button
-                  onClick={scrollToServices}
+                  onClick={() => navigate('/offers#calculator')}
                   variant="secondary"
                   size="lg"
                   className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg border-gray-200"
                 >
-                  {HERO_CONTENT.cta.secondary}
+                  Oblicz wycenę projektu
                 </Button>
               </div>
 
@@ -141,15 +141,17 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
       </div>
 
       {/* --- SCROLL INDICATOR --- */}
-      <div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 animate-bounce cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+      <button
+        type="button"
         onClick={scrollToServices}
+        aria-label="Przewiń do sekcji usług"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 motion-safe:animate-bounce cursor-pointer opacity-50 hover:opacity-100 focus-visible:opacity-100 transition-opacity rounded-full p-2"
       >
-        <div className="flex flex-col items-center gap-2">
+        <span className="flex flex-col items-center gap-2">
           <span className="text-xxs font-black uppercase tracking-[0.2em] text-dark">Scroll</span>
-          <Mouse size={24} className="text-primary" />
-        </div>
-      </div>
+          <Mouse size={24} className="text-primary" aria-hidden="true" />
+        </span>
+      </button>
     </section>
   );
 };

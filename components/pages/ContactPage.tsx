@@ -58,8 +58,10 @@ const ContactPage: React.FC = () => {
       icon: MapPin,
       label: CONTENT.contactMethods.office.label,
       value: SITE_CONFIG.contact.address.city,
-      action: '#',
-      sub: SITE_CONFIG.contact.address.street,
+      action: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${SITE_CONFIG.contact.address.street}, ${SITE_CONFIG.contact.address.city}`,
+      )}`,
+      sub: `${SITE_CONFIG.contact.address.street} · pracujemy mobilnie — dojazd do klienta`,
       color: '#00C853',
     },
   ];

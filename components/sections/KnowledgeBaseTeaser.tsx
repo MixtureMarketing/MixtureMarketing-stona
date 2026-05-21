@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, Tag } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
-import Button from '../common/Button';
 import BaseCard from '../common/BaseCard';
 import Image from '../common/Image';
 import Container from '../common/Container';
@@ -33,10 +32,12 @@ const KnowledgeBaseTeaser: React.FC = () => {
               description={CONTENT.teaser.description}
             />
           </div>
-          <Link to="/baza-wiedzy/">
-            <Button variant="outline" icon={<ArrowRight size={18} />}>
-              {CONTENT.teaser.button}
-            </Button>
+          <Link
+            to="/baza-wiedzy/"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-secondary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+          >
+            {CONTENT.teaser.button}
+            <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
 
