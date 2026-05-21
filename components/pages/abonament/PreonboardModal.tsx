@@ -396,9 +396,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       aria-describedby="preonboard-desc"
       className="preonboard-dialog fixed inset-0 m-0 p-0 w-full h-full max-w-none max-h-none bg-transparent open:flex hidden items-end sm:items-center justify-center sm:p-4 backdrop:bg-dark/60 backdrop:backdrop-blur-sm"
     >
-      <div
-        className="relative bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden focus:outline-none"
-      >
+      <div className="relative bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden focus:outline-none">
         {/* Header */}
         <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 sm:p-8">
           <button

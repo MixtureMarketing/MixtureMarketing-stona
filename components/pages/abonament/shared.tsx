@@ -128,9 +128,7 @@ export const CountUp: React.FC<CountUpProps> = ({
   const startedRef = React.useRef(false);
 
   React.useEffect(() => {
-    const prefersReducedMotion = window.matchMedia?.(
-      '(prefers-reduced-motion: reduce)',
-    )?.matches;
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     if (prefersReducedMotion) {
       setValue(to);
       return;

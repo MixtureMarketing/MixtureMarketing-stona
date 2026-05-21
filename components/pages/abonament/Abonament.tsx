@@ -50,7 +50,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
 import MagneticButton from './MagneticButton';
-import { HeroBadge, GhostButton } from './shared';
+import { HeroBadge } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 
 // Track 25 (2026-05-19): cennik update 149/199/299 → 179/249/349 + Professional 549.
@@ -535,10 +535,7 @@ const Abonament: React.FC = () => {
       <AmbientBackground />
 
       {/* ==================== HERO ==================== */}
-      <section
-        ref={heroRef}
-        className="relative pt-32 pb-24 md:pb-32 overflow-hidden"
-      >
+      <section ref={heroRef} className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div className="absolute top-40 left-1/4 w-96 h-96 bg-emerald-200/40 rounded-full blur-[120px] motion-safe:animate-blob" />
           <div
