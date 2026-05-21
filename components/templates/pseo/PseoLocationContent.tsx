@@ -22,6 +22,7 @@ import {
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Button from '../../common/Button';
 import LazyMap from '../../common/LazyMap';
+import HeroBadge from '../../common/HeroBadge';
 import { useModal } from '../../../context/ModalContext';
 import { SanityLocation } from '../../../services/cmsService';
 
@@ -40,10 +41,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
       {/* HERO SECTION */}
       <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
         <div>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-800 text-sm font-bold uppercase tracking-wider mb-6">
-            <MapPin size={16} />
-            <span>{data.city}</span>
-          </div>
+          <HeroBadge accent="secondary" className="mb-6">
+            {data.city}
+          </HeroBadge>
           <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
             {isHeadquartersCity ? (
               <>

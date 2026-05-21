@@ -23,6 +23,8 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
+import HeroBadge from '../common/HeroBadge';
+import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
@@ -58,9 +60,9 @@ const WebDevRzeszow: React.FC = () => {
         'Tak. Dostępne są pakiety wsparcia technicznego (od 290 zł/mies) obejmujące aktualizacje bezpieczeństwa, monitoring, kopie zapasowe i drobne zmiany contentowe. Dla większych klientów oferujemy SLA z gwarantowanym czasem reakcji.',
     },
     {
-      question: 'Czy spotkamy się osobiście w Rzeszowie?',
+      question: 'Czy przed kodowaniem spotykamy się na żywo?',
       answer:
-        'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Alternatywnie ustalamy spotkanie w wybranej kawiarni lub przestrzeni coworkingowej w centrum Rzeszowa, albo online (Google Meet / Zoom). Standardowo bezpłatna konsultacja trwa 45–60 minut.',
+        'Tak — Discovery (faza 1 procesu) najczęściej robimy osobiście. Dojeżdżamy do siedziby klienta na terenie Rzeszowa i Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło), żeby zobaczyć biuro, magazyn lub showroom — to ważne dla wytyczenia copywritingu i zdjęć. Kolejne fazy (Design, Dev, Testing) zwykle prowadzimy online przez Figma + Google Meet. Sprint launch + szkolenie CMS znowu na żywo. Konsultacja Discovery: bezpłatna, 45–60 min.',
     },
   ];
 
@@ -201,10 +203,9 @@ const WebDevRzeszow: React.FC = () => {
         <Container>
           {/* HERO */}
           <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-bold uppercase tracking-wider mb-6">
-              <Globe size={16} />
-              <span>Web Development · Rzeszów</span>
-            </div>
+            <HeroBadge accent="secondary" className="mb-6">
+              Web Development · Rzeszów
+            </HeroBadge>
             <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
               Strony Internetowe{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -415,7 +416,9 @@ const WebDevRzeszow: React.FC = () => {
                   Headless Next.js + Sanity CMS. Wielojęzyczność (PL/EN/DE). Landing page
                   rekrutacyjny dla 200+ stanowisk.
                 </p>
-                <p className="text-2xl font-extrabold text-orange-700">+127%</p>
+                <p className="text-2xl font-extrabold text-orange-700">
+                  +<CountUp to={127} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">organic traffic w 6 miesięcy</p>
               </article>
 
@@ -428,7 +431,9 @@ const WebDevRzeszow: React.FC = () => {
                   Shoper + custom moduł rabatów hurtowych. Integracja z systemem ERP klienta. 1200
                   SKU.
                 </p>
-                <p className="text-2xl font-extrabold text-emerald-700">−47%</p>
+                <p className="text-2xl font-extrabold text-emerald-700">
+                  −<CountUp to={47} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">redukcja kosztu pozyskania klienta</p>
               </article>
 
@@ -441,7 +446,9 @@ const WebDevRzeszow: React.FC = () => {
                   Next.js, animacje Framer Motion, blog techniczny z MDX. Wdrożenie systemu
                   rekrutacyjnego.
                 </p>
-                <p className="text-2xl font-extrabold text-indigo-700">3.2×</p>
+                <p className="text-2xl font-extrabold text-indigo-700">
+                  <CountUp to={3.2} decimals={1} suffix="×" />
+                </p>
                 <p className="text-xs text-gray-500">leady z formularza WWW</p>
               </article>
             </div>
@@ -651,10 +658,10 @@ const WebDevRzeszow: React.FC = () => {
                   siedzibie lub w neutralnej lokalizacji w centrum Rzeszowa. Omówimy cele,
                   technologie i harmonogram.
                 </p>
-                <p className="text-gray-700 mb-2">
+                <address className="not-italic text-gray-700 mb-2">
                   <strong>Adres rejestrowy:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
                   <span className="text-gray-500 text-sm"> · biuro wirtualne</span>
-                </p>
+                </address>
                 <p className="text-gray-600 text-sm mb-2">
                   Pracujemy mobilnie — dojeżdżamy do klienta na Podkarpaciu.
                 </p>

@@ -2,7 +2,6 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Search,
   TrendingUp,
   MapPin,
   Target,
@@ -23,6 +22,8 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
+import HeroBadge from '../common/HeroBadge';
+import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
@@ -212,10 +213,9 @@ const SeoRzeszow: React.FC = () => {
         <Container>
           {/* HERO */}
           <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-100 text-violet-800 text-sm font-bold uppercase tracking-wider mb-6">
-              <Search size={16} />
-              <span>SEO · Pozycjonowanie · Rzeszów</span>
-            </div>
+            <HeroBadge accent="secondary" className="mb-6">
+              SEO · Pozycjonowanie · Rzeszów
+            </HeroBadge>
             <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
               Agencja SEO{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -430,7 +430,9 @@ const SeoRzeszow: React.FC = () => {
                   TOP3 dla 8 fraz typu „adwokat Rzeszów", „kancelaria prawna Rzeszów" w 5 miesięcy.
                   Wzrost połączeń z GBP +280%.
                 </p>
-                <p className="text-2xl font-extrabold text-violet-700">+340%</p>
+                <p className="text-2xl font-extrabold text-violet-700">
+                  +<CountUp to={340} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">leady z formularza WWW w 6 miesięcy</p>
               </article>
 
@@ -443,7 +445,9 @@ const SeoRzeszow: React.FC = () => {
                   35 artykułów eksperckich, podstrony usługowe, pillar pages. TOP10 dla 47 fraz
                   ogólnopolskich w branży lotnictwa.
                 </p>
-                <p className="text-2xl font-extrabold text-emerald-700">+127%</p>
+                <p className="text-2xl font-extrabold text-emerald-700">
+                  +<CountUp to={127} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">organic traffic w 8 miesięcy</p>
               </article>
 
@@ -456,7 +460,9 @@ const SeoRzeszow: React.FC = () => {
                   Optymalizacja kategorii, filtrów, snippetów produktowych (Product schema).
                   Konsolidacja duplikatów. Audyt indeksacji.
                 </p>
-                <p className="text-2xl font-extrabold text-orange-700">−47%</p>
+                <p className="text-2xl font-extrabold text-orange-700">
+                  −<CountUp to={47} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">CPA — koszt pozyskania klienta</p>
               </article>
             </div>
@@ -626,10 +632,10 @@ const SeoRzeszow: React.FC = () => {
                   Wyślij URL — odeślemy w 5 dni roboczych audyt z konkretnymi rekomendacjami:
                   techniczne błędy, brakujące frazy, konkurencja w Rzeszowie, oszacowanie ROI.
                 </p>
-                <p className="text-gray-700 mb-2">
+                <address className="not-italic text-gray-700 mb-2">
                   <strong>Adres rejestrowy:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
                   <span className="text-gray-500 text-sm"> · biuro wirtualne</span>
-                </p>
+                </address>
                 <p className="text-gray-600 text-sm mb-2">
                   Pracujemy mobilnie — dojeżdżamy do klienta na Podkarpaciu.
                 </p>

@@ -22,6 +22,8 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
+import HeroBadge from '../common/HeroBadge';
+import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
@@ -112,10 +114,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         <Container>
           {/* HERO */}
           <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-pink-100 text-pink-800 text-sm font-bold uppercase tracking-wider mb-6">
-              <Sparkles size={16} />
-              <span>Agencja Interaktywna · Rzeszów</span>
-            </div>
+            <HeroBadge accent="primary" className="mb-6">
+              Agencja Interaktywna · Rzeszów
+            </HeroBadge>
             <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
               Agencja Interaktywna{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
@@ -304,7 +305,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   Interaktywny konfigurator komponentów lotniczych. PDF eksport, integracja z CRM,
                   formularz zapytania ofertowego.
                 </p>
-                <p className="text-2xl font-extrabold text-pink-700">+62%</p>
+                <p className="text-2xl font-extrabold text-pink-700">
+                  +<CountUp to={62} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">zapytania ofertowe miesięcznie</p>
               </article>
 
@@ -317,7 +320,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   Wieloetapowy quiz lead-genowy z natychmiastową wstępną wyceną. Integracja z
                   mailingiem i CRM.
                 </p>
-                <p className="text-2xl font-extrabold text-violet-700">3.8×</p>
+                <p className="text-2xl font-extrabold text-violet-700">
+                  <CountUp to={3.8} decimals={1} suffix="×" />
+                </p>
                 <p className="text-xs text-gray-500">więcej leadów niż klasyczny formularz</p>
               </article>
 
@@ -330,7 +335,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   Identyfikacja wizualna, strona firmowa Next.js, portal rekrutacyjny z ATS.
                   Employer branding w IT.
                 </p>
-                <p className="text-2xl font-extrabold text-indigo-700">+210%</p>
+                <p className="text-2xl font-extrabold text-indigo-700">
+                  +<CountUp to={210} suffix="%" />
+                </p>
                 <p className="text-xs text-gray-500">aplikacje kandydatów / kwartał</p>
               </article>
             </div>
@@ -445,10 +452,10 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   siedzibie lub w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele,
                   technologie, harmonogram i budżet.
                 </p>
-                <p className="text-gray-700 mb-2">
+                <address className="not-italic text-gray-700 mb-2">
                   <strong>Adres rejestrowy:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
                   <span className="text-gray-500 text-sm"> · biuro wirtualne</span>
-                </p>
+                </address>
                 <p className="text-gray-600 text-sm mb-2">
                   Pracujemy mobilnie — dojeżdżamy do klienta na Podkarpaciu.
                 </p>
