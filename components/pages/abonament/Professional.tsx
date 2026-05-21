@@ -24,6 +24,8 @@ import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal from './PreonboardModal';
+import MagneticButton from './MagneticButton';
+import { HeroBadge, GhostButton } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 
 const PROFESSIONAL_PRICE = 549;
@@ -214,10 +216,9 @@ const Professional: React.FC = () => {
         </div>
         <Container className="relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
-              <Scale size={14} aria-hidden="true" />
-              <span>Branże regulowane · RODO+</span>
-            </div>
+            <HeroBadge accent="amber" className="mb-8">
+              Branże regulowane · RODO+
+            </HeroBadge>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-dark leading-[1.05] tracking-tight mb-6">
               Strona dla kancelarii i&nbsp;gabinetu
@@ -237,21 +238,19 @@ const Professional: React.FC = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mb-8 max-w-xl mx-auto">
-              <button
+              <MagneticButton
                 type="button"
+                strength={0.35}
                 onClick={handleOpenModal}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold rounded-full text-lg shadow-xl shadow-amber-500/30 motion-safe:hover:-translate-y-1 transition-all"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-br from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold rounded-full text-lg shadow-xl shadow-amber-500/30 transition-shadow"
               >
                 Zamów Professional
                 <ArrowRight size={20} aria-hidden="true" />
-              </button>
-              <a
-                href="tel:+48794443551"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-dark hover:text-amber-700 font-bold rounded-full text-lg border border-gray-200 hover:border-amber-300 hover:shadow-md transition-all"
-              >
+              </MagneticButton>
+              <GhostButton accent="amber" href="tel:+48794443551">
                 <Phone size={18} aria-hidden="true" />
                 Zadzwoń przed
-              </a>
+              </GhostButton>
             </div>
 
             <div className="inline-flex items-baseline gap-1 mb-2">
@@ -266,7 +265,7 @@ const Professional: React.FC = () => {
       </section>
 
       {/* ============ TARGET PROFESSIONS ============ */}
-      <section className="py-20 bg-gray-50/60">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">
@@ -318,7 +317,7 @@ const Professional: React.FC = () => {
       </section>
 
       {/* ============ CORE FEATURES — Co dostajesz ============ */}
-      <section className="py-20">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">
@@ -347,7 +346,7 @@ const Professional: React.FC = () => {
       </section>
 
       {/* ============ WHAT'S OFF — czego NIE robimy ============ */}
-      <section className="py-20 bg-gray-50/60">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">
@@ -381,7 +380,7 @@ const Professional: React.FC = () => {
       </section>
 
       {/* ============ SLA ============ */}
-      <section className="py-20">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">
@@ -424,7 +423,7 @@ const Professional: React.FC = () => {
       </section>
 
       {/* ============ SUBPROCESSORS ============ */}
-      <section className="py-20 bg-gray-50/60">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-700 mb-3">

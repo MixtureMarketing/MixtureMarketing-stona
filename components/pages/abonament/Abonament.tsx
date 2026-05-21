@@ -50,6 +50,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
 import MagneticButton from './MagneticButton';
+import { HeroBadge, GhostButton } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 
 // Track 25 (2026-05-19): cennik update 149/199/299 → 179/249/349 + Professional 549.
@@ -320,7 +321,11 @@ const Abonament: React.FC = () => {
   });
   const stripeCanceled = searchParams.get('stripe') === 'canceled';
   const pricingRef = useRef<HTMLElement | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
   const viewPricingTracked = useRef(false);
+  // H5: sticky mobile CTA bar po wyjściu z hero, ukryty gdy pricing widoczny
+  const [showStickyMobileBar, setShowStickyMobileBar] = useState(false);
+  const [pricingInView, setPricingInView] = useState(false);
 
   // Deep-link tracking — jeśli modal otwarty z URL'a, wyślij GA4 event raz po mount
   const deepLinkTrackedRef = useRef(false);
@@ -367,22 +372,38 @@ const Abonament: React.FC = () => {
     }
   }, [stripeCanceled]);
 
-  // Funnel #1 — view_pricing (IntersectionObserver, once)
+  // Funnel #1 — view_pricing (IntersectionObserver, once) + pricingInView toggle dla H5 bar
   useEffect(() => {
     if (!pricingRef.current) return;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
+          setPricingInView(entry.isIntersecting);
           if (entry.isIntersecting && !viewPricingTracked.current) {
             viewPricingTracked.current = true;
             trackEvent('view_pricing', { source: window.location.pathname });
-            observer.disconnect();
           }
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.15 },
     );
     observer.observe(pricingRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // H5 — sticky mobile bar appearance: po wyjściu hero z viewportu (0% widoczny)
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          // hero NIE jest widoczny → pokaż bar
+          setShowStickyMobileBar(!entry.isIntersecting);
+        }
+      },
+      { threshold: 0, rootMargin: '-40px 0px 0px 0px' },
+    );
+    observer.observe(heroRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -490,7 +511,7 @@ const Abonament: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-dark">
+    <div className="min-h-screen bg-white text-dark pb-20 md:pb-0">
       <Seo
         title="Strona w abonamencie od 179 zł/mc — gotowa strona WWW dla małej firmy"
         description="Strona w abonamencie od 179 zł/mc. 4 pakiety (179/249/349/549). Robimy stronę WWW, SEO lokalne i Google Business Profile za Ciebie. Setup w 24h, bez opłat aktywacyjnych, umowa od 3 miesięcy. Wybierz pakiet i zacznij dziś."
@@ -506,7 +527,10 @@ const Abonament: React.FC = () => {
       <AmbientBackground />
 
       {/* ==================== HERO ==================== */}
-      <section className="relative pt-32 pb-24 md:pb-32 overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative pt-32 pb-24 md:pb-32 overflow-hidden"
+      >
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-40 left-1/4 w-96 h-96 bg-emerald-200/40 rounded-full blur-[120px]" />
           <div className="absolute top-20 right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-[120px]" />
@@ -514,13 +538,9 @@ const Abonament: React.FC = () => {
 
         <Container className="relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
-              </span>
-              <span>Nowość · 4 pakiety od 179 zł/mc</span>
-            </div>
+            <HeroBadge accent="emerald" className="mb-8">
+              Nowość · 4 pakiety od 179 zł/mc
+            </HeroBadge>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-dark leading-[1.05] tracking-tight mb-6">
               Strona internetowa{' '}
@@ -955,8 +975,12 @@ const Abonament: React.FC = () => {
                     <span className="text-xl text-gray-500 font-semibold">zł / mc</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    Netto · <strong className="text-gray-700">brutto: {tier.priceGross} zł</strong>{' '}
-                    · Faktura VAT w panelu
+                    Netto · <strong className="text-gray-700">brutto {tier.priceGross} zł</strong>{' '}
+                    (VAT 23%) · ≈{' '}
+                    <strong className="text-gray-700">{tier.price * 12} zł/rok netto</strong>
+                  </p>
+                  <p className="text-xxs text-gray-400 mt-0.5">
+                    Bez opłaty aktywacyjnej · Faktura VAT 1. dnia miesiąca
                   </p>
                 </div>
 
@@ -1849,16 +1873,38 @@ const Abonament: React.FC = () => {
       {/* Modal */}
       <PreonboardModal tier={openTier} onClose={() => setOpenTier(null)} />
 
-      {/* Sticky telefon CTA — mobile only. Marek-persona blocker:
-          self-service flow odpycha klientów 40+. Telefon = realny conversion path. */}
-      <a
-        href="tel:+48794443551"
-        className="md:hidden fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-full shadow-lg shadow-emerald-500/40 transition-colors"
-        aria-label="Zadzwoń: +48 794 443 551"
+      {/* H5: Sticky mobile CTA bar — pokazuje się po wyjściu hero, znika w sekcji pricing.
+          Łączy primary CTA "Wybierz pakiet" z secondary "Zadzwoń" (Marek-persona). */}
+      <div
+        aria-hidden={!showStickyMobileBar || pricingInView}
+        className={`md:hidden fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)] transition-transform duration-300 ${
+          showStickyMobileBar && !pricingInView ? 'translate-y-0' : 'translate-y-full'
+        }`}
       >
-        <Phone size={18} aria-hidden="true" />
-        <span className="text-sm">Zadzwoń</span>
-      </a>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 text-xs leading-tight">
+            <p className="font-bold text-dark">Od 179 zł / mc</p>
+            <p className="text-gray-500">4 pakiety · faktura VAT</p>
+          </div>
+          <a
+            href="tel:+48794443551"
+            className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-white border-2 border-gray-200 text-gray-700 hover:border-emerald-500 hover:text-emerald-700 transition-colors"
+            aria-label="Zadzwoń: +48 794 443 551"
+          >
+            <Phone size={18} aria-hidden="true" />
+          </a>
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
+            }
+            className="inline-flex items-center gap-1.5 px-5 h-11 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-md text-sm"
+          >
+            Wybierz pakiet
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,8 @@ import { CheckCircle2, X, Plus, ArrowRight, Phone, Sparkles, Wallet } from 'luci
 import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
+import MagneticButton from './MagneticButton';
+import { HeroBadge, GhostButton } from './shared';
 
 const COMPARE_ROWS = [
   {
@@ -151,10 +153,9 @@ const VsOrange: React.FC = () => {
       <section className="relative pt-32 pb-16">
         <Container>
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
-              <Sparkles size={14} aria-hidden="true" />
-              <span>Porównanie · Mixture vs Orange KlikAI</span>
-            </div>
+            <HeroBadge accent="emerald" className="mb-8">
+              Porównanie · Mixture vs Orange KlikAI
+            </HeroBadge>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-dark leading-[1.05] tracking-tight mb-6">
               Mixture vs Orange KlikAI
               <br />
@@ -172,26 +173,27 @@ const VsOrange: React.FC = () => {
               .
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-xl mx-auto">
-              <Link
-                to="/abonament/#pricing"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all"
+              <MagneticButton
+                type="button"
+                strength={0.3}
+                onClick={() => {
+                  window.location.href = '/abonament/#pricing';
+                }}
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-shadow"
               >
                 Zobacz pakiety Mixture <ArrowRight size={18} aria-hidden="true" />
-              </Link>
-              <a
-                href="tel:+48794443551"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 bg-white text-dark hover:text-emerald-700 font-bold rounded-full border border-gray-200 hover:border-emerald-300 transition-all"
-              >
+              </MagneticButton>
+              <GhostButton accent="emerald" href="tel:+48794443551">
                 <Phone size={18} aria-hidden="true" />
                 Konsultacja
-              </a>
+              </GhostButton>
             </div>
           </div>
         </Container>
       </section>
 
       {/* ============ COMPARISON TABLE ============ */}
-      <section className="py-16 bg-gray-50/60">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-5xl mx-auto">
             <div className="grid sm:grid-cols-2 gap-4 mb-2" aria-hidden="true">
@@ -254,7 +256,7 @@ const VsOrange: React.FC = () => {
       </section>
 
       {/* ============ WARTOŚĆ DODANA 140 zł ============ */}
-      <section className="py-16">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-dark leading-tight mb-4">
@@ -312,7 +314,7 @@ const VsOrange: React.FC = () => {
       </section>
 
       {/* ============ DECYZJE ============ */}
-      <section className="py-16 bg-gray-50/60">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-dark leading-tight mb-4">
@@ -320,13 +322,13 @@ const VsOrange: React.FC = () => {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="grid md:grid-cols-2 gap-5 max-w-5xl mx-auto items-stretch">
+            <div className="bg-gray-50/60 rounded-2xl p-6 border border-gray-100 opacity-90">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center">
                   <Wallet size={18} aria-hidden="true" />
                 </div>
-                <h3 className="font-bold text-dark">Wybierz Orange KlikAI jeśli…</h3>
+                <h3 className="font-bold text-gray-700">Wybierz Orange KlikAI jeśli…</h3>
               </div>
               <ul className="space-y-2.5 text-sm text-gray-700">
                 {[
@@ -346,7 +348,10 @@ const VsOrange: React.FC = () => {
                 ))}
               </ul>
             </div>
-            <div className="bg-white rounded-2xl p-6 border-2 border-emerald-200 shadow-sm">
+            <div className="relative bg-white rounded-2xl p-6 border-2 border-emerald-400 shadow-lg shadow-emerald-500/10 lg:scale-[1.02] lg:-my-1">
+              <div className="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-xxs font-black uppercase tracking-[0.15em]">
+                Rekomendowane
+              </div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
                   <Sparkles size={18} aria-hidden="true" />
@@ -376,7 +381,7 @@ const VsOrange: React.FC = () => {
       </section>
 
       {/* ============ CTA ============ */}
-      <section className="py-16">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-sm border border-emerald-100 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-4">
