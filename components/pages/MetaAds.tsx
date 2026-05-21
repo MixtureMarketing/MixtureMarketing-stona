@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Megaphone, Play, Phone } from 'lucide-react';
 import Seo from '../common/Seo';
 import HeroTrustLine from '../common/HeroTrustLine';
@@ -11,6 +11,8 @@ import { PricingSectionData, PricingTier } from '../../types';
 import BaseCta from '../common/BaseCta';
 import FaqSection from '../sections/FaqSection';
 import StandardHero from '../common/StandardHero';
+import MarketingSpokeFooter from '../common/MarketingSpokeFooter';
+import StickyMobileBar from '../common/StickyMobileBar';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import { MetaAdsHeroVisual } from '../visuals/hero/MetaAdsVisual';
 
@@ -23,6 +25,8 @@ import MetaAdsStrategy from '../features/marketing/MetaAdsStrategy';
 const MetaAds: React.FC = () => {
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -61,34 +65,36 @@ const MetaAds: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={Megaphone}
-        title={{
-          line1: CONTENT.hero.title.line1,
-          line2: CONTENT.hero.title.line2,
-          accent: CONTENT.hero.title.accent,
-        }}
-        description={CONTENT.hero.description}
-        priceHint="od 1 200 zł / mc + budżet · Pixel + CAPI · kreacje video w cenie"
-        trustLine={<HeroTrustLine promise="Sam testuję kreacje i targetowanie" />}
-        ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
-        ctaSecondaryNode={
-          <a
-            href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-instagram hover:bg-pink-50 hover:text-instagram font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
-          >
-            <Phone size={18} aria-hidden="true" />
-            Zadzwoń: {SITE_CONFIG.contact.phone}
-          </a>
-        }
-        backLinkPath="/marketing/"
-        backLinkLabel="Marketing"
-        accentGradientFrom="#833AB4"
-        accentGradientTo="#E1306C"
-        visual={<MetaAdsHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={CONTENT.hero.badge}
+          badgeIcon={Megaphone}
+          title={{
+            line1: CONTENT.hero.title.line1,
+            line2: CONTENT.hero.title.line2,
+            accent: CONTENT.hero.title.accent,
+          }}
+          description={CONTENT.hero.description}
+          priceHint="od 1 200 zł / mc + budżet · Pixel + CAPI · kreacje video w cenie"
+          trustLine={<HeroTrustLine promise="Sam testuję kreacje i targetowanie" />}
+          ctaPrimaryText={CONTENT.hero.cta}
+          ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
+          ctaSecondaryNode={
+            <a
+              href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-instagram hover:bg-pink-50 hover:text-instagram font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+            >
+              <Phone size={18} aria-hidden="true" />
+              Zadzwoń: {SITE_CONFIG.contact.phone}
+            </a>
+          }
+          backLinkPath="/marketing/"
+          backLinkLabel="Marketing"
+          accentGradientFrom="#833AB4"
+          accentGradientTo="#E1306C"
+          visual={<MetaAdsHeroVisual />}
+        />
+      </div>
 
       {/* AuditTeaser pod hero (symetria z SEO/GoogleAds) */}
       <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
@@ -120,14 +126,39 @@ const MetaAds: React.FC = () => {
       {/* --- FAQ --- */}
       <FaqSection title="Pytania o Social Ads" items={CONTENT.faqs} />
 
+      {/* FC1+FC2 — FounderCard + spoke cross-linking */}
+      <MarketingSpokeFooter
+        currentType="meta-ads"
+        founderBio={
+          <>
+            Od 2020 prowadzę kampanie Facebook Ads i Instagram Ads. Sam piszę briefy kreacyjne, sam
+            testuję targetowanie, sam podpinam Pixel + Conversions API. Bez "agencji od kreacji" i
+            bez "freelancera od konfiguracji".
+          </>
+        }
+      />
+
       {/* --- CTA --- */}
-      <BaseCta
-        title={CONTENT.cta.title}
-        description={CONTENT.cta.description}
-        buttonText={CONTENT.cta.button}
-        icon={Play}
-        onClick={() => openModal('marketing', { specificType: 'ads' })}
-        variant="gradient"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          title={CONTENT.cta.title}
+          description={CONTENT.cta.description}
+          buttonText={CONTENT.cta.button}
+          icon={Play}
+          onClick={() => openModal('marketing', { specificType: 'ads' })}
+          variant="gradient"
+        />
+      </div>
+
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatna konsultacja Meta Ads"
+        sublabel="Pixel + CAPI · kreacje video"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={() => openModal('marketing', { specificType: 'ads' })}
       />
 
       <style>{`

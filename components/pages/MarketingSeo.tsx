@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import PricingTable from '../common/PricingTable';
@@ -6,7 +6,10 @@ import SectionHeader from '../common/SectionHeader';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
+import MarketingSpokeFooter from '../common/MarketingSpokeFooter';
+import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
+import { SITE_CONFIG } from '../../config/site';
 import { SeoHeroVisual } from '../visuals/hero/SeoVisual';
 import { TrendingUp, Crosshair } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
@@ -24,6 +27,8 @@ import RelatedArticles from '../articles/RelatedArticles';
 const MarketingSeo: React.FC = () => {
   const { openModal } = useModal();
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -62,19 +67,21 @@ const MarketingSeo: React.FC = () => {
         ]}
       />
 
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={TrendingUp}
-        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
-        description={CONTENT.hero.description}
-        priceHint="od 1 500 zł / mc · audyt techniczny w cenie · pierwsze efekty w 3–6 mc"
-        trustLine={<HeroTrustLine promise="Sam czytam dane z GSC / Ahrefs — bez juniorów" />}
-        ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'seo' })}
-        backLinkPath="/marketing/"
-        backLinkLabel="Wróć do Marketingu"
-        visual={<SeoHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={CONTENT.hero.badge}
+          badgeIcon={TrendingUp}
+          title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+          description={CONTENT.hero.description}
+          priceHint="od 1 500 zł / mc · audyt techniczny w cenie · pierwsze efekty w 3–6 mc"
+          trustLine={<HeroTrustLine promise="Sam czytam dane z GSC / Ahrefs — bez juniorów" />}
+          ctaPrimaryText={CONTENT.hero.cta}
+          ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'seo' })}
+          backLinkPath="/marketing/"
+          backLinkLabel="Wróć do Marketingu"
+          visual={<SeoHeroVisual />}
+        />
+      </div>
 
       <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
         <AuditTeaser
@@ -127,16 +134,41 @@ const MarketingSeo: React.FC = () => {
         <RelatedArticles currentSlug="seo" category="Marketing" />
       </LazyHydrate>
 
+      {/* FC1+FC2 — FounderCard + spoke<->spoke cross-linking */}
+      <MarketingSpokeFooter
+        currentType="seo"
+        founderBio={
+          <>
+            Od 2020 pozycjonuję strony dla firm z Podkarpacia — głównie e-commerce i usługi B2B. Sam
+            czytam dane z GSC, Ahrefs i CrUX, sam piszę rekomendacje. Bez 50-stronicowych raportów
+            zlecanych juniorom.
+          </>
+        }
+      />
+
       <LazyHydrate minHeight="400px">
-        <BaseCta
-          title={CONTENT.cta.title}
-          description={CONTENT.cta.description}
-          buttonText={CONTENT.cta.button}
-          icon={Crosshair}
-          onClick={() => openModal('marketing', { specificType: 'seo' })}
-          variant="gradient"
-        />
+        <div ref={finalCtaRef}>
+          <BaseCta
+            title={CONTENT.cta.title}
+            description={CONTENT.cta.description}
+            buttonText={CONTENT.cta.button}
+            icon={Crosshair}
+            onClick={() => openModal('marketing', { specificType: 'seo' })}
+            variant="gradient"
+          />
+        </div>
       </LazyHydrate>
+
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatny audyt SEO"
+        sublabel="Audyt wstępny w 5 dni"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Audyt"
+        onPrimary={() => openModal('marketing', { specificType: 'seo' })}
+      />
     </div>
   );
 };

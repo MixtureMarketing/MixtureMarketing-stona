@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import {
   ShieldCheck,
@@ -19,6 +19,8 @@ import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Seo from '../common/Seo';
 import HeroTrustLine from '../common/HeroTrustLine';
+import MarketingSpokeFooter from '../common/MarketingSpokeFooter';
+import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../data/content';
@@ -47,6 +49,8 @@ const sanitize = (html: string): string =>
 const GoogleAds: React.FC = () => {
   const { openModal } = useModal();
   const [pricingData, setPricingData] = useState<PricingSection | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -95,30 +99,32 @@ const GoogleAds: React.FC = () => {
       />
 
       {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={ShieldCheck}
-        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
-        description={CONTENT.hero.description}
-        priceHint="od 1 200 zł / mc + budżet reklamowy · ROAS sredni 4.2× · raporty co tydzień"
-        trustLine={<HeroTrustLine promise="Sam optymalizuję kampanie, raporty pisze ja" />}
-        ctaPrimaryText={CONTENT.hero.cta}
-        ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
-        ctaSecondaryNode={
-          <a
-            href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-secondary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
-          >
-            <Phone size={18} aria-hidden="true" />
-            Zadzwoń: {SITE_CONFIG.contact.phone}
-          </a>
-        }
-        backLinkPath="/marketing/"
-        backLinkLabel="Marketing"
-        accentGradientFrom="#4285F4"
-        accentGradientTo="#34A853"
-        visual={<GoogleAdsHeroVisual />}
-      />
+      <div ref={heroRef}>
+        <StandardHero
+          badge={CONTENT.hero.badge}
+          badgeIcon={ShieldCheck}
+          title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+          description={CONTENT.hero.description}
+          priceHint="od 1 200 zł / mc + budżet reklamowy · ROAS sredni 4.2× · raporty co tydzień"
+          trustLine={<HeroTrustLine promise="Sam optymalizuję kampanie, raporty pisze ja" />}
+          ctaPrimaryText={CONTENT.hero.cta}
+          ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
+          ctaSecondaryNode={
+            <a
+              href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-secondary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+            >
+              <Phone size={18} aria-hidden="true" />
+              Zadzwoń: {SITE_CONFIG.contact.phone}
+            </a>
+          }
+          backLinkPath="/marketing/"
+          backLinkLabel="Marketing"
+          accentGradientFrom="#4285F4"
+          accentGradientTo="#34A853"
+          visual={<GoogleAdsHeroVisual />}
+        />
+      </div>
 
       {/* --- AUDIT TEASER --- */}
       <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
@@ -340,14 +346,39 @@ const GoogleAds: React.FC = () => {
       {/* --- FAQ SECTION --- */}
       <FaqSection title="Pytania o Google Ads" items={CONTENT.faqs} />
 
+      {/* FC1+FC2 — FounderCard + spoke cross-linking */}
+      <MarketingSpokeFooter
+        currentType="google-ads"
+        founderBio={
+          <>
+            Od 2020 prowadzę kampanie Google Ads dla firm z Podkarpacia — Search, PMax, Shopping.
+            Sam piszę reklamy, sam optymalizuję bidy, sam czytam raport. Sredni ROAS 4.2× w
+            kampaniach lokalnych B2C, sredni CPA −47% w e-commerce.
+          </>
+        }
+      />
+
       {/* --- CTA --- */}
-      <BaseCta
-        title={CONTENT.ctaAudit.title}
-        description={CONTENT.ctaAudit.description}
-        buttonText={CONTENT.ctaAudit.button}
-        icon={Target}
-        onClick={() => openModal('marketing', { specificType: 'ads' })}
-        variant="dark"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          title={CONTENT.ctaAudit.title}
+          description={CONTENT.ctaAudit.description}
+          buttonText={CONTENT.ctaAudit.button}
+          icon={Target}
+          onClick={() => openModal('marketing', { specificType: 'ads' })}
+          variant="dark"
+        />
+      </div>
+
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Bezpłatna konsultacja Google Ads"
+        sublabel="ROAS 4.2× · raporty co tydzień"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={() => openModal('marketing', { specificType: 'ads' })}
       />
     </div>
   );
