@@ -13,11 +13,14 @@ import {
   Store,
   CheckCircle2,
 } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Seo from '../common/Seo';
+import HeroTrustLine from '../common/HeroTrustLine';
 import { useModal } from '../../context/ModalContext';
+import { SITE_CONFIG } from '../../config/site';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
@@ -97,12 +100,18 @@ const GoogleAds: React.FC = () => {
         badgeIcon={ShieldCheck}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 1 200 zł / mc + budżet reklamowy · ROAS sredni 4.2× · raporty co tydzień"
+        trustLine={<HeroTrustLine promise="Sam optymalizuję kampanie, raporty pisze ja" />}
         ctaPrimaryText={CONTENT.hero.cta}
         ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
         ctaSecondaryNode={
-          <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-full border border-gray-100 text-sm font-bold text-gray-600 shadow-sm cursor-default">
-            <TrendingUp size={16} className="text-[#34A853]" /> {CONTENT.hero.microCopy}
-          </div>
+          <a
+            href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-secondary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+          >
+            <Phone size={18} aria-hidden="true" />
+            Zadzwoń: {SITE_CONFIG.contact.phone}
+          </a>
         }
         backLinkPath="/marketing/"
         backLinkLabel="Marketing"
@@ -337,7 +346,7 @@ const GoogleAds: React.FC = () => {
         description={CONTENT.ctaAudit.description}
         buttonText={CONTENT.ctaAudit.button}
         icon={Target}
-        onClick={() => openModal('audit', { specificType: 'ads' })}
+        onClick={() => openModal('marketing', { specificType: 'ads' })}
         variant="dark"
       />
     </div>

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Megaphone, Users, Play } from 'lucide-react';
+import { Megaphone, Play, Phone } from 'lucide-react';
 import Seo from '../common/Seo';
+import HeroTrustLine from '../common/HeroTrustLine';
 import { useModal } from '../../context/ModalContext';
+import { SITE_CONFIG } from '../../config/site';
 import { META_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
@@ -9,6 +11,7 @@ import { PricingSectionData, PricingTier } from '../../types';
 import BaseCta from '../common/BaseCta';
 import FaqSection from '../sections/FaqSection';
 import StandardHero from '../common/StandardHero';
+import AuditTeaser from '../features/audit/AuditTeaser';
 import { MetaAdsHeroVisual } from '../visuals/hero/MetaAdsVisual';
 
 // Refactored Sub-components
@@ -67,12 +70,18 @@ const MetaAds: React.FC = () => {
           accent: CONTENT.hero.title.accent,
         }}
         description={CONTENT.hero.description}
+        priceHint="od 1 200 zł / mc + budżet · Pixel + CAPI · kreacje video w cenie"
+        trustLine={<HeroTrustLine promise="Sam testuję kreacje i targetowanie" />}
         ctaPrimaryText={CONTENT.hero.cta}
         ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
         ctaSecondaryNode={
-          <div className="flex items-center gap-2 px-4 py-3 bg-white rounded-full border border-gray-100 text-sm font-bold text-gray-600 shadow-sm cursor-default">
-            <Users size={16} className="text-instagram" /> {CONTENT.hero.microCopy}
-          </div>
+          <a
+            href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-instagram hover:bg-pink-50 hover:text-instagram font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+          >
+            <Phone size={18} aria-hidden="true" />
+            Zadzwoń: {SITE_CONFIG.contact.phone}
+          </a>
         }
         backLinkPath="/marketing/"
         backLinkLabel="Marketing"
@@ -80,6 +89,16 @@ const MetaAds: React.FC = () => {
         accentGradientTo="#E1306C"
         visual={<MetaAdsHeroVisual />}
       />
+
+      {/* AuditTeaser pod hero (symetria z SEO/GoogleAds) */}
+      <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
+        <AuditTeaser
+          variant="light"
+          colorScheme="indigo"
+          placeholder="Wpisz adres swojej strony..."
+          buttonText="Sprawdź ślady reklamowe"
+        />
+      </div>
 
       <MetaAdsFunnel onCta={() => openModal('marketing', { specificType: 'ads' })} />
 

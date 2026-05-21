@@ -1,11 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Activity } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { ANALYTICS_CONTENT as CONTENT } from '../../data/content';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
+import PricingTable from '../common/PricingTable';
+import LazyHydrate from '../common/LazyHydrate';
 import FaqSection from '../sections/FaqSection';
+import AuditTeaser from '../features/audit/AuditTeaser';
+import { cmsService } from '../../services/cmsService';
+import { PricingSectionData, PricingTier } from '../../types';
 import { AnalyticsHeroVisual } from '../visuals/hero/AnalyticsVisual';
 
 // Refactored Sub-components
@@ -17,10 +23,24 @@ import AnalyticsWarehouse from '../features/marketing/AnalyticsWarehouse';
 
 const Analytics: React.FC = () => {
   const { openModal } = useModal();
+  const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    cmsService.getPricingSection('analytics').then((data) => {
+      if (data) {
+        const tiersWithActions = data.tiers.map((tier: PricingTier) => ({
+          ...tier,
+          onCtaClick: () =>
+            openModal('marketing', {
+              specificType: 'analytics',
+              package: tier.title,
+            }),
+        }));
+        setPricingData({ ...data, tiers: tiersWithActions });
+      }
+    });
+  }, [openModal]);
 
   return (
     <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-[#F4B400]/20">
@@ -47,6 +67,8 @@ const Analytics: React.FC = () => {
         badgeIcon={Activity}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 1 500 zł setup · od 600 zł / mc maintenance · GA4 + GTM + server-side"
+        trustLine={<HeroTrustLine promise="Sam pisze konfigurację GTM, sam czytam dane" />}
         ctaPrimaryText={CONTENT.hero.cta}
         ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'analytics' })}
         backLinkPath="/marketing/"
@@ -55,6 +77,16 @@ const Analytics: React.FC = () => {
         accentGradientTo="secondary"
         visual={<AnalyticsHeroVisual />}
       />
+
+      {/* AuditTeaser pod hero (asymetria fix: MetaAds tez powinien dostac) */}
+      <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
+        <AuditTeaser
+          variant="light"
+          colorScheme="blue"
+          placeholder="Wpisz adres swojej strony..."
+          buttonText="Sprawdź setup analytics"
+        />
+      </div>
 
       <AnalyticsPainPoints />
 
@@ -66,6 +98,17 @@ const Analytics: React.FC = () => {
 
       <AnalyticsWarehouse />
 
+      {/* --- PRICING TIERS --- */}
+      {pricingData && (
+        <LazyHydrate minHeight="600px">
+          <PricingTable
+            title={pricingData.title}
+            description={pricingData.description}
+            tiers={pricingData.tiers}
+          />
+        </LazyHydrate>
+      )}
+
       {/* --- FAQ SECTION --- */}
       <FaqSection title={CONTENT.faq.title} items={CONTENT.faq.items} bgClassName="bg-light-gray" />
 
@@ -75,7 +118,7 @@ const Analytics: React.FC = () => {
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.button}
         icon={Activity}
-        onClick={() => openModal('audit')}
+        onClick={() => openModal('marketing', { specificType: 'analytics' })}
         variant="dark"
       />
     </div>

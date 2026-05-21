@@ -5,6 +5,7 @@ import PricingTable from '../common/PricingTable';
 import SectionHeader from '../common/SectionHeader';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import StandardHero from '../common/StandardHero';
+import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import { SeoHeroVisual } from '../visuals/hero/SeoVisual';
 import { TrendingUp, Crosshair } from 'lucide-react';
@@ -66,6 +67,8 @@ const MarketingSeo: React.FC = () => {
         badgeIcon={TrendingUp}
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
+        priceHint="od 1 500 zł / mc · audyt techniczny w cenie · pierwsze efekty w 3–6 mc"
+        trustLine={<HeroTrustLine promise="Sam czytam dane z GSC / Ahrefs — bez juniorów" />}
         ctaPrimaryText={CONTENT.hero.cta}
         ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'seo' })}
         backLinkPath="/marketing/"
@@ -130,7 +133,7 @@ const MarketingSeo: React.FC = () => {
           description={CONTENT.cta.description}
           buttonText={CONTENT.cta.button}
           icon={Crosshair}
-          onClick={() => openModal('audit', { specificType: 'seo' })}
+          onClick={() => openModal('marketing', { specificType: 'seo' })}
           variant="gradient"
         />
       </LazyHydrate>
