@@ -191,110 +191,131 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
 
           <div className="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-8 md:p-12 border border-indigo-100">
             <h3 className="text-2xl font-bold mb-6">Najczęściej zadawane pytania (Rzeszów)</h3>
-            <div className="space-y-6">
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Czy oferujecie spotkania na żywo w Rzeszowie?
-                </p>
-                <p className="text-gray-600">
-                  Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego
-                  Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni lub
-                  przestrzeni coworkingowej w centrum miasta, albo online.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?
-                </p>
-                <p className="text-gray-600">
-                  Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla, Dębicy
-                  i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy większych
-                  projektach.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">Jak wygląda pierwsza konsultacja?</p>
-                <p className="text-gray-600">
-                  Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w siedzibie
-                  albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele biznesowe,
-                  sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i
-                  bez sztywnej oferty na siłę.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?
-                </p>
-                <p className="text-gray-600">
-                  Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli,
-                  e-commerce z Rzeszowa oraz software house&apos;ów z Podkarpacia. Część realizacji
-                  jest objęta NDA — szczegóły omawiamy podczas spotkania.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Czy świadczycie usługi pozycjonowania SEO w Rzeszowie?
-                </p>
-                <p className="text-gray-600">
-                  Tak. Pełna oferta lokalnego SEO — od audytu technicznego, przez optymalizację
-                  on-page, po link building i Local Pack. Szczegóły na stronie{' '}
-                  <Link
-                    to="/marketing/seo/rzeszow/"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    pozycjonowanie stron w Rzeszowie
-                  </Link>
-                  .
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Tworzycie strony internetowe dla firm z Rzeszowa?
-                </p>
-                <p className="text-gray-600">
-                  Tak — landing page&apos;e, strony korporacyjne, sklepy e-commerce i dedykowane
-                  aplikacje webowe. Wycena widełkowa i harmonogram na stronie{' '}
-                  <Link
-                    to="/web-development/rzeszow/"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    tworzenie stron internetowych Rzeszów
-                  </Link>
-                  .
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Jak wybrać agencję marketingową w Rzeszowie?
-                </p>
-                <p className="text-gray-600">
-                  Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania na
-                  żywo na terenie miasta (u klienta lub w neutralnej lokalizacji), (2) czy posiada
-                  portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web
-                  development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy
-                  podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną
-                  konsultację. Mixture Marketing spełnia wszystkie kryteria — model pracy oparty na
-                  dojeździe do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z Mielca i
-                  Stalowej Woli, wycena widełkowa od pierwszego maila.
-                </p>
-              </div>
-              <div>
-                <p className="font-semibold text-dark mb-1">
-                  Ile kosztuje strona internetowa w Rzeszowie?
-                </p>
-                <p className="text-gray-600">
-                  Widełki cenowe Mixture: landing page od 3 900 zł, strona korporacyjna z CMS od 7
-                  500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł.
-                  Pełen cennik 2026 na stronie{' '}
-                  <Link
-                    to="/web-development/rzeszow/"
-                    className="text-primary hover:underline font-medium"
-                  >
-                    strony internetowe Rzeszów
-                  </Link>
-                  .
-                </p>
-              </div>
+            <div className="space-y-4">
+              {[
+                {
+                  q: 'Czy oferujecie spotkania na żywo w Rzeszowie?',
+                  a: (
+                    <>
+                      Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego
+                      Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni
+                      lub przestrzeni coworkingowej w centrum miasta, albo online.
+                    </>
+                  ),
+                },
+                {
+                  q: 'Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?',
+                  a: (
+                    <>
+                      Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla,
+                      Dębicy i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy
+                      większych projektach.
+                    </>
+                  ),
+                },
+                {
+                  q: 'Jak wygląda pierwsza konsultacja?',
+                  a: (
+                    <>
+                      Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w
+                      siedzibie albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele
+                      biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez
+                      zobowiązań i bez sztywnej oferty na siłę.
+                    </>
+                  ),
+                },
+                {
+                  q: 'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
+                  a: (
+                    <>
+                      Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli,
+                      e-commerce z Rzeszowa oraz software house&apos;ów z Podkarpacia. Część
+                      realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.
+                    </>
+                  ),
+                },
+                {
+                  q: 'Czy świadczycie usługi pozycjonowania SEO w Rzeszowie?',
+                  a: (
+                    <>
+                      Tak. Pełna oferta lokalnego SEO — od audytu technicznego, przez optymalizację
+                      on-page, po link building i Local Pack. Szczegóły na stronie{' '}
+                      <Link
+                        to="/marketing/seo/rzeszow/"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        pozycjonowanie stron w Rzeszowie
+                      </Link>
+                      .
+                    </>
+                  ),
+                },
+                {
+                  q: 'Tworzycie strony internetowe dla firm z Rzeszowa?',
+                  a: (
+                    <>
+                      Tak — landing page&apos;e, strony korporacyjne, sklepy e-commerce i dedykowane
+                      aplikacje webowe. Wycena widełkowa i harmonogram na stronie{' '}
+                      <Link
+                        to="/web-development/rzeszow/"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        tworzenie stron internetowych Rzeszów
+                      </Link>
+                      .
+                    </>
+                  ),
+                },
+                {
+                  q: 'Jak wybrać agencję marketingową w Rzeszowie?',
+                  a: (
+                    <>
+                      Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje
+                      spotkania na żywo na terenie miasta (u klienta lub w neutralnej lokalizacji),
+                      (2) czy posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy
+                      kompetencje web development i performance marketing (Google Ads + SEO) pod
+                      jednym dachem, (4) czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy
+                      oferuje bezpłatną konsultację. Mixture Marketing spełnia wszystkie kryteria —
+                      model pracy oparty na dojeździe do klienta na terenie Rzeszowa i Podkarpacia,
+                      portfolio m.in. z Mielca i Stalowej Woli, wycena widełkowa od pierwszego
+                      maila.
+                    </>
+                  ),
+                },
+                {
+                  q: 'Ile kosztuje strona internetowa w Rzeszowie?',
+                  a: (
+                    <>
+                      Widełki cenowe Mixture: landing page od 3 900 zł, strona korporacyjna z CMS od
+                      7 500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25
+                      000 zł. Pełen cennik 2026 na stronie{' '}
+                      <Link
+                        to="/web-development/rzeszow/"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        strony internetowe Rzeszów
+                      </Link>
+                      .
+                    </>
+                  ),
+                },
+              ].map((item, i) => (
+                <details
+                  key={i}
+                  className="group bg-white p-5 md:p-6 rounded-2xl border border-indigo-100 open:shadow-sm open:border-primary/30 transition-shadow"
+                >
+                  <summary className="font-semibold text-dark cursor-pointer list-none flex items-start justify-between gap-4 marker:hidden">
+                    <span>{item.q}</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 mt-1 w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-open:rotate-45 group-open:bg-primary/10 group-open:text-primary transition-transform"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-gray-600 mt-3">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
 
@@ -304,11 +325,12 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               Agencja Marketingowa Rzeszów — co dla Ciebie zrobimy
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Mixture Marketing to lokalna agencja marketingowa Rzeszów z biurem przy Al.
-              Piłsudskiego 17/4. Łączymy kompetencje software house&apos;u (programowanie stron i
-              aplikacji) z performance marketingiem (Google Ads, Meta Ads, SEO) i kreacją (branding,
-              UI/UX). Pracujemy z firmami z Rzeszowa, Mielca, Stalowej Woli, Krosna, Przemyśla i
-              Dębicy — a także zdalnie z klientami z całej Polski.
+              Mixture Marketing to lokalna agencja marketingowa Rzeszów z adresem rejestrowym przy
+              Al. Piłsudskiego 17/4 (biuro wirtualne) — pracujemy mobilnie, dojeżdżamy do klienta.
+              Łączymy kompetencje software house&apos;u (programowanie stron i aplikacji) z
+              performance marketingiem (Google Ads, Meta Ads, SEO) i kreacją (branding, UI/UX).
+              Pracujemy z firmami z Rzeszowa, Mielca, Stalowej Woli, Krosna, Przemyśla i Dębicy — a
+              także zdalnie z klientami z całej Polski.
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -572,10 +594,10 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               link: '/marketing/seo/',
             },
           ].map((service, i) => (
-            <div
+            <Link
               key={i}
-              onClick={() => navigate(service.link)}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary/30 transition-all cursor-pointer group"
+              to={service.link}
+              className="block bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary/30 motion-safe:focus-visible:-translate-y-0.5 transition-all group"
             >
               <div className="w-12 h-12 bg-[#F0F7FF] rounded-xl flex items-center justify-center text-secondary mb-4 group-hover:bg-secondary group-hover:text-white transition-colors">
                 {service.icon}
@@ -584,11 +606,12 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 {service.title}{' '}
                 <ArrowRight
                   size={16}
+                  aria-hidden="true"
                   className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-primary"
                 />
               </h3>
               <p className="text-sm text-gray-600">{service.desc}</p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

@@ -548,10 +548,10 @@ const SeoRzeszow: React.FC = () => {
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                     Hub lokalny
                   </p>
-                  <h4 className="font-bold mb-2">Biuro Mixture przy Al. Piłsudskiego →</h4>
+                  <h4 className="font-bold mb-2">Mixture w Rzeszowie — pełna oferta →</h4>
                   <p className="text-sm text-gray-600">
-                    Pełna oferta lokalna: marketing 360°, branding, Google Ads. Spotkania na żywo w
-                    centrum Rzeszowa.
+                    Pełna oferta lokalna: marketing 360°, branding, Google Ads. Pracujemy mobilnie —
+                    dojeżdżamy do klienta na Podkarpaciu.
                   </p>
                 </Link>
               </div>
@@ -563,15 +563,23 @@ const SeoRzeszow: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
               FAQ — Pozycjonowanie Rzeszów
             </h2>
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-3xl mx-auto space-y-4">
               {faq.map((f, i) => (
-                <div
+                <details
                   key={i}
-                  className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100"
+                  className="group bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 open:shadow-md open:border-primary/20 transition-shadow"
                 >
-                  <h3 className="text-lg font-bold mb-3">{f.question}</h3>
-                  <p className="text-gray-600">{f.answer}</p>
-                </div>
+                  <summary className="text-lg font-bold cursor-pointer list-none flex items-start justify-between gap-4 marker:hidden">
+                    <span>{f.question}</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 mt-1 w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center group-open:rotate-45 group-open:bg-primary/10 group-open:text-primary transition-transform"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-gray-600 mt-3">{f.answer}</p>
+                </details>
               ))}
             </div>
           </div>
@@ -588,7 +596,11 @@ const SeoRzeszow: React.FC = () => {
                   techniczne błędy, brakujące frazy, konkurencja w Rzeszowie, oszacowanie ROI.
                 </p>
                 <p className="text-gray-700 mb-2">
-                  <strong>Adres:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
+                  <strong>Adres rejestrowy:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
+                  <span className="text-gray-500 text-sm"> · biuro wirtualne</span>
+                </p>
+                <p className="text-gray-600 text-sm mb-2">
+                  Pracujemy mobilnie — dojeżdżamy do klienta na Podkarpaciu.
                 </p>
                 <p className="text-gray-700 mb-2">
                   <strong>Telefon:</strong>{' '}
@@ -615,7 +627,7 @@ const SeoRzeszow: React.FC = () => {
               <div className="rounded-2xl overflow-hidden border border-gray-200 aspect-video">
                 <LazyMap
                   src="https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w&output=embed"
-                  title="Mapa — biuro Mixture Marketing Rzeszów"
+                  title="Mapa — adres rejestrowy Mixture Marketing w Rzeszowie"
                 />
               </div>
             </div>

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- TODO: split into sub-sections (Hero, FAQ, Realizacje) */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -151,10 +152,11 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                 ruch.
               </p>
               <p>
-                Mixture Marketing działa w tej formule od początku. Pracujemy z biura przy Al.
-                Piłsudskiego 17/4 w Rzeszowie, a nasz zespół łączy: UX/UI designerów, programistów
-                (PHP, React, Node.js), specjalistów performance marketing (Google Ads, Meta Ads),
-                copywriterów, animatorów i analityków danych. Dzięki temu klient nie musi
+                Mixture Marketing działa w tej formule od początku. Mamy adres rejestrowy przy Al.
+                Piłsudskiego 17/4 w Rzeszowie (biuro wirtualne), a pracujemy mobilnie — dojeżdżamy
+                do klienta na terenie Rzeszowa i Podkarpacia. Nasz zespół łączy: UX/UI designerów,
+                programistów (PHP, React, Node.js), specjalistów performance marketing (Google Ads,
+                Meta Ads), copywriterów, animatorów i analityków danych. Dzięki temu klient nie musi
                 koordynować 3–4 dostawców — wszystko płynie z jednego brieffa.
               </p>
             </div>
@@ -390,15 +392,23 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
               FAQ — Agencja Interaktywna Rzeszów
             </h2>
-            <div className="max-w-3xl mx-auto space-y-6">
+            <div className="max-w-3xl mx-auto space-y-4">
               {faq.map((f, i) => (
-                <div
+                <details
                   key={i}
-                  className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100"
+                  className="group bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 open:shadow-md open:border-primary/20 transition-shadow"
                 >
-                  <h3 className="text-lg font-bold mb-3">{f.question}</h3>
-                  <p className="text-gray-600">{f.answer}</p>
-                </div>
+                  <summary className="text-lg font-bold cursor-pointer list-none flex items-start justify-between gap-4 marker:hidden">
+                    <span>{f.question}</span>
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 mt-1 w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center group-open:rotate-45 group-open:bg-primary/10 group-open:text-primary transition-transform"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-gray-600 mt-3">{f.answer}</p>
+                </details>
               ))}
             </div>
           </div>
@@ -414,7 +424,11 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   technologie, harmonogram i budżet.
                 </p>
                 <p className="text-gray-700 mb-2">
-                  <strong>Adres:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
+                  <strong>Adres rejestrowy:</strong> Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów
+                  <span className="text-gray-500 text-sm"> · biuro wirtualne</span>
+                </p>
+                <p className="text-gray-600 text-sm mb-2">
+                  Pracujemy mobilnie — dojeżdżamy do klienta na Podkarpaciu.
                 </p>
                 <p className="text-gray-700 mb-2">
                   <strong>Telefon:</strong>{' '}
@@ -443,7 +457,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
               <div className="rounded-2xl overflow-hidden border border-gray-200 aspect-video">
                 <LazyMap
                   src="https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w&output=embed"
-                  title="Mapa — biuro Mixture Marketing Rzeszów"
+                  title="Mapa — adres rejestrowy Mixture Marketing w Rzeszowie"
                 />
               </div>
             </div>
