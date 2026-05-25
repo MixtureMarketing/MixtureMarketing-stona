@@ -49,14 +49,34 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         'Pojedynczy projekt (strona WWW + branding) — od 8 500 zł. Stała opieka (web + marketing + design) — pakiety abonamentowe od 3 200 zł/mies. Realizacja dedykowana z aplikacją webową — od 25 000 zł. Bezpłatna wycena widełkowa — wysłana w 24h od briefu.',
     },
     {
+      question: 'Jak długo trwa realizacja projektu strony WWW w Rzeszowie?',
+      answer:
+        'Landing page (1 sekcja, formularz) — 5–10 dni roboczych. Strona firmowa (5–10 podstron, CMS) — 4–8 tygodni. Sklep e-commerce (WooCommerce/Shoper) — 6–12 tygodni. Aplikacja webowa dedykowana (z bazą danych, panel admina) — od 12 tygodni wzwyż. Branding (logo + identyfikacja) — równolegle 3–5 tygodni. Harmonogram dostajesz z dnia 0, statusy 1×/tydz na call lub Slack.',
+    },
+    {
+      question: 'Jakie branże obsługujecie najczęściej w Rzeszowie i na Podkarpaciu?',
+      answer:
+        'Produkcja (Mielec SSE, Stalowa Wola, Aviation Valley), software house i firmy IT, kancelarie prawne, branża medyczna (gabinety, fizjoterapia, stomatologia), e-commerce (sklepy lokalne + ogólnopolskie), HoReCa (restauracje, hotele Bieszczady), edukacja (szkoły językowe, kursy biznesowe), nieruchomości i deweloperzy. Obsługujemy też klientów z Mielca, Krosna, Przemyśla, Stalowej Woli i Dębicy.',
+    },
+    {
       question: 'Czy spotkamy się osobiście w Rzeszowie?',
       answer:
         'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Alternatywnie ustalamy spotkanie w wybranej kawiarni lub przestrzeni coworkingowej w centrum Rzeszowa, albo online (Google Meet / Zoom). Standardowo bezpłatna konsultacja trwa 45–60 minut.',
     },
     {
+      question: 'Czym Mixture różni się od software house’u z Rzeszowa (Asseco, ITSG, ZETO)?',
+      answer:
+        'Duże software house’y z Rzeszowa specjalizują się w długich projektach enterprise (ERP, banking, telco) — minimalne projekty często od 200 000 zł. Mixture jest agencją interaktywną dla MŚP i scale-upów: projekty 8 000–80 000 zł, terminy 4–12 tygodni, jedna osoba kontaktowa, zwinność w decyzjach. Łączymy też marketing i design, czego software house nie robi.',
+    },
+    {
       question: 'Jakie technologie stosujecie?',
       answer:
         'Frontend: React, Next.js, Vue, Astro, vanilla JS. CMS: WordPress, Sanity, Strapi, Shoper, WooCommerce. Backend: Node.js, PHP (Symfony, Laravel), Python. Mobile: React Native, PWA. Design: Figma, Adobe CC. Analityka: GA4, GSC, Hotjar, Clarity. Stack dobieramy do projektu, nie odwrotnie.',
+    },
+    {
+      question: 'Czy mogę zobaczyć Wasze realizacje z Rzeszowa i Podkarpacia?',
+      answer:
+        'Część przypadków objęta jest NDA (zwłaszcza B2B przemysł, Aviation Valley, sektor publiczny). Podczas konsultacji prezentujemy: anonimizowane case studies z konkretnymi metrykami (wzrost konwersji, leadów, ruchu), zrzuty z GA4/GSC, opinie klientów. W portfolio publicznym mamy też kilka rebrandów i stron e-commerce gotowych do pokazania.',
     },
   ];
 
@@ -78,6 +98,87 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
       url: `${SITE_CONFIG.domain}/agencja-interaktywna-rzeszow/`,
       description:
         'Mixture Marketing — agencja interaktywna z Rzeszowa. Strony WWW, aplikacje webowe, branding cyfrowy, performance marketing, narzędzia interaktywne.',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Pakiety usług agencji interaktywnej',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Service', name: 'Strona WWW + branding (projekt)' },
+            priceSpecification: {
+              '@type': 'PriceSpecification',
+              priceCurrency: 'PLN',
+              minPrice: '8500',
+            },
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Service', name: 'Stała opieka 360° (abonament)' },
+            priceSpecification: {
+              '@type': 'PriceSpecification',
+              priceCurrency: 'PLN',
+              minPrice: '3200',
+              billingIncrement: 'P1M',
+            },
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Service', name: 'Aplikacja webowa dedykowana' },
+            priceSpecification: {
+              '@type': 'PriceSpecification',
+              priceCurrency: 'PLN',
+              minPrice: '25000',
+            },
+          },
+        ],
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: 'Jak współpracujemy — proces agencji interaktywnej Mixture Marketing',
+      description:
+        'Sześciofazowy proces realizacji projektu interaktywnego — od briefu, przez koncepcję, design, wdrożenie, aż po launch i opiekę.',
+      totalTime: 'P8W',
+      estimatedCost: { '@type': 'MonetaryAmount', currency: 'PLN', value: '15000' },
+      step: [
+        {
+          '@type': 'HowToStep',
+          position: 1,
+          name: 'Brief i konsultacja',
+          text: 'Bezpłatna konsultacja 45–60 min (online lub u klienta). Omawiamy cele biznesowe, grupę docelową, harmonogram i budżet.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 2,
+          name: 'Strategia i koncepcja',
+          text: 'Research konkurencji, mapa konkurencji w Rzeszowie i ogólnopolsko, dobór technologii, propozycja koncepcji wizualno-funkcjonalnej.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 3,
+          name: 'Design i prototyp w Figma',
+          text: 'Wireframes, prototyp interaktywny, identyfikacja wizualna, mood board. Iteracje z klientem 2–3 rundy.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 4,
+          name: 'Development i integracje',
+          text: 'Kodowanie frontend (React/Next/Vue) + backend (Node/PHP), integracje CMS (Sanity/WordPress), CRM, płatności, analityka GA4.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 5,
+          name: 'Launch i testy',
+          text: 'Testy QA, audyt Core Web Vitals, audyt dostępności WCAG, konfiguracja domeny i hostingu (Cloudflare/Vercel), wdrożenie produkcyjne.',
+        },
+        {
+          '@type': 'HowToStep',
+          position: 6,
+          name: 'Opieka i marketing',
+          text: 'Stała opieka techniczna (abonament), kampanie Google/Meta Ads, SEO, content marketing, miesięczny raport KPI.',
+        },
+      ],
     },
     {
       '@context': 'https://schema.org',
@@ -142,6 +243,64 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             <p className="text-xs text-gray-500 mt-3">
               Pn–Pt 9–17 · Odpowiadamy w 24h · Bezpłatna konsultacja 45–60 min
             </p>
+          </div>
+
+          {/* Stats strip — trust signals dla lokalnego B2B */}
+          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { value: 6, suffix: '+', label: 'lat na rynku', decimals: 0 },
+              { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
+              { value: 15, suffix: '+', label: 'branż', decimals: 0 },
+              { value: 24, suffix: 'h', label: 'czas odpowiedzi', decimals: 0 },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 text-center shadow-sm"
+              >
+                <p className="text-3xl md:text-4xl font-extrabold text-secondary">
+                  <CountUp to={s.value} decimals={s.decimals} suffix={s.suffix} />
+                </p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1 uppercase tracking-wider font-semibold">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* H2: Synonim coverage — agencja digital / studio interaktywne */}
+          <div className="mb-20 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
+              Agencja digital, studio interaktywne, agencja kreatywna — co dla kogo?
+            </h2>
+            <div className="text-gray-600 space-y-4 leading-relaxed">
+              <p>
+                Na rynku rzeszowskim spotkasz różne nazwy podobnych firm:{' '}
+                <strong>agencja digital</strong>, <strong>studio interaktywne</strong>,{' '}
+                <strong>agencja kreatywna</strong>, <strong>agencja 360</strong>. W praktyce zakres
+                kompetencji mocno się pokrywa — różnica tkwi w punkcie startu i akcencie zespołu.
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Agencja digital</strong> — fokus na kampanie performance (Google/Meta
+                  Ads), analityka, automatyzacja marketingu, lead-gen. Często bez własnego
+                  developmentu.
+                </li>
+                <li>
+                  <strong>Studio interaktywne</strong> — silny dział kreacji i animacji (motion
+                  design, video, kreacje banerowe). Dobre do brandingu i kampanii wizualnych.
+                </li>
+                <li>
+                  <strong>Agencja kreatywna</strong> — strategia komunikacji, copywriting, ATL/BTL,
+                  social. Słabszy dział technologii.
+                </li>
+                <li>
+                  <strong>Agencja interaktywna 360°</strong> (Mixture Marketing) — wszystkie
+                  powyższe kompetencje pod jednym dachem, jedna osoba kontaktowa. Najlepszy wybór
+                  dla MŚP, scale-upów i firm B2B na Podkarpaciu, które nie chcą koordynować 3–4
+                  dostawców.
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* H2: Co to jest agencja interaktywna */}
