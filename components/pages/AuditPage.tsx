@@ -10,8 +10,13 @@ const AuditPage: React.FC = () => {
   return (
     <>
       <Seo
-        title="Darmowy Audyt Strony WWW & SEO | Mixture Audit 360™"
-        description="Sprawdź błędy na swojej stronie, porównaj się z konkurencją i oblicz, ile pieniędzy tracisz. Odbierz darmowy raport PDF w 60 sekund."
+        title="Darmowy audyt SEO + UX strony w 60 sekund — Mixture Audit 360™"
+        description="Wpisz adres strony — w 60 sekund dostaniesz raport PDF: błędy SEO, Core Web Vitals, porównanie z konkurencją, ile leadów tracisz. Bez rejestracji, bez kontaktu handlowca."
+        canonical="/audyt-360/"
+        breadcrumbs={[
+          { name: 'Strona Główna', item: '/' },
+          { name: 'Darmowy audyt SEO + UX', item: '/audyt-360/' },
+        ]}
       />
       <div className="pt-20">
         <AuditWizard />

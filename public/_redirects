@@ -9,6 +9,20 @@
 # Fizyczne pliki istniejace w dist/ (prerendered routes) sa serwowane
 # bezposrednio z 200, _redirects NIE jest dla nich wykonywany.
 
+# Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
+# Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
+# strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje
+# strukture sitemap i prerendera).
+# Cloudflare _redirects matchuje placeholder :slug greedy w obrebie jednego segmentu.
+/baza-wiedzy/:slug      /baza-wiedzy/:slug/      301
+/branza/:slug           /branza/:slug/           301
+/miasto/:slug           /miasto/:slug/           301
+/portfolio/:slug        /portfolio/:slug/        301
+/web-development/:slug  /web-development/:slug/  301
+/marketing/:slug        /marketing/:slug/        301
+/design/:slug           /design/:slug/           301
+/abonament/:slug        /abonament/:slug/        301
+
 # SPA fallback dla naszych dynamicznych prefiksow (Sanity-generated content):
 /baza-wiedzy/*      /index.html  200
 /branza/*           /index.html  200
