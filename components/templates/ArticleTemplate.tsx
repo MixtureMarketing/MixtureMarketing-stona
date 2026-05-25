@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
 import Seo from '@/components/common/Seo';
+// Lazy — articleSchema (urlFor) trzymane poza glownym Seo chunk, ladowane
+// tylko na stronach artykulow.
+const ArticleSchemaSeo = lazy(() => import('@/components/common/ArticleSchemaSeo'));
 import NotFound from '@/components/common/NotFound';
 import AmbientBackground from '@/components/common/AmbientBackground';
 import LazyHydrate from '@/components/common/LazyHydrate';
@@ -69,19 +72,23 @@ const ArticleTemplate = () => {
           { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
           { name: article.title, item: `/baza-wiedzy/${article.slug.current}` },
         ]}
-        article={{
-          id: article._id,
-          title: article.title,
-          description: article.excerpt,
-          date: article.publishedAt,
-          category: article.category?.title as 'tech' | 'marketing' | 'design' | 'analytics',
-          readTime: article.readTime,
-          categoryLabel: article.category?.title || 'Baza Wiedzy',
-          image: '/assets/images/sygnet.png', // Placeholder
-          slug: `/baza-wiedzy/${article.slug.current}`,
-          tags: article.tags || [],
-        }}
       />
+      <Suspense fallback={null}>
+        <ArticleSchemaSeo
+          article={{
+            id: article._id,
+            title: article.title,
+            description: article.excerpt,
+            date: article.publishedAt,
+            category: article.category?.title as 'tech' | 'marketing' | 'design' | 'analytics',
+            readTime: article.readTime,
+            categoryLabel: article.category?.title || 'Baza Wiedzy',
+            image: '/assets/images/sygnet.png',
+            slug: `/baza-wiedzy/${article.slug.current}`,
+            tags: article.tags || [],
+          }}
+        />
+      </Suspense>
 
       <AmbientBackground />
 

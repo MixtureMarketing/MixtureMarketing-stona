@@ -3,13 +3,17 @@ import { Helmet } from 'react-helmet-async';
 import { Article } from '../../types';
 import { SanityArticle } from '../../services/cmsService';
 import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
+// Bezposrednie importy zamiast barrel ('../../utils/seoSchemas') — pozwala
+// Rollupowi tree-shakeowac. articleSchema NIE jest tu importowany — strony
+// artykulow uzywaja osobnego <ArticleSchemaSeo> (lazy w ArticleTemplate),
+// dzieki czemu @sanity/image-url (urlFor) nie trafia do glownego Seo chunk
+// (76% unused JS na non-article pages).
 import {
-  getArticleSchema,
   getBreadcrumbsSchema,
   getFaqSchema,
-  getServiceSchema,
   getLocalBusinessSchema,
-} from '../../utils/seoSchemas';
+} from '../../utils/seo/commonSchemas';
+import { getServiceSchema } from '../../utils/seo/serviceSchema';
 
 interface SeoProps {
   title: string;
@@ -53,8 +57,10 @@ const Seo: React.FC<SeoProps> = ({
   const canonicalUrl = useCanonicalUrl(canonical);
   const ogImage = getOgImage(image);
 
+  // Uwaga: article schema NIE jest renderowany tutaj — strony artykulow
+  // dolaczaja osobny <ArticleSchemaSeo article={...} /> obok <Seo />.
+  void article;
   const schemas = [
-    getArticleSchema(article || null, ogImage, baseUrl, canonicalUrl),
     getBreadcrumbsSchema(breadcrumbs || [], baseUrl),
     getFaqSchema(faq || []),
     getServiceSchema(service, title, description, baseUrl),

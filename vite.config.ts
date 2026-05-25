@@ -93,15 +93,23 @@ export default defineConfig(({ mode }) => {
           // @portabletext/* (lazy), @marsidev/react-turnstile (ContactModal lazy).
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
+            // Granularny split: router + helmet wydzielone z vendor-react-core,
+            // dzieki czemu zmiany w jednym nie invaliduja cache pozostalych
+            // (poprzedni "vendor-react" mial 42% unused JS na home wg PSI).
+            if (id.includes('/react-router/') || id.includes('/react-router-dom/')) {
+              return 'vendor-router';
+            }
+            if (
+              id.includes('/react-helmet-async/') ||
+              id.includes('/react-is/') ||
+              id.includes('/use-sync-external-store/')
+            ) {
+              return 'vendor-helmet';
+            }
             if (
               id.includes('/react/') ||
               id.includes('/react-dom/') ||
-              id.includes('/react-router/') ||
-              id.includes('/react-router-dom/') ||
-              id.includes('/react-helmet-async/') ||
-              id.includes('/react-is/') ||
-              id.includes('/scheduler/') ||
-              id.includes('/use-sync-external-store/')
+              id.includes('/scheduler/')
             ) {
               return 'vendor-react';
             }
