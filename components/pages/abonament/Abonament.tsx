@@ -1903,7 +1903,7 @@ const Abonament: React.FC = () => {
               {
                 title: 'Pozycjonowanie Rzeszów',
                 desc: 'Lokalne i ogólnopolskie SEO — od 1 200 zł/mc',
-                link: '/marketing/seo/rzeszow/',
+                link: '/agencja-seo-rzeszow/',
               },
             ].map((r) => (
               <Link

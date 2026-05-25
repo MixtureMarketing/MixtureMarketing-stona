@@ -108,7 +108,7 @@ export const FOOTER_CONTENT = {
       links: [
         { label: 'Agencja w Rzeszowie', path: '/miasto/rzeszow/' },
         { label: 'Strony WWW Rzeszów', path: '/web-development/rzeszow/' },
-        { label: 'Pozycjonowanie Rzeszów', path: '/marketing/seo/rzeszow/' },
+        { label: 'Pozycjonowanie Rzeszów', path: '/agencja-seo-rzeszow/' },
         { label: 'Agencja interaktywna', path: '/agencja-interaktywna-rzeszow/' },
       ],
     },

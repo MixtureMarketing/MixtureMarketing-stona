@@ -574,7 +574,7 @@ const WebDevRzeszow: React.FC = () => {
                 </p>
                 <div className="flex flex-col gap-2">
                   <Link
-                    to="/marketing/seo/rzeszow/"
+                    to="/agencja-seo-rzeszow/"
                     className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
                   >
                     Pozycjonowanie SEO w Rzeszowie <ArrowRight size={16} aria-hidden="true" />

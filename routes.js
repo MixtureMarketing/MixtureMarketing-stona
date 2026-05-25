@@ -30,9 +30,9 @@ export const routes = [
   '/marketing/google-ads/',
   '/marketing/meta-ads/',
   '/marketing/seo/',
-  '/marketing/seo/rzeszow/',
   '/marketing/analytics/',
   '/agencja-interaktywna-rzeszow/',
+  '/agencja-seo-rzeszow/',
 
   // SaaS landing
   '/abonament/',

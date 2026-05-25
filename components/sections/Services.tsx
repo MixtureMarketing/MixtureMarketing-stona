@@ -141,7 +141,7 @@ const Services: React.FC = () => {
                   Strony WWW Rzeszów <ArrowRight size={12} />
                 </Link>
                 <Link
-                  to="/marketing/seo/rzeszow/"
+                  to="/agencja-seo-rzeszow/"
                   className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
                 >
                   Pozycjonowanie Rzeszów <ArrowRight size={12} />

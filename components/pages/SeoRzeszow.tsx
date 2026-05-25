@@ -80,7 +80,7 @@ const SeoRzeszow: React.FC = () => {
         { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
         { '@type': 'Country', name: 'Polska' },
       ],
-      url: `${SITE_CONFIG.domain}/marketing/seo/rzeszow/`,
+      url: `${SITE_CONFIG.domain}/agencja-seo-rzeszow/`,
       description:
         'Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia. Lokalne SEO, Google Business Profile, audyt techniczny, content marketing, link building.',
       hasOfferCatalog: {
@@ -194,15 +194,13 @@ const SeoRzeszow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
-        title="Pozycjonowanie Stron Rzeszów — Agencja SEO"
+        title="Agencja SEO Rzeszów — Pozycjonowanie Stron Internetowych"
         description="Agencja SEO Rzeszów — Mixture Marketing. Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content marketing. Cennik widełkowy. Bezpłatny audyt."
-        canonical="/marketing/seo/rzeszow/"
+        canonical="/agencja-seo-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
-          { name: 'Marketing', item: '/marketing/' },
-          { name: 'SEO', item: '/marketing/seo/' },
-          { name: 'Rzeszów', item: '/marketing/seo/rzeszow/' },
+          { name: 'Agencja SEO Rzeszów', item: '/agencja-seo-rzeszow/' },
         ]}
         jsonLd={jsonLd}
       />

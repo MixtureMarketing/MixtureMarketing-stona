@@ -514,7 +514,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
                 <>
                   Tylko jeśli zadbasz o widoczność w Google. Sama strona to dopiero początek —
                   kluczowe jest{' '}
-                  <Link to="/marketing/seo/rzeszow/" className="text-primary hover:underline">
+                  <Link to="/agencja-seo-rzeszow/" className="text-primary hover:underline">
                     pozycjonowanie w Rzeszowie
                   </Link>{' '}
                   i kampanie Ads. Bez ruchu strona stoi i nie generuje przychodu.
@@ -605,7 +605,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
               icon: TrendingUp,
               title: 'Pozycjonowanie stron Rzeszów',
               desc: 'Lokalne SEO i ogólnopolskie — cennik widełkowy, case studies',
-              link: '/marketing/seo/rzeszow/',
+              link: '/agencja-seo-rzeszow/',
               color: 'from-violet-50 to-white',
               chip: 'bg-violet-100 text-violet-800',
             },

@@ -62,7 +62,7 @@ async function generateSitemap() {
       caption: 'Strony WWW, sklepy, aplikacje dla firm z Rzeszowa i Podkarpacia',
       geo: 'Rzeszów, Podkarpacie, Polska',
     },
-    '/marketing/seo/rzeszow/': {
+    '/agencja-seo-rzeszow/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
       title: 'Pozycjonowanie stron Rzeszów',
       caption: 'Agencja SEO Rzeszów — lokalne i ogólnopolskie pozycjonowanie',

@@ -9,6 +9,12 @@
 # Fizyczne pliki istniejace w dist/ (prerendered routes) sa serwowane
 # bezposrednio z 200, _redirects NIE jest dla nich wykonywany.
 
+# URL restructuring 301 (GSC 2026-05-25 — Google matchuje "agencja seo rzeszow"
+# na / zamiast na zakopanej /marketing/seo/rzeszow/. Top-level URL lepiej
+# matchuje fraze + spojny pattern z /agencja-interaktywna-rzeszow/).
+/marketing/seo/rzeszow      /agencja-seo-rzeszow/      301
+/marketing/seo/rzeszow/     /agencja-seo-rzeszow/      301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje

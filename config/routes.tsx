@@ -106,13 +106,14 @@ export const appRoutes: RouteObject[] = [
   { path: '/marketing/google-ads', element: <GoogleAds /> },
   { path: '/marketing/meta-ads', element: <MetaAds /> },
   { path: '/marketing/seo', element: <MarketingSeo /> },
-  // Spoke lokalny SEO — Rzeszów. Frazy: "pozycjonowanie rzeszow" (320 vol)
-  // + "agencja seo rzeszow" (70 vol). Cluster pillar: /miasto/rzeszow/.
-  { path: '/marketing/seo/rzeszow', element: <SeoRzeszow /> },
   { path: '/marketing/analytics', element: <Analytics /> },
 
   // Spoke "agencja interaktywna Rzeszów" — fraza 110 vol, MED realizm TOP10.
   { path: '/agencja-interaktywna-rzeszow', element: <AgencjaInteraktywnaRzeszow /> },
+  // Spoke "agencja SEO Rzeszów" — fraza GSC 2026-05: pos 44, 14 imp/tyg, rosnaca.
+  // Top-level URL zamiast zakopanego /marketing/seo/rzeszow (301). Frazy: "agencja seo rzeszow",
+  // "pozycjonowanie rzeszow" (21 imp/tyg, pos 72), "pozycjonowanie stron rzeszow" (16, pos 73).
+  { path: '/agencja-seo-rzeszow', element: <SeoRzeszow /> },
 
   // SaaS landing — produkt "Strona w abonamencie" (backend: binary-planet)
   // self-serve Stripe Checkout flow. Success page noindex.

@@ -9,7 +9,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/marketing/google-ads': 'Google Ads',
   '/marketing/meta-ads': 'Meta Ads',
   '/marketing/seo': 'SEO & Content',
-  '/marketing/seo/rzeszow': 'Rzeszów',
+  '/agencja-seo-rzeszow': 'Rzeszów',
   '/marketing/analytics': 'Data & Analityka',
   '/agencja-interaktywna-rzeszow': 'Agencja Interaktywna Rzeszów',
   '/abonament': 'Strona w abonamencie',

@@ -4,7 +4,7 @@
  * dla CookieFloatingButton offset.
  *
  * Uzywany na: Home, /agencja-interaktywna-rzeszow/, /web-development/rzeszow/,
- * /marketing/seo/rzeszow/ (Sprint C2). Glass backdrop, safe-area-inset-bottom.
+ * /agencja-seo-rzeszow/ (Sprint C2). Glass backdrop, safe-area-inset-bottom.
  */
 import React, { useEffect, useState } from 'react';
 import { Phone, ArrowRight } from 'lucide-react';

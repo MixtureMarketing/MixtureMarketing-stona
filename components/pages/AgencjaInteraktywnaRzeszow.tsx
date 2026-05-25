@@ -205,7 +205,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   icon: Sparkles,
                   title: 'SEO i content',
                   desc: 'Pozycjonowanie lokalne i ogólnopolskie, content marketing, pillar pages.',
-                  link: '/marketing/seo/rzeszow/',
+                  link: '/agencja-seo-rzeszow/',
                 },
                 {
                   icon: Smartphone,
@@ -375,7 +375,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   </li>
                   <li>
                     <Link
-                      to="/marketing/seo/rzeszow/"
+                      to="/agencja-seo-rzeszow/"
                       className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
                     >
                       → Pozycjonowanie stron Rzeszów

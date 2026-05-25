@@ -241,7 +241,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                       Tak. Pełna oferta lokalnego SEO — od audytu technicznego, przez optymalizację
                       on-page, po link building i Local Pack. Szczegóły na stronie{' '}
                       <Link
-                        to="/marketing/seo/rzeszow/"
+                        to="/agencja-seo-rzeszow/"
                         className="text-primary hover:underline font-medium"
                       >
                         pozycjonowanie stron w Rzeszowie
@@ -357,7 +357,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </Link>
 
               <Link
-                to="/marketing/seo/rzeszow/"
+                to="/agencja-seo-rzeszow/"
                 className="group bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary/40 hover:shadow-lg motion-safe:focus-visible:-translate-y-0.5 transition-all"
               >
                 <div className="w-12 h-12 bg-violet-100 text-violet-700 rounded-xl flex items-center justify-center mb-4">
