@@ -579,6 +579,27 @@ const SeoRzeszow: React.FC = () => {
             </div>
           </div>
 
+          {/* Cross-link do strony service-info */}
+          <div className="mb-20 max-w-3xl mx-auto bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 md:p-8 border border-blue-100">
+            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">
+              Przed wyborem agencji
+            </p>
+            <h3 className="text-xl md:text-2xl font-bold mb-3">
+              Chcesz najpierw zrozumieć jak działa pozycjonowanie?
+            </h3>
+            <p className="text-gray-600 mb-4 text-sm md:text-base">
+              Przygotowaliśmy przewodnik bez sprzedaży: co to jest pozycjonowanie, ile kosztuje,
+              kiedy zobaczysz efekty, jakie są etapy procesu. Idealny przed pierwszą rozmową z
+              agencją.
+            </p>
+            <Link
+              to="/pozycjonowanie-rzeszow/"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-bold rounded-full hover:bg-pink-700 transition-colors text-sm"
+            >
+              Przewodnik: Pozycjonowanie Rzeszów <ArrowRight size={16} />
+            </Link>
+          </div>
+
           {/* FAQ */}
           <div className="mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">

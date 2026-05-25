@@ -15,6 +15,15 @@
 /marketing/seo/rzeszow      /agencja-seo-rzeszow/      301
 /marketing/seo/rzeszow/     /agencja-seo-rzeszow/      301
 
+# 301 wariantow frazy "pozycjonowanie stron rzeszow" (16 imp/tyg pos 73 + 8 imp pos 76)
+# na /pozycjonowanie-rzeszow/ — jedna strona obsluguje wszystkie warianty.
+/pozycjonowanie-stron-rzeszow         /pozycjonowanie-rzeszow/  301
+/pozycjonowanie-stron-rzeszow/        /pozycjonowanie-rzeszow/  301
+/pozycjonowanie-stron-www-rzeszow     /pozycjonowanie-rzeszow/  301
+/pozycjonowanie-stron-www-rzeszow/    /pozycjonowanie-rzeszow/  301
+/pozycjonowanie-stron-internetowych-rzeszow   /pozycjonowanie-rzeszow/  301
+/pozycjonowanie-stron-internetowych-rzeszow/  /pozycjonowanie-rzeszow/  301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje
