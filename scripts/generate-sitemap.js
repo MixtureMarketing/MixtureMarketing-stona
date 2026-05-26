@@ -74,6 +74,12 @@ async function generateSitemap() {
       caption: 'Branding, web, marketing pod jednym dachem w Rzeszowie',
       geo: 'Rzeszów, Podkarpacie, Polska',
     },
+    '/pozycjonowanie-rzeszow/': {
+      loc: `${BASE_URL}/assets/images/sygnet.png`,
+      title: 'Pozycjonowanie Rzeszów — SEO lokalne i ogólnopolskie',
+      caption: 'Mixture Marketing — pozycjonowanie stron dla firm z Rzeszowa i Podkarpacia',
+      geo: 'Rzeszów, Podkarpacie, Polska',
+    },
     '/o-nas/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
       title: 'Zespół Mixture Marketing — Rzeszów',
