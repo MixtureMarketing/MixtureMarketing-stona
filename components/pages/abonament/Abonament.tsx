@@ -175,32 +175,22 @@ const POWODY_179 = [
   {
     icon: Sparkles,
     title: 'AI generuje treści',
-    desc: 'Claude Sonnet pisze treści blogowe, opisy usług i odpowiedzi na opinie Google. Klient akceptuje jednym kliknięciem — zamiast godzin copywritera.',
+    desc: 'Claude Sonnet pisze opisy usług, posty GBP i odpowiedzi na opinie Google. Klient zatwierdza jednym kliknięciem — zero copywritera w kosztach platformy.',
   },
   {
     icon: Zap,
-    title: 'Cloudflare Workers',
-    desc: 'Twoja strona to edge worker w 300+ data center, ładuje w ~200 ms. Bez osobnego VPS-a per klient (jak przy klasycznym WordPressie).',
+    title: 'Edge = szybkość bez VPS',
+    desc: 'Strona to edge worker w 300+ data center — ładuje w ~200 ms. Brak osobnego serwera per klient obniża infrastrukturę o ~80 zł/mc na lokalizację.',
   },
   {
     icon: Cog,
     title: 'Wizard 25 minut',
-    desc: 'Klient idzie sam przez wizard, system automatycznie rejestruje domenę, konfiguruje SSL, wgrywa content. Zero ręcznej koordynacji projektu.',
+    desc: 'Klient przechodzi kreator sam. System rejestruje domenę, konfiguruje SSL i wgrywa content automatycznie — zero godzin koordynacji projektu.',
   },
   {
     icon: MapPin,
-    title: 'Local SEO w pakiecie',
-    desc: 'Wizytówka Google, schema.org, sitemap, llms.txt — zintegrowane. W klasycznym projekcie to dodatkowa pozycja (1500–3000 zł setup).',
-  },
-  {
-    icon: Cpu,
-    title: 'Stała architektura',
-    desc: 'Wszystkie strony używają tej samej kombinacji (Astro + Sanity + Cloudflare). Nie projektujemy od zera — wymieniamy content, kolory i logo.',
-  },
-  {
-    icon: CreditCard,
-    title: 'Bez marży za zespół',
-    desc: 'Klasyczny projekt 8000 zł = 60% to wynagrodzenia osób pracujących nad nim. Abonament zastępuje większość tych godzin platformą.',
+    title: 'Local SEO w cenie',
+    desc: 'Wizytówka Google, schema.org, strony pod dzielnice, sitemap i llms.txt — zintegrowane w pakiecie. W klasycznym projekcie to 1500–3000 zł jednorazowego setup\'u.',
   },
 ];
 
@@ -308,7 +298,7 @@ const STEPS = [
     icon: FileText,
     title: 'Wypełniasz formularz',
     time: '3 minuty',
-    desc: 'Wybierasz pakiet, podajesz NIP, nazwę firmy, branżę i miasto.',
+    desc: 'Wybierasz pakiet i podajesz NIP. Dane firmy — nazwa, adres, branża — pobieramy z GUS automatycznie.',
   },
   {
     num: '02',
@@ -321,15 +311,15 @@ const STEPS = [
     num: '03',
     icon: Sparkles,
     title: 'Uzupełniasz kreator',
-    time: '10–15 minut',
-    desc: 'Logo, zdjęcia, godziny pracy, opis usług. Możesz w 2 turach.',
+    time: '15–20 minut',
+    desc: 'Logo, zdjęcia, Twoja historia zawodowa. System buduje z niej treści E-E-A-T zamiast generycznych opisów. Możesz w 2 turach.',
   },
   {
     num: '04',
     icon: Rocket,
     title: 'Strona idzie online',
     time: '6 minut',
-    desc: 'Domena, SSL, DNS, GBP, llms.txt — wszystko bez Twojego udziału.',
+    desc: 'Domena, SSL, DNS, GBP, llms.txt — wszystko konfigurowane bez Twojego udziału.',
   },
 ];
 
@@ -427,6 +417,10 @@ const COMPARISON = {
 };
 
 const FAQ = [
+  {
+    q: 'Jak szybko pojawię się w Google Maps i kiedy przyjdą pierwsze leady?',
+    a: 'Wizytówka Google Business Profile jest weryfikowana przez Google w 14–21 dni (standardowa procedura Google — nie mamy na to wpływu). Pierwsze leady z formularza pojawiają się zazwyczaj po 2–4 tygodniach od uruchomienia strony, gdy Google zaindeksuje nową stronę i aktywuje GBP. Stabilna widoczność w TOP 10 lokalnie wymaga 4–6 miesięcy regularnej aktywności SEO.',
+  },
   {
     q: 'Ile kosztuje strona w abonamencie?',
     a: 'Trzy pakiety: Starter 179 zł/mc, Standard 249 zł/mc, Premium 349 zł/mc (netto). Dla branż regulowanych — adwokaci, lekarze, księgowi — osobny pakiet Professional od 549 zł/mc. Bez opłat aktywacyjnych. Dla pierwszych 10 klientów: −50 zł/mc przez 3 miesiące.',
@@ -756,8 +750,8 @@ const Abonament: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900 pb-20 md:pb-0">
       <Seo
-        title="Strona w abonamencie od 179 zł/mc — gotowa strona WWW dla małej firmy"
-        description="Strona w abonamencie od 179 zł/mc. 4 pakiety (179/249/349/549). Robimy stronę WWW, SEO lokalne i Google Business Profile za Ciebie. Setup w 24h, bez opłat aktywacyjnych, umowa od 3 miesięcy."
+        title="Strona w abonamencie dla małej firmy • Gotowa strona WWW od 179 zł/mc"
+        description="Szukasz klientów z Google? Otrzymaj nowoczesną stronę internetową w abonamencie z pełnym pozycjonowaniem lokalnym (SEO) i Mapami Google. Bez opłat startowych!"
         canonical="/abonament/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
@@ -795,21 +789,21 @@ const Abonament: React.FC = () => {
             <div>
               <Eyebrow className="mb-7">Strona w abonamencie</Eyebrow>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-slate-950 leading-[1.02] tracking-tight mb-7">
-                Robimy{' '}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black text-slate-950 leading-[1.05] tracking-tight mb-7">
+                Nowoczesna{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700">
-                  stronę
+                  strona internetowa
                 </span>
                 <br />
-                za Ciebie.
+                w abonamencie dla małej firmy.
               </h1>
 
               <p className="text-xl md:text-2xl text-slate-700 leading-relaxed mb-8 max-w-2xl">
-                Bez wiedzy technicznej.
-                Strona&nbsp;+&nbsp;SEO&nbsp;+&nbsp;Google&nbsp;Business&nbsp;+&nbsp;leady na
-                telefon. Od&nbsp;
+                Zdobądź nowych klientów z Google bez wydawania tysięcy złotych na start. Kompletna
+                strona WWW, pełne pozycjonowanie lokalne i automatyczne pozyskiwanie opinii —
+                wszystko w stałym abonamencie od{' '}
                 <strong className="text-slate-950">179&nbsp;zł&nbsp;netto/mc</strong>. Bez opłat
-                aktywacyjnych. Min.&nbsp;3&nbsp;mies., potem&nbsp;mc-to-mc.
+                startowych.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -1085,8 +1079,8 @@ const Abonament: React.FC = () => {
             </div>
           </div>
 
-          {/* 6 powodów */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* 4 powody */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
             {POWODY_179.map((p) => (
               <div
                 key={p.title}
@@ -1552,6 +1546,105 @@ const Abonament: React.FC = () => {
         </Container>
       </section>
 
+      {/* ==================== DLACZEGO NIE WORDPRESS ==================== */}
+      <section className="relative py-24 md:py-32 bg-white overflow-hidden">
+        {techGrid}
+        <Container className="relative z-10">
+          <SectionHead
+            eyebrow="Mixture vs WordPress"
+            title={
+              <>
+                Czego{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">
+                  nie dostaniesz
+                </span>
+                <br />
+                na WordPressie.
+              </>
+            }
+            lead="WordPress to świetne narzędzie — ale nie rozwiąże za Ciebie Local SEO i nie zbuduje treści E-E-A-T z Twojej historii zawodowej."
+          />
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-950 to-indigo-950 text-white overflow-hidden relative">
+                {techGrid}
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-300 mb-3">
+                    <MapPin size={12} aria-hidden="true" />
+                    Local SEO Pro
+                  </div>
+                  <h3 className="text-2xl font-black mb-3">
+                    Programmatic geo pages — automatycznie.
+                  </h3>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                    System generuje osobne podstrony dla każdej dzielnicy i okolicznego miasta
+                    — z unikalną treścią i lokalnymi słowami kluczowymi. Nie kopiuje treści,
+                    tylko personalizuje je pod lokalizację. Efekt: widoczność w Google dla
+                    fraz „[usługa] [dzielnica]" bez ręcznego pisania dziesiątek podstron.
+                  </p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-300">
+                    Dostępne od pakietu Standard · do 6 lokalizacji
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-3xl bg-white border border-slate-200">
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-3">
+                  <Sparkles size={12} className="text-indigo-600" aria-hidden="true" />
+                  E-E-A-T z realnych historii
+                </div>
+                <h3 className="text-xl font-black text-slate-950 mb-3">
+                  Treści z Twojej historii zawodowej — nie z generatora.
+                </h3>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  Kreator zbiera Twoje certyfikaty, lata doświadczenia, realizacje i opinie
+                  klientów. System buduje z tych danych unikalne treści spełniające wymogi
+                  Google E-E-A-T (Experience · Expertise · Authoritativeness · Trust). Strona
+                  „fryzjer Rzeszów" z prawdziwą historią właścicielki bije anonimowy szablon
+                  WordPress w rankingach.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  icon: Shield,
+                  title: 'RODO per-tenant z pudełka',
+                  desc: 'WordPress wymaga płatnych wtyczek GDPR + hosting zgodny z RODO + ręczna konfiguracja. Tu: per-tenant encryption, DPA template, retencja leadów 24 mc — w cenie od dnia 1.',
+                },
+                {
+                  icon: Activity,
+                  title: 'GBP sync bez ręcznej pracy',
+                  desc: 'Posty w Google Business Profile, odpowiedzi na opinie i aktualizacja godzin — automatyczne, na bazie Twoich danych w panelu. Na WordPressie to osobna wtyczka i godziny konfiguracji.',
+                },
+                {
+                  icon: Cpu,
+                  title: 'SMS leady w 30 sekund',
+                  desc: 'Formularz → SMS do Ciebie w 30 sekund. HBR: szansa zamknięcia leada spada 9-krotnie jeśli zadzwonisz po 5 minutach. Na WordPressie wymaga Zapier + Twilio + osobny abonament.',
+                },
+                {
+                  icon: Cloud,
+                  title: 'LCP <1 sekundy bez konfiguracji',
+                  desc: 'Astro 5 na Cloudflare Workers — żadnych pluginów cache, żadnego LiteSpeed, żadnego CDN do ręcznej konfiguracji. Każda strona jest statycznym HTML na edge.',
+                },
+              ].map((item) => (
+                <div key={item.title} className="p-5 rounded-3xl bg-slate-50 border border-slate-200 flex gap-4">
+                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-700 shrink-0 mt-0.5">
+                    <item.icon size={18} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-950 mb-1">{item.title}</h4>
+                    <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </section>
+
       {/* ==================== KONKRET ==================== */}
       <section className="relative py-24 md:py-32 bg-slate-50 overflow-hidden">
         {techGrid}
@@ -1959,6 +2052,99 @@ const Abonament: React.FC = () => {
                   <p className="text-slate-600 leading-relaxed">{f.a}</p>
                 </div>
               </details>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ==================== TECH SPEC (dla deweloperów / dociekliwych) ==================== */}
+      <section className="relative py-24 md:py-32 bg-white overflow-hidden">
+        {techGrid}
+        <Container className="relative z-10">
+          <SectionHead
+            eyebrow="Stack techniczny"
+            title={
+              <>
+                Dla{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">
+                  dociekliwych.
+                </span>
+              </>
+            }
+            lead="Jeśli jesteś programistą lub po prostu lubisz wiedzieć z czego korzystasz — pełna specyfikacja platformy."
+          />
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              {
+                icon: Code2,
+                title: 'Astro 5 + Cloudflare Workers',
+                items: [
+                  'Static HTML na edge — żadnego runtime SSR',
+                  'Cloudflare Workers for SaaS (multi-tenant)',
+                  'LCP < 1 sekundy z pudełka, zero cache plugins',
+                ],
+              },
+              {
+                icon: Database,
+                title: 'Multi-tenant architektura',
+                items: [
+                  'Osobne Git repo per klient (izolacja kodu)',
+                  'Cloudflare D1 (SQLite) + KV per tenant',
+                  'R2 storage — pliki, zdjęcia, dokumenty',
+                ],
+              },
+              {
+                icon: Shield,
+                title: 'Bezpieczeństwo danych',
+                items: [
+                  'AES-GCM 256-bit backup szyfrowany per tenant',
+                  'Retencja 30 dni · EU data residency',
+                  'Per-tenant encryption key — izolacja na poziomie danych',
+                ],
+              },
+              {
+                icon: Sparkles,
+                title: 'AI stack',
+                items: [
+                  'Claude (Anthropic) — treści usługowe i blogowe',
+                  'Human-in-the-loop: klient zatwierdza przed publikacją',
+                  'Professional: AI Blog wyłączony domyślnie',
+                ],
+              },
+              {
+                icon: MapPin,
+                title: 'AI Search visibility',
+                items: [
+                  'llms.txt + llms-full.txt per strona',
+                  'Schema.org: LocalBusiness + Service + FAQ + Person',
+                  'Sitemap XML per tenant z realnym lastmod',
+                ],
+              },
+              {
+                icon: CreditCard,
+                title: 'Billing stack',
+                items: [
+                  'Stripe Billing — subskrypcje + checkout',
+                  'Faktury przez Fakturownia.pl API (1. dnia mc)',
+                  'Webhooks: upgrade/downgrade/cancel automatyczny',
+                ],
+              },
+            ].map((card) => (
+              <div key={card.title} className="p-6 rounded-3xl bg-slate-50 border border-slate-200">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-700 mb-4">
+                  <card.icon size={22} aria-hidden="true" />
+                </div>
+                <h4 className="text-lg font-bold text-slate-950 mb-3">{card.title}</h4>
+                <ul className="space-y-1.5">
+                  {card.items.map((item, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                      <span className="text-indigo-400 mt-0.5 shrink-0">›</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </Container>
