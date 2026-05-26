@@ -189,6 +189,53 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             </div>
           </div>
 
+          {/* Rzeszów jako centrum technologiczne — unikalny blok tekstowy (QW8) */}
+          <div className="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-sm mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-dark">
+              Rzeszów jako centrum technologiczne Podkarpacia
+            </h2>
+            <div className="prose prose-lg text-gray-600 max-w-none space-y-4">
+              <p>
+                Rzeszów od lat konsekwentnie buduje pozycję jednego z najszybciej rozwijających się
+                ośrodków technologicznych w Polsce Południowo-Wschodniej. Kluczową rolę odgrywa tu{' '}
+                <strong>Klaster IT Podkarpacie</strong> — inicjatywa skupiająca lokalnych
+                przedsiębiorców, software house&apos;y i agencje cyfrowe z całego województwa.
+                Klaster wspiera wymianę doświadczeń, wspólne projekty B2B i reprezentuje branżę
+                wobec samorządu oraz instytucji unijnych. Mixture Marketing uczestniczy w działaniach
+                rzeszowskiej społeczności IT i aktywnie śledzi kierunki, w których zmierza cyfryzacja
+                podkarpackich przedsiębiorstw.
+              </p>
+              <p>
+                Zaplecze akademickie tworzy przede wszystkim{' '}
+                <strong>Politechnika Rzeszowska im. Ignacego Łukasiewicza</strong> — Wydział
+                Elektrotechniki i Informatyki co roku kształci setki inżynierów specjalizujących się
+                w programowaniu, systemach wbudowanych i sztucznej inteligencji. Absolwenci PRz
+                zasilają zarówno globalne korporacje (Motorola Solutions, Asseco, Sabre) obecne w
+                Rzeszowie, jak i rosnącą falę lokalnych startupów i software house&apos;ów. To
+                bezpośrednio przekłada się na dostępność wysokiej klasy specjalistów na lokalnym rynku
+                pracy.
+              </p>
+              <p>
+                Codzienny puls rzeszowskiej społeczności tech bije na regularnych spotkaniach:{' '}
+                <strong>RzeszowJS</strong> (cykliczne meetupy frontend developerów), Tech Tuesdays
+                Rzeszów oraz inicjatywach organizowanych przez RARR (Rzeszowską Agencję Rozwoju
+                Regionalnego). To właśnie podczas tych wydarzeń nawiązujemy relacje z lokalnymi
+                programistami, projektantami i przedsiębiorcami — i właśnie stąd wynika nasza
+                orientacja w specyfice cyfrowej transformacji podkarpackich MŚP: od producentów z
+                Mieleckiej Specjalnej Strefy Ekonomicznej, przez e-commerce z Rzeszowa, po gabinety
+                specjalistyczne szukające pierwszej strony z Local SEO.
+              </p>
+              <p>
+                Nie bez znaczenia jest też bliskość{' '}
+                <strong>Aviation Valley</strong> — klastra lotniczego skupiającego ponad 160 firm
+                (m.in. WSK Rzeszów, MTU Aero Engines, Pratt &amp; Whitney). Firmy z branży lotniczej
+                potrzebują stron B2B w standardach EN/PL, certyfikatów zaufania i materiałów na targi
+                zagraniczne — to obszar, w którym doświadczenie lokalne ma realne przełożenie na
+                jakość projektu marketingowego.
+              </p>
+            </div>
+          </div>
+
           <div className="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-8 md:p-12 border border-indigo-100">
             <h3 className="text-2xl font-bold mb-6">Najczęściej zadawane pytania (Rzeszów)</h3>
             <div className="space-y-4">
