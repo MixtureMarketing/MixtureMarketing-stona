@@ -106,6 +106,7 @@ const Footer: React.FC = () => {
       SITE_CONFIG.social.linkedin,
       SITE_CONFIG.social.facebook,
       SITE_CONFIG.social.instagram,
+      SITE_CONFIG.social.tiktok,
     ],
   };
 

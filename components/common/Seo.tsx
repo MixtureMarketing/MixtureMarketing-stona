@@ -8,11 +8,7 @@ import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
 // artykulow uzywaja osobnego <ArticleSchemaSeo> (lazy w ArticleTemplate),
 // dzieki czemu @sanity/image-url (urlFor) nie trafia do glownego Seo chunk
 // (76% unused JS na non-article pages).
-import {
-  getBreadcrumbsSchema,
-  getFaqSchema,
-  getLocalBusinessSchema,
-} from '../../utils/seo/commonSchemas';
+import { getBreadcrumbsSchema, getFaqSchema } from '../../utils/seo/commonSchemas';
 import { getServiceSchema } from '../../utils/seo/serviceSchema';
 
 interface SeoProps {
@@ -64,7 +60,6 @@ const Seo: React.FC<SeoProps> = ({
     getBreadcrumbsSchema(breadcrumbs || [], baseUrl),
     getFaqSchema(faq || []),
     getServiceSchema(service, title, description, baseUrl),
-    getLocalBusinessSchema(baseUrl),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
   ].filter(Boolean);
 

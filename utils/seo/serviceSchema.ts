@@ -22,10 +22,9 @@ export const getServiceSchema = (
       name: 'Mixture Marketing',
       url: baseUrl,
     },
-    areaServed: {
-      '@type': 'Country',
-      name: service.areaServed || 'Poland',
-    },
+    areaServed: service.areaServed
+      ? { '@type': 'City', name: service.areaServed }
+      : { '@type': 'Country', name: 'Poland' },
     hasOfferCatalog: service.offers
       ? {
           '@type': 'OfferCatalog',

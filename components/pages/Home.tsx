@@ -35,10 +35,7 @@ const Home = () => {
           publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
           potentialAction: {
             '@type': 'SearchAction',
-            target: {
-              '@type': 'EntryPoint',
-              urlTemplate: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
-            },
+            target: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
             'query-input': 'required name=search_term_string',
           },
         }}

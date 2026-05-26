@@ -150,53 +150,6 @@ const PozycjonowanieRzeszow: React.FC = () => {
         acceptedAnswer: { '@type': 'Answer', text: f.answer },
       })),
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'HowTo',
-      name: 'Jak działa pozycjonowanie stron WWW w Rzeszowie — proces krok po kroku',
-      description:
-        'Proces pozycjonowania strony internetowej w Rzeszowie — od audytu, przez strategię, po monitoring efektów.',
-      totalTime: 'P6M',
-      estimatedCost: { '@type': 'MonetaryAmount', currency: 'PLN', value: '1500' },
-      step: [
-        {
-          '@type': 'HowToStep',
-          position: 1,
-          name: 'Audyt techniczny SEO',
-          text: 'Analiza struktury strony (Screaming Frog), GSC, Lighthouse, Core Web Vitals, indeksacja, błędy 4xx/5xx, duplikaty, schema markup.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 2,
-          name: 'Keyword research i strategia',
-          text: 'Analiza fraz w Senuto/Ahrefs, audyt konkurencji w Rzeszowie i ogólnopolsko, dobór fraz priorytetowych (lokalne + branżowe), mapa contentu.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 3,
-          name: 'Optymalizacja on-page',
-          text: 'Poprawa title, meta, nagłówków (H1-H3), URL, internal linking, schema.org (LocalBusiness, Service, FAQPage, Article), Core Web Vitals.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 4,
-          name: 'Content marketing',
-          text: 'Tworzenie artykułów eksperckich (baza wiedzy), podstron usługowych, podstron lokalizacyjnych (pillar + spokes), copywriting zgodny z E-E-A-T.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 5,
-          name: 'Lokalne SEO i Google Business Profile',
-          text: 'Optymalizacja GBP (kategorie, opis, zdjęcia, posty, recenzje), citations w polskich katalogach (panoramafirm, pkt, aleo), lokalne backlinki (Klaster IT Podkarpacie, RARR, media regionalne).',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 6,
-          name: 'Monitoring i raportowanie',
-          text: 'Miesięczny raport pozycji, ruchu organic, konwersji w GSC/GA4. Call statusowy 45 min. Iteracje strategii co kwartał.',
-        },
-      ],
-    },
   ];
 
   return (

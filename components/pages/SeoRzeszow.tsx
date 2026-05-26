@@ -142,53 +142,6 @@ const SeoRzeszow: React.FC = () => {
         acceptedAnswer: { '@type': 'Answer', text: f.answer },
       })),
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'HowTo',
-      name: 'Jak działa pozycjonowanie SEO w Rzeszowie — proces Mixture Marketing',
-      description:
-        'Sześciofazowy proces SEO dla firm z Rzeszowa i Podkarpacia — od audytu, przez strategię, po raportowanie.',
-      totalTime: 'P6M',
-      estimatedCost: { '@type': 'MonetaryAmount', currency: 'PLN', value: '1500' },
-      step: [
-        {
-          '@type': 'HowToStep',
-          position: 1,
-          name: 'Audyt SEO',
-          text: 'Audyt techniczny (Screaming Frog, GSC, Lighthouse), analiza fraz w Senuto/Ahrefs, audyt konkurencji w Rzeszowie i ogólnopolsko.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 2,
-          name: 'Strategia i keyword research',
-          text: 'Wybór fraz priorytetowych (lokalne + branżowe), architektura informacji, mapa contentu na 6–12 miesięcy.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 3,
-          name: 'Optymalizacja on-page',
-          text: 'Poprawa title, meta, nagłówków, struktury URL, schema.org, internal linking, Core Web Vitals.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 4,
-          name: 'Content marketing',
-          text: 'Tworzenie artykułów eksperckich, podstron usługowych i lokalizacyjnych (pillar + spokes).',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 5,
-          name: 'Link building i citations',
-          text: 'Polskie katalogi (panoramafirm, pkt, aleo), lokalne backlinki (Klaster IT Podkarpacie, RARR), guest posts.',
-        },
-        {
-          '@type': 'HowToStep',
-          position: 6,
-          name: 'Raportowanie i optymalizacja',
-          text: 'Miesięczny raport pozycji, ruchu i konwersji + call statusowy. Iteracje strategii co kwartał.',
-        },
-      ],
-    },
   ];
 
   return (

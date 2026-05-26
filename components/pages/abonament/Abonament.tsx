@@ -675,7 +675,7 @@ const Abonament: React.FC = () => {
   const allOffers = [...PRICING, PROFESSIONAL_TIER];
   const serviceJsonLd = {
     '@context': 'https://schema.org',
-    '@type': ['Service', 'Product'],
+    '@type': 'Service',
     name: 'Strona internetowa w abonamencie',
     serviceType: 'SaaS website subscription',
     description:
@@ -693,7 +693,7 @@ const Abonament: React.FC = () => {
     dateModified: new Date().toISOString().split('T')[0],
     offers: allOffers.map((p) => ({
       '@type': 'Offer',
-      '@id': `https://mixturemarketing.pl/abonament#offer-${p.id}`,
+      '@id': `https://mixturemarketing.pl/abonament/#offer-${p.id}`,
       name: `Pakiet ${p.name}`,
       description: `Pakiet ${p.name} — ${p.tagline}. ${p.price} zł netto / miesiąc.`,
       price: String(p.price),
@@ -719,7 +719,7 @@ const Abonament: React.FC = () => {
     familyName: 'Niedziela',
     jobTitle: 'Założyciel & Fullstack Developer',
     worksFor: { '@id': 'https://mixturemarketing.pl/#organization' },
-    url: 'https://mixturemarketing.pl/abonament/',
+    url: 'https://mixturemarketing.pl/o-nas/',
     image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela-400.jpg',
     sameAs: ['https://pl.linkedin.com/in/jakub-niedziela-9251a8254'],
     knowsAbout: [
