@@ -1,6 +1,7 @@
 name: CI Pipeline
 
 on:
+  workflow_dispatch: # reczne odpalenie z zakladki Actions (omija problem pustych commitow + paths-ignore)
   push:
     branches: ['main', 'master']
     # Pomin build dla zmian tylko w dokumentacji/markdown.
