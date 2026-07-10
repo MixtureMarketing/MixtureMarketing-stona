@@ -20,6 +20,16 @@ interface ContactModalProps {
   type: ContactType;
 }
 
+// Stała referencja — poza komponentem, żeby react-turnstile nie re-inicjalizował
+// widgetu przy każdym renderze (inline obiekt = nowa referencja = wielokrotne
+// ładowanie api.js i zgubiony onloadTurnstileCallback).
+const TURNSTILE_OPTIONS = {
+  size: 'invisible',
+  execution: 'execute',
+  appearance: 'interaction-only',
+  language: 'pl',
+} as const;
+
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) => {
   const { additionalData } = useModal();
   const turnstileRef = useRef<TurnstileInstance>(null);
@@ -57,12 +67,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
     <Turnstile
       ref={turnstileRef}
       siteKey={SITE_CONFIG.contact.turnstileSiteKey}
-      options={{
-        size: 'invisible',
-        execution: 'execute',
-        appearance: 'interaction-only',
-        language: 'pl',
-      }}
+      options={TURNSTILE_OPTIONS}
       style={{ position: 'fixed', bottom: 0, right: 0, zIndex: -1 }}
     />
   );

@@ -36,13 +36,13 @@
     </script>
 
     <!--
-      Cloudflare Zaraz: opt-out z autoInjectScript (PUT via API 2026-05-19).
-      Wstrzykujemy ręcznie z `defer` zeby nie blokowal LCP.
-      Skrypt /cdn-cgi/zaraz/i.js to standard endpoint Zaraz CDN (serwowany
-      z edge'a). Backup configa: .zaraz-backup-2026-05-19.json.
-      Aby przywrócić stare zachowanie: PUT autoInjectScript: true.
+      Cloudflare Zaraz jest wstrzykiwany automatycznie przez edge (autoInjectScript
+      aktywny — HAR 2026-07-10 pokazal i.js x4). Reczny <script src="/cdn-cgi/zaraz/i.js">
+      usuniety, bo powodowal podwojne ladowanie Zaraz i chaos skryptow (kolidowal
+      z inicjalizacja Turnstile). Jesli Zaraz przestanie sie ladowac, znaczy ze
+      auto-inject jest OFF — wtedy przywrocic ten tag.
     -->
-    <script defer src="/cdn-cgi/zaraz/i.js"></script>
+
   </head>
   <body>
     <div id="root"></div>

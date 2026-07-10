@@ -21,6 +21,16 @@ interface InlineContactFormProps {
   type?: ContactType;
 }
 
+// Stała referencja — MUSI być poza komponentem. Inline `options={{...}}` tworzyło
+// nowy obiekt przy każdym renderze, przez co react-turnstile re-inicjalizował widget
+// (wielokrotne ładowanie api.js + zgubiony onloadTurnstileCallback -> brak tokenu).
+const TURNSTILE_OPTIONS = {
+  size: 'invisible',
+  execution: 'execute',
+  appearance: 'interaction-only',
+  language: 'pl',
+} as const;
+
 const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' }) => {
   const turnstileRef = useRef<TurnstileInstance>(null);
   // onClose nie ma sensu w inline kontekscie — pass no-op (Success render zostaje na stronie)
@@ -52,12 +62,7 @@ const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' 
     <Turnstile
       ref={turnstileRef}
       siteKey={SITE_CONFIG.contact.turnstileSiteKey}
-      options={{
-        size: 'invisible',
-        execution: 'execute',
-        appearance: 'interaction-only',
-        language: 'pl',
-      }}
+      options={TURNSTILE_OPTIONS}
       style={{ position: 'fixed', bottom: 0, right: 0, zIndex: -1 }}
     />
   );
