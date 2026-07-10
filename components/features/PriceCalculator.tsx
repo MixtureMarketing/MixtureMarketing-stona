@@ -79,8 +79,8 @@ const PriceCalculator: React.FC = () => {
       formData.append('pdf', pdfBlob, 'wycena_mixture.pdf');
       formData.append('data', JSON.stringify({ selections, result }));
 
-      // 4. Send to Backend
-      const response = await fetch('/api/calculator_submit.php', {
+      // 4. Send to Backend (Cloudflare Pages Function; zastąpiło martwe PHP)
+      const response = await fetch('/api/calculator-submit', {
         method: 'POST',
         body: formData,
       });

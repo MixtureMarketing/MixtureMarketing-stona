@@ -1,0 +1,29 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "mixturemarketing-stona"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-07-01"
+
+# --- D1 (baza: leady, użytkownicy, projekty, wiadomości, dokumenty) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "mixture-db"
+database_id = "8a11290b-b947-431a-996d-4bedd08ee988"
+
+# --- KV (cache: historia czatu, wyniki audytu) ---
+[[kv_namespaces]]
+binding = "CACHE"
+id = "538d11bc6e2c4f31b43a8e16db8577d9"
+
+# --- R2 (pliki: dokumenty, faktury) ---
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "mixture-files"
+
+# --- Zmienne (plaintext). Sekrety (TURNSTILE_SECRET, RESEND_API_KEY,
+#     GOOGLE_BACKEND_KEY) ustawiane w panelu CF Pages, NIE tutaj. ---
+[vars]
+NOTIFY_EMAIL = "info@mixturemarketing.pl"
+ALLOWED_ORIGIN = "https://mixturemarketing.pl"
+
+# Faza 3 (audyt): Hyperdrive AUDIT_DB — dołożymy gdy zdecydujemy o źródle audytu.
+# Faza 4 (czat): Durable Object CHAT_ROOM — dołożymy jeśli wybierzemy WebSocket zamiast pollingu.

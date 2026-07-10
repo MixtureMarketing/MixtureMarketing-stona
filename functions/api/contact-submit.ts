@@ -22,7 +22,21 @@ interface Env {
   TURNSTILE_SECRET: string;
   RESEND_API_KEY: string;
   NOTIFY_EMAIL: string;
+  DB: D1Database;
 }
+
+// Kolumny leads mapowane wprost; reszta pól z formularza ląduje w details (JSON).
+const LEAD_COLUMNS = new Set([
+  'name',
+  'email',
+  'phone',
+  'website',
+  'budget',
+  'message',
+  'package_name',
+  'service_interest',
+]);
+const LEAD_SKIP = new Set(['captcha_token', 'website_verify', 'privacy', 'id']);
 
 interface LeadPayload {
   id: string;
@@ -60,8 +74,9 @@ const json = (data: unknown, status = 200) =>
   });
 
 async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
-  // Bypass dla zaufanych pseudo-tokenów (zachowuje compat z leadService.ts).
-  if (token === 'local_bypass' || token === 'existing_lead_verified') return true;
+  // Uwaga: NIE ma tu pseudo-tokenów obejścia ('local_bypass' itp.). Wcześniejsza
+  // wersja akceptowała je bezwarunkowo, co pozwalało spamować przez Resend bez
+  // captchy. Dev korzysta z proxy Vite → to nigdy nie trafia do tej funkcji.
   if (!token || !secret) return false;
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -132,6 +147,56 @@ function leadEmailHtml(lead: LeadPayload, details: Record<string, unknown> = {})
   </body></html>`;
 }
 
+// Rozdziel pola formularza na kolumny leads + resztę do JSON `details`.
+function splitLeadFields(src: Record<string, unknown>) {
+  const details: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(src)) {
+    if (LEAD_SKIP.has(k) || LEAD_COLUMNS.has(k)) continue;
+    if (v !== undefined && v !== null && v !== '') details[k] = v;
+  }
+  return details;
+}
+
+// Odtwórz kształt leada oczekiwany przez frontend (leadService.Lead).
+function rowToLead(row: Record<string, unknown>) {
+  let extra: Record<string, unknown> = {};
+  if (typeof row.details === 'string' && row.details) {
+    try {
+      extra = JSON.parse(row.details);
+    } catch {
+      /* ignore malformed */
+    }
+  }
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    service_interest: row.service_type,
+    website: row.website,
+    budget: row.budget,
+    message: row.message,
+    package_name: row.package_name,
+    ...extra,
+  };
+}
+
+// GET /api/contact-submit?action=get_lead&id=... — wznowienie formularza z maila.
+export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
+  const url = new URL(request.url);
+  if (url.searchParams.get('action') !== 'get_lead') {
+    return json({ message: 'Nieobsługiwana akcja' }, 400);
+  }
+  const id = url.searchParams.get('id');
+  if (!id) return json({ lead: null });
+  try {
+    const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
+    return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
+  } catch {
+    return json({ lead: null });
+  }
+};
+
 export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS_HEADERS });
 
@@ -158,7 +223,28 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       const ok = await verifyTurnstile(body.lead.captcha_token || '', env.TURNSTILE_SECRET, ip);
       if (!ok) return json({ message: 'Weryfikacja captcha nieudana' }, 403);
 
-      // Powiadomienie do agencji (fire-and-forget, ale czekamy żeby zgłosić ewentualny błąd).
+      // Zapis do D1 (źródło prawdy). INSERT OR IGNORE — idempotentny przy wznowieniu
+      // (ten sam lead.id może przyjść ponownie).
+      try {
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
+           VALUES (?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
+        )
+          .bind(
+            body.lead.id,
+            body.lead.name,
+            body.lead.email,
+            body.lead.phone || null,
+            body.lead.service_interest || null,
+            body.source_url || null,
+          )
+          .run();
+      } catch (e) {
+        // Zapis nie może blokować powiadomienia — logujemy i lecimy dalej.
+        console.error('D1 insert lead failed:', e);
+      }
+
+      // Powiadomienie do agencji.
       const subject = `🆕 Nowy lead — ${body.lead.name} (${body.lead.service_interest || 'general'})`;
       await sendEmail(env, subject, leadEmailHtml(body.lead), body.lead.email);
 
@@ -166,7 +252,42 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     case 'update': {
-      // Update nie wymaga captcha (lead już zweryfikowany). Wysyłamy email gdy step=3 (final).
+      // Update nie wymaga captcha (lead już utworzony i zweryfikowany w kroku 1).
+      if (body.id) {
+        const d = (body.details || {}) as Record<string, unknown>;
+        const detailsJson = JSON.stringify(splitLeadFields(d));
+        try {
+          await env.DB.prepare(
+            `UPDATE leads SET
+               name = COALESCE(?, name),
+               email = COALESCE(?, email),
+               phone = COALESCE(?, phone),
+               website = COALESCE(?, website),
+               budget = COALESCE(?, budget),
+               message = COALESCE(?, message),
+               package_name = COALESCE(?, package_name),
+               details = ?,
+               current_step = COALESCE(?, current_step)
+             WHERE id = ?`,
+          )
+            .bind(
+              (d.name as string) ?? null,
+              (d.email as string) ?? null,
+              (d.phone as string) ?? null,
+              (d.website as string) ?? null,
+              (d.budget as string) ?? null,
+              (d.message as string) ?? null,
+              (d.package_name as string) ?? null,
+              detailsJson,
+              body.step ?? null,
+              body.id,
+            )
+            .run();
+        } catch (e) {
+          console.error('D1 update lead failed:', e);
+        }
+      }
+      // Email do agencji przy finalnym kroku (step=3).
       if (body.step === 3 && body.id) {
         const subject = `📝 Aktualizacja leada ${body.id} (step ${body.step})`;
         await sendEmail(env, subject, leadEmailHtml({ id: body.id }, body.details || {}));
@@ -186,9 +307,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     case 'get_lead': {
-      // Bez persystencji — frontowa logika "resume from email" nie jest aktualnie
-      // wspierana w trybie serverless. Zwracamy null, leadService obsługuje brak.
-      return json({ lead: null });
+      if (!body.id) return json({ lead: null });
+      try {
+        const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(body.id).first();
+        return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
+      } catch {
+        return json({ lead: null });
+      }
     }
 
     default:
