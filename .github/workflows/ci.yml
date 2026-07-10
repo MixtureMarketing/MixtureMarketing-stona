@@ -188,4 +188,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4'
-          command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
+          # Katalog wyjsciowy (dist) + bindingi D1/KV/R2 pochodza z wrangler.toml.
+          # NIE podajemy pozycyjnego `dist` — wrangler v4 odrzuca go, gdy w configu
+          # jest pages_build_output_dir.
+          command: pages deploy --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
