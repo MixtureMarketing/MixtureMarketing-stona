@@ -93,7 +93,9 @@ async function processRoute(browser, critters, route) {
     }
 
     // Dodatkowy buffer dla async schemas (JSON-LD wstrzykiwany przez Helmet).
-    await new Promise((r) => setTimeout(r, 800));
+    // Przyciete 800->400ms (2026-07-11) — Helmet i tak jest juz odczekany wyzej
+    // (waitForFunction na title+canonical+meta), to tylko margines na JSON-LD.
+    await new Promise((r) => setTimeout(r, 400));
 
     // Error detection
     const bodyText = await page.evaluate(() => document.body.innerText);

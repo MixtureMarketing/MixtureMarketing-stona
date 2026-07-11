@@ -28,11 +28,16 @@ env:
 
 jobs:
   # ============================================================
-  # JOB 1: QUALITY — lint + typecheck + tests
+  # JEDEN JOB: quality + build + deploy.
+  # Scalone z 3 osobnych jobow (2026-07-11) — usuwa 2x spin-up runnera,
+  # 2x checkout, 1x npm ci oraz caly upload/download artefaktu dist.
   # ============================================================
-  quality:
-    name: 🛡️ Quality (lint + typecheck + tests)
+  ci:
+    name: 🚀 CI (quality + build + deploy)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v4
@@ -49,8 +54,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # Tylko cache npm cache directory (NIE node_modules) — node_modules
-          # cachujemy osobno bo zawiera kompilowane bindings (puppeteer chromium).
           cache: 'npm'
 
       - name: ⚙️ Configure NPM
@@ -68,58 +71,18 @@ jobs:
 
       - name: 📦 Install Dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --no-fund
 
       - name: 🎨 Linting & Formatting
         run: npm run lint
 
-      # TypeScript typecheck — non-blocking (continue-on-error) bo na baseline
-      # 2026-05-21 mamy 41 pre-existing errorow w komponentach legacy. CI loguje
-      # je w sekcji "Quality" ale deploy nie blokuje. TODO w ROADMAP.md:
-      # "Faza 4 — naprawic 41 ts errors w features/audit, abonament/VsWix/VsOrange,
-      # pages/Ecommerce/GoogleAds/UiUxDesign" — wtedy zdjac continue-on-error.
+      # TypeScript typecheck — non-blocking (baseline pre-existing errorow w legacy).
       - name: 🔷 TypeScript Typecheck (non-blocking)
         run: npx tsc --noEmit -p tsconfig.json
         continue-on-error: true
 
       - name: 🧪 Unit Tests
         run: npm run test -- --run
-
-  # ============================================================
-  # JOB 2: BUILD & PRERENDER — wymaga quality OK
-  # PHP lint job usuniety w maju 2026 — po migracji do CF Workers
-  # nie ma juz plikow .php w produkcji.
-  # ============================================================
-  build:
-    name: 🏗️ Build & Prerender
-    runs-on: ubuntu-latest
-    needs: [quality]
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: ⚙️ Configure NPM
-        run: echo "legacy-peer-deps=true" > .npmrc
-
-      - name: 📦 Cache node_modules + puppeteer
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache/puppeteer
-          key: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: deps-${{ runner.os }}-node${{ env.NODE_VERSION }}-
-
-      - name: 📦 Install Dependencies (fallback)
-        run: npm ci --prefer-offline --no-audit
 
       - name: 🖼️ Cache converted images
         uses: actions/cache@v4
@@ -136,60 +99,31 @@ jobs:
           VITE_MM_HUB_URL: ${{ vars.VITE_MM_HUB_URL || 'https://api.mixturemarketing.pl' }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
-          PRERENDER_CONCURRENCY: '4'
+          # Podbite z 4 -> 8: prerender jest I/O-bound (czeka na hydracje/siec),
+          # wiec wiecej rownoleglych stron nakłada sie na czasy oczekiwania.
+          # Jesli runner zacznie OOM-owac (16GB, ~500MB/strona) — zejsc do 6.
+          PRERENDER_CONCURRENCY: '8'
         run: npm run build
 
       - name: 🩺 Health Audit (non-blocking)
         run: npm run audit:health
         continue-on-error: true
 
-      - name: 📊 Upload Build Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-package
-          path: dist/
-          retention-days: 7
-
-  # ============================================================
-  # JOB 3: DEPLOY — tylko main, tylko jezeli build OK
-  # cloudflare/wrangler-action@v3 (oficjalny CF action).
-  # ============================================================
-  deploy:
-    name: 🚀 Deploy to Cloudflare Pages
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    permissions:
-      contents: read
-      deployments: write
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: 📥 Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-package
-          path: dist
-
-      # Sanityzacja commit message — wrangler 3.x/4.x ma bug z UTF-8 w commit msg
-      # gdy zawiera unicode (—, polskie znaki). CF API zwraca code 8000111.
-      # Sklejamy short SHA + bezpieczny prefix zamiast `git log -1`.
+      # --- DEPLOY: tylko push na main ---
+      # Sanityzacja commit message — wrangler ma bug z UTF-8 w commit msg (code 8000111).
       - name: 🧹 Sanitize commit message
         id: commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (main)" >> $GITHUB_OUTPUT
 
       - name: 🚀 Deploy to Cloudflare Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: '4'
-          # Bindingi D1/KV/R2 sa skonfigurowane na projekcie Pages (dashboard),
-          # wiec wrangler.toml nie jest potrzebny do deployu. Pozycyjny `dist` = stan
-          # znany-dobry (dzialal od miesiecy).
+          # Bindingi D1/KV/R2 skonfigurowane na projekcie Pages (dashboard).
           command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
