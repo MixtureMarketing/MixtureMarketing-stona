@@ -84,11 +84,9 @@ jobs:
       - name: 🧪 Unit Tests
         run: npm run test -- --run
 
-      - name: 🖼️ Cache converted images
-        uses: actions/cache@v4
-        with:
-          path: public/assets/images/converted
-          key: images-${{ hashFiles('public/assets/images/**', 'scripts/convert-images.js') }}
+      # (Usunieto krok "Cache converted images" — cache'owal nieistniejacy katalog
+      #  public/assets/images/converted. webp/avif sa commitowane, a convert-images.js
+      #  pomija je po hashu tresci -> konwersja w CI jest natychmiastowa.)
 
       - name: 🏗️ Build, Sitemap, Prerender, Size-check
         env:

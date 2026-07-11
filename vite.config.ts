@@ -2,9 +2,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import viteCompression from 'vite-plugin-compression';
 import svgo from 'vite-plugin-svgo';
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(({ mode }) => {
@@ -38,43 +36,20 @@ export default defineConfig(({ mode }) => {
           'cleanupIds',
         ],
       }),
-      // Image optimization (compression)
-      ViteImageOptimizer({
-        test: /\.(jpe?g|png|gif|tiff|svg)$/i, // Exclude webp/avif from re-optimization (handled by script)
-        includePublic: true,
-        logStats: true,
-        ansiColors: true,
-        png: {
-          quality: 80,
-        },
-        jpeg: {
-          quality: 80,
-        },
-        jpg: {
-          quality: 80,
-        },
-        svg: {
-          multipass: true,
-        },
-        // Cache settings
-        cache: true,
-        cacheLocation: 'node_modules/.cache/.vite-plugin-image-optimizer',
-      }),
-      // Gzip compression
-      viteCompression({
-        algorithm: 'gzip',
-        ext: '.gz',
-      }),
-      // Brotli compression (better for modern browsers)
-      viteCompression({
-        algorithm: 'brotliCompress',
-        ext: '.br',
-      }),
-      visualizer({
-        filename: 'stats.html',
-        gzipSize: true,
-        brotliSize: true,
-      }),
+      // Obrazy: optymalizowane offline (scripts/convert-images.js -> webp/avif
+      // commitowane) — usunieto ViteImageOptimizer (redundantny 2. przebieg).
+      // Kompresja gzip/brotli usunieta: Cloudflare Pages kompresuje na krawedzi,
+      // wiec pliki .gz/.br to martwy balast wydluzajacy build (brotli max jest wolny)
+      // i powiekszajacy artefakt. Raport bundla (visualizer) tylko za flaga ANALYZE.
+      ...(env.ANALYZE === 'true'
+        ? [
+            visualizer({
+              filename: 'stats.html',
+              gzipSize: true,
+              brotliSize: true,
+            }),
+          ]
+        : []),
     ],
     build: {
       emptyOutDir: true,
