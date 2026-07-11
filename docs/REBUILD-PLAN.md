@@ -205,20 +205,28 @@ mają realne źródło danych, czy to były zapytania do MySQL; format tokenów 
 
 ---
 
-### ⏳ Faza 3 — Silnik audytu `/audyt-360`  (poziom planu — pogłębić przy starcie)
+### ✅ Faza 3 — Silnik audytu `/audyt-360`  (KOD gotowy 2026-07-11; wymaga sekretu przed live)
 
-**Największa niewiadoma.** `wrangler.toml` ma `Hyperdrive AUDIT_DB → legacy MySQL` — audyt
-mógł zależeć od zewnętrznej bazy/serwera, który może być martwy (jak LH.pl).
+**Zrealizowano (zakres PEŁNY):**
+- `functions/api/audit/run_audit.ts` — port + rozbudowa: HTMLRewriter scrape + PageSpeed
+  Insights + Google Places, cache KV 24h (klucz `v7_`). Realne dane dla WSZYSTKICH modułów UI:
+  social (`{og_tags + linki}`, naprawiony bug klucza `social` vs `og_tags`), lokalne SEO
+  (`seo.local` — miasto z Places `addressComponents`, fallback do listy miast PL w treści),
+  `metrics.opportunities` (top 5 z PSI), `content.details.{headings[], images_missing_alt[]}`,
+  `tech.cms` (meta generator + wzorce src), reputacja (Places `searchText` po nazwie firmy).
+- `functions/api/audit/capture-lead.ts` — NOWY, lead `source='audit'` → D1 + notify Resend.
+- Frontend: `services/auditService.ts` (`.php`→bez sufiksu, `runAudit(url,companyName,force)`,
+  dodane `captureLead`, **usunięte** martwe `getAuditResult`/deep-link po `auditId`),
+  `AuditWizard.tsx` (usunięty branch `auditId`, przekazuje `companyName`, `captureLead` na
+  bramce e-mail).
 
-**Wstępny zakres:**
-- Port `audit/run_audit.ts` + `get_result.ts`; cache w KV (`CACHE`).
-- Źródło danych PSI: PageSpeed Insights API (wymaga `PSI_API_KEY` Google; limity — cache
-  w KV konieczny). Zweryfikować, czego używała wersja migracyjna (PSI? własny scraper?
-  Hyperdrive?).
-- PDF audytu: `jspdf` (już w zależnościach) — generacja klient- lub serwer-side.
+**Decyzje:** `get_result.ts` ODRZUCONY (martwy stub MySQL/Hyperdrive — `run_audit` nie wydaje
+`auditId`, cache po URL; deep-link `?url=` już pokrywa "shareable audit"). Hyperdrive NIE
+potrzebny. Konkurencja pominięta (brak UI inputu — moduł pokazuje placeholder).
 
-**Do rozstrzygnięcia przy starcie fazy:** czy trzymamy Hyperdrive/MySQL, czy przenosimy
-wyniki audytu do D1; koszt/limit PSI; czy audyt zapisuje leada (`source='audit'`).
+**WYMAGA PRZED LIVE:** sekret `GOOGLE_BACKEND_KEY` w ustawieniach CF Pages (Google Cloud key
+z włączonymi **PageSpeed Insights API + Places API**). Bez niego audyt zwróci 500/puste dane.
+Limit PSI ~25k/dzień per klucz — na lead-magnet wystarcza (cache KV dodatkowo chroni).
 
 ---
 

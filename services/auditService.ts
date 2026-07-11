@@ -1,5 +1,6 @@
 // services/auditService.ts
-const API_URL = '/api/audit/run_audit.php';
+const API_URL = '/api/audit/run_audit';
+const CAPTURE_URL = '/api/audit/capture-lead';
 
 export interface AuditResult {
   client: {
@@ -78,14 +79,13 @@ export interface AuditResult {
 export const auditService = {
   async runAudit(
     url: string,
-    competitorUrl?: string,
-    placeId?: string,
-    force: boolean = false,
+    companyName: string = '',
+    force: boolean = true,
   ): Promise<AuditResult> {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, competitorUrl, placeId, force }),
+      body: JSON.stringify({ url, companyName, force }),
     });
 
     if (!response.ok) {
@@ -96,17 +96,22 @@ export const auditService = {
     return json.data;
   },
 
-  async getAuditResult(
-    auditId: string | number,
-  ): Promise<{ data: AuditResult; meta: Record<string, unknown> }> {
-    const response = await fetch(`/api/audit/get_audit_result.php?auditId=${auditId}`);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Failed to fetch audit result');
+  // Zapis leada po przejsciu bramki e-mail (source='audit'). Best-effort — nie blokuje UI.
+  async captureLead(payload: {
+    email: string;
+    url: string;
+    companyName?: string;
+    score?: number;
+    details?: Record<string, unknown>;
+  }): Promise<void> {
+    try {
+      await fetch(CAPTURE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      /* nie przerywamy flow raportu, jesli zapis leada sie nie uda */
     }
-
-    const json = await response.json();
-    return { data: json.data, meta: json.meta };
   },
 };

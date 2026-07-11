@@ -15,7 +15,7 @@ type Step = 'INPUT' | 'SCANNING' | 'EMAIL_GATE' | 'RESULT';
 const AuditWizard: React.FC = () => {
   const [step, setStep] = useState<Step>(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('url') || params.get('auditId') ? 'SCANNING' : 'INPUT';
+    return params.get('url') ? 'SCANNING' : 'INPUT';
   });
   const [companyName, setCompanyName] = useState('');
   const [url, setUrl] = useState(() => {
@@ -23,30 +23,15 @@ const AuditWizard: React.FC = () => {
     const deepLinkUrl = params.get('url');
     return deepLinkUrl ? decodeURIComponent(deepLinkUrl) : '';
   });
-  const [competitorUrl] = useState('');
   const [email, setEmail] = useState('');
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const fetchExistingAudit = React.useCallback(async (id: string) => {
-    setError(null);
-    try {
-      const response = await auditService.getAuditResult(id);
-      setResult(response.data);
-      if (response.meta?.email) setEmail(response.meta.email as string);
-      setStep('RESULT');
-    } catch (err) {
-      console.error(err);
-      setError('Nie udało się pobrać wyników audytu.');
-      setStep('INPUT');
-    }
-  }, []);
 
   const startScanning = React.useCallback(
     async (targetUrl: string) => {
       setError(null);
       try {
-        const data = await auditService.runAudit(targetUrl, competitorUrl, '', true);
+        const data = await auditService.runAudit(targetUrl, companyName, true);
         setResult(data);
       } catch (err) {
         console.error(err);
@@ -54,20 +39,19 @@ const AuditWizard: React.FC = () => {
         setStep('INPUT');
       }
     },
-    [competitorUrl],
+    [companyName],
   );
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const auditIdParam = params.get('auditId');
     const deepLinkUrl = params.get('url');
-
-    if (auditIdParam) {
-      setTimeout(() => fetchExistingAudit(auditIdParam), 0);
-    } else if (deepLinkUrl) {
+    if (deepLinkUrl) {
       setTimeout(() => startScanning(decodeURIComponent(deepLinkUrl)), 0);
     }
-  }, [fetchExistingAudit, startScanning]);
+    // Uruchamiamy tylko raz na wejsciu z deep-linka (?url=); startScanning zalezy od companyName
+    // (pustego przy deep-linku), wiec swiadomie pomijamy je w zaleznosciach.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +63,15 @@ const AuditWizard: React.FC = () => {
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    // Zapis leada (source='audit') — best-effort, nie blokuje pokazania raportu.
+    if (result) {
+      void auditService.captureLead({
+        email,
+        url: result.client.url || url,
+        companyName: companyName || undefined,
+        score: result.client.total_score,
+      });
+    }
     setStep('RESULT');
   };
 
