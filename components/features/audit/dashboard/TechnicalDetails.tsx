@@ -9,20 +9,20 @@ interface TechnicalDetailsProps {
 }
 
 const TechnicalDetails: React.FC<TechnicalDetailsProps> = ({ client }) => {
+  const details = client.content.details;
+  const opportunities = client.metrics.opportunities;
+
   return (
-    <LazyHydrate minHeight="400px">
-      <div className="space-y-4 mt-8">
-        <h3 className="text-lg font-black text-dark uppercase tracking-tight flex items-center gap-2">
-          <FileCode className="text-gray-500" /> Szczegóły Techniczne (Raport V2)
+    <LazyHydrate minHeight="200px">
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-[0.04em] text-gray-400 flex items-center gap-2">
+          <FileCode size={14} className="text-gray-400" /> Szczegóły techniczne
         </h3>
 
-        {/* 1. Struktura Nagłówków */}
-        {client.content.details?.headings && client.content.details.headings.length > 0 && (
-          <Accordion
-            title={`Struktura Treści (${client.content.details.headings.length} nagłówków)`}
-          >
-            <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar text-sm font-mono bg-gray-50 p-4 rounded-xl">
-              {client.content.details.headings.map((h, i: number) => (
+        {details?.headings && details.headings.length > 0 && (
+          <Accordion title={`Struktura treści · ${details.headings.length} nagłówków`}>
+            <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar text-[13px] font-mono bg-[#f8f9fb] p-4 rounded-xl border border-gray-100">
+              {details.headings.map((h, i: number) => (
                 <div
                   key={i}
                   className={`flex gap-2 ${h.tag === 'h1' ? 'font-bold text-dark' : 'text-gray-600'}`}
@@ -37,47 +37,45 @@ const TechnicalDetails: React.FC<TechnicalDetailsProps> = ({ client }) => {
           </Accordion>
         )}
 
-        {/* 2. Brakujące ALT */}
-        {client.content.details?.images_missing_alt &&
-          client.content.details.images_missing_alt.length > 0 && (
-            <Accordion
-              title={`Obrazy bez opisu ALT (${client.content.details.images_missing_alt.length} przykładów)`}
-            >
-              <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar text-sm bg-gray-50 p-4 rounded-xl">
-                <p className="text-xs text-gray-500 mb-2 italic">
-                  Oto lista plików graficznych, które nie są widoczne dla Google (brak atrybutu
-                  alt):
-                </p>
-                {client.content.details.images_missing_alt.map((src: string, i: number) => (
-                  <div
-                    key={i}
-                    className="flex gap-2 items-center text-red-500 bg-white border border-red-100 p-2 rounded shadow-sm"
-                  >
-                    <ImageIcon size={14} className="shrink-0" />
-                    <span className="truncate font-mono text-xs" title={src}>
-                      {src}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Accordion>
-          )}
+        {details?.images_missing_alt && details.images_missing_alt.length > 0 && (
+          <Accordion
+            title={`Obrazy bez opisu ALT · ${details.images_missing_alt.length} przykładów`}
+          >
+            <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar bg-[#f8f9fb] p-4 rounded-xl border border-gray-100">
+              <p className="text-xs text-gray-500 mb-2">
+                Pliki graficzne niewidoczne dla Google (brak atrybutu alt):
+              </p>
+              {details.images_missing_alt.map((src: string, i: number) => (
+                <div
+                  key={i}
+                  className="flex gap-2 items-center text-[#be123c] bg-white border border-[#fecdd3] px-2.5 py-1.5 rounded-lg"
+                >
+                  <ImageIcon size={13} className="shrink-0" />
+                  <span className="truncate font-mono text-xs" title={src}>
+                    {src}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Accordion>
+        )}
 
-        {/* 3. Lighthouse Opportunities */}
-        {client.metrics.opportunities && client.metrics.opportunities.length > 0 && (
-          <Accordion title={`Top 5 Możliwości Przyspieszenia`}>
-            <div className="space-y-3 bg-gray-50 p-4 rounded-xl">
-              {client.metrics.opportunities.map((op) => (
+        {opportunities && opportunities.length > 0 && (
+          <Accordion title="Top 5 możliwości przyspieszenia">
+            <div className="space-y-2 bg-[#f8f9fb] p-4 rounded-xl border border-gray-100">
+              {opportunities.map((op) => (
                 <div
                   key={op.id}
-                  className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200 shadow-sm"
+                  className="flex justify-between items-center gap-3 px-3 py-2.5 bg-white rounded-lg border border-gray-100"
                 >
-                  <div className="flex items-center gap-2">
-                    <Gauge size={16} className="text-yellow-600" />
-                    <span className="font-bold text-gray-700 text-sm">{op.title}</span>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Gauge size={15} className="text-[#b45309] shrink-0" />
+                    <span className="font-semibold text-gray-700 text-[13px] truncate">
+                      {op.title}
+                    </span>
                   </div>
-                  <span className="text-xs font-bold text-yellow-700 bg-yellow-50 px-2 py-1 rounded-full whitespace-nowrap">
-                    Oszczędź {Math.round(op.savings)}ms
+                  <span className="text-xs font-bold text-[#b45309] bg-[#fff7ed] px-2 py-1 rounded-md whitespace-nowrap tabular-nums">
+                    −{Math.round(op.savings)} ms
                   </span>
                 </div>
               ))}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star } from 'lucide-react';
+import { cardCls, IconTile } from '../ui';
 
 interface ReputationModuleProps {
   rating: number;
@@ -7,32 +8,37 @@ interface ReputationModuleProps {
 }
 
 const ReputationModule: React.FC<ReputationModuleProps> = ({ rating, reviewsCount }) => {
+  const full = Math.round(rating);
   return (
-    <div className="group p-8 bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-amber-100 transition-colors"></div>
-      <div className="relative z-10">
-        <div className="flex justify-between items-start mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
-            <Star size={24} />
+    <div className={`${cardCls} h-full p-5`}>
+      <div className="flex items-start justify-between mb-3.5">
+        <IconTile tone="amber">
+          <Star size={20} />
+        </IconTile>
+        <div className="text-right">
+          <div className="text-lg font-extrabold text-dark leading-none tabular-nums">
+            {rating > 0 ? rating.toFixed(1).replace('.', ',') : '0,0'}
           </div>
-          <div className="flex flex-col items-end">
-            <span className="text-lg font-black text-dark leading-none">
-              {rating > 0 ? rating : '0.0'}
-            </span>
-            <span className="text-xxs text-gray-400 font-bold uppercase tracking-widest mt-1">
-              Ocena Google
-            </span>
+          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.06em] mt-1">
+            Ocena Google
           </div>
         </div>
-        <h4 className="text-xl font-black text-dark mb-3">Reputacja</h4>
-        <p className="text-sm text-gray-500 leading-relaxed font-medium">
-          {reviewsCount < 5
-            ? 'Brak dowodu społecznego. Klienci boją się zaufać firmie bez opinii.'
-            : reviewsCount < 20
-              ? 'Solidna podstawa, ale brakuje Ci skali, aby zostać niekwestionowanym liderem rynku.'
-              : 'Lider Zaufania. Masz potężną przewagę, którą należy przekuć w większą sprzedaż.'}
-        </p>
       </div>
+      <h4 className="text-[15px] font-bold text-dark mb-1.5">Reputacja</h4>
+      <div className="flex items-center gap-2 mb-2">
+        <span className="text-amber-500 text-sm tracking-[1px]" aria-hidden>
+          {'★'.repeat(full)}
+          <span className="text-gray-200">{'★'.repeat(5 - full)}</span>
+        </span>
+        <span className="text-[12px] text-gray-400 tabular-nums">{reviewsCount} opinii</span>
+      </div>
+      <p className="text-[12.5px] text-gray-500 leading-relaxed">
+        {reviewsCount < 5
+          ? 'Brak dowodu społecznego. Klienci boją się zaufać firmie bez opinii.'
+          : reviewsCount < 20
+            ? 'Solidna podstawa, ale brakuje skali, by zostać liderem rynku.'
+            : 'Lider zaufania. Masz przewagę, którą warto przekuć w sprzedaż.'}
+      </p>
     </div>
   );
 };

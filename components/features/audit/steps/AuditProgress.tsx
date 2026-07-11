@@ -19,11 +19,11 @@ const STEPS = [
 
 const TIPS = [
   'Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?',
-  "Google używa 'Mobile-First Indexing' – Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.",
-  'Brak certyfikatu SSL może obniżyć Twoją konwersję o nawet 40% z powodu ostrzeżeń przeglądarki.',
+  'Google używa „Mobile-First Indexing” — Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.',
+  'Brak certyfikatu SSL może obniżyć konwersję nawet o 40% z powodu ostrzeżeń przeglądarki.',
   'Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.',
-  'Piksel Facebooka pozwala na remarketing, czyli docieranie do osób, które już były na Twojej stronie.',
-  'Dobre UX to nie tylko wygląd, to przede wszystkim łatwość realizacji celu przez klienta.',
+  'Piksel Facebooka pozwala na remarketing — docieranie do osób, które już były na Twojej stronie.',
+  'Dobre UX to nie wygląd, lecz łatwość realizacji celu przez klienta.',
 ];
 
 const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, isDataReady }) => {
@@ -44,14 +44,8 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
 
     const timer = setInterval(() => {
       setProgress((prev) => {
-        // Jeśli dane nie są gotowe, zatrzymaj się na 90%
-        if (prev >= 90 && !isDataReady) {
-          return 90;
-        }
-        // Jeśli dane są gotowe i jesteśmy blisko końca, przyspiesz
-        if (isDataReady && prev >= 90) {
-          return Math.min(prev + 2, 100);
-        }
+        if (prev >= 90 && !isDataReady) return 90;
+        if (isDataReady && prev >= 90) return Math.min(prev + 2, 100);
         return Math.min(prev + increment, 90);
       });
     }, intervalTime);
@@ -59,7 +53,6 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
     return () => clearInterval(timer);
   }, [isDataReady]);
 
-  // Handle completion
   useEffect(() => {
     if (progress >= 100) {
       const timeout = setTimeout(onComplete, 500);
@@ -73,35 +66,35 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.05 }}
-      className="bg-white rounded-[3rem] shadow-2xl p-8 md:p-16 max-w-4xl mx-auto text-center border border-gray-100 relative overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="bg-white rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_24px_60px_-30px_rgba(16,24,40,0.18)] p-8 md:p-14 max-w-4xl mx-auto text-center border border-gray-200 relative overflow-hidden"
     >
-      <div className="absolute top-0 left-0 w-full h-2 bg-gray-50">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gray-100">
         <motion.div
-          className="h-full bg-gradient-to-r from-secondary to-[#00C853]"
+          className="h-full bg-success"
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.3 }}
         />
       </div>
 
-      <div className="mb-12 relative w-48 h-48 mx-auto flex items-center justify-center">
-        <div className="absolute inset-0 bg-success/5 rounded-full animate-ping"></div>
-        <svg className="w-full h-full transform -rotate-90 relative z-10">
-          <circle cx="96" cy="96" r="90" fill="none" stroke="#F3F4F6" strokeWidth="10" />
+      <div className="mb-10 relative w-44 h-44 mx-auto flex items-center justify-center">
+        <svg className="w-full h-full -rotate-90 relative z-10" viewBox="0 0 192 192">
+          <circle cx="96" cy="96" r="88" fill="none" stroke="#eef0f3" strokeWidth="10" />
           <circle
             cx="96"
             cy="96"
-            r="90"
+            r="88"
             fill="none"
             stroke="url(#progressGradient)"
             strokeWidth="10"
-            strokeDasharray={565}
-            strokeDashoffset={565 - (565 * progress) / 100}
+            strokeDasharray={553}
+            strokeDashoffset={553 - (553 * progress) / 100}
             strokeLinecap="round"
-            className="transition-all duration-300 ease-linear shadow-lg"
+            className="transition-all duration-300 ease-linear"
           />
           <defs>
             <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -111,97 +104,83 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
           </defs>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col z-10">
-          <span className="text-dark font-black text-5xl tracking-tighter">
+          <span className="text-dark font-extrabold text-5xl tracking-tight tabular-nums">
             {Math.round(progress)}
             <span className="text-2xl text-gray-300">%</span>
           </span>
-          <span className="text-xxs font-bold text-gray-400 uppercase tracking-widest mt-1">
-            Status Analizy
+          <span className="text-[10.5px] font-bold text-gray-400 uppercase tracking-[0.1em] mt-1">
+            Status analizy
           </span>
         </div>
       </div>
 
-      <div className="mb-12">
-        <h2 className="text-3xl font-black text-dark mb-3">
-          Magia dzieje się <span className="text-secondary">teraz...</span>
-        </h2>
-        <p className="text-gray-500 font-medium">
-          Analizujemy każdy bajt na:{' '}
-          <span className="text-success underline decoration-dotted underline-offset-4">
-            {targetUrl}
-          </span>
+      <div className="mb-10">
+        <h2 className="text-2xl font-bold text-dark mb-2 tracking-tight">Analiza w toku…</h2>
+        <p className="text-gray-500">
+          Skanujemy każdy element strony:{' '}
+          <span className="text-secondary font-semibold">{targetUrl}</span>
         </p>
       </div>
 
-      {/* Dynamic Tip Section */}
-      <div className="bg-blue-50/50 rounded-2xl p-6 mb-12 border border-blue-100/50 min-h-[100px] flex flex-col justify-center transition-all">
+      <div className="bg-[#f8f9fb] rounded-xl p-5 mb-10 border border-gray-100 min-h-[92px] flex items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={tipIndex}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="text-sm md:text-base text-dark font-bold leading-relaxed italic"
+            exit={{ opacity: 0, y: -8 }}
+            className="text-[14px] text-gray-600 leading-relaxed max-w-lg"
           >
-            " {TIPS[tipIndex]} "
+            {TIPS[tipIndex]}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-        {/* Terminal logs effect */}
-        <div className="bg-gray-900 rounded-2xl p-6 text-left font-mono text-xxs h-48 overflow-hidden relative shadow-inner">
-          <div className="flex gap-2 mb-4 border-b border-white/10 pb-2">
-            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-            <span className="ml-2 text-gray-500 text-xxxs uppercase font-bold tracking-widest">
-              Live Engine Console
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch text-left">
+        <div className="bg-[#0f1622] rounded-xl p-5 font-mono text-[11px] h-48 overflow-hidden relative">
+          <div className="flex gap-1.5 mb-3.5 border-b border-white/10 pb-2.5">
+            <span className="w-2 h-2 rounded-full bg-[#ff5f56]" />
+            <span className="w-2 h-2 rounded-full bg-[#ffbd2e]" />
+            <span className="w-2 h-2 rounded-full bg-[#27c93f]" />
+            <span className="ml-2 text-gray-500 text-[10px] uppercase font-semibold tracking-[0.1em]">
+              Mixture Engine
             </span>
           </div>
-          <div className="space-y-1.5 text-green-400/80">
+          <div className="space-y-1.5 text-[#4ade80]/85">
             {STEPS.slice(0, currentStepIndex + 1).map((s, i) => (
-              <div key={i} className="flex gap-3">
-                <span className="text-gray-600 shrink-0">[{new Date().toLocaleTimeString()}]</span>
+              <div key={i} className="flex gap-2">
+                <span className="text-blue-400 shrink-0">$</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="text-blue-400">root@mixture:~$</span>
                   {s.label}
-                  <CheckCircle2 size={10} className="text-green-500" />
+                  <CheckCircle2 size={10} className="text-[#27c93f]" />
                 </span>
               </div>
             ))}
-            <div className="flex gap-3 animate-pulse">
-              <span className="text-gray-600 shrink-0">[{new Date().toLocaleTimeString()}]</span>
-              <span className="flex items-center gap-1.5">
-                <span className="text-blue-400">root@mixture:~$</span>
-                <span className="w-2 h-4 bg-green-500/50"></span>
-              </span>
+            <div className="flex gap-2">
+              <span className="text-blue-400 shrink-0">$</span>
+              <span className="w-1.5 h-3.5 bg-[#27c93f]/60 animate-pulse" />
             </div>
           </div>
-          <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-gray-900 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-[#0f1622] to-transparent" />
         </div>
 
-        <div className="space-y-4 text-left">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"></div>
-            Aktualnie przetwarzane:
+        <div className="flex flex-col gap-3">
+          <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-[0.08em] flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-success" /> Aktualnie przetwarzane
           </h4>
-          <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 flex items-center gap-6 group">
-            <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-secondary shadow-sm group-hover:scale-110 transition-transform duration-500">
-              <CurrentIcon size={32} className="animate-bounce" />
+          <div className="bg-white rounded-xl p-5 border border-gray-200 flex items-center gap-4 flex-1">
+            <div className="w-14 h-14 rounded-xl bg-[#eeeefb] grid place-items-center text-secondary shrink-0">
+              <CurrentIcon size={26} />
             </div>
             <div>
-              <div className="text-lg font-black text-dark mb-1 leading-tight">
+              <div className="text-[15px] font-semibold text-dark mb-0.5 leading-tight">
                 {STEPS[currentStepIndex].label.split('...')[0]}
               </div>
-              <div className="text-xs text-success font-bold uppercase tracking-wider">
-                Analiza w toku...
-              </div>
+              <div className="text-[12px] text-success font-semibold">Analiza w toku…</div>
             </div>
           </div>
-          <p className="text-xxs text-gray-400 italic">
-            * Używamy zaawansowanego silnika Mixture Engine™ opartego o Google Lighthouse 11.0 i
-            Puppeteer.
+          <p className="text-[11px] text-gray-400">
+            Silnik oparty o Google Lighthouse i Puppeteer.
           </p>
         </div>
       </div>

@@ -1,98 +1,120 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
+import { EASE, useCountUp } from './ui';
 
 interface AuditScoreSidebarProps {
   score: number;
-  screenshot?: string;
+  screenshot?: string | null;
 }
 
+const tone = (s: number) =>
+  s >= 80
+    ? {
+        stroke: '#00c853',
+        ink: 'text-success',
+        tag: 'bg-[#e7f8ee] text-[#027a34] border-[#bfead0]',
+      }
+    : s >= 50
+      ? {
+          stroke: '#f4b400',
+          ink: 'text-[#b45309]',
+          tag: 'bg-[#fff5e6] text-[#b45309] border-[#fde4c4]',
+        }
+      : {
+          stroke: '#e11d48',
+          ink: 'text-[#be123c]',
+          tag: 'bg-[#fff1f2] text-[#be123c] border-[#fecdd3]',
+        };
+
+const label = (s: number) =>
+  s >= 80
+    ? { tag: 'Stan wzorowy', desc: 'Świetna robota — Twoja strona pracuje na wynik.' }
+    : s >= 50
+      ? {
+          tag: 'Stan ostrzegawczy',
+          desc: 'Solidna baza, ale tracisz potencjał. Kilka poprawek dzieli Cię od czołówki.',
+        }
+      : {
+          tag: 'Stan krytyczny',
+          desc: 'Wymaga natychmiastowej naprawy — tracisz klientów każdego dnia.',
+        };
+
+const R = 86;
+const CIRC = 2 * Math.PI * R;
+
 const AuditScoreSidebar: React.FC<AuditScoreSidebarProps> = ({ score, screenshot }) => {
-  const getScoreLabel = (s: number) => {
-    if (s >= 80) return 'Stan Wzorowy - Świetna robota!';
-    if (s >= 50) return 'Stan Ostrzegawczy - Tracisz potencjał.';
-    return 'Stan Krytyczny - Wymaga natychmiastowej naprawy.';
-  };
+  const reduce = useReducedMotion();
+  const value = useCountUp(score);
+  const t = tone(score);
+  const l = label(score);
+  const offset = CIRC * (1 - score / 100);
 
   return (
-    <div className="lg:col-span-3 bg-[#F9FAFB] p-8 border-r border-gray-100 flex flex-col items-center text-center lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto custom-scrollbar">
-      <div className="lg:min-h-min flex flex-col items-center justify-center h-full">
-        <h3 className="text-gray-500 font-bold uppercase tracking-widest text-xxs mb-8">
-          Indeks Zdrowia Witryny
+    <div className="lg:col-span-3 bg-[#fbfcfd] p-8 border-r border-gray-200 flex flex-col items-center text-center lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto custom-scrollbar">
+      <div className="flex flex-col items-center justify-center h-full">
+        <h3 className="text-xs font-bold uppercase tracking-[0.04em] text-gray-400 mb-6">
+          Indeks zdrowia witryny
         </h3>
 
-        <div className="relative mb-10 group">
-          <div
-            className={`absolute inset-0 blur-3xl opacity-20 transition-all duration-1000 group-hover:opacity-40 ${
-              score >= 80 ? 'bg-green-500' : score >= 50 ? 'bg-orange-500' : 'bg-red-500'
-            }`}
-          ></div>
-
-          <div
-            className={`relative w-56 h-56 rounded-full flex items-center justify-center shadow-2xl transition-all duration-700 transform group-hover:scale-105 ${
-              score >= 80
-                ? 'bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600 shadow-green-200'
-                : score >= 50
-                  ? 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 shadow-orange-200'
-                  : 'bg-gradient-to-br from-red-500 via-pink-600 to-rose-700 shadow-red-200'
-            }`}
-          >
-            <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center flex-col shadow-inner">
-              <motion.span
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.5, type: 'spring', stiffness: 100 }}
-                className={`text-7xl font-black tracking-tighter leading-none ${
-                  score >= 80
-                    ? 'text-emerald-600'
-                    : score >= 50
-                      ? 'text-orange-500'
-                      : 'text-red-600'
-                }`}
-              >
-                {score}
-              </motion.span>
-              <span className="text-xs text-gray-400 font-black uppercase mt-1 tracking-widest">
-                PKT / 100
-              </span>
-            </div>
+        <div className="relative w-[196px] h-[196px] mb-2">
+          <svg width="196" height="196" viewBox="0 0 196 196" className="-rotate-90">
+            <circle cx="98" cy="98" r={R} fill="none" stroke="#eef0f3" strokeWidth="12" />
+            <motion.circle
+              cx="98"
+              cy="98"
+              r={R}
+              fill="none"
+              stroke={t.stroke}
+              strokeWidth="12"
+              strokeLinecap="round"
+              strokeDasharray={CIRC}
+              initial={reduce ? false : { strokeDashoffset: CIRC }}
+              animate={{ strokeDashoffset: offset }}
+              transition={{ duration: 1.1, ease: EASE, delay: 0.1 }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[62px] font-extrabold text-dark leading-none tabular-nums tracking-tight">
+              {value}
+              <span className="text-[22px] text-gray-300 font-bold">/100</span>
+            </span>
+            <span className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-gray-400 mt-1">
+              punktów
+            </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8 w-full max-w-[280px]">
-          <p className="font-bold text-dark text-lg mb-2 leading-tight">{getScoreLabel(score)}</p>
-          <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${score}%` }}
-              className={`h-full ${score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
-            />
-          </div>
+        <div className="w-full max-w-[250px] mt-3">
+          <span
+            className={`inline-flex items-center gap-2 text-[12.5px] font-semibold px-3 py-1.5 rounded-lg border ${t.tag}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${t.ink} bg-current`} /> {l.tag}
+          </span>
+          <p className="text-[13px] text-gray-500 mt-3 leading-relaxed">{l.desc}</p>
         </div>
 
         {screenshot ? (
-          <div className="relative w-[240px] h-[480px] bg-gray-900 rounded-[3rem] border-[10px] border-gray-900 shadow-2xl overflow-hidden group transform hover:-rotate-2 transition-all duration-700">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-2xl z-20"></div>
+          <div className="mt-8 w-[178px] h-[356px] rounded-[22px] bg-[#0f1622] p-[7px] shadow-[0_10px_30px_-12px_rgba(16,24,40,0.35)] relative">
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-[5px] rounded-[3px] bg-[#2a3444] z-10" />
             <img
               src={screenshot}
-              alt="Mobile Screenshot"
-              className="w-full h-full object-cover opacity-95 transition-all duration-700 group-hover:scale-110 bg-white"
+              alt="Podgląd mobilny audytowanej strony"
+              className="w-full h-full rounded-[16px] object-cover object-top bg-white"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 via-transparent to-transparent pointer-events-none z-10"></div>
           </div>
         ) : (
-          <div className="w-[220px] h-[440px] bg-gray-100 rounded-[3rem] flex items-center justify-center border-8 border-gray-200">
+          <div className="mt-8 w-[178px] h-[356px] rounded-[22px] bg-gray-100 border border-gray-200 grid place-items-center">
             <div className="text-center p-6">
-              <RefreshCw className="animate-spin mx-auto text-gray-400 mb-4" size={32} />
-              <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">
-                Renderowanie...
+              <RefreshCw className="animate-spin mx-auto text-gray-400 mb-3" size={28} />
+              <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-[0.1em]">
+                Renderowanie…
               </span>
             </div>
           </div>
         )}
-        <p className="mt-8 text-xxs text-gray-400 font-black uppercase tracking-[0.2em] flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live Mobile Preview
+        <p className="mt-4 text-[11px] text-gray-400 font-semibold uppercase tracking-[0.08em] flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-success" /> Podgląd mobilny na żywo
         </p>
       </div>
     </div>

@@ -12,56 +12,38 @@ const PriorityColumn: React.FC<{
   title: string;
   errors: [string, boolean][];
   errorDetails: Record<string, ErrorDetail>;
-  priorityColor: 'red' | 'yellow';
+  tone: 'red' | 'yellow';
   icon: React.ReactNode;
-}> = ({ title, errors, errorDetails, priorityColor, icon }) => {
-  const colorClasses = {
-    red: {
-      bg: 'bg-red-50/50',
-      border: 'border-red-100',
-      text: 'text-red-600',
-      circleBorder: 'border-red-500',
-      dotBg: 'bg-red-500',
-    },
-    yellow: {
-      bg: 'bg-yellow-50/50',
-      border: 'border-yellow-100',
-      text: 'text-yellow-600',
-      circleBorder: 'border-yellow-400',
-      dotBg: 'bg-yellow-400',
-    },
-  };
-
-  const classes = colorClasses[priorityColor];
+}> = ({ title, errors, errorDetails, tone, icon }) => {
+  const c =
+    tone === 'red'
+      ? { head: 'text-[#be123c]', dot: 'border-[#e11d48]', dotIn: 'bg-[#e11d48]' }
+      : { head: 'text-[#b45309]', dot: 'border-[#f4b400]', dotIn: 'bg-[#f4b400]' };
 
   return (
-    <div className={`${classes.bg} rounded-2xl p-6 border ${classes.border} h-full`}>
+    <div className="bg-[#fbfcfd] rounded-xl p-5 border border-gray-200 h-full">
       <h4
-        className={`text-sm font-bold ${classes.text} uppercase tracking-widest mb-4 flex items-center gap-2`}
+        className={`text-[12.5px] font-bold ${c.head} uppercase tracking-[0.03em] mb-3.5 flex items-center gap-2`}
       >
         {icon} {title}
       </h4>
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {errors.map(([k]) => (
           <div
             key={k}
-            className={`flex items-start gap-3 bg-white p-3 rounded-xl shadow-sm border ${classes.border.replace('100', '50')}`}
+            className="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100"
           >
-            <div className="mt-1 min-w-[20px]">
-              <div
-                className={`w-5 h-5 rounded-full border-2 ${classes.circleBorder} flex items-center justify-center`}
-              >
-                <div className={`w-2.5 h-2.5 ${classes.dotBg} rounded-full`}></div>
-              </div>
-            </div>
-            <div>
-              <span className="text-gray-800 font-bold text-sm block">
+            <span
+              className={`mt-0.5 w-5 h-5 rounded-full border-2 ${c.dot} grid place-items-center shrink-0`}
+            >
+              <span className={`w-2 h-2 ${c.dotIn} rounded-full`} />
+            </span>
+            <span className="min-w-0">
+              <span className="text-dark font-semibold text-[13px] block">
                 {errorDetails[k]?.title}
               </span>
-              <span className="text-gray-500 text-xs font-medium">
-                Działanie: {errorDetails[k]?.cta}
-              </span>
-            </div>
+              <span className="text-gray-500 text-[12px]">Działanie: {errorDetails[k]?.cta}</span>
+            </span>
           </div>
         ))}
       </div>
@@ -78,42 +60,40 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ auditResults, errorDetails }) =
   );
 
   return (
-    <LazyHydrate minHeight="400px">
-      <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-lg mt-8 relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
-        <div className="absolute top-0 left-0 w-2 h-full bg-secondary"></div>
-        <h3 className="text-xl font-black text-dark mb-6 flex items-center gap-2">
-          <ListTodo size={24} className="text-secondary" /> Twój Plan Naprawczy
+    <LazyHydrate minHeight="240px">
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-7 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <h3 className="text-[17px] font-bold text-dark mb-5 flex items-center gap-2.5">
+          <ListTodo size={20} className="text-secondary" /> Twój plan naprawczy
         </h3>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {redErrors.length > 0 && (
             <PriorityColumn
-              title="Priorytet: Krytyczny (Zrób to teraz)"
+              title="Krytyczny — zrób to teraz"
               errors={redErrors}
               errorDetails={errorDetails}
-              priorityColor="red"
-              icon={<AlertCircle size={16} />}
+              tone="red"
+              icon={<AlertCircle size={15} />}
             />
           )}
-
           {yellowErrors.length > 0 && (
             <PriorityColumn
-              title="Priorytet: Wysoki (Zaplanuj w tym tygodniu)"
+              title="Wysoki — zaplanuj w tym tygodniu"
               errors={yellowErrors}
               errorDetails={errorDetails}
-              priorityColor="yellow"
-              icon={<Zap size={16} />}
+              tone="yellow"
+              icon={<Zap size={15} />}
             />
           )}
         </div>
-        <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-          <p className="text-gray-500 text-sm mb-4">Nie masz czasu na samodzielne naprawy?</p>
+        <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+          <p className="text-gray-500 text-[13px] mb-3">Nie masz czasu na samodzielne naprawy?</p>
           <a
             href="/kontakt"
             target="_blank"
-            className="inline-flex items-center gap-2 text-secondary font-bold hover:underline"
+            className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
           >
-            Skorzystaj z pomocy ekspertów Mixture Marketing ➔
+            Skorzystaj z pomocy ekspertów Mixture Marketing →
           </a>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, XCircle, Zap } from 'lucide-react';
+import { AlertTriangle, XCircle, AlertCircle, Zap, ChevronDown } from 'lucide-react';
 import { ErrorDetail } from '../../../../data/auditErrors';
 import Button from '../../../common/Button';
 import LazyHydrate from '../../../common/LazyHydrate';
@@ -9,125 +9,91 @@ interface ErrorListProps {
   errorDetails: Record<string, ErrorDetail>;
 }
 
-const ErrorList: React.FC<ErrorListProps> = ({ auditResults, errorDetails }) => {
-  const [expandedError, setExpandedError] = useState<string | null>(null);
+const TONES = {
+  red: { tile: 'bg-[#fff1f2] text-[#be123c]', Icon: XCircle },
+  yellow: { tile: 'bg-[#fff7ed] text-[#b45309]', Icon: AlertCircle },
+  blue: { tile: 'bg-[#eaf4fb] text-dark', Icon: Zap },
+} as const;
 
-  const toggleError = (key: string) => {
-    setExpandedError(expandedError === key ? null : key);
-  };
+const ErrorList: React.FC<ErrorListProps> = ({ auditResults, errorDetails }) => {
+  const [expanded, setExpanded] = useState<string | null>(null);
 
   const activeErrors = Object.entries(auditResults).filter(
     ([key, active]) => active && errorDetails[key],
   );
 
   return (
-    <LazyHydrate minHeight="400px">
-      <div className="space-y-4">
-        <h3 className="text-lg font-black text-dark uppercase tracking-tight flex items-center gap-2">
-          <AlertCircle className="text-red-500" /> Wykryte błędy ({activeErrors.length})
+    <LazyHydrate minHeight="240px">
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-[0.04em] text-gray-400 flex items-center gap-2">
+          <AlertTriangle size={14} className="text-[#be123c]" /> Wykryte błędy ·{' '}
+          <span className="tabular-nums">{activeErrors.length}</span>
         </h3>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-2.5">
           {activeErrors.map(([key]) => {
             const error = errorDetails[key];
-            const isExpanded = expandedError === key;
-            const priorityColor =
-              error.priority === 'red' ? 'red' : error.priority === 'yellow' ? 'yellow' : 'blue';
-            const PriorityIcon =
-              error.priority === 'red' ? XCircle : error.priority === 'yellow' ? AlertCircle : Zap;
+            const isOpen = expanded === key;
+            const tone = TONES[error.priority as keyof typeof TONES] ?? TONES.blue;
+            const Icon = tone.Icon;
 
             return (
               <div
                 key={key}
-                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
-                  isExpanded
-                    ? 'bg-white shadow-lg border-gray-200'
-                    : `bg-${priorityColor}-50 border-${priorityColor}-100 hover:bg-white hover:shadow-md cursor-pointer`
+                className={`rounded-xl border bg-white transition-all duration-200 ${
+                  isOpen
+                    ? 'border-gray-300 shadow-[0_1px_2px_rgba(16,24,40,0.04)]'
+                    : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <div
-                  className="p-4 flex items-center justify-between cursor-pointer"
-                  onClick={() => toggleError(key)}
+                <button
+                  className="w-full p-4 flex items-center gap-3 text-left"
+                  onClick={() => setExpanded(isOpen ? null : key)}
                 >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`mt-1 p-2 rounded-full ${
-                        error.priority === 'red'
-                          ? 'bg-red-100 text-red-600'
-                          : error.priority === 'yellow'
-                            ? 'bg-yellow-100 text-yellow-600'
-                            : 'bg-blue-100 text-blue-600'
-                      }`}
-                    >
-                      <PriorityIcon size={20} />
-                    </div>
-                    <div>
-                      <div
-                        className={`font-bold text-sm uppercase tracking-tight ${
-                          error.priority === 'red'
-                            ? 'text-red-900'
-                            : error.priority === 'yellow'
-                              ? 'text-yellow-900'
-                              : 'text-blue-900'
-                        }`}
-                      >
-                        {error.title}
-                      </div>
-                      <div className="text-xs font-semibold text-gray-500 mt-0.5">
-                        {error.impact}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                  <span
+                    className={`w-9 h-9 rounded-[9px] grid place-items-center shrink-0 ${tone.tile}`}
                   >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M5 7.5L10 12.5L15 7.5"
-                        stroke="#9CA3AF"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </div>
+                    <Icon size={18} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13.5px] font-bold text-dark truncate">
+                      {error.title}
+                    </span>
+                    <span className="block text-[12px] text-gray-400 truncate">{error.impact}</span>
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-gray-300 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
 
                 <div
-                  className={`px-4 overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}
+                  className={`grid transition-all duration-200 ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
                 >
-                  <div className="pt-2 pl-[52px] pr-4">
-                    <p className="text-sm text-gray-600 leading-relaxed mb-4">{error.desc}</p>
-
-                    {error.dataValue && (
-                      <div className="bg-gray-50 px-3 py-2 rounded-lg inline-block text-xs font-mono text-gray-500 mb-4 border border-gray-100">
-                        🖥️ {error.dataValue}
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap gap-3 justify-start">
-                      <a href={error.offerLink} target="_blank" rel="noopener noreferrer">
-                        <Button variant="primary" size="sm" className="text-xs font-bold">
-                          {error.cta} ➔
-                        </Button>
-                      </a>
-
-                      {error.articleLink && (
-                        <a
-                          href={error.articleLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-4 py-2 text-xs font-bold text-gray-500 hover:text-secondary border border-transparent hover:border-gray-200 rounded-lg transition-all"
-                        >
-                          Dowiedz się więcej 📖
-                        </a>
+                  <div className="overflow-hidden">
+                    <div className="px-4 pb-4 pl-16">
+                      <p className="text-[13px] text-gray-600 leading-relaxed mb-3">{error.desc}</p>
+                      {error.dataValue && (
+                        <div className="bg-[#f8f9fb] px-3 py-1.5 rounded-lg inline-block text-xs font-mono text-gray-500 mb-3 border border-gray-100">
+                          {error.dataValue}
+                        </div>
                       )}
+                      <div className="flex flex-wrap gap-2.5">
+                        <a href={error.offerLink} target="_blank" rel="noopener noreferrer">
+                          <Button variant="primary" size="sm" className="text-xs font-bold">
+                            {error.cta} →
+                          </Button>
+                        </a>
+                        {error.articleLink && (
+                          <a
+                            href={error.articleLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-4 py-2 text-xs font-semibold text-gray-500 hover:text-secondary border border-gray-200 hover:border-gray-300 rounded-lg transition-colors"
+                          >
+                            Dowiedz się więcej
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

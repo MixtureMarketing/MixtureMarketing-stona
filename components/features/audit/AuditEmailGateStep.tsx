@@ -13,35 +13,34 @@ const AuditEmailGateStep: React.FC<AuditEmailGateStepProps> = ({ email, setEmail
   return (
     <motion.div
       key="email-gate"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl p-12 text-center border border-gray-100 relative overflow-hidden"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="max-w-xl mx-auto bg-white rounded-2xl shadow-[0_1px_2px_rgba(16,24,40,0.04),0_24px_60px_-30px_rgba(16,24,40,0.18)] p-10 md:p-12 text-center border border-gray-200"
     >
-      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#00C853] to-emerald-400"></div>
-
-      <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8">
-        <ShieldCheck size={40} className="text-success" />
+      <div className="w-16 h-16 bg-[#e7f8ee] rounded-2xl grid place-items-center mx-auto mb-6">
+        <ShieldCheck size={32} className="text-success" />
       </div>
 
-      <h2 className="text-3xl font-black text-dark mb-4">Analiza zakończona!</h2>
-      <p className="text-gray-600 mb-10 text-lg">
-        Twój raport PDF jest gotowy do pobrania. Podaj e-mail, na który mamy go wysłać.
+      <h2 className="text-2xl font-bold text-dark mb-2.5 tracking-tight">Analiza zakończona</h2>
+      <p className="text-gray-500 mb-8">
+        Raport PDF jest gotowy. Podaj e-mail, na który mamy go wysłać.
       </p>
 
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form onSubmit={onSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="twoj@email.pl"
-          className="w-full px-8 py-5 rounded-2xl border-2 border-gray-100 focus:border-secondary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-xl font-medium text-center"
+          className="w-full px-6 py-4 rounded-xl border border-gray-200 focus:border-secondary focus:ring-4 focus:ring-secondary/15 outline-none transition-all text-lg text-center"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           autoFocus
         />
-        <Button className="w-full h-16 text-xl justify-center rounded-2xl">
-          Pokaż raport i wyślij PDF <ArrowRight className="ml-2" />
+        <Button className="w-full h-14 text-lg justify-center rounded-xl active:scale-[0.98] transition-transform">
+          Pokaż raport i wyślij PDF <ArrowRight className="ml-2" size={20} />
         </Button>
-        <p className="text-xxs text-gray-400 uppercase font-bold tracking-widest">
+        <p className="text-[11px] text-gray-400 font-medium">
           Nie wysyłamy spamu. Tylko Twój darmowy raport.
         </p>
       </form>
