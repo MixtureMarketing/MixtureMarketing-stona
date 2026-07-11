@@ -69,3 +69,6 @@ debug.log
 
 # Testing
 /coverage
+
+# Cloudflare wrangler local state
+.wrangler/
