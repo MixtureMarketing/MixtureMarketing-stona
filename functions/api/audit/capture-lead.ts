@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: audit/capture-lead
  * Path: /api/audit/capture-lead
