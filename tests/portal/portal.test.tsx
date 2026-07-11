@@ -61,7 +61,7 @@ describe('Portal Integration Tests', () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
-        '/api/auth/send_magic_link.php',
+        '/api/auth/send_magic_link',
         expect.objectContaining({
           method: 'POST',
           body: JSON.stringify({ email: 'test@example.com' }),
