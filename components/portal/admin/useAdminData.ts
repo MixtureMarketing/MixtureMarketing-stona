@@ -19,7 +19,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
         Authorization: `Bearer ${sessionToken}`,
         'X-Auth-Token': sessionToken,
       };
-      const res = await fetch(`/api/admin/get_leads.php?t=${Date.now()}`, { headers });
+      const res = await fetch(`/api/admin/get_leads?t=${Date.now()}`, { headers });
       const data = await res.json();
       setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(data.leads) ? data.leads : prev));
     } catch (e) {
@@ -34,7 +34,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
         Authorization: `Bearer ${sessionToken}`,
         'X-Auth-Token': sessionToken,
       };
-      const res = await fetch(`/api/admin/get_performance_stats.php?t=${Date.now()}`, { headers });
+      const res = await fetch(`/api/admin/get_performance_stats?t=${Date.now()}`, { headers });
       const data = await res.json();
       setMetricsData(data);
     } catch (e) {
@@ -49,7 +49,7 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
         Authorization: `Bearer ${sessionToken}`,
         'X-Auth-Token': sessionToken,
       };
-      const res = await fetch(`/api/admin/get_all_data.php?t=${Date.now()}`, { headers });
+      const res = await fetch(`/api/admin/get_all_data?t=${Date.now()}`, { headers });
       const data = await res.json();
       setClients((prev) =>
         JSON.stringify(prev) !== JSON.stringify(data.clients) ? data.clients : prev,
@@ -68,8 +68,8 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
       try {
         const timestamp = Date.now();
         const url = userId
-          ? `/api/admin/get_all_messages.php?user_id=${userId}&t=${timestamp}`
-          : `/api/admin/get_all_messages.php?t=${timestamp}`;
+          ? `/api/admin/get_all_messages?user_id=${userId}&t=${timestamp}`
+          : `/api/admin/get_all_messages?t=${timestamp}`;
 
         const headers: Record<string, string> = {
           Authorization: `Bearer ${sessionToken}`,

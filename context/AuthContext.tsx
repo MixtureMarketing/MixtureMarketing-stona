@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = useCallback(async (email: string) => {
     try {
-      const res = await fetch('/api/auth/send_magic_link.php', {
+      const res = await fetch('/api/auth/send_magic_link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verifyToken = useCallback(async (token: string) => {
     try {
-      const res = await fetch('/api/auth/verify_token.php', {
+      const res = await fetch('/api/auth/verify_token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
