@@ -6,6 +6,7 @@
 
 interface Env {
   DB: D1Database;
+  CACHE: KVNamespace;
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
@@ -35,6 +36,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         .bind(targetUserId)
         .all();
       messages = msgResult.results;
+
+      // Read-receipt: gdy admin otwiera rozmowe, oznacz wiadomosci KLIENTA jako
+      // przeczytane (symetrycznie do portal/get_messages, ktory oznacza wiadomosci
+      // admina). Dzieki temu u klienta zapala sie podwojny ptaszek. Czyscimy tez
+      // jego cache chatu, zeby nastepny polling zobaczyl is_read=1 od razu.
+      await env.DB.prepare(
+        `UPDATE messages SET is_read = 1 WHERE user_id = ? AND sender_type = 'client'`,
+      )
+        .bind(targetUserId)
+        .run();
+      await env.CACHE.delete(`chat_history_${targetUserId}`);
     }
 
     return new Response(

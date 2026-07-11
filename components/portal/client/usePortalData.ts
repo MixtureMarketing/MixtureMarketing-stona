@@ -12,7 +12,7 @@ export const usePortalData = () => {
   const fetchProjects = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/dashboard.php?t=${Date.now()}`, {
+      const res = await fetch(`/api/portal/dashboard?t=${Date.now()}`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
           'X-Auth-Token': sessionToken,
@@ -32,7 +32,7 @@ export const usePortalData = () => {
   const fetchMessages = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/get_messages.php?t=${Date.now()}`, {
+      const res = await fetch(`/api/portal/get_messages?t=${Date.now()}`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
           'X-Auth-Token': sessionToken,

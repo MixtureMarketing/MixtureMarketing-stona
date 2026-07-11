@@ -75,7 +75,7 @@ const PortalDashboard: React.FC = () => {
     setIsUpdatingProfile(true);
 
     try {
-      const res = await fetch('/api/portal/update_profile.php', {
+      const res = await fetch('/api/portal/update_profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ const PortalDashboard: React.FC = () => {
     if (!newMessage.trim() || !sessionToken) return;
 
     try {
-      const res = await fetch('/api/portal/send_message.php', {
+      const res = await fetch('/api/portal/send_message', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const PortalDashboard: React.FC = () => {
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download.php?id=${docId}`, {
+      const res = await fetch(`/api/portal/download?id=${docId}`, {
         headers: {
           Authorization: `Bearer ${sessionToken}`,
           'X-Auth-Token': sessionToken,

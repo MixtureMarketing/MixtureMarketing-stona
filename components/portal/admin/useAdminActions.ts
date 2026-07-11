@@ -39,7 +39,7 @@ export const useAdminActions = ({
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download.php?id=${docId}`, {
+      const res = await fetch(`/api/portal/download?id=${docId}`, {
         headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken },
       });
       if (res.ok) {
