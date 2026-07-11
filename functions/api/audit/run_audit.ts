@@ -177,6 +177,12 @@ async function scrapePage(url: string): Promise<ScrapeResult> {
   const appendContent = (t: string) => {
     if (contentText.length < MAX_CONTENT) contentText += t;
   };
+  // Osobny bufor na tresc inline'owych <script> — nowoczesne GA4/Pixel/GTM czesto
+  // siedza w inline bootstrapie (gtag()/dataLayer/fbq), nie w atrybucie src.
+  let scriptBuf = '';
+  const appendScript = (t: string) => {
+    if (scriptBuf.length < 150000) scriptBuf += t;
+  };
   let currentHeading: { tag: string; text: string } | null = null;
 
   const detectCmsFromSrc = (src: string) => {
@@ -275,6 +281,9 @@ async function scrapePage(url: string): Promise<ScrapeResult> {
           result.tech.analytics = true;
         detectCmsFromSrc(src);
       },
+      text(t) {
+        appendScript(t.text);
+      },
     })
     .on('link', {
       element(e) {
@@ -295,6 +304,31 @@ async function scrapePage(url: string): Promise<ScrapeResult> {
 
   const transformed = await rewriter.transform(response).arrayBuffer();
   const htmlLen = transformed.byteLength || 1;
+
+  // Detekcja z tresci inline'owych <script> (uzupelnia detekcje po atrybucie src).
+  // Lapie GA4/UA/GTM/Pixel wstrzykiwane inline lub przez baner zgody — bez tego
+  // czesty false-negative "brak GA4" na stronach, gdzie tag idzie przez gtag()/dataLayer.
+  const sb = scriptBuf.toLowerCase();
+  if (!result.tech.gtm && (sb.includes('gtm.js') || /gtm-[a-z0-9]/i.test(scriptBuf))) {
+    result.tech.gtm = true;
+  }
+  if (
+    !result.tech.analytics &&
+    (sb.includes('gtag(') ||
+      sb.includes('gtag/js') ||
+      sb.includes('google-analytics') ||
+      sb.includes('datalayer') ||
+      /\bg-[a-z0-9]{6,}\b/i.test(scriptBuf) ||
+      /\bua-\d{4,}/i.test(scriptBuf))
+  ) {
+    result.tech.analytics = true;
+  }
+  if (
+    !result.tech.pixel &&
+    (sb.includes('fbevents') || sb.includes('fbq(') || sb.includes('connect.facebook'))
+  ) {
+    result.tech.pixel = true;
+  }
 
   result.seo.title = result.seo.title.trim();
   result.seo.h1 = result.seo.h1.trim();
