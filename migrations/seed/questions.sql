@@ -41,10 +41,10 @@ INSERT INTO est_questions
    '{"q":"sla_formal","op":"eq","val":"konkretny"}', 'uzytkownicy', 130),
   ('sensitive_data', 'Czy przetwarzamy dane wrażliwe/płatnicze poza bramką?', NULL, 'bool', NULL, 1, 1.0, NULL, 'uzytkownicy', 140),
   -- ── funkcje ──
-  ('products_count', 'Ile produktów/pozycji katalogu?', 'Liczba pozycji (wpisz przybliżoną wartość).', 'number', NULL, 1, 1.5, NULL, 'funkcje', 150),
+  ('products_count', 'Ile produktów/pozycji katalogu?', 'Liczba pozycji (możesz wpisać np. 300k, 1m).', 'number', NULL, 1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 150),
   ('product_variants', 'Czy produkty mają warianty lub konfigurację?', NULL, 'select',
    '[{"value":"brak","label":"Brak"},{"value":"proste","label":"Proste warianty"},{"value":"masowe","label":"Masowe warianty"},{"value":"konfigurowalne","label":"Konfigurowalne"}]',
-   1, 1.5, NULL, 'funkcje', 160),
+   1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 160),
   ('stock_source', 'Skąd produkty i stany magazynowe?', NULL, 'multiselect',
    '[{"value":"recznie","label":"Ręcznie"},{"value":"feedy","label":"Feedy hurtowni"},{"value":"erp","label":"ERP"},{"value":"dropshipping","label":"Dropshipping"}]',
    1, 1.0, NULL, 'funkcje', 170),
@@ -57,10 +57,10 @@ INSERT INTO est_questions
    1, 0.5, NULL, 'funkcje', 200),
   ('payments', 'Płatności online? (jakie bramki)', NULL, 'multiselect',
    '[{"value":"p24","label":"Przelewy24"},{"value":"payu","label":"PayU"},{"value":"stripe","label":"Stripe"},{"value":"tpay","label":"Tpay"},{"value":"paypal","label":"PayPal"},{"value":"paypo","label":"PayPo"},{"value":"klarna","label":"Klarna"}]',
-   1, 1.0, NULL, 'funkcje', 210),
+   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 210),
   ('shipping', 'Wysyłka? (przewoźnicy/broker)', NULL, 'multiselect',
    '[{"value":"inpost","label":"InPost"},{"value":"dpd","label":"DPD"},{"value":"dhl","label":"DHL"},{"value":"gls","label":"GLS"},{"value":"pocztapl","label":"Poczta Polska"},{"value":"broker","label":"Broker (Furgonetka/Apaczka)"}]',
-   1, 1.0, NULL, 'funkcje', 220),
+   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 220),
   ('erp', 'Integracja z ERP/magazynem/księgowością?', NULL, 'multiselect',
    '[{"value":"subiekt_gt","label":"Subiekt GT"},{"value":"subiekt_nexo","label":"Subiekt nexo"},{"value":"optima","label":"Comarch Optima"},{"value":"wapro","label":"WAPRO Mag"},{"value":"enova","label":"enova365"},{"value":"wfirma","label":"wFirma"},{"value":"fakturownia","label":"Fakturownia"},{"value":"ifirma","label":"iFirma"}]',
    1, 1.5, NULL, 'funkcje', 230),
@@ -121,8 +121,8 @@ ON CONFLICT(code) DO UPDATE SET
 -- f1a: pytania neutralne kroku „Platforma" (D21) — dodane dla reguł recommend_archetype.
 INSERT INTO est_questions
   (code, text, help_text, answer_type, options_json, allow_unknown, unknown_weight, visible_if_json, question_group, sort_order) VALUES
-  ('custom_logic', 'Czy projekt wymaga nietypowej logiki biznesowej poza standardem platformy?', 'Np. własne procesy zamówień, wyceny produkcyjne, nietypowe rabaty/przepływy.', 'bool', NULL, 1, 1.5, NULL, 'platforma', 15),
-  ('frontend_headless', 'Czy nowoczesny, szybki front (React/headless) jest priorytetem?', 'Np. rozbudowane animacje, PWA, front oddzielony od backendu.', 'bool', NULL, 1, 1.0, NULL, 'platforma', 16)
+  ('custom_logic', 'Czy projekt wymaga nietypowej logiki biznesowej poza standardem platformy?', 'Np. własne procesy zamówień, wyceny produkcyjne, nietypowe rabaty/przepływy.', 'bool', NULL, 1, 1.5, NULL, 'platforma', 230),
+  ('frontend_headless', 'Czy zależy Wam na nowoczesnym, dopracowanym wrażeniu i bardzo płynnym działaniu strony?', 'Np. efektowne animacje, błyskawiczne ładowanie, wyróżnienie się jakością doświadczenia — zwykle wyższy budżet.', 'bool', NULL, 1, 1.0, NULL, 'platforma', 240)
 ON CONFLICT(code) DO UPDATE SET
   text = excluded.text, help_text = excluded.help_text, answer_type = excluded.answer_type,
   options_json = excluded.options_json, allow_unknown = excluded.allow_unknown,

@@ -195,3 +195,17 @@ INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, 
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
   reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;
+
+-- f1a-fix (B.4): recommend dla portal treści — wcześniej brak reguły → sekcja rekomendacji pusta.
+INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, priority) VALUES
+  (45, 'Rekomendacja: WordPress (portal tresci)',
+   '{"q":"project_goal","op":"eq","val":"portal_tresci"}',
+   '[{"type":"recommend_archetype","code":"wordpress","reason":"Waga tresci, edycja przez klienta, najnizszy koszt utrzymania"}]',
+   'Portal tresci — WordPress (edycja tresci, niski koszt utrzymania).', 0),
+  (46, 'Rekomendacja: Headless-Astro (portal tresci, nowoczesnosc)',
+   '{"all":[{"q":"project_goal","op":"eq","val":"portal_tresci"},{"q":"frontend_headless","op":"eq","val":true}]}',
+   '[{"type":"recommend_archetype","code":"headless","reason":"Priorytet nowoczesnosci/szybkosci — Astro/React"}]',
+   'Portal tresci z priorytetem nowoczesnosci — headless (Astro/React).', 0)
+ON CONFLICT(id) DO UPDATE SET
+  name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
+  reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;
