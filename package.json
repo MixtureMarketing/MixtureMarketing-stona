@@ -97,7 +97,7 @@
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-image-optimizer": "^2.0.3",
     "vite-plugin-svgo": "^2.0.0",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "overrides": {}
 }
