@@ -96,6 +96,9 @@ const LIBRARY: EstimationLibrary = {
     }),
   ],
   rules: RULES,
+  modules: [],
+  integrations: [],
+  multipliers: [],
   params: [],
 };
 

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import type { Answers } from '@/lib/estimation/types';
 import { useEstimationLibrary } from './useEstimationLibrary';
 import PlatformStep, { type PlatformResult } from './PlatformStep';
+import QuoteEditor from './wizard/QuoteEditor';
 
 interface Props {
   sessionToken: string | null;
@@ -9,15 +11,20 @@ interface Props {
   onCancel: () => void;
 }
 
-// f1a: kreator obejmuje krok „Platforma" (D21). Reszta wizarda (pytania szczegółowe,
-// podgląd na żywo, walidacja, finalize) wchodzi w f1b/f1c.
+interface Created {
+  id: number;
+  archetype: string;
+  answers: Answers;
+}
+
+// f1a: krok „Platforma" → utworzenie draftu. f1b: pełny wizard + podgląd + walidacja (QuoteEditor).
 const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => {
   const { library, loading, error } = useEstimationLibrary(sessionToken);
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
   const [busy, setBusy] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [createdId, setCreatedId] = useState<number | null>(null);
+  const [created, setCreated] = useState<Created | null>(null);
 
   const handleConfirm = async (r: PlatformResult) => {
     if (!name.trim()) {
@@ -29,10 +36,7 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
     try {
       const res = await fetch('/api/admin/estimation/quotes', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionToken}` },
         body: JSON.stringify({
           name: name.trim(),
           client_name: clientName.trim() || null,
@@ -44,7 +48,7 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as { id: number };
-      setCreatedId(data.id);
+      setCreated({ id: data.id, archetype: r.archetypeCode, answers: r.answers });
       onCreated(data.id);
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Nie udało się utworzyć wyceny');
@@ -63,22 +67,24 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
         <ArrowLeft size={16} /> Wróć do listy
       </button>
 
-      <h2 className="text-xl font-black text-dark mb-4">Nowa wycena</h2>
+      <h2 className="text-xl font-black text-dark mb-4">
+        {created ? `Wycena #${created.id} — ${name}` : 'Nowa wycena'}
+      </h2>
 
       {loading && <p className="text-gray-500">Ładowanie biblioteki…</p>}
       {error && <p className="text-red-600">Błąd biblioteki: {error}</p>}
 
-      {createdId !== null && (
-        <div className="p-4 rounded-lg bg-green-50 border border-green-500 text-green-800">
-          <p className="font-bold">Wycena utworzona (#{createdId}).</p>
-          <p className="text-sm">
-            Odpowiedzi wstępne zapisane. Dalsze kroki kreatora (pytania szczegółowe, wynik) pojawią
-            się w kolejnej fazie modułu.
-          </p>
-        </div>
+      {created && library && (
+        <QuoteEditor
+          quoteId={created.id}
+          archetype={created.archetype}
+          initialAnswers={created.answers}
+          library={library}
+          sessionToken={sessionToken}
+        />
       )}
 
-      {!loading && !error && library && createdId === null && (
+      {!loading && !error && library && !created && (
         <div className="space-y-6">
           <div className="grid md:grid-cols-2 gap-3">
             <div>
