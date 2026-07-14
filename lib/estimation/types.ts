@@ -250,3 +250,71 @@ export interface FinalizeValidationInput {
   /** Suma godzin max obszarów + itemów module/integration (do wykrycia pustej wyceny). */
   totalHoursMax: number;
 }
+
+// ── computeQuote — pełny pipeline (f1b podgląd na żywo + f1c finalize) ────────
+
+/** Biblioteka w formie gotowej dla silnika (hook UI / serwer transformują surowe wiersze D1). */
+export interface LibraryData {
+  aspects: { code: string; category: Category; name: string }[];
+  levels: { aspectCode: string; level: number; hoursMin: number; hoursMax: number }[];
+  archetypeDefaults: ArchetypeDefault[]; // dla WYBRANEGO archetypu
+  rules: Rule[];
+  modules: { code: string; name: string; hoursMin: number; hoursMax: number; risk: Risk }[];
+  integrations: {
+    code: string;
+    name: string;
+    platformMin: number | null;
+    platformMax: number | null;
+    customMin: number;
+    customMax: number;
+    risk: Risk;
+  }[];
+  multipliers: MultiplierDef[];
+  /** Waga „nie wiem" per pytanie (Confidence). */
+  questionWeights: Record<string, number>;
+  params: EngineParams;
+  categoryRates?: CategoryRates;
+  /** Tryb integracji wybranego archetypu ('platform'|'custom') — wybór taryfy godzin. */
+  integrationMode: 'platform' | 'custom';
+}
+
+/** Ręczne korekty warstwy walidacji (f1b: w stanie klienta; f1c snapshotuje). */
+export interface ValidationOverrides {
+  chosenLevels: Record<string, number>;
+  overrideHours: Record<string, { min: number; max: number }>;
+  levelReasons: Record<string, string>;
+  disabledModules: string[];
+  disabledIntegrations: string[];
+  disabledMultipliers: string[];
+  extraCostItems: { code: string; name: string; amountPln: number }[];
+}
+
+export interface AspectComputation {
+  code: string;
+  category: Category;
+  name: string;
+  suggestedLevel: number;
+  chosenLevel: number;
+  locked: boolean;
+  hoursMin: number;
+  hoursMax: number;
+  reasons: string[];
+}
+
+export interface ComputeQuoteInput {
+  answers: Answers;
+  library: LibraryData;
+  overrides?: Partial<ValidationOverrides>;
+}
+
+export interface QuoteComputation {
+  aspects: AspectComputation[];
+  activeModules: string[];
+  activeIntegrations: string[];
+  activeMultipliers: { code: string; name: string; value: number }[];
+  costItems: CostItemSuggestion[];
+  warnings: string[];
+  recommendedArchetypes: ArchetypeRecommendation[];
+  totals: Totals;
+  confidence: ConfidenceResult;
+}
