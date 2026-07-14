@@ -159,7 +159,17 @@ Kryteria f1b (podzbiór F1 z docs/07: kroki 2–4 wizarda; finalize/retrospektyw
 ## Propozycja następnego kroku
 
 Merge `feat/estimation-f1` do `main` po akceptacji raportu (przegląd „Odstępstwa" + „Decyzje" —
-głównie bump engine_version i poziomy G DRAFT). Rytuał prod: re-apply seedów na produkcyjnym D1
-(naprawy 1–4 zmieniają seedy: usunięcie pytania `archetype`, +40 G-defaults, +param
-`confidence_completeness`) — **czeka na świeży token API od Jakuba** (poprzedni skasowany).
-Następnie start f1c wg Zobowiązań.
+głównie bump engine_version i poziomy G DRAFT). Następnie start f1c wg Zobowiązań.
+
+**Rytuał prod — WYKONANY (2026-07-15).** Backup przed (999 KB) → liczby przed/po → ochrona
+snapshotów (wyceny non-draft = 0, bezpiecznie) → re-apply `archetypes.sql`/`questions.sql`/
+`params.sql` na `--remote` → weryfikacja:
+
+| metryka | przed | po |
+|---|---|---|
+| `est_questions` | 42 | 41 |
+| pytanie `archetype` | 1 | 0 |
+| `est_archetype_defaults` | 104 | 144 |
+| G-defaults | 0 | 40 |
+| `confidence_completeness` | brak | 0.60 |
+| wyceny non-draft | 0 | 0 (nienaruszone) |
