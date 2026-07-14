@@ -117,3 +117,14 @@ ON CONFLICT(code) DO UPDATE SET
   options_json = excluded.options_json, allow_unknown = excluded.allow_unknown,
   unknown_weight = excluded.unknown_weight, visible_if_json = excluded.visible_if_json,
   question_group = excluded.question_group, sort_order = excluded.sort_order, is_active = 1;
+
+-- f1a: pytania neutralne kroku „Platforma" (D21) — dodane dla reguł recommend_archetype.
+INSERT INTO est_questions
+  (code, text, help_text, answer_type, options_json, allow_unknown, unknown_weight, visible_if_json, question_group, sort_order) VALUES
+  ('custom_logic', 'Czy projekt wymaga nietypowej logiki biznesowej poza standardem platformy?', 'Np. własne procesy zamówień, wyceny produkcyjne, nietypowe rabaty/przepływy.', 'bool', NULL, 1, 1.5, NULL, 'platforma', 15),
+  ('frontend_headless', 'Czy nowoczesny, szybki front (React/headless) jest priorytetem?', 'Np. rozbudowane animacje, PWA, front oddzielony od backendu.', 'bool', NULL, 1, 1.0, NULL, 'platforma', 16)
+ON CONFLICT(code) DO UPDATE SET
+  text = excluded.text, help_text = excluded.help_text, answer_type = excluded.answer_type,
+  options_json = excluded.options_json, allow_unknown = excluded.allow_unknown,
+  unknown_weight = excluded.unknown_weight, visible_if_json = excluded.visible_if_json,
+  question_group = excluded.question_group, sort_order = excluded.sort_order, is_active = 1;

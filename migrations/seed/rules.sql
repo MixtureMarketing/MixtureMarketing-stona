@@ -147,3 +147,51 @@ INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, 
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
   reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;
+
+-- f1a: reguły kroku „Platforma" (D21, docs/05) — DRAFT progów do korekty Jakuba.
+-- recommend_archetype: neutralne odpowiedzi → rekomendacja archetypu (pre-wybór).
+-- archetype_warning: druga linia po wyborze archetypu (warunek na `archetype`).
+INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, priority) VALUES
+  (35, 'Rekomendacja: WooCommerce (standardowy sklep)',
+   '{"all":[{"q":"project_goal","op":"eq","val":"sklep"},{"q":"products_count","op":"lt","val":2000},{"q":"custom_logic","op":"eq","val":false}]}',
+   '[{"type":"recommend_archetype","code":"woocommerce","reason":"Standardowy sklep — najnizszy koszt wejscia i utrzymania"}]',
+   'Standardowy sklep do 2000 produktow bez nietypowej logiki — WooCommerce.', 0),
+  (36, 'Rekomendacja: PrestaShop/WooCommerce (sredni katalog)',
+   '{"all":[{"q":"project_goal","op":"eq","val":"sklep"},{"q":"products_count","op":"gte","val":2000},{"q":"products_count","op":"lt","val":10000},{"q":"frontend_headless","op":"eq","val":false}]}',
+   '[{"type":"recommend_archetype","code":"prestashop","reason":"Sredni katalog — wybor wg preferencji utrzymania"},{"type":"recommend_archetype","code":"woocommerce","reason":"Alternatywa dla sredniego katalogu"}]',
+   'Sredni katalog 2–10 tys. bez headless — PrestaShop lub WooCommerce.', 0),
+  (37, 'Rekomendacja: Sylius (duzy sklep PL)',
+   '{"all":[{"q":"project_goal","op":"eq","val":"sklep"},{"any":[{"q":"products_count","op":"gte","val":10000},{"q":"product_variants","op":"eq","val":"masowe"}]},{"any":[{"q":"payments","op":"contains","val":"p24"},{"q":"payments","op":"contains","val":"payu"},{"q":"shipping","op":"contains","val":"inpost"}]}]}',
+   '[{"type":"recommend_archetype","code":"sylius","reason":"Duza skala + polskie integracje z polki (BitBag)"}]',
+   'Duzy katalog/warianty masowe + polskie platnosci/kurierzy — Sylius.', 0),
+  (38, 'Rekomendacja: Medusa (headless custom)',
+   '{"all":[{"q":"project_goal","op":"eq","val":"sklep"},{"q":"frontend_headless","op":"eq","val":true},{"q":"custom_logic","op":"eq","val":true}]}',
+   '[{"type":"recommend_archetype","code":"medusa","reason":"Headless-first, TypeScript end-to-end"}]',
+   'Sklep headless z nietypowa logika — Medusa.', 0),
+  (39, 'Rekomendacja: Laravel (aplikacja/B2B)',
+   '{"any":[{"q":"project_goal","op":"eq","val":"aplikacja"},{"q":"project_goal","op":"eq","val":"b2b"}]}',
+   '[{"type":"recommend_archetype","code":"laravel","reason":"Logika biznesowa jest produktem; commerce od zera lub modul"}]',
+   'Aplikacja/portal B2B — Laravel.', 0),
+  (40, 'Rekomendacja: WordPress/Headless (wizytowka)',
+   '{"q":"project_goal","op":"eq","val":"wizytowka"}',
+   '[{"type":"recommend_archetype","code":"wordpress","reason":"Waga tresci, szybkie wdrozenie"},{"type":"recommend_archetype","code":"headless","reason":"Alternatywa: wydajnosc/animacje (React/Astro)"}]',
+   'Wizytowka/landing — WordPress lub headless (React/Astro).', 0),
+  (41, 'Ostrzezenie: wyrastanie z WooCommerce',
+   '{"all":[{"any":[{"q":"archetype","op":"eq","val":"woocommerce"},{"q":"archetype","op":"eq","val":"woo_headless"}]},{"any":[{"q":"products_count","op":"gte","val":50000},{"q":"users_concurrent","op":"gte","val":500},{"q":"sales_model","op":"eq","val":"b2b"}]}]}',
+   '[{"type":"archetype_warning","message":"Wymagania wykraczaja poza komfort WooCommerce — rozwaz Sylius/Medusa/Laravel; kontynuacja = ryzyko przebudowy"}]',
+   'Skala/B2B przekracza komfort WooCommerce.', 0),
+  (42, 'Ostrzezenie: duzy sklep PL pasuje do Sylius',
+   '{"all":[{"q":"project_goal","op":"eq","val":"sklep"},{"q":"products_count","op":"gte","val":10000},{"q":"archetype","op":"neq","val":"sylius"}]}',
+   '[{"type":"archetype_warning","message":"Profil pasuje do Sylius (polskie integracje z polki — BitBag)"}]',
+   'Duzy sklep PL zwykle pasuje do Sylius.', 0),
+  (43, 'Ostrzezenie: headless commerce → Medusa',
+   '{"all":[{"q":"archetype","op":"eq","val":"headless"},{"q":"project_goal","op":"eq","val":"sklep"},{"q":"custom_logic","op":"eq","val":true}]}',
+   '[{"type":"archetype_warning","message":"Rozwaz Medusa zamiast budowy commerce od zera"}]',
+   'Headless sklep z custom logika — rozwaz Medusa.', 0),
+  (44, 'Pierwsze wdrozenie Sylius/Medusa',
+   '{"any":[{"q":"archetype","op":"eq","val":"sylius"},{"q":"archetype","op":"eq","val":"medusa"}]}',
+   '[{"type":"multiplier","code":"new_tech"}]',
+   'Pierwsze wdrozenie Sylius/Medusa — narzut nowej technologii.', 0)
+ON CONFLICT(id) DO UPDATE SET
+  name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
+  reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;
