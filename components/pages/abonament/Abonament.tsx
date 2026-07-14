@@ -190,7 +190,7 @@ const POWODY_179 = [
   {
     icon: MapPin,
     title: 'Local SEO w cenie',
-    desc: 'Wizytówka Google, schema.org, strony pod dzielnice, sitemap i llms.txt — zintegrowane w pakiecie. W klasycznym projekcie to 1500–3000 zł jednorazowego setup\'u.',
+    desc: "Wizytówka Google, schema.org, strony pod dzielnice, sitemap i llms.txt — zintegrowane w pakiecie. W klasycznym projekcie to 1500–3000 zł jednorazowego setup'u.",
   },
 ];
 
@@ -794,8 +794,7 @@ const Abonament: React.FC = () => {
                 <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-700">
                   strona internetowa
                 </span>
-                <br />
-                w abonamencie dla małej firmy.
+                <br />w abonamencie dla małej firmy.
               </h1>
 
               <p className="text-xl md:text-2xl text-slate-700 leading-relaxed mb-8 max-w-2xl">
@@ -1578,10 +1577,10 @@ const Abonament: React.FC = () => {
                     Programmatic geo pages — automatycznie.
                   </h3>
                   <p className="text-slate-300 text-sm leading-relaxed mb-4">
-                    System generuje osobne podstrony dla każdej dzielnicy i okolicznego miasta
-                    — z unikalną treścią i lokalnymi słowami kluczowymi. Nie kopiuje treści,
-                    tylko personalizuje je pod lokalizację. Efekt: widoczność w Google dla
-                    fraz „[usługa] [dzielnica]" bez ręcznego pisania dziesiątek podstron.
+                    System generuje osobne podstrony dla każdej dzielnicy i okolicznego miasta — z
+                    unikalną treścią i lokalnymi słowami kluczowymi. Nie kopiuje treści, tylko
+                    personalizuje je pod lokalizację. Efekt: widoczność w Google dla fraz „[usługa]
+                    [dzielnica]" bez ręcznego pisania dziesiątek podstron.
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-300">
                     Dostępne od pakietu Standard · do 6 lokalizacji
@@ -1599,10 +1598,10 @@ const Abonament: React.FC = () => {
                 </h3>
                 <p className="text-slate-600 text-sm leading-relaxed">
                   Kreator zbiera Twoje certyfikaty, lata doświadczenia, realizacje i opinie
-                  klientów. System buduje z tych danych unikalne treści spełniające wymogi
-                  Google E-E-A-T (Experience · Expertise · Authoritativeness · Trust). Strona
-                  „fryzjer Rzeszów" z prawdziwą historią właścicielki bije anonimowy szablon
-                  WordPress w rankingach.
+                  klientów. System buduje z tych danych unikalne treści spełniające wymogi Google
+                  E-E-A-T (Experience · Expertise · Authoritativeness · Trust). Strona „fryzjer
+                  Rzeszów" z prawdziwą historią właścicielki bije anonimowy szablon WordPress w
+                  rankingach.
                 </p>
               </div>
             </div>
@@ -1630,7 +1629,10 @@ const Abonament: React.FC = () => {
                   desc: 'Astro 5 na Cloudflare Workers — żadnych pluginów cache, żadnego LiteSpeed, żadnego CDN do ręcznej konfiguracji. Każda strona jest statycznym HTML na edge.',
                 },
               ].map((item) => (
-                <div key={item.title} className="p-5 rounded-3xl bg-slate-50 border border-slate-200 flex gap-4">
+                <div
+                  key={item.title}
+                  className="p-5 rounded-3xl bg-slate-50 border border-slate-200 flex gap-4"
+                >
                   <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-700 shrink-0 mt-0.5">
                     <item.icon size={18} aria-hidden="true" />
                   </div>

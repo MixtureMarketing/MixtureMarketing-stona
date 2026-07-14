@@ -201,9 +201,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 <strong>Klaster IT Podkarpacie</strong> — inicjatywa skupiająca lokalnych
                 przedsiębiorców, software house&apos;y i agencje cyfrowe z całego województwa.
                 Klaster wspiera wymianę doświadczeń, wspólne projekty B2B i reprezentuje branżę
-                wobec samorządu oraz instytucji unijnych. Mixture Marketing uczestniczy w działaniach
-                rzeszowskiej społeczności IT i aktywnie śledzi kierunki, w których zmierza cyfryzacja
-                podkarpackich przedsiębiorstw.
+                wobec samorządu oraz instytucji unijnych. Mixture Marketing uczestniczy w
+                działaniach rzeszowskiej społeczności IT i aktywnie śledzi kierunki, w których
+                zmierza cyfryzacja podkarpackich przedsiębiorstw.
               </p>
               <p>
                 Zaplecze akademickie tworzy przede wszystkim{' '}
@@ -212,8 +212,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 w programowaniu, systemach wbudowanych i sztucznej inteligencji. Absolwenci PRz
                 zasilają zarówno globalne korporacje (Motorola Solutions, Asseco, Sabre) obecne w
                 Rzeszowie, jak i rosnącą falę lokalnych startupów i software house&apos;ów. To
-                bezpośrednio przekłada się na dostępność wysokiej klasy specjalistów na lokalnym rynku
-                pracy.
+                bezpośrednio przekłada się na dostępność wysokiej klasy specjalistów na lokalnym
+                rynku pracy.
               </p>
               <p>
                 Codzienny puls rzeszowskiej społeczności tech bije na regularnych spotkaniach:{' '}
@@ -226,12 +226,11 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 specjalistyczne szukające pierwszej strony z Local SEO.
               </p>
               <p>
-                Nie bez znaczenia jest też bliskość{' '}
-                <strong>Aviation Valley</strong> — klastra lotniczego skupiającego ponad 160 firm
-                (m.in. WSK Rzeszów, MTU Aero Engines, Pratt &amp; Whitney). Firmy z branży lotniczej
-                potrzebują stron B2B w standardach EN/PL, certyfikatów zaufania i materiałów na targi
-                zagraniczne — to obszar, w którym doświadczenie lokalne ma realne przełożenie na
-                jakość projektu marketingowego.
+                Nie bez znaczenia jest też bliskość <strong>Aviation Valley</strong> — klastra
+                lotniczego skupiającego ponad 160 firm (m.in. WSK Rzeszów, MTU Aero Engines, Pratt
+                &amp; Whitney). Firmy z branży lotniczej potrzebują stron B2B w standardach EN/PL,
+                certyfikatów zaufania i materiałów na targi zagraniczne — to obszar, w którym
+                doświadczenie lokalne ma realne przełożenie na jakość projektu marketingowego.
               </p>
             </div>
           </div>
