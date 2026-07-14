@@ -70,9 +70,16 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
                   backgroundSize: '200% 200%',
                 }}
               >
-                <TextReveal delay={700} priority>
-                  {HERO_CONTENT.title.line3}
-                </TextReveal>
+                {/*
+                  Tekst renderowany BEZPOSREDNIO (bez TextReveal). Powod: gradient
+                  jest nakladany przez background-clip:text na TYM spanie, a
+                  `-webkit-background-clip:text` nie maluje przez dziecko z wlasnym
+                  `transform`. TextReveal owija kazde slowo w `.reveal-text-item`,
+                  ktory po animacji zostaje na `transform: translateY(0)` (warstwa
+                  kompozytowa) — przez co gradientowe slowa staja sie niewidoczne.
+                  Fade-in dziedziczony z `animate-fade-in` na rodzicu.
+                */}
+                {HERO_CONTENT.title.line3}
                 <div className="absolute bottom-0 left-0 w-full h-[4px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-30 blur-[1px]"></div>
               </span>
             </h1>
