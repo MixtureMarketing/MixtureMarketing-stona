@@ -571,3 +571,151 @@ describe('validateForFinalize (docs/03 inwarianty 3–4)', () => {
     expect(errs).toEqual([]);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Krok „Platforma" — recommend_archetype / archetype_warning (D21, docs/05)', () => {
+  const known = ['frontend', 'apis']; // dowolne; reguły platformowe nie ruszają poziomów
+
+  it('recommend_archetype: reguła z 2 akcjami → obie rekomendacje z uzasadnieniem, w kolejności', () => {
+    const rules: Rule[] = [
+      {
+        id: 40,
+        name: 'wizytowka',
+        priority: 0,
+        condition: { q: 'project_goal', op: 'eq', val: 'wizytowka' },
+        actions: [
+          { type: 'recommend_archetype', code: 'wordpress', reason: 'Waga treści' },
+          { type: 'recommend_archetype', code: 'headless', reason: 'Wydajność/animacje' },
+        ],
+        reasonTemplate: 'x',
+      },
+    ];
+    // Platforma: brak wybranego archetypu → archetypeDefaults puste.
+    const r = evaluateRules({
+      answers: { project_goal: 'wizytowka' },
+      archetypeDefaults: [],
+      rules,
+      knownAspectCodes: known,
+    });
+    expect(r.recommendedArchetypes).toEqual([
+      { code: 'wordpress', reason: 'Waga treści' },
+      { code: 'headless', reason: 'Wydajność/animacje' },
+    ]);
+  });
+
+  it('rekomendacje deduplikowane po code między regułami (pierwsza wygrywa)', () => {
+    const rules: Rule[] = [
+      {
+        id: 35,
+        name: 'woo',
+        priority: 0,
+        condition: { q: 'g', op: 'answered' },
+        actions: [{ type: 'recommend_archetype', code: 'woocommerce', reason: 'A' }],
+        reasonTemplate: 'x',
+      },
+      {
+        id: 36,
+        name: 'woo2',
+        priority: 0,
+        condition: { q: 'g', op: 'answered' },
+        actions: [{ type: 'recommend_archetype', code: 'woocommerce', reason: 'B' }],
+        reasonTemplate: 'x',
+      },
+    ];
+    const r = evaluateRules({
+      answers: { g: 1 },
+      archetypeDefaults: [],
+      rules,
+      knownAspectCodes: known,
+    });
+    expect(r.recommendedArchetypes).toEqual([{ code: 'woocommerce', reason: 'A' }]);
+  });
+
+  it('brak dopasowanej reguły → brak rekomendacji (pusta lista)', () => {
+    const rules: Rule[] = [
+      {
+        id: 35,
+        name: 'woo',
+        priority: 0,
+        condition: { q: 'project_goal', op: 'eq', val: 'sklep' },
+        actions: [{ type: 'recommend_archetype', code: 'woocommerce' }],
+        reasonTemplate: 'x',
+      },
+    ];
+    const r = evaluateRules({
+      answers: { project_goal: 'aplikacja' },
+      archetypeDefaults: [],
+      rules,
+      knownAspectCodes: known,
+    });
+    expect(r.recommendedArchetypes).toEqual([]);
+  });
+
+  it('archetype_warning: druga linia po wyborze archetypu → message w warnings', () => {
+    const rules: Rule[] = [
+      {
+        id: 41,
+        name: 'wyrastanie',
+        priority: 0,
+        condition: {
+          all: [
+            { q: 'archetype', op: 'eq', val: 'woocommerce' },
+            { q: 'products_count', op: 'gte', val: 50000 },
+          ],
+        },
+        actions: [{ type: 'archetype_warning', message: 'Rozważ Sylius/Medusa' }],
+        reasonTemplate: 'x',
+      },
+    ];
+    // Po wyborze: answers.archetype ustawione przez UI.
+    const r = evaluateRules({
+      answers: { archetype: 'woocommerce', products_count: 60000 },
+      archetypeDefaults: [],
+      rules,
+      knownAspectCodes: known,
+    });
+    expect(r.warnings).toContain('Rozważ Sylius/Medusa');
+    // Nie odpala się dla mniejszej skali:
+    const r2 = evaluateRules({
+      answers: { archetype: 'woocommerce', products_count: 1000 },
+      archetypeDefaults: [],
+      rules,
+      knownAspectCodes: known,
+    });
+    expect(r2.warnings).toEqual([]);
+  });
+
+  it('archetype-owy multiplier (new_tech) zbierany dla Sylius/Medusa', () => {
+    const rules: Rule[] = [
+      {
+        id: 44,
+        name: 'first',
+        priority: 0,
+        condition: {
+          any: [
+            { q: 'archetype', op: 'eq', val: 'sylius' },
+            { q: 'archetype', op: 'eq', val: 'medusa' },
+          ],
+        },
+        actions: [{ type: 'multiplier', code: 'new_tech' }],
+        reasonTemplate: 'x',
+      },
+    ];
+    expect(
+      evaluateRules({
+        answers: { archetype: 'medusa' },
+        archetypeDefaults: [],
+        rules,
+        knownAspectCodes: known,
+      }).multipliers,
+    ).toContain('new_tech');
+    expect(
+      evaluateRules({
+        answers: { archetype: 'woocommerce' },
+        archetypeDefaults: [],
+        rules,
+        knownAspectCodes: known,
+      }).multipliers,
+    ).toEqual([]);
+  });
+});
