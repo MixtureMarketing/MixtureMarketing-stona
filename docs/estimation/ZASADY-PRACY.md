@@ -35,6 +35,12 @@ ewaluacji względem `05`; każde odstępstwo od inwariantów SKILL.md; decyzje b
 rekomendacja. NIE rozwiązuj tych spraw „kreatywnie" w locie — zatrzymaj wątek, oznacz
 w raporcie jako czekający, kontynuuj resztę fazy, jeśli niezależna.
 
+**Wzorzec migracji (forward-only).** Nie edytuj migracji już zaaplikowanej na produkcji —
+każdą zmianę schematu wprowadzaj jako NOWĄ migrację o kolejnym numerze. Edycja zaaplikowanej
+migracji jest decyzją poziomu 2 (jawna zgoda Jakuba) i dopuszczalna wyłącznie gdy udowodniona
+równoważność stanu docelowego schematu we wszystkich kontekstach (prod + świeża baza), z zapisem
+w sekcji „Odstępstwa" raportu fazy. Precedens: fix `0002` w F0 (usunięcie martwych ALTERów).
+
 ## 3. Definicja ukończenia (DoD)
 
 Zadanie/faza są ukończone wyłącznie, gdy: (a) przeszła procedura `/zamknij-faze` z dowodami,

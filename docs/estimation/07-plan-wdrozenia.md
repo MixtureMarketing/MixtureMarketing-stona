@@ -31,20 +31,22 @@ Każda faza kończy się przejściem `npm run build:full` (lint + testy + build 
 ## FAZA 1 — Rdzeń wyceny (przepływ end-to-end)
 
 **Kod:**
-1. **Wizard formularza biznesowego**: kroki wg grup pytań, rendering z `est_questions` (typy odpowiedzi, visible_if, „nie wiem"), autosave draftu (PUT quotes), pasek postępu + licznik niewiadomych na żywo.
-2. **Podgląd na żywo**: panel boczny z bieżącymi widełkami i Confidence (silnik w UI).
-3. **Walidacja techniczna**: tabela obszarów per kategoria — suggested/chosen level, widełki, uzasadnienia reguł (rozwijane), zmiana poziomu (select 0–4) i override godzin z obowiązkowym powodem; sekcje modułów/integracji/mnożników/kosztów (sugestie odznaczalne, dodawanie z biblioteki, pozycje ad hoc).
-4. **Finalize**: `POST quote_finalize` — serwerowe przeliczenie, snapshot (02), zapis `totals_json`, status `review`; ekran wyniku: pełne widełki (wewnętrzne), widełki ofertowe, koszty, Confidence z breakdownem i komunikatem progowym (zielony/żółty/czerwony + „zaproponuj Discovery").
-5. Statusy i lista: draft/review/sent/won/lost (lost_reason), filtrowanie, duplikacja wyceny (rewizja).
-6. Powiązanie z leadami: przycisk „Utwórz wycenę" w `AdminLeads` (prefill klienta), `lead_id` na wycenie.
+1. **Krok „Platforma" (D21, docs/05) — OBOWIĄZKOWY w F1a:** blok pytań technologicznie neutralnych (cel, produkty, warianty, sales_model, users_type, języki, stock_source, krytyczność, logika niestandardowa) → ewaluacja reguł `recommend_archetype` → prezentacja 1–2 rekomendacji archetypu Z UZASADNIENIEM + pełna lista → wybór użytkownika (ostateczny; wbrew rekomendacji = obowiązkowy powód). Zapis `archetype_recommended` / `archetype_chosen` / `archetype_reason` (wzorzec suggested/chosen). Dopiero wybrany archetyp ustawia domyślne poziomy i filtruje dalsze pytania. Reguły `archetype_warning` działają jako druga linia (odpowiedzi z późniejszych kroków mogą podważyć wybór). **Treść (odłożona z F0):** dopisać reguły `recommend_archetype` i `archetype_warning` do `rules.sql` (szkice w docs/05).
+2. **Wizard formularza biznesowego**: kroki wg grup pytań, rendering z `est_questions` (typy odpowiedzi, visible_if, „nie wiem"), autosave draftu (PUT quotes), pasek postępu + licznik niewiadomych na żywo.
+3. **Podgląd na żywo**: panel boczny z bieżącymi widełkami i Confidence (silnik w UI).
+4. **Walidacja techniczna**: tabela obszarów per kategoria — suggested/chosen level, widełki, uzasadnienia reguł (rozwijane), zmiana poziomu (select 0–4) i override godzin z obowiązkowym powodem; sekcje modułów/integracji/mnożników/kosztów (sugestie odznaczalne, dodawanie z biblioteki, pozycje ad hoc).
+5. **Finalize**: `POST quote_finalize` — serwerowe przeliczenie, snapshot (02), zapis `totals_json`, status `review`; ekran wyniku: pełne widełki (wewnętrzne), widełki ofertowe, koszty, Confidence z breakdownem i komunikatem progowym (zielony/żółty/czerwony + „zaproponuj Discovery").
+6. Statusy i lista: draft/review/sent/won/lost (lost_reason), filtrowanie, duplikacja wyceny (rewizja).
+7. Powiązanie z leadami: przycisk „Utwórz wycenę" w `AdminLeads` (prefill klienta), `lead_id` na wycenie.
 
-**Treść:** finalna wersja pytań i reguł v1 (na podstawie użycia na 2–3 wycenach testowych — patrz kryteria).
+**Treść:** finalna wersja pytań i reguł v1 (w tym `recommend_archetype`/`archetype_warning`) na podstawie użycia na 2–3 wycenach testowych — patrz kryteria.
 
 **Kryteria akceptacji F1:**
 - [ ] Pełny przepływ < 15 min: nowa wycena → formularz → walidacja → finalize → wynik (test na realnym, zakończonym projekcie z przeszłości).
 - [ ] **Test retrospektywny na 2 znanych projektach:** widełki ofertowe obejmują znany realny koszt/godziny albo odchylenie wyjaśnione i zaakceptowane przez Jakuba (to jest bramka jakości silnika, nie kodu).
 - [ ] Ten sam zestaw odpowiedzi ⇒ identyczny wynik UI i serwera (test porównawczy engine w obu środowiskach).
 - [ ] Edycja biblioteki po finalize nie zmienia zapisanej wyceny (test snapshotu).
+- [ ] **Krok „Platforma":** reguły `recommend_archetype` zwracają ≥1 rekomendację z uzasadnieniem dla wycen testowych; wybór wbrew rekomendacji wymaga powodu (zapis recommended vs chosen); reguły `archetype_warning` widoczne w Karcie decyzji.
 - [ ] Zmiana poziomu bez powodu zablokowana; „nie wiem" obniża Confidence zgodnie z 03.
 - [ ] Audyt językowy pytań (zasada nadrzędna 7): każde pytanie widoczne dla przepływu przechodzi test „właściciel firmy bez IT odpowie albo powie nie wiem"; pytania techniczne dozwolone wyłącznie z flagą (wewnętrzne).
 - [ ] Konsola bez błędów; `build:full` zielony.
