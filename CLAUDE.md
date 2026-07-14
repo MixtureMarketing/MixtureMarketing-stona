@@ -69,3 +69,18 @@ When adding a static page: add the component + route in `config/routes.tsx` AND 
 ## Environment variables (`.env.local`)
 
 Build/prerender needs `VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET`. Abonament needs `VITE_MM_PREONBOARD_KEY`, `VITE_MM_HUB_URL`, `VITE_STRIPE_PUBLISHABLE_KEY`. Cloudflare Function secrets (set in CF Pages, not `.env`): `TURNSTILE_SECRET`, `RESEND_API_KEY`, `NOTIFY_EMAIL`. See `.env.example`.
+
+## Estimation module (System Wycen)
+
+Internal quoting & technical-decision-support module inside the admin panel
+(`/portal/admin`, tab "Wyceny"). Before touching ANY of: `components/portal/admin/estimation/`,
+`functions/api/admin/estimation/`, `lib/estimation/`, `migrations/*estimation*`,
+`migrations/seed/` — read `.claude/skills/estimation/SKILL.md` (module invariants:
+determinism, snapshot-first, shared pure-TS engine). Full spec: `docs/estimation/`
+(implementation plan with acceptance criteria: `docs/estimation/07-plan-wdrozenia.md`).
+The estimation engine is pure TS with mandatory Vitest coverage; domain values are never
+hardcoded (knowledge lives in D1 seeds).
+Work protocol: start every estimation session with `/faza <phase>` and close it ONLY
+with `/zamknij-faze <phase>` (enforced validation + report). Working rules — TDD for
+engine/API, escalation levels, definition of done: `docs/estimation/ZASADY-PRACY.md`.
+Branches: `feat/estimation-fN`; local dev against local D1 (`--local`), never prod.

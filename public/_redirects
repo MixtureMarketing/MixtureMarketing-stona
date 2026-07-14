@@ -49,6 +49,11 @@
 /abonament/*        /index.html  200
 # (sub-routes professional/vs-wix/vs-orange-klikai prerendered, ale safety net SPA)
 
+# SPA fallback dla panelu (/portal/* NIE jest prerendered — blokada robots.txt).
+# Bez tego deep-linki panelu (np. /portal/admin?tab=wyceny) po hard-refreshu trafialyby
+# w catch-all 404. Panel jest za auth i noindex, wiec serwowanie index.html jest bezpieczne.
+/portal/*  /index.html  200
+
 # Catch-all: nieznane URL-e -> 404 + /404.html (NotFound z noindex).
 # Google widzi 404 status, uzytkownik widzi friendly NotFound page.
 /*  /404.html  404

@@ -3,9 +3,11 @@
 -- 0001_init.sql (CREATE TABLE IF NOT EXISTS) był więc no-opem na tej bazie.
 -- Ta migracja dorównuje istniejącą tabelę do schematu 0001 bez utraty danych.
 --
--- Uwaga: ALTER ... ADD COLUMN rzuci błąd, jeśli kolumna już istnieje (świeża baza
--- z 0001 już je ma) — uruchamiać tylko na starej bazie.
-
-ALTER TABLE leads ADD COLUMN source TEXT DEFAULT 'website';   -- 'website' | 'calculator' | 'audit'
-ALTER TABLE leads ADD COLUMN company TEXT;
+-- HISTORIA: pierwotnie ta migracja dodawała kolumny source/company przez
+--   ALTER TABLE leads ADD COLUMN ... — potrzebne WYŁĄCZNIE na starej prod-bazie, gdzie
+--   0001 był no-opem. Na czystej bazie 0001 tworzy leads JUŻ z tymi kolumnami, więc ALTERy
+--   rzucały "duplicate column: source" i psuły `wrangler d1 migrations apply` na czystej bazie.
+--   Produkcja ma tę migrację już zaaplikowaną (tracking po nazwie w d1_migrations — brak
+--   re-runu, wrangler nie weryfikuje hasha treści), więc usunięcie ALTERów jest bezpieczne
+--   i przywraca możliwość czystego apply całego łańcucha (0001→0002→0003).
 CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source);
