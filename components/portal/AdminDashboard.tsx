@@ -18,7 +18,7 @@ import {
 import { Client, Project, Lead, Milestone } from './types';
 
 // Moduł wycen — lazy chunk (nie wchodzi do głównego bundla; size-limit).
-const QuotesList = lazy(() => import('./admin/estimation/QuotesList'));
+const EstimationTab = lazy(() => import('./admin/estimation/EstimationTab'));
 
 type AdminTab = 'clients' | 'projects' | 'leads' | 'chat' | 'metrics' | 'wyceny';
 const ADMIN_TABS: readonly AdminTab[] = [
@@ -241,7 +241,7 @@ const AdminDashboard: React.FC = () => {
         )}
         {activeTab === 'wyceny' && (
           <Suspense fallback={<p className="text-gray-500">Ładowanie modułu wycen…</p>}>
-            <QuotesList sessionToken={sessionToken} />
+            <EstimationTab sessionToken={sessionToken} />
           </Suspense>
         )}
         {activeTab === 'chat' && (
