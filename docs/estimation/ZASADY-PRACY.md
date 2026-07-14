@@ -40,6 +40,9 @@ każdą zmianę schematu wprowadzaj jako NOWĄ migrację o kolejnym numerze. Edy
 migracji jest decyzją poziomu 2 (jawna zgoda Jakuba) i dopuszczalna wyłącznie gdy udowodniona
 równoważność stanu docelowego schematu we wszystkich kontekstach (prod + świeża baza), z zapisem
 w sekcji „Odstępstwa" raportu fazy. Precedens: fix `0002` w F0 (usunięcie martwych ALTERów).
+Prod D1 jest od 2026-07-14 na trackingu wranglera (`d1_migrations`) — wszystkie przyszłe migracje
+prod WYŁĄCZNIE przez `migrations apply --remote` (docelowo krok CI), nigdy przez `execute --file`
+z migracjami.
 
 ## 3. Definicja ukończenia (DoD)
 

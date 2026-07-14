@@ -71,7 +71,7 @@ Poza planem (infrastruktura testowa): `wrangler.d1.toml` (Opcja B), `migrations/
 - ✅ **zakładka admin-only** — E2E `wrangler pages dev`: admin `Bearer admintoken123` → **200** `{"quotes":[]}`; klient → **403** `{"error":"Admin access required"}`; brak tokenu → **401**.
 - ✅ **deep-link `?tab=wyceny` po refreshu** — reguła `/portal/* → /index.html 200` w `_redirects`; init `activeTab` z URL.
 - ✅ **`build:full` zielony, bundle bez wzrostu** — EXIT 0; moduł w lazy chunku `QuotesList--Smnw0NP.js` (2.9 kB), poza `index`.
-- ⚠️ **„na kopii produkcyjnej"** — niezweryfikowane lokalnie (brak dostępu do prod D1); logicznie 0003 to jedyna pending migracja na prod-copy, standalone-clean. Do potwierdzenia przy pierwszym `--remote`.
+- ✅ **„na kopii produkcyjnej" — DOMKNIĘTE realnym wdrożeniem (2026-07-14).** Prod D1 `mixture-db` była migrowana ręcznie (brak trackingu wranglera → `migrations list --remote` pokazywał 0001/0002/0003 jako pending). Wykonano **bootstrap trackera** (decyzja architekta, Opcja 2): backup prod (857 kB, 9 tabel), test dryfu (identyczne zbiory kolumn; drobne niuanse FK/NOT NULL — informacyjne), utworzenie `d1_migrations` (schemat 1:1 z wranglera) + wpisy 0001/0002, bezpiecznik (pending = tylko 0003), `migrations apply --remote` (0003 ✅, 18 tabel `est_*`), seedy `--remote` (31/155/34/37/8). Od teraz prod jest na trackingu wranglera.
 
 ## Ryzyka i długi
 

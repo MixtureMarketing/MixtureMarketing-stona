@@ -15,5 +15,5 @@ compatibility_date = "2025-01-01"
 
 [[d1_databases]]
 binding = "DB"                    # zgodne z functions/api/**: env.DB
-database_name = "mixture-db"      # TODO(Jakub): potwierdź nazwę produkcyjnej bazy D1
-database_id = "local-placeholder" # TODO(Jakub): wstaw prawdziwe id z dashboardu CF przed użyciem --remote
+database_name = "mixture-db"                          # produkcyjna baza D1 (potwierdzone)
+database_id = "8a11290b-b947-431a-996d-4bedd08ee988"  # prod D1 (identyfikator, nie sekret)
