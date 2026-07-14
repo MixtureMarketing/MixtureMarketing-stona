@@ -2,16 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import type { Category, ValidationOverrides, AspectComputation } from '@/lib/estimation/types';
 import { useQuote } from '../QuoteContext';
-
-const CATEGORY_LABEL: Record<Category, string> = {
-  A: 'A · Prezentacja',
-  B: 'B · Logika / dane',
-  C: 'C · Bezpieczeństwo',
-  D: 'D · Infrastruktura',
-  E: 'E · Operacje',
-  F: 'F · Marketing / analityka',
-  G: 'G · Realizacja projektu',
-};
+import { CATEGORY_LABEL } from './categoryLabels';
 
 const ValidationScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { state, library } = useQuote();

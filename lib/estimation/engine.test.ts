@@ -450,9 +450,10 @@ describe('computeConfidence (docs/03)', () => {
     const c = computeConfidence(
       {
         unknowns: [],
-        itemRisks: [],
+        items: [],
         dataMigrationWithoutSample: false,
         customArchetypeWithoutDiscovery: false,
+        belowCompleteness: false,
       },
       thr,
     );
@@ -468,9 +469,13 @@ describe('computeConfidence (docs/03)', () => {
           { code: 'a', weight: 1 },
           { code: 'b', weight: 1.5 },
         ],
-        itemRisks: ['high', 'medium'],
+        items: [
+          { name: 'Amazon', risk: 'high' },
+          { name: 'DPD', risk: 'medium' },
+        ],
         dataMigrationWithoutSample: true,
         customArchetypeWithoutDiscovery: true,
+        belowCompleteness: false,
       },
       thr,
     );
@@ -483,9 +488,10 @@ describe('computeConfidence (docs/03)', () => {
     const zero = computeConfidence(
       {
         unknowns: Array.from({ length: 20 }, (_, i) => ({ code: `q${i}`, weight: 1 })),
-        itemRisks: [],
+        items: [],
         dataMigrationWithoutSample: false,
         customArchetypeWithoutDiscovery: false,
+        belowCompleteness: false,
       },
       thr,
     );
@@ -497,9 +503,10 @@ describe('computeConfidence (docs/03)', () => {
           { code: 'b', weight: 1 },
           { code: 'c', weight: 1 },
         ],
-        itemRisks: [],
+        items: [],
         dataMigrationWithoutSample: false,
         customArchetypeWithoutDiscovery: false,
+        belowCompleteness: false,
       },
       thr,
     );

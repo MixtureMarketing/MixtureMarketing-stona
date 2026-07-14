@@ -33,7 +33,12 @@ const TOTALS: Totals = {
   byCategory: {},
   engineVersion: '1.0',
 };
-const CONF: ConfidenceResult = { score: 100, band: 'green', breakdown: [] };
+const CONF: ConfidenceResult = {
+  score: 100,
+  band: 'green',
+  breakdown: [],
+  belowCompleteness: false,
+};
 
 const Q = (over: Partial<LibQuestion>): LibQuestion => ({
   code: '',
@@ -174,5 +179,44 @@ describe('WizardSteps — widoczność warunkowa (visible_if)', () => {
       </QuoteProvider>,
     );
     expect(screen.queryByText('Pytanie warunkowe')).not.toBeNull(); // a == 'tak'
+  });
+});
+
+describe('WizardSteps — dedup: pytania kroku Platforma nie wracają w wizardzie (fix 1)', () => {
+  // Reguła recommend_archetype pytająca o 'project_goal' → to pytanie należy do kroku Platforma
+  // i NIE może pojawić się ponownie w wizardzie, mimo że siedzi w grupie 'projekt'.
+  const platformRule = {
+    id: 1,
+    name: 'r',
+    priority: 1,
+    condition_json: '{"q":"project_goal","op":"eq","val":"sklep"}',
+    actions_json: '[{"type":"recommend_archetype","archetype":"woocommerce"}]',
+    reason_template: '',
+  };
+  const libWithRule = (questions: LibQuestion[]): EstimationLibrary => ({
+    ...emptyLib(questions),
+    rules: [platformRule],
+  });
+
+  it('project_goal (pytanie platformy) pominięte; zwykłe pytanie projektu widoczne', () => {
+    const questions = [
+      Q({
+        code: 'project_goal',
+        text: 'Co ma robić projekt?',
+        question_group: 'projekt',
+        sort_order: 20,
+      }),
+      Q({ code: 'views_count', text: 'Ile podstron?', question_group: 'projekt', sort_order: 30 }),
+    ];
+    render(
+      <QuoteProvider
+        state={mockState({}, EMPTY_OV, vi.fn(), vi.fn(), {})}
+        library={libWithRule(questions)}
+      >
+        <WizardSteps onDone={() => {}} />
+      </QuoteProvider>,
+    );
+    expect(screen.queryByText('Co ma robić projekt?')).toBeNull(); // dedup
+    expect(screen.queryByText('Ile podstron?')).not.toBeNull();
   });
 });

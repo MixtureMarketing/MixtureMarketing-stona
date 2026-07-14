@@ -40,9 +40,12 @@ export function useQuoteState({
   const [overrides, setOverridesState] = useState<ValidationOverrides>(EMPTY_OVERRIDES);
 
   const libData = useMemo(() => toLibraryData(library, archetype), [library, archetype]);
+  // Archetyp to atrybut wyceny, nie zapisywana odpowiedź — wstrzykujemy go do answers TYLKO na
+  // potrzeby silnika (reguły archetype_warning i Confidence czytają answers.archetype). Nie trafia
+  // do autosave (pendingRef), bo persystuje osobno jako archetype_code.
   const computation = useMemo(
-    () => computeQuote({ answers, library: libData, overrides }),
-    [answers, libData, overrides],
+    () => computeQuote({ answers: { ...answers, archetype }, library: libData, overrides }),
+    [answers, archetype, libData, overrides],
   );
 
   // ── Autosave odpowiedzi (debounce + flush) ──

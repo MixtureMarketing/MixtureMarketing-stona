@@ -25,6 +25,7 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
   const [busy, setBusy] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [created, setCreated] = useState<Created | null>(null);
+  const [editingPlatform, setEditingPlatform] = useState(false);
 
   const handleConfirm = async (r: PlatformResult) => {
     if (!name.trim()) {
@@ -34,6 +35,24 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
     setBusy(true);
     setSaveError(null);
     try {
+      if (created) {
+        // „Zmień platformę": draft już istnieje — aktualizujemy archetyp (PUT), bez sierocego draftu.
+        const res = await fetch('/api/admin/estimation/quotes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionToken}` },
+          body: JSON.stringify({
+            id: created.id,
+            archetype_code: r.archetypeCode,
+            archetype_recommended: r.recommended,
+            archetype_reason: r.reason,
+            answers: r.answers,
+          }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setCreated({ id: created.id, archetype: r.archetypeCode, answers: r.answers });
+        setEditingPlatform(false);
+        return;
+      }
       const res = await fetch('/api/admin/estimation/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionToken}` },
@@ -51,7 +70,7 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
       setCreated({ id: data.id, archetype: r.archetypeCode, answers: r.answers });
       onCreated(data.id);
     } catch (e) {
-      setSaveError(e instanceof Error ? e.message : 'Nie udało się utworzyć wyceny');
+      setSaveError(e instanceof Error ? e.message : 'Nie udało się zapisać wyceny');
     } finally {
       setBusy(false);
     }
@@ -74,18 +93,25 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
       {loading && <p className="text-gray-500">Ładowanie biblioteki…</p>}
       {error && <p className="text-red-600">Błąd biblioteki: {error}</p>}
 
-      {created && library && (
+      {created && !editingPlatform && library && (
         <QuoteEditor
           quoteId={created.id}
           archetype={created.archetype}
           initialAnswers={created.answers}
           library={library}
           sessionToken={sessionToken}
+          onChangePlatform={() => setEditingPlatform(true)}
         />
       )}
 
-      {!loading && !error && library && !created && (
+      {!loading && !error && library && (!created || editingPlatform) && (
         <div className="space-y-6">
+          {editingPlatform && (
+            <p className="text-sm text-amber-700">
+              Zmieniasz platformę wyceny #{created?.id}. Odpowiedz ponownie na pytania wstępne —
+              zapiszemy nowy archetyp do istniejącego draftu.
+            </p>
+          )}
           <div className="grid md:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-dark mb-1">Nazwa wyceny *</label>
@@ -94,7 +120,8 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="np. Sklep meblowy — etap 1"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                disabled={!!created}
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 disabled:bg-slate-100"
               />
             </div>
             <div>
@@ -104,12 +131,23 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
                 value={clientName}
                 onChange={(e) => setClientName(e.target.value)}
                 placeholder="opcjonalnie"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200"
+                disabled={!!created}
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 disabled:bg-slate-100"
               />
             </div>
           </div>
 
           <PlatformStep library={library} busy={busy} onConfirm={handleConfirm} />
+
+          {editingPlatform && (
+            <button
+              type="button"
+              onClick={() => setEditingPlatform(false)}
+              className="text-sm text-gray-500 hover:text-dark"
+            >
+              Anuluj zmianę platformy
+            </button>
+          )}
 
           {saveError && <p className="text-red-600 text-sm">{saveError}</p>}
         </div>

@@ -4,11 +4,11 @@
 // Wyjątek świadomy: Confidence (03) odwołuje się do stałych kodów pytań/obszarów zdefiniowanych
 // w formule 03 (existing_data, data_sample, discovery, archetype laravel/headless) — to część
 // specyfikacji silnika (wersjonowana przez engine_version), nie „wartość domenowa".
-import { evaluateRules, aggregate, computeConfidence } from './engine';
+import { evaluateRules, aggregate, computeConfidence, matchCondition } from './engine';
 import { isUnknown } from './types';
 import type {
   Answers,
-  AnswerValue,
+  Condition,
   Risk,
   ComputeQuoteInput,
   QuoteComputation,
@@ -135,20 +135,44 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
     categoryRates: library.categoryRates,
   });
 
-  // ── Confidence (03) ──
-  const unknowns = (Object.entries(answers) as [string, AnswerValue | { unknown: true }][])
-    .filter(([, v]) => isUnknown(v))
-    .map(([code]) => ({ code, weight: library.questionWeights[code] ?? 1 }));
-  const itemRisks: Risk[] = items
+  // ── Confidence (03, D23) ──
+  // D23: WIDOCZNE pytanie (visible_if spełniony) NIEODPOWIEDZIANE lub „nie wiem" → liczy się jak unknown.
+  const isAnswered = (code: string) => {
+    const v = answers[code];
+    return v !== undefined && !isUnknown(v);
+  };
+  const questionVisible = (visibleIf: string | null) => {
+    if (!visibleIf) return true;
+    try {
+      return matchCondition(JSON.parse(visibleIf) as Condition, answers);
+    } catch {
+      return true;
+    }
+  };
+  const visibleQuestions = library.questions.filter((q) => questionVisible(q.visibleIf));
+  const unknowns = visibleQuestions
+    .filter((q) => !isAnswered(q.code))
+    .map((q) => ({ code: q.code, weight: q.unknownWeight, label: q.label }));
+  const answeredVisible = visibleQuestions.length - unknowns.length;
+  const completeness =
+    visibleQuestions.length === 0 ? 1 : answeredVisible / visibleQuestions.length;
+
+  const confItems = items
     .filter((i): i is Extract<QuoteItem, { risk?: Risk }> => i.type !== 'cost')
-    .map((i) => i.risk ?? 'low');
+    .map((i) => ({ name: i.name, risk: (i.risk ?? 'low') as Risk }));
   const dataMigrationWithoutSample =
     answers.existing_data === 'przenosimy' && answers.data_sample === false;
   const customArchetypeWithoutDiscovery =
     ['laravel', 'headless'].includes(String(answers.archetype)) &&
     (ruleEval.levels['discovery']?.level ?? 0) <= 1;
   const confidence = computeConfidence(
-    { unknowns, itemRisks, dataMigrationWithoutSample, customArchetypeWithoutDiscovery },
+    {
+      unknowns,
+      items: confItems,
+      dataMigrationWithoutSample,
+      customArchetypeWithoutDiscovery,
+      belowCompleteness: completeness < library.params.completenessThreshold,
+    },
     { green: library.params.confidenceGreen, yellow: library.params.confidenceYellow },
   );
 

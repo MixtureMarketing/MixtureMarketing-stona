@@ -7,9 +7,8 @@
 INSERT INTO est_questions
   (code, text, help_text, answer_type, options_json, allow_unknown, unknown_weight, visible_if_json, question_group, sort_order) VALUES
   -- ── projekt ──
-  ('archetype', 'Na czym budujemy?', 'Fundament technologiczny; można wskazać po bloku pytań neutralnych.', 'select',
-   '[{"value":"wordpress","label":"WordPress"},{"value":"woocommerce","label":"WooCommerce"},{"value":"prestashop","label":"PrestaShop"},{"value":"woo_headless","label":"WooCommerce headless"},{"value":"sylius","label":"Sylius"},{"value":"medusa","label":"Medusa"},{"value":"laravel","label":"Laravel"},{"value":"headless","label":"Headless (React/Astro)"}]',
-   0, 1.5, NULL, 'projekt', 10),
+  -- (D21/fix1) „archetype" NIE jest pytaniem — to atrybut/wynik kroku Platforma. Usunięte z katalogu
+  --   (DELETE na końcu pliku dla baz już zaseedowanych). Wybór archetypu żyje w PlatformStep.
   ('project_goal', 'Co ma robić projekt?', NULL, 'select',
    '[{"value":"sklep","label":"Sklep internetowy"},{"value":"wizytowka","label":"Wizytówka / landing"},{"value":"portal_tresci","label":"Portal treści"},{"value":"aplikacja","label":"Aplikacja z logowaniem"},{"value":"b2b","label":"Portal B2B"}]',
    0, 1.5, NULL, 'projekt', 20),
@@ -117,6 +116,10 @@ ON CONFLICT(code) DO UPDATE SET
   options_json = excluded.options_json, allow_unknown = excluded.allow_unknown,
   unknown_weight = excluded.unknown_weight, visible_if_json = excluded.visible_if_json,
   question_group = excluded.question_group, sort_order = excluded.sort_order, is_active = 1;
+
+-- (fix1) Usuń „archetype" z katalogu pytań w bazach zaseedowanych przed D21 — archetyp jest
+-- atrybutem wyceny (wynik kroku Platforma), nie pytaniem. Idempotentne.
+DELETE FROM est_questions WHERE code = 'archetype';
 
 -- f1a: pytania neutralne kroku „Platforma" (D21) — dodane dla reguł recommend_archetype.
 INSERT INTO est_questions

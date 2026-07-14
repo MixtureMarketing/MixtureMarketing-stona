@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useQuote } from '../QuoteContext';
+import { categoryName } from './categoryLabels';
 
 const pln = (n: number) => `${Math.round(n).toLocaleString('pl-PL')} zł`;
 const BAND_COLOR: Record<string, string> = {
@@ -13,12 +14,14 @@ const BAND_LABEL: Record<string, string> = {
   yellow: 'widełki z zastrzeżeniami',
   red: 'za dużo niewiadomych — rozważ Discovery',
 };
+// D23: poniżej progu kompletności etykieta „szacunek wstępny" niezależnie od koloru score.
+const BELOW_COMPLETENESS_LABEL = 'szacunek wstępny — odpowiedz na więcej pytań';
 
 // Panel boczny „na spotkanie": widełki + Confidence + top-3 „co obniżyło pewność".
 // Wartości WYŁĄCZNIE z silnika (computation) — zero liczenia tutaj.
 const LivePreviewPanel: React.FC = () => {
   const { state } = useQuote();
-  const { totals, confidence } = state.computation;
+  const { totals, confidence, warnings } = state.computation;
   const [showCategories, setShowCategories] = useState(false);
 
   const topReasons = [...confidence.breakdown]
@@ -43,11 +46,29 @@ const LivePreviewPanel: React.FC = () => {
         )}
       </div>
 
+      {warnings.length > 0 && (
+        <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
+          <p className="text-xs font-bold text-amber-700 uppercase mb-1">Uwagi do platformy</p>
+          <ul className="space-y-1">
+            {warnings.map((w, i) => (
+              <li key={i} className="text-xs text-amber-800 flex items-start gap-1">
+                <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {w}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div>
         <p className="text-xs text-gray-500 uppercase">Confidence</p>
-        <p className={`text-xl font-black ${BAND_COLOR[confidence.band]}`}>
+        <p
+          className={`text-xl font-black ${confidence.belowCompleteness ? 'text-amber-600' : BAND_COLOR[confidence.band]}`}
+        >
           {confidence.score}%{' '}
-          <span className="text-sm font-normal">— {BAND_LABEL[confidence.band]}</span>
+          <span className="text-sm font-normal">
+            —{' '}
+            {confidence.belowCompleteness ? BELOW_COMPLETENESS_LABEL : BAND_LABEL[confidence.band]}
+          </span>
         </p>
         {topReasons.length > 0 && (
           <div className="mt-1">
@@ -77,7 +98,7 @@ const LivePreviewPanel: React.FC = () => {
             <tbody>
               {Object.entries(totals.byCategory).map(([cat, t]) => (
                 <tr key={cat} className="border-b last:border-0">
-                  <td className="py-1 font-bold">{cat === 'items' ? 'moduły/integracje' : cat}</td>
+                  <td className="py-1 font-bold">{categoryName(cat)}</td>
                   <td className="py-1 text-right text-gray-500">
                     {Math.round(t.hoursMin)}–{Math.round(t.hoursMax)} h
                   </td>

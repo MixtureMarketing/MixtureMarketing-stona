@@ -4,6 +4,7 @@ import { matchCondition } from '@/lib/estimation/engine';
 import type { Answers, Condition } from '@/lib/estimation/types';
 import { useQuote } from '../QuoteContext';
 import type { LibQuestion } from '../useEstimationLibrary';
+import { toEngineRules, platformQuestionCodes } from '../engineAdapter';
 import QuestionField from './QuestionField';
 
 // Krok „platforma" wypełniony wcześniej — nie powtarzamy go w wizardzie.
@@ -25,19 +26,30 @@ const WizardSteps: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const { answers, setAnswer, flush } = state;
   const [step, setStep] = useState(0);
 
+  // Dedup (fix 1): pytania zadane już w kroku „Platforma" (data-driven z reguł recommend_archetype)
+  // NIE powtarzają się w wizardzie — niezależnie od tego, w jakiej grupie siedzą.
+  const platformCodes = useMemo(
+    () => platformQuestionCodes(toEngineRules(library.rules)),
+    [library.rules],
+  );
+  const wizardQuestions = useMemo(
+    () => library.questions.filter((q) => !platformCodes.has(q.code)),
+    [library.questions, platformCodes],
+  );
+
   // Grupy obecne w bibliotece, w ustalonej kolejności.
   const groups = useMemo(() => {
-    const present = new Set(library.questions.map((q) => q.question_group).filter(Boolean));
+    const present = new Set(wizardQuestions.map((q) => q.question_group).filter(Boolean));
     return WIZARD_GROUPS_ORDER.filter((g) => present.has(g));
-  }, [library.questions]);
+  }, [wizardQuestions]);
 
   const currentGroup = groups[step];
   const stepQuestions = useMemo(
     () =>
-      library.questions
+      wizardQuestions
         .filter((q) => q.question_group === currentGroup && isVisible(q, answers))
         .sort((a, b) => a.sort_order - b.sort_order),
-    [library.questions, currentGroup, answers],
+    [wizardQuestions, currentGroup, answers],
   );
 
   const unknownCount = useMemo(() => Object.values(answers).filter(isUnknownVal).length, [answers]);

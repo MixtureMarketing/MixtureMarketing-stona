@@ -23,7 +23,8 @@ import type {
 } from './types';
 import { isUnknown } from './types';
 
-export const ENGINE_VERSION = '1.0';
+// 1.1: D23 — widoczne-nieodpowiedziane pytania liczą się do Confidence jak „nie wiem" + próg kompletności.
+export const ENGINE_VERSION = '1.1';
 
 // ── Pomocnicze ───────────────────────────────────────────────────────────────
 
@@ -325,19 +326,20 @@ export function computeConfidence(
     }
   };
 
-  for (const u of input.unknowns) sub(`„nie wiem": ${u.code}`, 8 * u.weight);
-  for (const r of input.itemRisks) {
-    if (r === 'high') sub('pozycja ryzyko wysokie', 6);
-    else if (r === 'medium') sub('pozycja ryzyko średnie', 2);
+  // D23: „nie wiem" ORAZ widoczne-nieodpowiedziane (caller składa listę); etykieta po ludzku (fix 4a).
+  for (const u of input.unknowns) sub(`Brak odpowiedzi: ${u.label ?? u.code}`, 8 * u.weight);
+  for (const it of input.items) {
+    if (it.risk === 'high') sub(`Ryzyko wysokie: ${it.name}`, 6);
+    else if (it.risk === 'medium') sub(`Ryzyko średnie: ${it.name}`, 2);
   }
-  if (input.dataMigrationWithoutSample) sub('migracja danych bez próbki źródła', 8);
-  if (input.customArchetypeWithoutDiscovery) sub('archetyp custom bez discovery', 6);
+  if (input.dataMigrationWithoutSample) sub('Migracja danych bez próbki źródła', 8);
+  if (input.customArchetypeWithoutDiscovery) sub('Archetyp custom bez discovery', 6);
 
   score = Math.round(Math.max(0, Math.min(100, score)));
   const band: ConfidenceResult['band'] =
     score >= thresholds.green ? 'green' : score >= thresholds.yellow ? 'yellow' : 'red';
 
-  return { score, band, breakdown };
+  return { score, band, breakdown, belowCompleteness: input.belowCompleteness };
 }
 
 // ── Walidacja przed finalize (docs/03 inwarianty 3–4) ────────────────────────

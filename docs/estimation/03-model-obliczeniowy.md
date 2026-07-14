@@ -9,6 +9,7 @@ czyste funkcje TS (`lib/estimation/engine.ts`), identyczne w UI (podgląd) i API
 H_min = Σ obszarów: (override_hours_min ?? hours_min poziomu wybranego)
 H_max = Σ obszarów: (override_hours_max ?? hours_max poziomu wybranego)
 ```
+
 Poziom 0 = 0 h. Obszary zablokowane przez archetyp nie uczestniczą (i nie są pokazywane w walidacji).
 
 ## Krok 2 — pozycje addytywne (moduły + integracje)
@@ -17,6 +18,7 @@ Poziom 0 = 0 h. Obszary zablokowane przez archetyp nie uczestniczą (i nie są p
 H_min += Σ itemów typu module|integration: hours_min (snapshot)
 H_max += Σ itemów: hours_max
 ```
+
 Zasada D4: obszar APIs nie rośnie od liczby integracji; funkcjonalności pokryte modułem nie
 podnoszą poziomu obszaru (granice „includes/excludes" w bibliotece rozstrzygają spory).
 
@@ -26,14 +28,15 @@ podnoszą poziomu obszaru (granice „includes/excludes" w bibliotece rozstrzyga
 M = min( Σ aktywnych mnożników.value , multiplier_cap )      // domyślnie cap = 0.40
 H_min *= (1 + M);  H_max *= (1 + M)
 ```
+
 Mnożniki startowe (`est_multipliers`, wartości stałe — D6):
 
-| code | nazwa | wartość |
-|---|---|---|
-| multi_tenant | Multi-tenant / white-label (koordynacja) | +0.10 |
-| new_tech | Nowa technologia w zespole | +0.15 |
-| data_migration_risk | Ryzyko jakości danych źródłowych (sama migracja = obszar G) | +0.10 |
-| hard_deadline | Sztywny krótki deadline / praca równoległa | +0.10 |
+| code                | nazwa                                                       | wartość |
+| ------------------- | ----------------------------------------------------------- | ------- |
+| multi_tenant        | Multi-tenant / white-label (koordynacja)                    | +0.10   |
+| new_tech            | Nowa technologia w zespole                                  | +0.15   |
+| data_migration_risk | Ryzyko jakości danych źródłowych (sama migracja = obszar G) | +0.10   |
+| hard_deadline       | Sztywny krótki deadline / praca równoległa                  | +0.10   |
 
 Źródło: reguły (silnik włącza automatycznie z odpowiedzi) lub ręcznie w walidacji; oba widoczne
 z uzasadnieniem, każdy da się wyłączyć.
@@ -49,6 +52,7 @@ H_min *= (1 + buffer);  H_max *= (1 + buffer)                // domyślnie 0.10
 ```
 stawka(obszar) = est_category_rates[kategoria] ?? hourly_rate  // v1: wszędzie 50 zł
 ```
+
 Dla precyzji per kategoria mnożniki i bufor aplikowane są proporcjonalnie do udziału kategorii
 w bazie; w v1 (jedna stawka) upraszcza się do `P = H × stawka`. Silnik od początku liczy per
 kategoria (struktura wyniku), żeby włączenie stawek kategorii nie zmieniało kodu.
@@ -70,6 +74,7 @@ span = P_max − P_min
 Oferta_min = roundUp( mid − offer_low_k  × span , rounding_pln )   // offer_low_k  = 0.20
 Oferta_max = roundUp( mid + offer_high_k × span , rounding_pln )   // offer_high_k = 0.30
 ```
+
 Domyślnie oferta ma 50% szerokości pełnych widełek, środek +5% ponad matematyczny środek.
 Zaokrąglenie w górę do 100 zł. Współczynniki w `est_params` — kalibracja pętlą zwrotną
 (gdy MPE pokaże systematyczne niedoszacowanie, najpierw rosną widełki bazowe, nie współczynniki).
@@ -79,26 +84,47 @@ Zaokrąglenie w górę do 100 zł. Współczynniki w `est_params` — kalibracja
 ```
 Koszty = Σ itemów typu cost: (amount_pln ?? qty × unit_price)
 ```
+
 Prezentowane w ofercie osobną sekcją („Koszty dodatkowe: dojazdy, licencje"), poza widełkami
 godzinowymi; bez mnożników i bufora. Dojazd: reguła włącza pozycję przy odpowiedzi „warsztaty
 stacjonarne" (qty = wyjazdy × km × stawka_km + noclegi).
 
-## Confidence Score (deterministyczny)
+## Confidence Score (deterministyczny) — `engine_version` 1.1 (D23)
 
 ```
 C = 100
-  − Σ pytań z odpowiedzią „nie wiem": 8 × unknown_weight       // waga pytania wg wpływu na godziny
+  − Σ pytań WIDOCZNYCH bez odpowiedzi LUB z „nie wiem": 8 × unknown_weight   // D23
   − Σ itemów risk='high':   6
   − Σ itemów risk='medium': 2
   − (jest migracja danych bez próbki/dostępu do źródła: 8)
   − (archetyp = laravel/headless ORAZ brak specyfikacji [discovery poziom ≤1]: 6)
 C = clamp(C, 0, 100)
+
+completeness = (widoczne pytania z odpowiedzią) / (widoczne pytania)   // 1.0 gdy brak pytań
+belowCompleteness = completeness < confidence_completeness             // param, DRAFT 0.60
 ```
-Progi (parametry): **≥ 80 zielony** — „możesz podać widełki"; **60–79 żółty** — „podaj widełki
-z zastrzeżeniami / doprecyzuj X"; **< 60 czerwony** — „za dużo niewiadomych: zaproponuj płatne
-Discovery zamiast wiążącej wyceny". Breakdown składników zapisywany w
+
+**D23 (zmiana formuły 1.0→1.1).** Pytanie WIDOCZNE (spełniony `visible_if`) a NIEODPOWIEDZIANE
+liczy się do Confidence tak samo jak jawne „nie wiem" (ta sama `unknown_weight`). Skutek:
+pusta wycena startuje z niską pewnością, która rośnie w miarę odpowiadania — Confidence mierzy
+faktyczną wiedzę o projekcie, nie tylko liczbę deklarowanych niewiadomych. Pytanie ukryte
+(warunek `visible_if` niespełniony) NIE obniża pewności.
+
+Próg kompletności `confidence_completeness` (param, DRAFT 0.60): poniżej progu — niezależnie od
+score — etykieta zmienia się z „możesz podać widełki" na **„szacunek wstępny — odpowiedz na
+więcej pytań"**. Chroni przed podaniem widełek na podstawie garstki odpowiedzi, gdy score
+wypadł wysoko przypadkiem.
+
+Przykład (ręcznie): 3 pytania widoczne, `unknown_weight` = 1 każde, 2 odpowiedziane bez „nie
+wiem", 1 bez odpowiedzi → C = 100 − 8×1 = 92; completeness = 2/3 = 0,67 ≥ 0,60 → normalna
+etykieta. Pusta wycena (0/3) → C = 100 − 3×8 = 76, completeness 0 < 0,60 → „szacunek wstępny".
+
+Progi score (parametry): **≥ 80 zielony** — „możesz podać widełki"; **60–79 żółty** — „podaj
+widełki z zastrzeżeniami / doprecyzuj X"; **< 60 czerwony** — „za dużo niewiadomych: zaproponuj
+płatne Discovery zamiast wiążącej wyceny". Breakdown składników zapisywany w
 `confidence_breakdown_json` i pokazywany w UI (lista: co obniżyło pewność → co dopytać klienta
-jeszcze na spotkaniu).
+jeszcze na spotkaniu); każdy składnik nazwany po ludzku (etykieta pytania/pozycji + poziom
+ryzyka), nigdy „pozycja"/kod.
 
 ## Kolejność i inwarianty (testy silnika)
 
@@ -111,10 +137,12 @@ jeszcze na spotkaniu).
 ## Kalibracja (faza 3, deterministyczna — MPE)
 
 Dla każdej pary (obszar, poziom) z zamkniętych wycen (status `closed`):
+
 ```
 err_i = (actual_i − mid_est_i) / mid_est_i        // mid_est = środek snapshotowanych widełek
 MPE(aspect, level) = mediana(err_i)               // mediana, nie średnia — odporność na outliery
 ```
+
 Przy n ≥ 3: jeśli |MPE| > 15%, ekran kalibracji proponuje korektę widełek bazowych
 `hours_min/max × (1 + MPE)` z podglądem przed/po. Zmiana wymaga ręcznego zatwierdzenia
 (nigdy automatu) i działa tylko wprzód (snapshoty chronią historię). Ten sam raport dla

@@ -11,6 +11,7 @@ INSERT INTO est_params (key, value, description) VALUES
   ('offer_high_k', '0.30', 'Współczynnik zawężenia górnej granicy oferty (krok 6).'),
   ('rounding_pln', '100', 'Zaokrąglenie widełek ofertowych w górę [zł].'),
   ('confidence_green', '80', 'Próg Confidence: ≥ zielony („możesz podać widełki").'),
-  ('confidence_yellow', '60', 'Próg Confidence: ≥ żółty („widełki z zastrzeżeniami"); poniżej czerwony.')
+  ('confidence_yellow', '60', 'Próg Confidence: ≥ żółty („widełki z zastrzeżeniami"); poniżej czerwony.'),
+  ('confidence_completeness', '0.60', 'D23: próg kompletności (udział odpowiedzianych widocznych pytań); poniżej = „szacunek wstępny" (DRAFT).')
 ON CONFLICT(key) DO UPDATE SET
   value = excluded.value, description = excluded.description;

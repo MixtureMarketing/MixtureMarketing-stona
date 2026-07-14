@@ -22,6 +22,7 @@ function parseParams(rows: { key: string; value: string }[]): EngineParams {
     roundingPln: num('rounding_pln', 100),
     confidenceGreen: num('confidence_green', 80),
     confidenceYellow: num('confidence_yellow', 60),
+    completenessThreshold: num('confidence_completeness', 0.6),
   };
 }
 
@@ -64,7 +65,12 @@ export function toLibraryData(lib: EstimationLibrary, archetype: string): Librar
       risk: asRisk(i.risk),
     })),
     multipliers: lib.multipliers.map((m) => ({ code: m.code, name: m.name, value: m.value })),
-    questionWeights: Object.fromEntries(lib.questions.map((q) => [q.code, q.unknown_weight])),
+    questions: lib.questions.map((q) => ({
+      code: q.code,
+      unknownWeight: q.unknown_weight,
+      visibleIf: q.visible_if_json,
+      label: q.text,
+    })),
     params: parseParams(lib.params),
     integrationMode: arch?.integration_mode === 'custom' ? 'custom' : 'platform',
   };

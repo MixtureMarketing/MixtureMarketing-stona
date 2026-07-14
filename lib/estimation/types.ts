@@ -102,6 +102,8 @@ export interface EngineParams {
   roundingPln: number; // domyślnie 100
   confidenceGreen: number; // domyślnie 80
   confidenceYellow: number; // domyślnie 60
+  /** D23: próg kompletności (udział odpowiedzianych widocznych pytań); poniżej = „szacunek wstępny". */
+  completenessThreshold: number; // domyślnie 0.60
 }
 
 /** Stawki per kategoria (D8); brak klucza ⇒ fallback do hourlyRate. */
@@ -212,14 +214,17 @@ export interface Totals {
 // ── Confidence (03) ──────────────────────────────────────────────────────────
 
 export interface ConfidenceInput {
-  /** Odpowiedzi „nie wiem" z wagą pytania (unknown_weight). */
-  unknowns: { code: string; weight: number }[];
-  /** Ryzyko itemów (moduły/integracje). */
-  itemRisks: Risk[];
+  /** D23: widoczne pytania „nie wiem" LUB nieodpowiedziane (waga = unknown_weight);
+   *  `label` = czytelna treść pytania do breakdownu (fix 4a). */
+  unknowns: { code: string; weight: number; label?: string }[];
+  /** Pozycje ryzyka (moduły/integracje) z nazwą do breakdownu (fix 4a). */
+  items: { name: string; risk: Risk }[];
   /** Migracja danych bez próbki/dostępu do źródła. */
   dataMigrationWithoutSample: boolean;
   /** Archetyp laravel/headless ORAZ discovery ≤ 1. */
   customArchetypeWithoutDiscovery: boolean;
+  /** D23: poniżej progu kompletności (udział odpowiedzianych widocznych pytań). */
+  belowCompleteness: boolean;
 }
 
 export interface ConfidenceBreakdownEntry {
@@ -231,6 +236,8 @@ export interface ConfidenceResult {
   score: number; // 0..100
   band: 'green' | 'yellow' | 'red';
   breakdown: ConfidenceBreakdownEntry[];
+  /** D23: true = poniżej progu kompletności → etykieta „szacunek wstępny". */
+  belowCompleteness: boolean;
 }
 
 // ── Walidacja przed finalize (03 inwarianty 3–4) ─────────────────────────────
@@ -270,8 +277,8 @@ export interface LibraryData {
     risk: Risk;
   }[];
   multipliers: MultiplierDef[];
-  /** Waga „nie wiem" per pytanie (Confidence). */
-  questionWeights: Record<string, number>;
+  /** Pytania: waga „nie wiem", warunek widoczności (D23 kompletność), etykieta (breakdown). */
+  questions: { code: string; unknownWeight: number; visibleIf: string | null; label: string }[];
   params: EngineParams;
   categoryRates?: CategoryRates;
   /** Tryb integracji wybranego archetypu ('platform'|'custom') — wybór taryfy godzin. */

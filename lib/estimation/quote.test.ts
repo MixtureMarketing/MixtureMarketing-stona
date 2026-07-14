@@ -13,6 +13,7 @@ const PARAMS: EngineParams = {
   roundingPln: 100,
   confidenceGreen: 80,
   confidenceYellow: 60,
+  completenessThreshold: 0.6,
 };
 
 const rules: Rule[] = [
@@ -65,7 +66,11 @@ const LIB: LibraryData = {
   modules: [],
   integrations: [],
   multipliers: [{ code: 'hard_deadline', name: 'Deadline', value: 0.1 }],
-  questionWeights: { sensitive_data: 1, deadline_hard: 1, project_goal: 1 },
+  questions: [
+    { code: 'sensitive_data', unknownWeight: 1, visibleIf: null, label: 'Dane wrażliwe?' },
+    { code: 'deadline_hard', unknownWeight: 1, visibleIf: null, label: 'Sztywny deadline?' },
+    { code: 'project_goal', unknownWeight: 1, visibleIf: null, label: 'Cel projektu?' },
+  ],
   params: PARAMS,
   integrationMode: 'platform',
 };
@@ -103,9 +108,30 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
     expect(r.totals.offer).toEqual({ min: 8300, max: 11900 });
   });
 
-  it('Confidence: „nie wiem" obniża o 8×waga (92, zielony)', () => {
+  it('Confidence D23: 3 widoczne pytania, 2 odpowiedziane, sensitive_data „nie wiem"', () => {
+    // D23 (NOWA formuła, engine 1.1): widoczne-nieodpowiedziane liczą jak „nie wiem".
+    //   Tu wszystkie 3 pytania widoczne; odpowiedziane project_goal + deadline_hard (2),
+    //   sensitive_data = „nie wiem" (1 unknown). unknowns=[sensitive_data] → 100 − 8×1 = 92.
+    //   kompletność 2/3 ≈ 0.67 ≥ 0.60 → NIE belowCompleteness, band zielony.
     expect(r.confidence.score).toBe(92);
     expect(r.confidence.band).toBe('green');
+    expect(r.confidence.belowCompleteness).toBe(false);
+  });
+
+  it('D23 pusty formularz → niski Confidence + belowCompleteness', () => {
+    // 3 widoczne pytania, 0 odpowiedzianych → 3 unknown → 100 − 3×8 = 76; kompletność 0 < 0.60.
+    const empty = computeQuote({ answers: {}, library: LIB });
+    expect(empty.confidence.score).toBe(76);
+    expect(empty.confidence.belowCompleteness).toBe(true);
+  });
+
+  it('D23 komplet bez „nie wiem" → 100, nie belowCompleteness', () => {
+    const full = computeQuote({
+      answers: { project_goal: 'sklep', deadline_hard: true, sensitive_data: false },
+      library: LIB,
+    });
+    expect(full.confidence.score).toBe(100);
+    expect(full.confidence.belowCompleteness).toBe(false);
   });
 
   it('override poziomu (chosen < suggested) przelicza godziny i totals', () => {
