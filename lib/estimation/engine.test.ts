@@ -420,6 +420,26 @@ describe('aggregate — kolejność obliczeń (docs/03)', () => {
     // 10h × (1) × 1.10 bufor = 11h × 100 zł = 1100
     expect(t.price.min).toBeCloseTo(11 * 100, 6);
   });
+
+  it('poziom 4 „X+" (D22: hours_max = 1.5 × hours_min) przechodzi agregację', () => {
+    // PRZYPADEK KONTROLNY: frontend L4 250–375 (250 × 1.5), sam, bufor 0.10, stawka 50.
+    //   afterBuffer 275 / 412.5 → cena 13750 / 20625.
+    //   oferta: mid 17187.5, span 6875; min=ceil(15812.5)→15900; max=ceil(19250)→19300.
+    const t = aggregate({
+      aspects: [{ code: 'frontend', category: 'A', hoursMin: 250, hoursMax: 375 }],
+      items: [],
+      multipliers: [],
+      params: PARAMS,
+    });
+    expect(t.base).toMatchObject({ hoursMin: 250, hoursMax: 375 });
+    expect(t.afterBuffer.hoursMax).toBeCloseTo(412.5, 6);
+    expect(t.price.min).toBeCloseTo(13750, 6);
+    expect(t.price.max).toBeCloseTo(20625, 6);
+    expect(t.offer.min).toBe(15900);
+    expect(t.offer.max).toBe(19300);
+    expect(t.offer.min).toBeGreaterThanOrEqual(t.price.min);
+    expect(t.offer.max).toBeLessThanOrEqual(t.price.max);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

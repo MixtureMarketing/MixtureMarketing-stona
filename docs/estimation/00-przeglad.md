@@ -56,6 +56,7 @@ Data: 14/07/2026 · Właściciel merytoryczny: Jakub · Kod: Claude Code (Opus 4
 | D19 | Snapshoty | Obowiązkowe (zasada nadrzędna 3) |
 | D20 | Wsparcie decyzji | System jest doradcą technicznym (reguły → decyzje architektoniczne z uzasadnieniami); Karta decyzji technicznych jako drugi dokument wyjściowy obok oferty (F2) |
 | D21 | Rekomendacja platformy | Archetyp nie jest pierwszym pytaniem: blok pytań neutralnych → reguły `recommend_archetype` → 1–2 rekomendacje z uzasadnieniem → wybór użytkownika (ostateczny; wbrew rekomendacji = wymagany powód); zapis recommended vs chosen |
+| D22 | Poziomy otwarte „X+" | W seedach `est_levels` górne tiery open-ended (np. frontend L4 „250+") mają `hours_max = 1.5 × hours_min` (DRAFT, per-obszar do korekty Jakuba). Realny nadmiar ponad górną granicę wypełnia `override_hours` w wycenie z uzasadnieniem (F0, decyzja architekta) |
 
 ## Słownik
 
