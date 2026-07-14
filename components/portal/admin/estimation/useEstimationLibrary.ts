@@ -33,6 +33,18 @@ export interface EstimationLibrary {
   }[];
   questions: LibQuestion[];
   rules: RawRule[];
+  modules: { code: string; name: string; hours_min: number; hours_max: number; risk: string }[];
+  integrations: {
+    code: string;
+    name: string;
+    category: string;
+    hours_platform_min: number | null;
+    hours_platform_max: number | null;
+    hours_custom_min: number;
+    hours_custom_max: number;
+    risk: string;
+  }[];
+  multipliers: { code: string; name: string; value: number }[];
   params: { key: string; value: string }[];
 }
 

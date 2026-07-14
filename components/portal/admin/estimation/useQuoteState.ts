@@ -1,0 +1,117 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { computeQuote } from '@/lib/estimation/quote';
+import type { Answers, AnswerValue, ValidationOverrides } from '@/lib/estimation/types';
+import type { EstimationLibrary } from './useEstimationLibrary';
+import { toLibraryData } from './toLibraryData';
+
+type AnswerInput = AnswerValue | { unknown: true };
+
+const EMPTY_OVERRIDES: ValidationOverrides = {
+  chosenLevels: {},
+  overrideHours: {},
+  levelReasons: {},
+  disabledModules: [],
+  disabledIntegrations: [],
+  disabledMultipliers: [],
+  extraCostItems: [],
+};
+
+interface Params {
+  quoteId: number;
+  archetype: string;
+  library: EstimationLibrary;
+  sessionToken: string | null;
+  initialAnswers?: Answers;
+}
+
+/**
+ * Jedno źródło prawdy wyceny: answers (autosave PUT) + overrides (stan klienta do finalize).
+ * Całe liczenie w computeQuote (pure). Zabezpieczenia: debounce z FLUSH przy zmianie kroku/unmount,
+ * beforeunload gdy są niezapisane overrides lub wisząca zmiana odpowiedzi.
+ */
+export function useQuoteState({
+  quoteId,
+  archetype,
+  library,
+  sessionToken,
+  initialAnswers,
+}: Params) {
+  const [answers, setAnswers] = useState<Answers>(initialAnswers ?? {});
+  const [overrides, setOverridesState] = useState<ValidationOverrides>(EMPTY_OVERRIDES);
+
+  const libData = useMemo(() => toLibraryData(library, archetype), [library, archetype]);
+  const computation = useMemo(
+    () => computeQuote({ answers, library: libData, overrides }),
+    [answers, libData, overrides],
+  );
+
+  // ── Autosave odpowiedzi (debounce + flush) ──
+  const pendingRef = useRef<Answers>({});
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flush = useCallback(async () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const pending = pendingRef.current;
+    if (Object.keys(pending).length === 0 || !sessionToken) return;
+    pendingRef.current = {};
+    try {
+      await fetch('/api/admin/estimation/quotes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionToken}` },
+        body: JSON.stringify({ id: quoteId, answers: pending }),
+      });
+    } catch {
+      // nie gub zmian przy błędzie sieci — wróć do bufora
+      pendingRef.current = { ...pending, ...pendingRef.current };
+    }
+  }, [quoteId, sessionToken]);
+
+  const setAnswer = useCallback(
+    (code: string, value: AnswerInput) => {
+      setAnswers((prev) => ({ ...prev, [code]: value }));
+      pendingRef.current = { ...pendingRef.current, [code]: value };
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => void flush(), 800);
+    },
+    [flush],
+  );
+
+  // FLUSH przy unmount (szybki klik-dalej-zamknij nie gubi wiszącej zmiany).
+  useEffect(() => () => void flush(), [flush]);
+
+  // ── Overrides (walidacja techniczna — stan klienta do finalize) ──
+  const setOverrides = useCallback(
+    (fn: (prev: ValidationOverrides) => ValidationOverrides) => setOverridesState(fn),
+    [],
+  );
+
+  const hasUnsavedOverrides = useMemo(
+    () =>
+      Object.keys(overrides.chosenLevels).length > 0 ||
+      Object.keys(overrides.overrideHours).length > 0 ||
+      overrides.disabledModules.length > 0 ||
+      overrides.disabledIntegrations.length > 0 ||
+      overrides.disabledMultipliers.length > 0 ||
+      overrides.extraCostItems.length > 0,
+    [overrides],
+  );
+
+  // beforeunload: ostrzeż, gdy są niezapisane overrides lub wisząca zmiana odpowiedzi.
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedOverrides || Object.keys(pendingRef.current).length > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasUnsavedOverrides]);
+
+  return { answers, setAnswer, overrides, setOverrides, computation, flush, hasUnsavedOverrides };
+}
+
+export type QuoteState = ReturnType<typeof useQuoteState>;
