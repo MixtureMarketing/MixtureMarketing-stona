@@ -119,8 +119,19 @@ describe('render PDF — oferta (realny render, nie mock)', () => {
 
   it('sekcje oferty są w dokumencie, a powód wyłączenia NIE', async () => {
     const text = await pdfText(await generateOfferPdf(OFFER));
-    for (const s of ['Zakres prac', 'Integracje', 'Koszty dodatkowe', 'Poza zakresem', 'Warunki']) {
-      expect(text, `brak sekcji: ${s}`).toContain(s);
+    // Nagłówki sekcji są WERSALIKAMI (hierarchia typograficzna, f2b) — asercja pilnuje
+    // przy okazji, że polskie znaki przeżywają toUpperCase() i render („WYCENĄ").
+    // Bez spacji, bo światło międzyliterowe (Tc) bywa czytane przez ekstraktory jako spacja —
+    // to cecha ekstrakcji, nie dokumentu, i nie ma po co jej zamrażać w teście.
+    const zbite = text.replace(/\s/g, '');
+    for (const s of [
+      'ZAKRESPRAC',
+      'INTEGRACJE',
+      'KOSZTYDODATKOWE(POZAWYCENĄPRAC)',
+      'POZAZAKRESEMTEJOFERTY',
+      'WARUNKI',
+    ]) {
+      expect(zbite, `brak sekcji: ${s}`).toContain(s);
     }
     expect(text).toContain('Observability');
     expect(text).not.toContain('monitoring'); // powód = Karta, nie oferta
@@ -138,6 +149,100 @@ describe('render PDF — oferta (realny render, nie mock)', () => {
       const base = doc.getTextWidth('AA');
       expect(w, `znak U+${ch.codePointAt(0)!.toString(16)} nie ma glifu`).toBeGreaterThan(base);
     }
+  });
+});
+
+/** Surowe bajty PDF — do sprawdzania struktury (obrazy), której ekstraktor tekstu nie widzi. */
+async function pdfBytes(blob: Blob): Promise<string> {
+  const buf = await new Promise<Buffer>((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(Buffer.from(fr.result as ArrayBuffer));
+    fr.onerror = () => rej(fr.error);
+    fr.readAsArrayBuffer(blob);
+  });
+  return buf.toString('latin1');
+}
+
+describe('render PDF — łamanie stron', () => {
+  // Regresja z próbki f2b: „UX/UI Design" został na dole strony 1, a jego opis wylądował
+  // samotnie na górze strony 2 — rezerwacja miejsca była zgadywana (12 mm) zamiast policzona.
+  //
+  // Test jest WŁASNOŚCIOWY, i to nie z zamiłowania do teorii. Dwie wcześniejsze wersje
+  // przechodziły NA ZEPSUTYM KODZIE, bo przy tej akurat treści granica strony wypadała
+  // między pozycjami. Test zależny od tego, gdzie przypadkiem wypadnie łamanie, nie pilnuje
+  // niczego — pilnuje szczęścia.
+  //
+  // Dlatego przesuwamy FAZĘ: pierwsza pozycja („klin") rośnie o wiersz na wariant, więc
+  // granica strony przechodzi przez cały cykl i któryś wariant MUSI trafić w blok.
+  // Sprawdzone na starym kodzie: warianty 3 i 4 rozrywają pozycję 11.
+  // (Sam sweep to za mało: poprzednia wersja dokładała słowa, które nigdy nie przepchnęły
+  // opisu na kolejny wiersz — osiem „wariantów" dawało osiem identycznych dokumentów.)
+  const ZDANIE =
+    'Zakres prac, przyjęte założenia oraz wszystko, co trzeba powiedzieć, zanim ktokolwiek zobaczy cenę. ';
+  // Znacznik na KOŃCU opisu: przy rozerwaniu bloku pierwsze wiersze zostają przy tytule,
+  // więc asercja po początku opisu niczego by nie zauważyła.
+  const opis = (i: number, wiersze: number) =>
+    `Opis obszaru ${i}: ${ZDANIE.repeat(wiersze)}KONIEC-OPISU-${i}.`;
+
+  it.each([0, 1, 2, 3, 4, 5])(
+    'pozycja zakresu nie rozpada się między stronami (klin +%i)',
+    async (klin) => {
+      const { PDFParse } = await import('pdf-parse');
+      const duza: Offer = {
+        ...OFFER,
+        scope: [
+          { title: 'Obszar numer 99', level: 'Standardowy', description: opis(99, 1 + klin) },
+          ...Array.from({ length: 26 }, (_, i) => ({
+            title: `Obszar numer ${i + 1}`,
+            level: 'Standardowy',
+            description: opis(i + 1, 1),
+          })),
+        ],
+      };
+      const blob = await generateOfferPdf(duza);
+      const buf = await new Promise<Buffer>((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = () => res(Buffer.from(fr.result as ArrayBuffer));
+        fr.onerror = () => rej(fr.error);
+        fr.readAsArrayBuffer(blob);
+      });
+      const parser = new PDFParse({ data: new Uint8Array(buf) });
+      try {
+        const wynik = await parser.getText();
+        expect(wynik.pages.length).toBeGreaterThan(1);
+        const strony = wynik.pages.map((p) => p.text.replace(/\s+/g, ' '));
+        for (const i of [...Array.from({ length: 26 }, (_, k) => k + 1), 99]) {
+          const naTytule = strony.findIndex((t) => t.includes(`Obszar numer ${i} `));
+          const naKoncuOpisu = strony.findIndex((t) => t.includes(`KONIEC-OPISU-${i}.`));
+          expect(naTytule, `nie znaleziono tytułu: ${i}`).toBeGreaterThan(-1);
+          expect(naKoncuOpisu, `nie znaleziono końca opisu: ${i}`).toBeGreaterThan(-1);
+          expect(naKoncuOpisu, `opis pozycji ${i} rozerwany od tytułu`).toBe(naTytule);
+        }
+      } finally {
+        await parser.destroy();
+      }
+    },
+  );
+});
+
+describe('render PDF — logo w nagłówku', () => {
+  it('oferta i Karta osadzają raster logo (XObject typu Image)', async () => {
+    // Ekstraktor tekstu nie zobaczy obrazka, a `addImage` na błędnym base64 nie rzuca —
+    // dlatego asercja idzie po strukturze pliku, nie po tekście.
+    for (const [nazwa, blob] of [
+      ['oferta', await generateOfferPdf(OFFER)],
+      ['karta', await generateDecisionCardPdf(CARD)],
+    ] as const) {
+      const raw = await pdfBytes(blob);
+      expect(raw, `${nazwa}: brak XObject obrazu`).toContain('/Subtype /Image');
+      expect(raw, `${nazwa}: logo nie jest tym rastrem`).toContain('/Width 756');
+    }
+  });
+
+  it('logo zachowuje proporcje asetu (nie rozciągamy marki)', async () => {
+    const { LOGO_PROPORCJE } = await import('@/lib/pdf/logoPng');
+    // Zgodność z viewBox SVG „0 0 1224.64 481.83" — raster nie ma prawa zmienić kształtu.
+    expect(LOGO_PROPORCJE.szerokosc / LOGO_PROPORCJE.wysokosc).toBeCloseTo(1224.64 / 481.83, 2);
   });
 });
 
