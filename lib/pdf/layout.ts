@@ -17,7 +17,12 @@ const PRAWA = STRONA.szerokosc - STRONA.margines;
 export async function rysujLogo(doc: jsPDF, x: number, y: number, szerokosc = 32): Promise<number> {
   const { LOGO_PNG_B64, LOGO_PROPORCJE } = await import('./logoPng');
   const wysokosc = (szerokosc * LOGO_PROPORCJE.wysokosc) / LOGO_PROPORCJE.szerokosc;
-  doc.addImage(LOGO_PNG_B64, 'PNG', x, y, szerokosc, wysokosc);
+  // `compression` JEST konieczne: jsPDF domyślnie osadza rozpakowany bitmapowy raster,
+  // ignorując to, że PNG był już skompresowany. Zmierzone na tym logo: 450 kB bez
+  // kompresji vs 30 kB ze 'SLOW'. Oferta #4 puchła przez to do pół megabajta.
+  // `alias` zapobiega osadzeniu tego samego obrazu drugi raz, gdyby kiedyś trafił
+  // na kolejną stronę.
+  doc.addImage(LOGO_PNG_B64, 'PNG', x, y, szerokosc, wysokosc, 'mixture-logo', 'SLOW');
   return y + wysokosc;
 }
 

@@ -239,6 +239,16 @@ describe('render PDF — logo w nagłówku', () => {
     }
   });
 
+  it('WAGA: osadzone logo jest skompresowane (oferta poniżej 150 kB)', async () => {
+    // jsPDF domyślnie wsadza raster ROZPAKOWANY — wersja bez `compression` ważyła 504 kB
+    // przy logo, które na dysku ma 12 kB. Dokument idzie mailem do klienta, a takiej
+    // regresji nie widać: wygląda identycznie, tylko waży dziesięć razy więcej.
+    const oferta = await generateOfferPdf(OFFER);
+    const karta = await generateDecisionCardPdf(CARD);
+    expect(oferta.size, `oferta: ${(oferta.size / 1024).toFixed(0)} kB`).toBeLessThan(150 * 1024);
+    expect(karta.size, `karta: ${(karta.size / 1024).toFixed(0)} kB`).toBeLessThan(150 * 1024);
+  });
+
   it('logo zachowuje proporcje asetu (nie rozciągamy marki)', async () => {
     const { LOGO_PROPORCJE } = await import('@/lib/pdf/logoPng');
     // Zgodność z viewBox SVG „0 0 1224.64 481.83" — raster nie ma prawa zmienić kształtu.
