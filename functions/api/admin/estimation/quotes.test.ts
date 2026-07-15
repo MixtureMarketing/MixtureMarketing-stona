@@ -87,15 +87,15 @@ describe('POST /api/admin/estimation/quotes — draft + komplet odpowiedzi atomo
       >,
     );
     expect(res.status).toBe(201);
-    expect(await res.json()).toMatchObject({ id: 42, status: 'draft', engine_version: '1.4' });
+    expect(await res.json()).toMatchObject({ id: 42, status: 'draft', engine_version: '1.6' });
     const insert = calls.binds.find((b) => b.sql.includes('INSERT INTO est_quotes'));
     expect(insert).toBeTruthy();
-    // snapshot: hourly_rate=50, params_json zawiera buffer, engine_version=1.4
+    // snapshot: hourly_rate=50, params_json zawiera buffer, engine_version=1.6
     expect(insert!.args).toContain(50);
     expect(insert!.args.some((a) => typeof a === 'string' && a.includes('"buffer":"0.10"'))).toBe(
       true,
     );
-    expect(insert!.args).toContain('1.4');
+    expect(insert!.args).toContain('1.6');
   });
 
   it('zapisuje KOMPLET odpowiedzi neutralnych w batchu (atomowo z draftem)', async () => {

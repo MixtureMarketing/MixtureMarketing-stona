@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { matchCondition } from '@/lib/estimation/engine';
-import type { Answers, Condition } from '@/lib/estimation/types';
+import { isQuestionVisible, resolveVisibleAnswers } from '@/lib/estimation/engine';
+import type { Answers } from '@/lib/estimation/types';
 import { useQuote } from '../QuoteContext';
 import type { LibQuestion } from '../useEstimationLibrary';
 import { toEngineRules, platformQuestionCodes } from '../engineAdapter';
@@ -10,14 +10,10 @@ import QuestionField from './QuestionField';
 // Krok „platforma" wypełniony wcześniej — nie powtarzamy go w wizardzie.
 const WIZARD_GROUPS_ORDER = ['projekt', 'uzytkownicy', 'funkcje', 'marketing', 'realizacja'];
 
-const isVisible = (q: LibQuestion, answers: Answers): boolean => {
-  if (!q.visible_if_json) return true;
-  try {
-    return matchCondition(JSON.parse(q.visible_if_json) as Condition, answers);
-  } catch {
-    return true;
-  }
-};
+/** D27: widoczność liczona na odpowiedziach JUŻ przefiltrowanych (punkt stały) — dokładnie ta sama
+ *  funkcja co w silniku, żeby wizard nie pokazał pytania, którego wycena nie liczy (i odwrotnie). */
+const isVisible = (q: LibQuestion, visibleAnswers: Answers): boolean =>
+  isQuestionVisible(q.visible_if_json, visibleAnswers);
 const isUnknownVal = (v: unknown) =>
   typeof v === 'object' && v !== null && 'unknown' in (v as object);
 
@@ -56,16 +52,31 @@ const WizardSteps: React.FC<{ onDone: () => void }> = ({ onDone }) => {
     return WIZARD_GROUPS_ORDER.filter((g) => present.has(g));
   }, [wizardQuestions]);
 
+  // D27: odpowiedzi z porzuconych ścieżek (pytanie już niewidoczne) nie mogą wpływać na widoczność
+  // kolejnych pytań — ten sam punkt stały, którego używa silnik.
+  const visibleAnswers = useMemo(
+    () =>
+      resolveVisibleAnswers(
+        answers,
+        library.questions.map((q) => ({ code: q.code, visibleIf: q.visible_if_json })),
+      ),
+    [answers, library.questions],
+  );
+
   const currentGroup = groups[step];
   const stepQuestions = useMemo(
     () =>
       wizardQuestions
-        .filter((q) => q.question_group === currentGroup && isVisible(q, answers))
+        .filter((q) => q.question_group === currentGroup && isVisible(q, visibleAnswers))
         .sort((a, b) => a.sort_order - b.sort_order),
-    [wizardQuestions, currentGroup, answers],
+    [wizardQuestions, currentGroup, visibleAnswers],
   );
 
-  const unknownCount = useMemo(() => Object.values(answers).filter(isUnknownVal).length, [answers]);
+  // Licznik „nie wiem" liczy tylko WIDOCZNE pytania — ukryte nie obciążają wyceny (D27).
+  const unknownCount = useMemo(
+    () => Object.values(visibleAnswers).filter(isUnknownVal).length,
+    [visibleAnswers],
+  );
 
   const goto = async (next: number) => {
     await flush(); // FLUSH przy zmianie kroku (zabezpieczenie b)

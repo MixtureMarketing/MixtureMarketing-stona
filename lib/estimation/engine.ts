@@ -30,7 +30,11 @@ import { isUnknown, isNotApplicable } from './types';
 //      nie trafiały do totals.costs (bug f1c-fix1).
 // 1.4: D24 rozszerzone — checklista modułów = PRZECIĘCIE archetyp ∩ cel (goals_json, migracja 0004);
 //      moduły spoza zakresu nie wchodzą do wyceny. Ręczna kwota pozycji kosztowej (costAmounts).
-export const ENGINE_VERSION = '1.4';
+// 1.5: D27 — odpowiedzi na pytania NIEWIDOCZNE nie istnieją dla obliczeń (filtr punktu stałego
+//      przed regułami/pozycjami/Confidence); porzucona ścieżka odpowiedzi nie wycenia po cichu.
+// 1.6: D27 rozszerzone — wartość multiselecta wskazująca na pozycję spoza (przefiltrowanej)
+//      biblioteki też nie istnieje: nie wycenia, nie odblokowuje pytań kaskadowych, nie karze Confidence.
+export const ENGINE_VERSION = '1.6';
 
 // ── Pomocnicze ───────────────────────────────────────────────────────────────
 
@@ -100,6 +104,72 @@ function compareLeaf(answer: AnswerValue, op: ConditionOp, val: AnswerValue | un
     default:
       return false;
   }
+}
+
+// ── Widoczność pytań (D27) ───────────────────────────────────────────────────
+
+/** Minimalny kształt pytania na potrzeby widoczności (UI i silnik podają swoje typy). */
+export interface VisibilityQuestion {
+  code: string;
+  visibleIf: string | null;
+}
+
+/** Czy pytanie jest widoczne przy danych odpowiedziach. Brak warunku = zawsze.
+ *  Niepoprawny JSON warunku → widoczne (nie chowamy pytania z powodu błędu w seedzie). */
+export function isQuestionVisible(visibleIf: string | null, answers: Answers): boolean {
+  if (!visibleIf) return true;
+  try {
+    return matchCondition(JSON.parse(visibleIf) as Condition, answers);
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * D27: odpowiedź, której prowadzący nie mógł udzielić, NIE ISTNIEJE dla obliczeń. Dwie postacie:
+ *
+ * 1. **Pytanie niewidoczne** (`visible_if` niespełniony) → cała odpowiedź odpada. Zmiana celu →
+ *    pytania sklepowe znikają z wizarda, ale odpowiedzi zostają w stanie i w bazie; bez filtra
+ *    po cichu wyceniały integracje (retro #1: Stripe wchodził do wyceny portalu treści).
+ * 2. **Wartość multiselecta spoza biblioteki** (`allowedValues`) → sama wartość odpada. Moduł
+ *    odfiltrowany per archetyp/cel (D24) zostaje w `answers.modules`; bez czyszczenia dalej
+ *    odblokowywał pytania kaskadowe i karał Confidence, choć nigdzie nie był wyceniany
+ *    (retro #2: konfigurator zabierał −36 pkt w wycenie, w której go nie ma).
+ *
+ * PUNKT STAŁY: usunięcie odpowiedzi/wartości może ukryć kolejne pytania (kaskada `visible_if`),
+ * więc filtrujemy do stabilizacji. Zbiór maleje monotonicznie ⇒ zbieżność ≤ liczba pytań.
+ * Klucze spoza katalogu pytań (np. `archetype`) przechodzą nietknięte.
+ *
+ * @param allowedValues kod pytania → dozwolone wartości (kody z JUŻ przefiltrowanej biblioteki)
+ */
+export function resolveVisibleAnswers(
+  answers: Answers,
+  questions: VisibilityQuestion[],
+  allowedValues?: Record<string, string[]>,
+): Answers {
+  const byCode = new Map(questions.map((q) => [q.code, q]));
+  const allowed = new Map(
+    Object.entries(allowedValues ?? {}).map(([code, codes]) => [code, new Set(codes)]),
+  );
+  // Czyszczenie wartości nie zależy od `current`, więc stabilizuje się po pierwszym przebiegu.
+  const sanitize = (code: string, value: Answers[string]): Answers[string] => {
+    const set = allowed.get(code);
+    if (!set || !Array.isArray(value)) return value;
+    return (value as string[]).filter((v) => set.has(v));
+  };
+
+  let current: Answers = answers;
+  for (let i = 0; i <= questions.length; i++) {
+    const next: Answers = {};
+    for (const [code, value] of Object.entries(answers)) {
+      const q = byCode.get(code);
+      if (q && !isQuestionVisible(q.visibleIf, current)) continue;
+      next[code] = sanitize(code, value);
+    }
+    if (Object.keys(next).length === Object.keys(current).length) return next;
+    current = next;
+  }
+  return current;
 }
 
 /** Podstawia {code} wartościami odpowiedzi w szablonie uzasadnienia. */

@@ -109,6 +109,24 @@ formuły (wersjonowana `engine_version`); stawka zł/km jest wartością domenow
 sygnał z reguły jest widoczny, a nie po cichu gubiony. Noclegi/wyjazdy wielokrotne: poza v1
 (pozycja ad hoc w walidacji).
 
+## Widoczność a obliczenia — D27 (`engine_version` ≥ 1.5)
+
+**Odpowiedzi na pytania NIEWIDOCZNE nie istnieją dla obliczeń.** `computeQuote` filtruje `answers`
+przez ewaluację `visible_if` (ta sama funkcja co UI) **przed** regułami, pozycjami i Confidence.
+
+Powód: prowadzący odpowiada na pytania sklepowe, potem zmienia cel na „portal treści" — pytania
+znikają z wizarda, ale odpowiedzi zostają w stanie i w `est_quote_answers`. Przed 1.5 dalej po cichu
+wyceniały integracje/moduły (wykryte w retro Niepodzielnych: Stripe wchodził do wyceny portalu,
+choć pytania o płatności nie dało się zobaczyć).
+
+Filtr jest **punktem stałym**: usunięcie odpowiedzi może ukryć kolejne pytania (kaskada warunków,
+np. `sla_value` ← `sla_formal` ← `downtime_tolerance`), więc filtrowanie powtarza się do
+stabilizacji. Zbiór odpowiedzi maleje monotonicznie ⇒ zbieżność ≤ liczba pytań. Klucze spoza
+katalogu pytań (np. `archetype`) przechodzą nietknięte.
+
+Konsekwencja dla treści seedów: **`visible_if` to nie kosmetyka UI, tylko element modelu
+obliczeniowego** — ukrycie pytania usuwa jego wpływ na wycenę.
+
 ## Confidence Score (deterministyczny) — `engine_version` 1.3 (D23 + D26)
 
 **D26 — trzy stany odpowiedzi.** Pytanie może być: (a) **odpowiedziane** wartością, (b) **„nie

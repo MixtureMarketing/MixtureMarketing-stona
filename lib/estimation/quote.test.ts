@@ -119,6 +119,119 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
     expect(r.confidence.belowCompleteness).toBe(false);
   });
 
+  it('D27: odpowiedź na pytanie NIEWIDOCZNE nie istnieje dla obliczeń (payments: sklep → portal)', () => {
+    // Scenariusz z retro: prowadzący odpowiada „payments=[stripe]" przy celu SKLEP, potem zmienia
+    // cel na PORTAL TREŚCI. Pytanie znika z wizarda → jego odpowiedź NIE MOŻE dalej wyceniać
+    // integracji (wcześniej zostawała w answers i po cichu wchodziła do wyceny).
+    const libPay: LibraryData = {
+      ...LIB,
+      integrations: [
+        {
+          code: 'stripe',
+          name: 'Stripe',
+          platformMin: 8,
+          platformMax: 16,
+          customMin: 16,
+          customMax: 30,
+          risk: 'low',
+        },
+      ],
+      questions: [
+        { code: 'project_goal', unknownWeight: 1, visibleIf: null, label: 'Cel?' },
+        {
+          code: 'payments',
+          unknownWeight: 1,
+          visibleIf: '{"q":"project_goal","op":"in","val":["sklep","b2b"]}',
+          label: 'Płatności?',
+        },
+      ],
+    };
+    const answersPay: Answers = { project_goal: 'sklep', payments: ['stripe'] };
+
+    // SKLEP → pytanie widoczne → integracja wchodzi
+    const shop = computeQuote({ answers: answersPay, library: libPay });
+    expect(shop.activeIntegrations).toContain('stripe');
+    expect(shop.items.some((i) => i.type === 'integration' && i.code === 'stripe')).toBe(true);
+
+    // PORTAL → pytanie ukryte → ta sama (nieusunięta) odpowiedź NIE liczy się
+    const portal = computeQuote({
+      answers: { ...answersPay, project_goal: 'portal_tresci' },
+      library: libPay,
+    });
+    expect(portal.activeIntegrations).not.toContain('stripe');
+    expect(portal.items.some((i) => i.type === 'integration')).toBe(false);
+  });
+
+  it('D27: wartość multiselecta spoza biblioteki nie istnieje — 0 kar (konfigurator: sklep → portal)', () => {
+    // Scenariusz z retro #2: przy celu SKLEP zaznaczono konfigurator; po przełączeniu na PORTAL
+    // moduł wypada z biblioteki (filtr celu, D24). Jego kod ZOSTAJE w answers.modules, więc
+    // pytania konfiguratorowe (visible_if: modules contains configurator_options) dalej się
+    // pokazywały i karały Confidence −36, mimo że moduł nigdzie nie był wyceniany.
+    const libCfg: LibraryData = {
+      ...LIB,
+      // biblioteka JUŻ przefiltrowana per cel: konfiguratora tu nie ma
+      modules: [{ code: 'blog_kb', name: 'Blog', hoursMin: 8, hoursMax: 24, risk: 'low' }],
+      questions: [
+        { code: 'project_goal', unknownWeight: 1, visibleIf: null, label: 'Cel?' },
+        { code: 'modules', unknownWeight: 1, visibleIf: null, label: 'Moduły?' },
+        {
+          code: 'config_matrix',
+          unknownWeight: 1.5,
+          visibleIf: '{"q":"modules","op":"contains","val":"configurator_options"}',
+          label: 'Macierz zależności opcji?',
+        },
+        {
+          code: 'config_output',
+          unknownWeight: 1,
+          visibleIf: '{"q":"modules","op":"contains","val":"configurator_options"}',
+          label: 'Co z konfiguracją?',
+        },
+      ],
+    };
+    const r2 = computeQuote({
+      answers: { project_goal: 'portal_tresci', modules: ['blog_kb', 'configurator_options'] },
+      library: libCfg,
+    });
+    // configurator_options nie istnieje → pytania kaskadowe ukryte → ZERO kar z ich tytułu
+    expect(r2.confidence.score).toBe(100);
+    expect(r2.confidence.breakdown).toEqual([]);
+    // …i nie wisi na liście aktywnych ani w pozycjach
+    expect(r2.activeModules).toEqual(['blog_kb']);
+    expect(r2.items.map((i) => i.code)).toEqual(['blog_kb']);
+  });
+
+  it('D27: kaskada — ukrycie pytania ukrywa też pytania zależne od jego odpowiedzi', () => {
+    // sla_value widoczne tylko gdy sla_formal=konkretny; sla_formal widoczne tylko gdy downtime≠nic.
+    // Gdy downtime='nic' → sla_formal znika → sla_value też musi zniknąć (punkt stały),
+    // mimo że w answers wciąż jest sla_formal='konkretny'.
+    const libSla: LibraryData = {
+      ...LIB,
+      questions: [
+        { code: 'downtime', unknownWeight: 1, visibleIf: null, label: 'Przestój?' },
+        {
+          code: 'sla_formal',
+          unknownWeight: 1,
+          visibleIf: '{"q":"downtime","op":"neq","val":"nic"}',
+          label: 'SLA formalne?',
+        },
+        {
+          code: 'sla_value',
+          unknownWeight: 3,
+          visibleIf: '{"q":"sla_formal","op":"eq","val":"konkretny"}',
+          label: 'Jaki % SLA?',
+        },
+      ],
+    };
+    const r2 = computeQuote({
+      answers: { downtime: 'nic', sla_formal: 'konkretny', sla_value: 99.9 },
+      library: libSla,
+    });
+    // Widoczne jest tylko `downtime` (odpowiedziane) → zero kar, zero „nie wiem".
+    // Gdyby kaskada nie działała, sla_value (waga 3) byłoby liczone jako widoczne.
+    expect(r2.confidence.score).toBe(100);
+    expect(r2.confidence.breakdown).toEqual([]);
+  });
+
   it('breakdown rozróżnia „nie wiem" od braku odpowiedzi (kara identyczna, powód uczciwy)', () => {
     // sensitive_data = „nie wiem" (jawna deklaracja), project_goal/deadline_hard bez odpowiedzi.
     // Kara każdego: 8 × waga 1 → score 100 − 24 = 76; różni się WYŁĄCZNIE treść powodu.
