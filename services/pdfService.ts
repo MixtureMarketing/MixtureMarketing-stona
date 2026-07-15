@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CalculatorSelections } from '../hooks/useCalculator';
 import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
+import { formatujLiczbe } from '@/lib/pdf/text';
 
 interface PdfData {
   selections: CalculatorSelections;
@@ -123,7 +124,10 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
 
   doc.setFontSize(20);
   doc.setFont(PDF_FONT, 'bold');
-  const priceRange = `${result.minPrice.toLocaleString()} - ${result.maxPrice.toLocaleString()}`;
+  // formatujLiczbe, nie toLocaleString(): bez argumentu bierze locale przegladarki
+  // (polski dokument pokazywalby "11,400"), a z 'pl-PL' wstawia twarda spacje,
+  // ktora psuje i render, i pomiar szerokosci pod dopisek " PLN" nizej.
+  const priceRange = `${formatujLiczbe(result.minPrice)} - ${formatujLiczbe(result.maxPrice)}`;
   doc.text(priceRange, margin + 10, y + 15);
 
   const priceWidth = doc.getTextWidth(priceRange);

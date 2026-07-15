@@ -1,5 +1,7 @@
 import type { Offer } from '@/lib/estimation/documents';
 import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
+import { pln } from '@/lib/pdf/text';
+import { SITE_CONFIG } from '@/config/site';
 
 // Render oferty do PDF. Rysuje WYŁĄCZNIE to, co dał buildOffer — zero logiki „co pokazać"
 // (ta jest w lib/estimation/documents.ts i pokryta klasą testu internal-only).
@@ -11,7 +13,16 @@ const GRAY = '#6b7280';
 const M = 18; // margines
 const W = 210; // A4 szerokość mm
 
-const pln = (n: number) => `${Math.round(n).toLocaleString('pl-PL')} zł`;
+// UWAGA: `pln` pochodzi z lib/pdf/text.ts. Lokalna wersja z gołym `toLocaleString('pl-PL')`
+// wstawiała TWARDĄ SPACJĘ i to ona ucięła pas ceny w ofercie #4 do samego „11".
+
+/** Dane spółki na dole KAŻDEJ strony — źródłem jest SITE_CONFIG, nie przepisane stałe. */
+const FOOTER: string[] = [
+  `${SITE_CONFIG.companyName} · ${SITE_CONFIG.contact.address.street}, ` +
+    `${SITE_CONFIG.contact.address.postalCode} ${SITE_CONFIG.contact.address.city}`,
+  `NIP: ${SITE_CONFIG.contact.vatID} · KRS: ${SITE_CONFIG.contact.krs} · ` +
+    `${SITE_CONFIG.contact.email} · ${SITE_CONFIG.contact.phone}`,
+];
 
 export async function generateOfferPdf(offer: Offer): Promise<Blob> {
   const { jsPDF } = await import('jspdf');
@@ -138,6 +149,21 @@ export async function generateOfferPdf(offer: Offer): Promise<Blob> {
   if (offer.terms.length) {
     h('Warunki');
     p(offer.terms.map((t) => `• ${t}`).join('\n'), 8.5, GRAY);
+  }
+
+  // ── Stopka: dane spółki na KAŻDEJ stronie ──
+  // Dopiero teraz, gdy znamy końcową liczbę stron (treść mogła dołożyć strony po drodze).
+  const stron = doc.getNumberOfPages();
+  for (let i = 1; i <= stron; i++) {
+    doc.setPage(i);
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.2);
+    doc.line(M, 281, W - M, 281);
+    doc.setFont(PDF_FONT, 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(GRAY);
+    FOOTER.forEach((linia, j) => doc.text(linia, M, 285 + j * 3.2));
+    doc.text(`${i}/${stron}`, W - M, 285, { align: 'right' });
   }
 
   return doc.output('blob');
