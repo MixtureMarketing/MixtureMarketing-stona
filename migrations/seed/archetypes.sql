@@ -47,7 +47,21 @@ FROM (VALUES
   -- analytics
   ('wordpress','analytics',1,0),('woocommerce','analytics',1,0),('prestashop','analytics',1,0),('woo_headless','analytics',1,0),('sylius','analytics',1,0),('medusa','analytics',1,0),('laravel','analytics',0,0),('headless','analytics',1,0),
   -- consent
-  ('wordpress','consent',1,0),('woocommerce','consent',1,0),('prestashop','consent',1,0),('woo_headless','consent',1,0),('sylius','consent',1,0),('medusa','consent',1,0),('laravel','consent',0,0),('headless','consent',1,0)
+  ('wordpress','consent',1,0),('woocommerce','consent',1,0),('prestashop','consent',1,0),('woo_headless','consent',1,0),('sylius','consent',1,0),('medusa','consent',1,0),('laravel','consent',0,0),('headless','consent',1,0),
+  -- ── Kategoria G (realizacja projektu) — DRAFT (D10). Dotąd brak wierszy ⇒ G=0h w każdej
+  --    wycenie (breakdown „G · Realizacja 0–0"); to była luka, nie decyzja. Poziomy DRAFT do
+  --    korekty Jakuba. data_migration CELOWO pominięte: default 0 (nowy projekt), podnosi je
+  --    reguła przy existing_data='przenosimy'.
+  -- discovery (analiza przedwdrożeniowa — custom/headless więcej niż gotowe platformy)
+  ('wordpress','discovery',1,0),('woocommerce','discovery',1,0),('prestashop','discovery',1,0),('woo_headless','discovery',2,0),('sylius','discovery',2,0),('medusa','discovery',2,0),('laravel','discovery',2,0),('headless','discovery',1,0),
+  -- uxui (projekt graficzny — WP wizytówka na szablonie niżej)
+  ('wordpress','uxui',1,0),('woocommerce','uxui',2,0),('prestashop','uxui',2,0),('woo_headless','uxui',2,0),('sylius','uxui',2,0),('medusa','uxui',2,0),('laravel','uxui',2,0),('headless','uxui',2,0),
+  -- qa (sklepy = krytyczny checkout ⇒ wyżej niż strona treściowa)
+  ('wordpress','qa',1,0),('woocommerce','qa',2,0),('prestashop','qa',2,0),('woo_headless','qa',2,0),('sylius','qa',2,0),('medusa','qa',2,0),('laravel','qa',2,0),('headless','qa',1,0),
+  -- content (wprowadzenie treści/katalogu; laravel custom bez modelu treści = 0)
+  ('wordpress','content',1,0),('woocommerce','content',1,0),('prestashop','content',1,0),('woo_headless','content',1,0),('sylius','content',1,0),('medusa','content',1,0),('laravel','content',0,0),('headless','content',1,0),
+  -- golive (wdrożenie/hypercare — headless/custom pipeline blue-green wyżej)
+  ('wordpress','golive',1,0),('woocommerce','golive',1,0),('prestashop','golive',1,0),('woo_headless','golive',2,0),('sylius','golive',2,0),('medusa','golive',2,0),('laravel','golive',2,0),('headless','golive',1,0)
 ) AS v
 JOIN est_archetypes ar ON ar.code = v.column1
 JOIN est_aspects asp ON asp.code = v.column2

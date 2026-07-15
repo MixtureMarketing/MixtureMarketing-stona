@@ -3,9 +3,22 @@
 ## Formularz biznesowy (warstwa 1)
 
 Zasady: język klienta (zero żargonu), pytania dynamiczne (`visible_if_json` + filtr archetypu),
-każde pytanie z `allow_unknown=1` przyjmuje „nie wiem" (zasila Confidence, nie blokuje),
 grupy pytań jako kroki wizarda: **Projekt → Użytkownicy i skala → Funkcje i integracje →
 Marketing → Realizacja**. Cel: 5–15 minut na spotkaniu.
+
+### Stany odpowiedzi (D26)
+
+Pytanie z `allow_unknown=1` ma trzy sposoby domknięcia — plus stan „bez odpowiedzi":
+
+| Stan | Zapis w `est_quote_answers.answer_json` | Confidence | Reguły |
+| --- | --- | --- | --- |
+| Odpowiedziane | wartość (`"sklep"`, `500`, `true`, `["inpost"]`) | bez kary | matchują normalnie |
+| **„nie wiem"** | `{"unknown":true}` | **kara** 8 × `unknown_weight` | tylko operator `unknown` |
+| **„nie dotyczy"** (D26) | `{"not_applicable":true}` | **bez kary**, liczy się do kompletności | tylko operator `not_applicable` (NIE `answered`) |
+| Brak odpowiedzi | brak klucza | **kara** jak „nie wiem" (D23) | nic nie matchuje |
+
+„nie wiem" = niewiadoma do dopytania. „nie dotyczy" = świadome domknięcie („tego u nas nie ma") —
+dlatego nie obniża pewności i nie może włączać reguł zakresu.
 
 ### Pytania startowe (seed `questions.sql` — v1, do rozbudowy)
 
@@ -76,8 +89,9 @@ wykonawcy (kontekst pod Claude Code), zapis decyzji projektowych.
         { "q": "traffic_monthly", "op": "gte", "val": "300k" } ] }
 ] }
 ```
-Operatory: `eq, neq, gt, gte, lt, lte, in, contains (multiselect), answered, unknown`.
-Wartość „nie wiem" nie spełnia żadnego warunku poza `unknown`.
+Operatory: `eq, neq, gt, gte, lt, lte, in, contains (multiselect), answered, unknown,
+not_applicable`. Wartość „nie wiem" nie spełnia żadnego warunku poza `unknown`; „nie dotyczy"
+(D26) nie spełnia żadnego poza `not_applicable` — w szczególności NIE `answered`.
 
 `actions_json` — lista akcji:
 ```json

@@ -34,3 +34,40 @@ INSERT INTO est_modules (code, name, hours_min, hours_max, includes, excludes, r
 ON CONFLICT(code) DO UPDATE SET
   name = excluded.name, hours_min = excluded.hours_min, hours_max = excluded.hours_max,
   includes = excluded.includes, excludes = excluded.excludes, risk = excluded.risk, is_active = 1;
+
+-- (D24) DRAFT: zakres modułu = archetypes_json ∩ goals_json. NULL w kolumnie = bez ograniczenia.
+-- Checklista w wizardzie pokazuje PRZECIĘCIE obu zakresów (filtr w buildLibraryData).
+-- Poniżej DRAFT do korekty Jakuba przy przeglądzie seedów. Idempotentne (UPDATE).
+
+-- (a) ARCHETYPY: ciężkie moduły „od zera" nie mają sensu na gotowych platformach WP-owych —
+--     ograniczamy je do archetypów o integration_mode='custom'.
+UPDATE est_modules
+  SET archetypes_json = '["woo_headless","medusa","laravel","headless"]'
+  WHERE code IN ('marketplace_mv', 'cpq_engine', 'configurator_3d');
+
+-- (b) CELE: moduły czysto sklepowe — tylko sklep/B2B.
+UPDATE est_modules
+  SET goals_json = '["sklep","b2b"]'
+  WHERE code IN (
+    'wishlist', 'promo_engine', 'omnibus', 'rma', 'gift_cards', 'click_collect',
+    'size_tables', 'reviews', 'subscriptions', 'multicurrency', 'loyalty',
+    'invoices_auto', 'marketplace_mv', 'cpq_engine',
+    'configurator_options', 'configurator_2d', 'configurator_3d', 'configurator_assets'
+  );
+
+-- (c) CELE: moduły B2B-owe — tylko portal B2B (i sklep prowadzący sprzedaż B2B).
+UPDATE est_modules
+  SET goals_json = '["b2b","sklep"]'
+  WHERE code IN ('b2b_pricing', 'b2b_approval', 'quotes_rfq');
+
+-- (d) CELE: panel klienta — wszędzie tam, gdzie ktokolwiek się loguje.
+UPDATE est_modules
+  SET goals_json = '["sklep","b2b","aplikacja"]'
+  WHERE code IN ('client_panel_ext');
+
+-- (e) OGÓLNE (blog_kb, search_adv, pwa_push, gdpr_tools, livechat) zostają z goals_json = NULL
+--     → dostępne dla KAŻDEGO celu, w tym „aplikacja z logowaniem" i „wizytówka".
+--     Jawnie zerujemy zakres, gdyby wcześniejszy przebieg coś ustawił (idempotencja).
+UPDATE est_modules
+  SET goals_json = NULL
+  WHERE code IN ('blog_kb', 'search_adv', 'pwa_push', 'gdpr_tools', 'livechat');
