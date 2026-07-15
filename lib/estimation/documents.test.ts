@@ -145,6 +145,7 @@ describe('buildOffer — KLASA TESTU: dane internal-only NIE WYCIEKAJĄ do klien
       'hours_max',
       'suggested_level', // sugestia silnika (klient widzi tylko wybór)
       'rule_reasons_json', // uzasadnienia reguł = Karta decyzji, nie oferta
+      'override_reason', // powody wyłączeń = notatki wewnętrzne (decyzja architekta, f2a)
       'engine_version',
     ]);
   });
@@ -177,6 +178,14 @@ describe('buildOffer — KLASA TESTU: dane internal-only NIE WYCIEKAJĄ do klien
   it('sugerowany poziom i uzasadnienia reguł NIE trafiają do oferty', () => {
     expect(serialized).not.toContain('suggested');
     expect(serialized).not.toContain('Sklep wymaga własnego layoutu');
+  });
+
+  it('powody wyłączeń NIE trafiają do oferty — to notatki wewnętrzne', () => {
+    // Decyzja architekta (f2a): oferta wymienia TYLKO nazwy wyłączonych pozycji. Powód bywa
+    // wewnętrzny („klient nie chce płacić", „nie ufamy ich zespołowi") i nie ma prawa
+    // pojechać do klienta. Powody zostają w Karcie decyzji — patrz test outOfScope niżej.
+    expect(serialized).not.toContain('Klient ma własny monitoring');
+    expect(serialized).not.toContain('reason');
   });
 });
 
@@ -218,10 +227,10 @@ describe('buildOffer — treść dla klienta', () => {
     expect(offer.terms).toEqual(['6 miesięcy wsparcia (SLA) w cenie.', 'Ceny netto.']);
   });
 
-  it('„poza zakresem" = obszary, gdzie wybrano MNIEJ niż sugerował system', () => {
-    expect(offer.excluded).toEqual([
-      { title: 'Observability', reason: 'Klient ma własny monitoring' },
-    ]);
+  it('„poza zakresem" = SAME NAZWY obszarów, gdzie wybrano MNIEJ niż sugerował system', () => {
+    // Powody celowo nieobecne (decyzja architekta f2a) — klient ma wiedzieć CZEGO nie robimy,
+    // ale „dlaczego" to nasza notatka. Ta sama lista z powodami żyje w Karcie decyzji.
+    expect(offer.excluded).toEqual([{ title: 'Observability' }]);
   });
 });
 

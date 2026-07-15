@@ -24,6 +24,7 @@ export const INTERNAL_ONLY_FIELDS = [
   'hours_max',
   'suggested_level', // sugestia silnika (klient widzi tylko wybór)
   'rule_reasons_json', // uzasadnienia reguł = Karta decyzji, nie oferta
+  'override_reason', // powody wyłączeń — notatki wewnętrzne (decyzja architekta, f2a)
   'engine_version',
 ] as const;
 
@@ -116,7 +117,9 @@ export interface Offer {
   integrations: string[];
   costs: OfferCostRow[];
   costsTotal: number;
-  excluded: { title: string; reason: string | null }[];
+  /** SAME NAZWY — bez powodów. Powód wyłączenia to notatka wewnętrzna (decyzja architekta f2a);
+   *  pełna lista z „dlaczego" jest w Karcie decyzji (`DecisionCard.outOfScope`). */
+  excluded: { title: string }[];
   terms: string[];
 }
 
@@ -168,9 +171,7 @@ export function buildOffer(s: QuoteSnapshot): Offer {
     integrations: s.items.filter((i) => i.item_type === 'integration').map((i) => i.name),
     costs,
     costsTotal: costs.reduce((sum, c) => sum + c.amountPln, 0),
-    excluded: s.aspects
-      .filter(isExcluded)
-      .map((a) => ({ title: a.aspect_name, reason: a.override_reason })),
+    excluded: s.aspects.filter(isExcluded).map((a) => ({ title: a.aspect_name })),
     terms: s.terms,
   };
 }

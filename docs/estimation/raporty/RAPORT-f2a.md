@@ -33,7 +33,9 @@ Helper `registerPlFont()` gotowy pod naprawę `services/pdfService.ts` jednym im
 `est_params.offer_validity_days` (30, potwierdzone przez Jakuba).
 
 **6. Warunki „co w cenie"**: `est_params.offer_terms` (treść = dane, pozycje po `|`).
-⚠️ **NADAL DRAFT** — patrz „Decyzje czekające".
+✅ **Treść FINALNA zatwierdzona przez Jakuba** (6 pozycji) — DRAFT zastąpiony. Kluczowa różnica
+wobec draftu: SLA **nie jest już obiecane „w cenie"**, tylko odsyła do wybranego pakietu
+utrzymaniowego i umowy. Zarejestrowane jako **D29** w docs/00.
 
 ## Odstępstwa od dokumentacji
 
@@ -60,21 +62,25 @@ Helper `registerPlFont()` gotowy pod naprawę `services/pdfService.ts` jednym im
 
 ## Decyzje czekające
 
-- **(Jakub, poziom 2) TREŚĆ WARUNKÓW „co w cenie" — BLOKUJE RYTUAŁ PROD.** W seedzie siedzi mój
-  DRAFT wyciągnięty z `data/content`. Dwukrotnie prosiłem o finalną wersję, dwukrotnie wiadomość
-  zawierała placeholder `[WKLEJ SWOJĄ WERSJĘ]`. **Nie podstawiam własnej** — szczególnie pozycji
-  **„6 miesięcy wsparcia technicznego (SLA) w cenie"**, którą wziąłem z sekcji porównawczej strony,
-  gdzie jest argumentem marketingowym przy pakietach; w ofercie staje się **zobowiązaniem umownym
-  na każdy projekt**. Do wklejenia razem z tokenem przy rytuale.
-- **(Jakub, poziom 2)** Czy „poza zakresem" w ofercie ma pokazywać powód (dziś: „Observability —
-  Klient ma własny monitoring")? Powód bywa wewnętrzny.
+**Obie blokady z pierwszej wersji raportu — ROZSTRZYGNIĘTE przez Jakuba/architekta:**
+
+- ✅ **Treść warunków „co w cenie"** — dostarczona i zaseedowana (6 pozycji, D29). Odrzucona
+  pozycja draftu „6 miesięcy wsparcia technicznego (SLA) w cenie" zastąpiona odesłaniem do pakietu
+  utrzymaniowego i umowy. Rytuał prod odblokowany po stronie treści.
+- ✅ **„Poza zakresem" bez powodów** (decyzja architekta): oferta wymienia **tylko nazwy**
+  wyłączonych pozycji; powody = notatki wewnętrzne, zostają w Karcie decyzji. Wdrożone:
+  `Offer.excluded` to `{ title }[]` (bez `reason`), `override_reason` **dopisany do
+  `INTERNAL_ONLY_FIELDS`** + test wycieku. Zarejestrowane jako **D28**.
+
+Nic nie czeka. Nowe pytania z tej rundy → sekcja „Ryzyka i długi".
 
 ## Wyniki testów
 
-- **`build:full`: EXIT 0** — lint `--max-warnings 0` czysty; **26 plików testowych**; 116 tras
-  prerenderowanych; size-limit **67,7 kB** (limit 300) i **29 kB** (limit 50) — **bez zmian mimo
-  fontu** (lazy chunk).
-- **Moduł wycen: 133 testy** (15 plików), w tym `documents.test.ts` — 15 (klasa internal-only).
+- **`build:full`: EXIT 0** — lint `--max-warnings 0` czysty; **26 plików testowych / 177 testów**;
+  116 tras prerenderowanych; size-limit **67,67 kB** (limit 300) i **29 kB** (limit 50) — **bez
+  zmian mimo fontu** (lazy chunk).
+- **Moduł wycen: 134 testy** (15 plików), w tym `documents.test.ts` — **16** (klasa internal-only,
+  +1 test po decyzji o powodach wyłączeń).
 - **TS baseline: 15** (bez wzrostu).
 
 ## Kryteria akceptacji (F2, część dokumentowa)
@@ -84,8 +90,17 @@ Helper `registerPlFont()` gotowy pod naprawę `services/pdfService.ts` jednym im
 - ✅ **Sekcje: zakres + moduły/integracje + koszty + wyłączenia + ważność oferty** — E2E na realnym
   snapshocie: oferta #1 „Meble sp. z o.o.", 11 400–16 800 zł, ważna do 2026-08-14, 15 pozycji
   zakresu, integracja PayU, „poza zakresem: Observability (Klient ma własny monitoring)", 7 warunków.
-- ✅ **Zero wycieku internal-only** — E2E: pełne widełki (8140–18865) ✅ brak, `hoursMax` ✅ brak,
-  klucze oferty: `meta, priceRange, scope, modules, integrations, costs, costsTotal, excluded, terms`.
+- ✅ **Zero wycieku internal-only** — E2E na finalnych seedach (wycena #2, po decyzjach architekta):
+  ```
+  ✅ brak — pełne widełki 9955–22495        ✅ brak — Confidence
+  ✅ brak — godziny (hoursMax)              ✅ brak — powód wyłączenia („Klient ma własny monitoring")
+  ✅ brak — SLA obiecane „w cenie"
+  POZA ZAKRESEM (oferta): [{"title":"Observability"}]          ← same nazwy
+  outOfScope (Karta):     [{"title":"Observability","reason":"Klient ma własny monitoring"}]
+  ```
+  Klucze oferty: `meta, priceRange, scope, modules, integrations, costs, costsTotal, excluded, terms`.
+- ✅ **Warunki i ważność z seedów, nie z kodu** — read-back: `validityDays=30`, `warunków=6`,
+  ważna do `2026-08-14`; diakrytyki przeżywają round-trip przez D1 („Zarządzanie", „układu").
 - ✅ **Karta decyzji: każda decyzja ma uzasadnienie** — reguła, korekta albo jawnie „domyślny
   archetypu" (test pętlą po wszystkich decyzjach).
 - ✅ **Test wzorcowy „SLA 99,8% → load balancing ≥1 + HA ≥2 z czytelnym wyjaśnieniem"** — E2E:
@@ -115,8 +130,11 @@ w TS tylko kolory marki i layout. (c) **Inwariant 9**: zero nowych/zmienionych p
 - **`services/pdfService.ts` — publiczny PDF kalkulatora ma DZIŚ połamane polskie znaki**
   („Piłsudskiego", „Wstępny"). To dokument z naszym logo wysyłany klientom. Naprawa = jeden import
   (`registerPlFont`), ~15 min. **Jakub autoryzował jako osobny task po f2a.**
-- **Warunki oferty to DRAFT** — dopóki Jakub nie potwierdzi, wygenerowana oferta zawiera
-  zobowiązania, których nikt nie zatwierdził. Rytuał prod **czeka** na treść.
+- **Oferta wystawi się przy Confidence 0%.** E2E ze świadomie ubogim zestawem odpowiedzi
+  (24 pytania bez odpowiedzi, suma kar −204 → clamp do 0) **wygenerował normalną ofertę
+  z widełkami**. Silnik działa zgodnie z D23, ale dokument nie ma progu: nic nie broni wysłania
+  klientowi ceny wyliczonej z niczego. Naturalnie łączy się z risk-floorem Confidence → **F3**
+  (kandydat: blokada/ostrzeżenie przy generowaniu oferty poniżej `confidence_completeness`).
 - **„No-op reasons"** (reguła pasowała, ale nie podniosła poziomu → brak uzasadnienia w Karcie)
   → F3 razem z risk-floor Confidence. Częściowo złagodzone przez `fromArchetypeDefault`.
 - **Otwarcie istniejącej wyceny nie istnieje** — `QuotesList` renderowany bez `onOpen`,

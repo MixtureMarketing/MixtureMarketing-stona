@@ -127,10 +127,10 @@ export async function generateOfferPdf(offer: Offer): Promise<Blob> {
     }
   }
 
-  // ── Poza zakresem ──
+  // ── Poza zakresem (same nazwy — powody są w Karcie decyzji) ──
   if (offer.excluded.length) {
     h('Poza zakresem tej oferty');
-    p(offer.excluded.map((e) => `• ${e.title}${e.reason ? ` — ${e.reason}` : ''}`).join('\n'));
+    p(offer.excluded.map((e) => `• ${e.title}`).join('\n'));
     y += 3;
   }
 
