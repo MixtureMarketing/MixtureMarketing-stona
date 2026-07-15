@@ -58,4 +58,45 @@ describe('GET /api/admin/estimation/quote', () => {
     const res = await onRequestGet(ctx(mockEnv({ quote: null }), `${URL_BASE}?id=99`));
     expect(res.status).toBe(404);
   });
+
+  it('read-back po finalize: zwraca snapshot (obszary/itemy/mnożniki + sparsowane totals) — f1c #6', async () => {
+    // Mock routujący .all() po tabeli; quote z totals_json (string) → snapshot.totals sparsowane.
+    const routeDB = {
+      prepare: (sql: string) => ({
+        bind: () => ({
+          first: async () => ({
+            id: 7,
+            status: 'review',
+            totals_json: '{"offer":{"min":5000,"max":9000}}',
+            confidence_breakdown_json: '[{"reason":"Ryzyko wysokie: X","delta":-6}]',
+          }),
+          all: async () => {
+            if (sql.includes('est_quote_aspects'))
+              return { results: [{ aspect_code: 'frontend', chosen_level: 2 }] };
+            if (sql.includes('est_quote_items'))
+              return { results: [{ item_type: 'module', name: 'Wishlist' }] };
+            if (sql.includes('est_quote_multipliers'))
+              return { results: [{ code: 'new_tech', value: 0.15 }] };
+            return { results: [] }; // answers
+          },
+        }),
+      }),
+    };
+    const res = await onRequestGet(ctx({ DB: routeDB }, `${URL_BASE}?id=7`));
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      snapshot: {
+        aspects: unknown[];
+        items: unknown[];
+        multipliers: unknown[];
+        totals: { offer: { min: number; max: number } };
+        confidenceBreakdown: unknown[];
+      };
+    };
+    expect(body.snapshot.aspects).toHaveLength(1);
+    expect(body.snapshot.items).toHaveLength(1);
+    expect(body.snapshot.multipliers).toHaveLength(1);
+    expect(body.snapshot.totals.offer).toEqual({ min: 5000, max: 9000 });
+    expect(body.snapshot.confidenceBreakdown).toHaveLength(1);
+  });
 });

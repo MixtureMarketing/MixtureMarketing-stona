@@ -33,7 +33,15 @@ export interface EstimationLibrary {
   }[];
   questions: LibQuestion[];
   rules: RawRule[];
-  modules: { code: string; name: string; hours_min: number; hours_max: number; risk: string }[];
+  modules: {
+    code: string;
+    name: string;
+    hours_min: number;
+    hours_max: number;
+    risk: string;
+    archetypes_json?: string | null;
+    goals_json?: string | null;
+  }[];
   integrations: {
     code: string;
     name: string;
@@ -45,6 +53,8 @@ export interface EstimationLibrary {
     risk: string;
   }[];
   multipliers: { code: string; name: string; value: number }[];
+  /** Typy pozycji kosztowych (D14) — stawki dla akcji reguł `cost_item` (np. dojazd zł/km). */
+  costItemTypes: { code: string; name: string; unit: string | null; unit_price: number | null }[];
   params: { key: string; value: string }[];
 }
 

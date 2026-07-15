@@ -71,6 +71,7 @@ const LIB: LibraryData = {
     { code: 'deadline_hard', unknownWeight: 1, visibleIf: null, label: 'Sztywny deadline?' },
     { code: 'project_goal', unknownWeight: 1, visibleIf: null, label: 'Cel projektu?' },
   ],
+  costItemTypes: [],
   params: PARAMS,
   integrationMode: 'platform',
 };
@@ -109,13 +110,23 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
   });
 
   it('Confidence D23: 3 widoczne pytania, 2 odpowiedziane, sensitive_data „nie wiem"', () => {
-    // D23 (NOWA formuła, engine 1.1): widoczne-nieodpowiedziane liczą jak „nie wiem".
+    // D23 (NOWA formuła, engine 1.1/1.2): widoczne-nieodpowiedziane liczą jak „nie wiem".
     //   Tu wszystkie 3 pytania widoczne; odpowiedziane project_goal + deadline_hard (2),
     //   sensitive_data = „nie wiem" (1 unknown). unknowns=[sensitive_data] → 100 − 8×1 = 92.
     //   kompletność 2/3 ≈ 0.67 ≥ 0.60 → NIE belowCompleteness, band zielony.
     expect(r.confidence.score).toBe(92);
     expect(r.confidence.band).toBe('green');
     expect(r.confidence.belowCompleteness).toBe(false);
+  });
+
+  it('breakdown rozróżnia „nie wiem" od braku odpowiedzi (kara identyczna, powód uczciwy)', () => {
+    // sensitive_data = „nie wiem" (jawna deklaracja), project_goal/deadline_hard bez odpowiedzi.
+    // Kara każdego: 8 × waga 1 → score 100 − 24 = 76; różni się WYŁĄCZNIE treść powodu.
+    const r2 = computeQuote({ answers: { sensitive_data: { unknown: true } }, library: LIB });
+    const reasons = r2.confidence.breakdown.map((b) => b.reason);
+    expect(reasons).toContain('Odpowiedź „nie wiem": Dane wrażliwe?');
+    expect(reasons).toContain('Brak odpowiedzi: Cel projektu?');
+    expect(r2.confidence.score).toBe(76);
   });
 
   it('D23 pusty formularz → niski Confidence + belowCompleteness', () => {
@@ -132,6 +143,127 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
     });
     expect(full.confidence.score).toBe(100);
     expect(full.confidence.belowCompleteness).toBe(false);
+  });
+
+  it('D26 „nie dotyczy" = odpowiedź: ZERO kary Confidence (inaczej niż „nie wiem")', () => {
+    // Ręcznie: 3 widoczne pytania. project_goal + deadline_hard odpowiedziane,
+    //   sensitive_data = „nie dotyczy" → to ODPOWIEDŹ, więc unknowns = [] → 100 − 0 = 100.
+    //   kompletność 3/3 = 1.0 ≥ 0.60 → belowCompleteness = false.
+    // Kontrast: ten sam układ z „nie wiem" daje 92 (test wyżej) — różnica 8 = 8 × unknown_weight 1.
+    const na = computeQuote({
+      answers: {
+        project_goal: 'sklep',
+        deadline_hard: true,
+        sensitive_data: { not_applicable: true },
+      },
+      library: LIB,
+    });
+    expect(na.confidence.score).toBe(100);
+    expect(na.confidence.belowCompleteness).toBe(false);
+    expect(na.confidence.breakdown).toEqual([]); // nic nie obniżyło pewności
+  });
+
+  it('scenariusz kontrolny „aplikacja": ukryte pytania sklepowe NIE karzą Confidence (fix2)', () => {
+    // Ręcznie: 3 pytania. project_goal (zawsze) + deadline_hard (zawsze) + products_count
+    //   z visible_if SHOP. Dla project_goal='aplikacja' products_count jest NIEWIDOCZNE,
+    //   więc NIE wchodzi do unknowns ani do kompletności.
+    //   widoczne = [project_goal, deadline_hard], oba odpowiedziane → 100 − 0 = 100;
+    //   kompletność 2/2 = 1.0 → belowCompleteness = false.
+    // Gdyby widoczność nie działała, products_count bez odpowiedzi dałoby 100 − 8×1.5 = 88.
+    const libShop: LibraryData = {
+      ...LIB,
+      questions: [
+        { code: 'project_goal', unknownWeight: 1, visibleIf: null, label: 'Cel?' },
+        { code: 'deadline_hard', unknownWeight: 1, visibleIf: null, label: 'Deadline?' },
+        {
+          code: 'products_count',
+          unknownWeight: 1.5,
+          visibleIf: '{"q":"project_goal","op":"in","val":["sklep","b2b"]}',
+          label: 'Ile produktów?',
+        },
+      ],
+    };
+    const app = computeQuote({
+      answers: { project_goal: 'aplikacja', deadline_hard: false },
+      library: libShop,
+    });
+    expect(app.confidence.score).toBe(100);
+    expect(app.confidence.belowCompleteness).toBe(false);
+
+    // Kontrola odwrotna: dla sklepu to samo pytanie JEST widoczne i bez odpowiedzi karze.
+    const shop = computeQuote({
+      answers: { project_goal: 'sklep', deadline_hard: false },
+      library: libShop,
+    });
+    expect(shop.confidence.score).toBe(88); // 100 − 8 × 1.5
+  });
+
+  it('fix1: dojazd z reguły cost_item wyceniony — 150 km → 300 km × 1,15 zł = 345 zł', () => {
+    // Ręcznie: km w jedną stronę 150 × 2 (tam i z powrotem) = 300 km; 300 × 1,15 zł = 345 zł.
+    // Koszty są POZA godzinami: totals.costs = 345, a widełki godzinowe bez zmian.
+    const libTravel = {
+      ...LIB,
+      rules: [
+        {
+          id: 90,
+          name: 'Warsztaty stacjonarne',
+          priority: 0,
+          condition: { q: 'workshops', op: 'eq' as const, val: 'stacjonarne' },
+          actions: [
+            { type: 'cost_item' as const, code: 'travel', qty_from: 'workshops_travel_km' },
+          ],
+          reasonTemplate: 'Warsztaty u klienta',
+        },
+      ],
+      costItemTypes: [
+        { code: 'travel', name: 'Dojazd na spotkanie/warsztat', unit: 'km', unitPrice: 1.15 },
+      ],
+    };
+    const r2 = computeQuote({
+      answers: { workshops: 'stacjonarne', workshops_travel_km: 150 },
+      library: libTravel,
+    });
+    const travel = r2.items.find((i) => i.type === 'cost' && i.code === 'travel')!;
+    expect(travel).toMatchObject({ qty: 300, unit: 'km', unitPrice: 1.15, amountPln: 345 });
+    expect(r2.totals.costs).toBe(345);
+  });
+
+  it('fix1: bez km (brak odpowiedzi) → pozycja widoczna z kwotą 0 „do wyceny ręcznej"', () => {
+    const libTravel = {
+      ...LIB,
+      rules: [
+        {
+          id: 90,
+          name: 'Warsztaty',
+          priority: 0,
+          condition: { q: 'workshops', op: 'eq' as const, val: 'stacjonarne' },
+          actions: [
+            { type: 'cost_item' as const, code: 'travel', qty_from: 'workshops_travel_km' },
+          ],
+          reasonTemplate: 'x',
+        },
+      ],
+      costItemTypes: [
+        { code: 'travel', name: 'Dojazd na spotkanie/warsztat', unit: 'km', unitPrice: 1.15 },
+      ],
+    };
+    const r2 = computeQuote({ answers: { workshops: 'stacjonarne' }, library: libTravel });
+    const travel = r2.items.find((i) => i.type === 'cost')!;
+    expect(travel).toMatchObject({ amountPln: 0, note: 'kwota do wyceny ręcznej' });
+    expect(r2.totals.costs).toBe(0);
+  });
+
+  it('D26 „nie dotyczy" nie spełnia warunku reguły (poza operatorem not_applicable)', () => {
+    // Reguła min_level backend_logic→2 wymaga project_goal=sklep. Gdy project_goal = „nie dotyczy",
+    // reguła NIE strzela (tak samo jak przy „nie wiem") — mimo że to pełnoprawna odpowiedź.
+    // Poziom zostaje na domyślnym archetypu (1), NIE podniesiony przez regułę do 2.
+    const na = computeQuote({
+      answers: { project_goal: { not_applicable: true } },
+      library: LIB,
+    });
+    const be = na.aspects.find((a) => a.code === 'backend_logic')!;
+    expect(be.reasons).toEqual([]); // brak uzasadnienia = reguła nie zadziałała
+    expect(be.suggestedLevel).toBe(1); // default archetypu, nie 2 z reguły
   });
 
   it('override poziomu (chosen < suggested) przelicza godziny i totals', () => {

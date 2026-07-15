@@ -21,6 +21,19 @@ const isVisible = (q: LibQuestion, answers: Answers): boolean => {
 const isUnknownVal = (v: unknown) =>
   typeof v === 'object' && v !== null && 'unknown' in (v as object);
 
+/** Checklista modułów = PRZECIĘCIE archetyp ∩ cel (D24): opcje bierzemy z PRZEFILTROWANEJ
+ *  biblioteki silnika (libData.modules), a nie ze statycznego options_json seeda. Dzięki temu
+ *  moduł spoza zakresu nie da się zaznaczyć (i nie trafi do wyceny). */
+function withLibraryModuleOptions(
+  q: LibQuestion,
+  modules: { code: string; name: string }[],
+): LibQuestion {
+  return {
+    ...q,
+    options_json: JSON.stringify(modules.map((m) => ({ value: m.code, label: m.name }))),
+  };
+}
+
 const WizardSteps: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const { state, library } = useQuote();
   const { answers, setAnswer, flush } = state;
@@ -86,7 +99,7 @@ const WizardSteps: React.FC<{ onDone: () => void }> = ({ onDone }) => {
           stepQuestions.map((q) => (
             <QuestionField
               key={q.code}
-              q={q}
+              q={q.code === 'modules' ? withLibraryModuleOptions(q, state.libData.modules) : q}
               value={answers[q.code]}
               onChange={(v) => setAnswer(q.code, v)}
             />

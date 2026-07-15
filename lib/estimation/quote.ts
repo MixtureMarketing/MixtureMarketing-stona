@@ -25,6 +25,7 @@ const EMPTY_OVERRIDES: ValidationOverrides = {
   disabledIntegrations: [],
   disabledMultipliers: [],
   extraCostItems: [],
+  costAmounts: {},
 };
 
 const dedupe = (arr: string[]): string[] => [...new Set(arr)];
@@ -72,17 +73,20 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
   }
 
   // ── Pozycje addytywne: moduły + integracje (D4 — obszary nie rosną od integracji) ──
-  const activeModules = dedupe([
-    ...ruleEval.suggestedModules,
-    ...multiselect(answers, 'modules'),
-  ]).filter((c) => !ov.disabledModules.includes(c));
+  // Tylko pozycje OBECNE w bibliotece (po filtrze archetyp ∩ cel, D24) — moduł spoza zakresu
+  // nie może ani wejść do wyceny, ani wisieć na liście aktywnych jako goły kod.
+  const activeModules = dedupe([...ruleEval.suggestedModules, ...multiselect(answers, 'modules')])
+    .filter((c) => library.modules.some((m) => m.code === c))
+    .filter((c) => !ov.disabledModules.includes(c));
 
   const activeIntegrations = dedupe([
     ...ruleEval.suggestedIntegrations,
     ...['payments', 'shipping', 'erp', 'marketplace', 'other_integrations'].flatMap((q) =>
       multiselect(answers, q),
     ),
-  ]).filter((c) => !ov.disabledIntegrations.includes(c));
+  ])
+    .filter((c) => library.integrations.some((i) => i.code === c))
+    .filter((c) => !ov.disabledIntegrations.includes(c));
 
   const items: QuoteItem[] = [];
   for (const code of activeModules) {
@@ -111,6 +115,38 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
       risk: it.risk,
     });
   }
+  // ── Pozycje kosztowe z REGUŁ (D14; akcja cost_item). Poza godzinami/mnożnikami/buforem (03 krok 7).
+  // Formuła v1 (03): dojazd = km w jedną stronę × 2 (tam i z powrotem) × stawka za km — JEDNA pozycja
+  // na wycenę, niezależnie od liczby spotkań. Typ bez stawki lub bez qty_from → pozycja widoczna
+  // z kwotą 0 i notatką „do wyceny ręcznej" (nie gubimy sygnału z reguły).
+  const ROUND_TRIP = 2; // spec formuły (03), nie wartość domenowa — stawka zł/km żyje w seedach
+  for (const sug of ruleEval.costItems) {
+    const type = library.costItemTypes.find((t) => t.code === sug.code);
+    if (!type) continue; // nieznany kod typu → pomiń (reguła do poprawy w bibliotece)
+    const rawQty = sug.qtyFrom ? answers[sug.qtyFrom] : undefined;
+    const oneWay = typeof rawQty === 'string' || typeof rawQty === 'number' ? Number(rawQty) : NaN;
+    const priceable = type.unitPrice != null && Number.isFinite(oneWay) && oneWay > 0;
+    const qty = priceable ? oneWay * ROUND_TRIP : undefined;
+    // Ręczna kwota z walidacji ma pierwszeństwo (pozycje bez stawki, np. usługa zewnętrzna).
+    const manual = ov.costAmounts[type.code];
+    const computed = priceable ? qty! * (type.unitPrice as number) : 0;
+    items.push({
+      type: 'cost',
+      code: type.code,
+      name: type.name,
+      amountPln: manual != null ? manual : computed,
+      qty,
+      unit: type.unit ?? undefined,
+      unitPrice: type.unitPrice ?? undefined,
+      note:
+        manual != null
+          ? 'kwota ustawiona ręcznie'
+          : priceable
+            ? `${oneWay} ${type.unit ?? ''} w jedną stronę × 2 (tam i z powrotem)`.trim()
+            : 'kwota do wyceny ręcznej',
+    });
+  }
+
   for (const c of ov.extraCostItems) {
     items.push({ type: 'cost', code: c.code, name: c.name, amountPln: c.amountPln });
   }
@@ -135,8 +171,10 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
     categoryRates: library.categoryRates,
   });
 
-  // ── Confidence (03, D23) ──
+  // ── Confidence (03, D23 + D26) ──
   // D23: WIDOCZNE pytanie (visible_if spełniony) NIEODPOWIEDZIANE lub „nie wiem" → liczy się jak unknown.
+  // D26: „nie dotyczy" to PEŁNOPRAWNA odpowiedź — zero kary, liczy się do kompletności
+  //      (isNotApplicable ⇒ isAnswered = true, bo to nie jest niewiadoma tylko świadome „nie ma tego").
   const isAnswered = (code: string) => {
     const v = answers[code];
     return v !== undefined && !isUnknown(v);
@@ -152,7 +190,13 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
   const visibleQuestions = library.questions.filter((q) => questionVisible(q.visibleIf));
   const unknowns = visibleQuestions
     .filter((q) => !isAnswered(q.code))
-    .map((q) => ({ code: q.code, weight: q.unknownWeight, label: q.label }));
+    .map((q) => ({
+      code: q.code,
+      weight: q.unknownWeight,
+      label: q.label,
+      // ta sama kara, inny powód w breakdownie (uczciwie wobec tego, co zrobił użytkownik)
+      said: isUnknown(answers[q.code]) ? ('unknown' as const) : ('missing' as const),
+    }));
   const answeredVisible = visibleQuestions.length - unknowns.length;
   const completeness =
     visibleQuestions.length === 0 ? 1 : answeredVisible / visibleQuestions.length;
@@ -181,6 +225,7 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
     activeModules,
     activeIntegrations,
     activeMultipliers,
+    items, // rozwiązane pozycje (snapshot est_quote_items przy finalize, f1c)
     costItems: ruleEval.costItems,
     warnings: ruleEval.warnings,
     recommendedArchetypes: ruleEval.recommendedArchetypes,

@@ -1,13 +1,42 @@
 import React, { useMemo, useState } from 'react';
-import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
-import type { Category, ValidationOverrides, AspectComputation } from '@/lib/estimation/types';
+import { AlertTriangle, ChevronDown, ChevronRight, CheckCircle2 } from 'lucide-react';
+import type {
+  Category,
+  ValidationOverrides,
+  AspectComputation,
+  QuoteAspectValidation,
+} from '@/lib/estimation/types';
+import { validateForFinalize } from '@/lib/estimation/engine';
 import { useQuote } from '../QuoteContext';
 import { CATEGORY_LABEL } from './categoryLabels';
 
-const ValidationScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface Props {
+  onBack: () => void;
+  onFinalize: () => void;
+  finalizing?: boolean;
+  finalizeError?: string | null;
+}
+
+const ValidationScreen: React.FC<Props> = ({ onBack, onFinalize, finalizing, finalizeError }) => {
   const { state, library } = useQuote();
   const { computation, overrides, setOverrides } = state;
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  // Walidacja przed finalize (te same reguły co serwer — validateForFinalize).
+  const finalizeErrors = useMemo(() => {
+    const aspects: QuoteAspectValidation[] = computation.aspects.map((a) => ({
+      code: a.code,
+      suggestedLevel: a.suggestedLevel,
+      chosenLevel: a.chosenLevel,
+      overrideHoursMin: overrides.overrideHours[a.code]?.min,
+      overrideHoursMax: overrides.overrideHours[a.code]?.max,
+      overrideReason: overrides.levelReasons[a.code],
+    }));
+    const totalHoursMax =
+      computation.aspects.reduce((s, a) => s + a.hoursMax, 0) +
+      computation.items.reduce((s, i) => s + (i.type !== 'cost' ? i.hoursMax : 0), 0);
+    return validateForFinalize({ aspects, totalHoursMax });
+  }, [computation.aspects, computation.items, overrides]);
 
   const byCategory = useMemo(() => {
     const m = new Map<Category, AspectComputation[]>();
@@ -23,6 +52,15 @@ const ValidationScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setOverrides((p) => ({ ...p, chosenLevels: { ...p.chosenLevels, [code]: level } }));
   const setReason = (code: string, reason: string) =>
     setOverrides((p) => ({ ...p, levelReasons: { ...p.levelReasons, [code]: reason } }));
+  /** Ręczna kwota pozycji kosztowej; pusty input → zdejmij override (wróć do wyliczenia silnika). */
+  const setCostAmount = (code: string, raw: string) =>
+    setOverrides((p) => {
+      const next = { ...p.costAmounts };
+      const n = Number(raw.replace(',', '.'));
+      if (raw.trim() === '') delete next[code];
+      else if (Number.isFinite(n) && n >= 0) next[code] = n;
+      return { ...p, costAmounts: next };
+    });
   const toggle = (
     key: keyof Pick<
       ValidationOverrides,
@@ -134,6 +172,93 @@ const ValidationScreen: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         name={(c) => computation.activeMultipliers.find((m) => m.code === c)?.name ?? c}
         onToggle={(c) => toggle('disabledMultipliers', c)}
       />
+
+      {/* Koszty pozagodzinowe (D14) — osobna sekcja oferty, bez mnożników i bufora. */}
+      {computation.items.some((i) => i.type === 'cost') && (
+        <section>
+          <h4 className="font-bold text-sm text-gray-500 mb-2">
+            Koszty dodatkowe (poza godzinami)
+          </h4>
+          <ul className="text-sm space-y-1">
+            {computation.items
+              .filter((i) => i.type === 'cost')
+              .map((c, i) => {
+                const cost = c as Extract<typeof c, { type: 'cost' }>;
+                const needsManual = (cost.amountPln ?? 0) === 0 && cost.qty == null;
+                return (
+                  <li key={i} className="flex justify-between gap-2 border-b border-slate-100 py-1">
+                    <span>
+                      <span className="font-bold">{cost.name}</span>
+                      {cost.qty != null && cost.unitPrice != null && (
+                        <span className="text-gray-500">
+                          {' '}
+                          — {cost.qty} {cost.unit} × {cost.unitPrice.toLocaleString('pl-PL')} zł
+                        </span>
+                      )}
+                      {cost.note && (
+                        <span
+                          className={`block text-xs ${needsManual ? 'text-amber-700' : 'text-gray-400'}`}
+                        >
+                          {cost.note}
+                        </span>
+                      )}
+                    </span>
+                    {/* Kwota edytowalna przed finalize. 0 NIE blokuje finalize — pozycja z notatką
+                        „do wyceny ręcznej" i tak wchodzi do snapshotu, żeby nie zginęła w ofercie. */}
+                    <span className="flex items-center gap-1 whitespace-nowrap">
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        aria-label={`Kwota: ${cost.name}`}
+                        value={
+                          cost.code != null && overrides.costAmounts[cost.code] != null
+                            ? String(overrides.costAmounts[cost.code])
+                            : String(Math.round(cost.amountPln ?? 0))
+                        }
+                        onChange={(e) => cost.code && setCostAmount(cost.code, e.target.value)}
+                        className={`w-24 px-2 py-0.5 rounded border text-sm text-right ${
+                          needsManual ? 'border-amber-400' : 'border-slate-200'
+                        }`}
+                      />
+                      <span className="text-sm">zł</span>
+                    </span>
+                  </li>
+                );
+              })}
+          </ul>
+        </section>
+      )}
+
+      {/* Finalize: serwerowe przeliczenie + snapshot (status→review). Zablokowany, gdy walidacja padła. */}
+      <section className="border-t border-slate-200 pt-4">
+        {finalizeErrors.length > 0 && (
+          <ul className="mb-3 space-y-1">
+            {finalizeErrors.map((e, i) => (
+              <li key={i} className="text-sm text-red-600 flex items-start gap-1">
+                <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {e}
+              </li>
+            ))}
+          </ul>
+        )}
+        {finalizeError && (
+          <p className="mb-3 text-sm text-red-600 flex items-start gap-1">
+            <AlertTriangle size={13} className="mt-0.5 shrink-0" /> {finalizeError}
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={finalizeErrors.length > 0 || finalizing}
+          onClick={onFinalize}
+          className={`px-5 py-2 rounded-lg font-bold flex items-center gap-2 ${
+            finalizeErrors.length > 0 || finalizing
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-dark text-white'
+          }`}
+        >
+          <CheckCircle2 size={18} />
+          {finalizing ? 'Finalizuję…' : 'Finalizuj wycenę'}
+        </button>
+      </section>
     </div>
   );
 };

@@ -22,6 +22,11 @@ H_max += Σ itemów: hours_max
 Zasada D4: obszar APIs nie rośnie od liczby integracji; funkcjonalności pokryte modułem nie
 podnoszą poziomu obszaru (granice „includes/excludes" w bibliotece rozstrzygają spory).
 
+**D24 (filtr modułów per archetyp, `engine_version` ≥ 1.2).** Moduły z `est_modules.archetypes_json`
+(lista kodów; `NULL` = wszystkie) są odsiewane per wybrany archetyp już przy budowie biblioteki
+silnika (`buildLibraryData`, współdzielony UI↔serwer). Moduł spoza archetypu nie wejdzie do
+wyceny nawet, gdy zasugeruje go reguła lub odpowiedź. Zmiana kompozycji ⇒ bump do 1.2.
+
 ## Krok 3 — mnożniki ryzyka (addytywnie, z capem)
 
 ```
@@ -86,14 +91,35 @@ Koszty = Σ itemów typu cost: (amount_pln ?? qty × unit_price)
 ```
 
 Prezentowane w ofercie osobną sekcją („Koszty dodatkowe: dojazdy, licencje"), poza widełkami
-godzinowymi; bez mnożników i bufora. Dojazd: reguła włącza pozycję przy odpowiedzi „warsztaty
-stacjonarne" (qty = wyjazdy × km × stawka_km + noclegi).
+godzinowymi; bez mnożników i bufora.
 
-## Confidence Score (deterministyczny) — `engine_version` 1.1 (D23)
+**Rozwiązywanie pozycji z reguł (`engine_version` ≥ 1.3).** Akcja reguły `cost_item` wskazuje
+`code` typu z `est_cost_item_types` oraz opcjonalne `qty_from` (kod pytania z ilością). Silnik
+wycenia pozycję i dopisuje ją do `items` (wcześniej sugestie reguł nigdy nie trafiały do
+`totals.costs` — bug naprawiony w f1c).
+
+```
+Dojazd (v1):  qty = km_w_jedną_stronę × 2          // tam i z powrotem; JEDNA pozycja na wycenę,
+              amount = qty × unit_price             // niezależnie od liczby spotkań
+```
+Przykład: 150 km w jedną stronę → 300 km × 1,15 zł = **345 zł**. Mnożnik ×2 to część specyfikacji
+formuły (wersjonowana `engine_version`); stawka zł/km jest wartością domenową i żyje w seedach
+(`est_cost_item_types.unit_price`). Typ bez `unit_price` albo bez rozwiązywalnego `qty_from`
+(np. „usługa zewnętrzna") daje pozycję z kwotą 0 i notatką **„kwota do wyceny ręcznej"** —
+sygnał z reguły jest widoczny, a nie po cichu gubiony. Noclegi/wyjazdy wielokrotne: poza v1
+(pozycja ad hoc w walidacji).
+
+## Confidence Score (deterministyczny) — `engine_version` 1.3 (D23 + D26)
+
+**D26 — trzy stany odpowiedzi.** Pytanie może być: (a) **odpowiedziane** wartością, (b) **„nie
+wiem"** (`{"unknown":true}`) — niewiadoma, karana, (c) **„nie dotyczy"** (`{"not_applicable":true}`)
+— PEŁNOPRAWNA odpowiedź: **zero kary**, liczy się do kompletności. Brak klucza = brak odpowiedzi
+(karany wg D23). W regułach „nie dotyczy" nie spełnia żadnego operatora — także nie `answered` —
+poza jawnym `not_applicable`.
 
 ```
 C = 100
-  − Σ pytań WIDOCZNYCH bez odpowiedzi LUB z „nie wiem": 8 × unknown_weight   // D23
+  − Σ pytań WIDOCZNYCH bez odpowiedzi LUB z „nie wiem": 8 × unknown_weight   // D23; „nie dotyczy" NIE liczy się tu (D26)
   − Σ itemów risk='high':   6
   − Σ itemów risk='medium': 2
   − (jest migracja danych bez próbki/dostępu do źródła: 8)

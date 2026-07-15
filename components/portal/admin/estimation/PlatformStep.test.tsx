@@ -99,6 +99,7 @@ const LIBRARY: EstimationLibrary = {
   modules: [],
   integrations: [],
   multipliers: [],
+  costItemTypes: [],
   params: [],
 };
 

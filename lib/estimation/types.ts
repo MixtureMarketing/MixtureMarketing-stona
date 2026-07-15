@@ -12,13 +12,24 @@ export interface UnknownAnswer {
   unknown: true;
 }
 
-export type Answer = AnswerValue | UnknownAnswer;
+/** D26: sentinel „nie dotyczy" (answer_json = {"not_applicable":true}). PEŁNOPRAWNA odpowiedź:
+ *  zero kary w Confidence, żadna reguła nie matchuje (poza jawnym operatorem not_applicable). */
+export interface NotApplicableAnswer {
+  not_applicable: true;
+}
 
-/** Odpowiedzi wyceny: brak klucza = pytanie bez odpowiedzi (≠ „nie wiem"). */
+export type Answer = AnswerValue | UnknownAnswer | NotApplicableAnswer;
+
+/** Odpowiedzi wyceny: brak klucza = pytanie bez odpowiedzi (≠ „nie wiem" ≠ „nie dotyczy"). */
 export type Answers = Record<string, Answer>;
 
 export function isUnknown(a: Answer | undefined): a is UnknownAnswer {
   return typeof a === 'object' && a !== null && !Array.isArray(a) && 'unknown' in a;
+}
+
+/** D26: „nie dotyczy" — odpowiedź udzielona, ale pytanie nie ma zastosowania w tym projekcie. */
+export function isNotApplicable(a: Answer | undefined): a is NotApplicableAnswer {
+  return typeof a === 'object' && a !== null && !Array.isArray(a) && 'not_applicable' in a;
 }
 
 // ── Reguły (05) ─────────────────────────────────────────────────────────────
@@ -33,7 +44,9 @@ export type ConditionOp =
   | 'in'
   | 'contains'
   | 'answered'
-  | 'unknown';
+  | 'unknown'
+  /** D26: jedyny operator, który matchuje odpowiedź „nie dotyczy". */
+  | 'not_applicable';
 
 /** Drzewo warunków: { all } | { any } | liść { q, op, val }. */
 export type Condition =
@@ -174,7 +187,10 @@ export type QuoteItem =
       name: string;
       amountPln?: number;
       qty?: number;
+      unit?: string;
       unitPrice?: number;
+      /** Doprecyzowanie formuły do pokazania w ofercie (np. „150 km w jedną stronę × 2"). */
+      note?: string;
     };
 
 export interface AggregateInput {
@@ -215,8 +231,9 @@ export interface Totals {
 
 export interface ConfidenceInput {
   /** D23: widoczne pytania „nie wiem" LUB nieodpowiedziane (waga = unknown_weight);
-   *  `label` = czytelna treść pytania do breakdownu (fix 4a). */
-  unknowns: { code: string; weight: number; label?: string }[];
+   *  `label` = czytelna treść pytania do breakdownu (fix 4a).
+   *  `said` rozróżnia powód w breakdownie: jawne „nie wiem" vs brak odpowiedzi (kara ta sama). */
+  unknowns: { code: string; weight: number; label?: string; said?: 'unknown' | 'missing' }[];
   /** Pozycje ryzyka (moduły/integracje) z nazwą do breakdownu (fix 4a). */
   items: { name: string; risk: Risk }[];
   /** Migracja danych bez próbki/dostępu do źródła. */
@@ -266,7 +283,17 @@ export interface LibraryData {
   levels: { aspectCode: string; level: number; hoursMin: number; hoursMax: number }[];
   archetypeDefaults: ArchetypeDefault[]; // dla WYBRANEGO archetypu
   rules: Rule[];
-  modules: { code: string; name: string; hoursMin: number; hoursMax: number; risk: Risk }[];
+  /** archetypes/goals: null = bez ograniczenia; lista = tylko dla wskazanych (D24).
+   *  Filtr (przecięcie archetyp ∩ cel) stosuje buildLibraryData — tu pola informacyjne. */
+  modules: {
+    code: string;
+    name: string;
+    hoursMin: number;
+    hoursMax: number;
+    risk: Risk;
+    archetypes?: string[] | null;
+    goals?: string[] | null;
+  }[];
   integrations: {
     code: string;
     name: string;
@@ -279,6 +306,8 @@ export interface LibraryData {
   multipliers: MultiplierDef[];
   /** Pytania: waga „nie wiem", warunek widoczności (D23 kompletność), etykieta (breakdown). */
   questions: { code: string; unknownWeight: number; visibleIf: string | null; label: string }[];
+  /** Typy pozycji kosztowych (D14) — źródło stawek dla akcji reguł `cost_item` (np. dojazd zł/km). */
+  costItemTypes: { code: string; name: string; unit: string | null; unitPrice: number | null }[];
   params: EngineParams;
   categoryRates?: CategoryRates;
   /** Tryb integracji wybranego archetypu ('platform'|'custom') — wybór taryfy godzin. */
@@ -294,6 +323,10 @@ export interface ValidationOverrides {
   disabledIntegrations: string[];
   disabledMultipliers: string[];
   extraCostItems: { code: string; name: string; amountPln: number }[];
+  /** Ręczna kwota pozycji kosztowej z reguły (klucz = kod typu kosztu). Dla pozycji, których
+   *  silnik nie umie wycenić (brak stawki/ilości) — np. „usługa zewnętrzna". 0 nie blokuje
+   *  finalize: pozycja z notatką „do wyceny ręcznej" i tak wchodzi do snapshotu. */
+  costAmounts: Record<string, number>;
 }
 
 export interface AspectComputation {
@@ -319,6 +352,9 @@ export interface QuoteComputation {
   activeModules: string[];
   activeIntegrations: string[];
   activeMultipliers: { code: string; name: string; value: number }[];
+  /** Rozwiązane pozycje (moduł/integracja/koszt) z nazwami i godzinami — źródło snapshotu
+   *  est_quote_items przy finalize (f1c). Te same wartości, które trafiają do agregacji. */
+  items: QuoteItem[];
   costItems: CostItemSuggestion[];
   warnings: string[];
   recommendedArchetypes: ArchetypeRecommendation[];

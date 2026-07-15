@@ -21,8 +21,10 @@ const BELOW_COMPLETENESS_LABEL = 'szacunek wstępny — odpowiedz na więcej pyt
 // Wartości WYŁĄCZNIE z silnika (computation) — zero liczenia tutaj.
 const LivePreviewPanel: React.FC = () => {
   const { state } = useQuote();
-  const { totals, confidence, warnings } = state.computation;
+  const { totals, confidence, warnings, items } = state.computation;
   const [showCategories, setShowCategories] = useState(false);
+  // Koszty (D14) są POZA godzinami/mnożnikami/buforem — własna sekcja, nie wchodzą w widełki.
+  const costItems = items.filter((i) => i.type === 'cost');
 
   const topReasons = [...confidence.breakdown]
     .sort((a, b) => a.delta - b.delta) // delta ujemna → najmocniejsze najpierw
@@ -41,10 +43,34 @@ const LivePreviewPanel: React.FC = () => {
           pełne (wewnętrzne): {pln(totals.price.min)} – {pln(totals.price.max)} ·{' '}
           {Math.round(totals.afterBuffer.hoursMin)}–{Math.round(totals.afterBuffer.hoursMax)} h
         </p>
-        {totals.costs > 0 && (
-          <p className="text-xs text-gray-500">+ koszty dodatkowe: {pln(totals.costs)}</p>
-        )}
       </div>
+
+      {costItems.length > 0 && (
+        <div>
+          <p className="text-xs text-gray-500 uppercase">Koszty dodatkowe (poza godzinami)</p>
+          <ul className="text-xs space-y-1 mt-1">
+            {costItems.map((c, i) => {
+              const cost = c as Extract<typeof c, { type: 'cost' }>;
+              return (
+                <li key={i} className="flex justify-between gap-2 border-b border-slate-100 pb-1">
+                  <span>
+                    <span className="font-bold">{cost.name}</span>
+                    {cost.qty != null && cost.unitPrice != null && (
+                      <span className="text-gray-500">
+                        {' '}
+                        — {cost.qty} {cost.unit} × {cost.unitPrice.toLocaleString('pl-PL')} zł
+                      </span>
+                    )}
+                    {cost.note && <span className="block text-gray-400">{cost.note}</span>}
+                  </span>
+                  <span className="font-bold whitespace-nowrap">{pln(cost.amountPln ?? 0)}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="text-xs font-black text-dark mt-1">Razem koszty: {pln(totals.costs)}</p>
+        </div>
+      )}
 
       {warnings.length > 0 && (
         <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">

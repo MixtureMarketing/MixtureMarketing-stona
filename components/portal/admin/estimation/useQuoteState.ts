@@ -4,7 +4,7 @@ import type { Answers, AnswerValue, ValidationOverrides } from '@/lib/estimation
 import type { EstimationLibrary } from './useEstimationLibrary';
 import { toLibraryData } from './toLibraryData';
 
-type AnswerInput = AnswerValue | { unknown: true };
+type AnswerInput = AnswerValue | { unknown: true } | { not_applicable: true }; // D26
 
 const EMPTY_OVERRIDES: ValidationOverrides = {
   chosenLevels: {},
@@ -14,6 +14,7 @@ const EMPTY_OVERRIDES: ValidationOverrides = {
   disabledIntegrations: [],
   disabledMultipliers: [],
   extraCostItems: [],
+  costAmounts: {},
 };
 
 interface Params {
@@ -39,7 +40,13 @@ export function useQuoteState({
   const [answers, setAnswers] = useState<Answers>(initialAnswers ?? {});
   const [overrides, setOverridesState] = useState<ValidationOverrides>(EMPTY_OVERRIDES);
 
-  const libData = useMemo(() => toLibraryData(library, archetype), [library, archetype]);
+  // Cel projektu (project_goal) współfiltruje checklistę modułów (D24: archetyp ∩ cel).
+  // Zmiana odpowiedzi na cel przelicza bibliotekę — dlatego jest w zależnościach memo.
+  const goal = typeof answers.project_goal === 'string' ? answers.project_goal : undefined;
+  const libData = useMemo(
+    () => toLibraryData(library, archetype, goal),
+    [library, archetype, goal],
+  );
   // Archetyp to atrybut wyceny, nie zapisywana odpowiedź — wstrzykujemy go do answers TYLKO na
   // potrzeby silnika (reguły archetype_warning i Confidence czytają answers.archetype). Nie trafia
   // do autosave (pendingRef), bo persystuje osobno jako archetype_code.
@@ -114,7 +121,17 @@ export function useQuoteState({
     return () => window.removeEventListener('beforeunload', handler);
   }, [hasUnsavedOverrides]);
 
-  return { answers, setAnswer, overrides, setOverrides, computation, flush, hasUnsavedOverrides };
+  return {
+    answers,
+    setAnswer,
+    overrides,
+    setOverrides,
+    computation,
+    /** Biblioteka w kształcie silnika, PO filtrach (archetyp ∩ cel) — jedno źródło dla checklisty. */
+    libData,
+    flush,
+    hasUnsavedOverrides,
+  };
 }
 
 export type QuoteState = ReturnType<typeof useQuoteState>;

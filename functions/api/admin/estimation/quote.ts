@@ -3,7 +3,9 @@
  * Cloudflare Pages Function: admin/estimation/quote
  * Path: /api/admin/estimation/quote?id=<id>
  * Auth: dziedziczona z admin/_middleware.ts (rola admin).
- * GET — pojedyncza wycena + zapisane odpowiedzi (resume draftu w wizardzie, f1b).
+ * GET — pojedyncza wycena + zapisane odpowiedzi (resume draftu, f1b) ORAZ snapshot po finalize
+ * (est_quote_aspects/items/multipliers + sparsowane totals/confidence, f1c) — ekran wyniku czyta
+ * autorytatywny zapis z D1, nie stan lokalny UI (read-back, f1c #6).
  */
 
 interface Env {
@@ -37,11 +39,34 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       }
     }
 
-    return json({ quote, answers });
+    // Snapshot warstwy wyceny (obecny dopiero po finalize). Read-back ekranu wyniku (f1c #6).
+    const [aspectsRes, itemsRes, multipliersRes] = await Promise.all([
+      env.DB.prepare('SELECT * FROM est_quote_aspects WHERE quote_id = ?').bind(id).all(),
+      env.DB.prepare('SELECT * FROM est_quote_items WHERE quote_id = ?').bind(id).all(),
+      env.DB.prepare('SELECT * FROM est_quote_multipliers WHERE quote_id = ?').bind(id).all(),
+    ]);
+    const snapshot = {
+      aspects: aspectsRes.results ?? [],
+      items: itemsRes.results ?? [],
+      multipliers: multipliersRes.results ?? [],
+      totals: parseJson((quote as any).totals_json),
+      confidenceBreakdown: parseJson((quote as any).confidence_breakdown_json),
+    };
+
+    return json({ quote, answers, snapshot });
   } catch (err: any) {
     return json({ error: err.message }, 500);
   }
 };
+
+function parseJson(v: unknown): unknown {
+  if (typeof v !== 'string' || v === '') return null;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return null;
+  }
+}
 
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {

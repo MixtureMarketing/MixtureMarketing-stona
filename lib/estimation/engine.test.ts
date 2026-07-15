@@ -34,6 +34,7 @@ describe('matchCondition — operatory (docs/05)', () => {
     stock: ['feedy', 'erp'],
     ads: ['google'],
     dunno: { unknown: true },
+    nd: { not_applicable: true }, // D26
     flag: true,
   };
 
@@ -77,6 +78,19 @@ describe('matchCondition — operatory (docs/05)', () => {
     expect(matchCondition({ q: 'missing', op: 'eq', val: 'x' }, a)).toBe(false);
     expect(matchCondition({ q: 'missing', op: 'unknown' }, a)).toBe(false);
     expect(matchCondition({ q: 'missing', op: 'answered' }, a)).toBe(false);
+    expect(matchCondition({ q: 'missing', op: 'not_applicable' }, a)).toBe(false); // D26
+  });
+
+  it('D26: „nie dotyczy" nie spełnia ŻADNEGO operatora poza not_applicable (także nie answered)', () => {
+    expect(matchCondition({ q: 'nd', op: 'not_applicable' }, a)).toBe(true);
+    expect(matchCondition({ q: 'nd', op: 'answered' }, a)).toBe(false);
+    expect(matchCondition({ q: 'nd', op: 'unknown' }, a)).toBe(false); // ≠ „nie wiem"
+    expect(matchCondition({ q: 'nd', op: 'eq', val: 'x' }, a)).toBe(false);
+    expect(matchCondition({ q: 'nd', op: 'neq', val: 'x' }, a)).toBe(false);
+    expect(matchCondition({ q: 'nd', op: 'gte', val: 0 }, a)).toBe(false);
+    // odwrotnie: „nie wiem" i zwykła odpowiedź nie są „nie dotyczy"
+    expect(matchCondition({ q: 'dunno', op: 'not_applicable' }, a)).toBe(false);
+    expect(matchCondition({ q: 'downtime', op: 'not_applicable' }, a)).toBe(false);
   });
 
   it('drzewo all / any', () => {

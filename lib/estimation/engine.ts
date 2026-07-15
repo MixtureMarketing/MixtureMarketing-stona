@@ -21,10 +21,16 @@ import type {
   ConfidenceBreakdownEntry,
   FinalizeValidationInput,
 } from './types';
-import { isUnknown } from './types';
+import { isUnknown, isNotApplicable } from './types';
 
 // 1.1: D23 — widoczne-nieodpowiedziane pytania liczą się do Confidence jak „nie wiem" + próg kompletności.
-export const ENGINE_VERSION = '1.1';
+// 1.2: D24 — filtr modułów per archetyp (buildLibraryData, archetypes_json) zmienia kompozycję wyceny.
+// 1.3: D26 — trzeci stan odpowiedzi „nie dotyczy" (pełnoprawna odpowiedź, zero kary Confidence)
+//      + wycena pozycji kosztowych z reguł (cost_item, np. dojazd km×2×stawka) — wcześniej nigdy
+//      nie trafiały do totals.costs (bug f1c-fix1).
+// 1.4: D24 rozszerzone — checklista modułów = PRZECIĘCIE archetyp ∩ cel (goals_json, migracja 0004);
+//      moduły spoza zakresu nie wchodzą do wyceny. Ręczna kwota pozycji kosztowej (costAmounts).
+export const ENGINE_VERSION = '1.4';
 
 // ── Pomocnicze ───────────────────────────────────────────────────────────────
 
@@ -62,8 +68,11 @@ export function matchCondition(cond: Condition, answers: Answers): boolean {
   const answer: Answer | undefined = answers[q];
 
   // „nie wiem" nie spełnia żadnego warunku poza `unknown`.
+  // D26: „nie dotyczy" nie spełnia żadnego warunku poza `not_applicable` — także NIE `answered`
+  //      (to odpowiedź „tego tu nie ma", więc nie może włączać reguł zakresu).
   if (op === 'unknown') return isUnknown(answer);
-  if (answer === undefined || isUnknown(answer)) return false;
+  if (op === 'not_applicable') return isNotApplicable(answer);
+  if (answer === undefined || isUnknown(answer) || isNotApplicable(answer)) return false;
   if (op === 'answered') return true;
 
   return compareLeaf(answer as AnswerValue, op, val);
@@ -99,6 +108,7 @@ function renderReason(template: string, answers: Answers): string {
     const a = answers[code];
     if (a === undefined) return '?';
     if (isUnknown(a)) return 'nie wiem';
+    if (isNotApplicable(a)) return 'nie dotyczy'; // D26
     return Array.isArray(a) ? a.join(', ') : String(a);
   });
 }
@@ -327,7 +337,11 @@ export function computeConfidence(
   };
 
   // D23: „nie wiem" ORAZ widoczne-nieodpowiedziane (caller składa listę); etykieta po ludzku (fix 4a).
-  for (const u of input.unknowns) sub(`Brak odpowiedzi: ${u.label ?? u.code}`, 8 * u.weight);
+  // Kara identyczna (D23), ale powód nazwany zgodnie z prawdą: jawne „nie wiem" ≠ brak odpowiedzi.
+  for (const u of input.unknowns) {
+    const prefix = u.said === 'unknown' ? 'Odpowiedź „nie wiem"' : 'Brak odpowiedzi';
+    sub(`${prefix}: ${u.label ?? u.code}`, 8 * u.weight);
+  }
   for (const it of input.items) {
     if (it.risk === 'high') sub(`Ryzyko wysokie: ${it.name}`, 6);
     else if (it.risk === 'medium') sub(`Ryzyko średnie: ${it.name}`, 2);

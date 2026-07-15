@@ -93,6 +93,7 @@ const LIBRARY: EstimationLibrary = {
   modules: [],
   integrations: [],
   multipliers: [],
+  costItemTypes: [],
   params: [
     { key: 'hourly_rate', value: '50' },
     { key: 'multiplier_cap', value: '0.40' },
@@ -173,8 +174,9 @@ describe('E2E f1b — przepływ do walidacji (bez finalize)', () => {
 
     // Licznik „nie wiem".
     expect(screen.getByText(/„nie wiem": 1/)).toBeTruthy();
-    // Breakdown Confidence: powód nazwany etykietą pytania (po ludzku), nie kodem/„pozycją".
-    expect(screen.getByText(/Brak odpowiedzi: Sztywny deadline\?/)).toBeTruthy();
+    // Breakdown Confidence: powód nazwany etykietą pytania (po ludzku), nie kodem/„pozycją",
+    // i rozróżnia jawne „nie wiem" od braku odpowiedzi (kara ta sama, powód uczciwy).
+    expect(screen.getByText(/Odpowiedź „nie wiem": Sztywny deadline\?/)).toBeTruthy();
     expect(screen.queryByText(/deadline_hard/)).toBeNull();
     expect(screen.queryByText(/pozycja/)).toBeNull();
   });
@@ -186,8 +188,8 @@ describe('E2E f1b — przepływ do walidacji (bez finalize)', () => {
     fireEvent.click(screen.getByText(/Przejdź do walidacji/));
     // Ekran walidacji: obszar z kategorii pojawia się do przeglądu poziomów.
     expect(screen.getByText('Frontend')).toBeTruthy();
-    // Brak akcji finalize w f1b.
-    expect(screen.queryByText(/finalize|Finalizuj|Zapisz ofertę/i)).toBeNull();
+    // f1c: akcja finalize jest już dostępna na ekranie walidacji.
+    expect(screen.getByText(/Finalizuj wycenę/)).toBeTruthy();
   });
 });
 

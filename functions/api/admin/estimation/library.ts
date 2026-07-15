@@ -47,7 +47,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
            FROM est_questions WHERE is_active = 1 ORDER BY sort_order`),
       all(`SELECT id, name, rule_type, condition_json, actions_json, reason_template, priority
            FROM est_rules WHERE is_active = 1 ORDER BY priority DESC, id`),
-      all(`SELECT code, name, description, includes, excludes, hours_min, hours_max, risk, archetypes_json
+      all(`SELECT code, name, description, includes, excludes, hours_min, hours_max, risk, archetypes_json, goals_json
            FROM est_modules WHERE is_active = 1`),
       all(`SELECT code, name, category, hours_platform_min, hours_platform_max,
                   hours_custom_min, hours_custom_max, risk, requirements

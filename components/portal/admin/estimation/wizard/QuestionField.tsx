@@ -7,6 +7,8 @@ import type { LibQuestion } from '../useEstimationLibrary';
 // select→string, multiselect→string[], text→string, „nie wiem"→{unknown:true}.
 
 export const UNKNOWN = { unknown: true } as const;
+/** D26: „nie dotyczy" — pełnoprawna odpowiedź (zero kary Confidence, żadna reguła nie matchuje). */
+export const NOT_APPLICABLE = { not_applicable: true } as const;
 
 export function parseOptions(q: LibQuestion): { value: string; label: string }[] {
   if (!q.options_json) return [];
@@ -20,12 +22,14 @@ export function parseOptions(q: LibQuestion): { value: string; label: string }[]
 interface Props {
   q: LibQuestion;
   value: Answers[string] | undefined;
-  onChange: (v: AnswerValue | typeof UNKNOWN) => void;
+  onChange: (v: AnswerValue | typeof UNKNOWN | typeof NOT_APPLICABLE) => void;
 }
 
 const QuestionField: React.FC<Props> = ({ q, value, onChange }) => {
   const options = parseOptions(q);
-  const isUnknown = typeof value === 'object' && value !== null && 'unknown' in value;
+  const isObj = typeof value === 'object' && value !== null;
+  const isUnknown = isObj && 'unknown' in value;
+  const isNotApplicable = isObj && 'not_applicable' in value; // D26
   const arr = Array.isArray(value) ? (value as string[]) : [];
 
   return (
@@ -33,13 +37,23 @@ const QuestionField: React.FC<Props> = ({ q, value, onChange }) => {
       <div className="flex justify-between items-start gap-2 mb-2">
         <label className="font-bold text-sm text-dark">{q.text}</label>
         {q.allow_unknown === 1 && (
-          <button
-            type="button"
-            onClick={() => onChange(UNKNOWN)}
-            className={`text-xs px-2 py-0.5 rounded ${isUnknown ? 'bg-amber-500 text-white' : 'bg-slate-200 text-gray-600'}`}
-          >
-            nie wiem
-          </button>
+          <div className="flex gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => onChange(UNKNOWN)}
+              className={`text-xs px-2 py-0.5 rounded ${isUnknown ? 'bg-amber-500 text-white' : 'bg-slate-200 text-gray-600'}`}
+            >
+              nie wiem
+            </button>
+            {/* D26: „nie dotyczy" ≠ niewiadoma — nie obniża Confidence. */}
+            <button
+              type="button"
+              onClick={() => onChange(NOT_APPLICABLE)}
+              className={`text-xs px-2 py-0.5 rounded ${isNotApplicable ? 'bg-slate-600 text-white' : 'bg-slate-200 text-gray-600'}`}
+            >
+              nie dotyczy
+            </button>
+          </div>
         )}
       </div>
       {q.help_text && <p className="text-xs text-gray-500 mb-2">{q.help_text}</p>}

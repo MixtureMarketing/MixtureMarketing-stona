@@ -3,6 +3,27 @@
 -- Kanoniczne wartości opcji (kolumna value w options_json) są WSPÓLNE z rules.sql — nie zmieniać w oderwaniu.
 -- answer_type: bool|select|multiselect|number|text. visibility='internal' (F0; public/portal w F4).
 -- unknown_weight: waga niewiadomej w Confidence (03); wyższa = większy wpływ na godziny (draft).
+--
+-- ── POLITYKA WIDOCZNOŚCI (f1c-fix2, przegląd całego katalogu; DRAFT do korekty Jakuba) ──
+-- Każde pytanie ma JAWNY status: albo `visible_if_json`, albo NULL = ZAWSZE WIDOCZNE (świadomie).
+-- Skrót SHOP = {"q":"project_goal","op":"in","val":["sklep","b2b"]}.
+--
+--  ZAWSZE WIDOCZNE (dotyczą każdego celu — także „aplikacja z logowaniem"):
+--    project_goal, views_count, languages (podstrony/języki dotyczą też aplikacji), design_source,
+--    workshops, users_type, users_concurrent, traffic_monthly, downtime_tolerance, sensitive_data,
+--    other_integrations (SMSAPI/CRM/GUS/rezerwacje — nie tylko sklep), existing_data (dane startowe),
+--    ads_planned, tracking_scope, seo_migration, content_source, training, deadline_hard,
+--    team_new_tech, custom_logic, frontend_headless (krok Platforma).
+--  SHOP (blok e-commerce — ukryty poza sklep/B2B):
+--    products_count, product_variants, stock_source, sales_model, promos_planned, returns_handling,
+--    payments, shipping, erp, marketplace.
+--  CHECKLISTA MODUŁÓW (`modules`) — ZAWSZE WIDOCZNA, ale opcje = przecięcie archetyp ∩ cel
+--    (est_modules.archetypes_json ∩ goals_json, D24). Moduły ogólne (goals=NULL) dostępne
+--    dla każdego celu — także dla „aplikacja z logowaniem".
+--  WARUNKOWE OD INNEJ ODPOWIEDZI (kaskada, niezależnie od celu):
+--    workshops_travel_km ← workshops=stacjonarne; sla_formal ← downtime≠nic lub users_type=b2b;
+--    sla_value ← sla_formal=konkretny; data_sample ← existing_data=przenosimy;
+--    configurator_* ← modules zawiera konfigurator (a więc pośrednio SHOP).
 
 INSERT INTO est_questions
   (code, text, help_text, answer_type, options_json, allow_unknown, unknown_weight, visible_if_json, question_group, sort_order) VALUES
@@ -46,14 +67,15 @@ INSERT INTO est_questions
    1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 160),
   ('stock_source', 'Skąd produkty i stany magazynowe?', NULL, 'multiselect',
    '[{"value":"recznie","label":"Ręcznie"},{"value":"feedy","label":"Feedy hurtowni"},{"value":"erp","label":"ERP"},{"value":"dropshipping","label":"Dropshipping"}]',
-   1, 1.0, NULL, 'funkcje', 170),
+   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 170),
   ('sales_model', 'Sprzedaż B2C, B2B czy mieszana?', NULL, 'select',
    '[{"value":"b2c","label":"B2C"},{"value":"b2b","label":"B2B"},{"value":"mieszana","label":"Mieszana"}]',
-   1, 1.0, NULL, 'funkcje', 180),
-  ('promos_planned', 'Czy będą promocje/wyprzedaże?', NULL, 'bool', NULL, 1, 0.5, NULL, 'funkcje', 190),
+   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 180),
+  ('promos_planned', 'Czy będą promocje/wyprzedaże?', NULL, 'bool', NULL, 1, 0.5,
+   '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 190),
   ('returns_handling', 'Zwroty przez system czy poza systemem?', NULL, 'select',
    '[{"value":"system","label":"Przez system"},{"value":"poza","label":"Mailowo / poza systemem"}]',
-   1, 0.5, NULL, 'funkcje', 200),
+   1, 0.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 200),
   ('payments', 'Płatności online? (jakie bramki)', NULL, 'multiselect',
    '[{"value":"p24","label":"Przelewy24"},{"value":"payu","label":"PayU"},{"value":"stripe","label":"Stripe"},{"value":"tpay","label":"Tpay"},{"value":"paypal","label":"PayPal"},{"value":"paypo","label":"PayPo"},{"value":"klarna","label":"Klarna"}]',
    1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 210),
@@ -62,13 +84,17 @@ INSERT INTO est_questions
    1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 220),
   ('erp', 'Integracja z ERP/magazynem/księgowością?', NULL, 'multiselect',
    '[{"value":"subiekt_gt","label":"Subiekt GT"},{"value":"subiekt_nexo","label":"Subiekt nexo"},{"value":"optima","label":"Comarch Optima"},{"value":"wapro","label":"WAPRO Mag"},{"value":"enova","label":"enova365"},{"value":"wfirma","label":"wFirma"},{"value":"fakturownia","label":"Fakturownia"},{"value":"ifirma","label":"iFirma"}]',
-   1, 1.5, NULL, 'funkcje', 230),
+   1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 230),
   ('marketplace', 'Sprzedaż na marketplace''ach?', NULL, 'multiselect',
    '[{"value":"baselinker","label":"Baselinker"},{"value":"allegro","label":"Allegro"},{"value":"amazon","label":"Amazon"},{"value":"ceneo","label":"Ceneo"}]',
-   1, 1.0, NULL, 'funkcje', 240),
+   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 240),
   ('other_integrations', 'Inne systemy do połączenia?', NULL, 'multiselect',
    '[{"value":"smsapi","label":"SMSAPI"},{"value":"mailerlite","label":"MailerLite"},{"value":"mailchimp","label":"Mailchimp"},{"value":"freshmail","label":"FreshMail"},{"value":"gus","label":"GUS/REGON"},{"value":"vies","label":"VIES"},{"value":"booking","label":"System rezerwacji"},{"value":"crm_generic","label":"CRM"},{"value":"erp_custom","label":"Custom (nieznane API)"}]',
    1, 1.0, NULL, 'funkcje', 250),
+  -- (D24) Checklista jest ZAWSZE widoczna, ale jej OPCJE to przecięcie archetyp ∩ cel:
+  -- filtrujemy moduły po est_modules.archetypes_json ∩ goals_json (buildLibraryData), a UI bierze
+  -- opcje z przefiltrowanej biblioteki — NIE z options_json poniżej (ten zostaje jako fallback/dok.).
+  -- Dzięki temu moduły ogólne (blog_kb, gdpr_tools, livechat…) są dostępne też poza sklepem.
   ('modules', 'Funkcje dodatkowe (checklista z biblioteki)', NULL, 'multiselect',
    '[{"value":"wishlist","label":"Wishlist"},{"value":"client_panel_ext","label":"Rozszerzony panel klienta"},{"value":"b2b_pricing","label":"Cenniki B2B"},{"value":"b2b_approval","label":"Workflow akceptacji B2B"},{"value":"quotes_rfq","label":"RFQ"},{"value":"subscriptions","label":"Subskrypcje"},{"value":"multicurrency","label":"Wielowalutowość"},{"value":"loyalty","label":"Program lojalnościowy"},{"value":"configurator_options","label":"Konfigurator opcji"},{"value":"configurator_2d","label":"Konfigurator 2D"},{"value":"configurator_3d","label":"Konfigurator 3D"},{"value":"cpq_engine","label":"CPQ"},{"value":"marketplace_mv","label":"Marketplace multi-vendor"},{"value":"blog_kb","label":"Blog / baza wiedzy"},{"value":"search_adv","label":"Wyszukiwarka zaawansowana"},{"value":"pwa_push","label":"PWA + push"},{"value":"invoices_auto","label":"Auto-faktury"},{"value":"gdpr_tools","label":"Narzędzia RODO"},{"value":"omnibus","label":"Omnibus"},{"value":"promo_engine","label":"Promocje zaawansowane"},{"value":"rma","label":"RMA"},{"value":"reviews","label":"Opinie"},{"value":"gift_cards","label":"Karty podarunkowe"},{"value":"click_collect","label":"Click & collect"},{"value":"size_tables","label":"Tabele rozmiarów"},{"value":"livechat","label":"Live chat"}]',
    1, 1.0, NULL, 'funkcje', 260),

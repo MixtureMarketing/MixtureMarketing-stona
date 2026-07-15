@@ -20,6 +20,7 @@ const EMPTY_OV: ValidationOverrides = {
   disabledIntegrations: [],
   disabledMultipliers: [],
   extraCostItems: [],
+  costAmounts: {},
 };
 const TOTALS: Totals = {
   base: { hoursMin: 0, hoursMax: 0 },
@@ -64,6 +65,7 @@ const emptyLib = (questions: LibQuestion[]): EstimationLibrary => ({
   modules: [],
   integrations: [],
   multipliers: [],
+  costItemTypes: [],
   params: [],
 });
 
@@ -84,6 +86,7 @@ function mockState(
       activeModules: [],
       activeIntegrations: [],
       activeMultipliers: [],
+      items: [],
       costItems: [],
       warnings: [],
       recommendedArchetypes: [],
@@ -112,7 +115,7 @@ describe('ValidationScreen — zmiana poziomu wymaga powodu', () => {
   it('chosen == suggested → brak pola powodu', () => {
     render(
       <QuoteProvider state={mockState({ aspects: [aspect] })} library={emptyLib([])}>
-        <ValidationScreen onBack={() => {}} />
+        <ValidationScreen onBack={() => {}} onFinalize={() => {}} />
       </QuoteProvider>,
     );
     expect(screen.queryByPlaceholderText(/Powód zmiany poziomu/)).toBeNull();
@@ -124,7 +127,7 @@ describe('ValidationScreen — zmiana poziomu wymaga powodu', () => {
         state={mockState({ aspects: [{ ...aspect, chosenLevel: 4 }] })}
         library={emptyLib([])}
       >
-        <ValidationScreen onBack={() => {}} />
+        <ValidationScreen onBack={() => {}} onFinalize={() => {}} />
       </QuoteProvider>,
     );
     expect(screen.getByPlaceholderText(/Powód zmiany poziomu/)).not.toBeNull();
@@ -138,7 +141,7 @@ describe('ValidationScreen — zmiana poziomu wymaga powodu', () => {
         state={mockState({ aspects: [aspect] }, EMPTY_OV, setOverrides)}
         library={emptyLib([])}
       >
-        <ValidationScreen onBack={() => {}} />
+        <ValidationScreen onBack={() => {}} onFinalize={() => {}} />
       </QuoteProvider>,
     );
     fireEvent.change(screen.getByRole('combobox'), { target: { value: '3' } });

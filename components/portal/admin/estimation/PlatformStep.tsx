@@ -4,7 +4,7 @@ import { evaluateRules, matchCondition } from '@/lib/estimation/engine';
 import type { Answers, AnswerValue, Condition } from '@/lib/estimation/types';
 import type { EstimationLibrary } from './useEstimationLibrary';
 import { toEngineRules, rulesWithAction, platformQuestionCodes } from './engineAdapter';
-import QuestionField, { UNKNOWN } from './wizard/QuestionField';
+import QuestionField, { UNKNOWN, NOT_APPLICABLE } from './wizard/QuestionField';
 
 export interface PlatformResult {
   archetypeCode: string;
@@ -70,7 +70,7 @@ const PlatformStep: React.FC<Props> = ({ library, busy, onConfirm }) => {
     }).warnings;
   }, [engineRules, answers, chosen, knownAspectCodes]);
 
-  const setAnswer = (code: string, value: AnswerValue | typeof UNKNOWN) =>
+  const setAnswer = (code: string, value: AnswerValue | typeof UNKNOWN | typeof NOT_APPLICABLE) =>
     setAnswers((prev) => ({ ...prev, [code]: value }));
 
   // Rekomendacja = ścieżka domyślna; skrót (wybór wbrew radzie lub bez rekomendacji) kosztuje powód.
