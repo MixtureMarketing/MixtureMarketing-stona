@@ -22,54 +22,21 @@ const CRITERIA: { Icon: LucideIcon; label: string }[] = [
   { Icon: History, label: 'To, z czym już pracujesz' },
 ];
 
-/** Chip technologii: kropka w kolorze marki + nazwa; z linkiem, gdy jest artykuł. */
-const TechChip: React.FC<{ id: string }> = ({ id }) => {
-  const t = BY_ID.get(id);
-  if (!t) return null;
-  const inner = (
-    <>
-      <span
-        aria-hidden="true"
-        className="size-1.5 shrink-0 rounded-full"
-        style={{ backgroundColor: DOT[id] }}
-      />
-      {t.name}
-    </>
-  );
-  const cls =
-    'inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-sm font-bold';
-  return t.href ? (
-    <Link
-      to={t.href}
-      className={`${cls} text-accent-dark transition-colors hover:border-accent-dark`}
-    >
-      {inner}
-    </Link>
-  ) : (
-    <span className={`${cls} text-dark`}>{inner}</span>
-  );
-};
-
-const ChipList: React.FC<{ picks: string[]; className?: string }> = ({ picks, className }) => (
-  <ul className={`flex flex-wrap gap-2 ${className ?? ''}`}>
-    {picks.map((id) => (
-      <li key={id}>
-        <TechChip id={id} />
-      </li>
-    ))}
-  </ul>
-);
-
-/** Karta sytuacji: pytanie klienta → odpowiedź tekstem → te same nazwy jako chipy. */
+/**
+ * Karta sytuacji: pytanie klienta → odpowiedź tekstem. Bez chipów przy
+ * odpowiedzi — dublowały zdanie słowo w słowo (uwaga z przeglądu 2026-07-15);
+ * pełny zakres i linki do bazy wiedzy niesie tabliczka na dole sekcji.
+ */
 const SituationCard: React.FC<{ choice: Choice }> = ({ choice }) => (
   <article className="flex flex-col rounded-2xl border border-gray-100 bg-light-gray p-7 md:p-8">
     <h3 className="text-xl font-extrabold tracking-tight text-balance text-dark">
       {choice.situation}
     </h3>
-    <p className="mt-3 text-[15px] leading-relaxed text-gray-700">{choice.answer}</p>
-    <ChipList picks={choice.picks} className="mt-auto pt-6" />
+    <p className={`mt-3 text-[15px] leading-relaxed text-gray-700 ${choice.aside ? 'pb-6' : ''}`}>
+      {choice.answer}
+    </p>
     {choice.aside && (
-      <p className="mt-6 border-t border-gray-200 pt-5 text-[15px] font-bold text-accent-dark">
+      <p className="mt-auto border-t border-gray-200 pt-5 text-[15px] font-bold text-accent-dark">
         {choice.aside}
       </p>
     )}
@@ -118,7 +85,7 @@ const WebDevStackChoice: React.FC = () => {
           className="xl:flex xl:items-start xl:justify-between xl:gap-16"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
         >
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
               Nie mamy jednego młotka.
             </h2>
@@ -164,7 +131,6 @@ const WebDevStackChoice: React.FC = () => {
             {SHOP_LADDER.map((step, i) => (
               <div key={step.situation} className="p-7 md:p-8 lg:p-9">
                 <div
-                  className="flex h-full flex-col"
                   style={{
                     transform: `translate3d(0, calc((1 - var(--p, 1)) * ${24 + 16 * i}px), 0)`,
                   }}
@@ -173,7 +139,6 @@ const WebDevStackChoice: React.FC = () => {
                     {step.situation}
                   </p>
                   <p className="mt-3 text-[15px] leading-relaxed text-gray-700">{step.answer}</p>
-                  <ChipList picks={step.picks} className="mt-auto pt-6" />
                 </div>
               </div>
             ))}

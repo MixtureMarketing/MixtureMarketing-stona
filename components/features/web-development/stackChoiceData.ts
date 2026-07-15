@@ -149,12 +149,14 @@ export const BY_ID = new Map(FIELD.map((t) => [t.id, t]));
 export interface Choice {
   /** Sytuacja klienta — jego językiem, nie naszym. */
   situation: string;
-  /** Odpowiedź nazywa technologie TEKSTEM — chipy tylko wzmacniają zdanie. */
+  /**
+   * Odpowiedź nazywa technologie TEKSTEM — zdanie jest jedynym nośnikiem
+   * (chipy wycięte 2026-07-15: dublowały zdania słowo w słowo; linki do bazy
+   * wiedzy niesie tabliczka „Czym się posługujemy").
+   */
   answer: string;
   /** Zdanie, które sprzedaje uczciwość, nie technologię. Nie ruszać bez właściciela. */
   aside?: string;
-  /** ZASADA PRAWDY: wyłącznie technologie wymienione w `answer`, nic ponad to. */
-  picks: string[];
 }
 
 /**
@@ -167,19 +169,16 @@ export const SHOP_LADDER: Choice[] = [
     situation: 'Standardowy katalog, skromny budżet.',
     answer:
       'WooCommerce — sklep na WordPressie, z bazą MySQL. Bez opłat licencyjnych i bez dopłacania za funkcje, których nie użyjesz.',
-    picks: ['woo', 'wp', 'mysql'],
   },
   {
     situation: 'Więcej produktów, więcej reguł, więcej ruchu.',
     answer:
       'PrestaShop, a pod spodem Redis, żeby katalog nie zwalniał, i Elasticsearch, żeby wyszukiwarka naprawdę znajdowała. Sprzedaż na marketplace’ach spina BaseLinker.',
-    picks: ['presta', 'redis', 'elastic', 'baselinker'],
   },
   {
     situation: 'Własna logika sprzedaży, konfigurator, wiele rynków.',
     answer:
       'Medusa.js albo Sylius — sklep pisany pod Twój proces, na Node.js albo Symfony, z bazą PostgreSQL.',
-    picks: ['medusa', 'sylius', 'node', 'symfony', 'postgres'],
   },
 ];
 
@@ -189,25 +188,21 @@ export const SITUATIONS: Choice[] = [
     situation: 'Prosta strona firmowa albo landing pod kampanię.',
     answer: 'Zwykły WordPress, Astro albo Next.js.',
     aside: 'Czasem zwykły WordPress wystarczy. Wtedy tak mówimy, zamiast sprzedawać Ci framework.',
-    picks: ['wp', 'astro', 'next'],
   },
   {
     situation: 'Pracujesz z WordPressem od lat i Twój zespół go zna.',
     answer:
       'WordPress na Bedrocku z motywem Sage — albo headless, jeśli front ma być bardzo szybki.',
     aside: 'Nie przepychamy Cię na Laravel + React dlatego, że nam się wygodniej pisze.',
-    picks: ['wp', 'bedrock', 'sage', 'headless'],
   },
   {
     situation: 'System, którego nie ma w pudełku.',
     answer:
       'Laravel, Symfony, Node.js albo Django — zależnie od tego, co ma robić. Pod spodem najczęściej PostgreSQL i Docker.',
-    picks: ['laravel', 'symfony', 'node', 'django', 'postgres', 'docker'],
   },
   {
     situation: 'Ruch, który musi wytrzymać — kampania, sezon, Black Friday.',
     answer:
       'Load balancer, Redis, Nginx i Kubernetes — a ruch z sieci najpierw przechodzi przez Cloudflare.',
-    picks: ['lb', 'redis', 'nginx', 'k8s', 'cloudflare'],
   },
 ];
