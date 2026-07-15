@@ -4,11 +4,16 @@
 // Wyjątek świadomy: Confidence (03) odwołuje się do stałych kodów pytań/obszarów zdefiniowanych
 // w formule 03 (existing_data, data_sample, discovery, archetype laravel/headless) — to część
 // specyfikacji silnika (wersjonowana przez engine_version), nie „wartość domenowa".
-import { evaluateRules, aggregate, computeConfidence, matchCondition } from './engine';
+import {
+  evaluateRules,
+  aggregate,
+  computeConfidence,
+  isQuestionVisible,
+  resolveVisibleAnswers,
+} from './engine';
 import { isUnknown } from './types';
 import type {
   Answers,
-  Condition,
   Risk,
   ComputeQuoteInput,
   QuoteComputation,
@@ -28,6 +33,11 @@ const EMPTY_OVERRIDES: ValidationOverrides = {
   costAmounts: {},
 };
 
+/** Pytania, których odpowiedzi mapują się 1:1 na integracje z biblioteki (docs/05).
+ *  Świadomy wyjątek od inwariantu 2: to część specyfikacji silnika (wersjonowana engine_version),
+ *  nie wartość domenowa — same integracje i ich godziny żyją w seedach. */
+const INTEGRATION_QUESTIONS = ['payments', 'shipping', 'erp', 'marketplace', 'other_integrations'];
+
 const dedupe = (arr: string[]): string[] => [...new Set(arr)];
 const multiselect = (answers: Answers, q: string): string[] => {
   const v = answers[q];
@@ -35,8 +45,20 @@ const multiselect = (answers: Answers, q: string): string[] => {
 };
 
 export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
-  const { answers, library } = input;
+  const { library } = input;
   const ov: ValidationOverrides = { ...EMPTY_OVERRIDES, ...input.overrides };
+
+  // D27: odpowiedzi, których prowadzący nie mógł udzielić, nie istnieją dla obliczeń —
+  // filtrujemy NA WEJŚCIU, zanim zobaczą je reguły, pozycje i Confidence:
+  //  (a) pytania niewidoczne (np. płatności sprzed zmiany celu na „portal treści"),
+  //  (b) wartości multiselecta spoza JUŻ przefiltrowanej biblioteki (moduł/integracja poza
+  //      zakresem archetyp ∩ cel — nie da się jej zaznaczyć, więc nie może nic odblokowywać).
+  const answers = resolveVisibleAnswers(input.answers, library.questions, {
+    modules: library.modules.map((m) => m.code),
+    ...Object.fromEntries(
+      INTEGRATION_QUESTIONS.map((q) => [q, library.integrations.map((i) => i.code)]),
+    ),
+  });
 
   const knownAspectCodes = library.aspects.map((a) => a.code);
   const ruleEval = evaluateRules({
@@ -81,9 +103,7 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
 
   const activeIntegrations = dedupe([
     ...ruleEval.suggestedIntegrations,
-    ...['payments', 'shipping', 'erp', 'marketplace', 'other_integrations'].flatMap((q) =>
-      multiselect(answers, q),
-    ),
+    ...INTEGRATION_QUESTIONS.flatMap((q) => multiselect(answers, q)),
   ])
     .filter((c) => library.integrations.some((i) => i.code === c))
     .filter((c) => !ov.disabledIntegrations.includes(c));
@@ -179,15 +199,9 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
     const v = answers[code];
     return v !== undefined && !isUnknown(v);
   };
-  const questionVisible = (visibleIf: string | null) => {
-    if (!visibleIf) return true;
-    try {
-      return matchCondition(JSON.parse(visibleIf) as Condition, answers);
-    } catch {
-      return true;
-    }
-  };
-  const visibleQuestions = library.questions.filter((q) => questionVisible(q.visibleIf));
+  // Ta sama widoczność co przy filtrowaniu odpowiedzi (D27) — liczona na już przefiltrowanym
+  // zbiorze, więc kaskada warunków jest spójna: pytanie ukryte nie karze i nie liczy się do kompletności.
+  const visibleQuestions = library.questions.filter((q) => isQuestionVisible(q.visibleIf, answers));
   const unknowns = visibleQuestions
     .filter((q) => !isAnswered(q.code))
     .map((q) => ({

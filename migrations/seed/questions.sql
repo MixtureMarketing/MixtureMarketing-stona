@@ -15,8 +15,13 @@
 --    ads_planned, tracking_scope, seo_migration, content_source, training, deadline_hard,
 --    team_new_tech, custom_logic, frontend_headless (krok Platforma).
 --  SHOP (blok e-commerce — ukryty poza sklep/B2B):
---    products_count, product_variants, stock_source, sales_model, promos_planned, returns_handling,
---    payments, shipping, erp, marketplace.
+--    product_variants, stock_source, sales_model, promos_planned, returns_handling,
+--    shipping, erp, marketplace.
+--  KATALOG (sklep/B2B + portal treści): products_count — katalog bez commerce też waży (retro#2).
+--    UWAGA (retro-fix): `payments` PRZENIESIONE do zawsze-widocznych — płatności są uniwersalne
+--    ekonomicznie (darowizny/subskrypcje/opłaty), a nietrafność zamyka „nie dotyczy" (D26).
+--    Kandydat do podobnego przeniesienia przy przeglądzie seedów: `erp` — część „księgowość/faktury"
+--    dotyczy każdej organizacji, część „ERP/magazyn" tylko sklepu → rozważyć rozbicie na dwa pytania.
 --  CHECKLISTA MODUŁÓW (`modules`) — ZAWSZE WIDOCZNA, ale opcje = przecięcie archetyp ∩ cel
 --    (est_modules.archetypes_json ∩ goals_json, D24). Moduły ogólne (goals=NULL) dostępne
 --    dla każdego celu — także dla „aplikacja z logowaniem".
@@ -61,7 +66,10 @@ INSERT INTO est_questions
    '{"q":"sla_formal","op":"eq","val":"konkretny"}', 'uzytkownicy', 130),
   ('sensitive_data', 'Czy przetwarzamy dane wrażliwe/płatnicze poza bramką?', NULL, 'bool', NULL, 1, 1.0, NULL, 'uzytkownicy', 140),
   -- ── funkcje ──
-  ('products_count', 'Ile produktów/pozycji katalogu?', 'Liczba pozycji (możesz wpisać np. 300k, 1m).', 'number', NULL, 1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 150),
+  -- (retro#2) Katalog ≠ sklep: portal treści też ma katalog (kursy, wyjazdy, oferty) i jego rozmiar
+  -- realnie waży (listing, karty, filtry). Retro TRY DIVE: 26 kursów/wyjazdów ważyło tyle co zero,
+  -- bo pytanie było SHOP-only. Etykieta rozszerzona, widoczność +portal_tresci.
+  ('products_count', 'Ile pozycji katalogu (produkty/kursy/oferty)?', 'Liczba pozycji (możesz wpisać np. 300k, 1m). Także katalog bez sprzedaży online.', 'number', NULL, 1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b","portal_tresci"]}', 'funkcje', 150),
   ('product_variants', 'Czy produkty mają warianty lub konfigurację?', NULL, 'select',
    '[{"value":"brak","label":"Brak"},{"value":"proste","label":"Proste warianty"},{"value":"masowe","label":"Masowe warianty"},{"value":"konfigurowalne","label":"Konfigurowalne"}]',
    1, 1.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 160),
@@ -76,9 +84,12 @@ INSERT INTO est_questions
   ('returns_handling', 'Zwroty przez system czy poza systemem?', NULL, 'select',
    '[{"value":"system","label":"Przez system"},{"value":"poza","label":"Mailowo / poza systemem"}]',
    1, 0.5, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 200),
-  ('payments', 'Płatności online? (jakie bramki)', NULL, 'multiselect',
+  -- (retro-fix) Płatności są UNIWERSALNE EKONOMICZNIE — darowizny (fundacja), subskrypcje, opłaty
+  -- za wydarzenia zdarzają się poza sklepem. Retro Niepodzielnych: portal treści z darowiznami
+  -- przez Stripe nie miał JAK zadeklarować bramki. Nietrafność obsługuje „nie dotyczy" (D26) bez kary.
+  ('payments', 'Płatności online? (jakie bramki)', 'Także darowizny, subskrypcje, opłaty za wydarzenia — nie tylko sklep.', 'multiselect',
    '[{"value":"p24","label":"Przelewy24"},{"value":"payu","label":"PayU"},{"value":"stripe","label":"Stripe"},{"value":"tpay","label":"Tpay"},{"value":"paypal","label":"PayPal"},{"value":"paypo","label":"PayPo"},{"value":"klarna","label":"Klarna"}]',
-   1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 210),
+   1, 1.0, NULL, 'funkcje', 210),
   ('shipping', 'Wysyłka? (przewoźnicy/broker)', NULL, 'multiselect',
    '[{"value":"inpost","label":"InPost"},{"value":"dpd","label":"DPD"},{"value":"dhl","label":"DHL"},{"value":"gls","label":"GLS"},{"value":"pocztapl","label":"Poczta Polska"},{"value":"broker","label":"Broker (Furgonetka/Apaczka)"}]',
    1, 1.0, '{"q":"project_goal","op":"in","val":["sklep","b2b"]}', 'funkcje', 220),

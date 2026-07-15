@@ -205,7 +205,52 @@ INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, 
   (46, 'Rekomendacja: Headless-Astro (portal tresci, nowoczesnosc)',
    '{"all":[{"q":"project_goal","op":"eq","val":"portal_tresci"},{"q":"frontend_headless","op":"eq","val":true}]}',
    '[{"type":"recommend_archetype","code":"headless","reason":"Priorytet nowoczesnosci/szybkosci — Astro/React"}]',
-   'Portal tresci z priorytetem nowoczesnosci — headless (Astro/React).', 0)
+   'Portal tresci z priorytetem nowoczesnosci — headless (Astro/React).', 0),
+
+  -- ── retro-fix (DRAFT do korekty Jakuba) — luki wykryte w retrospektywie Niepodzielnych ──
+  -- Problem: skala projektu (liczba widokow, jezyki) NIE wplywala na zaden obszar — 15 unikalnych
+  -- widokow zostawalo na frontend poziom 1 (10-25 h). Progi ponizej sa DRAFT.
+  (47, 'Skala: wiele widokow',
+   '{"q":"views_count","op":"gte","val":8}',
+   '[{"type":"min_level","aspect":"frontend","level":2},{"type":"min_level","aspect":"uxui","level":2}]',
+   'Projekt ma {views_count} unikalnych widokow — front i projekt UI ponad szablon.', 0),
+  (48, 'Skala: duzo widokow',
+   '{"q":"views_count","op":"gte","val":20}',
+   '[{"type":"min_level","aspect":"frontend","level":3}]',
+   '{views_count} widokow to rozbudowany frontend (system komponentow, stany, wydajnosc).', 0),
+  (49, 'Wielojezycznosc',
+   '{"q":"languages","op":"gte","val":2}',
+   '[{"type":"min_level","aspect":"frontend","level":2},{"type":"min_level","aspect":"content","level":2}]',
+   '{languages} wersje jezykowe wymagaja i18n we froncie i obslugi tresci w kazdej wersji.', 0),
+
+  -- Problem: custom_logic bylo uzywane WYLACZNIE w regulach recommend_archetype z warunkiem
+  -- project_goal=sklep — poza sklepem odpowiedz „mamy nietypowa logike" byla martwa.
+  (50, 'Nietypowa logika biznesowa',
+   '{"q":"custom_logic","op":"eq","val":true}',
+   '[{"type":"min_level","aspect":"backend_logic","level":2}]',
+   'Nietypowa logika biznesowa poza standardem platformy wymaga wlasnego backendu.', 0),
+  (51, 'Nietypowa logika + integracja niestandardowa',
+   '{"all":[{"q":"custom_logic","op":"eq","val":true},{"any":[{"q":"other_integrations","op":"contains","val":"erp_custom"},{"q":"other_integrations","op":"contains","val":"booking"}]}]}',
+   '[{"type":"min_level","aspect":"apis","level":2}]',
+   'Wlasna logika spieta z zewnetrznym systemem wymaga warstwy wlasnego API.', 0),
+
+  -- Problem: obszar emails nie byl podnoszony przez zadna regule — potwierdzenia rezerwacji
+  -- i platnosci to maile transakcyjne, ktore zawsze trzeba zrobic.
+  (52, 'Maile transakcyjne',
+   '{"any":[{"q":"other_integrations","op":"contains","val":"booking"},{"q":"payments","op":"answered"}]}',
+   '[{"type":"min_level","aspect":"emails","level":1}]',
+   'Rezerwacje/platnosci wymagaja maili transakcyjnych (potwierdzenia, statusy).', 0),
+
+  -- ── retro#2 (DRAFT): rozmiar KATALOGU wazy takze poza sklepem (listing, karty, filtry, model
+  -- danych). Wczesniej products_count wplywalo tylko na rekomendacje archetypu. Progi DRAFT.
+  (53, 'Katalog: wiele pozycji',
+   '{"q":"products_count","op":"gte","val":20}',
+   '[{"type":"min_level","aspect":"frontend","level":2},{"type":"min_level","aspect":"database","level":1}]',
+   'Katalog {products_count} pozycji wymaga listingu z filtrowaniem i wlasnego modelu danych.', 0),
+  (54, 'Katalog: duzy',
+   '{"q":"products_count","op":"gte","val":100}',
+   '[{"type":"min_level","aspect":"database","level":2}]',
+   '{products_count} pozycji katalogu to model danych z indeksowaniem i wydajnym wyszukiwaniem.', 0)
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
   reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;
