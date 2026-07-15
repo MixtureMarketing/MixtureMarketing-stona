@@ -44,6 +44,14 @@ Prod D1 jest od 2026-07-14 na trackingu wranglera (`d1_migrations`) — wszystki
 prod WYŁĄCZNIE przez `migrations apply --remote` (docelowo krok CI), nigdy przez `execute --file`
 z migracjami.
 
+**Rytuał prod aplikuje KOMPLET seedów — nigdy podzbioru.** Nawet gdy faza ruszyła tylko jeden
+plik, re-apply obejmuje wszystkie `migrations/seed/*.sql` w kolejności zależności. Seedy są
+idempotentne, więc pełny przebieg nic nie kosztuje, a podzbiór powoduje **cichy dryf prod↔repo**:
+precedens f1c — rytuał f1b wgrał tylko `archetypes`/`questions`/`params`, więc prod od f1a-fix
+chodził na 44 regułach zamiast 46 (brakowało reguł doboru platformy z pakietu B/C) i nikt tego
+nie zauważył do następnego rytuału. Obowiązkowy element rytuału: **liczby przed/po dla wszystkich
+tabel `est_*`** — rozjazd względem świeżej bazy lokalnej = dryf do wyjaśnienia, nie do zignorowania.
+
 ## 3. Definicja ukończenia (DoD)
 
 Zadanie/faza są ukończone wyłącznie, gdy: (a) przeszła procedura `/zamknij-faze` z dowodami,
