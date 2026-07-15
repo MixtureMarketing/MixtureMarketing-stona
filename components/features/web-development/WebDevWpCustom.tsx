@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calculator, CreditCard, Database, PlugZap, LucideIcon } from 'lucide-react';
 import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { client } from '../../../services/cms/client';
-import { SanityImage } from '../../../types/sanity';
 import { WEB_DEV_CONTENT } from '../../../data/content';
 
 /**
@@ -13,33 +12,33 @@ import { WEB_DEV_CONTENT } from '../../../data/content';
  * dedykowana jest aplikacja pod spodem. Dowód: trzy realne rozszerzenia z JEDNEGO
  * wdrożenia (Fundacja Niepodzielni, WordPress na Bedrocku): silnik rezerwacji na
  * API Bookero, Psychomapa (własny typ treści na mapie) i menu z żywymi terminami.
- * Każda figura nosi etykietę możliwości, której dowodzi — teza i dowód spotykają
- * się wizualnie, a nie w dwóch osobnych kolumnach.
+ * Każda figura nosi etykietę możliwości, której dowodzi.
  *
  * Mechanizmy podpisów ZWERYFIKOWANE w kodzie fundacji (2026-07-15): menu czyta
  * terminy z metadanych synchronizowanych z Bookero, Psychomapa to własny CPT
  * `osrodki` + endpoint + import CLI. Podpisy nazywają granicę odpowiedzialności
  * (silnik nasz — Bookero i OpenStreetMap cudze).
+ *
+ * BEZ FETCHA DO CMS — celowo. Obrazy są przypięte po `_ref` (hash treści pliku),
+ * więc URL-e CDN budują się synchronicznie. Poprzednie wersje ładowały ten sam
+ * obraz przez asynchroniczny GROQ: przy pierwszym malowaniu (i losowo w
+ * prerenderze) prawa połowa sekcji stała PUSTA, aż odpowie API — właściciel
+ * dwukrotnie zgłosił „cała prawa strona jest pusta". Hash gwarantuje, że podpis
+ * nie trafi pod cudzy obraz; gdyby asset zniknął z CDN, onError chowa całą
+ * figurę zamiast zostawić złamaną ramkę.
  */
 
 const builder = imageUrlBuilder(client);
 
-/**
- * Zrzuty przypięte po `_ref` (hash treści pliku), nie po indeksie galerii: podpis
- * nigdy nie trafi pod cudzy obraz. Gdy obraz zniknie z galerii, figura znika bez
- * pustej ramki — sekcja degraduje się do tekstu, nie do atrapy.
- */
-const PROOF_QUERY = `*[_type == "caseStudy" && slug.current == "fundacja-niepodzielni"][0]{
-  "engine": gallery[asset._ref == "image-4d93a928a4bb0fdf9e3a7367c8a9a5933096ad59-1900x895-png"][0],
-  "map": gallery[asset._ref == "image-356dac554da5a8e10f0a085680026b6f4625b30c-1914x859-png"][0],
-  "menu": gallery[asset._ref == "image-df8b17f1e17c1a49d522a090ca4d71c164cb3fe7-849x451-png"][0]
-}`;
+const PROOF = {
+  engine: 'image-4d93a928a4bb0fdf9e3a7367c8a9a5933096ad59-1900x895-png',
+  map: 'image-356dac554da5a8e10f0a085680026b6f4625b30c-1914x859-png',
+  menu: 'image-df8b17f1e17c1a49d522a090ca4d71c164cb3fe7-849x451-png',
+} as const;
 
-interface WpProof {
-  engine?: SanityImage | null;
-  map?: SanityImage | null;
-  menu?: SanityImage | null;
-}
+const hideBrokenFigure: React.ReactEventHandler<HTMLImageElement> = (e) => {
+  e.currentTarget.closest('figure')?.style.setProperty('display', 'none');
+};
 
 const FEATURE_ICONS: Record<string, LucideIcon> = {
   'Kalkulatory Ofertowe': Calculator,
@@ -60,23 +59,7 @@ const ProofTag: React.FC<{ label: string }> = ({ label }) => {
 };
 
 const WebDevWpCustom: React.FC = () => {
-  const [proof, setProof] = useState<WpProof | null>(null);
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
-
-  useEffect(() => {
-    let alive = true;
-    import('../../../services/cms/client')
-      .then(({ fetchWithCache }) => fetchWithCache<WpProof | null>(PROOF_QUERY))
-      .then((r) => {
-        if (alive) setProof(r ?? null);
-      })
-      .catch(() => {
-        if (alive) setProof(null);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   return (
     // Sekcja CIEMNA — The Ciemnia Rule: granat istnieje po to, żeby realizacje
@@ -95,9 +78,11 @@ const WebDevWpCustom: React.FC = () => {
         aria-hidden="true"
       />
       <Container className="relative z-10">
+        {/* 45/55 — dowód dostaje więcej szerokości niż teza. Uwaga właściciela
+            (dwie rundy): ciężar sekcji nie może wisieć na lewej kolumnie. */}
         <div className="flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-16">
           <div
-            className="lg:w-1/2"
+            className="lg:w-[45%]"
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
           >
             <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
@@ -126,107 +111,101 @@ const WebDevWpCustom: React.FC = () => {
           </div>
 
           {/* Dowód główny: silnik rezerwacji. Poświata sceniczna pod figurą —
-              tania głębia (gradient, nie filtr), żeby zrzut nie wyglądał na
-              wklejony 1px ramką w morze granatu. */}
+              tania głębia (gradient, nie filtr). */}
           <div
-            className="w-full lg:w-1/2"
+            className="w-full lg:w-[55%]"
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
           >
-            {proof?.engine && (
-              <figure className="relative">
-                <div
-                  className="pointer-events-none absolute -inset-8 -z-10"
-                  style={{
-                    background:
-                      'radial-gradient(60% 60% at 50% 45%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 72%)',
-                  }}
-                  aria-hidden="true"
+            <figure className="relative">
+              <div
+                className="pointer-events-none absolute -inset-8 -z-10"
+                style={{
+                  background:
+                    'radial-gradient(60% 60% at 50% 45%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 72%)',
+                }}
+                aria-hidden="true"
+              />
+              <ProofTag label="Integracje API" />
+              <Link
+                to="/portfolio/fundacja-niepodzielni"
+                className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+              >
+                <img
+                  src={builder.image(PROOF.engine).width(1400).fit('max').auto('format').url()}
+                  alt="Silnik rezerwacji Fundacji Niepodzielni: wspólny kalendarz wielu specjalistów z filtrami i najbliższymi wolnymi terminami"
+                  sizes="(min-width: 1024px) 55vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
+                  onError={hideBrokenFigure}
+                  className="w-full"
                 />
-                <ProofTag label="Integracje API" />
+              </Link>
+              {/* Granica odpowiedzialności nazwana wprost — silnik nasz, Bookero cudze. */}
+              <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                Silnik rezerwacji, który napisaliśmy na API{' '}
+                <span className="font-semibold text-white">Bookero</span> — wspólny kalendarz wielu
+                specjalistów w miejsce gotowej wtyczki.{' '}
                 <Link
                   to="/portfolio/fundacja-niepodzielni"
-                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                  className="font-bold text-primary underline-offset-4 hover:underline"
                 >
-                  <img
-                    src={builder.image(proof.engine).width(1200).fit('max').auto('format').url()}
-                    alt="Silnik rezerwacji Fundacji Niepodzielni: wspólny kalendarz wielu specjalistów z filtrami i najbliższymi wolnymi terminami"
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full"
-                  />
+                  Fundacja Niepodzielni
+                  <ArrowRight size={14} className="ml-1 inline" aria-hidden="true" />
                 </Link>
-                {/* Granica odpowiedzialności nazwana wprost — silnik nasz, Bookero cudze. */}
-                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
-                  Silnik rezerwacji, który napisaliśmy na API{' '}
-                  <span className="font-semibold text-white">Bookero</span> — wspólny kalendarz
-                  wielu specjalistów w miejsce gotowej wtyczki.{' '}
-                  <Link
-                    to="/portfolio/fundacja-niepodzielni"
-                    className="font-bold text-primary underline-offset-4 hover:underline"
-                  >
-                    Fundacja Niepodzielni
-                    <ArrowRight size={14} className="ml-1 inline" aria-hidden="true" />
-                  </Link>
-                </figcaption>
-              </figure>
-            )}
+              </figcaption>
+            </figure>
           </div>
         </div>
 
         {/* Dowody 2 i 3 — z TEGO SAMEGO wdrożenia, dojeżdżają po tezie. */}
-        {(proof?.map || proof?.menu) && (
-          <div
-            className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10 lg:mt-20 lg:gap-16"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 88px), 0)' }}
-          >
-            {proof?.map && (
-              <figure>
-                <ProofTag label="Custom Post Types" />
-                <Link
-                  to="/portfolio/fundacja-niepodzielni"
-                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
-                >
-                  <img
-                    src={builder.image(proof.map).width(900).fit('max').auto('format').url()}
-                    alt="Psychomapa Fundacji Niepodzielni: interaktywna mapa Polski z ośrodkami pomocy psychologicznej pogrupowanymi w regiony"
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full"
-                  />
-                </Link>
-                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
-                  Psychomapa — ogólnopolski katalog ośrodków pomocy jako własny typ treści w
-                  WordPressie, na otwartej mapie{' '}
-                  <span className="font-semibold text-white">OpenStreetMap</span>.
-                </figcaption>
-              </figure>
-            )}
-            {proof?.menu && (
-              <figure>
-                <ProofTag label="Integracje API" />
-                <Link
-                  to="/portfolio/fundacja-niepodzielni"
-                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
-                >
-                  <img
-                    src={builder.image(proof.menu).width(900).fit('max').auto('format').url()}
-                    alt="Rozwinięte menu strony Fundacji Niepodzielni: rodzaje konsultacji oraz najbliższe wolne terminy psychologów"
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full"
-                  />
-                </Link>
-                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
-                  Najbliższe wolne terminy specjalistów prosto w menu strony — dane z systemu
-                  rezerwacji, nie wpisywane ręcznie.
-                </figcaption>
-              </figure>
-            )}
-          </div>
-        )}
+        <div
+          className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10 lg:mt-20 lg:gap-16"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 88px), 0)' }}
+        >
+          <figure>
+            <ProofTag label="Custom Post Types" />
+            <Link
+              to="/portfolio/fundacja-niepodzielni"
+              className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+            >
+              <img
+                src={builder.image(PROOF.map).width(900).fit('max').auto('format').url()}
+                alt="Psychomapa Fundacji Niepodzielni: interaktywna mapa Polski z ośrodkami pomocy psychologicznej pogrupowanymi w regiony"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                loading="lazy"
+                decoding="async"
+                onError={hideBrokenFigure}
+                className="w-full"
+              />
+            </Link>
+            <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+              Psychomapa — ogólnopolski katalog ośrodków pomocy jako własny typ treści w
+              WordPressie, na otwartej mapie{' '}
+              <span className="font-semibold text-white">OpenStreetMap</span>.
+            </figcaption>
+          </figure>
+          <figure>
+            <ProofTag label="Integracje API" />
+            <Link
+              to="/portfolio/fundacja-niepodzielni"
+              className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+            >
+              <img
+                src={builder.image(PROOF.menu).width(900).fit('max').auto('format').url()}
+                alt="Rozwinięte menu strony Fundacji Niepodzielni: rodzaje konsultacji oraz najbliższe wolne terminy psychologów"
+                sizes="(min-width: 768px) 50vw, 100vw"
+                loading="lazy"
+                decoding="async"
+                onError={hideBrokenFigure}
+                className="w-full"
+              />
+            </Link>
+            <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+              Najbliższe wolne terminy specjalistów prosto w menu strony — dane z systemu
+              rezerwacji, nie wpisywane ręcznie.
+            </figcaption>
+          </figure>
+        </div>
       </Container>
     </section>
   );
