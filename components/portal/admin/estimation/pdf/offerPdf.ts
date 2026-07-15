@@ -1,5 +1,5 @@
 import type { Offer } from '@/lib/estimation/documents';
-import { registerPlFont, PDF_FONT } from './fontPl';
+import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
 
 // Render oferty do PDF. Rysuje WYŁĄCZNIE to, co dał buildOffer — zero logiki „co pokazać"
 // (ta jest w lib/estimation/documents.ts i pokryta klasą testu internal-only).

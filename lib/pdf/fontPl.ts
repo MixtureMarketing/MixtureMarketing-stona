@@ -1,16 +1,17 @@
 import type { jsPDF } from 'jspdf';
 
 /**
- * Font PDF z polskimi znakami (f2a).
+ * Font PDF z polskimi znakami. Współdzielony przez WSZYSTKIE nasze PDF-y:
+ * ofertę i Kartę decyzji (moduł wycen) oraz PDF kalkulatora publicznego (`services/pdfService.ts`).
  *
  * Wbudowane fonty jsPDF (helvetica i spółka) używają WinAnsi — nie mają Latin Extended-A,
  * więc „ą ć ę ł ń ś ź ż" wychodzą połamane. Jedyne wyjście to osadzić TTF.
  * Tu: Manrope (font marki) w subsecie Latin + Latin Ext, ~30 kB base64 na wagę.
  * Ładowane dynamicznie — nie wchodzą do głównego bundla (size-limit).
  *
- * DŁUG: `services/pdfService.ts` (PDF kalkulatora publicznego) ma ten sam problem —
- * „Piłsudskiego"/„Wstępny" są tam dziś połamane. Naprawa = zamiana `setFont('helvetica')`
- * na `await registerPlFont(doc)` + `PDF_FONT`. Poza zakresem f2a (osobny task ~15 min).
+ * Mieszka w `lib/pdf/`, a nie przy module wycen, właśnie dlatego, że kalkulator publiczny
+ * nie ma prawa importować z `components/portal/admin/`.
+ * Generator subsetu: `scripts/fonts/build-pdf-font.py` (uruchamiany ręcznie, nie w buildzie).
  */
 export const PDF_FONT = 'Manrope';
 

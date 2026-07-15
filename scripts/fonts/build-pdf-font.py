@@ -16,7 +16,7 @@ from fontTools.merge import Merger
 from fontTools.subset import Subsetter, Options
 
 SRC = Path('node_modules/@fontsource/manrope/files')
-OUT = Path('components/portal/admin/estimation/pdf')
+OUT = Path('lib/pdf')
 
 # Znaki: ASCII drukowalne + polskie diakrytyki + typografia (– — „ " ' × €)
 CHARS = ''.join(chr(c) for c in range(0x20, 0x7F))
