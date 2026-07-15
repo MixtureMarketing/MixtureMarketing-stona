@@ -1,5 +1,5 @@
 import type { DecisionCard } from '@/lib/estimation/documents';
-import { registerPlFont, PDF_FONT } from './fontPl';
+import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
 
 // Karta decyzji technicznych — dokument WEWNĘTRZNY (załącznik do oferty / brief wykonawczy).
 // Dwa wyjścia z tej samej struktury: markdown (do wklejenia jako kontekst projektu, plan F2
