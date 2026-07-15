@@ -23,7 +23,14 @@ export interface RawRule {
 
 export interface RawLibrary {
   aspects: { code: string; name: string; category: string; description?: string | null }[];
-  levels: { aspect_code: string; level: number; hours_min: number; hours_max: number }[];
+  levels: {
+    aspect_code: string;
+    level: number;
+    hours_min: number;
+    hours_max: number;
+    name?: string | null;
+    description?: string | null;
+  }[];
   archetypes: {
     code: string;
     name: string;
@@ -137,6 +144,8 @@ export function buildLibraryData(
       level: l.level,
       hoursMin: l.hours_min,
       hoursMax: l.hours_max,
+      name: l.name ?? null,
+      description: l.description ?? null,
     })),
     archetypeDefaults: lib.archetypeDefaults
       .filter((d) => d.archetype_code === archetype)

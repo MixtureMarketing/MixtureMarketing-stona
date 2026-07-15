@@ -283,7 +283,16 @@ export interface FinalizeValidationInput {
 /** Biblioteka w formie gotowej dla silnika (hook UI / serwer transformują surowe wiersze D1). */
 export interface LibraryData {
   aspects: { code: string; category: Category; name: string }[];
-  levels: { aspectCode: string; level: number; hoursMin: number; hoursMax: number }[];
+  /** name/description: treść dla dokumentów (oferta opisuje zakres słowami, nie godzinami).
+   *  Snapshotowane przy finalize (migracja 0005) — inwariant 3 dotyczy też tekstów. */
+  levels: {
+    aspectCode: string;
+    level: number;
+    hoursMin: number;
+    hoursMax: number;
+    name?: string | null;
+    description?: string | null;
+  }[];
   archetypeDefaults: ArchetypeDefault[]; // dla WYBRANEGO archetypu
   rules: Rule[];
   /** archetypes/goals: null = bez ograniczenia; lista = tylko dla wskazanych (D24).
@@ -342,6 +351,10 @@ export interface AspectComputation {
   hoursMin: number;
   hoursMax: number;
   reasons: string[];
+  /** Nazwa i opis WYBRANEGO poziomu (f2a) — treść zakresu w ofercie. Undefined, gdy poziom
+   *  nie ma wpisu w bibliotece (np. override na poziom bez definicji). */
+  levelName?: string;
+  levelDescription?: string;
 }
 
 export interface ComputeQuoteInput {

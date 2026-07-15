@@ -40,17 +40,39 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     }
 
     // Snapshot warstwy wyceny (obecny dopiero po finalize). Read-back ekranu wyniku (f1c #6).
-    const [aspectsRes, itemsRes, multipliersRes] = await Promise.all([
+    const [aspectsRes, itemsRes, multipliersRes, validityRes] = await Promise.all([
       env.DB.prepare('SELECT * FROM est_quote_aspects WHERE quote_id = ?').bind(id).all(),
       env.DB.prepare('SELECT * FROM est_quote_items WHERE quote_id = ?').bind(id).all(),
       env.DB.prepare('SELECT * FROM est_quote_multipliers WHERE quote_id = ?').bind(id).all(),
+      // f2a: termin ważności oferty — wartość domenowa, więc z est_params (inwariant 2).
+      // Świadomie NIE ze snapshotu params_json: to parametr dokumentu, nie obliczeń — zmiana
+      // polityki („oferty ważne 14 dni") ma działać na dokumentach generowanych od teraz.
+      env.DB.prepare(
+        "SELECT key, value FROM est_params WHERE key IN ('offer_validity_days','offer_terms')",
+      ).all(),
     ]);
+    const params = new Map(
+      ((validityRes.results ?? []) as { key: string; value: string }[]).map((r) => [
+        r.key,
+        r.value,
+      ]),
+    );
+    const validityDays = Number(params.get('offer_validity_days') ?? 30);
+    // Warunki oferty: jedna pozycja na `|` (treść żyje w seedach, nie w kodzie).
+    const terms = (params.get('offer_terms') ?? '')
+      .split('|')
+      .map((t) => t.trim())
+      .filter(Boolean);
+
     const snapshot = {
       aspects: aspectsRes.results ?? [],
       items: itemsRes.results ?? [],
       multipliers: multipliersRes.results ?? [],
       totals: parseJson((quote as any).totals_json),
       confidenceBreakdown: parseJson((quote as any).confidence_breakdown_json),
+      warnings: parseJson((quote as any).warnings_json) ?? [], // f2a: alerty do Karty decyzji
+      validityDays: Number.isFinite(validityDays) ? validityDays : 30,
+      terms,
     };
 
     return json({ quote, answers, snapshot });

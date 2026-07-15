@@ -60,7 +60,16 @@ const ctx = (env: unknown, body?: unknown): unknown => ({
 // Minimalna biblioteka: 1 obszar (frontend, kat. A) poz. 2 = 40–100 h, archetyp woocommerce default 2.
 const LIB = {
   aspects: [{ code: 'frontend', name: 'Frontend', category: 'A', description: null }],
-  levels: [{ aspect_code: 'frontend', level: 2, hours_min: 40, hours_max: 100 }],
+  levels: [
+    {
+      aspect_code: 'frontend',
+      level: 2,
+      hours_min: 40,
+      hours_max: 100,
+      name: 'Standard',
+      description: 'Wlasny layout, komponenty, responsywnosc.',
+    },
+  ],
   archetypes: [
     { code: 'woocommerce', name: 'WooCommerce', description: null, integration_mode: 'platform' },
   ],
@@ -68,7 +77,16 @@ const LIB = {
     { archetype_code: 'woocommerce', aspect_code: 'frontend', default_level: 2, is_locked: 0 },
   ],
   questions: [],
-  rules: [],
+  rules: [
+    {
+      id: 99,
+      name: 'warn',
+      condition_json: '{"q":"archetype","op":"eq","val":"woocommerce"}',
+      actions_json: '[{"type":"archetype_warning","message":"Uwaga testowa"}]',
+      reason_template: 'x',
+      priority: 0,
+    },
+  ],
   modules: [],
   integrations: [],
   multipliers: [],
@@ -105,6 +123,20 @@ describe('POST quote-finalize — walidacja + snapshot', () => {
     expect(aspectIns).toBeTruthy();
     expect(aspectIns!.args).toContain('frontend');
     expect(calls.batched.length).toBeGreaterThan(0);
+  });
+
+  it('f2a: snapshot niesie NAZWĘ/OPIS poziomu + alerty (żródło dokumentów, migracja 0005)', async () => {
+    const { DB, calls } = mockEnv({ quoteRow: draftQuote(), lib: LIB, answers: [] });
+    await onRequestPost(ctx({ DB }, { id: 5 }) as Ctx<typeof onRequestPost>);
+    // treść poziomu zamrożona w est_quote_aspects (inaczej edycja biblioteki zmienia wysłaną ofertę)
+    const ins = calls.binds.find((b) => b.sql.includes('INSERT INTO est_quote_aspects'))!;
+    expect(ins.sql).toContain('level_name');
+    expect(ins.args).toContain('Standard');
+    expect(ins.args).toContain('Wlasny layout, komponenty, responsywnosc.');
+    // alerty (archetype_warning) zapisane — Karta decyzji nie liczy ich na żywo
+    const upd = calls.binds.find((b) => b.sql.includes('UPDATE est_quotes'))!;
+    expect(upd.sql).toContain('warnings_json');
+    expect(upd.args.some((a) => typeof a === 'string' && a.includes('Uwaga testowa'))).toBe(true);
   });
 
   it('GUARD cyklu: finalize na status=sent → 409, brak zapisu snapshotu', async () => {

@@ -171,6 +171,11 @@ płatne Discovery zamiast wiążącej wyceny". Breakdown składników zapisywany
 jeszcze na spotkaniu); każdy składnik nazwany po ludzku (etykieta pytania/pozycji + poziom
 ryzyka), nigdy „pozycja"/kod.
 
+**Snapshot treści (migracja 0005, f2a).** `est_quote_aspects` snapshotuje też `level_name`
+i `level_description`, a `est_quotes` — `warnings_json`: dokumenty (oferta, Karta decyzji) opisują
+zakres słowami z biblioteki, więc te teksty muszą być zamrożone razem z liczbami (inwariant 3).
+Zmiana nie dotyka żadnej formuły ⇒ **bez bumpu `engine_version`**.
+
 ## Kolejność i inwarianty (testy silnika)
 
 1. Kolejność kroków ściśle: baza → itemy → mnożniki (cap) → bufor → cena → oferta. Zmiana kolejności = zmiana `engine_version`.

@@ -119,6 +119,63 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
     expect(r.confidence.belowCompleteness).toBe(false);
   });
 
+  it('f2a: obszar niesie NAZWĘ i OPIS wybranego poziomu (źródło treści oferty)', () => {
+    // Oferta opisuje zakres słowami („Sklep standardowy — koszyk, checkout, konto"), nie godzinami.
+    // Teksty muszą iść przez silnik do snapshotu, żeby edycja biblioteki nie zmieniała treści
+    // wysłanej oferty (inwariant 3). Zmiana poziomu zmienia opis.
+    const libTxt: LibraryData = {
+      ...LIB,
+      levels: [
+        {
+          aspectCode: 'frontend',
+          level: 1,
+          hoursMin: 10,
+          hoursMax: 25,
+          name: 'Wizytówka',
+          description: 'Statyczne sekcje na gotowym szablonie.',
+        },
+        {
+          aspectCode: 'frontend',
+          level: 2,
+          hoursMin: 40,
+          hoursMax: 100,
+          name: 'Standard',
+          description: 'Własny layout, komponenty, responsywność.',
+        },
+      ],
+      archetypeDefaults: [{ aspect: 'frontend', defaultLevel: 2, isLocked: false }],
+      aspects: [{ code: 'frontend', category: 'A', name: 'Frontend' }],
+      rules: [],
+      questions: [],
+    };
+    const r2 = computeQuote({ answers: {}, library: libTxt });
+    const fe = r2.aspects.find((a) => a.code === 'frontend')!;
+    expect(fe).toMatchObject({
+      chosenLevel: 2,
+      levelName: 'Standard',
+      levelDescription: 'Własny layout, komponenty, responsywność.',
+    });
+
+    // override poziomu → opis idzie za wyborem, nie za sugestią
+    const r3 = computeQuote({
+      answers: {},
+      library: libTxt,
+      overrides: {
+        chosenLevels: { frontend: 1 },
+        levelReasons: { frontend: 'klient tnie zakres' },
+      },
+    });
+    expect(r3.aspects[0]).toMatchObject({ levelName: 'Wizytówka', chosenLevel: 1 });
+
+    // poziom bez wpisu w bibliotece → brak nazwy, ale bez wywrotki
+    const r4 = computeQuote({
+      answers: {},
+      library: libTxt,
+      overrides: { chosenLevels: { frontend: 4 }, levelReasons: { frontend: 'x' } },
+    });
+    expect(r4.aspects[0].levelName).toBeUndefined();
+  });
+
   it('S2: konfigurator bez spisanej macierzy → kara Confidence (nie da się mieć 100% pewności)', () => {
     // Walidacja rynkowa S2: brak macierzy zależności opcji nie robił NIC — projekt konfiguratora
     // z nieokreślonym zakresem mógł pokazać 100% pewności, gdy klient odpowiedział na resztę.

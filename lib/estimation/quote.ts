@@ -69,10 +69,8 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
   });
 
   // ── Obszary (locked wykluczone — „nie pokazywane w walidacji", 04) ──
-  const levelHours = (code: string, level: number) => {
-    const l = library.levels.find((x) => x.aspectCode === code && x.level === level);
-    return { min: l?.hoursMin ?? 0, max: l?.hoursMax ?? 0 };
-  };
+  const levelDef = (code: string, level: number) =>
+    library.levels.find((x) => x.aspectCode === code && x.level === level);
   const aspects: AspectComputation[] = [];
   for (const a of library.aspects) {
     const sug = ruleEval.levels[a.code];
@@ -80,7 +78,12 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
     const suggestedLevel = sug?.level ?? 0;
     const chosenLevel = ov.chosenLevels[a.code] ?? suggestedLevel;
     const oh = ov.overrideHours[a.code];
-    const h = oh ? { min: oh.min, max: oh.max } : levelHours(a.code, chosenLevel);
+    // Definicja WYBRANEGO poziomu: godziny + treść (nazwa/opis) do dokumentów (f2a).
+    // Override godzin nadpisuje tylko liczby — opis poziomu zostaje, bo zakres się nie zmienia.
+    const def = levelDef(a.code, chosenLevel);
+    const h = oh
+      ? { min: oh.min, max: oh.max }
+      : { min: def?.hoursMin ?? 0, max: def?.hoursMax ?? 0 };
     aspects.push({
       code: a.code,
       category: a.category,
@@ -91,6 +94,8 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
       hoursMin: h.min,
       hoursMax: h.max,
       reasons: sug?.reasons ?? [],
+      levelName: def?.name ?? undefined,
+      levelDescription: def?.description ?? undefined,
     });
   }
 
