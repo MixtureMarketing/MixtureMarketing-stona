@@ -2,6 +2,7 @@
 import {
   BASE,
   FORM,
+  FRONT,
   POINTER,
   STREAMS,
   WAVE,
@@ -212,6 +213,10 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       };
     });
 
+    // Paralaksa pola przy takeoverze: siatka ucieka w górę wolniej niż arkusz —
+    // głębia bez geometrii 3D. Maks. 24 px, liniowo od wejścia frontu w kadr.
+    const recede = frontOn ? Math.min(24, Math.max(0, (h + 200 - frontY) * 0.05)) : 0;
+
     // Obwiednia wyłonienia sygnetu (0..1). Reduced-motion: stała, deterministyczna.
     let formE = 0;
     if (formDots.length) {
@@ -232,6 +237,11 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
                   : 0;
         }
       }
+    }
+    // Sygnet ustępuje arkuszowi: rozpływa się, zanim szew dojedzie do jego
+    // dolnej krawędzi — konstelacja nigdy nie zderza się z frontem.
+    if (frontOn && formE > 0) {
+      formE *= Math.min(1, Math.max(0, (frontY - (fb.y + fb.ry) + 160) / 180));
     }
 
     for (let d = 0; d < dots.length; d++) {
@@ -268,6 +278,16 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       let cb = 0;
       let ox = 0;
       let oy = 0;
+
+      // Świetlisty szew: pas przy krawędzi arkusza świeci Błękitem Mixture —
+      // arkusz ORZE pole światła, a nie tylko je zasłania.
+      if (fG > 0.01) {
+        const gi = fG * 0.6;
+        total += gi;
+        cr += FRONT[0] * gi;
+        cg += FRONT[1] * gi;
+        cb += FRONT[2] * gi;
+      }
 
       for (let i = 0; i < S.length; i++) {
         const st = S[i];
@@ -348,7 +368,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
         const a = (a0 + fG * 0.18 + wGlow * 0.55) * fFade;
         const s = 2.1 + fG * 1.4 + wGlow * 1.6;
         ctx.fillStyle = `rgba(${BASE[0]},${BASE[1]},${BASE[2]},${a.toFixed(3)})`;
-        ctx.fillRect(dot.x + fpx - 1, dot.y + fpy - 1, s, s);
+        ctx.fillRect(dot.x + fpx - 1, dot.y + fpy - recede - 1, s, s);
       } else {
         const rr = Math.round(BASE[0] + (cr / total - BASE[0]) * k);
         const rg = Math.round(BASE[1] + (cg / total - BASE[1]) * k);
@@ -357,7 +377,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
         const r = 1.05 + 2.5 * k + fG * 0.8;
         const kk = k * mask * amp;
         const x = dot.x + fpx + ox * kk + Math.sin(t * 1.3 + dot.phase) * 2.2 * kk * wSup;
-        const y = dot.y + fpy + oy * kk + Math.cos(t * 1.1 + dot.phase) * 2.2 * kk * wSup;
+        const y = dot.y + fpy - recede + oy * kk + Math.cos(t * 1.1 + dot.phase) * 2.2 * kk * wSup;
         if (k > 0.55) {
           // Bloom — poświata najmocniej zmieszanych kropek.
           ctx.beginPath();

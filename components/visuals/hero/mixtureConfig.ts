@@ -8,6 +8,8 @@ export type RGB = readonly [number, number, number];
 
 export const BASE: RGB = [148, 163, 184]; // slate — spokojna inżynierska siatka
 export const POINTER: RGB = [166, 214, 240];
+/** Świetlisty szew wzdłuż krawędzi najeżdżającego arkusza (Błękit Mixture). */
+export const FRONT: RGB = [97, 182, 222];
 
 export interface StreamDef {
   color: RGB;

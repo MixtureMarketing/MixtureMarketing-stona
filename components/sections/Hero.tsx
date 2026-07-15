@@ -72,7 +72,10 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
         data-hero-covers
         className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-14 text-center sm:px-6"
         style={{
-          transform: 'translate3d(0, calc(var(--cover, 0) * -48px), 0)',
+          // Ucieczka treści pod arkusz: unosi się, delikatnie maleje i gaśnie —
+          // skala dodaje głębi, której samo przesunięcie nie miało.
+          transform:
+            'translate3d(0, calc(var(--cover, 0) * -48px), 0) scale(calc(1 - var(--cover, 0) * 0.05))',
           opacity: 'calc(1 - var(--cover, 0) * 0.45)',
         }}
       >
