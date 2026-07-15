@@ -43,12 +43,51 @@ export const STREAMS: StreamDef[] = [
   stream([225, 48, 108], 0.6, 0.13, 0.78, 0.62, 0.22, 0.26, 0.103, 0.073, 4.4), // brand-pink
 ];
 
+/**
+ * Fala uderzeniowa po kliknięciu/tapnięciu: front rozpycha i barwi kropki,
+ * a za frontem zostaje „ślad precyzji" — turbulencje gasną i siatka na moment
+ * staje w idealnym porządku (chaos → forma, teza marki w jednym geście).
+ */
+export const WAVE = {
+  color: [186, 224, 246] as RGB,
+  life: 1.7, // s
+  speed: 640, // px/s frontu
+  r0: 60, // promień startowy
+} as const;
+
+/**
+ * Sygnet „Mixture" wyłaniający się z pola — okresowa konstelacja kropek
+ * (podsiatka o połowie odstępu, próbkowana z SVG logo). Rysowana wyłącznie,
+ * gdy na prawo od kolumny tekstu (max-w-4xl) jest na nią miejsce — nigdy
+ * pod H1. Reduced-motion dostaje ją statycznie, w połowie jasności.
+ */
+export const FORM = {
+  color: [190, 224, 246] as RGB,
+  src: '/assets/images/sygnet-mixture-marketing-fioletowe.svg',
+  aspect: 659.5 / 779.22, // viewBox SVG
+  period: 21, // s pełnego cyklu
+  first: 5, // s do pierwszego wyłonienia
+  rise: 1.5,
+  hold: 3.2,
+  fall: 1.7,
+} as const;
+
 /** Kropka siatki — pozycja + deterministyczny szum (faza, wariancja alfy). */
 export interface Dot {
   x: number;
   y: number;
   phase: number;
   jitter: number;
+}
+
+/** Kropka konstelacji sygnetu: cel, rozsypka startowa, waga (pokrycie glifu). */
+export interface FormDot {
+  tx: number;
+  ty: number;
+  ox: number;
+  oy: number;
+  w: number;
+  ph: number;
 }
 
 export interface MixtureOptions {
@@ -63,6 +102,8 @@ export interface MixtureHandle {
   setFront(y: number | null): void;
   /** Pozycja + wygładzony kierunek wskaźnika (MixtureField liczy smoothing). */
   setPointer(x: number, y: number, dx: number, dy: number, active: boolean): void;
+  /** Fala uderzeniowa z punktu kliknięcia/tapnięcia (px w układzie canvasu). */
+  pulse(x: number, y: number): void;
   /** Pauza użytkownika (WCAG 2.2.2) — zatrzymuje pętlę rAF do odwołania. */
   setPaused(paused: boolean): void;
 }

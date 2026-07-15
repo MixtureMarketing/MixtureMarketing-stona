@@ -1,11 +1,14 @@
 /* eslint-disable max-lines -- spójna pętla silnika canvas (paleta/choreografia już wydzielone do mixtureConfig) */
 import {
   BASE,
+  FORM,
   POINTER,
   STREAMS,
+  WAVE,
   easeOutCubic,
   hash,
   type Dot,
+  type FormDot,
   type MixtureHandle,
   type MixtureOptions,
 } from './mixtureConfig';
@@ -16,13 +19,18 @@ import {
  * strefy tekstu chroni kontrast H1). Reduced-motion: jedna statyczna klatka.
  * Auto-pauzy: poza viewportem, karta w tle, pełne zakrycie arkuszem (covered),
  * pauza użytkownika (setPaused, WCAG 2.2.2); degradacja gęstości > ~24 ms.
- * Wejścia z MixtureField: setPointer (4. prąd) i setFront (fala dziobowa).
+ * Wejścia z MixtureField: setPointer (4. prąd), setFront (fala dziobowa),
+ * pulse (fala uderzeniowa kliknięcia ze śladem precyzji za frontem).
+ * Okresowo, gdy po prawej od kolumny tekstu jest miejsce, z pola wyłania się
+ * konstelacja sygnetu (podsiatka ×2 gęstsza, próbkowana z SVG logo).
  */
 
 export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): MixtureHandle {
   const noop = () => undefined;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return { destroy: noop, setFront: noop, setPointer: noop, setPaused: noop };
+  if (!ctx) {
+    return { destroy: noop, setFront: noop, setPointer: noop, pulse: noop, setPaused: noop };
+  }
 
   let w = 0;
   let h = 0;
@@ -48,6 +56,71 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   let lastT = 0;
 
   const pointer = { x: 0, y: 0, dx: 0, dy: 0, active: false };
+
+  // Fale uderzeniowe kliknięć (max 4 naraz; stary wpis wypada pierwszy).
+  let waves: { x: number; y: number; t0: number }[] = [];
+
+  // Konstelacja sygnetu — budowana po załadowaniu SVG i po każdym rebuild.
+  let formDots: FormDot[] = [];
+  let formImg: HTMLImageElement | null = null;
+  // Pudełko formy (środek + półosie) — na czas wyłonienia prądy w nim gasną,
+  // żeby glif stał na spokojnej siatce, a nie na turbulencji.
+  const fb = { x: 0, y: 0, rx: 1, ry: 1 };
+
+  const buildForm = () => {
+    formDots = [];
+    if (!formImg) return;
+    // Wolna strefa na prawo od kolumny treści hero (max-w-4xl = 896 px,
+    // wyśrodkowana) — sygnet nigdy nie wchodzi pod H1. Próg 390 px ≈ 24 kolumny
+    // podsiatki: poniżej tego glif przestaje się czytać (pomiar na matrycy).
+    const x0 = w / 2 + 460;
+    const zoneW = w - x0 - 20;
+    if (zoneW < 390 || h < 620) return;
+    const step = spacing / 2;
+    let boxH = Math.min(h * 0.6, 620);
+    let boxW = boxH * FORM.aspect;
+    if (boxW > zoneW) {
+      boxW = zoneW;
+      boxH = boxW / FORM.aspect;
+    }
+    const cols = Math.max(2, Math.round(boxW / step));
+    const rows = Math.max(2, Math.round(boxH / step));
+    // Glif zrzucony do matrycy kropek: 1 komórka podsiatki = 1 piksel offscreenu;
+    // antyaliasing daje wagę pokrycia, więc cienkie kreski logo nie znikają.
+    const oc = document.createElement('canvas');
+    oc.width = cols;
+    oc.height = rows;
+    const octx = oc.getContext('2d', { willReadFrequently: true });
+    if (!octx) return;
+    octx.drawImage(formImg, 0, 0, cols, rows);
+    const data = octx.getImageData(0, 0, cols, rows).data;
+    const bx = x0 + (zoneW - boxW) / 2;
+    const by = h * 0.46 - boxH / 2;
+    fb.x = bx + boxW / 2;
+    fb.y = by + boxH / 2;
+    fb.rx = boxW * 0.62;
+    fb.ry = boxH * 0.62;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const wgt = data[(r * cols + c) * 4 + 3] / 255;
+        if (wgt < 0.14) continue;
+        const tx = bx + (c + 0.5) * (boxW / cols);
+        const ty = by + (r + 0.5) * (boxH / rows);
+        // Rozsypka startowa deterministyczna (hash) — kropki ZBIEGAJĄ SIĘ
+        // w formę, zamiast pojawić się znikąd.
+        const ang = hash(c * 3 + 1, r * 5 + 2) * Math.PI * 2;
+        const dist = 70 + hash(c + 11, r + 29) * 130;
+        formDots.push({
+          tx,
+          ty,
+          ox: tx + Math.cos(ang) * dist,
+          oy: ty + Math.sin(ang) * dist,
+          w: wgt,
+          ph: hash(c, r) * Math.PI * 2,
+        });
+      }
+    }
+  };
 
   const rebuild = () => {
     const rect = canvas.getBoundingClientRect();
@@ -82,6 +155,8 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
     tz.y = h * 0.44;
     tz.rx = Math.min(w * 0.32, 560);
     tz.ry = h * 0.3;
+
+    buildForm();
   };
 
   const draw = (tMs: number) => {
@@ -118,6 +193,47 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
     const pcut = (pr * 2.6) ** 2;
     const frontOn = frontY < h + 260;
 
+    // Parametry żywych fal uderzeniowych — raz na klatkę, nie per kropka.
+    if (waves.length) waves = waves.filter((wv) => t - wv.t0 <= WAVE.life);
+    const WV = waves.map((wv) => {
+      const age = Math.max(0, t - wv.t0);
+      const decay = (1 - age / WAVE.life) ** 1.5;
+      const R = WAVE.r0 + WAVE.speed * age;
+      const sig = 46 + 60 * age;
+      const outer = R + 3 * sig;
+      return {
+        x: wv.x,
+        y: wv.y,
+        decay,
+        R,
+        sig2: 2 * sig * sig,
+        wake: R - 1.6 * sig,
+        cut: outer * outer,
+      };
+    });
+
+    // Obwiednia wyłonienia sygnetu (0..1). Reduced-motion: stała, deterministyczna.
+    let formE = 0;
+    if (formDots.length) {
+      if (opts.reducedMotion) {
+        formE = 0.65;
+      } else {
+        const tc = t - ampStart - FORM.first;
+        if (tc > 0) {
+          const cyc = tc % FORM.period;
+          const { rise, hold, fall } = FORM;
+          formE =
+            cyc < rise
+              ? easeOutCubic(cyc / rise)
+              : cyc < rise + hold
+                ? 1
+                : cyc < rise + hold + fall
+                  ? 1 - easeOutCubic((cyc - rise - hold) / fall)
+                  : 0;
+        }
+      }
+    }
+
     for (let d = 0; d < dots.length; d++) {
       const dot = dots[d];
 
@@ -139,7 +255,12 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       // Wygaszenie wpływu prądów w strefie tekstu (gaussowska elipsa).
       const nx = (dot.x - tz.x) / tz.rx;
       const ny = (dot.y - tz.y) / tz.ry;
-      const mask = 1 - Math.exp(-(nx * nx + ny * ny) * 1.15) * 0.93;
+      let mask = 1 - Math.exp(-(nx * nx + ny * ny) * 1.15) * 0.93;
+      if (formE > 0.02) {
+        const fx = (dot.x - fb.x) / fb.rx;
+        const fy = (dot.y - fb.y) / fb.ry;
+        mask *= 1 - Math.exp(-(fx * fx + fy * fy) * 1.6) * 0.85 * formE;
+      }
 
       let total = 0;
       let cr = 0;
@@ -183,13 +304,49 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
         }
       }
 
+      // Fale uderzeniowe: front rozpycha i barwi; ZA frontem ślad precyzji —
+      // turbulencje gasną (wSup) i goła siatka na moment rozbłyska (wGlow),
+      // idealnie równa. Chaos przechodzi w formę — dosłownie.
+      let wGlow = 0;
+      let wSup = 1;
+      for (let i = 0; i < WV.length; i++) {
+        const wv = WV[i];
+        const ddx = dot.x - wv.x;
+        const ddy = dot.y - wv.y;
+        const d2 = ddx * ddx + ddy * ddy;
+        if (d2 > wv.cut) continue;
+        const dist = Math.sqrt(d2) || 1;
+        const g = Math.exp(-((dist - wv.R) ** 2) / wv.sig2) * wv.decay;
+        if (g > 0.01) {
+          const gi = g * 0.9;
+          total += gi;
+          cr += WAVE.color[0] * gi;
+          cg += WAVE.color[1] * gi;
+          cb += WAVE.color[2] * gi;
+          ox += (ddx / dist) * g * 30;
+          oy += (ddy / dist) * g * 30;
+        }
+        const behind = wv.wake - dist;
+        if (behind > 0) {
+          const q = Math.min(1, behind / 240) * wv.decay;
+          if (q * 0.3 > wGlow) wGlow = q * 0.3;
+          const sup = 1 - q * 0.75;
+          if (sup < wSup) wSup = sup;
+        }
+      }
+      if (wSup < 1) {
+        ox *= wSup;
+        oy *= wSup;
+      }
+      wGlow *= mask; // strefa tekstu: rozbłysk śladu nie podbija tła pod H1
+
       const k = Math.min(1, total * mask * amp * 1.2);
       const a0 = 0.14 * dot.jitter;
 
       if (k < 0.01) {
         // Czysta siatka — subtelne, precyzyjne tło (fillRect: tanio przy tysiącach).
-        const a = (a0 + fG * 0.18) * fFade;
-        const s = 2.1 + fG * 1.4;
+        const a = (a0 + fG * 0.18 + wGlow * 0.55) * fFade;
+        const s = 2.1 + fG * 1.4 + wGlow * 1.6;
         ctx.fillStyle = `rgba(${BASE[0]},${BASE[1]},${BASE[2]},${a.toFixed(3)})`;
         ctx.fillRect(dot.x + fpx - 1, dot.y + fpy - 1, s, s);
       } else {
@@ -199,8 +356,8 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
         const a = Math.min(0.95, a0 + 0.7 * k + fG * 0.15) * fFade;
         const r = 1.05 + 2.5 * k + fG * 0.8;
         const kk = k * mask * amp;
-        const x = dot.x + fpx + ox * kk + Math.sin(t * 1.3 + dot.phase) * 2.2 * kk;
-        const y = dot.y + fpy + oy * kk + Math.cos(t * 1.1 + dot.phase) * 2.2 * kk;
+        const x = dot.x + fpx + ox * kk + Math.sin(t * 1.3 + dot.phase) * 2.2 * kk * wSup;
+        const y = dot.y + fpy + oy * kk + Math.cos(t * 1.1 + dot.phase) * 2.2 * kk * wSup;
         if (k > 0.55) {
           // Bloom — poświata najmocniej zmieszanych kropek.
           ctx.beginPath();
@@ -211,6 +368,36 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${rr},${rg},${rb},${a.toFixed(3)})`;
+        ctx.fill();
+      }
+    }
+
+    // Konstelacja sygnetu — kropki zbiegają się z rozsypki do formy (lerp po
+    // obwiedni), trzymają ją chwilę i rozpływają się z powrotem w pole.
+    if (formE > 0.005) {
+      // Reduced-motion: forma stoi ZŁOŻONA (p=1) — rozsypka w statycznej
+      // klatce wyglądałaby jak uszkodzony render, nie jak zamysł.
+      const p = opts.reducedMotion ? 1 : easeOutCubic(formE);
+      const drift = opts.reducedMotion ? 0 : 1.6 * (1 - formE * 0.7);
+      const [fr, fg2, fb] = FORM.color;
+      for (let i = 0; i < formDots.length; i++) {
+        const f = formDots[i];
+        const x = f.ox + (f.tx - f.ox) * p + Math.sin(t * 1.4 + f.ph) * drift;
+        const y = f.oy + (f.ty - f.oy) * p + Math.cos(t * 1.2 + f.ph) * drift;
+        // Waga podbita ~2×: komórki konturu mają pokrycie 0.2–0.5 i bez tego
+        // toną poniżej jasności bazowej siatki (zmierzone na zrzutach).
+        const wEff = Math.min(1, f.w * 1.9);
+        const a = (0.22 + 0.62 * wEff) * formE;
+        const r = (1.2 + 2 * wEff) * (0.55 + 0.45 * formE);
+        if (wEff > 0.55 && formE > 0.5) {
+          ctx.beginPath();
+          ctx.arc(x, y, r * 2.2, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${fr},${fg2},${fb},${(formE * 0.08).toFixed(3)})`;
+          ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${fr},${fg2},${fb},${a.toFixed(3)})`;
         ctx.fill();
       }
     }
@@ -258,6 +445,18 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
 
   rebuild();
 
+  // SVG sygnetu ładowany leniwie; po dojściu przebudowa konstelacji (a przy
+  // reduced-motion — dorysowanie jej do statycznej klatki).
+  {
+    const img = new Image();
+    img.onload = () => {
+      formImg = img;
+      buildForm();
+      if (opts.reducedMotion) drawStatic();
+    };
+    img.src = FORM.src;
+  }
+
   if (opts.reducedMotion) {
     drawStatic();
   } else {
@@ -303,6 +502,11 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       pointer.dx = dx;
       pointer.dy = dy;
       pointer.active = active;
+    },
+    pulse(x, y) {
+      if (opts.reducedMotion || paused) return;
+      waves.push({ x, y, t0: performance.now() / 1000 });
+      if (waves.length > 4) waves.shift();
     },
     destroy() {
       stop();

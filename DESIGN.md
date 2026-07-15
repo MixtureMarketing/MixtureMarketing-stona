@@ -225,7 +225,7 @@ Jasna sekcja treściowa, która **najeżdża na ciemny hero**: `-mt-10 md:-mt-16
 
 ### Scena Mixture (signature)
 
-Sygnaturowy wizual generatywny: inżynierska siatka kropek (`#94a3b8`), przez którą płyną trzy barwne prądy marki — dosłowna wizualizacja nazwy (precyzja × kreatywność = Mixture). Canvas montuje się dopiero po hydratacji; prerender i no-JS widzą czysty granat z poświatami CSS. Reduced-motion: statyczna, deterministyczna klatka (hash zamiast `Math.random`, żeby klatka była zawsze identyczna). Ma przycisk pauzy (WCAG 2.2.2). **Nie replikuj sceny na podstronach** — jest własnością hero strony głównej; podstrony dziedziczą granat i typografię, nie canvas.
+Sygnaturowy wizual generatywny: inżynierska siatka kropek (`#94a3b8`), przez którą płyną trzy barwne prądy marki — dosłowna wizualizacja nazwy (precyzja × kreatywność = Mixture). Scena jest interaktywna: kliknięcie/tapnięcie budzi falę uderzeniową, za której frontem turbulencje gasną i siatka na moment staje w idealnym porządku (chaos → forma — teza marki w jednym geście); okresowo, wyłącznie gdy na prawo od kolumny tekstu jest wolne miejsce (nigdy pod H1), z pola zbiega się konstelacja sygnetu (podsiatka ×2, próbkowana z SVG logo). Canvas montuje się dopiero po hydratacji; prerender i no-JS widzą czysty granat z poświatami CSS. Reduced-motion: statyczna, deterministyczna klatka (hash zamiast `Math.random`; sygnet w niej stoi wygaszony do 0.65, fale i wskaźnik nie istnieją). Przycisk pauzy (WCAG 2.2.2) zatrzymuje całość, łącznie z falami i sygnetem. **Nie replikuj sceny na podstronach** — jest własnością hero strony głównej; podstrony dziedziczą granat i typografię, nie canvas.
 
 ### Proof Strip (signature)
 

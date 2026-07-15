@@ -11,6 +11,8 @@ import type { MixtureHandle } from './mixtureConfig';
  *
  * Komponent zasila silnik zdarzeniami DOM (motion-safe):
  * - pointer: fine → wygładzony kierunek gestu (setPointer, „mieszanie"),
+ * - pointerdown (każdy rodzaj wskaźnika, także dotyk) → fala uderzeniowa
+ *   ze śladem precyzji (pulse); klik w CTA też ją budzi — to celowe echo,
  * - scroll/resize → krawędź arkusza [data-mixture-front] (setFront — kropki
  *   rozpychane falą dziobową) + CSS var --cover na sekcji hero (0..1 pokrycia
  *   viewportu arkuszem; treść hero lekko ucieka i gaśnie).
@@ -57,6 +59,11 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
     };
     const onPointerLeave = () => handle?.setPointer(0, 0, 0, 0, false);
 
+    const onPointerDown = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      handle?.pulse(e.clientX - rect.left, e.clientY - rect.top);
+    };
+
     // Krawędź arkusza „Kompetencji" → front silnika + --cover; zadanie we
     // wspólnym schedulerze (READ: rect-y arkusza/canvasu → WRITE: var + inert).
     let wasCovered = false;
@@ -98,6 +105,7 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
       host.addEventListener('pointermove', onPointerMove, { passive: true });
       host.addEventListener('pointerleave', onPointerLeave, { passive: true });
     }
+    if (!reduced && host) host.addEventListener('pointerdown', onPointerDown, { passive: true });
 
     return () => {
       cancelled = true;
@@ -106,6 +114,7 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
         host.removeEventListener('pointermove', onPointerMove);
         host.removeEventListener('pointerleave', onPointerLeave);
       }
+      if (!reduced && host) host.removeEventListener('pointerdown', onPointerDown);
       handleRef.current = null;
       handle?.destroy();
     };
