@@ -142,6 +142,7 @@ C = 100
   − Σ itemów risk='medium': 2
   − (jest migracja danych bez próbki/dostępu do źródła: 8)
   − (archetyp = laravel/headless ORAZ brak specyfikacji [discovery poziom ≤1]: 6)
+  − (konfigurator w zakresie ORAZ config_matrix=false: 15)        // wg tabeli reguł w 05
 C = clamp(C, 0, 100)
 
 completeness = (widoczne pytania z odpowiedzią) / (widoczne pytania)   // 1.0 gdy brak pytań

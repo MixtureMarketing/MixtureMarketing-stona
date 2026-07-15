@@ -44,6 +44,16 @@ Prod D1 jest od 2026-07-14 na trackingu wranglera (`d1_migrations`) — wszystki
 prod WYŁĄCZNIE przez `migrations apply --remote` (docelowo krok CI), nigdy przez `execute --file`
 z migracjami.
 
+**Nowa reguła w docs = ta sama zmiana w seedach, w TYM SAMYM commicie.** Tabele reguł w `05`
+i biblioteki w `06` nie są szkicem — to specyfikacja treści. Reguła opisana w docs, a nieobecna
+w `rules.sql`, jest gorsza niż jej brak: wszyscy zakładają, że działa. Precedens (walidacja
+rynkowa S2): „Konfigurator bez macierzy opcji → Confidence −15 + alert Discovery" był
+udokumentowany w `docs/05` od początku i **nigdy nie trafił do seedów** — konfigurator
+z nieokreślonym zakresem mógł pokazać 100% pewności. Ten sam audyt wykrył brak reguły
+„CPQ → produkcja". Dotyczy też kierunku odwrotnego: zmiana wartości w seedzie bez zmiany
+docs (np. waga kary) tworzy dwie sprzeczne prawdy — **wygrywa docs**, bo to specyfikacja.
+Przy każdej fazie dotykającej reguł: przejdź tabele `05`/`06` i sprawdź obecność w seedach.
+
 **Rytuał prod aplikuje KOMPLET seedów — nigdy podzbioru.** Nawet gdy faza ruszyła tylko jeden
 plik, re-apply obejmuje wszystkie `migrations/seed/*.sql` w kolejności zależności. Seedy są
 idempotentne, więc pełny przebieg nic nie kosztuje, a podzbiór powoduje **cichy dryf prod↔repo**:

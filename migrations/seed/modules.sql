@@ -13,7 +13,9 @@ INSERT INTO est_modules (code, name, hours_min, hours_max, includes, excludes, r
   ('multicurrency', 'Wielowalutowość', 12, 32, 'przeliczanie, prezentacja', 'wielojęzyczność (frontend/i18n)', 'low'),
   ('loyalty', 'Program lojalnościowy', 32, 64, 'punkty, progi, wymiana', 'integracje zewn. programów', 'low'),
   ('configurator_options', 'Konfigurator opcji (bez wizualizacji)', 32, 80, 'warianty zależne, macierz kombinacji, cena dynamiczna', 'wizualizacja (configurator_2d/3d)', 'low'),
-  ('configurator_2d', 'Konfigurator z wizualizacją 2D', 80, 200, 'podgląd warstwowy (PNG/SVG), kolory/tekstury, zarządzanie assetami', 'produkcja grafik wariantów (configurator_assets)', 'low'),
+  -- (S2) risk low → MEDIUM: wizualizacja 2D + macierz wariantów to nie jest niskie ryzyko.
+  --      high zostaje dla 3D i CPQ (doc 06 oznaczał jako high tylko configurator_3d).
+  ('configurator_2d', 'Konfigurator z wizualizacją 2D', 80, 200, 'podgląd warstwowy (PNG/SVG), kolory/tekstury, zarządzanie assetami', 'produkcja grafik wariantów (configurator_assets)', 'medium'),
   ('configurator_3d', 'Konfigurator 3D (Three.js/R3F)', 200, 500, 'scena 3D, materiały, oświetlenie, wydajność mobile', 'modele 3D (cost_item:external), AR (osobno)', 'high'),
   ('configurator_assets', 'Produkcja assetów 2D wariantów', 0, 0, 'obróbka/kompozycja grafik — wycena per wariant: 0,5–2 h × (produkty × warianty × ujęcia); dodaj jako pozycję ad hoc', 'fotografia produktowa (external)', 'medium'),
   ('cpq_engine', 'Silnik CPQ (wycena produkcyjna)', 80, 200, 'BOM, reguły produkcji, specyfikacja do ERP', 'sama integracja ERP (biblioteka, taryfa custom)', 'medium'),

@@ -250,7 +250,34 @@ INSERT INTO est_rules (id, name, condition_json, actions_json, reason_template, 
   (54, 'Katalog: duzy',
    '{"q":"products_count","op":"gte","val":100}',
    '[{"type":"min_level","aspect":"database","level":2}]',
-   '{products_count} pozycji katalogu to model danych z indeksowaniem i wydajnym wyszukiwaniem.', 0)
+   '{products_count} pozycji katalogu to model danych z indeksowaniem i wydajnym wyszukiwaniem.', 0),
+
+  -- ── walidacja rynkowa S1-S4 (DRAFT) ──────────────────────────────────────────────────────
+  -- S3 (CRM serwisu) wypadl 31% ponizej rynku: cel „aplikacja" nie podnosil ZADNEGO poziomu —
+  -- jedyna regula z „aplikacja" rekomendowala archetyp. Ciezar aplikacji dedykowanej niosl
+  -- wylacznie custom_logic (backend_logic>=2), czyli tyle samo co sklep z nietypowym rabatem.
+  (55, 'Aplikacja dedykowana',
+   '{"q":"project_goal","op":"eq","val":"aplikacja"}',
+   '[{"type":"min_level","aspect":"backend_logic","level":3},{"type":"min_level","aspect":"apis","level":2},{"type":"min_level","aspect":"qa","level":2}]',
+   'Aplikacja z logowaniem: logika jest produktem — wlasny backend, API i testy sa rdzeniem zakresu.', 0),
+  (56, 'Role i uprawnienia (aplikacja / B2B)',
+   '{"any":[{"q":"project_goal","op":"eq","val":"aplikacja"},{"q":"project_goal","op":"eq","val":"b2b"}]}',
+   '[{"type":"min_level","aspect":"permissions","level":2}]',
+   'Rozne role uzytkownikow wymagaja modelu uprawnien, nie samego logowania.', 0),
+
+  -- S2 (konfigurator): brak spisanej macierzy zaleznosci nie robil NIC. Teraz podnosi discovery
+  -- i ostrzega. Kara Confidence jest w silniku (configuratorWithoutMatrix, engine 1.7) — wzorzec
+  -- dataMigrationWithoutSample. BEZ nowego mnoznika (D6 nietkniete).
+  (57, 'Konfigurator bez macierzy zaleznosci',
+   '{"q":"config_matrix","op":"eq","val":false}',
+   '[{"type":"min_level","aspect":"discovery","level":3},{"type":"archetype_warning","message":"Brak spisanej macierzy zaleznosci opcji: zaplanuj Discovery + prototyp przed wiazaca wycena."}]',
+   'Konfigurator bez spisanej macierzy zaleznosci: zakres nieokreslony do czasu Discovery/prototypu.', 0),
+
+  -- (audyt dryfu docs→seeds) „CPQ → produkcja" z docs/05 — udokumentowana, nigdy nie zaseedowana.
+  (58, 'CPQ → produkcja',
+   '{"q":"modules","op":"contains","val":"cpq_engine"}',
+   '[{"type":"min_level","aspect":"backend_logic","level":3},{"type":"min_level","aspect":"apis","level":2}]',
+   'Silnik CPQ liczy wycene produkcyjna i oddaje specyfikacje do ERP — wlasna logika i integracja.', 0)
 ON CONFLICT(id) DO UPDATE SET
   name = excluded.name, condition_json = excluded.condition_json, actions_json = excluded.actions_json,
   reason_template = excluded.reason_template, priority = excluded.priority, is_active = 1;

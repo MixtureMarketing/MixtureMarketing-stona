@@ -34,7 +34,9 @@ import { isUnknown, isNotApplicable } from './types';
 //      przed regułami/pozycjami/Confidence); porzucona ścieżka odpowiedzi nie wycenia po cichu.
 // 1.6: D27 rozszerzone — wartość multiselecta wskazująca na pozycję spoza (przefiltrowanej)
 //      biblioteki też nie istnieje: nie wycenia, nie odblokowuje pytań kaskadowych, nie karze Confidence.
-export const ENGINE_VERSION = '1.6';
+// 1.7: kara Confidence za konfigurator bez spisanej macierzy zależności (S2 — walidacja rynkowa:
+//      brak macierzy nie robił NIC, więc wycena konfiguratora mogła mieć 100% pewności).
+export const ENGINE_VERSION = '1.7';
 
 // ── Pomocnicze ───────────────────────────────────────────────────────────────
 
@@ -418,6 +420,10 @@ export function computeConfidence(
   }
   if (input.dataMigrationWithoutSample) sub('Migracja danych bez próbki źródła', 8);
   if (input.customArchetypeWithoutDiscovery) sub('Archetyp custom bez discovery', 6);
+  // Konfigurator bez spisanej macierzy zależności = zakres nieokreślony. Waga 15 wprost z docs/05
+  // („Confidence −15") — NIE 8 jak dataMigrationWithoutSample: brak macierzy jest cięższy, bo
+  // nie da się nawet policzyć liczby kombinacji do zaprojektowania i przetestowania.
+  if (input.configuratorWithoutMatrix) sub('Konfigurator bez spisanej macierzy zależności', 15);
 
   score = Math.round(Math.max(0, Math.min(100, score)));
   const band: ConfidenceResult['band'] =

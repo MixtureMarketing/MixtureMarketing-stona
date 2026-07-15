@@ -107,7 +107,7 @@ const renderEditor = () =>
 
 describe('E2E f1c — finalize → ekran wyniku z read-backu', () => {
   it('walidacja → Finalizuj → POST finalize → ResultScreen pokazuje snapshot z serwera', async () => {
-    stubFetch({ ok: true, status: 200, body: { id: 7, status: 'review', engine_version: '1.6' } });
+    stubFetch({ ok: true, status: 200, body: { id: 7, status: 'review', engine_version: '1.7' } });
     renderEditor();
 
     fireEvent.click(boolBtn('Dane wrażliwe?', 'Nie'));

@@ -223,12 +223,16 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
   const customArchetypeWithoutDiscovery =
     ['laravel', 'headless'].includes(String(answers.archetype)) &&
     (ruleEval.levels['discovery']?.level ?? 0) <= 1;
+  // `config_matrix` jest widoczne wyłącznie, gdy w checkliście jest konfigurator (visible_if),
+  // a D27 usuwa odpowiedzi na pytania niewidoczne — samo `=== false` wystarcza za warunek zakresu.
+  const configuratorWithoutMatrix = answers.config_matrix === false;
   const confidence = computeConfidence(
     {
       unknowns,
       items: confItems,
       dataMigrationWithoutSample,
       customArchetypeWithoutDiscovery,
+      configuratorWithoutMatrix,
       belowCompleteness: completeness < library.params.completenessThreshold,
     },
     { green: library.params.confidenceGreen, yellow: library.params.confidenceYellow },

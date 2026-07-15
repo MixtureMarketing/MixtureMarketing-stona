@@ -119,6 +119,49 @@ describe('computeQuote — pipeline podglądu (docs/03)', () => {
     expect(r.confidence.belowCompleteness).toBe(false);
   });
 
+  it('S2: konfigurator bez spisanej macierzy → kara Confidence (nie da się mieć 100% pewności)', () => {
+    // Walidacja rynkowa S2: brak macierzy zależności opcji nie robił NIC — projekt konfiguratora
+    // z nieokreślonym zakresem mógł pokazać 100% pewności, gdy klient odpowiedział na resztę.
+    // Ręcznie: 2 pytania widoczne, oba odpowiedziane → 0 kar za niewiadome;
+    //          config_matrix=false → −15 (wartość wprost z docs/05) ⇒ 85.
+    const libCfg: LibraryData = {
+      ...LIB,
+      questions: [
+        { code: 'modules', unknownWeight: 1, visibleIf: null, label: 'Moduły?' },
+        {
+          code: 'config_matrix',
+          unknownWeight: 1,
+          visibleIf: '{"q":"modules","op":"contains","val":"configurator_options"}',
+          label: 'Macierz zależności?',
+        },
+      ],
+      modules: [
+        {
+          code: 'configurator_options',
+          name: 'Konfigurator',
+          hoursMin: 32,
+          hoursMax: 80,
+          risk: 'low',
+        },
+      ],
+    };
+    const bez = computeQuote({
+      answers: { modules: ['configurator_options'], config_matrix: false },
+      library: libCfg,
+    });
+    expect(bez.confidence.score).toBe(85); // 100 − 15 (docs/05)
+    expect(bez.confidence.breakdown.map((b) => b.reason)).toContain(
+      'Konfigurator bez spisanej macierzy zależności',
+    );
+
+    // Kontrola: macierz spisana → brak kary (100).
+    const zMacierza = computeQuote({
+      answers: { modules: ['configurator_options'], config_matrix: true },
+      library: libCfg,
+    });
+    expect(zMacierza.confidence.score).toBe(100);
+  });
+
   it('D27: odpowiedź na pytanie NIEWIDOCZNE nie istnieje dla obliczeń (payments: sklep → portal)', () => {
     // Scenariusz z retro: prowadzący odpowiada „payments=[stripe]" przy celu SKLEP, potem zmienia
     // cel na PORTAL TREŚCI. Pytanie znika z wizarda → jego odpowiedź NIE MOŻE dalej wyceniać

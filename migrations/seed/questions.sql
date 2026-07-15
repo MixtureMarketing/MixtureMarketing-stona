@@ -53,9 +53,11 @@ INSERT INTO est_questions
    '[{"value":"nikt","label":"Nikt"},{"value":"klienci","label":"Klienci sklepu"},{"value":"pracownicy","label":"Pracownicy"},{"value":"b2b","label":"Firmy B2B"},{"value":"wiele_organizacji","label":"Wiele organizacji"}]',
    1, 1.0, NULL, 'uzytkownicy', 80),
   ('users_concurrent', 'Ilu użytkowników jednocześnie w szczycie?', 'Wyprowadź z faktów: zamówień dziennie, liczby pracowników, szczytu sezonowego.', 'number', NULL, 1, 1.5, NULL, 'uzytkownicy', 90),
+  -- (S1) unknown_weight 1.0 → 0.5: przy małych projektach ruch jest nieznany Z DEFINICJI
+  -- (nowa firma), a realnie rusza infrastrukturę dopiero przy wysokich progach.
   ('traffic_monthly', 'Szacowany ruch miesięczny?', NULL, 'select',
    '[{"value":"do_10k","label":"do 10 tys."},{"value":"10k_50k","label":"10–50 tys."},{"value":"50k_300k","label":"50–300 tys."},{"value":"300k_1m","label":"300 tys.–1 mln"},{"value":"ponad_1m","label":"ponad 1 mln"}]',
-   1, 1.0, NULL, 'uzytkownicy', 100),
+   1, 0.5, NULL, 'uzytkownicy', 100),
   ('downtime_tolerance', 'Co się dzieje, gdy system stoi godzinę?', NULL, 'select',
    '[{"value":"nic","label":"Nic"},{"value":"sprzedaz","label":"Tracimy sprzedaż"},{"value":"critical_247","label":"Krytyczne 24/7"}]',
    1, 1.5, NULL, 'uzytkownicy', 110),
@@ -132,9 +134,11 @@ INSERT INTO est_questions
    1, 1.0,
    '{"any":[{"q":"modules","op":"contains","val":"configurator_options"},{"q":"modules","op":"contains","val":"configurator_2d"},{"q":"modules","op":"contains","val":"configurator_3d"}]}', 'funkcje', 330),
   -- ── marketing ──
+  -- (S1) unknown_weight 1.0 → 0.5: „nie wiem, czy będą kampanie" rusza wycenę o kilka godzin
+  -- (SEM/analytics), a zabierało tyle co niewiadoma skali. Zasada: waga ∝ wpływ na godziny/ryzyko.
   ('ads_planned', 'Kampanie płatne po starcie?', NULL, 'multiselect',
    '[{"value":"google","label":"Google Ads"},{"value":"meta","label":"Meta"},{"value":"inne","label":"Inne"}]',
-   1, 1.0, NULL, 'marketing', 340),
+   1, 0.5, NULL, 'marketing', 340),
   ('tracking_scope', 'Jak ważna jest dokładność pomiaru kampanii?', 'Maksymalna = odporna na blokady reklam i ograniczenia Apple; istotna przy większych budżetach.', 'select',
    '[{"value":"podstawowa","label":"Podstawowa"},{"value":"pelny","label":"Pełny pomiar sprzedaży i remarketing"},{"value":"maksymalna","label":"Maksymalna"}]',
    1, 1.0, NULL, 'marketing', 350),

@@ -89,17 +89,17 @@ const draftQuote = (over: Record<string, unknown> = {}) => ({
 });
 
 describe('POST quote-finalize — walidacja + snapshot', () => {
-  it('happy path: status→review, snapshot obszarów/itemów, engine_version=1.6', async () => {
+  it('happy path: status→review, snapshot obszarów/itemów, engine_version=1.7', async () => {
     const { DB, calls } = mockEnv({ quoteRow: draftQuote(), lib: LIB, answers: [] });
     const res = await onRequestPost(ctx({ DB }, { id: 5 }) as Ctx<typeof onRequestPost>);
     expect(res.status).toBe(200);
     const body = (await res.json()) as { status: string; engine_version: string };
     expect(body.status).toBe('review');
-    expect(body.engine_version).toBe('1.6');
+    expect(body.engine_version).toBe('1.7');
     // UPDATE statusu na review
     const upd = calls.binds.find((b) => b.sql.includes('UPDATE est_quotes'));
     expect(upd!.sql).toContain("status = 'review'");
-    expect(upd!.args).toContain('1.6');
+    expect(upd!.args).toContain('1.7');
     // snapshot obszaru frontend zapisany (batch) — INSERT, nie DELETE
     const aspectIns = calls.binds.find((b) => b.sql.includes('INSERT INTO est_quote_aspects'));
     expect(aspectIns).toBeTruthy();

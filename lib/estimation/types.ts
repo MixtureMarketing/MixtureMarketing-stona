@@ -240,6 +240,9 @@ export interface ConfidenceInput {
   dataMigrationWithoutSample: boolean;
   /** Archetyp laravel/headless ORAZ discovery ≤ 1. */
   customArchetypeWithoutDiscovery: boolean;
+  /** Konfigurator w zakresie, a klient NIE ma spisanej macierzy zależności opcji (S2).
+   *  Wzorzec jak dataMigrationWithoutSample: brak źródła prawdy = zakres nieokreślony. */
+  configuratorWithoutMatrix: boolean;
   /** D23: poniżej progu kompletności (udział odpowiedzianych widocznych pytań). */
   belowCompleteness: boolean;
 }
