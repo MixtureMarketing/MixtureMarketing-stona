@@ -186,6 +186,11 @@ export interface DecisionRow {
   levelDescription: string | null;
   reasons: string[];
   overrideReason: string | null;
+  /** Żadna reguła nie podniosła poziomu i nie było korekty ⇒ decyzją jest sam archetyp.
+   *  Bez tego Karta pokazywałaby decyzje „bez powodu" (E2E f2a: 11 z 19 obszarów typowej
+   *  wyceny to poziomy domyślne). To NIE jest „no-op reasons" (reguła, która pasowała, ale nie
+   *  podniosła) — tamto wymaga zmiany silnika i zostaje w F3. */
+  fromArchetypeDefault: boolean;
 }
 export interface DecisionCard {
   meta: { quoteNumber: number; projectName: string; clientName: string | null; issuedAt: string };
@@ -232,16 +237,20 @@ export function buildDecisionCard(s: QuoteSnapshot): DecisionCard {
     // Decyzje = obszary, które realnie robimy, z uzasadnieniem reguły która podniosła poziom.
     decisions: s.aspects
       .filter((a) => a.hours_max > 0)
-      .map((a) => ({
-        title: a.aspect_name,
-        code: a.aspect_code,
-        category: a.category,
-        level: a.chosen_level,
-        levelName: a.level_name,
-        levelDescription: a.level_description,
-        reasons: parseReasons(a.rule_reasons_json),
-        overrideReason: a.override_reason,
-      })),
+      .map((a) => {
+        const reasons = parseReasons(a.rule_reasons_json);
+        return {
+          title: a.aspect_name,
+          code: a.aspect_code,
+          category: a.category,
+          level: a.chosen_level,
+          levelName: a.level_name,
+          levelDescription: a.level_description,
+          reasons,
+          overrideReason: a.override_reason,
+          fromArchetypeDefault: reasons.length === 0 && !a.override_reason,
+        };
+      }),
     // Ręczne odstępstwa od sugestii silnika — w OBIE strony (podniesienie i obniżenie).
     overrides: s.aspects
       .filter((a) => a.chosen_level !== a.suggested_level)

@@ -47,6 +47,10 @@ export function decisionCardMarkdown(c: DecisionCard): string {
       L.push('**Dlaczego:**');
       d.reasons.forEach((r) => L.push(`- ${r}`));
     }
+    if (d.fromArchetypeDefault)
+      L.push(
+        `- _Poziom domyślny dla archetypu **${c.platform.chosen}** — żadna reguła go nie podniosła._`,
+      );
     if (d.overrideReason) L.push(`- 🖊️ Korekta ręczna: ${d.overrideReason}`);
     L.push('');
   }
@@ -143,6 +147,12 @@ export async function generateDecisionCardPdf(c: DecisionCard): Promise<Blob> {
     y += 5;
     if (d.levelDescription) p(`   ${d.levelDescription}`, 8.5, GRAY);
     d.reasons.forEach((r) => p(`   → ${r}`, 8.5, '#374151'));
+    if (d.fromArchetypeDefault)
+      p(
+        `   → Poziom domyślny dla archetypu ${c.platform.chosen} (żadna reguła nie podniosła).`,
+        8.5,
+        GRAY,
+      );
     if (d.overrideReason) p(`   Korekta: ${d.overrideReason}`, 8.5, '#b45309');
     y += 1;
   }

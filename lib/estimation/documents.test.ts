@@ -258,6 +258,18 @@ describe('buildDecisionCard — dokument wewnętrzny', () => {
     ]);
   });
 
+  it('KAŻDA decyzja ma „dlaczego": reguła, korekta albo jawnie „domyślny archetypu"', () => {
+    // Kryterium F2: „każda decyzja ma uzasadnienie". E2E pokazał, że w typowej wycenie
+    // większość poziomów pochodzi z archetypu — bez tego flagowania Karta miałaby decyzje
+    // bez żadnego „dlaczego".
+    for (const d of card.decisions) {
+      const hasWhy = d.reasons.length > 0 || !!d.overrideReason || d.fromArchetypeDefault;
+      expect(hasWhy, `decyzja bez uzasadnienia: ${d.title}`).toBe(true);
+    }
+    const fe = card.decisions.find((d) => d.title === 'Frontend')!;
+    expect(fe.fromArchetypeDefault).toBe(false); // ma uzasadnienie reguły
+  });
+
   it('Karta (wewnętrzna) WOLNO pokazuje Confidence i ryzyka — inaczej niż oferta', () => {
     expect(card.confidence).toEqual({ score: 72, breakdown: SNAP.confidenceBreakdown });
     expect(card.risks).toEqual([{ name: 'Nowa technologia', value: 0.15 }]);
