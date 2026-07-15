@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> Design Context: see PRODUCT.md before any visual work.
+
 ## Project
 
 Marketing agency site + SaaS product (`/abonament/`) for **Mixture Marketing** (Rzeszów, PL). React 19 SPA prerendered to static HTML for SEO, hosted on Cloudflare Pages. Content is bilingual-leaning Polish; most code comments and CMS content are in Polish.
@@ -11,7 +13,8 @@ Marketing agency site + SaaS product (`/abonament/`) for **Mixture Marketing** (
 ```bash
 npm install --legacy-peer-deps   # deps require legacy peer resolution (CI writes .npmrc with legacy-peer-deps=true)
 npm run dev                      # Vite dev server — NOTE: config sets port 3000, README says 5173; check console
-npm run build                    # clean → convert images → vite build → sitemap → prerender → size-limit
+npm run build                    # vite build → sitemap → prerender → size-limit. UWAGA: NIE robi `clean` — uruchom `npm run clean` ręcznie, gdy podejrzewasz stary artefakt w dist/
+npm run clean                    # rimraf dist
 npm run lint                     # ESLint (--max-warnings 0) + Prettier via eslint-plugin-prettier — must pass, blocks CI
 npm run test                     # Vitest watch mode
 npm run test -- --run            # Vitest single run (as in CI)
@@ -62,6 +65,8 @@ When adding a static page: add the component + route in `config/routes.tsx` AND 
 - **TypeScript typecheck is non-blocking in CI** — there is a baseline of pre-existing TS errors (see `.github/workflows/ci.yml` `continue-on-error` on the typecheck step and the ROADMAP note). Lint and unit tests **do** block. Don't assume a green build means zero TS errors; avoid adding new ones.
 - **Bundle size is enforced:** `size-limit` runs at the end of `build` (index JS ≤ 300 kB, CSS ≤ 50 kB). Prefer `lazy()` for heavy/rare deps (recharts, jspdf, framer-motion usage) — `vite.config.ts` `manualChunks` only pins react/router/helmet as eager vendor chunks; everything else should stay in lazy chunks.
 - **`console`/`debugger` are stripped in production builds** (`esbuild.drop`).
+- **`npm run build` leaks a `vite preview` on port 4173, and `prerender.js` will happily render from it.** Two facts combine into a silent trap. (1) The preview spawned by `prerender.js` is not reliably killed, so a listener survives the build. (2) `waitForServer(4173)` accepts *any* server answering on that port — if one is already there, prerender's own preview never binds and Puppeteer snapshots the foreign server instead. Usually harmless (the leftover serves the same `dist/` from disk, so output is still fresh). **It turns dangerous right after `npm run clean`:** on Windows, `rimraf dist` cannot remove a directory a live process holds, so the old `dist` lives on for that process while the build writes a *new* one — the zombie keeps serving the pre-clean app and prerender writes it to `dist/**/index.html` with no error. Symptom: prerendered HTML contains markup for components that no longer exist in `dist/assets/*.js`. Before trusting a local build (especially after a clean), verify the port is free — `netstat -ano | grep :4173` — and kill leftovers. CI is unaffected (fresh container); local builds and deploys are not. (Precedent: 2026-07-15 — a zombie preview made a clean build emit the entire pre-redesign page, fake dashboards included.)
+- **A11y scans must scroll the whole page first, and measure from the bottom.** Sections are wrapped in `LazyHydrate whenVisible`, so an axe run on a freshly loaded (or partially scrolled) page silently skips everything not yet hydrated — and reports a clean result for a page that isn't. Scroll to the bottom in steps, let hydration settle, then run axe **without scrolling back to the top** (returning to top re-hides sections and undercounts). A partial scan reported as "0 violations" is worse than no scan: it launders an unmeasured page as verified. (Precedent: 2026-07-15, `/web-development/` reported 0 violations while 13 contrast failures sat in unhydrated sections; a later run that scrolled back to top reported 4 where there were 10.)
 - Tailwind **v4** (via `@tailwindcss/vite`, config-less) — no `tailwind.config.js`.
 - User-generated/CMS HTML must be sanitized with **DOMPurify** before `dangerouslySetInnerHTML`.
 - CI: `push` to `main` runs quality → build → deploy to Cloudflare Pages project `mixturemarketing-stona`. Markdown-only changes are skipped (`paths-ignore`). Gitleaks scans secrets. Node 22.
