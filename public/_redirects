@@ -1,13 +1,17 @@
 # Cloudflare Pages _redirects
 #
 # Kolejnosc matcha (pierwsza pasujaca regula wygrywa):
-#  1) Konkretne prefixy z dynamic content -> serwuj /index.html z 200
-#     (React Router obsluzy routing po stronie klienta, dla nowych slugow
-#     Sanity ktore jeszcze nie sa prerendered).
-#  2) Catch-all -> serwuj /404.html z 404 (prerendered NotFound z noindex).
+#  1) 301: restrukturyzacja URL-i (SEO) + kanonizacja trailing slash.
+#  2) 200: SPA fallback — WYLACZNIE dla panelu (/portal/*). Tresc go nie ma, patrz nizej.
+#  3) Catch-all -> serwuj /404.html z 404 (prerendered NotFound z noindex).
 #
 # Fizyczne pliki istniejace w dist/ (prerendered routes) sa serwowane
 # bezposrednio z 200, _redirects NIE jest dla nich wykonywany.
+#
+# UWAGA przy dodawaniu rewrite'ow 200: celem musi byc "/", nie "/index.html" — Pages
+# kanonizuje /index.html -> / i taka regula jest cicho ignorowana (spada do catch-all 404).
+# Zachowania _redirects NIE da sie sprawdzic lokalnie (pages dev serwuje SPA sam z siebie) —
+# dowodem jest wylacznie preview deployment albo prod.
 
 # URL restructuring 301 (GSC 2026-05-25 — Google matchuje "agencja seo rzeszow"
 # na / zamiast na zakopanej /marketing/seo/rzeszow/. Top-level URL lepiej
@@ -38,20 +42,15 @@
 /design/:slug           /design/:slug/           301
 /abonament/:slug        /abonament/:slug/        301
 
-# SPA fallback dla naszych dynamicznych prefiksow (Sanity-generated content):
-/baza-wiedzy/*      /index.html  200
-/branza/*           /index.html  200
-/miasto/*           /index.html  200
-/portfolio/*        /index.html  200
-/web-development/*  /index.html  200
-/marketing/*        /index.html  200
-/design/*           /index.html  200
-/abonament/*        /index.html  200
-# (sub-routes professional/vs-wix/vs-orange-klikai prerendered, ale safety net SPA)
+# Celowo BRAK SPA fallback dla prefiksow tresci (/baza-wiedzy/*, /branza/* itd.): prerender
+# pokrywa realne slugi, a rewrite tworzylby soft-404 bez noindex (smieciowy URL w prefiksie
+# dostawalby 200 z HTML-em strony glownej). Decyzja architekta, f2a.
 
 # SPA fallback dla panelu (/portal/* NIE jest prerendered — blokada robots.txt).
 # Bez tego deep-linki panelu (np. /portal/admin?tab=wyceny) po hard-refreshu trafialyby
-# w catch-all 404. Panel jest za auth i noindex, wiec serwowanie index.html jest bezpieczne.
+# w catch-all 404. Panel jest za auth i noindex, wiec serwowanie SPA jest bezpieczne.
+# CEL = "/", NIE "/index.html": Pages kanonizuje /index.html -> / i unieważnia rewrite 200
+# (regula z /index.html przelezala tu martwa od F0 — panel byl nieosiagalny pod URL-em).
 /portal/*  /  200
 
 # Catch-all: nieznane URL-e -> 404 + /404.html (NotFound z noindex).
