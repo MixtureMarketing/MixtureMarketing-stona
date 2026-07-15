@@ -14,6 +14,14 @@ w każdej sesji nad modułem.
 - Migracje/seedy: test idempotencji (podwójne wykonanie) przy każdym zamknięciu fazy.
 - E2E per faza: scenariusze zdefiniowane w komendzie `/zamknij-faze` — wykonywane realnie,
   z dowodami, nie deklaratywnie.
+- **Routing i infrastruktura: dowodem jest wyłącznie preview deployment albo produkcja.**
+  Lokalny `wrangler pages dev` NIE jest dowodem dla warstwy Pages — nie odtwarza `_redirects`,
+  `_routes.json`, kanonizacji URL-i ani routingu Functions. Kryterium dotyczące zachowania
+  Pages zamykasz linkiem do preview/prod i wynikiem `curl`, nie zielonym testem lokalnym.
+  Precedens (F0 Blok D → wykryte dopiero w smoke f2a): reguła `/portal/*  /index.html  200`
+  trafiła do `_redirects`, faza została zamknięta, a reguła **nigdy nie działała na prodzie** —
+  panel był nieosiągalny pod bezpośrednim URL-em. Lokalnie wszystko wyglądało dobrze, bo
+  `pages dev` serwuje SPA sam z siebie. Reguła, której nie sprawdziłeś na Pages, jest życzeniem.
 
 ## 2. Poziomy decyzji (eskalacja)
 
