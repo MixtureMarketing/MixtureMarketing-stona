@@ -13,8 +13,12 @@ interface Env {
   DB: D1Database;
 }
 
+// f2b: lista pokazuje cykl życia, więc potrzebuje dat przejść i kluczy dokumentów.
+// Klucze służą wyłącznie do decyzji „czy pokazać przycisk pobierania" — sam plik idzie
+// przez quote-file, który i tak czyta klucz z bazy (nie ufamy temu, co przyszło z klienta).
 const LIST_QUERY = `
   SELECT id, name, client_name, archetype_code, status, confidence, engine_version,
+         pdf_r2_key, card_r2_key, sent_at, won_at, lost_at,
          created_at, updated_at
   FROM est_quotes
   ORDER BY created_at DESC

@@ -158,7 +158,11 @@ CREATE TABLE est_quotes (
   confidence_breakdown_json TEXT,     -- składniki (audytowalność)
   totals_json TEXT,                   -- wynik agregacji (03): hours/price min-max, oferta min-max, koszty
   engine_version TEXT NOT NULL,       -- wersja algorytmu agregacji (kod), np. '1.0'
-  pdf_r2_key TEXT,
+  pdf_r2_key TEXT,                    -- oferta PDF w R2 (quotes/{id}/oferta.pdf)
+  card_r2_key TEXT,                   -- Karta decyzji PDF w R2 (dokumenty są DWA — D28)
+  sent_at TEXT,                       -- daty przejść: bez nich F3 nie ma z czego liczyć
+  won_at TEXT,                        -- skuteczności; updated_at mówi tylko o OSTATNIEJ zmianie
+  lost_at TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
@@ -223,7 +227,7 @@ CREATE TABLE est_actual_hours (
 
 1. **Snapshot kompletny:** po `quote_finalize` rekord wyceny jest samowystarczalny — da się odtworzyć ofertę bez tabel biblioteki. Edycje biblioteki nie dotykają wycen (D19).
 2. **Wynik autorytatywny liczy serwer.** UI liczy podgląd tym samym kodem silnika, ale `totals_json` zapisuje wyłącznie Pages Function przy finalize (spójność, `engine_version`).
-3. **Statusy:** `draft → review → sent → won|lost`; `won → closed` po wpisaniu godzin rzeczywistych. `lost` wymaga `lost_reason`. Edycja merytoryczna tylko w `draft`/`review`; `sent+` → zmiany przez duplikację wyceny (rewizja, `name` + „(rev 2)").
+3. **Statusy:** `draft → review → sent → won|lost`; `won → closed` po wpisaniu godzin rzeczywistych. `lost` wymaga `lost_reason`. Edycja merytoryczna tylko w `draft`/`review`; `sent+` → zmiany przez duplikację wyceny (rewizja, `name` + „(rev 2)"). Każde przejście stempluje datę (`sent_at`/`won_at`/`lost_at`) — to jedyne źródło dla kalibracji handlowej F3. **Legalność przejść pilnuje API** (`quote-status`), nie UI: `sent` wyłącznie z `review`, `won`/`lost` wyłącznie z `sent`, wszystko inne → 409. **`sent` wymaga obu dokumentów w R2** (`pdf_r2_key` i `card_r2_key` non-null) — patrz D30.
 4. **Kody zamiast FK do biblioteki** w warstwie wycen — biblioteka może się zmieniać/znikać, wyceny są wieczne.
 5. **Kalibracja (faza 3)** czyta `est_quote_aspects` (plan) × `est_actual_hours` (fakt) po `aspect_code` i wybranym poziomie; propozycje korekt widełek liczone per (aspect, level) przy n ≥ 3.
 
