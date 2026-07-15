@@ -1,28 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, Tag } from 'lucide-react';
-import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import BaseCard from '../common/BaseCard';
 import Image from '../common/Image';
 import Container from '../common/Container';
+import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
 
+/**
+ * Immersyjny scroll (--p): karty artykułów schodzą się z trzech stron
+ * (lewa / dół / prawa) do siatki — „wiedza zbiera się w bibliotekę".
+ * Scroll-linked, dwukierunkowy; spoczynek = var(--p, 1) (prerender-safe).
+ */
+const CARD_DRIFT = [
+  'translate3d(calc((1 - var(--p, 1)) * -44px), 0, 0)',
+  'translate3d(0, calc((1 - var(--p, 1)) * 52px), 0)',
+  'translate3d(calc((1 - var(--p, 1)) * 44px), 0, 0)',
+];
+
 const KnowledgeBaseTeaser: React.FC = () => {
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+  const [failed, setFailed] = useState(false);
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
 
   useEffect(() => {
     // Dynamic import to reduce initial bundle size
-    import('@/services/cmsService').then(({ cmsService }) => {
-      cmsService.getArticles().then((data) => {
-        setLatestArticles(data.filter((a) => a.isFeatured).slice(0, 3));
-      });
-    });
+    import('@/services/cmsService')
+      .then(({ cmsService }) => cmsService.getArticles())
+      .then((data) => {
+        const featured = data.filter((a) => a.isFeatured).slice(0, 3);
+        if (featured.length === 0) setFailed(true);
+        else setLatestArticles(featured);
+      })
+      .catch(() => setFailed(true));
   }, []);
 
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 bg-white relative overflow-hidden">
       <Container className="relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl text-left">
@@ -41,12 +57,26 @@ const KnowledgeBaseTeaser: React.FC = () => {
           </Link>
         </div>
 
+        {/* Empty-state: CMS niedostępny / brak wyróżnionych — uczciwy komunikat
+            zamiast pustej sekcji, z drogą dalej do pełnej bazy */}
+        {failed && (
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 px-6 py-10 text-center">
+            <p className="text-gray-700">
+              Nie udało się załadować najnowszych artykułów.{' '}
+              <Link to="/baza-wiedzy/" className="font-bold text-secondary hover:underline">
+                Przejdź do pełnej Bazy Wiedzy
+              </Link>
+              .
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {latestArticles.map((article, index) => (
-            <AnimateOnScroll
+            <div
               key={article.id}
-              delay={index * 100}
               className={index === 2 ? 'md:col-span-2 lg:col-span-1' : ''}
+              style={{ transform: CARD_DRIFT[index % CARD_DRIFT.length] }}
             >
               <Link
                 to={article.slug}
@@ -59,14 +89,16 @@ const KnowledgeBaseTeaser: React.FC = () => {
                   hover="lift"
                   className="flex flex-col h-full overflow-hidden border-gray-100 group-hover:border-primary transition-all duration-500"
                 >
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-56 overflow-hidden">
                     <Image
                       src={article.image}
                       alt={article.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                      className="h-full w-full transform object-cover object-top transition-transform duration-700 group-hover:scale-110"
                       width={600}
                       height={400}
                     />
+                    {/* Fade u dołu — chowa wypalony w grafice tytuł, łączy obraz z kartą */}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/60 to-transparent" />
                     <div className="absolute top-4 left-4">
                       <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-wider text-dark shadow-sm flex items-center gap-1.5">
                         <Tag size={10} className="text-accent-dark" aria-hidden="true" />{' '}
@@ -88,7 +120,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                   </div>
                 </BaseCard>
               </Link>
-            </AnimateOnScroll>
+            </div>
           ))}
         </div>
       </Container>

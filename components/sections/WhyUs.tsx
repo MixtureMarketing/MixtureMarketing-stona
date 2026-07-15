@@ -1,10 +1,21 @@
 import React from 'react';
-import { Zap, Target, BarChart3, LucideIcon } from 'lucide-react';
-import AnimateOnScroll from '../common/AnimateOnScroll';
-import SectionHeader from '../common/SectionHeader';
-import GlassCard from '../common/GlassCard';
-
+import { Zap, Target, BarChart3, ArrowRight, LucideIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { WHY_US_CONTENT as CONTENT } from '../../data/content';
+
+/**
+ * Sekcja „Dlaczego My?" (id="about" — linki nav/footer scrollują tutaj).
+ *
+ * Redesign: świadomie NIE kolejna bliźniacza siatka 3 kart (po „Kompetencjach"
+ * byłaby monotonia rytmu — audyt to flagował). Układ editorialny, asymetryczny:
+ * lewa kolumna = pewny nagłówek (sticky), prawa = 3 różnice jako czyste wiersze
+ * z hairline'ami. Bez GlassCard, bez glow-blur, bez ozdobnych kropek.
+ *
+ * Immersyjny scroll (--p): wiersze wpływają z PRAWEJ ku przyklejonemu
+ * nagłówkowi (kierunek niesie sens: argumenty schodzą się do tezy), kolejne
+ * coraz później. Scroll-linked, dwukierunkowy; spoczynek = var(--p, 1).
+ */
 
 const IconMap: Record<string, LucideIcon> = {
   zap: Zap,
@@ -12,54 +23,83 @@ const IconMap: Record<string, LucideIcon> = {
   chart: BarChart3,
 };
 
+// Akcent per wiersz — spójny z sekcją „Kompetencje" (paleta marki, bez nowych kolorów)
+const ACCENTS = [
+  'bg-primary/10 text-primary',
+  'bg-secondary/10 text-secondary',
+  'bg-brand-pink/10 text-brand-pink',
+];
+
 const WhyUs: React.FC = () => {
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
+
   return (
-    <section id="about" className="py-24 bg-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-tech-grid opacity-[0.03] pointer-events-none"></div>
-      <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-50 rounded-full blur-[120px] opacity-50 pointer-events-none"></div>
+    <section
+      id="about"
+      ref={sectionRef}
+      className="relative overflow-hidden bg-white py-24 md:py-28"
+    >
+      <div className="bg-tech-grid pointer-events-none absolute inset-0 opacity-[0.025]" />
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="mb-20 text-center">
-          <SectionHeader
-            subtitle={CONTENT.subtitle}
-            title={CONTENT.title}
-            description={CONTENT.description}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {CONTENT.items.map((item, index) => {
-            const Icon = IconMap[item.icon as keyof typeof IconMap] || Zap;
-            return (
-              <AnimateOnScroll
-                key={index}
-                delay={index * 150}
-                className={index === 2 ? 'md:col-span-2 lg:col-span-1' : ''}
+      <div className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* LEWA: pewny nagłówek */}
+          <div className="lg:col-span-5">
+            <div
+              className="lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 32px), 0)' }}
+            >
+              <h2 className="text-3xl font-black tracking-tight text-balance text-dark md:text-4xl lg:text-5xl">
+                {CONTENT.title}
+              </h2>
+              <p className="mt-6 max-w-md text-lg leading-relaxed text-gray-700">
+                {CONTENT.description}
+              </p>
+              <Link
+                to="/o-nas/"
+                className="group mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-secondary underline-offset-4 hover:underline"
               >
-                <div className="h-full group relative">
-                  {/* Subtle Glow Effect on Hover */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2rem] blur opacity-0 group-hover:opacity-10 transition duration-1000 group-hover:duration-200"></div>
+                Poznaj nas bliżej
+                <ArrowRight
+                  size={16}
+                  aria-hidden="true"
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </Link>
+            </div>
+          </div>
 
-                  <GlassCard className="p-8 md:p-10 flex flex-col items-center text-center h-full relative z-10 bg-white/80 border-gray-100 hover:border-primary/30 transition-all duration-500 rounded-[2rem] shadow-sm hover:shadow-xl">
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center mb-6 md:mb-8 relative transition-all duration-500 motion-safe:group-hover:scale-110 motion-safe:group-hover:rotate-3 bg-gradient-to-br from-light-gray to-white shadow-inner border border-gray-100">
-                      <div className="text-secondary group-hover:text-primary transition-colors duration-300 transform motion-safe:group-hover:scale-110">
-                        <Icon size={28} />
+          {/* PRAWA: 3 różnice jako wiersze z hairline'ami */}
+          <div className="lg:col-span-7">
+            <div className="border-t border-gray-100">
+              {CONTENT.items.map((item, index) => {
+                const Icon = IconMap[item.icon as keyof typeof IconMap] || Zap;
+                const accent = ACCENTS[index % ACCENTS.length];
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      transform: `translate3d(calc((1 - var(--p, 1)) * ${48 + index * 36}px), 0, 0)`,
+                    }}
+                  >
+                    <div className="group flex gap-5 border-b border-gray-100 py-8 md:gap-6 md:py-10">
+                      <div
+                        className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 motion-safe:group-hover:scale-105 ${accent}`}
+                      >
+                        <Icon size={26} />
                       </div>
-
-                      {/* Decorative Dot */}
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-white scale-0 group-hover:scale-100 transition-transform duration-500 delay-100"></div>
+                      <div>
+                        <h3 className="text-xl font-bold tracking-tight text-dark md:text-2xl">
+                          {item.title}
+                        </h3>
+                        <p className="mt-2 leading-relaxed text-gray-600">{item.desc}</p>
+                      </div>
                     </div>
-
-                    <h3 className="text-2xl font-bold mb-4 text-dark tracking-tight">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed font-medium">{item.desc}</p>
-                  </GlassCard>
-                </div>
-              </AnimateOnScroll>
-            );
-          })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </section>

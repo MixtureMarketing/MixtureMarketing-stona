@@ -26,7 +26,12 @@ const FaqSection: React.FC<FaqSectionProps> = ({
           description={description}
           className="mb-12"
         />
-        <StandardFaq items={items} />
+        {/* title="" celowo: StandardFaq ma domyślny props `title = 'Najczęstsze pytania'`
+            i renderuje z niego własny <h2 class="sr-only">. Obok widocznego <h2>
+            z SectionHeader dawało to DWA nagłówki poziomu 2 o tej samej treści pod
+            rząd — czytnik ekranu ogłaszał je dwukrotnie. Pominięcie propsa nie
+            wystarczy (default by wskoczył); pusty string wyłącza render. */}
+        <StandardFaq items={items} title="" />
       </div>
     </section>
   );

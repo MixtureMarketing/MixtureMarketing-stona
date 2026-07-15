@@ -120,8 +120,6 @@ const GoogleAds: React.FC = () => {
           }
           backLinkPath="/marketing/"
           backLinkLabel="Marketing"
-          accentGradientFrom="#4285F4"
-          accentGradientTo="#34A853"
           visual={<GoogleAdsHeroVisual />}
         />
       </div>

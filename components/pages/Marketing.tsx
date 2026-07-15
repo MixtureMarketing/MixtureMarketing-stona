@@ -72,8 +72,6 @@ const Marketing: React.FC = () => {
           ctaPrimaryOnClick={() => openModal('marketing')}
           backLinkPath="/"
           backLinkLabel="Wróć do głównej"
-          accentGradientFrom="#61B6DE"
-          accentGradientTo="#FFFFFF"
           visual={<MarketingHeroVisual />}
         />
       </div>

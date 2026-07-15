@@ -114,7 +114,13 @@ const UiUxDesign: React.FC = () => {
           description={CONTENT.cta.description}
           buttonText={CONTENT.cta.button}
           onClick={() => openModal('design', { specificType: 'uiux' })}
-          variant="glow"
+          // Było `variant="glow"` — wariant, którego BaseCta NIE MA (CtaVariant to
+          // dark | gradient | glass | white). containerVariants['glow'] dawało
+          // undefined → CTA bez tła, czarny H2 i opis gray-300 na bieli (~1,4:1).
+          // Główne CTA rozjechane na produkcji, na podstronie o UI/UX. TypeScript to
+          // zgłaszał, ale typecheck jest `continue-on-error` w CI, więc przechodziło.
+          // (Uwaga: `glow` jest legalny w BaseCard — stąd pomyłka; to inny komponent.)
+          variant="gradient"
         />
       </div>
 

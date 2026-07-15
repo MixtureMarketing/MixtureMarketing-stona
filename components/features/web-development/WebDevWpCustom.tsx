@@ -1,148 +1,150 @@
-import React from 'react';
-import { Plug, CheckCircle2, FileCode, Zap } from 'lucide-react';
-import AnimateOnScroll from '../../common/AnimateOnScroll';
-import LazyHydrate from '../../common/LazyHydrate';
-import SectionWrapper from '../../common/SectionWrapper';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import imageUrlBuilder from '@sanity/image-url';
+import Container from '../../common/Container';
+import { useSectionProgress } from '../../../hooks/useSectionProgress';
+import { client } from '../../../services/cms/client';
+import { SanityImage } from '../../../types/sanity';
 import { WEB_DEV_CONTENT } from '../../../data/content';
 
+/**
+ * Sekcja „custom w znajomym WordPressie".
+ *
+ * Redesign: usunięto komplet atrap — ozdobny snippet `custom-logic.php` (kod
+ * pisany pod zrzut, nie z projektu), dwa blur-bloby, wymyślone „0.02s Query Time",
+ * obrócony badge „Connected" i animate-float. To były dokładnie te „ozdobne snippety
+ * kodu" i „floating bloby", które PRODUCT.md wymienia w anty-referencjach z nazwy.
+ *
+ * W ich miejsce: prawdziwy zrzut silnika rezerwacji Fundacji Niepodzielni
+ * (gallery[0] case study) — wspólny kalendarz wielu specjalistów, który zbudowaliśmy
+ * na API Bookero, zastępując gotową wtyczkę. Podpis nazywa granicę wprost: silnik
+ * jest nasz, Bookero jest cudze. Bez tego rozgraniczenia przypisalibyśmy sobie
+ * zewnętrzny system.
+ *
+ * Ruch (The Motion Has A Job Rule): najpierw siada twierdzenie (lewa kolumna, 24px),
+ * dowód ląduje pod nim później (zrzut, 56px) — kolejność „teza, potem dowód" jest
+ * zadaniem tego ruchu. Spoczynek = var(--p, 1); prerender/reduced-motion widzą statykę.
+ */
+
+const builder = imageUrlBuilder(client);
+
+// Zrzut dowodowy: gallery[0] case study Niepodzielnych = ekran „Znajdź swojego
+// specjalistę". Jeśli wpis lub galeria zniknie z CMS, sekcja degraduje się do
+// samej kolumny tekstowej — bez pustej ramki i bez atrapy w zastępstwie.
+const PROOF_QUERY = `*[_type == "caseStudy" && slug.current == "fundacja-niepodzielni"][0]{"img": gallery[0]}`;
+
 const WebDevWpCustom: React.FC = () => {
+  const [proof, setProof] = useState<SanityImage | null>(null);
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
+
+  useEffect(() => {
+    let alive = true;
+    import('../../../services/cms/client')
+      .then(({ fetchWithCache }) => fetchWithCache<{ img?: SanityImage } | null>(PROOF_QUERY))
+      .then((r) => {
+        if (alive) setProof(r?.img ?? null);
+      })
+      .catch(() => {
+        if (alive) setProof(null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   return (
-    <SectionWrapper variant="white" overflow={true}>
-      <div className="flex flex-col lg:flex-row gap-16 items-center">
-        <div className="lg:w-1/2">
-          <AnimateOnScroll>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6">
-              <Plug size={14} /> {WEB_DEV_CONTENT.wpCustom.badge}
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-dark">
-              {WEB_DEV_CONTENT.wpCustom.title} <br />
+    // Sekcja pisana wprost, nie przez SectionWrapper: useSectionProgress musi
+    // ustawić --p na elemencie, po którym dziedziczą dzieci, a SectionWrapper
+    // nie forwarduje refa.
+    // Sekcja CIEMNA — The Ciemnia Rule: granat istnieje po to, żeby realizacje
+    // świeciły, a ta sekcja niesie prawdziwy zrzut działającego silnika rezerwacji.
+    // Drugi ciemny punkt kotwiczący strony: bez niego całość po Realizacjach to
+    // nieprzerwany jasny ciąg dziewięciu sekcji.
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-deep-dark py-24 md:py-32 lg:py-36"
+    >
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(38% 44% at 6% 8%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 64%),' +
+            'radial-gradient(40% 46% at 94% 92%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 66%)',
+        }}
+        aria-hidden="true"
+      />
+      <Container className="relative z-10">
+        <div className="flex flex-col items-center gap-16 lg:flex-row">
+          <div
+            className="lg:w-1/2"
+            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+          >
+            <h2 className="mb-6 text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
+              {WEB_DEV_CONTENT.wpCustom.title}{' '}
               <span className="text-primary">{WEB_DEV_CONTENT.wpCustom.titleAccent}</span>
             </h2>
-            <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+            <p className="mb-8 max-w-xl text-lg leading-relaxed text-white/75">
               {WEB_DEV_CONTENT.wpCustom.description}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {WEB_DEV_CONTENT.wpCustom.features.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-3 p-4 bg-light-gray rounded-xl border border-gray-100 hover:border-secondary/30 transition-colors"
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {WEB_DEV_CONTENT.wpCustom.features.map((item) => (
+                <li
+                  key={item.title}
+                  className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4"
                 >
-                  <CheckCircle2 size={20} className="text-secondary shrink-0 mt-0.5" />
+                  <CheckCircle2
+                    size={20}
+                    className="mt-0.5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
                   <div>
-                    <h3 className="font-bold text-dark text-sm">{item.title}</h3>
-                    <p className="text-xs text-gray-700 mt-1">{item.desc}</p>
+                    <h3 className="text-sm font-bold text-white">{item.title}</h3>
+                    <p className="mt-1 text-xs text-white/65">{item.desc}</p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
-          </AnimateOnScroll>
+            </ul>
+          </div>
+
+          <div
+            className="w-full lg:w-1/2"
+            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
+          >
+            {proof && (
+              <figure>
+                <Link
+                  to="/portfolio/fundacja-niepodzielni"
+                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                >
+                  <img
+                    src={builder.image(proof).width(1200).fit('max').auto('format').url()}
+                    alt="Silnik rezerwacji Fundacji Niepodzielni: wspólny kalendarz wielu specjalistów z filtrami i najbliższymi wolnymi terminami"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full"
+                  />
+                </Link>
+                {/* Granica odpowiedzialności nazwana wprost — silnik nasz, Bookero cudze. */}
+                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                  Silnik rezerwacji, który napisaliśmy na API{' '}
+                  <span className="font-semibold text-white">Bookero</span> — wspólny kalendarz
+                  wielu specjalistów w miejsce gotowej wtyczki.{' '}
+                  <Link
+                    to="/portfolio/fundacja-niepodzielni"
+                    className="font-bold text-primary underline-offset-4 hover:underline"
+                  >
+                    Fundacja Niepodzielni
+                    <ArrowRight size={14} className="ml-1 inline" aria-hidden="true" />
+                  </Link>
+                </figcaption>
+              </figure>
+            )}
+          </div>
         </div>
-
-        <div className="lg:w-1/2 w-full relative flex justify-center lg:justify-end">
-          <LazyHydrate whenVisible>
-            <AnimateOnScroll delay={200} className="w-full max-w-lg">
-              <div className="relative group">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-secondary/10 rounded-full blur-2xl group-hover:bg-secondary/20 transition-all duration-500"></div>
-                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all duration-500"></div>
-
-                <div className="relative bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all duration-500 hover:-translate-y-2">
-                  <div className="bg-[#1E293B] p-4 flex items-center justify-between border-b border-[#334155]">
-                    <div className="flex gap-2">
-                      <div className="w-3 h-3 rounded-full bg-[#FF5F57]"></div>
-                      <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-                      <div className="w-3 h-3 rounded-full bg-[#28C840]"></div>
-                    </div>
-                    <div className="text-xxs font-mono text-gray-500 flex items-center gap-2">
-                      <FileCode size={12} /> custom-logic.php
-                    </div>
-                  </div>
-                  <div className="p-6 bg-[#0F172A] overflow-x-auto">
-                    <pre className="font-mono text-xs md:text-sm leading-relaxed">
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">1</span>
-                        <span className="text-[#C792EA]">add_filter</span>
-                        <span className="text-[#89DDFF]">(</span>
-                        <span className="text-[#C3E88D]">'woocommerce_get_price'</span>
-                        <span className="text-[#89DDFF]">,</span>{' '}
-                        <span className="text-[#C792EA]">function</span>
-                        <span className="text-[#89DDFF]">(</span>
-                        <span className="text-[#FFCB6B]">$price</span>
-                        <span className="text-[#89DDFF]">)</span>{' '}
-                        <span className="text-[#89DDFF]">{'{'}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">2</span>{' '}
-                        <span className="text-gray-500">{'// Connect to External ERP'}</span>
-                      </div>{' '}
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">3</span>{' '}
-                        <span className="text-[#C792EA]">if</span>{' '}
-                        <span className="text-[#89DDFF]">(</span>
-                        <span className="text-[#82AAFF]">App</span>
-                        <span className="text-[#89DDFF]">\</span>
-                        <span className="text-[#FFCB6B]">User</span>
-                        <span className="text-[#89DDFF]">-&gt;</span>
-                        <span className="text-[#82AAFF]">isB2B</span>
-                        <span className="text-[#89DDFF]">())</span>{' '}
-                        <span className="text-[#89DDFF]">{'{'}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">4</span>{' '}
-                        <span className="text-[#FFCB6B]">$discount</span>{' '}
-                        <span className="text-[#89DDFF]">=</span>{' '}
-                        <span className="text-[#82AAFF]">API</span>
-                        <span className="text-[#89DDFF]">::</span>
-                        <span className="text-[#82AAFF]">getDiscountLevel</span>
-                        <span className="text-[#89DDFF]">();</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">5</span>{' '}
-                        <span className="text-[#C792EA]">return</span>{' '}
-                        <span className="text-[#FFCB6B]">$price</span>{' '}
-                        <span className="text-[#89DDFF]">/</span>{' '}
-                        <span className="text-[#FFCB6B]">$discount</span>
-                        <span className="text-[#89DDFF]">;</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">6</span>{' '}
-                        <span className="text-[#89DDFF]">{'}'}</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">7</span>{' '}
-                        <span className="text-[#C792EA]">return</span>{' '}
-                        <span className="text-[#FFCB6B]">$price</span>
-                        <span className="text-[#89DDFF]">;</span>
-                      </div>
-                      <div className="flex">
-                        <span className="text-gray-500 select-none mr-4">8</span>
-                        <span className="text-[#89DDFF]">{'}'});</span>
-                      </div>
-                    </pre>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl border border-gray-100 flex items-center gap-3 animate-float z-20">
-                  <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-secondary">
-                    <Zap size={20} />
-                  </div>
-                  <div>
-                    <div className="text-xxs font-bold text-gray-500 uppercase tracking-wider">
-                      Performance
-                    </div>
-                    <div className="text-sm font-black text-dark">0.02s Query Time</div>
-                  </div>
-                </div>
-
-                <div className="absolute top-1/2 -right-8 bg-dark text-white p-3 rounded-lg shadow-lg flex items-center gap-2 transform rotate-90 origin-bottom-right z-10">
-                  <Plug size={14} />
-                  <span className="text-xs font-bold uppercase tracking-widest">Connected</span>
-                </div>
-              </div>
-            </AnimateOnScroll>
-          </LazyHydrate>
-        </div>
-      </div>
-    </SectionWrapper>
+      </Container>
+    </section>
   );
 };
 

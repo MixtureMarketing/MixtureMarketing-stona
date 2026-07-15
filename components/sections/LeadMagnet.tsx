@@ -1,34 +1,44 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, CheckCircle2, ShieldAlert, Zap, BarChart3 } from 'lucide-react';
-import AnimateOnScroll from '../common/AnimateOnScroll';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Button from '../common/Button';
 import HeroBadge from '../common/HeroBadge';
+import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { LEAD_MAGNET_CONTENT as CONTENT } from '../../data/content';
 import { AuditVisual } from '../visuals/LeadMagnetVisuals';
 
+/**
+ * Immersyjny scroll (--p): ciemna karta oferty „dojeżdża" ze skalą 0.96→1,
+ * a wnętrze ma głębię — tekst schodzi z dołu, wizual audytu z góry (paralaksa
+ * przeciwbieżna). Scroll-linked, dwukierunkowy; spoczynek = var(--p, 1).
+ */
 const LeadMagnet: React.FC = () => {
   const navigate = useNavigate();
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
 
   return (
-    <section className="py-24 relative overflow-hidden bg-dark">
-      {/* Background Decorations — animate-blob dla spojnosci z grupa A */}
+    <section ref={sectionRef} className="relative overflow-hidden bg-dark py-24">
+      {/* Tło premium — tanie radialne gradienty (bez blur-filtra) + subtelna siatka */}
       <div
-        className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full blur-[120px] opacity-20 -translate-y-1/2 translate-x-1/2 motion-safe:animate-blob"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(40% 50% at 100% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 60%),' +
+            'radial-gradient(40% 50% at 0% 100%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 65%)',
+        }}
         aria-hidden="true"
       />
-      <div
-        className="absolute bottom-0 left-0 w-96 h-96 bg-secondary rounded-full blur-[120px] opacity-20 translate-y-1/2 -translate-x-1/2 motion-safe:animate-blob"
-        style={{ animationDelay: '2s' }}
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
+      <div className="bg-tech-grid absolute inset-0 opacity-10"></div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] p-8 md:p-16 overflow-hidden relative group">
+        {/* Solidna tinta zamiast backdrop-blur: pod kartą nic nie przepływa,
+            więc blur był czystą dekoracją (i kosztem kompozycji) */}
+        <div
+          className="bg-white/[0.06] border border-white/10 rounded-[3rem] p-8 md:p-16 overflow-hidden relative group"
+          style={{ transform: 'scale(calc(0.96 + 0.04 * var(--p, 1)))' }}
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <AnimateOnScroll>
+            <div style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 36px), 0)' }}>
               <HeroBadge accent="primary" className="mb-6">
                 {CONTENT.badge}
               </HeroBadge>
@@ -60,11 +70,14 @@ const LeadMagnet: React.FC = () => {
               >
                 {CONTENT.button}
               </Button>
-            </AnimateOnScroll>
+            </div>
 
-            <AnimateOnScroll delay={300} className="relative hidden lg:block">
+            <div
+              className="relative hidden lg:block"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * -32px), 0)' }}
+            >
               <AuditVisual />
-            </AnimateOnScroll>
+            </div>
           </div>
         </div>
       </div>

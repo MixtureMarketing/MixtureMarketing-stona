@@ -82,6 +82,8 @@ const StickyMobileBar: React.FC<StickyMobileBarProps> = ({
       <div className="md:hidden h-20" aria-hidden="true" />
       <div
         aria-hidden={!showBar}
+        // inert: ukryty bar nie może łapać fokusa (axe: aria-hidden-focus)
+        inert={!showBar}
         className={`md:hidden fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)] transition-transform duration-300 ${
           showBar ? 'translate-y-0' : 'translate-y-full'
         }`}

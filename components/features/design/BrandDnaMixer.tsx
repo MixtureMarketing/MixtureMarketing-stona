@@ -3,6 +3,14 @@ import { BookOpen, Monitor, Clock, Zap, Move, Box } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import SectionWrapper from '../../common/SectionWrapper';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
+// Fonty pokazowe miksera DNA — tylko ten komponent ich używa, więc ładują się
+// z tym lazy chunkiem (wcześniej globalnie w index.tsx = koszt na każdej stronie).
+import '@fontsource/montserrat/latin-900.css';
+import '@fontsource/montserrat/latin-ext-900.css';
+import '@fontsource/playfair-display/latin-400.css';
+import '@fontsource/playfair-display/latin-ext-400.css';
+import '@fontsource/playfair-display/latin-700.css';
+import '@fontsource/playfair-display/latin-ext-700.css';
 
 const BrandDnaMixer: React.FC = () => {
   const [dna, setDna] = useState({ style: 50, energy: 50, weight: 50 });

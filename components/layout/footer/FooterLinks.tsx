@@ -19,9 +19,10 @@ const FooterLinks: React.FC<FooterLinksProps> = ({
 }) => {
   return (
     <div className="lg:col-span-2">
-      <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-8 flex items-center gap-2">
+      {/* <p>, nie <h3> — etykiety kolumn stopki nie należą do outline'u treści */}
+      <p className="text-sm font-black uppercase tracking-[0.2em] text-white mb-8 flex items-center gap-2">
         {showSparkles && <Sparkles size={14} className="text-primary" />} {title}
-      </h3>
+      </p>
       <ul className="space-y-4 text-gray-300 text-sm font-medium">
         {links.map((link, i) => (
           <li key={i}>

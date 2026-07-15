@@ -77,8 +77,6 @@ const Ecommerce: React.FC = () => {
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
-        accentGradientFrom="#00C853"
-        accentGradientTo="#3F3D91"
         visual={<EcommerceHeroVisual />}
       />
 

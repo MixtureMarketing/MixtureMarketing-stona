@@ -139,9 +139,9 @@ const Footer: React.FC = () => {
           />
 
           <div className="lg:col-span-3">
-            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white mb-8">
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-white mb-8">
               {CONTENT.columns.community.title}
-            </h3>
+            </p>
             <FooterSocials />
             <FooterTrustBox
               badge={CONTENT.trustBox.badge}

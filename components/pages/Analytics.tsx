@@ -79,8 +79,6 @@ const Analytics: React.FC = () => {
           ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'analytics' })}
           backLinkPath="/marketing/"
           backLinkLabel="Wróć do Marketingu"
-          accentGradientFrom="primary"
-          accentGradientTo="secondary"
           visual={<AnalyticsHeroVisual />}
         />
       </div>

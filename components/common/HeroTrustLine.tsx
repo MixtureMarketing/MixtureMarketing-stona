@@ -11,12 +11,16 @@ interface HeroTrustLineProps {
   /** Krotki tekst pod imieniem (np. "odpowiada osobiscie w 24h") */
   promise?: string;
   className?: string;
+  /** Rejestr tła hero. `dark` → tekst w bieli (text-dark na granacie byłby niewidoczny). */
+  tone?: 'light' | 'dark';
 }
 
 const HeroTrustLine: React.FC<HeroTrustLineProps> = ({
   promise = 'Odpowiadam osobiście w 24h',
   className = '',
+  tone = 'light',
 }) => {
+  const dark = tone === 'dark';
   return (
     <div className={`inline-flex items-center gap-3 ${className}`}>
       <div className="shrink-0 w-10 h-10 rounded-full overflow-hidden ring-2 ring-white shadow-sm">
@@ -35,9 +39,12 @@ const HeroTrustLine: React.FC<HeroTrustLineProps> = ({
         </picture>
       </div>
       <div className="text-xs leading-tight">
-        <p className="font-bold text-dark flex items-center gap-1.5">
+        <p className={`flex items-center gap-1.5 font-bold ${dark ? 'text-white' : 'text-dark'}`}>
           Jakub Niedziela
+          {/* role="img" — aria-label na gołym <span> (rola generic) jest zakazany
+              przez ARIA i axe zgłasza to jako serious (aria-prohibited-attr). */}
           <span
+            role="img"
             className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-emerald-500 text-white"
             aria-label="Zweryfikowany założyciel"
             title="Zweryfikowany założyciel"
@@ -45,7 +52,7 @@ const HeroTrustLine: React.FC<HeroTrustLineProps> = ({
             <Check size={9} strokeWidth={3} aria-hidden="true" />
           </span>
         </p>
-        <p className="text-gray-600">{promise}</p>
+        <p className={dark ? 'text-white/65' : 'text-gray-600'}>{promise}</p>
       </div>
     </div>
   );

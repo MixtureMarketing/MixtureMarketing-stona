@@ -128,8 +128,6 @@ const LandingPage: React.FC = () => {
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
-        accentGradientFrom="#61B6DE"
-        accentGradientTo="#E1306C"
         visual={<LandingPageHeroVisual />}
       />
 

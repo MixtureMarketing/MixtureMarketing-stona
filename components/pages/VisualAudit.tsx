@@ -56,8 +56,6 @@ const VisualAudit: React.FC = () => {
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'visual_audit' })}
           backLinkPath="/design/"
           backLinkLabel="Design"
-          accentGradientFrom="#E1306C"
-          accentGradientTo="#833AB4"
           visual={<VisualAuditHeroVisual />}
         />
       </div>

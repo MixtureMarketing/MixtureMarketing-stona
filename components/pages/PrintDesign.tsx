@@ -61,8 +61,6 @@ const PrintDesign: React.FC = () => {
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'print' })}
           backLinkPath="/design/"
           backLinkLabel="Wróć do Designu"
-          accentGradientFrom="#F4B400"
-          accentGradientTo="#FFD700"
           visual={<PrintHeroVisual />}
         />
       </div>

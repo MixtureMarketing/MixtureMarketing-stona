@@ -90,14 +90,14 @@ export const LEAD_MAGNET_CONTENT = {
   ],
   button: 'Zamów Darmowy Audyt',
   visual: {
-    label: 'System Scan v2.0',
+    label: 'Audyt 360°',
     error: {
-      title: 'Wykryto krytyczny błąd',
-      desc: 'Czas ładowania strony powyżej 4s (Strata ~25% konwersji).',
+      title: 'Wykryte ryzyka',
+      desc: 'Wolne ładowanie, luki w śledzeniu konwersji i słaby UX na mobile.',
     },
     growth: {
       title: 'Potencjał wzrostu',
-      desc: 'Optymalizacja Core Web Vitals może zwiększyć ROAS o 15%.',
+      desc: 'Konkretny plan poprawek, które realnie zwiększają liczbę zapytań.',
     },
   },
 };

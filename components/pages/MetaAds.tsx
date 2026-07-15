@@ -90,8 +90,6 @@ const MetaAds: React.FC = () => {
           }
           backLinkPath="/marketing/"
           backLinkLabel="Marketing"
-          accentGradientFrom="#833AB4"
-          accentGradientTo="#E1306C"
           visual={<MetaAdsHeroVisual />}
         />
       </div>

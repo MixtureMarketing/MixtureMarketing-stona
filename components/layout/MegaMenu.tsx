@@ -155,13 +155,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
                   className="block mb-8 group/head focus:outline-none focus:ring-2 focus:ring-primary rounded-lg p-1"
                   aria-label={`Zobacz kategorię: ${section.category}`}
                 >
-                  <h3 className="text-dark font-black text-xl mb-2 group-hover/head:text-accent-dark transition-colors flex items-center gap-2">
+                  {/* <p>, nie <h3> — nagłówki w nav zaśmiecały outline dokumentu przed H1 */}
+                  <p className="text-dark font-black text-xl mb-2 group-hover/head:text-accent-dark transition-colors flex items-center gap-2">
                     {section.category}
                     <ArrowRight
                       size={18}
                       className="opacity-0 -translate-x-2 group-hover/head:opacity-100 group-hover/head:translate-x-0 transition-all text-accent-dark"
                     />
-                  </h3>
+                  </p>
                   <p className="text-xs text-gray-700 font-bold uppercase tracking-widest leading-relaxed">
                     {section.description}
                   </p>
@@ -222,10 +223,10 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-100 text-secondary text-xxs font-black uppercase tracking-wider mb-8 shadow-sm">
                 <Calendar size={12} fill="currentColor" aria-hidden="true" /> {CONTENT.offer.badge}
               </div>
-              <h3 className="font-black text-dark text-2xl mb-4 leading-tight">
+              <p className="font-black text-dark text-2xl mb-4 leading-tight">
                 {CONTENT.offer.title} <br />
                 <span className="text-accent-dark">{CONTENT.offer.accent}</span>
-              </h3>
+              </p>
               <p className="text-sm text-gray-700 leading-relaxed mb-8 font-medium">
                 {CONTENT.offer.desc}
               </p>

@@ -2,7 +2,9 @@
 
 @theme {
   --color-primary: #61b6de;
-  --color-accent-dark: #3a8fb7;
+  /* accent-dark = akcent AA na jasnym tle. #3a8fb7 dawał 3.62:1 na bieli
+     (axe: fail dla tekstu <18px); #2d739a trzyma hue i daje ~5.2:1. */
+  --color-accent-dark: #2d739a;
   --color-secondary: #3f3d91;
   --color-dark: #213261;
   --color-success: #00c853;
@@ -55,6 +57,7 @@
   --animate-spin-slow-corp: spin-corp 40s linear infinite;
   --animate-spin-slow-design: spin-design 30s linear infinite;
   --animate-scan-line: scan-line 3s linear infinite;
+  --animate-audit-scan: auditScan 2.8s ease-in-out infinite;
   --animate-energy-flow: energy-flow 3s linear infinite;
   --animate-energy-flow-reverse: energy-flow-reverse 3s linear infinite;
   --animate-circuit-h: circuit-flow-h 4s linear infinite;
@@ -176,6 +179,23 @@
     }
     100% {
       background-position: 0% 50%;
+    }
+  }
+
+  @keyframes auditScan {
+    0% {
+      transform: translateY(-12px);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    88% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(210px);
+      opacity: 0;
     }
   }
 
@@ -476,6 +496,11 @@
     mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
     -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   }
+
+  .mask-fade-y {
+    mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+  }
 }
 
 /* Custom Scrollbar */
@@ -519,4 +544,33 @@
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(33, 50, 97, 0.2);
+}
+
+/* UWAGA (2026-07-15): content-visibility:auto na sekcjach pod foldem zostało
+   wypróbowane i wycofane. Pomiar headless był nieprzesądzający (szum środowiska),
+   ale mechanizm jest ryzykowny dla tej strony: c-v przenosi koszt layout+paint
+   w moment wejścia sekcji w viewport, czyli dokładnie w trakcie choreografii
+   scrollowej. Re-ewaluacja tylko z pomiarem na realnym sprzęcie (Lighthouse). */
+
+/* Scroll-takeover hero → „Kompetencje" (desktop z sensowną wysokością, tylko
+   motion-safe): hero przypięty na 100vh wewnątrz runwaya 200vh, arkusz sekcji
+   najeżdża po nim (offset -100vh), a silnik Mixture rozpycha kropki przed jego
+   krawędzią (setFront). Mobile / reduced-motion / niskie okna: klasy są bierne
+   i strona scrolluje klasycznie. */
+/* Próg 760px wysokości: poniżej treść hero + marquee (~730px) nie mieści się
+   w 100vh i overflow-hidden przypięcia ucinałby pas realizacji. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) and (min-height: 760px) {
+  .hero-runway {
+    height: 200vh;
+  }
+  .hero-pin {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .hero-takeover-offset {
+    margin-top: -100vh;
+  }
 }
