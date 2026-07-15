@@ -83,3 +83,11 @@ Jedna sesja = jeden spójny zakres (podfazy f1a/f1b/f1c to osobne sesje). Start 
 `/faza`, koniec przez `/zamknij-faze` albo jawne zawieszenie z notatką stanu w raporcie
 roboczym. Nie doklejaj zakresu „przy okazji" — nowe pomysły trafiają do sekcji „Ryzyka
 i długi / propozycje" raportu, decyduje o nich Jakub z architektem.
+
+**Przed KAŻDYM commitem fazowym: `git branch`.** Commit fazowy nigdy nie idzie bezpośrednio
+na `main` — `main` przyjmuje wyłącznie **merge po akceptacji raportu**. Sprawdzenie gałęzi jest
+elementem rytuału commita, tak samo jak zielona bramka; „byłem na gałęzi przed chwilą" nie jest
+dowodem. Precedens (f1-retro-fixes): po merge poprzedniej rundy sesja została na `main`, kolejny
+commit fazowy poszedł prosto na `main` i został wypchnięty — treść była zaakceptowana, ale
+**zniknął punkt kontrolny**: bez merge commita nie było momentu, w którym Jakub mógł powiedzieć
+„nie". Skutek techniczny zerowy, skutek procesowy realny.
