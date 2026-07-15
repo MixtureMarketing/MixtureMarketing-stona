@@ -89,8 +89,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         P(
           `INSERT INTO est_quote_aspects
              (quote_id, aspect_code, aspect_name, category, suggested_level, chosen_level,
-              hours_min, hours_max, override_hours_min, override_hours_max, override_reason, rule_reasons_json)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              hours_min, hours_max, override_hours_min, override_hours_max, override_reason,
+              rule_reasons_json, level_name, level_description)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         ).bind(
           body.id,
           a.code,
@@ -104,6 +105,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           oh?.max ?? null,
           ov.levelReasons[a.code] ?? null,
           JSON.stringify(a.reasons ?? []),
+          a.levelName ?? null, // f2a: treść zakresu zamrożona razem z liczbami (0005)
+          a.levelDescription ?? null,
         ),
       );
     }
@@ -145,12 +148,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       P(
         `UPDATE est_quotes
            SET status = 'review', totals_json = ?, confidence = ?, confidence_breakdown_json = ?,
-               engine_version = ?, updated_at = datetime('now')
+               warnings_json = ?, engine_version = ?, updated_at = datetime('now')
          WHERE id = ?`,
       ).bind(
         JSON.stringify(c.totals),
         c.confidence.score,
         JSON.stringify(c.confidence.breakdown),
+        JSON.stringify(c.warnings), // f2a: alerty (archetype_warning, brak macierzy) do Karty decyzji
         ENGINE_VERSION,
         body.id,
       ),
@@ -204,7 +208,7 @@ async function loadRawLibrary(DB: D1Database): Promise<RawLibrary> {
     params,
   ] = await Promise.all([
     all(`SELECT code, name, category, description FROM est_aspects WHERE is_active = 1`),
-    all(`SELECT a.code AS aspect_code, l.level, l.hours_min, l.hours_max
+    all(`SELECT a.code AS aspect_code, l.level, l.hours_min, l.hours_max, l.name, l.description
          FROM est_levels l JOIN est_aspects a ON a.id = l.aspect_id`),
     all(`SELECT code, name, description, integration_mode FROM est_archetypes WHERE is_active = 1`),
     all(`SELECT ar.code AS archetype_code, asp.code AS aspect_code, d.default_level, d.is_locked

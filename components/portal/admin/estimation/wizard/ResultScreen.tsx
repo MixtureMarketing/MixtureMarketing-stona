@@ -1,11 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, FileText, FileCode } from 'lucide-react';
+import { buildOffer, buildDecisionCard, type QuoteSnapshot } from '@/lib/estimation/documents';
 import { categoryName } from './categoryLabels';
 
 // Ekran wyniku (f1c #5/#6): czyta SNAPSHOT z D1 (read-back po finalize), nie stan lokalny.
 // Wersja do odczytania klientowi na spotkaniu: widełki ofertowe + pełne + Confidence + decyzje.
+// f2a: stąd generujemy oba dokumenty — też WYŁĄCZNIE ze snapshotu (nigdy z live biblioteki).
 
 const pln = (n: number) => `${Math.round(n).toLocaleString('pl-PL')} zł`;
+
+/** Statusy, w których dokumenty mają sens (po finalize). Draft nie ma snapshotu. */
+const DOCS_STATUSES = ['review', 'sent', 'won', 'lost', 'closed'];
+
+function download(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 interface SnapshotAspect {
   aspect_code: string;
@@ -57,6 +71,8 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
 }) => {
   const [data, setData] = useState<ReadBack | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [docError, setDocError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,6 +101,59 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
   // Decyzje techniczne: obszary z godzinami > 0, z uzasadnieniami (Karta decyzji, wersja skrócona).
   const decisions = snapshot.aspects.filter((a) => a.hours_max > 0);
 
+  // f2a: dokumenty budowane ze snapshotu (ten sam obiekt, który wyświetlamy) — nigdy z live.
+  const snap = { quote, ...snapshot } as unknown as QuoteSnapshot;
+  const docsReady = DOCS_STATUSES.includes(quote.status);
+
+  const run = async (label: string, fn: () => Promise<void>) => {
+    setBusy(label);
+    setDocError(null);
+    try {
+      await fn();
+    } catch (e) {
+      setDocError(e instanceof Error ? e.message : 'Nie udało się wygenerować dokumentu');
+    } finally {
+      setBusy(null);
+    }
+  };
+  const onOffer = () =>
+    run('offer', async () => {
+      const { generateOfferPdf } = await import('../pdf/offerPdf');
+      download(await generateOfferPdf(buildOffer(snap)), `oferta-${snap.quote.id}.pdf`);
+    });
+  const onCardPdf = () =>
+    run('card', async () => {
+      const { generateDecisionCardPdf } = await import('../pdf/decisionCardDoc');
+      download(
+        await generateDecisionCardPdf(buildDecisionCard(snap)),
+        `karta-decyzji-${snap.quote.id}.pdf`,
+      );
+    });
+  const onCardMd = () =>
+    run('md', async () => {
+      const { decisionCardMarkdown } = await import('../pdf/decisionCardDoc');
+      const md = decisionCardMarkdown(buildDecisionCard(snap));
+      download(new Blob([md], { type: 'text/markdown' }), `karta-decyzji-${snap.quote.id}.md`);
+    });
+
+  const btn = (label: string, key: string, onClick: () => void, primary = false) => (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!docsReady || busy !== null}
+      className={`px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 ${
+        !docsReady || busy !== null
+          ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+          : primary
+            ? 'bg-dark text-white'
+            : 'bg-white border border-slate-300 text-dark'
+      }`}
+    >
+      {key === 'md' ? <FileCode size={16} /> : <FileText size={16} />}
+      {busy === key ? 'Generuję…' : label}
+    </button>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
@@ -92,6 +161,18 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
         <h3 className="font-black text-dark text-lg">Wycena sfinalizowana</h3>
         <span className="text-xs uppercase text-gray-400">status: {quote.status}</span>
       </div>
+
+      {/* f2a: dokumenty ze snapshotu. Oferta = dla klienta (bez godzin/Confidence),
+          Karta decyzji = wewnętrzna (PDF jako załącznik, MD jako brief wykonawczy). */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {btn('Pobierz ofertę PDF', 'offer', onOffer, true)}
+        {btn('Karta decyzji (PDF)', 'card', onCardPdf)}
+        {btn('Karta decyzji (MD)', 'md', onCardMd)}
+        {!docsReady && (
+          <span className="text-xs text-gray-500">dokumenty dostępne po finalize</span>
+        )}
+      </div>
+      {docError && <p className="text-sm text-red-600">{docError}</p>}
 
       {t && (
         <div className="grid sm:grid-cols-2 gap-4">

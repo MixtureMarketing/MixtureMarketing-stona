@@ -5,17 +5,24 @@ type Ctx = Parameters<typeof onRequestGet>[0];
 function mockEnv(opts: {
   quote?: unknown;
   answers?: { question_code: string; answer_json: string }[];
+  params?: { key: string; value: string }[];
   throwErr?: string;
 }) {
+  // f2a: parametry oferty (offer_validity_days / offer_terms) czytane bez .bind(),
+  // więc mock musi wspierać .all() zarówno po prepare(), jak i po bind().
+  const rows = (sql: string) =>
+    sql.includes('est_params') ? (opts.params ?? []) : (opts.answers ?? []);
   const DB = {
-    prepare: (_sql: string) => ({
+    prepare: (sql: string) => ({
       bind: () => ({
         first: async () => {
           if (opts.throwErr) throw new Error(opts.throwErr);
           return opts.quote ?? null;
         },
-        all: async () => ({ results: opts.answers ?? [] }),
+        all: async () => ({ results: rows(sql) }),
       }),
+      all: async () => ({ results: rows(sql) }),
+      first: async () => null,
     }),
   };
   return { DB };
@@ -63,6 +70,15 @@ describe('GET /api/admin/estimation/quote', () => {
     // Mock routujący .all() po tabeli; quote z totals_json (string) → snapshot.totals sparsowane.
     const routeDB = {
       prepare: (sql: string) => ({
+        all: async () =>
+          sql.includes('est_params')
+            ? {
+                results: [
+                  { key: 'offer_validity_days', value: '30' },
+                  { key: 'offer_terms', value: 'Ceny netto.|SLA 6 msc w cenie.' },
+                ],
+              }
+            : { results: [] },
         bind: () => ({
           first: async () => ({
             id: 7,
@@ -91,6 +107,8 @@ describe('GET /api/admin/estimation/quote', () => {
         multipliers: unknown[];
         totals: { offer: { min: number; max: number } };
         confidenceBreakdown: unknown[];
+        validityDays: number;
+        terms: string[];
       };
     };
     expect(body.snapshot.aspects).toHaveLength(1);
@@ -98,5 +116,8 @@ describe('GET /api/admin/estimation/quote', () => {
     expect(body.snapshot.multipliers).toHaveLength(1);
     expect(body.snapshot.totals.offer).toEqual({ min: 5000, max: 9000 });
     expect(body.snapshot.confidenceBreakdown).toHaveLength(1);
+    // f2a: parametry dokumentów z est_params (termin ważności + warunki „co w cenie")
+    expect(body.snapshot.validityDays).toBe(30);
+    expect(body.snapshot.terms).toEqual(['Ceny netto.', 'SLA 6 msc w cenie.']);
   });
 });
