@@ -166,7 +166,7 @@ export const WEB_DEV_CONTENT = {
     },
     {
       q: 'Jaki stos technologiczny (Tech Stack) stosujecie?',
-      a: 'Wybieramy technologię pod cel biznesowy. Dla szybkich stron wizerunkowych: Next.js i React. Dla e-commerce: zoptymalizowany WooCommerce lub Headless Shopify. Dla aplikacji: Laravel i Node.js. Nie używamy gotowych, ociężałych szablonów.',
+      a: 'Wybieramy technologię pod cel biznesowy. Dla szybkich stron wizerunkowych: Next.js i React. Dla e-commerce: zoptymalizowany WooCommerce lub PrestaShop, a przy nietypowych wymaganiach Medusa.js albo Sylius. Dla aplikacji: Laravel i Node.js. Nie używamy gotowych, ociężałych szablonów.',
     },
     {
       q: 'Czy po wdrożeniu będę mógł sam edytować stronę?',

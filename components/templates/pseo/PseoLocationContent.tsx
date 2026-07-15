@@ -595,7 +595,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               {
                 title: 'E-commerce',
                 icon: <ShoppingBag size={24} />,
-                desc: 'Sklepy internetowe (WooCommerce, Shopify, dedykowane) — integracje z kurierami, płatnościami, hurtowniami. Pozycjonowanie i Google Ads dla e-commerce.',
+                desc: 'Sklepy internetowe (WooCommerce, PrestaShop, dedykowane) — integracje z kurierami, płatnościami, hurtowniami. Pozycjonowanie i Google Ads dla e-commerce.',
               },
               {
                 title: 'Lotnictwo i Aviation Valley',
