@@ -45,7 +45,9 @@ import { BY_ID, DOT, DOT_LIT, FIELD, GROUPS, RULES } from './stackChoiceData';
  * BEZ PINU, i to jest rozstrzygnięcie liczbami, nie gustem. Pin (`.hero-pin`) wymaga
  * `overflow:hidden`, które UNIEWAŻNIŁOBY `sticky` samej półki; doliczyłby 2100–3900 px
  * scrolla niosącego zero informacji (3–5× koszt całego hero); i skasowałby porównanie
- * między regułami — dziś widać 3–4 naraz, a ich sens jest w zestawieniu. Hero zasługuje
+ * między regułami — przy 1440x900 widać dwie w całości i trzecią wchodzącą pod półkę
+ * (zmierzone; wcześniej stało tu „3–4" i było to zawyżone), a ich sens jest w zestawieniu:
+ * pin pokazałby dokładnie JEDNĄ. Hero zasługuje
  * na takeover, bo to moment wejścia i jedna myśl. Tu użytkownik jest w środku strony
  * i OCENIA — odebrany scroll to dokładnie ta ściema, którą persona rozpoznaje.
  *
