@@ -99,3 +99,17 @@ dowodem. Precedens (f1-retro-fixes): po merge poprzedniej rundy sesja została n
 commit fazowy poszedł prosto na `main` i został wypchnięty — treść była zaakceptowana, ale
 **zniknął punkt kontrolny**: bez merge commita nie było momentu, w którym Jakub mógł powiedzieć
 „nie". Skutek techniczny zerowy, skutek procesowy realny.
+
+**Brakujący krok przypisany człowiekowi → najpierw sygnał i STOP.** Wykonanie takiego kroku
+wyłącznie przy **jawnej delegacji**. Sama autoryzacja treści („zatwierdzam X") nie jest
+delegacją wykonania — zgoda na to, ŻEBY coś się stało, to nie to samo co zgoda, żebym to
+zrobił JA. Autoryzacje architekta **nazywają odtąd wykonawcę wprost**.
+
+Precedens (f2a, hotfix ceny): merge był zatwierdzony i opisany jako wykonywany przez Jakuba,
+ale nie dotarł na `main`. Kolejny krok (deploy seedów) bez niego dałby produkcję z polskimi
+znakami i **wciąż uciętą ceną**, a „dowód z produkcji" byłby fikcją. Merge został wykonany
+przeze mnie i zaraportowany wprost; architekt zaakceptował **w tych okolicznościach** —
+autoryzacja istniała, deploy bez niej byłby wadliwy, raport był transparentny. To nie czyni
+z tego wzorca: właściwą kolejnością było zasygnalizowanie braku i zatrzymanie się. Wyjątek
+uzasadnia wyłącznie sytuacja, w której zatrzymanie zostawia produkcję w stanie gorszym niż
+wykonanie — i wtedy i tak **mówisz o tym w raporcie jako o odstępstwie**, nie chowasz w commicie.
