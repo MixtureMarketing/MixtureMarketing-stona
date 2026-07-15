@@ -342,21 +342,37 @@ const WebDevStackChoice: React.FC = () => {
               Numerów NIE drukujemy: „01/02/03" nad każdą pozycją to scaffolding z listy
               zakazów. Kolejność niesie znaczenie w DOM, nie w ozdobniku.
 
-              LEJEK od xl: 1472 (półka) -> 1040 (<ol>) -> 576 (zdanie) -> 384 (odpowiedź).
-              `mx-auto` na 1040 zamienia 448 px pustki po jednej stronie na 216 px z obu —
-              rama zamiast dziury. Prawa kolumna zjeżdża o 56 px (xl:mt-14), bo dwie równe
-              kolumny czytają się jak tabela; przesunięcie robi z tego przekątną i prowadzi
-              oko z pytania do odpowiedzi. */}
-          <ol
-            ref={listRef}
-            className="space-y-14 md:space-y-20 xl:mx-auto xl:mt-16 xl:max-w-[65rem] xl:space-y-20"
-          >
+              SZEROKOŚĆ = SZEROKOŚĆ STRONY, i to jest korekta po uwadze właściciela
+              („cała strona jest elegancko wyrównana, a ta część ma znacznie mniejszą
+              szerokość"). Miał rację i to sprawdzalne: WebDevEcosystem i WebDevProjectTypes
+              trzymają ten sam wzór — wąski nagłówek po lewej, treść na CAŁĄ szerokość
+              kontenera. Moja poprzednia wersja centrowała reguły w lejku 1040 px, więc
+              likwidując dziurę po prawej zrobiła z sekcji obcy element na stronie.
+              Wyśrodkowanie było naprawą jednego defektu drugim.
+
+              Teraz reguła rozpina się między krawędziami kontenera: `justify-between`
+              wypycha odpowiedź na prawy margines, a sytuacja siedzi na lewym — czyli
+              dokładnie tam, gdzie h2 i lewa krawędź półki. Prześwit między nimi nie jest
+              dziurą, tylko światłem rejestru: pytanie przy lewej krawędzi, odpowiedź przy
+              prawej, jak w spisie decyzji bez linii. Jest ograniczony (kontener ma sufit
+              1536 px), więc nie rośnie w nieskończoność na szerokich ekranach. */}
+          <ol ref={listRef} className="space-y-14 md:space-y-20 xl:mt-16 xl:space-y-20">
             {RULES.map((r, i) => {
               const isOn = active === null || active === i;
               return (
+                /* `items-baseline` zamiast przesunięcia o stałe px — i to jest naprawa
+                   drugiej uwagi właściciela: „czasami tekst jest pod nagłówkiem, a czasami
+                   wysunięty w pionie w stosunku do niego". Miał rację, a przyczyna była
+                   arytmetyczna: przesunięcie o stałe 40 px wygląda RÓŻNIE zależnie od tego,
+                   czy sytuacja ma jedną linijkę czy dwie — przy dwóch odpowiedź trafiała
+                   w drugą linię, przy jednej wisiała pod spodem. Relacja czytała się jako
+                   losowa, bo była losowa: zależała od długości copy.
+                   Baseline wiąże PIERWSZĄ LINIĘ odpowiedzi z PIERWSZĄ LINIĄ pytania —
+                   niezależnie od liczby linijek, stopnia pisma i interlinii. To jedyna
+                   relacja, która trzyma dla wszystkich siedmiu reguł naraz. */
                 <li
                   key={r.situation}
-                  className="max-w-xl xl:grid xl:max-w-none xl:grid-cols-[36rem_24rem] xl:gap-x-20"
+                  className="max-w-xl xl:grid xl:max-w-none xl:grid-cols-[36rem_24rem] xl:items-baseline xl:justify-between xl:gap-x-20"
                 >
                   <p
                     // #8b95a5 = 3.03:1 — wystarcza, bo to DUŻY tekst (>=18px bold,
@@ -367,7 +383,7 @@ const WebDevStackChoice: React.FC = () => {
                   >
                     {r.situation}
                   </p>
-                  <div className="mt-3 xl:mt-10">
+                  <div className="mt-3 xl:mt-0">
                     {/* Odpowiedź NAZYWA technologie tekstem — półka jest wzmocnieniem,
                         nie jedynym nośnikiem znaczenia (a11y + SEO). */}
                     <p className="text-lg leading-relaxed text-gray-700">{r.answer}</p>
