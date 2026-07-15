@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Calculator, CreditCard, Database, PlugZap, LucideIcon } from 'lucide-react';
 import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
@@ -9,41 +9,66 @@ import { SanityImage } from '../../../types/sanity';
 import { WEB_DEV_CONTENT } from '../../../data/content';
 
 /**
- * Sekcja „custom w znajomym WordPressie".
+ * Sekcja „custom w znajomym WordPressie" — teza: klient pracuje w znanym panelu,
+ * dedykowana jest aplikacja pod spodem. Dowód: trzy realne rozszerzenia z JEDNEGO
+ * wdrożenia (Fundacja Niepodzielni, WordPress na Bedrocku): silnik rezerwacji na
+ * API Bookero, Psychomapa (własny typ treści na mapie) i menu z żywymi terminami.
+ * Każda figura nosi etykietę możliwości, której dowodzi — teza i dowód spotykają
+ * się wizualnie, a nie w dwóch osobnych kolumnach.
  *
- * Redesign: usunięto komplet atrap — ozdobny snippet `custom-logic.php` (kod
- * pisany pod zrzut, nie z projektu), dwa blur-bloby, wymyślone „0.02s Query Time",
- * obrócony badge „Connected" i animate-float. To były dokładnie te „ozdobne snippety
- * kodu" i „floating bloby", które PRODUCT.md wymienia w anty-referencjach z nazwy.
- *
- * W ich miejsce: prawdziwy zrzut silnika rezerwacji Fundacji Niepodzielni
- * (gallery[0] case study) — wspólny kalendarz wielu specjalistów, który zbudowaliśmy
- * na API Bookero, zastępując gotową wtyczkę. Podpis nazywa granicę wprost: silnik
- * jest nasz, Bookero jest cudze. Bez tego rozgraniczenia przypisalibyśmy sobie
- * zewnętrzny system.
- *
- * Ruch (The Motion Has A Job Rule): najpierw siada twierdzenie (lewa kolumna, 24px),
- * dowód ląduje pod nim później (zrzut, 56px) — kolejność „teza, potem dowód" jest
- * zadaniem tego ruchu. Spoczynek = var(--p, 1); prerender/reduced-motion widzą statykę.
+ * Mechanizmy podpisów ZWERYFIKOWANE w kodzie fundacji (2026-07-15): menu czyta
+ * terminy z metadanych synchronizowanych z Bookero, Psychomapa to własny CPT
+ * `osrodki` + endpoint + import CLI. Podpisy nazywają granicę odpowiedzialności
+ * (silnik nasz — Bookero i OpenStreetMap cudze).
  */
 
 const builder = imageUrlBuilder(client);
 
-// Zrzut dowodowy: gallery[0] case study Niepodzielnych = ekran „Znajdź swojego
-// specjalistę". Jeśli wpis lub galeria zniknie z CMS, sekcja degraduje się do
-// samej kolumny tekstowej — bez pustej ramki i bez atrapy w zastępstwie.
-const PROOF_QUERY = `*[_type == "caseStudy" && slug.current == "fundacja-niepodzielni"][0]{"img": gallery[0]}`;
+/**
+ * Zrzuty przypięte po `_ref` (hash treści pliku), nie po indeksie galerii: podpis
+ * nigdy nie trafi pod cudzy obraz. Gdy obraz zniknie z galerii, figura znika bez
+ * pustej ramki — sekcja degraduje się do tekstu, nie do atrapy.
+ */
+const PROOF_QUERY = `*[_type == "caseStudy" && slug.current == "fundacja-niepodzielni"][0]{
+  "engine": gallery[asset._ref == "image-4d93a928a4bb0fdf9e3a7367c8a9a5933096ad59-1900x895-png"][0],
+  "map": gallery[asset._ref == "image-356dac554da5a8e10f0a085680026b6f4625b30c-1914x859-png"][0],
+  "menu": gallery[asset._ref == "image-df8b17f1e17c1a49d522a090ca4d71c164cb3fe7-849x451-png"][0]
+}`;
+
+interface WpProof {
+  engine?: SanityImage | null;
+  map?: SanityImage | null;
+  menu?: SanityImage | null;
+}
+
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  'Kalkulatory Ofertowe': Calculator,
+  'Integracje API': PlugZap,
+  'Custom Post Types': Database,
+  'Bramki Płatności': CreditCard,
+};
+
+/** Etykieta możliwości nad figurą — wiąże dowód z pozycją listy po lewej. */
+const ProofTag: React.FC<{ label: string }> = ({ label }) => {
+  const Icon = FEATURE_ICONS[label] ?? PlugZap;
+  return (
+    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-white/70">
+      <Icon size={16} className="shrink-0 text-primary" aria-hidden="true" />
+      {label}
+    </p>
+  );
+};
 
 const WebDevWpCustom: React.FC = () => {
-  const [proof, setProof] = useState<SanityImage | null>(null);
+  const [proof, setProof] = useState<WpProof | null>(null);
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
 
   useEffect(() => {
     let alive = true;
     import('../../../services/cms/client')
-      .then(({ fetchWithCache }) => fetchWithCache<{ img?: SanityImage } | null>(PROOF_QUERY))
+      .then(({ fetchWithCache }) => fetchWithCache<WpProof | null>(PROOF_QUERY))
       .then((r) => {
-        if (alive) setProof(r?.img ?? null);
+        if (alive) setProof(r ?? null);
       })
       .catch(() => {
         if (alive) setProof(null);
@@ -54,13 +79,8 @@ const WebDevWpCustom: React.FC = () => {
   }, []);
 
   return (
-    // Sekcja pisana wprost, nie przez SectionWrapper: useSectionProgress musi
-    // ustawić --p na elemencie, po którym dziedziczą dzieci, a SectionWrapper
-    // nie forwarduje refa.
     // Sekcja CIEMNA — The Ciemnia Rule: granat istnieje po to, żeby realizacje
-    // świeciły, a ta sekcja niesie prawdziwy zrzut działającego silnika rezerwacji.
-    // Drugi ciemny punkt kotwiczący strony: bez niego całość po Realizacjach to
-    // nieprzerwany jasny ciąg dziewięciu sekcji.
+    // świeciły, a tu świecą trzy realne zrzuty działającego wdrożenia.
     <section
       ref={sectionRef}
       className="relative overflow-hidden bg-deep-dark py-24 md:py-32 lg:py-36"
@@ -75,7 +95,7 @@ const WebDevWpCustom: React.FC = () => {
         aria-hidden="true"
       />
       <Container className="relative z-10">
-        <div className="flex flex-col items-center gap-16 lg:flex-row">
+        <div className="flex flex-col gap-14 lg:flex-row lg:items-center lg:gap-16">
           <div
             className="lg:w-1/2"
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
@@ -84,41 +104,51 @@ const WebDevWpCustom: React.FC = () => {
               {WEB_DEV_CONTENT.wpCustom.title}{' '}
               <span className="text-primary">{WEB_DEV_CONTENT.wpCustom.titleAccent}</span>
             </h2>
-            <p className="mb-8 max-w-xl text-lg leading-relaxed text-white/75">
+            <p className="mb-10 max-w-xl text-lg leading-relaxed text-white/75">
               {WEB_DEV_CONTENT.wpCustom.description}
             </p>
-            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {WEB_DEV_CONTENT.wpCustom.features.map((item) => (
-                <li
-                  key={item.title}
-                  className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-4"
-                >
-                  <CheckCircle2
-                    size={20}
-                    className="mt-0.5 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <h3 className="text-sm font-bold text-white">{item.title}</h3>
-                    <p className="mt-1 text-xs text-white/65">{item.desc}</p>
-                  </div>
-                </li>
-              ))}
+            {/* Możliwości jako cicha lista z ROZRÓŻNIALNYMI ikonami — nie cztery
+                identyczne checkmarki w czterech identycznych pudełkach. */}
+            <ul className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+              {WEB_DEV_CONTENT.wpCustom.features.map((item) => {
+                const Icon = FEATURE_ICONS[item.title] ?? PlugZap;
+                return (
+                  <li key={item.title} className="flex items-start gap-3.5">
+                    <Icon size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+                    <div>
+                      <h3 className="text-sm font-bold text-white">{item.title}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-white/65">{item.desc}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
+          {/* Dowód główny: silnik rezerwacji. Poświata sceniczna pod figurą —
+              tania głębia (gradient, nie filtr), żeby zrzut nie wyglądał na
+              wklejony 1px ramką w morze granatu. */}
           <div
             className="w-full lg:w-1/2"
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
           >
-            {proof && (
-              <figure>
+            {proof?.engine && (
+              <figure className="relative">
+                <div
+                  className="pointer-events-none absolute -inset-8 -z-10"
+                  style={{
+                    background:
+                      'radial-gradient(60% 60% at 50% 45%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 72%)',
+                  }}
+                  aria-hidden="true"
+                />
+                <ProofTag label="Integracje API" />
                 <Link
                   to="/portfolio/fundacja-niepodzielni"
                   className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
                 >
                   <img
-                    src={builder.image(proof).width(1200).fit('max').auto('format').url()}
+                    src={builder.image(proof.engine).width(1200).fit('max').auto('format').url()}
                     alt="Silnik rezerwacji Fundacji Niepodzielni: wspólny kalendarz wielu specjalistów z filtrami i najbliższymi wolnymi terminami"
                     sizes="(min-width: 1024px) 50vw, 100vw"
                     loading="lazy"
@@ -143,6 +173,60 @@ const WebDevWpCustom: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Dowody 2 i 3 — z TEGO SAMEGO wdrożenia, dojeżdżają po tezie. */}
+        {(proof?.map || proof?.menu) && (
+          <div
+            className="mt-16 grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10 lg:mt-20 lg:gap-16"
+            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 88px), 0)' }}
+          >
+            {proof?.map && (
+              <figure>
+                <ProofTag label="Custom Post Types" />
+                <Link
+                  to="/portfolio/fundacja-niepodzielni"
+                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                >
+                  <img
+                    src={builder.image(proof.map).width(900).fit('max').auto('format').url()}
+                    alt="Psychomapa Fundacji Niepodzielni: interaktywna mapa Polski z ośrodkami pomocy psychologicznej pogrupowanymi w regiony"
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full"
+                  />
+                </Link>
+                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                  Psychomapa — ogólnopolski katalog ośrodków pomocy jako własny typ treści w
+                  WordPressie, na otwartej mapie{' '}
+                  <span className="font-semibold text-white">OpenStreetMap</span>.
+                </figcaption>
+              </figure>
+            )}
+            {proof?.menu && (
+              <figure>
+                <ProofTag label="Integracje API" />
+                <Link
+                  to="/portfolio/fundacja-niepodzielni"
+                  className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                >
+                  <img
+                    src={builder.image(proof.menu).width(900).fit('max').auto('format').url()}
+                    alt="Rozwinięte menu strony Fundacji Niepodzielni: rodzaje konsultacji oraz najbliższe wolne terminy psychologów"
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full"
+                  />
+                </Link>
+                <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                  Najbliższe wolne terminy specjalistów prosto w menu strony — dane z systemu
+                  rezerwacji, nie wpisywane ręcznie.
+                </figcaption>
+              </figure>
+            )}
+          </div>
+        )}
       </Container>
     </section>
   );
