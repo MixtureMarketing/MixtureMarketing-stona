@@ -1,402 +1,237 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { History, KeyRound, Layers, Wallet, X, LucideIcon } from 'lucide-react';
 import Container from '../../common/Container';
-import { addScrollTask } from '../../../hooks/useSectionProgress';
-import { BY_ID, DOT, DOT_LIT, FIELD, GROUPS, RULES } from './stackChoiceData';
+import { useSectionProgress } from '../../../hooks/useSectionProgress';
+import { BY_ID, DOT, FIELD, GROUPS, SHOP_LADDER, SITUATIONS, Choice } from './stackChoiceData';
 
 /**
- * Sekcja „Nie mamy jednego młotka." — półka narzędzi i wybór, który po niej przebiega.
+ * Sekcja „Nie mamy jednego młotka." — teza właściciela: pokazujemy, w czym umiemy,
+ * a wybór zależy od projektu (złożoność, budżet, to, z czym klient już pracuje).
  * Treść i decyzje właściciela: `stackChoiceData.ts`.
  *
- * CZWARTE podejście. Trzy poprzednie poległy, bo szukały ŁADNIEJSZEJ FORMY dla treści,
- * która była zła. Właściciel nazwał prawdziwą tezę dopiero 2026-07-15: ta sekcja nigdy
- * nie miała mówić „pracujemy tylko na tym stosie" — miała pokazywać, W CZYM UMIEMY,
- * i że WYBÓR ZALEŻY OD PROJEKTU. To zmienia wszystko:
- *
- * - Stara wersja PRZECZYŁA stronie. Hero i FAQ obiecują „technologię dobieramy do
- *   Twojego celu, nie do naszej wygody"; sekcja pokazywała jeden stały zestaw sześciu
- *   rzeczy. Ta sekcja jest teraz jedynym miejscem, gdzie ta obietnica staje się
- *   sprawdzalna — z konfliktu robi się dowód.
- * - Stara wersja DUPLIKOWAŁA sekcję nad sobą (WebDevProjectTypes wymienia React,
- *   Next.js, Headless WP, Redis, PostgreSQL przy typach projektów). Tamta mówi CO
- *   budujemy, ta mówi JAK WYBIERAMY. Inna robota, brak powtórzenia.
- *
- * RUNDA 2 (2026-07-15) — właściciel: „cała prawa strona jest pusta, cały ciężar wisi po
- * lewej stronie; te zapalania się technologii są bardzo subtelne, ledwo widoczne".
- * Obie uwagi dało się zmierzyć i obie okazały się czymś innym, niż wyglądały:
- *
- * 1. PUSTKA: `max-w-xl` na regule wewnątrz kolumny `1fr` zostawiał 448 px pustki przy
- *    1440 i 693 px przy 1834 (41% okna przy 2560). To nie był margines, tylko dziura —
- *    nawigacja biegła do 1685 px, sekcja kończyła się na 1141 px. Lekarstwem NIE jest
- *    rozciągnięcie tekstu (576 px to poprawna miara czytania; rozciągnięcie zamienia
- *    jeden defekt na drugi), tylko SYMETRIA: reguły wyśrodkowane w lejku 1040 px dają
- *    216 px z każdej strony — ramę zamiast dziury.
- * 2. „LEDWO WIDOCZNE" to była wada KOMPOZYCJI, nie kontrastu. Pole stało w lewej
- *    peryferii, poza torem wzroku — żadna ilość koloru tego nie ratowała. Stąd obrót osi
- *    o 90°: półka jest nad regułami, na całą szerokość, a zapłon przebiega TUŻ NAD
- *    czytanym zdaniem. Ten sam mechanizm, inne miejsce.
- *
- * ZERO 3D. Poprzednia próba (rotateX(7deg) przy perspective:1600px na szerokości 1400px
- * = stosunek 1.14 = rzut praktycznie ortogonalny) nie dawała żadnej głębi. Pomiar sześciu
- * stron produkcyjnych (Neon, Vercel, Stripe, Clerk, Resend, basement.studio) pokazał, że
- * `perspective` jest tam użyte 0–4 razy, a maski 2–194 razy: branża wyszła z 3D. Głębia
- * idzie z kontrastu, nie z geometrii.
- *
- * BEZ PINU, i to jest rozstrzygnięcie liczbami, nie gustem. Pin (`.hero-pin`) wymaga
- * `overflow:hidden`, które UNIEWAŻNIŁOBY `sticky` samej półki; doliczyłby 2100–3900 px
- * scrolla niosącego zero informacji (3–5× koszt całego hero); i skasowałby porównanie
- * między regułami — przy 1440x900 widać dwie w całości i trzecią wchodzącą pod półkę
- * (zmierzone; wcześniej stało tu „3–4" i było to zawyżone), a ich sens jest w zestawieniu:
- * pin pokazałby dokładnie JEDNĄ. Hero zasługuje
- * na takeover, bo to moment wejścia i jedna myśl. Tu użytkownik jest w środku strony
- * i OCENIA — odebrany scroll to dokładnie ta ściema, którą persona rozpoznaje.
- *
- * KONTRAKT SPOCZYNKU: `active === null` → WSZYSTKO zapalone. Prerender (hook milczy przy
- * window.isPrerendering), no-JS i reduced-motion dostają komplet czytelnych nazw. Ruch
- * jest progressive enhancement, nigdy bramką widoczności.
- *
- * A11Y — świadomie: przygaszenie niesie znaczenie kolorem, więc (1) przygaszone nazwy
- * trzymają AA, nie schodzą do dekoracji, (2) KAŻDA reguła wymienia swoje technologie
- * TEKSTEM w `answer`, więc czytnik ekranu i wyszukiwarka dostają tę informację bez półki.
- * Półka jest wzmocnieniem, nie jedynym nośnikiem.
+ * Budowa: tryptyk „jedna potrzeba, trzy odpowiedzi" (dowód tezy) → cztery karty
+ * częstych sytuacji → tabliczka pełnego warsztatu (37 nazw; linki do bazy wiedzy
+ * to realny ruch wewnętrzny). Chipy przy odpowiedziach pokazują wyłącznie
+ * technologie nazwane w zdaniu obok — sekcja nie rysuje niczego, czego nie mówi.
  */
 
-/**
- * Atak szybki, zwolnienie wolne. Asymetria niesie zdanie: wybór LĄDUJE, reszta ODPŁYWA —
- * oko idzie za tym, co przychodzi. Symetryczne 500/500 daje strobo przy szybkim scrollu.
- */
-const IN = '260ms';
-const OUT = '700ms';
+const CRITERIA: { Icon: LucideIcon; label: string }[] = [
+  { Icon: Layers, label: 'Złożoność projektu' },
+  { Icon: Wallet, label: 'Twój budżet' },
+  { Icon: History, label: 'To, z czym już pracujesz' },
+];
 
-/**
- * DOLNA GRANICA linii czytania, nie sama linia: reguła najbliższa tej wysokości jest tą,
- * którą czytasz, ale półka może zepchnąć linię niżej (patrz obliczenie w efekcie).
- *
- * 0.5, nie 0.42 jak w wersji ze szpaltą, bo półka zasłania teraz górę kadru i przy 0.42
- * „aktywna" bywała reguła schowana za nią.
- */
-const READ_LINE = 0.5;
+/** Chip technologii: kropka w kolorze marki + nazwa; z linkiem, gdy jest artykuł. */
+const TechChip: React.FC<{ id: string }> = ({ id }) => {
+  const t = BY_ID.get(id);
+  if (!t) return null;
+  const inner = (
+    <>
+      <span
+        aria-hidden="true"
+        className="size-1.5 shrink-0 rounded-full"
+        style={{ backgroundColor: DOT[id] }}
+      />
+      {t.name}
+    </>
+  );
+  const cls =
+    'inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-3 py-1 text-sm font-bold';
+  return t.href ? (
+    <Link
+      to={t.href}
+      className={`${cls} text-accent-dark transition-colors hover:border-accent-dark`}
+    >
+      {inner}
+    </Link>
+  ) : (
+    <span className={`${cls} text-dark`}>{inner}</span>
+  );
+};
+
+const ChipList: React.FC<{ picks: string[]; className?: string }> = ({ picks, className }) => (
+  <ul className={`flex flex-wrap gap-2 ${className ?? ''}`}>
+    {picks.map((id) => (
+      <li key={id}>
+        <TechChip id={id} />
+      </li>
+    ))}
+  </ul>
+);
+
+/** Karta sytuacji: pytanie klienta → odpowiedź tekstem → te same nazwy jako chipy. */
+const SituationCard: React.FC<{ choice: Choice }> = ({ choice }) => (
+  <article className="flex flex-col rounded-2xl border border-gray-100 bg-light-gray p-7 md:p-8">
+    <h3 className="text-xl font-extrabold tracking-tight text-balance text-dark">
+      {choice.situation}
+    </h3>
+    <p className="mt-3 text-[15px] leading-relaxed text-gray-700">{choice.answer}</p>
+    <ChipList picks={choice.picks} className="mt-auto pt-6" />
+    {choice.aside && (
+      <p className="mt-6 border-t border-gray-200 pt-5 text-[15px] font-bold text-accent-dark">
+        {choice.aside}
+      </p>
+    )}
+  </article>
+);
+
+/** Pozycja tabliczki: nazwa z kropką; linki do bazy wiedzy w kolorze akcji. */
+const PlateName: React.FC<{ id: string }> = ({ id }) => {
+  const t = BY_ID.get(id);
+  if (!t) return null;
+  const inner = (
+    <>
+      <span
+        aria-hidden="true"
+        className="size-1.5 shrink-0 rounded-full"
+        style={{ backgroundColor: DOT[id] }}
+      />
+      {t.name}
+    </>
+  );
+  return t.href ? (
+    <Link
+      to={t.href}
+      className="inline-flex items-center gap-1.5 text-[15px] font-bold text-accent-dark underline-offset-4 hover:underline"
+    >
+      {inner}
+    </Link>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 text-[15px] font-bold text-dark">
+      {inner}
+    </span>
+  );
+};
 
 const WebDevStackChoice: React.FC = () => {
-  const listRef = useRef<HTMLOListElement>(null);
-  const shelfRef = useRef<HTMLDivElement>(null);
-  // null = spoczynek = WSZYSTKO zapalone. Prerender/no-JS/reduced-motion zostają tu.
-  const [active, setActive] = useState<number | null>(null);
-  /**
-   * ŚLAD: technologie, które którakolwiek reguła już wybrała. Rośnie monotonicznie i to
-   * jest zamierzone — to PAMIĘĆ, nie stan. Bez niego każda reguła jest osobnym błyskiem
-   * i przy siódmej nie wiadomo, ile pola zostało pokryte; ze śladem widać, jak zasięg
-   * NARASTA. To dokładnie ta „pamięć między regułami", którą miałby kupić pin — sticky
-   * daje ją za 0 px odebranego scrolla.
-   *
-   * Ślad żyje wyłącznie w kanale KROPKI (wybrane kiedyś = kropka trzyma kolor marki,
-   * nigdy niewybrane = kropka szara i odsunięta). Nie dotyka koloru tekstu, więc nie
-   * miesza się z kontrastem zapłonu ani nie rusza AA.
-   */
-  const [seen, setSeen] = useState<ReadonlySet<string>>(() => new Set());
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.isPrerendering) return;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    const el = listRef.current;
-    if (!el) return;
-
-    // <md półka NIE jest sticky — przy regule 2 jest już poza kadrem. Zapalanie nazw,
-    // których nikt nie widzi, to ruch bez zadania (i realny bug). `.matches` czytane co
-    // klatkę w fazie READ, więc resize działa za darmo.
-    const desktop = window.matchMedia('(min-width: 768px)');
-    // Od xl półka zasłania górę kadru. Linia czytania MUSI zostać pod nią — inaczej
-    // „aktywna" jest reguła, której nie widać, a to gorsze niż brak mechanizmu.
-    const wide = window.matchMedia('(min-width: 1280px)');
-    let last = -1;
-    return addScrollTask(() => {
-      // FAZA READ — same odczyty, zero zapisów (kontrakt schedulera).
-      const items = el.children;
-      const vh = window.innerHeight;
-      // Linia LICZONA, nie założona: półka ma 224 px przy 1440, ale 256 px przy 1280
-      // (węższe kolumny = więcej wierszy), a przy 1280x720 stałe 0.5*vh = 360 px
-      // wypadłoby 24 px pod jej krawędzią. Czytanie rectu co klatkę kosztuje tyle co nic
-      // (i tak jesteśmy w fazie READ), a koryguje każdą kombinację szerokości, wysokości
-      // i długości nazw — także tę, której nie zmierzyłem.
-      const shelfBottom = wide.matches
-        ? (shelfRef.current?.getBoundingClientRect().bottom ?? 0)
-        : 0;
-      const line = Math.min(Math.max(vh * READ_LINE, shelfBottom + 96), vh * 0.75);
-      const box = el.getBoundingClientRect();
-      // Poza sekcją wracamy do spoczynku: półka świeci w całości, zamiast zostawać
-      // zamrożona na przypadkowej regule z poprzedniej wizyty w kadrze.
-      let next = -1;
-      if (desktop.matches && box.top < line && box.bottom > line) {
-        let best = Infinity;
-        for (let i = 0; i < items.length; i++) {
-          const r = items[i].getBoundingClientRect();
-          const d = Math.abs(r.top + r.height / 2 - line);
-          if (d < best) {
-            best = d;
-            next = i;
-          }
-        }
-      }
-      if (next === last) return;
-      last = next;
-      // FAZA WRITE — setState poza rAF-em odczytu jest tu bezpieczny: leci tylko przy
-      // ZMIANIE reguły (kilka razy na całą sekcję), nie co klatkę. Ślad dopisujemy w tym
-      // samym miejscu, a nie osobnym efektem na [active]: to jest jedno zdarzenie
-      // z zewnętrznego systemu (scroll), więc jedna ścieżka zapisu i zero kaskad.
-      return () => {
-        setActive(next === -1 ? null : next);
-        if (next === -1) return;
-        setSeen((prev) => {
-          const picks = RULES[next].picks;
-          if (picks.every((id) => prev.has(id))) return prev;
-          const grown = new Set(prev);
-          for (const id of picks) grown.add(id);
-          return grown;
-        });
-      };
-    });
-  }, []);
-
-  const lit = active === null ? null : new Set(RULES[active].picks);
-
-  /**
-   * Kolejność zapłonu = kolejność w POLU, nie w regule: fala ma się czytać po układzie oka.
-   * Po ułożeniu pola w półkę FIELD biegnie kolumnami z lewa na prawo, więc opóźnienie
-   * zamienia się w falę przebiegającą półkę — dokładnie w kierunku czytania.
-   *
-   * DLACZEGO W OGÓLE: sam kolor mówi „są zapalone"; fala mówi „WYBIERAMY je" — a to jest
-   * teza sekcji. Bez opóźnienia siedem płytek błyska naraz i czyta się jak podświetlenie
-   * wyniku wyszukiwania, nie jak decyzja.
-   */
-  const litOrder = useMemo(() => {
-    if (active === null) return null;
-    const picks = new Set(RULES[active].picks);
-    const order = new Map<string, number>();
-    let n = 0;
-    for (const t of FIELD) if (picks.has(t.id)) order.set(t.id, n++);
-    return order;
-  }, [active]);
+  // Trzy niezależne progi wejścia: sekcja jest wysoka, więc jeden --p na jej górze
+  // zostawiłby dolne bloki bez ruchu. Spoczynek = var(--p, 1) = pełna widoczność.
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
+  const gridRef = useSectionProgress<HTMLDivElement>(0.85);
+  const plateRef = useSectionProgress<HTMLDivElement>(0.85);
 
   return (
-    // BEZ `overflow-hidden`: ta klasa UNIEWAŻNIA `position: sticky` u potomków —
-    // cicho, bez błędu. Poprzedni TechStack ją miał. Półka musi się przypiąć.
-    <section id="tech-stack" className="relative bg-white pt-16 pb-24 md:pt-20 md:pb-28">
+    <section id="tech-stack" ref={sectionRef} className="relative bg-white py-20 md:py-28">
       <Container>
-        <div className="max-w-2xl">
-          <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-            Nie mamy jednego młotka.
-          </h2>
-          <p className="mt-5 text-lg leading-relaxed text-gray-700">
-            W czym zrobimy Twój projekt, zależy od trzech rzeczy: jak bardzo jest złożony, jaki masz
-            budżet i z czym już pracujesz. Żadną z nich nie jest nasza wygoda.
-          </p>
+        <div
+          className="xl:flex xl:items-start xl:justify-between xl:gap-16"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+        >
+          <div className="max-w-2xl">
+            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+              Nie mamy jednego młotka.
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-gray-700">
+              W czym zrobimy Twój projekt, zależy od trzech rzeczy: jak bardzo jest złożony, jaki
+              masz budżet i z czym już pracujesz. Żadną z nich nie jest nasza wygoda.
+            </p>
+          </div>
+          {/* Kryteria wyboru — na xl pionowa lista przy prawej krawędzi, żeby nagłówek
+              nie zostawiał pustej połowy ekranu. Czwarty wiersz to pointa: przekreślona
+              „nasza wygoda" (czytniki dostają prefiks, bo samo przekreślenie jest wizualne). */}
+          <ul className="mt-7 flex flex-wrap gap-x-8 gap-y-3 xl:mt-2 xl:shrink-0 xl:flex-col xl:gap-y-4 xl:border-l xl:border-gray-100 xl:pl-8">
+            {CRITERIA.map(({ Icon, label }) => (
+              <li key={label} className="flex items-center gap-2.5 text-sm font-bold text-dark">
+                <Icon size={18} className="shrink-0 text-secondary" aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+            <li className="flex items-center gap-2.5 text-sm font-bold text-gray-500">
+              <X size={18} className="shrink-0 text-gray-400" aria-hidden="true" />
+              <span className="sr-only">nie decyduje: </span>
+              <s>Nasza wygoda</s>
+            </li>
+          </ul>
         </div>
 
-        {/* Dwa układy, jeden DOM — bo defekt był SZEROKOŚCIOWY, a nie strukturalny.
-            Do xl (<1280) szpalta po lewej działa i jest zrównoważona (zmierzone przy
-            768–1024); psuje się dopiero na szerokich ekranach. Od xl `block` rozpina
-            półkę nad regułami.
-
-            `xl:block` to nie kosmetyka: sticky na elemencie siatki jest ograniczony do
-            SWOJEGO obszaru siatki, więc półka jako wiersz 1 nie miałaby po czym jechać.
-            Jako zwykły blok dostaje za blok obejmujący cały ten wrapper. */}
-        <div className="mt-14 grid grid-cols-1 gap-x-16 gap-y-10 md:mt-16 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] xl:block">
-          {/* PÓŁKA. Sticky: stoi, a wybór po niej przebiega. Na mobile jedzie w normalnym
-              przepływie nad regułami (sticky półka + sticky nic = przepychanka na 390px;
-              lepiej pokazać zakres raz, na wejściu).
-              `bg-white` + `z-10` są KONSTRUKCYJNE: reguły przewijają się POD półką, więc
-              musi być nieprzezroczysta i nad nimi. z-10 < --z-nav (50), bo nawigacja ma
-              pierwszeństwo. `top-20` = 80px = dokładnie wysokość nawigacji (h-20). */}
-          {/* `after:` = 40 px bieli gasnącej w dół, TUŻ POD krawędzią półki. To nie jest
-              ozdoba, tylko naprawa defektu, którego nie złapał żaden pomiar — widać go
-              dopiero na zrzucie: reguła wjeżdżająca pod półkę była CIĘTA W POŁOWIE ZDANIA
-              na twardej krawędzi („sprzedaży, konfigurator, wiele rynków." wisiało pod
-              kreską jak sierota). Liczby mówiły, że wszystko gra. Z gradientem tekst
-              ROZPŁYWA się, zamiast być gilotynowany — czyta się jako „przechodzi pod
-              półką", a nie jako uszkodzony layout.
-              `to-white/0`, nie `to-transparent`: transparent to przezroczysta CZERŃ, więc
-              gradient przechodziłby przez szarość. `pointer-events-none`, bo pas leży nad
-              regułami i inaczej zjadałby kliknięcia. */}
-          <div
-            ref={shelfRef}
-            className="bg-white md:sticky md:top-24 md:self-start xl:top-20 xl:z-10 xl:border-b xl:border-gray-200 xl:pt-5 xl:pb-5 xl:after:pointer-events-none xl:after:absolute xl:after:inset-x-0 xl:after:top-full xl:after:h-10 xl:after:bg-gradient-to-b xl:after:from-white xl:after:to-white/0"
-          >
-            {/* Zmienia się ETYKIETA i to ona niesie tezę „mamy 37, bierzemy 3". Bez wielkiej
-                cyfry i bez gradientu — to odczyt, nie hero-metric template. Bez CountUp:
-                animowany licznik to metryka dla efektu (wycięta z tej strony 2026-07-15).
-                Bez aria-live: przy scrollu zaspamowałoby czytnik, a reguła i tak nazywa swoje
-                technologie tekstem w `answer`. */}
-            <p className="text-xs font-bold tracking-wide text-gray-600">
-              {lit ? 'Do tego bierzemy' : 'Czym się posługujemy'}
-              <span className="ml-2 font-extrabold tabular-nums text-dark">
-                {lit ? `${lit.size} z ${FIELD.length}` : FIELD.length}
-              </span>
-            </p>
-
-            <div className="mt-5 space-y-4 xl:mt-4 xl:grid xl:grid-cols-6 xl:gap-x-6 xl:space-y-0">
-              {GROUPS.map((g) => {
-                const hits = g.ids.filter((id) => !lit || lit.has(id)).length;
-                return (
-                  <div key={g.label}>
-                    {/* Etykietę WOLNO gasić: #374151 (10.31:1) -> #6b7280 (4.83:1), oba AA.
-                        Reguła, która nie tyka Frontu, wygasza całą szufladę Front — stąd widać
-                        ZASIĘG decyzji, a nie tylko jej skład. */}
-                    <p
-                      className={`text-[11px] font-bold tracking-wide transition-colors ${
-                        hits ? 'text-gray-500' : 'text-[#6b7280]'
-                      }`}
-                      style={{ transitionDuration: hits ? IN : OUT }}
-                    >
-                      {g.label}
-                    </p>
-                    <ul className="mt-1.5 -ml-2 flex flex-wrap gap-x-1 gap-y-0.5">
-                      {g.ids.map((id) => {
-                        const t = BY_ID.get(id);
-                        if (!t) return null;
-                        const rank = litOrder?.get(id);
-                        const isLit = rank !== undefined;
-                        // Spoczynek -> każda nazwa pełna, bez płytek. Kontrakt.
-                        const isRest = lit === null;
-                        const traced = isLit || isRest || seen.has(id);
-                        const style: React.CSSProperties = {
-                          transitionDuration: isLit || isRest ? IN : OUT,
-                          // Inline TYLKO delay. Zero @keyframes w tej sekcji — animacja CSS
-                          // bije styl inline w kaskadzie i właśnie tak umarły rampy w hero.
-                          ...(isLit ? { transitionDelay: `${Math.min(rank * 34, 300)}ms` } : null),
-                        };
-                        const inner = (
-                          <>
-                            {/* aria-hidden: kropka DUBLUJE stan, który niesie już kolor nazwy
-                                — więc kolor nie jest jedynym nośnikiem, a scale(.6) daje drugi
-                                kanał (nigdy niewybrane się ODSUWA, nie tylko blednie). */}
-                            <span
-                              aria-hidden="true"
-                              className="size-1.5 shrink-0 rounded-full transition-[background-color,transform] ease-out"
-                              style={{
-                                transitionDuration: isLit || isRest ? IN : OUT,
-                                backgroundColor: isLit ? DOT_LIT[id] : traced ? DOT[id] : '#c9ced6',
-                                transform: traced ? 'none' : 'scale(.6)',
-                              }}
-                            />
-                            {t.name}
-                          </>
-                        );
-                        /**
-                         * PŁYTKA GRANATOWA — tu leży naprawa „ledwo widocznego" zapłonu,
-                         * i to jest liczba, nie gust. Poprzednia płytka #e8f4fb ma
-                         * luminancję 0.888 przy bieli 1.0: delta 0.11. Granat #213261 ma
-                         * 0.035: delta 0.965, czyli ~9x większa masa. Peryferia rejestrują
-                         * masę luminancji, nie odcień — dlatego tamta płytka nie mogła
-                         * zadziałać niezależnie od tego, jak długo się na nią patrzyło.
-                         *
-                         * Drugi, głębszy błąd tamtej wersji: zapalony i spoczynkowy miały
-                         * TEN SAM kolor tekstu. Zdarzeniem nie było więc zapalenie siedmiu,
-                         * tylko wygaszenie trzydziestu. A 15 z 37 nazw to linki: zapalony
-                         * #2d739a (lum 0.152) obok wygaszonego #6b7280 (lum 0.167) to
-                         * delta 0.015, czyli ZERO. Połowa pola zapalała się bez żadnej
-                         * zmiany jasności. Teraz zapalony ZYSKUJE płytkę i biel; wygaszony
-                         * jedynie traci. Kierunek zdarzenia zgadza się z tezą.
-                         *
-                         * Granat na bieli i biel na granacie = 12.4:1. Solidny
-                         * background-color, nie gradient — axe przy gradiencie zgłasza
-                         * „incomplete" zamiast wyniku. Płytka mieści się w The Ciemnia Rule:
-                         * granat oprawia DOWÓD, a nie całą sekcję-argument; tu granatowe są
-                         * wyłącznie te 3–7 wybranych płytek, czyli dokładnie dowód wyboru.
-                         * Padding jest ZAWSZE, więc płytka nigdy nie rusza layoutu.
-                         */
-                        const cls = `inline-flex items-center gap-1.5 rounded px-2 py-1 text-[15px] font-bold transition-colors ${
-                          isLit
-                            ? 'bg-[#213261] text-white'
-                            : isRest
-                              ? t.href
-                                ? 'text-accent-dark'
-                                : 'text-dark'
-                              : 'text-[#6b7280]'
-                        }`;
-                        return (
-                          <li key={id}>
-                            {t.href ? (
-                              <Link
-                                to={t.href}
-                                style={style}
-                                className={`${cls} underline-offset-4 hover:underline`}
-                              >
-                                {inner}
-                              </Link>
-                            ) : (
-                              <span style={style} className={cls}>
-                                {inner}
-                              </span>
-                            )}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* REGUŁY — <ol>, bo to realna sekwencja decyzji od najprostszej do najcięższej.
-              Numerów NIE drukujemy: „01/02/03" nad każdą pozycją to scaffolding z listy
-              zakazów. Kolejność niesie znaczenie w DOM, nie w ozdobniku.
-
-              SZEROKOŚĆ = SZEROKOŚĆ STRONY, i to jest korekta po uwadze właściciela
-              („cała strona jest elegancko wyrównana, a ta część ma znacznie mniejszą
-              szerokość"). Miał rację i to sprawdzalne: WebDevEcosystem i WebDevProjectTypes
-              trzymają ten sam wzór — wąski nagłówek po lewej, treść na CAŁĄ szerokość
-              kontenera. Moja poprzednia wersja centrowała reguły w lejku 1040 px, więc
-              likwidując dziurę po prawej zrobiła z sekcji obcy element na stronie.
-              Wyśrodkowanie było naprawą jednego defektu drugim.
-
-              Teraz reguła rozpina się między krawędziami kontenera: `justify-between`
-              wypycha odpowiedź na prawy margines, a sytuacja siedzi na lewym — czyli
-              dokładnie tam, gdzie h2 i lewa krawędź półki. Prześwit między nimi nie jest
-              dziurą, tylko światłem rejestru: pytanie przy lewej krawędzi, odpowiedź przy
-              prawej, jak w spisie decyzji bez linii. Jest ograniczony (kontener ma sufit
-              1536 px), więc nie rośnie w nieskończoność na szerokich ekranach. */}
-          <ol ref={listRef} className="space-y-14 md:space-y-20 xl:mt-16 xl:space-y-20">
-            {RULES.map((r, i) => {
-              const isOn = active === null || active === i;
-              return (
-                /* `items-baseline` zamiast przesunięcia o stałe px — i to jest naprawa
-                   drugiej uwagi właściciela: „czasami tekst jest pod nagłówkiem, a czasami
-                   wysunięty w pionie w stosunku do niego". Miał rację, a przyczyna była
-                   arytmetyczna: przesunięcie o stałe 40 px wygląda RÓŻNIE zależnie od tego,
-                   czy sytuacja ma jedną linijkę czy dwie — przy dwóch odpowiedź trafiała
-                   w drugą linię, przy jednej wisiała pod spodem. Relacja czytała się jako
-                   losowa, bo była losowa: zależała od długości copy.
-                   Baseline wiąże PIERWSZĄ LINIĘ odpowiedzi z PIERWSZĄ LINIĄ pytania —
-                   niezależnie od liczby linijek, stopnia pisma i interlinii. To jedyna
-                   relacja, która trzyma dla wszystkich siedmiu reguł naraz. */
-                <li
-                  key={r.situation}
-                  className="max-w-xl xl:grid xl:max-w-none xl:grid-cols-[36rem_24rem] xl:items-baseline xl:justify-between xl:gap-x-20"
+        {/* Tryptyk: JEDEN panel = jedna potrzeba; trzy przegrody = trzy odpowiedzi.
+            Ruch: treść przegród dojeżdża z lekkim opóźnieniem od lewej — odpowiedzi
+            układają się w kolejności rosnącej złożoności. Transform na wewnętrznym
+            wrapperze, nie na przegrodzie: przesunięta przegroda rwałaby ramkę panelu. */}
+        <div
+          className="mt-14 md:mt-16"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 40px), 0)' }}
+        >
+          <h3 className="text-2xl font-extrabold tracking-tight text-balance text-dark">
+            Ta sama potrzeba — trzy różne odpowiedzi.
+          </h3>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-gray-700">
+            „Chcę sprzedawać w internecie” kończy się u nas na trzy różne sposoby — zależnie od
+            skali i budżetu.
+          </p>
+          <div className="mt-7 grid grid-cols-1 divide-y divide-gray-200 rounded-3xl border border-gray-200 bg-light-gray md:grid-cols-3 md:divide-x md:divide-y-0">
+            {SHOP_LADDER.map((step, i) => (
+              <div key={step.situation} className="p-7 md:p-8 lg:p-9">
+                <div
+                  className="flex h-full flex-col"
+                  style={{
+                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${24 + 16 * i}px), 0)`,
+                  }}
                 >
-                  <p
-                    // #8b95a5 = 3.03:1 — wystarcza, bo to DUŻY tekst (>=18px bold,
-                    // próg 3:1). Przy 15px w polu byłby naruszeniem; tu nie jest.
-                    className={`text-[clamp(1.25rem,2.1vw,1.75rem)] leading-snug font-extrabold tracking-tight text-balance transition-colors duration-500 ${
-                      isOn ? 'text-dark' : 'text-[#8b95a5]'
-                    }`}
-                  >
-                    {r.situation}
+                  <p className="text-lg font-extrabold tracking-tight text-balance text-dark">
+                    {step.situation}
                   </p>
-                  <div className="mt-3 xl:mt-0">
-                    {/* Odpowiedź NAZYWA technologie tekstem — półka jest wzmocnieniem,
-                        nie jedynym nośnikiem znaczenia (a11y + SEO). */}
-                    <p className="text-lg leading-relaxed text-gray-700">{r.answer}</p>
-                    {r.aside && (
-                      <p className="mt-4 border-t border-gray-200 pt-4 text-base font-bold text-accent-dark">
-                        {r.aside}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+                  <p className="mt-3 text-[15px] leading-relaxed text-gray-700">{step.answer}</p>
+                  <ChipList picks={step.picks} className="mt-auto pt-6" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Cztery pozostałe sytuacje — równorzędne, więc wjeżdżają równo. */}
+        <div
+          ref={gridRef}
+          className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 40px), 0)' }}
+        >
+          {SITUATIONS.map((choice) => (
+            <SituationCard key={choice.situation} choice={choice} />
+          ))}
+        </div>
+
+        {/* Tabliczka warsztatu: pełny, potwierdzony zakres — 37 nazw w 6 wierszach.
+            Stopka nazywa zasadę własności kodu (PRODUCT.md, decyzja właściciela
+            2026-07-15) — odpowiedź na najczęstszą obawę persony: „czy będę uwiązany?". */}
+        <div
+          ref={plateRef}
+          className="mt-14 md:mt-16"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
+        >
+          <div className="rounded-3xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-gray-100 px-7 py-6 md:px-9">
+              <h3 className="text-xl font-extrabold tracking-tight text-dark">
+                Czym się posługujemy
+              </h3>
+              <p className="text-sm font-bold text-gray-500">
+                <span className="tabular-nums text-dark">{FIELD.length}</span> narzędzi ·{' '}
+                <span className="tabular-nums text-dark">{GROUPS.length}</span> obszarów
+              </p>
+            </div>
+            <dl className="divide-y divide-gray-100 px-7 md:px-9">
+              {GROUPS.map((g) => (
+                <div
+                  key={g.label}
+                  className="flex flex-col gap-2 py-5 md:flex-row md:items-baseline md:gap-8"
+                >
+                  <dt className="w-20 shrink-0 text-sm font-bold text-gray-500">{g.label}</dt>
+                  <dd className="flex flex-wrap gap-x-6 gap-y-2">
+                    {g.ids.map((id) => (
+                      <PlateName key={id} id={id} />
+                    ))}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {/* Granatowa pieczęć: najważniejsze zdanie sekcji dla persony („czy będę
+                uwiązany?") dostaje najmocniejszą oprawę. */}
+            <p className="flex items-start gap-3 rounded-b-3xl bg-dark px-7 py-5 text-[15px] font-bold text-white md:px-9">
+              <KeyRound size={18} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+              Repozytorium kodu od pierwszego dnia i pełne prawa autorskie po odbiorze — przy każdym
+              projekcie, niezależnie od technologii.
+            </p>
+          </div>
         </div>
       </Container>
     </section>
