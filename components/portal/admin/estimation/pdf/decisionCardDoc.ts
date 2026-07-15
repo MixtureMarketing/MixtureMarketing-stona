@@ -23,11 +23,14 @@ export function decisionCardMarkdown(c: DecisionCard): string {
   L.push('');
 
   L.push('## Platforma');
+  L.push(`- **Rekomendowana:** ${c.platform.recommended ?? '(brak rekomendacji)'}`);
   L.push(`- **Wybrana:** ${c.platform.chosen}`);
-  if (c.platform.recommended) L.push(`- **Rekomendacja systemu:** ${c.platform.recommended}`);
   if (c.platform.againstRecommendation) {
     L.push(`- ⚠️ **Wybór wbrew rekomendacji.** Powód: ${c.platform.reason ?? '(brak)'}`);
-  } else if (c.platform.reason) {
+  } else if (c.platform.recommended) {
+    L.push('- Zgodna z rekomendacją.');
+  }
+  if (!c.platform.againstRecommendation && c.platform.reason) {
     L.push(`- Powód: ${c.platform.reason}`);
   }
   L.push('');
@@ -122,13 +125,16 @@ export async function generateDecisionCardPdf(c: DecisionCard): Promise<Blob> {
   );
   y += 5;
 
+  // Rekomendacja NAD wyborem: czytający ma najpierw zobaczyć, co radził system, a dopiero
+  // potem co wybraliśmy — inaczej zgodność z rekomendacją wygląda tak samo jak jej brak.
   h('Platforma');
-  p(
-    `Wybrana: ${c.platform.chosen}${c.platform.recommended ? ` · rekomendacja systemu: ${c.platform.recommended}` : ''}`,
-  );
+  p(`Rekomendowana: ${c.platform.recommended ?? '(brak rekomendacji)'}`, 9, GRAY);
+  p(`Wybrana: ${c.platform.chosen}`);
   if (c.platform.againstRecommendation)
     p(`Wybór wbrew rekomendacji. Powód: ${c.platform.reason ?? '(brak)'}`, 9, '#b45309');
-  else if (c.platform.reason) p(`Powód: ${c.platform.reason}`, 9, GRAY);
+  else if (c.platform.recommended) p('Zgodna z rekomendacją.', 9, GRAY);
+  if (!c.platform.againstRecommendation && c.platform.reason)
+    p(`Powód: ${c.platform.reason}`, 9, GRAY);
   y += 3;
 
   if (c.alerts.length) {
@@ -146,10 +152,10 @@ export async function generateDecisionCardPdf(c: DecisionCard): Promise<Blob> {
     doc.text(`${d.title} — ${lvl(d)}`, M, y);
     y += 5;
     if (d.levelDescription) p(`   ${d.levelDescription}`, 8.5, GRAY);
-    d.reasons.forEach((r) => p(`   → ${r}`, 8.5, '#374151'));
+    d.reasons.forEach((r) => p(`   – ${r}`, 8.5, '#374151'));
     if (d.fromArchetypeDefault)
       p(
-        `   → Poziom domyślny dla archetypu ${c.platform.chosen} (żadna reguła nie podniosła).`,
+        `   – Poziom domyślny dla archetypu ${c.platform.chosen} (żadna reguła nie podniosła).`,
         8.5,
         GRAY,
       );

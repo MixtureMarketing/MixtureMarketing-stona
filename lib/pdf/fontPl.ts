@@ -1,4 +1,5 @@
 import type { jsPDF } from 'jspdf';
+import { sanitizePdfText } from './text';
 
 /**
  * Font PDF z polskimi znakami. Współdzielony przez WSZYSTKIE nasze PDF-y:
@@ -17,7 +18,17 @@ export const PDF_FONT = 'Manrope';
 
 let cache: { regular: string; bold: string } | null = null;
 
-/** Rejestruje font w dokumencie i ustawia go jako aktywny. Idempotentne per dokument. */
+/**
+ * Rejestruje font w dokumencie i ustawia go jako aktywny. Idempotentne per dokument.
+ *
+ * Podpina też sanityzację do `text()` i `splitTextToSize()` — CELOWO tutaj, a nie w każdym
+ * rendererze z osobna. Bug oferty #4 polegał właśnie na tym, że jedno miejsce wywołania
+ * dostało string z twardą spacją; helper, który trzeba pamiętać wywołać, prędzej czy później
+ * zostanie pominięty, a kara to po cichu ucięta cena w dokumencie wysłanym klientowi.
+ * Skoro każdy nasz PDF i tak przechodzi przez `registerPlFont`, to jest jedyne miejsce,
+ * które gwarantuje pokrycie. `splitTextToSize` opakowane, bo ono MIERZY tekst — musi
+ * mierzyć to samo, co finalnie zostanie narysowane.
+ */
 export async function registerPlFont(doc: jsPDF): Promise<void> {
   if (!cache) {
     const [reg, bold] = await Promise.all([import('./manropeRegular'), import('./manropeBold')]);
@@ -28,4 +39,19 @@ export async function registerPlFont(doc: jsPDF): Promise<void> {
   doc.addFileToVFS('Manrope-Bold.ttf', cache.bold);
   doc.addFont('Manrope-Bold.ttf', PDF_FONT, 'bold');
   doc.setFont(PDF_FONT, 'normal');
+
+  const d = doc as unknown as Record<string, unknown> & { __plSanitized?: boolean };
+  if (d.__plSanitized) return;
+  d.__plSanitized = true;
+
+  const czysc = (v: unknown): unknown =>
+    typeof v === 'string' ? sanitizePdfText(v) : Array.isArray(v) ? v.map(czysc) : v;
+
+  const origText = doc.text.bind(doc);
+  doc.text = ((txt: string | string[], ...reszta: unknown[]) =>
+    origText(czysc(txt) as string | string[], ...(reszta as [number, number]))) as typeof doc.text;
+
+  const origSplit = doc.splitTextToSize.bind(doc);
+  doc.splitTextToSize = ((txt: string, ...reszta: unknown[]) =>
+    origSplit(czysc(txt) as string, ...(reszta as [number]))) as typeof doc.splitTextToSize;
 }

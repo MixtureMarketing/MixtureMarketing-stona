@@ -22,9 +22,23 @@ OUT = Path('lib/pdf')
 CHARS = ''.join(chr(c) for c in range(0x20, 0x7F))
 CHARS += 'ąćęłńóśźżĄĆĘŁŃÓŚŹŻ'
 CHARS += '–—„”"\'×€§°'
+# KRYTYCZNE (bug oferty #4): znak z zakresu 0x80-0xFF, ktorego NIE MA w foncie, powoduje
+# w jsPDF **uciecie reszty linii** — cicho, bez bledu. Znaki >0xFF gubia tylko glif.
+# Dlatego ponizsze MUSZA tu byc, nawet jesli sanityzacja (lib/pdf/text.ts) zwykle je usuwa:
+#   U+00A0 NBSP  — separator tysiecy z toLocaleString('pl-PL'); to on zjadl cene w ofercie
+#   U+00B7 middle dot — separator w naglowkach ("Software House ... · Rzeszow")
+# Sanityzacja nie pokryje tekstu wklejonego recznie do seedow albo nazwy klienta z formularza,
+# wiec font jest druga, niezalezna warstwa obrony.
+CHARS += chr(0x00A0) + chr(0x00B7)   # NBSP + middle dot
+# Punktor list (>0xFF - brak glifu nie ucinal linii, ale punktory byly niewidoczne)
+CHARS += '•'
+# UWAGA: Manrope NIE MA glifow strzalki (U+2192) ani NNBSP (U+202F) - subsetter i tak
+# je pomija. Renderery maja ich nie uzywac: w Karcie strzalka zastapiona en dashem,
+# NNBSP zdejmuje sanityzacja (lib/pdf/text.ts). Zanim dopiszesz tu znak, sprawdz, czy
+# font zrodlowy go MA - inaczej dopisujesz zyczenie, a glif dalej bedzie znikal.
 
 def woff2_to_ttf(p: Path) -> TTFont:
-    f = TTFont(str(p))          # fontTools czyta woff2 wprost (brotli)
+    f = TTFont(str(p), recalcTimestamp=False)          # fontTools czyta woff2 wprost (brotli)
     f.flavor = None             # zdejmij kompresję → zwykły TTF
     return f
 
@@ -41,12 +55,17 @@ def build(weight: str, out_name: str, var_name: str):
     merged_path = Path(f'.tmp-merged-{weight}.ttf')
     Merger().merge([str(t) for t in tmp]).save(str(merged_path))
 
-    font = TTFont(str(merged_path))
+    font = TTFont(str(merged_path), recalcTimestamp=False)
     opts = Options()
     opts.layout_features = ['*']
     opts.drop_tables += ['DSIG']
     s = Subsetter(opts); s.populate(text=CHARS); s.subset(font)
 
+    # Determinizm: bez tego fontTools wpisuje biezacy czas w head.created/modified
+    # i kazdy przebieg generatora dawal INNY blob 30 kB - w commicie sam szum,
+    # nie do odroznienia od zmiany zamierzonej. Stala data = powtarzalny build.
+    font['head'].created = 0
+    font['head'].modified = 0
     buf = io.BytesIO(); font.save(buf)
     b64 = base64.b64encode(buf.getvalue()).decode('ascii')
 
