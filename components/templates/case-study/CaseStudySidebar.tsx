@@ -78,36 +78,11 @@ const CaseStudySidebar: React.FC<CaseStudySidebarProps> = ({ project }) => {
                 </a>
               )}
 
-              {project.performanceScore && (
-                <div className="bg-gray-50 rounded-2xl p-4 flex items-center gap-4">
-                  <div className="relative w-16 h-16 flex items-center justify-center">
-                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-gray-200"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                      />
-                      <path
-                        className="text-green-500 drop-shadow-sm"
-                        strokeDasharray={`${project.performanceScore}, 100`}
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                      />
-                    </svg>
-                    <span className="absolute text-lg font-black text-green-600">
-                      {project.performanceScore}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-dark">PageSpeed Insights</p>
-                    <p className="text-xs text-gray-500">Wydajność Mobile</p>
-                  </div>
-                </div>
-              )}
+              {/* Wskaźnik „PageSpeed Insights / Wydajność Mobile" usunięty (2026-07):
+                  publikował wartości wpisywane z ręki (performanceScore), rozbieżne
+                  z realnym pomiarem PSI o 20–35 pkt, przy nazwanych klientach. Metryki
+                  wydajności publikujemy wyłącznie zmierzone, z datą pomiaru i tylko gdy
+                  wynik jest godny ekspozycji (mobile 90+). Pole zostaje w CMS nieużywane. */}
 
               {project.techStack && (
                 <div>
