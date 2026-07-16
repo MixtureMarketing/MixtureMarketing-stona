@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Globe,
   Users,
   Search,
   CheckCircle2,
   MessageSquare,
   GitMerge,
   ArrowUpRight,
-  BarChart3,
   Calculator,
   Lock,
   ShieldCheck,
@@ -28,7 +26,6 @@ import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
 import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import BaseCta from '../common/BaseCta';
-import { CorporateHeroVisual } from '../visuals/hero/CorporateVisual';
 import SectionWrapper from '../common/SectionWrapper';
 import CorporateCmsComparison from '../features/web-development/CorporateCmsComparison';
 import CorporateSecurity from '../features/web-development/CorporateSecurity';
@@ -59,7 +56,6 @@ const CorporateWebsite: React.FC = () => {
   const businessModules = CONTENT.modules.items.map((mod, i) => {
     const icons = [
       <Users key="users" size={24} />,
-      <BarChart3 key="chart" size={24} />,
       <Lock key="lock" size={24} />,
       <MessageSquare key="msg" size={24} />,
     ];
@@ -77,7 +73,7 @@ const CorporateWebsite: React.FC = () => {
   });
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -96,14 +92,16 @@ const CorporateWebsite: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-16) — wizual-atrapa
+          diagramu sieci (ping-nody, useParallax bez reduced-motion) skasowany.
+          Cena wg CMS (od 4 500 zł; hero twierdził 7 500 wbrew tabeli niżej);
+          „migracja w 4 tygodnie" potwierdzona przez właściciela. */}
       <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={Globe}
+        tone="dark"
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
-        priceHint="od 7 500 zł · CMS z RODO · migracja w 4 tygodnie"
-        trustLine={<HeroTrustLine />}
+        priceHint="od 4 500 zł · CMS z RODO · migracja w 4 tygodnie"
+        trustLine={<HeroTrustLine tone="dark" />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'corporate' })}
         ctaSecondaryText="Wyceń stronę firmową"
@@ -111,7 +109,6 @@ const CorporateWebsite: React.FC = () => {
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
-        visual={<CorporateHeroVisual />}
       />
 
       {/* --- BUSINESS MODULES --- */}
@@ -123,7 +120,7 @@ const CorporateWebsite: React.FC = () => {
             className="mb-16"
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {businessModules.map((mod, i) => (
               <AnimateOnScroll key={i} delay={i * 100} className="h-full">
                 <GlassCard className="p-8 h-full flex flex-col hover:border-secondary hover:shadow-lg transition-all group bg-white hover:-translate-y-1">

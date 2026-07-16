@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
-import GlassCard from '../../common/GlassCard';
 import SectionWrapper from '../../common/SectionWrapper';
 import { CORPORATE_WEBSITE_CONTENT as CONTENT } from '../../../data/content/services/web-development/corporate';
 
@@ -59,23 +58,51 @@ const CorporateCmsComparison: React.FC = () => {
             ))}
           </ul>
         </div>
+        {/* Zamiast fejkowego okna przeglądarki ze skeleton-pulsem — uczciwy
+            schemat architektury, który przełącza się razem z togglem (2026-07-16). */}
         <div className="relative order-first lg:order-2">
-          <div className="absolute inset-0 bg-gradient-to-tr from-secondary/10 to-primary/10 rounded-2xl transform rotate-2"></div>
-          <GlassCard className="relative bg-white shadow-xl overflow-hidden aspect-[16/10] flex flex-col p-0 border border-gray-200">
-            <div className="h-8 bg-gray-100 border-b border-gray-200 flex items-center px-4 gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]"></div>
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 md:p-10 shadow-sm">
+            <div className="text-xxs font-black uppercase tracking-[0.2em] text-gray-600 mb-6">
+              {activeCms === 'wordpress' ? 'Architektura: monolit' : 'Architektura: headless + CDN'}
             </div>
-            <div className="p-6 flex flex-col gap-4 h-full animate-fade-in bg-gray-50/50 overflow-hidden">
-              <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-32 w-full bg-white rounded border border-gray-100 shadow-sm"></div>
-              <div className="space-y-2">
-                <div className="h-3 w-full bg-gray-200 rounded"></div>
-                <div className="h-3 w-2/3 bg-gray-200 rounded"></div>
-              </div>
+            <div className="flex flex-col items-stretch gap-3" aria-hidden="true">
+              {(activeCms === 'wordpress'
+                ? [
+                    { label: 'Przeglądarka klienta', accent: false },
+                    { label: 'Serwer WWW · PHP + motyw', accent: true },
+                    { label: 'Baza danych MySQL', accent: false },
+                  ]
+                : [
+                    { label: 'Panel treści (Sanity)', accent: false },
+                    { label: 'Build — statyczne strony', accent: true },
+                    { label: 'CDN blisko użytkownika', accent: false },
+                    { label: 'Przeglądarka klienta', accent: false },
+                  ]
+              ).map((node, i, arr) => (
+                <React.Fragment key={node.label}>
+                  <div
+                    className={`px-5 py-4 rounded-xl border text-sm font-bold text-center transition-all duration-300 ${
+                      node.accent
+                        ? 'bg-secondary text-white border-secondary shadow-md'
+                        : 'bg-white text-dark border-gray-200'
+                    }`}
+                  >
+                    {node.label}
+                  </div>
+                  {i < arr.length - 1 && (
+                    <div className="self-center h-4 w-px bg-gray-300 relative">
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 border-b border-r border-gray-400 rotate-45"></div>
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
-          </GlassCard>
+            <p className="text-xs text-gray-600 leading-relaxed mt-6">
+              {activeCms === 'wordpress'
+                ? 'Każde wejście na stronę odpytuje serwer i bazę — prosto i elastycznie, ale serwer trzeba utrzymywać i chronić.'
+                : 'Strony budują się raz i lecą z CDN — użytkownik nie dotyka serwera z treścią, więc powierzchnia ataku i czas ładowania spadają.'}
+            </p>
+          </div>
         </div>
       </div>
     </SectionWrapper>

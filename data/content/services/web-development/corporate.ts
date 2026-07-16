@@ -1,3 +1,15 @@
+/**
+ * Treść /web-development/corporate/ — przepisana 2026-07-16 (krytyka 10/40,
+ * najniższa w web-dev). Usunięte (decyzje właściciela + zakaz atrap):
+ * „SLA 99.9%" i „Cloudflare Enterprise" (obietnice kontraktowe bez pokrycia),
+ * „strona nie do zhakowania" (absolutne twierdzenie bezpieczeństwa),
+ * audiodeskrypcja (nieoferowana), moduł „Relacje Inwestorskie ESPI/EBI"
+ * (brak realizacji), statusy Verified/Compliant/Active/Monitored oraz
+ * Completed/Processing/Pending (preparowana telemetria), badge/microCopy.
+ * Zostaje: „migracja w 4 tygodnie" (potwierdzone). Cena wg CMS: od 4 500 zł
+ * (hero twierdził 7 500 wbrew tabeli cen na tej samej stronie).
+ * Literówka „wymogymi" poprawiona.
+ */
 export const CORPORATE_WEBSITE_CONTENT = {
   seo: {
     title: 'Strony Internetowe dla Firm | Wizerunek i Skala B2B',
@@ -6,40 +18,33 @@ export const CORPORATE_WEBSITE_CONTENT = {
     image: '/assets/images/frontend.png',
   },
   hero: {
-    badge: 'Global Enterprise Solutions',
     title: {
-      line1: 'Korporacyjne Serwisy WWW.',
-      line2: 'Skala, Bezpieczeństwo, Prestiż.',
+      line1: 'Korporacyjne serwisy WWW.',
+      line2: 'Skala, bezpieczeństwo, prestiż.',
     },
     description:
-      'Dla firm, które nie mogą pozwolić sobie na przestoje. Budujemy serwisy odporne na duże obciążenia, zgodne z wymogymi prawnymi (WCAG/RODO) i gotowe na globalną ekspansję.',
-    cta: 'Konsultacja Techniczna',
-    microCopy: 'CDN Ready',
+      'Dla firm, które nie mogą pozwolić sobie na przestoje. Budujemy serwisy odporne na duże obciążenia, zgodne z wymogami prawnymi (WCAG/RODO) i gotowe na globalną ekspansję.',
+    cta: 'Konsultacja techniczna',
   },
   modules: {
-    title: 'Moduły dla Biznesu',
+    title: 'Moduły dla biznesu',
     description:
       'Strona korporacyjna to ekosystem. Integrujemy narzędzia, które usprawniają procesy wewnątrz i na zewnątrz organizacji.',
     items: [
       {
-        title: 'Kariera & HR',
-        desc: 'System rekrutacyjny zintegrowany z ATS. Filtrowanie ofert, formularze aplikacyjne i budowanie Employer Branding.',
-        tech: 'ATS Integration',
+        title: 'Kariera i HR',
+        desc: 'System rekrutacyjny zintegrowany z ATS. Filtrowanie ofert, formularze aplikacyjne i budowanie marki pracodawcy.',
+        tech: 'Integracja ATS',
       },
       {
-        title: 'Relacje Inwestorskie',
-        desc: 'Bezpieczna strefa raportów giełdowych (ESPI/EBI), interaktywne wykresy akcji i kalendarium wydarzeń korporacyjnych.',
-        tech: 'Secure Data',
-      },
-      {
-        title: 'Strefa Klienta (B2B)',
+        title: 'Strefa klienta (B2B)',
         desc: 'Dedykowany panel logowania dla partnerów. Dostęp do faktur, cenników hurtowych i dokumentacji technicznej.',
-        tech: 'Auth & RBAC',
+        tech: 'Logowanie i role',
       },
       {
-        title: 'Newsroom & Blog',
-        desc: 'Centrum prasowe dla mediów. Kategoryzacja treści, materiały do pobrania (Press Kits) i automatyzacja newslettera.',
-        tech: 'Media Assets',
+        title: 'Newsroom i blog',
+        desc: 'Centrum prasowe dla mediów. Kategoryzacja treści, materiały do pobrania i automatyzacja newslettera.',
+        tech: 'Materiały prasowe',
       },
     ],
   },
@@ -48,11 +53,11 @@ export const CORPORATE_WEBSITE_CONTENT = {
     description:
       'Elastyczność dla marketingu, bezpieczeństwo dla IT. Wybierz silnik dopasowany do Twojej organizacji.',
     wordpress: {
-      label: 'WordPress (Marketing)',
+      label: 'WordPress (marketing)',
       title: 'Swoboda i niezależność.',
       desc: "Najpopularniejszy CMS na świecie, dostosowany do potrzeb korporacyjnych. Intuicyjny edytor wizualny (Gutenberg/ACF) pozwala działowi marketingu tworzyć nowe landing page'e bez pomocy programistów.",
       features: [
-        'Intuicyjna edycja (Drag & Drop)',
+        'Intuicyjna edycja (drag & drop)',
         'Tysiące gotowych integracji',
         'Niski koszt wdrożenia i utrzymania',
         'Krótki czas szkolenia zespołu',
@@ -61,75 +66,66 @@ export const CORPORATE_WEBSITE_CONTENT = {
     headless: {
       label: 'Headless CMS (IT)',
       title: 'Wydajność i bezpieczeństwo.',
-      desc: 'Oddzielamy warstwę prezentacji (Frontend) od bazy danych (Backend). Efekt? Strona jest nie do zhakowania, ładuje się w ułamku sekundy, a treściami zarządzasz z poziomu ultra-nowoczesnego panelu (Sanity/Strapi).',
+      desc: 'Oddzielamy warstwę prezentacji (frontend) od zapisu treści (backend). Statyczny frontend drastycznie zmniejsza powierzchnię ataku i ładuje się w ułamku sekundy, a treściami zarządzasz z nowoczesnego panelu (Sanity/Strapi).',
       features: [
-        'Architektura niepodatna na ataki SQL Injection',
+        'Brak bazy danych wystawionej na świat',
         'Globalna dystrybucja treści (CDN)',
-        'Omnichannel (Te same treści na WWW i w Appce)',
-        'Technologia przyszłości (React/Next.js)',
+        'Te same treści na WWW i w aplikacji',
+        'Nowoczesny stack (React/Next.js)',
       ],
     },
   },
   compliance: {
-    badge: 'Legal Tech',
     title: {
       line1: 'Bezpieczeństwo',
       line2: 'to nie opcja. To wymóg.',
     },
     description:
-      'Dla korporacji i instytucji zgodność z prawem (Compliance) jest krytyczna. Wdrażamy standardy, które chronią Twoją firmę przed karami i utratą reputacji.',
+      'Dla korporacji i instytucji zgodność z prawem jest krytyczna. Wdrażamy standardy, które chronią Twoją firmę przed karami i utratą reputacji.',
     items: [
       {
         title: 'WCAG 2.1 AA',
-        desc: 'Pełna dostępność cyfrowa dla osób z niepełnosprawnościami. Kontrast, nawigacja klawiaturą, audiodeskrypcja.',
-        status: 'Verified',
+        desc: 'Dostępność cyfrowa dla osób z niepełnosprawnościami: kontrast, nawigacja klawiaturą, semantyka dla czytników ekranu.',
       },
       {
         title: 'RODO / Omnibus',
-        desc: 'Zaawansowane zarządzanie zgodami (Consent Mode v2), rejestry czynności przetwarzania, polityki prywatności.',
-        status: 'Compliant',
+        desc: 'Zarządzanie zgodami (Consent Mode v2), rejestry czynności przetwarzania, polityki prywatności.',
       },
       {
-        title: 'Anty-DDoS',
-        desc: 'Ochrona infrastruktury przez Cloudflare Enterprise. Firewall (WAF) blokujący ataki i boty.',
-        status: 'Active',
+        title: 'WAF i ochrona ruchu',
+        desc: 'Hosting za Cloudflare: firewall aplikacyjny filtruje boty i typowe ataki, zanim dotrą do serwisu.',
       },
       {
-        title: 'SLA 99.9%',
-        desc: 'Gwarancja dostępności usług. Redundantne serwery i codzienne kopie zapasowe (Disaster Recovery).',
-        status: 'Monitored',
+        title: 'Kopie zapasowe',
+        desc: 'Regularne kopie treści i kodu z procedurą odtworzenia — awaria nie oznacza utraty serwisu.',
       },
     ],
   },
   migration: {
     title: 'Migracja bez utraty ruchu',
-    subtitle: 'Protocol 301',
+    subtitle: 'Przekierowania 301',
     description:
-      'Boisz się, że nowa strona zniszczy Twoje pozycje w Google? Posiadamy procedurę bezpiecznej migracji, która działa jak precyzyjna operacja chirurgiczna.',
+      'Boisz się, że nowa strona zniszczy Twoje pozycje w Google? Mamy procedurę bezpiecznej migracji, która działa jak precyzyjna operacja chirurgiczna.',
     steps: [
       {
         id: '01',
-        title: 'Crawl & Audit',
+        title: 'Skan i audyt',
         desc: 'Skanujemy starą strukturę URL i tworzymy mapę wszystkich linków.',
-        status: 'Completed',
       },
       {
         id: '02',
         title: 'Mapowanie 301',
-        desc: 'Tworzymy tabelę przekierowań: Stary Adres -> Nowy Odpowiednik.',
-        status: 'Processing',
+        desc: 'Tworzymy tabelę przekierowań: stary adres → nowy odpowiednik.',
       },
       {
         id: '03',
         title: 'Implementacja',
-        desc: 'Wgrywamy reguły do pliku .htaccess lub konfiguracji nginx.',
-        status: 'Pending',
+        desc: 'Wgrywamy reguły przekierowań do konfiguracji serwera lub hostingu.',
       },
       {
         id: '04',
         title: 'Weryfikacja GSC',
         desc: 'Monitorujemy ruch po starcie, eliminując błędy 404.',
-        status: 'Pending',
       },
     ],
   },
