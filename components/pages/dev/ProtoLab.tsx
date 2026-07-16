@@ -2,6 +2,60 @@ import React from 'react';
 import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
+import { useSectionProgress } from '../../../hooks/useSectionProgress';
+
+/**
+ * PROTOTYP 2: halftone-wywołanie dowodu. Zrzut realizacji wjeżdża jako
+ * raster z kropek brandu (asset build-time: scripts/generate-halftone.mjs)
+ * i „wywołuje się" do ostrego wraz z --p. Spoczynek/prerender/reduced =
+ * OSTRY zrzut (kontrakt var(--p,1)) — raster to wyłącznie przejście wejścia,
+ * dowód nigdy nie zostaje zasłonięty.
+ */
+const HalftoneProto: React.FC = () => {
+  // Postęp mierzy FIGURA, nie sekcja: --p sekcji dobija do ~0.7 zanim figura
+  // wejdzie w kadr i całe wywołanie działoby się poza ekranem.
+  const figRef = useSectionProgress<HTMLElement>(0.6);
+  return (
+    <section className="bg-deep-dark py-24 md:py-32" data-proto="halftone">
+      <Container>
+        <h2 className="text-3xl font-extrabold tracking-tight text-white md:text-4xl">
+          Halftone-wywołanie dowodu
+        </h2>
+        <figure
+          ref={figRef}
+          className="relative mt-10 overflow-hidden rounded-2xl border border-white/10"
+        >
+          {/* Cross-dissolve: ostry dowód WJEŻDŻA z --p, raster gaśnie — nigdy
+              nie leżą na sobie oba w pełni (raster z tłem przyciemniałby zrzut). */}
+          <img
+            src="/assets/images/realizacje/driftmark-sklep-home.webp"
+            alt="Strona główna sklepu Driftmark Marine — zrzut z produkcji"
+            width={1440}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="w-full"
+            style={{ opacity: 'var(--p, 1)' }}
+          />
+          <img
+            src="/assets/images/realizacje/driftmark-sklep-home-halftone.webp"
+            alt=""
+            aria-hidden="true"
+            width={1440}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            style={{ opacity: 'calc(1 - var(--p, 1))' }}
+          />
+          <figcaption className="sr-only">
+            Raster kropek wywołuje się do ostrego zrzutu przy przewijaniu.
+          </figcaption>
+        </figure>
+      </Container>
+    </section>
+  );
+};
 
 /**
  * LABORATORIUM PROTOTYPÓW kierunku „warsztat + wyspy kropek" (2026-07-16).
@@ -46,10 +100,19 @@ const ProtoLab: React.FC = () => (
       </Container>
     </section>
 
-    {/* Wybieg — przestrzeń pod kolejne prototypy (halftone, fakty). */}
+    {/* Rozdzielnik — halftone musi wjechać zza krawędzi, nie startować w kadrze. */}
+    <section className="min-h-[40vh] bg-white py-24">
+      <Container>
+        <p className="text-gray-500">Niżej: prototyp 2 (halftone-wywołanie dowodu).</p>
+      </Container>
+    </section>
+
+    <HalftoneProto />
+
+    {/* Wybieg — przestrzeń pod prototyp 3 (fakty). */}
     <section className="min-h-[50vh] bg-white py-24">
       <Container>
-        <p className="text-gray-500">Slot: halftone-dowód (prototyp 2) · fakty (prototyp 3).</p>
+        <p className="text-gray-500">Slot: fakty (prototyp 3).</p>
       </Container>
     </section>
   </div>
