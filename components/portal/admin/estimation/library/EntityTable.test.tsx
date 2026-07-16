@@ -83,3 +83,67 @@ describe('EntityTable — edycja wiersza biblioteki', () => {
     expect(screen.getByTitle(/kontrakt danych/i).textContent).toContain('frontend');
   });
 });
+
+describe('EntityTable — edycja zakresu modułu (checkboxy, f2c-2b)', () => {
+  const moduleCfg = ENTITY_CONFIGS.find((c) => c.entity === 'module')!;
+  const moduleRow = {
+    code: 'wishlist',
+    name: 'Wishlist',
+    hours_min: 8,
+    hours_max: 16,
+    risk: 'low',
+    goals_json: '["sklep"]',
+    archetypes_json: null,
+  };
+  const sources = {
+    goals_json: [
+      { value: 'sklep', label: 'Sklep' },
+      { value: 'b2b', label: 'B2B' },
+    ],
+    archetypes_json: [{ value: 'woocommerce', label: 'woocommerce' }],
+  };
+
+  it('zaznaczenie celu → patch z goals_json (posortowany JSON)', async () => {
+    const onSave = vi.fn().mockResolvedValue({ ok: true });
+    render(
+      <EntityTable
+        config={moduleCfg}
+        rows={[moduleRow]}
+        qmap={{}}
+        checkboxSources={sources}
+        saving={false}
+        onSave={onSave}
+        onSaved={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByText('Edytuj'));
+    fireEvent.click(screen.getByLabelText('B2B')); // dołóż b2b do {sklep}
+    fireEvent.click(screen.getByText('Zapisz'));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    const [key, patch] = onSave.mock.calls[0];
+    expect(key).toEqual({ code: 'wishlist' });
+    expect(patch).toEqual({ goals_json: '["b2b","sklep"]' }); // posortowane
+  });
+
+  it('odznaczenie wszystkich celów → goals_json = null („wszystkie")', async () => {
+    const onSave = vi.fn().mockResolvedValue({ ok: true });
+    render(
+      <EntityTable
+        config={moduleCfg}
+        rows={[moduleRow]}
+        qmap={{}}
+        checkboxSources={sources}
+        saving={false}
+        onSave={onSave}
+        onSaved={vi.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByText('Edytuj'));
+    fireEvent.click(screen.getByLabelText('Sklep')); // odznacz sklep → puste
+    fireEvent.click(screen.getByText('Zapisz'));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(1));
+    expect(onSave.mock.calls[0][1]).toEqual({ goals_json: null });
+  });
+});

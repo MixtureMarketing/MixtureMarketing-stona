@@ -68,6 +68,12 @@ export function buildRuleContext(raw: {
   };
 }
 
+/** Syntetyczne „pytania" wstrzykiwane przez silnik jako odpowiedzi (nie ma ich w est_questions).
+ *  Świadomy wyjątek od inwariantu 2 — część specyfikacji silnika (jak INTEGRATION_QUESTIONS w quote.ts).
+ *  `archetype` = kod wybranego archetypu (quote.ts: answers.archetype); reguły recommend_archetype /
+ *  archetype_warning i „archetype∈{laravel,headless}" (docs/05) na nim warunkują. */
+const SYNTHETIC_Q = new Set(['archetype']);
+
 type CondNode =
   | { all: CondNode[] }
   | { any: CondNode[] }
@@ -93,7 +99,8 @@ function walkCondition(node: unknown, ctx: RuleLibraryContext, errors: string[])
     errors.push('Warunek: liść wymaga pola „q".');
     return;
   }
-  if (!ctx.questionCodes.has(n.q)) errors.push(`Warunek: nieistniejące pytanie „${n.q}".`);
+  if (!ctx.questionCodes.has(n.q) && !SYNTHETIC_Q.has(n.q))
+    errors.push(`Warunek: nieistniejące pytanie „${n.q}".`);
   if (typeof n.op !== 'string' || !CONDITION_OPS.has(n.op))
     errors.push(`Warunek: nieznany operator „${String(n.op)}" (pytanie „${n.q}").`);
 }

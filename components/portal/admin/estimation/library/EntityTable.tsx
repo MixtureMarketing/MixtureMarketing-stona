@@ -8,12 +8,28 @@ interface Props {
   config: EntityConfig;
   rows: LibRow[];
   qmap: QMap;
+  /** Źródła opcji dla pól 'checkboxes' (data-driven z biblioteki), po kluczu pola. */
+  checkboxSources?: Record<string, { value: string; label: string }[]>;
   saving: boolean;
   onSave: (key: Record<string, unknown>, patch: Record<string, unknown>) => Promise<PatchResult>;
   onSaved: () => void;
 }
 
 type Opt = { value: unknown; label: string };
+
+/** JSON tablicy zaznaczonych (posortowanej dla stabilnego porównania) albo null gdy pusto. */
+function serializeChecks(values: string[]): string | null {
+  return values.length ? JSON.stringify([...values].sort()) : null;
+}
+function parseChecks(raw: unknown): string[] {
+  if (typeof raw !== 'string' || raw === '') return [];
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
+  }
+}
 
 function parseOpts(raw: unknown): Opt[] {
   if (typeof raw !== 'string') return [];
@@ -25,11 +41,15 @@ function parseOpts(raw: unknown): Opt[] {
   }
 }
 
-/** Koercja wartości pola z inputu (string) na typ do PATCH. Liczba pusta + nullable → null. */
+/** Koercja wartości pola z inputu (string) na typ do PATCH. Liczba pusta + nullable → null.
+ *  Checkboxes: draft trzyma JSON tablicy (lub ''); pusto → null (= „wszystkie"). */
 function coerce(field: FieldDef, raw: string): unknown {
   if (field.kind === 'number') {
     if (raw.trim() === '') return field.nullable ? null : NaN;
     return Number(raw);
+  }
+  if (field.kind === 'checkboxes') {
+    return raw === '' || raw === '[]' ? null : raw;
   }
   return raw;
 }
@@ -37,7 +57,15 @@ function coerce(field: FieldDef, raw: string): unknown {
 const inputCls =
   'w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-accent';
 
-const EntityTable: React.FC<Props> = ({ config, rows, qmap, saving, onSave, onSaved }) => {
+const EntityTable: React.FC<Props> = ({
+  config,
+  rows,
+  qmap,
+  checkboxSources,
+  saving,
+  onSave,
+  onSaved,
+}) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [opts, setOpts] = useState<Opt[]>([]);
@@ -159,6 +187,7 @@ const EntityTable: React.FC<Props> = ({ config, rows, qmap, saving, onSave, onSa
                     opts={opts}
                     setOpts={setOpts}
                     qmap={qmap}
+                    checkboxSources={checkboxSources}
                   />
                 ))}
                 {errors.length > 0 && (
@@ -186,6 +215,7 @@ interface FieldRowProps {
   opts: Opt[];
   setOpts: React.Dispatch<React.SetStateAction<Opt[]>>;
   qmap: QMap;
+  checkboxSources?: Record<string, { value: string; label: string }[]>;
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -196,9 +226,15 @@ const FieldRow: React.FC<FieldRowProps> = ({
   opts,
   setOpts,
   qmap,
+  checkboxSources,
 }) => {
   const set = (v: string) => setDraft((d) => ({ ...d, [field.key]: v }));
   const val = draft[field.key] ?? '';
+  const checkedVals = field.kind === 'checkboxes' ? parseChecks(val) : [];
+  const toggleCheck = (v: string) => {
+    const next = checkedVals.includes(v) ? checkedVals.filter((x) => x !== v) : [...checkedVals, v];
+    set(serializeChecks(next) ?? '');
+  };
 
   return (
     <label className="block">
@@ -218,6 +254,23 @@ const FieldRow: React.FC<FieldRowProps> = ({
       )}
       {field.kind === 'textarea' && (
         <textarea className={inputCls} rows={2} value={val} onChange={(e) => set(e.target.value)} />
+      )}
+      {field.kind === 'checkboxes' && (
+        <div className="flex flex-wrap gap-3 mt-1">
+          {(checkboxSources?.[field.key] ?? []).map((o) => (
+            <label key={o.value} className="flex items-center gap-1 text-xs">
+              <input
+                type="checkbox"
+                checked={checkedVals.includes(o.value)}
+                onChange={() => toggleCheck(o.value)}
+              />
+              {o.label}
+            </label>
+          ))}
+          {(checkboxSources?.[field.key] ?? []).length === 0 && (
+            <span className="text-xs text-gray-400">Brak opcji.</span>
+          )}
+        </div>
       )}
       {field.kind === 'select' && (
         <select className={inputCls} value={val} onChange={(e) => set(e.target.value)}>
