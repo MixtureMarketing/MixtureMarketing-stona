@@ -52,10 +52,10 @@ const IntegrationGrid: React.FC<IntegrationGridProps> = memo(({ categories }) =>
               ))}
             </div>
 
-            {/* Bottom Connector Graphic */}
+            {/* Stopka karty: nazwa mechanizmu zamiast martwej etykiety „API Ready" */}
             <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-gray-600 group-hover:text-primary transition-colors">
-              <span>API Ready</span>
-              <Plug size={14} />
+              <span>Integracja przez API</span>
+              <Plug size={14} aria-hidden="true" />
             </div>
           </div>
         </AnimateOnScroll>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ArrowRight,
   Target,
   BarChart3,
   Zap,
@@ -10,7 +9,6 @@ import {
   Rocket,
   Play,
   Calculator,
-  MousePointerClick,
   AlertTriangle,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +27,6 @@ import SectionWrapper from '../common/SectionWrapper';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
 import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
-import { LandingPageHeroVisual } from '../visuals/hero/LandingPageVisual';
 import { PricingSectionData, PricingTier } from '../../types';
 import LandingPagePsychology from '../features/web-development/LandingPagePsychology';
 
@@ -94,7 +91,7 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -113,14 +110,16 @@ const LandingPage: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-16) — „Symulator
+          Prędkości" z wymyślonym wzorem -7%/s i fejkowym „Live Check" skasowany.
+          Cena wg CMS (od 2 500 zł; hero twierdził 3 900 wbrew tabeli niżej);
+          „7–14 dni" potwierdzone, „A/B testy w cenie" usunięte (właściciel). */}
       <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={MousePointerClick}
+        tone="dark"
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
-        priceHint="od 3 900 zł · gotowy LP w 7–14 dni · A/B testy w cenie"
-        trustLine={<HeroTrustLine />}
+        priceHint="od 2 500 zł · gotowy LP w 7–14 dni"
+        trustLine={<HeroTrustLine tone="dark" />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'landing' })}
         ctaSecondaryText="Wyceń stronę"
@@ -128,7 +127,6 @@ const LandingPage: React.FC = () => {
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
-        visual={<LandingPageHeroVisual />}
       />
 
       {/* --- USE CASES --- */}
@@ -141,44 +139,33 @@ const LandingPage: React.FC = () => {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Wiersz „Main KPI" usunięty — „Conversion Rate > 25%" i „Viral
+                Coefficient" to wymyślone benchmarki (zakaz: usuwać, nie podmieniać). */}
             {useCases.map((item, index) => (
               <AnimateOnScroll key={index} delay={index * 150} className="h-full">
-                <GlassCard className="p-8 h-full flex flex-col transition-all duration-300 group bg-[#F9FAFB] hover:bg-white hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] border-t-4 border-t-transparent hover:border-t-[#E1306C]">
-                  <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-dark mb-6 group-hover:bg-instagram group-hover:text-white transition-colors duration-300 shadow-sm border border-gray-100">
+                <GlassCard className="p-8 h-full flex flex-col transition-all duration-300 group bg-[#F9FAFB] hover:bg-white hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)]">
+                  <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-dark mb-6 group-hover:bg-secondary group-hover:text-white transition-colors duration-300 shadow-sm border border-gray-100">
                     {item.icon}
                   </div>
 
                   <h3 className="text-xl font-bold text-dark mb-2">{item.title}</h3>
-                  <p className="text-xxs font-black text-instagram uppercase tracking-[0.2em] mb-4">
+                  <p className="text-xxs font-black text-secondary uppercase tracking-[0.2em] mb-4">
                     {item.subtitle}
                   </p>
 
-                  <p className="text-gray-700 leading-relaxed text-sm mb-8 flex-grow font-medium">
+                  <p className="text-gray-700 leading-relaxed text-sm mb-6 flex-grow font-medium">
                     {item.desc}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap gap-2">
                     {item.tags.map((tag, i) => (
                       <span
                         key={i}
-                        className="text-xxs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase border border-gray-200 group-hover:border-instagram/20 transition-colors"
+                        className="text-xxs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded uppercase border border-gray-200 group-hover:border-secondary/20 transition-colors"
                       >
                         {tag}
                       </span>
                     ))}
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-100 w-full flex justify-between items-center">
-                    <div>
-                      <div className="text-xxs font-bold text-gray-600 uppercase tracking-widest">
-                        Main KPI
-                      </div>
-                      <div className="text-xs font-black text-dark">{item.kpi}</div>
-                    </div>
-                    <ArrowRight
-                      size={16}
-                      className="text-gray-300 group-hover:text-instagram transition-colors transform group-hover:translate-x-1"
-                    />
                   </div>
                 </GlassCard>
               </AnimateOnScroll>
