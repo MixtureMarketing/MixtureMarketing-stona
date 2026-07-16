@@ -1,0 +1,35 @@
+# Konfiguracja WYŁĄCZNIE do lokalnego developmentu (`wrangler pages dev`).
+#
+# CELOWO BEZ `pages_build_output_dir`: brak tego klucza sprawia, że `wrangler pages deploy`
+# (nasze CI) traktuje plik jako „local dev only" i GO IGNORUJE — produkcja bierze bindingi
+# z dashboardu Cloudflare, nie stąd. Gdyby ten klucz tu był, deploy nadpisałby bindingi
+# produkcji tym, co w pliku (klucze non-inheritable) — a że mielibyśmy tu niepełny zestaw,
+# zniknęłyby FILES/CACHE z prod. Dokumentacja: developers.cloudflare.com/pages/functions/
+# wrangler-configuration/ („used for local development only").
+#
+# Efekt: `wrangler pages dev dist` czyta poniższe bindingi bez flag `--d1/--r2/--kv`.
+#
+# database_id / bucket_name / KV id NIE są sekretami wg Cloudflare (bez tokenu API bezużyteczne).
+# Umieszczenie ich w PUBLICZNYM repo to jawna, świadoma decyzja właściciela (Jakub, f2-post).
+# account_id CELOWO tu nie ma — żyje w GitHub Secrets (CLOUDFLARE_ACCOUNT_ID).
+
+name = "mixturemarketing-stona"
+# RÓWNA dashboardowi produkcji (zweryfikowane przez API: 2026-02-05). Zmiana daty runtime
+# to osobna świadoma decyzja, nie efekt uboczny porządków — trzymamy zgodność local↔prod.
+compatibility_date = "2026-02-05"
+
+# D1 — baza modułu wycen i portalu
+[[d1_databases]]
+binding = "DB"
+database_name = "mixture-db"
+database_id = "8a11290b-b947-431a-996d-4bedd08ee988"
+
+# R2 — pliki (dokumenty wycen quotes/*, uploady, załączniki). Binding FILES.
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "mixture-files"
+
+# KV — cache czatu/audytu. Binding CACHE. namespace_id zweryfikowany przez API = dashboard.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "538d11bc6e2c4f31b43a8e16db8577d9"
