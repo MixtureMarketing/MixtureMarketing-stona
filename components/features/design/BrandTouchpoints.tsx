@@ -57,12 +57,15 @@ const BrandTouchpoints: React.FC = () => {
         </AnimateOnScroll>
 
         <AnimateOnScroll delay={100} className="md:col-span-2">
+          {/* variant="dark", nie solid+bg-dark: dwie klasy tła (bg-white z wariantu
+              i doklejone bg-dark) walczą w CSS i wygrywała biała — biały tekst
+              na białym tle (zgłoszone przez właściciela 2026-07-16). */}
           <BaseCard
-            variant="solid"
+            variant="dark"
             hover="zoom"
             rounded="3xl"
             padding="lg"
-            className="h-full bg-dark border-none group"
+            className="h-full border-white/10 group"
           >
             <div className="absolute -bottom-10 -right-10 text-white/10 rotate-12 transition-transform group-hover:rotate-0 duration-700">
               <Share2 size={240} strokeWidth={1} />

@@ -12,7 +12,9 @@ import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../../data/content/services/
  */
 const HeuristicsGrid: React.FC = () => {
   return (
-    <SectionWrapper variant="white" containerClassName="max-w-screen-xl">
+    // overflow={false}: domyślny overflow-hidden SectionWrappera łamie
+    // position:sticky nagłówka w lewej kolumnie
+    <SectionWrapper variant="white" overflow={false} containerClassName="max-w-screen-xl">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
         <div className="lg:col-span-5">
           <div className="lg:sticky lg:top-28">

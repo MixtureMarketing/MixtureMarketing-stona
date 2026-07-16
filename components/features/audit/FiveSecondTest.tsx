@@ -105,26 +105,40 @@ const FiveSecondTest: React.FC = () => {
                 </button>
               </div>
 
-              {/* Makieta oglądana przez 5 s — celowo abstrakcyjna, bez treści */}
+              {/* Mini-strona oglądana przez 5 s — realna oferta, żeby pytania
+                  protokołu MIAŁY odpowiedzi (puste szkielety = nie ma czego
+                  zapamiętać; zgłoszone przez właściciela 2026-07-16). */}
               <div className="w-full h-full flex flex-col" aria-hidden={phase !== 'running'}>
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center mb-6">
                   <span className="text-xxs font-black uppercase tracking-widest text-gray-600">
                     Symulacja
                   </span>
                   <div className="text-2xl font-mono font-black text-dark">00:0{timeLeft}</div>
                 </div>
 
-                <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-4 relative overflow-hidden">
-                  <div className="w-full h-8 bg-gray-50 rounded-lg mb-4"></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="h-24 bg-blue-50 rounded-xl"></div>
-                    <div className="h-24 bg-gray-50 rounded-xl"></div>
+                <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-6 flex flex-col relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-xs font-black text-dark">
+                      {CONTENT.test5s.mockPage.brand}
+                    </span>
+                    <div className="flex gap-2" aria-hidden="true">
+                      <div className="w-8 h-1.5 bg-gray-100 rounded-full"></div>
+                      <div className="w-8 h-1.5 bg-gray-100 rounded-full"></div>
+                    </div>
                   </div>
-                  <div className="mt-4 space-y-2">
+                  <h3 className="text-xl font-black text-dark leading-tight mb-2">
+                    {CONTENT.test5s.mockPage.heading}
+                  </h3>
+                  <p className="text-sm text-gray-700 leading-snug mb-5">
+                    {CONTENT.test5s.mockPage.sub}
+                  </p>
+                  <div className="self-start px-5 py-2.5 bg-dark text-white rounded-lg text-xs font-black uppercase tracking-widest">
+                    {CONTENT.test5s.mockPage.cta}
+                  </div>
+                  <div className="mt-auto space-y-2 pt-5" aria-hidden="true">
                     <div className="h-2 w-full bg-gray-100 rounded-full"></div>
-                    <div className="h-2 w-2/3 bg-gray-100 rounded-full"></div>
+                    <div className="h-2 w-3/4 bg-gray-100 rounded-full"></div>
                   </div>
-                  <div className="mt-4 w-28 h-9 bg-dark rounded-lg"></div>
                 </div>
               </div>
             </div>

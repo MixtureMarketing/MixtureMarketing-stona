@@ -41,6 +41,14 @@ export const VISUAL_AUDIT_CONTENT = {
         'W prawdziwym badaniu te pytania zadajemy ludziom, którzy widzą Twoją stronę pierwszy raz. Jeśli odpowiedzi się rozjeżdżają — wiemy, co poprawić.',
       retry: 'Spróbuj ponownie',
     },
+    /** Mini-strona oglądana przez 5 s — nasza realna oferta (żadnych
+     *  wymyślonych obietnic), żeby pytania protokołu miały odpowiedzi. */
+    mockPage: {
+      brand: 'Mixture Marketing',
+      heading: 'Audyt UX Twojej strony',
+      sub: 'Raport w 5–7 dni: co odpycha klientów i jak to naprawić.',
+      cta: 'Zamów audyt',
+    },
     stats: [
       { val: '5s', label: 'Czas uwagi' },
       { val: '3', label: 'Pytania protokołu' },
