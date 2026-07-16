@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Fingerprint, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import StandardFaq from '../common/StandardFaq';
@@ -10,7 +10,6 @@ import DesignSpokeFooter from '../common/DesignSpokeFooter';
 import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import SectionHeader from '../common/SectionHeader';
-import { DesignHeroVisual } from '../visuals/hero/DesignVisual';
 import { SITE_CONFIG } from '../../config/site';
 
 // Refactored Sub-components
@@ -30,7 +29,7 @@ const BrandIdentity: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -46,20 +45,19 @@ const BrandIdentity: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift kategorii design,
+          2026-07-16) — wizual-atrapa i badge usunięte. */}
       <div ref={heroRef}>
         <StandardHero
-          badge={CONTENT.hero.badge}
-          badgeIcon={Fingerprint}
+          tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
           priceHint="od 3 500 zł logo + brand book · od 8 000 zł pełna identyfikacja · 3–4 tyg"
-          trustLine={<HeroTrustLine promise="Sam projektuję, sam koncepcyjnie prowadzę projekt" />}
+          trustLine={<HeroTrustLine tone="dark" />}
           ctaPrimaryText={CONTENT.hero.cta}
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'branding' })}
           backLinkPath="/design/"
-          backLinkLabel="Wróć do Designu"
-          visual={<DesignHeroVisual />}
+          backLinkLabel="Design"
         />
       </div>
 
