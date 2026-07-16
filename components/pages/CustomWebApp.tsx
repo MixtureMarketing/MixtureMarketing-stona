@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Code2, Calculator, Settings } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Calculator, Settings } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../data/content';
@@ -12,23 +12,42 @@ import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
 import WebDevSpokeFooter from '../common/WebDevSpokeFooter';
 import BaseCta from '../common/BaseCta';
-import { WebAppHeroVisual } from '../visuals/hero/WebAppVisual';
-
-// Refactored Sub-components
+import Container from '../common/Container';
+import StickyMobileBar from '../common/StickyMobileBar';
+import { SITE_CONFIG } from '../../config/site';
+import CustomAppProof from '../features/web-development/CustomAppProof';
+import CustomAppStart from '../features/web-development/CustomAppStart';
 import WebAppUseCases from '../features/web-development/WebAppUseCases';
 import WebAppTechStack from '../features/web-development/WebAppTechStack';
 import WebAppTrust from '../features/web-development/WebAppTrust';
 import WebAppQaPipeline from '../features/web-development/WebAppQaPipeline';
+import FaqSection from '../sections/FaqSection';
 
+/**
+ * Strona „Aplikacje dedykowane" — przebudowa 2026-07-16 (krytyka 16/40, pełna
+ * ścieżka /impeccable). Porządek = siatka bezpieczeństwa decyzyjnego persony:
+ * hero (words-only) → dowód (żywy SaaS) → co budujemy → jak zaczynamy (proces
+ * właściciela) → stack (potwierdzony) → własność kodu → jakość → cennik +
+ * utrzymanie → FAQ → founder → CTA. Usunięte: fejkowy SYSTEM_MONITOR_V2,
+ * terminal CI z emoji, atrapa umowy, SLA 99.5/99.9/99.99%.
+ */
 const CustomWebApp: React.FC = () => {
   const navigate = useNavigate();
   const { openModal } = useModal();
+  const heroRef = useRef<HTMLDivElement>(null);
+  const finalCtaRef = useRef<HTMLDivElement>(null);
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
+  const [pricingFailed, setPricingFailed] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    cmsService.getPricingSection('custom-web-app').then((data) => {
-      if (data) {
+    cmsService
+      .getPricingSection('custom-web-app')
+      .then((data) => {
+        if (!data) {
+          setPricingFailed(true);
+          return;
+        }
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({
           ...tier,
           onCtaClick: () =>
@@ -38,17 +57,18 @@ const CustomWebApp: React.FC = () => {
             }),
         }));
         setPricingData({ ...data, tiers: tiersWithActions });
-      }
-    });
+      })
+      .catch(() => setPricingFailed(true));
   }, [openModal]);
 
+  const openConsult = () => openModal('web', { specificType: 'custom' });
+
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
-        lcpImage={CONTENT.seo.image}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Web Development', item: '/web-development/' },
@@ -57,30 +77,37 @@ const CustomWebApp: React.FC = () => {
         service={{
           name: 'Aplikacje webowe dedykowane',
           description:
-            'Tworzenie dedykowanych aplikacji webowych SaaS / B2B / portali klienckich. Stack: Next.js + Node.js + PostgreSQL / Sanity / Cloudflare Workers. SLA 99.5% uptime.',
+            'Dedykowane aplikacje webowe: portale B2B, systemy rezerwacji, CRM/ERP, SaaS. Node.js, Python, Laravel, React, PostgreSQL. Repozytorium od pierwszego dnia i pełne prawa autorskie.',
           serviceType: 'Custom Web Application Development',
         }}
       />
 
-      {/* --- HERO SECTION --- */}
-      <StandardHero
-        badge={CONTENT.hero.badge}
-        badgeIcon={Code2}
-        title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
-        description={CONTENT.hero.description}
-        priceHint="od 25 000 zł · od 3 miesięcy · SLA 99.5% uptime"
-        trustLine={<HeroTrustLine />}
-        ctaPrimaryText="Umów się na konsultację"
-        ctaPrimaryOnClick={() => openModal('web', { specificType: 'custom' })}
-        ctaSecondaryText="Wyceń aplikację"
-        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=custom')}
-        ctaSecondaryIcon={Calculator}
-        backLinkPath="/web-development/"
-        backLinkLabel="Web Development"
-        visual={<WebAppHeroVisual />}
-      />
+      {/* Hero words-only (zasada właściciela). Kotwica 25 000 zł potwierdzona
+          2026-07-16; „płatność etapami" = obietnica z huba. BEZ SLA. */}
+      <div ref={heroRef}>
+        <StandardHero
+          tone="dark"
+          title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
+          description={CONTENT.hero.description}
+          priceHint="od 25 000 zł · od 3 miesięcy · płatność etapami"
+          trustLine={<HeroTrustLine tone="dark" />}
+          ctaPrimaryText="Umów darmową rozmowę"
+          ctaPrimaryOnClick={openConsult}
+          ctaSecondaryText="Wyceń aplikację"
+          ctaSecondaryOnClick={() => navigate('/offers#calculator?type=custom')}
+          ctaSecondaryIcon={Calculator}
+          backLinkPath="/web-development/"
+          backLinkLabel="Web Development"
+        />
+      </div>
+
+      <LazyHydrate minHeight="600px">
+        <CustomAppProof />
+      </LazyHydrate>
 
       <WebAppUseCases />
+
+      <CustomAppStart />
 
       <WebAppTechStack />
 
@@ -88,7 +115,7 @@ const CustomWebApp: React.FC = () => {
 
       <WebAppQaPipeline />
 
-      {/* --- PRICING --- */}
+      {/* Cennik z CMS (modele współpracy) + uczciwy empty-state (DESIGN.md). */}
       {pricingData && (
         <LazyHydrate minHeight="600px">
           <PricingTable
@@ -98,27 +125,80 @@ const CustomWebApp: React.FC = () => {
           />
         </LazyHydrate>
       )}
+      {pricingFailed && (
+        <section className="bg-gray-50 py-20">
+          <Container>
+            <div className="mx-auto max-w-2xl rounded-2xl border border-gray-100 bg-white px-6 py-10 text-center">
+              <p className="text-lg font-bold text-dark">
+                Nie udało się załadować modeli współpracy.
+              </p>
+              <p className="mt-2 text-gray-700">
+                Policz widełki dla swojej aplikacji w kalkulatorze — zajmuje to około minuty.
+              </p>
+              <Link
+                to="/offers#calculator?type=custom"
+                className="mt-5 inline-flex items-center gap-2 font-bold text-secondary underline-offset-4 hover:underline"
+              >
+                Przejdź do kalkulatora wyceny
+              </Link>
+            </div>
+          </Container>
+        </section>
+      )}
 
-      {/* --- FOUNDER TRUST + SPOKE CROSS-LINKS --- */}
+      {/* Utrzymanie + jedyne uczciwe zdanie o SLA (osobna umowa serwisowa). */}
+      <section className="bg-gray-50 pb-20 md:pb-24">
+        <Container>
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-2xl font-extrabold tracking-tight text-dark">
+              {CONTENT.maintenance.title}
+            </h2>
+            {CONTENT.maintenance.lines.map((line) => (
+              <p key={line} className="mt-3 text-[15px] leading-relaxed text-gray-700">
+                {line}
+              </p>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} bgClassName="bg-white" />
+
+      {/* Bio zgodne z prawdą (decyzja właściciela 2026-07-16): Jakub = analityk
+          biznesowy i PM, jeden punkt kontaktu; koduje zespół developerów. */}
       <WebDevSpokeFooter
         currentType="custom"
         founderBio={
           <>
-            Od 2020 buduję dedykowane aplikacje webowe (SaaS, B2B, portale klienckie). Stack:
-            Next.js + Node.js + PostgreSQL + Cloudflare Workers. Architektura, kod i SLA — wszystko
-            ze mną, bez handlowca-pośrednika i bez 3 dostawców do koordynowania.
+            Prowadzę projekty dedykowane od analizy biznesowej po wdrożenie — to ze mną rozmawiasz
+            na każdym etapie, bez handlowca-pośrednika. Koduje nasz zespół developerów, a przy
+            większych projektach wspierają nas sprawdzeni, zaprzyjaźnieni specjaliści. Jeden punkt
+            kontaktu, zero głuchego telefonu.
           </>
         }
       />
 
-      {/* --- CTA --- */}
-      <BaseCta
-        title={CONTENT.cta.title}
-        description={CONTENT.cta.description}
-        buttonText={CONTENT.cta.button}
-        icon={Settings}
-        onClick={() => openModal('web', { specificType: 'custom' })}
-        variant="dark"
+      <div ref={finalCtaRef}>
+        <BaseCta
+          title={CONTENT.cta.title}
+          description={CONTENT.cta.description}
+          buttonText={CONTENT.cta.button}
+          icon={Settings}
+          onClick={openConsult}
+          variant="dark"
+        />
+      </div>
+
+      {/* Sticky mobile CTA — parytet z hubem (strona ma ~14 tys. px scrolla). */}
+      <StickyMobileBar
+        aboveRef={heroRef}
+        belowRef={finalCtaRef}
+        label="Darmowa rozmowa"
+        sublabel="Wstępne widełki w 24h"
+        telephone={SITE_CONFIG.contact.phoneFull}
+        telephoneDisplay={SITE_CONFIG.contact.phone}
+        primaryLabel="Wyceń"
+        onPrimary={openConsult}
       />
     </div>
   );

@@ -1,82 +1,62 @@
 import React from 'react';
-import { Unlock, BookOpen, FileCode, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import SectionHeader from '../../common/SectionHeader';
-import AnimateOnScroll from '../../common/AnimateOnScroll';
-import SectionWrapper from '../../common/SectionWrapper';
+import { BookOpen, FolderGit2, KeyRound, Unlock, LucideIcon } from 'lucide-react';
+import Container from '../../common/Container';
+import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
 
+/**
+ * „Kod jest Twój. Od pierwszej linijki." — trzy klauzule własności jako TREŚĆ
+ * (bez atrapy umowy „CONFIDENTIAL" z mono-checklistą i stemplem — przebudowa
+ * 2026-07-16) + granatowa pieczęć w brzmieniu z huba, rozszerzona o
+ * dokumentację (PRODUCT.md: dokumentacja tylko przy systemach dedykowanych).
+ */
+const ICONS: LucideIcon[] = [Unlock, BookOpen, FolderGit2];
+
 const WebAppTrust: React.FC = () => {
+  const sectionRef = useSectionProgress<HTMLElement>(0.85);
+
   return (
-    <SectionWrapper variant="light-gray" overflow={true}>
-      <div className="flex flex-col lg:flex-row gap-16 items-center">
-        <div className="lg:w-1/2">
-          <SectionHeader
-            align="left"
-            title={CONTENT.trust.title}
-            description={CONTENT.trust.description}
-          />
-          <ul className="space-y-6 mt-8">
+    <section ref={sectionRef} className="relative bg-light-gray py-20 md:py-28">
+      <Container>
+        <div
+          className="max-w-3xl"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+        >
+          <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+            {CONTENT.trust.title}
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-gray-700">{CONTENT.trust.description}</p>
+        </div>
+
+        <div
+          className="mt-12 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm"
+          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
+        >
+          <ul className="divide-y divide-gray-100">
             {CONTENT.trust.items.map((item, i) => {
-              const icons = [
-                <Unlock key="unlock" size={20} />,
-                <BookOpen key="book" size={20} />,
-                <FileCode key="code" size={20} />,
-              ];
+              const Icon = ICONS[i] ?? Unlock;
               return (
-                <li key={i} className="flex items-start gap-4">
-                  <div className="mt-1 p-2 bg-blue-50 rounded-lg text-secondary">{icons[i]}</div>
+                <li key={item.title} className="flex items-start gap-4 px-6 py-7 md:px-9">
+                  <Icon size={22} className="mt-1 shrink-0 text-secondary" aria-hidden="true" />
                   <div>
-                    <h3 className="font-bold text-dark">{item.title}</h3>
-                    <p className="text-sm text-gray-600">{item.desc}</p>
+                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 max-w-3xl text-[15px] leading-relaxed text-gray-700">
+                      {item.desc}
+                    </p>
                   </div>
                 </li>
               );
             })}
           </ul>
+          <p className="flex items-start gap-3 bg-dark px-6 py-5 text-[15px] font-bold text-white md:px-9">
+            <KeyRound size={18} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
+            {CONTENT.trust.seal}
+          </p>
         </div>
-
-        <div className="lg:w-1/2 flex justify-center">
-          <AnimateOnScroll delay={200}>
-            <div className="relative bg-white p-8 rounded-2xl shadow-2xl border border-gray-100 max-w-md transform rotate-2 hover:rotate-0 transition-transform duration-500">
-              <div className="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                  <ShieldCheck size={28} />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-gray-600 uppercase tracking-widest">
-                    Status Umowy
-                  </div>
-                  <div className="text-lg font-bold text-dark">IP Transfer Complete</div>
-                </div>
-              </div>
-              <div className="space-y-3 font-mono text-xs text-gray-700">
-                <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
-                  <span>Source Code Ownership</span>
-                  <CheckCircle2 size={16} className="text-green-500" />
-                </div>
-                <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
-                  <span>Database Schema</span>
-                  <CheckCircle2 size={16} className="text-green-500" />
-                </div>
-                <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
-                  <span>API Documentation</span>
-                  <CheckCircle2 size={16} className="text-green-500" />
-                </div>
-                <div className="flex justify-between items-center bg-gray-50 p-2 rounded">
-                  <span>NDA Signed</span>
-                  <CheckCircle2 size={16} className="text-green-500" />
-                </div>
-              </div>
-              <div className="mt-6 pt-4 text-center">
-                <div className="inline-block border-2 border-dark px-4 py-2 text-dark font-bold text-sm uppercase tracking-widest rounded opacity-20 transform -rotate-12">
-                  CONFIDENTIAL
-                </div>
-              </div>
-            </div>
-          </AnimateOnScroll>
-        </div>
-      </div>
-    </SectionWrapper>
+      </Container>
+    </section>
   );
 };
 
