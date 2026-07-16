@@ -31,7 +31,6 @@ const TiltCardFront: React.FC<TiltCardFrontProps> = ({
         transform: 'rotateY(0deg)',
       }}
     >
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
       <div
         className="absolute inset-0 pointer-events-none"
         style={{

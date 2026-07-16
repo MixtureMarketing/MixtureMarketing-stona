@@ -21,7 +21,7 @@ const PrintArsenal: React.FC = () => {
           return (
             <GlassCard
               key={i}
-              className="p-6 flex flex-col items-center justify-center text-center hover:border-[#F4B400] bg-light-gray group cursor-default h-48"
+              className="p-6 flex flex-col items-center justify-center text-center hover:border-secondary bg-light-gray group cursor-default h-48"
             >
               {i < 4 ? (
                 <div
@@ -32,11 +32,11 @@ const PrintArsenal: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-300 mb-4 group-hover:text-[#F4B400] transition-colors shadow-sm">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-gray-300 mb-4 group-hover:text-secondary transition-colors shadow-sm">
                   {icons[i - 4]}
                 </div>
               )}
-              <span className="font-bold text-dark text-lg group-hover:text-[#F4B400] transition-colors">
+              <span className="font-bold text-dark text-lg group-hover:text-secondary transition-colors">
                 {item.label}
               </span>
               <span className="text-xs text-gray-600 mt-1 uppercase tracking-wide">{item.sub}</span>

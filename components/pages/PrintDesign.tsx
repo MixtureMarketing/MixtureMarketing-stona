@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Printer, Zap } from 'lucide-react';
+import { Zap } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
@@ -8,7 +8,6 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import StandardFaq from '../common/StandardFaq';
 import SectionHeader from '../common/SectionHeader';
-import { PrintHeroVisual } from '../visuals/hero/PrintVisual';
 import Seo from '../common/Seo';
 import { PRINT_DESIGN_CONTENT as CONTENT } from '../../data/content';
 import { SITE_CONFIG } from '../../config/site';
@@ -31,7 +30,7 @@ const PrintDesign: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -48,20 +47,21 @@ const PrintDesign: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift kategorii design, 2026-07-16)
+          — wizual-atrapa (ticker CMYK ignorował reduced-motion) usunięty. */}
       <div ref={heroRef}>
         <StandardHero
-          badge={CONTENT.hero.badge}
-          badgeIcon={Printer}
+          tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
           priceHint="od 800 zł / projekt · preflight w cenie · profile drukarni"
-          trustLine={<HeroTrustLine promise="Sam projektuję i robię preflight pod drukarnię" />}
+          trustLine={
+            <HeroTrustLine tone="dark" promise="Sam projektuję i robię preflight pod drukarnię" />
+          }
           ctaPrimaryText={CONTENT.hero.cta}
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'print' })}
           backLinkPath="/design/"
-          backLinkLabel="Wróć do Designu"
-          visual={<PrintHeroVisual />}
+          backLinkLabel="Design"
         />
       </div>
 
@@ -91,7 +91,7 @@ const PrintDesign: React.FC = () => {
         founderBio={
           <>
             Od 2020 projektuję materiały drukowane — katalogi, opakowania, POS, kalendarze. Sam
-            robię preflight, sam pilnuje profili kolorów CMYK/Pantone. Bez "wymiany maili z
+            robię preflight, sam pilnuję profili kolorów CMYK/Pantone. Bez „wymiany maili z
             drukarnią o spady".
           </>
         }

@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import TiltCardFront from './TiltCardFront';
 import TiltCardBack from './TiltCardBack';
 
@@ -8,12 +9,41 @@ interface TiltCardProps {
 
 const TiltCard: React.FC<TiltCardProps> = ({ activeFinish }) => {
   const cardRef = useRef<HTMLDivElement>(null);
+  const sweepRaf = useRef<number>(0);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
   const [isFlipped, setIsFlipped] = useState(false);
 
+  /* Wybór uszlachetnienia = karta „łapie światło": przemiatanie odbicia L→P
+     z lekkim wahnięciem karty, żeby efekt było widać bez ruszania myszką
+     (dopracowanie Laboratorium, 2026-07-16). Reduced motion / prerender:
+     statyczna klatka z widocznym odbiciem zamiast animacji. */
+  useEffect(() => {
+    if (activeFinish === 'none') return;
+    cancelAnimationFrame(sweepRaf.current);
+    const reduced =
+      window.isPrerendering || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      // jedna klatka rAF zamiast setState wprost w efekcie (react-hooks/set-state-in-effect)
+      sweepRaf.current = requestAnimationFrame(() => setGlare({ x: 35, y: 30, opacity: 1 }));
+      return () => cancelAnimationFrame(sweepRaf.current);
+    }
+    const start = performance.now();
+    const DUR = 1300;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / DUR);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out-cubic
+      setGlare({ x: eased * 100, y: 35, opacity: t < 1 ? 1 : 0 });
+      setRotation({ x: 0, y: Math.sin(t * Math.PI) * 6 });
+      if (t < 1) sweepRaf.current = requestAnimationFrame(tick);
+    };
+    sweepRaf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(sweepRaf.current);
+  }, [activeFinish]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
+    cancelAnimationFrame(sweepRaf.current); // kursor przejmuje światło
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -115,21 +145,11 @@ const TiltCard: React.FC<TiltCardProps> = ({ activeFinish }) => {
         }}
         className="flex items-center gap-4 px-10 py-4 rounded-full bg-dark text-white shadow-2xl text-base font-black hover:bg-secondary hover:scale-105 active:scale-95 transition-all group"
       >
-        <div className="group-hover:rotate-180 transition-transform duration-1000">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-          >
-            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-            <path d="M21 3v5h-5" />
-            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-            <path d="M8 16H3v5" />
-          </svg>
-        </div>
+        <RefreshCw
+          size={24}
+          className="group-hover:rotate-180 transition-transform duration-1000"
+          aria-hidden="true"
+        />
         ZOBACZ DRUGĄ STRONĘ
       </button>
     </div>
