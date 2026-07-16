@@ -11,7 +11,8 @@ export type FieldKind =
   | 'select'
   | 'flag'
   | 'options'
-  | 'visibleif';
+  | 'visibleif'
+  | 'checkboxes';
 
 export interface FieldDef {
   key: string;
@@ -101,6 +102,18 @@ export const ENTITY_CONFIGS: EntityConfig[] = [
       { key: 'hours_min', label: 'Godziny min', kind: 'number' },
       { key: 'hours_max', label: 'Godziny maks', kind: 'number' },
       { key: 'risk', label: 'Ryzyko', kind: 'select', options: RISK_OPTS },
+      {
+        key: 'goals_json',
+        label: 'Cele (puste = wszystkie)',
+        kind: 'checkboxes',
+        hint: 'Moduł widoczny w wycenie tylko dla zaznaczonych celów projektu.',
+      },
+      {
+        key: 'archetypes_json',
+        label: 'Archetypy (puste = wszystkie)',
+        kind: 'checkboxes',
+        hint: 'Moduł widoczny tylko dla zaznaczonych archetypów.',
+      },
     ],
   },
   {

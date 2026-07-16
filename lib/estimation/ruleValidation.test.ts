@@ -126,6 +126,13 @@ describe('validateRule — SIEROTY WARUNKU → błąd', () => {
       ]).length,
     ).toBeGreaterThan(0);
   });
+  it('„archetype" to syntetyczne pytanie silnika — NIE sierota (regresja z E2E f2c-2b)', () => {
+    const e = V({ q: 'archetype', op: 'in', val: ['laravel', 'headless'] }, [
+      { type: 'min_level', aspect: 'high_availability', level: 2 },
+    ]);
+    expect(e).toEqual([]);
+  });
+
   it('zagnieżdżony q-sierota w all/any', () => {
     const e = V(
       {

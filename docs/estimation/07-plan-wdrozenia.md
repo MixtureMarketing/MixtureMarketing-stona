@@ -79,6 +79,7 @@ Każda faza kończy się przejściem `npm run build:full` (lint + testy + build 
 3. Ekran kalibracji: propozycje korekt widełek przy n≥3 i |MPE|>15%, podgląd przed/po, ręczne zatwierdzenie.
 4. History Engine: wyszukiwarka zamkniętych wycen (archetyp, integracje, przedział godzin), widok „najbliższe podobne" przy nowej wycenie (dopasowanie po archetypie + wspólnych integracjach/modułach — deterministyczny scoring liczby wspólnych cech).
 5. Mini-dashboard: skuteczność (won/lost + powody), średni błąd estymacji, najbardziej niedoszacowane obszary, czas przygotowania wyceny.
+6. **Retry/backoff D1 w endpointach admina** (dług z f2c-2a): D1 potrafi zwrócić przejściowe 500 na pierwszym zapisie (cold start) — smoke f2c-2a złapał to na `PATCH is_active` (powtórka od razu 200). Endpointy nie mają retry, więc blip surfacuje jako 500 do klienta. Dodać cienki retry/backoff (idempotentne operacje) w warstwie zapisu Pages Functions modułu — dotyczy wszystkich endpointów, nie tylko wycen.
 
 **Kryteria akceptacji F3:**
 - [ ] Po zamknięciu ≥1 wyceny raport pokazuje odchylenia per obszar.

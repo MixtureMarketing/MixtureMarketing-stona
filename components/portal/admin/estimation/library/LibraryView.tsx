@@ -7,6 +7,7 @@ import { ENTITY_CONFIGS } from './libraryFields';
 import EntityTable from './EntityTable';
 import RulesEditor from './RulesEditor';
 import CreateItemForm from './CreateItemForm';
+import ImportExport from './ImportExport';
 import type { QMap } from './visibleIf';
 
 interface Props {
@@ -40,10 +41,27 @@ const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
     return m;
   }, [library]);
 
+  // Źródła checkboxów (zakresy modułów) — data-driven z biblioteki (inwariant 2).
+  const checkboxSources = useMemo(() => {
+    const goalQ = library?.questions.find((q) => q.code === 'project_goal');
+    let goals: { value: string; label: string }[] = [];
+    try {
+      const parsed = goalQ?.options_json ? JSON.parse(goalQ.options_json) : [];
+      if (Array.isArray(parsed)) goals = parsed as { value: string; label: string }[];
+    } catch {
+      goals = [];
+    }
+    return {
+      goals_json: goals,
+      archetypes_json: (library?.archetypes ?? []).map((a) => ({ value: a.code, label: a.code })),
+    };
+  }, [library]);
+
   const cfg = ENTITY_CONFIGS.find((c) => c.entity === active);
   const tabs = [
     ...ENTITY_CONFIGS.map((c) => ({ key: c.entity, label: c.tab })),
     { key: 'rule', label: 'Reguły' },
+    { key: 'io', label: 'Eksport / Import' },
   ];
   const canCreate = active === 'module' || active === 'integration';
 
@@ -87,6 +105,17 @@ const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
 
       {loading && <p className="text-sm text-gray-400">Ładowanie biblioteki…</p>}
       {error && <p className="text-sm text-red-600">Błąd: {error}</p>}
+
+      {/* Eksport / Import (f2c-2b) */}
+      {active === 'io' && (
+        <ImportExport
+          sessionToken={sessionToken}
+          onApplied={() => {
+            reload();
+            editorRules.reload();
+          }}
+        />
+      )}
 
       {/* Reguły */}
       {active === 'rule' && library && (
@@ -136,6 +165,7 @@ const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
             config={cfg}
             rows={cfg.rowsFrom(library)}
             qmap={qmap}
+            checkboxSources={checkboxSources}
             saving={saving}
             onSave={(key, patch) => patchRow(cfg.entity, key, patch)}
             onSaved={reload}
