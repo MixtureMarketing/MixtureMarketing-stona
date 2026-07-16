@@ -9,7 +9,13 @@ const AmbientBackground: React.FC = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    // Dryf z pulsem strony (--page-p z Home): tło odpowiada na każdy piksel
+    // scrolla; na innych stronach zmiennej nie ma → transform 0 (statyka).
+    // -inset-y-6 nadmiaruje warstwę, żeby dryf nie odsłaniał krawędzi.
+    <div
+      className="absolute -inset-y-6 inset-x-0 overflow-hidden pointer-events-none z-0"
+      style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -24px), 0)' }}
+    >
       {/* Architectural Grid Pattern - Simplified SVG */}
       <svg
         className="absolute inset-0 w-full h-full opacity-[0.03]"

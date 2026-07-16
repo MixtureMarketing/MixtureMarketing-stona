@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SectionHeader from '../common/SectionHeader';
 import AmbientBackground from '../common/AmbientBackground';
+import WanderingGlow from '../visuals/WanderingGlow';
 import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { SERVICES_CONTENT as CONTENT } from '../../data/content';
 import { SERVICES_SECTION_DATA } from '../../data/content/services';
@@ -65,7 +66,12 @@ const Services: React.FC = () => {
 
       <div className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 max-w-2xl md:mb-16" style={drift(24)}>
-          <SectionHeader align="left" title={CONTENT.title} description={CONTENT.description} />
+          <SectionHeader
+            align="left"
+            triad
+            title={CONTENT.title}
+            description={CONTENT.description}
+          />
         </div>
 
         {/* 3 realne kompetencje */}
@@ -129,14 +135,14 @@ const Services: React.FC = () => {
               to={saas.path}
               className="group relative mt-6 flex flex-col gap-8 overflow-hidden rounded-3xl bg-dark p-8 text-white transition-shadow duration-300 hover:shadow-2xl hover:shadow-secondary/30 md:mt-7 md:flex-row md:items-center md:justify-between md:p-10"
             >
-              {/* Tania poświata (bez blur-filtra) */}
-              <div
-                className="pointer-events-none absolute inset-0 z-0"
-                style={{
-                  background:
-                    'radial-gradient(45% 90% at 100% 0%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 60%),' +
-                    'radial-gradient(40% 90% at 0% 100%, color-mix(in srgb, var(--color-secondary) 30%, transparent), transparent 65%)',
-                }}
+              {/* Wędrujące światło — pas SaaS odpowiada na scroll przez cały
+                  tranzyt (wątek „żywej całości"; kompozytor, nie paint) */}
+              <WanderingGlow
+                className="z-0"
+                background={
+                  'radial-gradient(45% 90% at 100% 0%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 60%),' +
+                  'radial-gradient(40% 90% at 0% 100%, color-mix(in srgb, var(--color-secondary) 30%, transparent), transparent 65%)'
+                }
               />
               <div className="relative z-10 max-w-2xl">
                 <span className="mb-4 inline-block rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xxs font-black uppercase tracking-[0.18em] text-primary">

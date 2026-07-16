@@ -39,7 +39,11 @@ const WhyUs: React.FC = () => {
       ref={sectionRef}
       className="relative overflow-hidden bg-white py-24 md:py-28"
     >
-      <div className="bg-tech-grid pointer-events-none absolute inset-0 opacity-[0.025]" />
+      {/* Siatka dryfuje z pulsem strony (--page-p) — tło żyje przy scrollu. */}
+      <div
+        className="bg-tech-grid pointer-events-none absolute -inset-y-6 inset-x-0 opacity-[0.025]"
+        style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -18px), 0)' }}
+      />
 
       <div className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">

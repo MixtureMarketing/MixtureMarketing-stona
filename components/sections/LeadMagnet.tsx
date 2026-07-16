@@ -6,6 +6,7 @@ import HeroBadge from '../common/HeroBadge';
 import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { LEAD_MAGNET_CONTENT as CONTENT } from '../../data/content';
 import { AuditVisual } from '../visuals/LeadMagnetVisuals';
+import WanderingGlow from '../visuals/WanderingGlow';
 
 /**
  * Immersyjny scroll (--p): ciemna karta oferty „dojeżdża" ze skalą 0.96→1,
@@ -17,18 +18,24 @@ const LeadMagnet: React.FC = () => {
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-dark py-24">
-      {/* Tło premium — tanie radialne gradienty (bez blur-filtra) + subtelna siatka */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(40% 50% at 100% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 60%),' +
-            'radial-gradient(40% 50% at 0% 100%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 65%)',
-        }}
-        aria-hidden="true"
+    // Szew ciemno-jasny (choreografia całości): ciemna karta najeżdża na biel
+    // WhyUs zaokrąglonym grzbietem — strona schodzi warstwami, nie sekcjami.
+    <section
+      ref={sectionRef}
+      className="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-dark py-24 md:-mt-12"
+    >
+      {/* Tło premium: wędrujące światło (reaguje na scroll przez cały tranzyt
+          pasma — wątek „żywej całości") + subtelna siatka z paralaksą strony */}
+      <WanderingGlow
+        background={
+          'radial-gradient(40% 50% at 100% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 60%),' +
+          'radial-gradient(40% 50% at 0% 100%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 65%)'
+        }
       />
-      <div className="bg-tech-grid absolute inset-0 opacity-10"></div>
+      <div
+        className="bg-tech-grid absolute inset-0 opacity-10"
+        style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -14px), 0)' }}
+      ></div>
 
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Solidna tinta zamiast backdrop-blur: pod kartą nic nie przepływa,

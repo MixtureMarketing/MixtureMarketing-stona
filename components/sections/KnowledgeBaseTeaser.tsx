@@ -38,12 +38,18 @@ const KnowledgeBaseTeaser: React.FC = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-24 bg-white relative overflow-hidden">
+    // Szew jasno-ciemny (choreografia całości): biel wraca zaokrąglonym
+    // grzbietem na granat LeadMagnetu — druga i ostatnia nakładka po hero.
+    <section
+      ref={sectionRef}
+      className="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-white py-24 md:-mt-12"
+    >
       <Container className="relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl text-left">
             <SectionHeader
               align="left"
+              triad
               title={CONTENT.teaser.title}
               description={CONTENT.teaser.description}
             />
