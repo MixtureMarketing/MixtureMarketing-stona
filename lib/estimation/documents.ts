@@ -42,6 +42,11 @@ export interface SnapshotAspect {
   rule_reasons_json: string | null;
   level_name: string | null;
   level_description: string | null;
+  /** f2c (opcja A): treść KLIENCKA zamrożona przy finalize (0007). null = fallback na
+   *  aspect_name / level_description. buildOffer używa tych pól; Karta decyzji NIE (nazwy
+   *  wewnętrzne). Zamrożenie w snapshocie = edycja biblioteki nie zmienia wysłanej oferty. */
+  aspect_client_name: string | null;
+  level_client_description: string | null;
 }
 
 export interface SnapshotItem {
@@ -160,18 +165,21 @@ export function buildOffer(s: QuoteSnapshot): Offer {
     // WYŁĄCZNIE widełki ofertowe. `price` (pełne) nie ma prawa się tu pojawić.
     priceRange: { min: s.totals?.offer.min ?? 0, max: s.totals?.offer.max ?? 0 },
     // Zakres = to, co realnie robimy (godziny > 0), opisane słowami z poziomu.
+    // Nazwa i opis KLIENCKIE (client_*) z fallbackiem na wewnętrzne — oferta jest dla klienta.
     scope: s.aspects
       .filter((a) => a.hours_max > 0)
       .map((a) => ({
-        title: a.aspect_name,
+        title: a.aspect_client_name ?? a.aspect_name,
         level: a.level_name,
-        description: a.level_description,
+        description: a.level_client_description ?? a.level_description,
       })),
     modules: s.items.filter((i) => i.item_type === 'module').map((i) => i.name),
     integrations: s.items.filter((i) => i.item_type === 'integration').map((i) => i.name),
     costs,
     costsTotal: costs.reduce((sum, c) => sum + c.amountPln, 0),
-    excluded: s.aspects.filter(isExcluded).map((a) => ({ title: a.aspect_name })),
+    excluded: s.aspects
+      .filter(isExcluded)
+      .map((a) => ({ title: a.aspect_client_name ?? a.aspect_name })),
     terms: s.terms,
   };
 }

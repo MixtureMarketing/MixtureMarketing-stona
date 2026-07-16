@@ -90,8 +90,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           `INSERT INTO est_quote_aspects
              (quote_id, aspect_code, aspect_name, category, suggested_level, chosen_level,
               hours_min, hours_max, override_hours_min, override_hours_max, override_reason,
-              rule_reasons_json, level_name, level_description)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              rule_reasons_json, level_name, level_description, aspect_client_name, level_client_description)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         ).bind(
           body.id,
           a.code,
@@ -107,6 +107,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           JSON.stringify(a.reasons ?? []),
           a.levelName ?? null, // f2a: treść zakresu zamrożona razem z liczbami (0005)
           a.levelDescription ?? null,
+          a.clientName ?? null, // f2c (opcja A): treść kliencka zamrożona (0007)
+          a.levelClientDescription ?? null,
         ),
       );
     }
@@ -207,8 +209,10 @@ async function loadRawLibrary(DB: D1Database): Promise<RawLibrary> {
     costItemTypes,
     params,
   ] = await Promise.all([
-    all(`SELECT code, name, category, description FROM est_aspects WHERE is_active = 1`),
-    all(`SELECT a.code AS aspect_code, l.level, l.hours_min, l.hours_max, l.name, l.description
+    all(
+      `SELECT code, name, category, description, client_name FROM est_aspects WHERE is_active = 1`,
+    ),
+    all(`SELECT a.code AS aspect_code, l.level, l.hours_min, l.hours_max, l.name, l.description, l.client_description
          FROM est_levels l JOIN est_aspects a ON a.id = l.aspect_id`),
     all(`SELECT code, name, description, integration_mode FROM est_archetypes WHERE is_active = 1`),
     all(`SELECT ar.code AS archetype_code, asp.code AS aspect_code, d.default_level, d.is_locked

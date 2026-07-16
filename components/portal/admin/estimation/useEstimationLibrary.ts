@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { RawRule } from './engineAdapter';
 
 export interface LibQuestion {
@@ -22,8 +22,24 @@ export interface LibArchetype {
 }
 
 export interface EstimationLibrary {
-  aspects: { code: string; name: string; category: string; description: string | null }[];
-  levels: { aspect_code: string; level: number; hours_min: number; hours_max: number }[];
+  aspects: {
+    code: string;
+    name: string;
+    category: string;
+    description: string | null;
+    /** f2c/0007: polska nazwa kliencka do dokumentów; null = fallback na name. */
+    client_name?: string | null;
+  }[];
+  levels: {
+    aspect_code: string;
+    level: number;
+    name?: string | null;
+    description?: string | null;
+    /** f2c/0007: opis poziomu promise-safe do oferty; null = fallback na description. */
+    client_description?: string | null;
+    hours_min: number;
+    hours_max: number;
+  }[];
   archetypes: LibArchetype[];
   archetypeDefaults: {
     archetype_code: string;
@@ -58,11 +74,13 @@ export interface EstimationLibrary {
   params: { key: string; value: string }[];
 }
 
-/** Ładuje pełną bibliotekę wiedzy dla silnika w UI (podgląd/Platforma). */
+/** Ładuje pełną bibliotekę wiedzy dla silnika w UI (podgląd/Platforma).
+ *  `reload()` wymusza ponowne pobranie — używa edytor biblioteki po zapisie (f2c-1). */
 export function useEstimationLibrary(sessionToken: string | null) {
   const [library, setLibrary] = useState<EstimationLibrary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     if (!sessionToken) return;
@@ -86,7 +104,8 @@ export function useEstimationLibrary(sessionToken: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [sessionToken]);
+  }, [sessionToken, nonce]);
 
-  return { library, loading, error };
+  const reload = useCallback(() => setNonce((n) => n + 1), []);
+  return { library, loading, error, reload };
 }

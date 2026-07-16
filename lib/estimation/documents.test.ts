@@ -37,6 +37,8 @@ const SNAP: QuoteSnapshot = {
       rule_reasons_json: '["Sklep wymaga własnego layoutu"]',
       level_name: 'Standard',
       level_description: 'Własny layout, komponenty, responsywność.',
+      aspect_client_name: null,
+      level_client_description: null,
     },
     {
       // chosen < suggested → „czego świadomie nie robimy"
@@ -51,6 +53,8 @@ const SNAP: QuoteSnapshot = {
       rule_reasons_json: '["Sklep wymaga monitoringu"]',
       level_name: null,
       level_description: null,
+      aspect_client_name: null,
+      level_client_description: null,
     },
     {
       // poziom 0 bez obniżenia → w ogóle nie dotyczy, nie pokazujemy nigdzie
@@ -65,6 +69,8 @@ const SNAP: QuoteSnapshot = {
       rule_reasons_json: null,
       level_name: null,
       level_description: null,
+      aspect_client_name: null,
+      level_client_description: null,
     },
   ],
   items: [
@@ -282,5 +288,85 @@ describe('buildDecisionCard — dokument wewnętrzny', () => {
   it('Karta (wewnętrzna) WOLNO pokazuje Confidence i ryzyka — inaczej niż oferta', () => {
     expect(card.confidence).toEqual({ score: 72, breakdown: SNAP.confidenceBreakdown });
     expect(card.risks).toEqual([{ name: 'Nowa technologia', value: 0.15 }]);
+  });
+});
+
+// f2c-1 (opcja A): treść KLIENCKA (client_name obszaru, client_description poziomu) czytana
+// z pól SNAPSHOTU (aspect_client_name / level_client_description) z fallbackiem na wewnętrzne.
+// buildOffer widzi WYŁĄCZNIE snapshot (nie ma argumentu biblioteki) — więc „zamrożenie przy
+// finalize" jest tu gwarantowane z konstrukcji: dowód rozdziału treść-klient/treść-wewnętrzna.
+describe('buildOffer — nazwy klienckie (client_*) z fallbackiem na wewnętrzne', () => {
+  // Bazowy snapshot z jednym obszarem w zakresie; wariacje tylko na polach client_*.
+  const snapZ = (over: Partial<QuoteSnapshot['aspects'][number]>): QuoteSnapshot => ({
+    ...SNAP,
+    aspects: [
+      {
+        aspect_code: 'backend_logic',
+        aspect_name: 'Backend Logic', // wewnętrzna, angielska
+        category: 'B',
+        suggested_level: 2,
+        chosen_level: 2,
+        hours_min: 60,
+        hours_max: 120,
+        override_reason: null,
+        rule_reasons_json: null,
+        level_name: 'Standard',
+        level_description: 'Logika średniej złożoności.', // wewnętrzny opis
+        aspect_client_name: null,
+        level_client_description: null,
+        ...over,
+      },
+    ],
+  });
+
+  it('client_name ustawione → oferta pokazuje nazwę KLIENCKĄ, nie wewnętrzną', () => {
+    const offer = buildOffer(
+      snapZ({
+        aspect_client_name: 'Logika sklepu',
+        level_client_description: 'Obsługa zamówień, rabatów i promocji dopasowana do sklepu.',
+      }),
+    );
+    const row = offer.scope[0];
+    expect(row.title).toBe('Logika sklepu');
+    expect(row.description).toBe('Obsługa zamówień, rabatów i promocji dopasowana do sklepu.');
+    // wewnętrzna nazwa NIE wychodzi do klienta
+    expect(JSON.stringify(offer.scope)).not.toContain('Backend Logic');
+    expect(JSON.stringify(offer.scope)).not.toContain('Logika średniej złożoności');
+  });
+
+  it('client_* = null → fallback na aspect_name / level_description', () => {
+    const offer = buildOffer(snapZ({}));
+    expect(offer.scope[0].title).toBe('Backend Logic');
+    expect(offer.scope[0].description).toBe('Logika średniej złożoności.');
+  });
+
+  it('fallback niezależny na obu polach: nazwa kliencka, opis wewnętrzny', () => {
+    const offer = buildOffer(snapZ({ aspect_client_name: 'Logika sklepu' }));
+    expect(offer.scope[0].title).toBe('Logika sklepu'); // kliencka
+    expect(offer.scope[0].description).toBe('Logika średniej złożoności.'); // fallback opisu
+  });
+
+  it('sekcja „poza zakresem" też używa nazwy klienckiej z fallbackiem', () => {
+    const offer = buildOffer(
+      snapZ({
+        chosen_level: 0, // < suggested ⇒ wyłączone
+        hours_min: 0,
+        hours_max: 0,
+        aspect_client_name: 'Logika sklepu',
+      }),
+    );
+    expect(offer.excluded).toEqual([{ title: 'Logika sklepu' }]);
+  });
+
+  it('Karta decyzji ZOSTAJE na nazwach wewnętrznych (dokument inżynierski)', () => {
+    const card = buildDecisionCard(
+      snapZ({
+        aspect_client_name: 'Logika sklepu',
+        level_client_description: 'Opis dla klienta.',
+      }),
+    );
+    const d = card.decisions[0];
+    expect(d.title).toBe('Backend Logic'); // NIE 'Logika sklepu'
+    expect(d.levelDescription).toBe('Logika średniej złożoności.'); // NIE 'Opis dla klienta.'
   });
 });
