@@ -82,8 +82,13 @@ const Professional = lazy(() => import('@/components/pages/abonament/Professiona
 const VsWix = lazy(() => import('@/components/pages/abonament/VsWix'));
 const VsOrange = lazy(() => import('@/components/pages/abonament/VsOrange'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
+// Laboratorium prototypów wizualnych — dev-only: noindex, poza routes.js
+// (bez prerenderu/sitemapy). Usunąć lub wyłączyć przed merge do main.
+const ProtoLab = lazy(() => import('@/components/pages/dev/ProtoLab'));
 
 export const appRoutes: RouteObject[] = [
+  // Dev-only
+  { path: '/dev/proto-lab', element: <ProtoLab /> },
   // Main Routes
   { path: '/', element: <Home /> },
   { path: '/offers', element: <Offers /> },
