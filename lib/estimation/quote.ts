@@ -96,6 +96,9 @@ export function computeQuote(input: ComputeQuoteInput): QuoteComputation {
       reasons: sug?.reasons ?? [],
       levelName: def?.name ?? undefined,
       levelDescription: def?.description ?? undefined,
+      // f2c (opcja A): treść kliencka do zamrożenia w snapshocie przy finalize.
+      clientName: a.clientName ?? undefined,
+      levelClientDescription: def?.clientDescription ?? undefined,
     });
   }
 

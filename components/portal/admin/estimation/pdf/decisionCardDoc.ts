@@ -43,20 +43,31 @@ export function decisionCardMarkdown(c: DecisionCard): string {
     L.push('');
   }
 
-  L.push('## Decyzje architektoniczne');
-  for (const d of c.decisions) {
-    L.push(`### ${d.title} — ${lvl(d)}`);
-    if (d.levelDescription) L.push(d.levelDescription);
-    if (d.reasons.length) {
+  // Zbicie „poziomów domyślnych" (backlog f2c): decyzje z uzasadnieniem reguły lub korektą
+  // dostają pełny opis; czyste poziomy domyślne archetypu idą do JEDNEJ sekcji zbiorczej —
+  // inaczej Karta powtarza tę samą notkę przy 11 z 19 obszarów typowej wyceny (E2E f2a).
+  const detailed = c.decisions.filter((d) => !d.fromArchetypeDefault);
+  const defaults = c.decisions.filter((d) => d.fromArchetypeDefault);
+
+  if (detailed.length) {
+    L.push('## Decyzje architektoniczne');
+    for (const d of detailed) {
+      L.push(`### ${d.title} — ${lvl(d)}`);
+      if (d.levelDescription) L.push(d.levelDescription);
+      if (d.reasons.length) {
+        L.push('');
+        L.push('**Dlaczego:**');
+        d.reasons.forEach((r) => L.push(`- ${r}`));
+      }
+      if (d.overrideReason) L.push(`- 🖊️ Korekta ręczna: ${d.overrideReason}`);
       L.push('');
-      L.push('**Dlaczego:**');
-      d.reasons.forEach((r) => L.push(`- ${r}`));
     }
-    if (d.fromArchetypeDefault)
-      L.push(
-        `- _Poziom domyślny dla archetypu **${c.platform.chosen}** — żadna reguła go nie podniosła._`,
-      );
-    if (d.overrideReason) L.push(`- 🖊️ Korekta ręczna: ${d.overrideReason}`);
+  }
+
+  if (defaults.length) {
+    L.push(`## Poziomy domyślne archetypu ${c.platform.chosen} (bez korekt)`);
+    L.push('_Przyjęte z archetypu — żadna reguła ich nie podniosła i nie było korekty ręcznej._');
+    defaults.forEach((d) => L.push(`- **${d.title}** — ${lvl(d)}`));
     L.push('');
   }
 
@@ -160,35 +171,42 @@ export async function generateDecisionCardPdf(c: DecisionCard): Promise<Blob> {
     L.punkty(c.alerts, { kolor: KOLOR.uwaga });
   }
 
-  L.sekcja('Decyzje architektoniczne');
-  for (const d of c.decisions) {
-    // Tytuł decyzji nie zostaje sam na dole strony: rezerwujemy go razem z opisem poziomu
-    // i pierwszym uzasadnieniem. Całego bloku nie rezerwujemy — decyzja z ośmioma powodami
-    // wypchnęłaby pół pustej strony.
-    const opis = d.levelDescription
-      ? L.wysokoscTekstu(d.levelDescription, { rozmiar: 8.5, wciecie: 4 })
-      : 0;
-    const pierwszyPowod = d.reasons[0]
-      ? L.wysokoscTekstu(`– ${d.reasons[0]}`, { rozmiar: 8.5, wciecie: 4 })
-      : 0;
-    L.lamStrone(interlinia(TYPO.pozycja) + opis + pierwszyPowod);
-    L.wiersz(d.title, lvl(d));
-    if (d.levelDescription)
-      L.tekst(d.levelDescription, { rozmiar: 8.5, kolor: KOLOR.tekstSlaby, wciecie: 4 });
-    // En dash, NIE strzałka: Manrope nie ma glifu U+2192 (patrz build-pdf-font.py).
-    d.reasons.forEach((r) => L.tekst(`– ${r}`, { rozmiar: 8.5, kolor: '#374151', wciecie: 4 }));
-    if (d.fromArchetypeDefault)
-      L.tekst(
-        `– Poziom domyślny dla archetypu ${c.platform.chosen} (żadna reguła nie podniosła).`,
-        {
-          rozmiar: 8.5,
-          kolor: KOLOR.tekstSlaby,
-          wciecie: 4,
-        },
-      );
-    if (d.overrideReason)
-      L.tekst(`Korekta: ${d.overrideReason}`, { rozmiar: 8.5, kolor: KOLOR.uwaga, wciecie: 4 });
-    L.odstep(ODSTEP.miedzyPozycjami);
+  // Zbicie „poziomów domyślnych" (backlog f2c): pełny opis tylko dla decyzji z uzasadnieniem
+  // reguły lub korektą; czyste poziomy domyślne archetypu — jedna sekcja zbiorcza (niżej).
+  const detailed = c.decisions.filter((d) => !d.fromArchetypeDefault);
+  const defaults = c.decisions.filter((d) => d.fromArchetypeDefault);
+
+  if (detailed.length) {
+    L.sekcja('Decyzje architektoniczne');
+    for (const d of detailed) {
+      // Tytuł decyzji nie zostaje sam na dole strony: rezerwujemy go razem z opisem poziomu
+      // i pierwszym uzasadnieniem. Całego bloku nie rezerwujemy — decyzja z ośmioma powodami
+      // wypchnęłaby pół pustej strony.
+      const opis = d.levelDescription
+        ? L.wysokoscTekstu(d.levelDescription, { rozmiar: 8.5, wciecie: 4 })
+        : 0;
+      const pierwszyPowod = d.reasons[0]
+        ? L.wysokoscTekstu(`– ${d.reasons[0]}`, { rozmiar: 8.5, wciecie: 4 })
+        : 0;
+      L.lamStrone(interlinia(TYPO.pozycja) + opis + pierwszyPowod);
+      L.wiersz(d.title, lvl(d));
+      if (d.levelDescription)
+        L.tekst(d.levelDescription, { rozmiar: 8.5, kolor: KOLOR.tekstSlaby, wciecie: 4 });
+      // En dash, NIE strzałka: Manrope nie ma glifu U+2192 (patrz build-pdf-font.py).
+      d.reasons.forEach((r) => L.tekst(`– ${r}`, { rozmiar: 8.5, kolor: '#374151', wciecie: 4 }));
+      if (d.overrideReason)
+        L.tekst(`Korekta: ${d.overrideReason}`, { rozmiar: 8.5, kolor: KOLOR.uwaga, wciecie: 4 });
+      L.odstep(ODSTEP.miedzyPozycjami);
+    }
+  }
+
+  if (defaults.length) {
+    L.sekcja(`Poziomy domyślne archetypu ${c.platform.chosen} (bez korekt)`);
+    L.tekst('Przyjęte z archetypu — żadna reguła ich nie podniosła i nie było korekty ręcznej.', {
+      rozmiar: 8.5,
+      kolor: KOLOR.tekstSlaby,
+    });
+    L.punkty(defaults.map((d) => `${d.title} — ${lvl(d)}`));
   }
 
   if (c.outOfScope.length) {

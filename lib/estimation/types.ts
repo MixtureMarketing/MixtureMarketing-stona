@@ -282,9 +282,11 @@ export interface FinalizeValidationInput {
 
 /** Biblioteka w formie gotowej dla silnika (hook UI / serwer transformują surowe wiersze D1). */
 export interface LibraryData {
-  aspects: { code: string; category: Category; name: string }[];
+  /** clientName (f2c/0007): polska nazwa obszaru do dokumentów klienckich; null = fallback na name. */
+  aspects: { code: string; category: Category; name: string; clientName?: string | null }[];
   /** name/description: treść dla dokumentów (oferta opisuje zakres słowami, nie godzinami).
-   *  Snapshotowane przy finalize (migracja 0005) — inwariant 3 dotyczy też tekstów. */
+   *  Snapshotowane przy finalize (migracja 0005) — inwariant 3 dotyczy też tekstów.
+   *  clientDescription (f2c/0007): opis poziomu promise-safe do oferty; null = fallback na description. */
   levels: {
     aspectCode: string;
     level: number;
@@ -292,6 +294,7 @@ export interface LibraryData {
     hoursMax: number;
     name?: string | null;
     description?: string | null;
+    clientDescription?: string | null;
   }[];
   archetypeDefaults: ArchetypeDefault[]; // dla WYBRANEGO archetypu
   rules: Rule[];
@@ -355,6 +358,11 @@ export interface AspectComputation {
    *  nie ma wpisu w bibliotece (np. override na poziom bez definicji). */
   levelName?: string;
   levelDescription?: string;
+  /** Treść KLIENCKA (f2c/0007) — nazwa obszaru i opis poziomu do oferty. Undefined = fallback
+   *  na name/levelDescription. Finalize zamraża je w snapshocie (aspect_client_name /
+   *  level_client_description); buildOffer robi fallback, Karta decyzji ich NIE używa. */
+  clientName?: string;
+  levelClientDescription?: string;
 }
 
 export interface ComputeQuoteInput {

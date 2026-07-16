@@ -13,9 +13,10 @@ do Postgresa przy komercjalizacji — jak w istniejących migracjach repo).
 CREATE TABLE est_aspects (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   code TEXT NOT NULL UNIQUE,          -- 'frontend', 'observability', 'discovery'...
-  name TEXT NOT NULL,
+  name TEXT NOT NULL,                 -- nazwa WEWNĘTRZNA (Karta decyzji)
   category TEXT NOT NULL,             -- 'A'..'G'
   description TEXT,                   -- co wchodzi / co NIE wchodzi (granice, 04)
+  client_name TEXT,                   -- 0007: polska nazwa KLIENCKA do oferty; null = fallback na name
   sort_order INTEGER DEFAULT 0,
   is_active INTEGER DEFAULT 1
 );
@@ -25,10 +26,13 @@ CREATE TABLE est_levels (
   aspect_id INTEGER NOT NULL REFERENCES est_aspects(id) ON DELETE CASCADE,
   level INTEGER NOT NULL,             -- 0..4; poziom 0 zawsze istnieje (h=0)
   name TEXT NOT NULL,
-  description TEXT,
+  description TEXT,                   -- opis techniczny WEWNĘTRZNY (Karta decyzji)
+  client_description TEXT,            -- 0007: opis KLIENCKI promise-safe do oferty; null = fallback na description
   hours_min REAL NOT NULL DEFAULT 0,
   hours_max REAL NOT NULL DEFAULT 0,
   UNIQUE(aspect_id, level)
+  -- Monotoniczność (walidacja edytora f2c): hours_min ściśle rosnące po poziomach ORAZ hours_max
+  -- ściśle rosnące; NAKŁADANIE pasm (min[L+1] < max[L]) legalne.
 );
 
 CREATE TABLE est_archetypes (
@@ -187,8 +191,14 @@ CREATE TABLE est_quote_aspects (
   override_hours_max REAL,
   override_reason TEXT,               -- obowiązkowy przy zmianie poziomu lub override (baza wiedzy decyzji)
   rule_reasons_json TEXT,             -- uzasadnienia reguł, które podniosły poziom
+  level_name TEXT,                    -- 0005: snapshot nazwy wybranego poziomu (treść do dokumentów)
+  level_description TEXT,             -- 0005: snapshot opisu WEWNĘTRZNEGO poziomu
+  aspect_client_name TEXT,            -- 0007: snapshot client_name obszaru (buildOffer, fallback na aspect_name)
+  level_client_description TEXT,      -- 0007: snapshot client_description poziomu (buildOffer, fallback na level_description)
   PRIMARY KEY (quote_id, aspect_code)
 );
+-- Treść snapshotu (level_*, *_client_*) zamraża się przy finalize — inwariant 3 dotyczy też
+-- tekstów: edycja biblioteki nie zmienia dokumentów JUŻ WYSŁANEJ wyceny (D19; 0005/0007).
 
 CREATE TABLE est_quote_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,10 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FileText, Plus, ArrowLeft } from 'lucide-react';
+import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { FileText, Plus, ArrowLeft, BookOpen } from 'lucide-react';
 import QuotesList from './QuotesList';
 import QuoteWizard from './QuoteWizard';
 import ResultScreen from './wizard/ResultScreen';
 
-// Wejście zakładki „Wyceny": lista + „Nowa wycena" + kreator + widok wyceny (f2b).
+// Edytor biblioteki (f2c) jest ciężki i rzadziej używany → lazy, poza głównym chunkiem wycen.
+const LibraryView = lazy(() => import('./library/LibraryView'));
+
+// Wejście zakładki „Wyceny": lista + „Nowa wycena" + kreator + widok wyceny (f2b) + biblioteka (f2c).
 interface Props {
   sessionToken: string | null;
 }
@@ -12,7 +15,8 @@ interface Props {
 type Widok =
   | { ekran: 'list' }
   | { ekran: 'wizard'; id?: number } // id = wznowienie istniejącego draftu
-  | { ekran: 'result'; id: number };
+  | { ekran: 'result'; id: number }
+  | { ekran: 'library' };
 
 /** Statusy, w których wycena ma snapshot — otwieramy ją na ekranie wyniku, nie w wizardzie. */
 const PO_FINALIZE = new Set(['review', 'sent', 'won', 'lost', 'closed']);
@@ -89,6 +93,20 @@ const EstimationTab: React.FC<Props> = ({ sessionToken }) => {
     );
   }
 
+  if (widok.ekran === 'library') {
+    return (
+      <Suspense
+        fallback={
+          <div className="bg-white rounded-lg p-6 shadow-sm text-sm text-gray-400">
+            Ładowanie edytora…
+          </div>
+        }
+      >
+        <LibraryView sessionToken={sessionToken} onBack={doListy} />
+      </Suspense>
+    );
+  }
+
   if (widok.ekran === 'result') {
     return (
       <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -120,16 +138,25 @@ const EstimationTab: React.FC<Props> = ({ sessionToken }) => {
         <h2 className="text-xl font-black text-dark flex items-center gap-2">
           <FileText size={20} /> Wyceny
         </h2>
-        <button
-          type="button"
-          onClick={() => {
-            setWidok({ ekran: 'wizard' });
-            zapiszIdWUrl(null);
-          }}
-          className="px-4 py-2 rounded-lg font-bold bg-dark text-white flex items-center gap-2"
-        >
-          <Plus size={18} /> Nowa wycena
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setWidok({ ekran: 'library' })}
+            className="px-4 py-2 rounded-lg font-bold border border-gray-300 text-dark flex items-center gap-2 hover:bg-gray-50"
+          >
+            <BookOpen size={18} /> Biblioteka
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setWidok({ ekran: 'wizard' });
+              zapiszIdWUrl(null);
+            }}
+            className="px-4 py-2 rounded-lg font-bold bg-dark text-white flex items-center gap-2"
+          >
+            <Plus size={18} /> Nowa wycena
+          </button>
+        </div>
       </div>
       {bladOtwarcia && <p className="text-red-600 text-sm mb-3">{bladOtwarcia}</p>}
       <QuotesList sessionToken={sessionToken} refreshKey={refreshKey} onOpen={otworz} />

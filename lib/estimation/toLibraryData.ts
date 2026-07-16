@@ -22,7 +22,14 @@ export interface RawRule {
 }
 
 export interface RawLibrary {
-  aspects: { code: string; name: string; category: string; description?: string | null }[];
+  aspects: {
+    code: string;
+    name: string;
+    category: string;
+    description?: string | null;
+    /** f2c/0007: polska nazwa kliencka do dokumentów; null = fallback na name. */
+    client_name?: string | null;
+  }[];
   levels: {
     aspect_code: string;
     level: number;
@@ -30,6 +37,8 @@ export interface RawLibrary {
     hours_max: number;
     name?: string | null;
     description?: string | null;
+    /** f2c/0007: opis poziomu promise-safe do oferty; null = fallback na description. */
+    client_description?: string | null;
   }[];
   archetypes: {
     code: string;
@@ -138,6 +147,7 @@ export function buildLibraryData(
       code: a.code,
       category: a.category as Category,
       name: a.name,
+      clientName: a.client_name ?? null,
     })),
     levels: lib.levels.map((l) => ({
       aspectCode: l.aspect_code,
@@ -146,6 +156,7 @@ export function buildLibraryData(
       hoursMax: l.hours_max,
       name: l.name ?? null,
       description: l.description ?? null,
+      clientDescription: l.client_description ?? null,
     })),
     archetypeDefaults: lib.archetypeDefaults
       .filter((d) => d.archetype_code === archetype)
