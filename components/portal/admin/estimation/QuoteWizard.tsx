@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import type { Answers } from '@/lib/estimation/types';
 import { useEstimationLibrary } from './useEstimationLibrary';
@@ -9,6 +9,12 @@ interface Props {
   sessionToken: string | null;
   onCreated: (quoteId: number) => void;
   onCancel: () => void;
+  /**
+   * f2b: otwarcie ISTNIEJĄCEGO draftu (klik w wiersz listy albo świeży duplikat).
+   * Bez tego wizard umiał tylko tworzyć: `created` powstawało wyłącznie po POST,
+   * więc szkic zapisany wczoraj nie miał jak wrócić na ekran.
+   */
+  resumeQuoteId?: number;
 }
 
 interface Created {
@@ -18,7 +24,7 @@ interface Created {
 }
 
 // f1a: krok „Platforma" → utworzenie draftu. f1b: pełny wizard + podgląd + walidacja (QuoteEditor).
-const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => {
+const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel, resumeQuoteId }) => {
   const { library, loading, error } = useEstimationLibrary(sessionToken);
   const [name, setName] = useState('');
   const [clientName, setClientName] = useState('');
@@ -26,6 +32,43 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
   const [saveError, setSaveError] = useState<string | null>(null);
   const [created, setCreated] = useState<Created | null>(null);
   const [editingPlatform, setEditingPlatform] = useState(false);
+  const [wczytuje, setWczytuje] = useState(!!resumeQuoteId);
+
+  // Wznowienie istniejącego draftu: odtwarzamy dokładnie to, co wizard trzymał w stanie
+  // po utworzeniu (id + archetyp + odpowiedzi), więc dalej działa ta sama ścieżka.
+  useEffect(() => {
+    if (!resumeQuoteId || !sessionToken) return;
+    let cancelled = false;
+    (async () => {
+      setWczytuje(true);
+      try {
+        const res = await fetch(`/api/admin/estimation/quote?id=${resumeQuoteId}`, {
+          headers: { Authorization: `Bearer ${sessionToken}` },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = (await res.json()) as {
+          quote: { id: number; name: string; client_name: string | null; archetype_code: string };
+          answers: Answers;
+        };
+        if (cancelled) return;
+        setName(data.quote.name);
+        setClientName(data.quote.client_name ?? '');
+        setCreated({
+          id: data.quote.id,
+          archetype: data.quote.archetype_code,
+          answers: data.answers ?? {},
+        });
+      } catch (e) {
+        if (!cancelled)
+          setSaveError(e instanceof Error ? e.message : 'Nie udało się wczytać wyceny');
+      } finally {
+        if (!cancelled) setWczytuje(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [resumeQuoteId, sessionToken]);
 
   const handleConfirm = async (r: PlatformResult) => {
     if (!name.trim()) {
@@ -91,6 +134,7 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
       </h2>
 
       {loading && <p className="text-gray-500">Ładowanie biblioteki…</p>}
+      {wczytuje && <p className="text-gray-500">Wczytuję wycenę…</p>}
       {error && <p className="text-red-600">Błąd biblioteki: {error}</p>}
 
       {created && !editingPlatform && library && (
@@ -104,7 +148,9 @@ const QuoteWizard: React.FC<Props> = ({ sessionToken, onCreated, onCancel }) => 
         />
       )}
 
-      {!loading && !error && library && (!created || editingPlatform) && (
+      {/* `!wczytuje`: przy wznawianiu draftu `created` jest jeszcze puste — bez tego
+          na ułamek sekundy mignąłby krok „Platforma", jakby to była nowa wycena. */}
+      {!loading && !error && !wczytuje && library && (!created || editingPlatform) && (
         <div className="space-y-6">
           {editingPlatform && (
             <p className="text-sm text-amber-700">

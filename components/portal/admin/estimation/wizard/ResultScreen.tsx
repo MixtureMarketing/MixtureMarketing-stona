@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, FileText, FileCode } from 'lucide-react';
+import { CheckCircle2, FileText, FileCode, Send, Copy } from 'lucide-react';
 import { buildOffer, buildDecisionCard, type QuoteSnapshot } from '@/lib/estimation/documents';
 import { categoryName } from './categoryLabels';
+import { STATUS_LABEL, STATUS_STYLE, MOZLIWE_PRZEJSCIA, dataStatusu } from '../status';
 
 // Ekran wyniku (f1c #5/#6): czyta SNAPSHOT z D1 (read-back po finalize), nie stan lokalny.
 // Wersja do odczytania klientowi na spotkaniu: widełki ofertowe + pełne + Confidence + decyzje.
@@ -45,8 +46,19 @@ interface Totals {
   afterBuffer: { hoursMin: number; hoursMax: number };
   costs: number;
 }
+interface QuoteMeta {
+  id: number;
+  status: string;
+  confidence: number | null;
+  pdf_r2_key: string | null;
+  card_r2_key: string | null;
+  sent_at: string | null;
+  won_at: string | null;
+  lost_at: string | null;
+  lost_reason: string | null;
+}
 interface ReadBack {
-  quote: { status: string; confidence: number | null };
+  quote: QuoteMeta;
   snapshot: {
     aspects: SnapshotAspect[];
     items: SnapshotItem[];
@@ -65,14 +77,21 @@ const parseReasons = (json: string | null): string[] => {
   }
 };
 
-const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> = ({
-  quoteId,
-  sessionToken,
-}) => {
+interface Props {
+  quoteId: number;
+  sessionToken: string | null;
+  /** f2b: duplikat jest nowym draftem — otwieramy go w wizardzie od razu. */
+  onDuplicated?: (newId: number) => void;
+}
+
+const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) => {
   const [data, setData] = useState<ReadBack | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [docError, setDocError] = useState<string | null>(null);
+  const [odswiez, setOdswiez] = useState(0);
+  const [powodPrzegranej, setPowodPrzegranej] = useState('');
+  const [pytamOPowod, setPytamOPowod] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,7 +110,7 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
     return () => {
       cancelled = true;
     };
-  }, [quoteId, sessionToken]);
+  }, [quoteId, sessionToken, odswiez]);
 
   if (error) return <p className="text-red-600">Błąd: {error}</p>;
   if (!data) return <p className="text-gray-500">Wczytuję wynik…</p>;
@@ -136,6 +155,65 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
       download(new Blob([md], { type: 'text/markdown' }), `karta-decyzji-${snap.quote.id}.md`);
     });
 
+  const auth = { Authorization: `Bearer ${sessionToken}` };
+  const bladZOdpowiedzi = async (res: Response) =>
+    ((await res.json().catch(() => ({}))) as { error?: string }).error ?? `HTTP ${res.status}`;
+
+  /**
+   * Generuje OBA dokumenty i wysyła je do R2. Wołane PRZED zmianą statusu, bo `sent`
+   * bez dokumentów w repozytorium odbije się o guard D30 (409) — i słusznie.
+   */
+  const zapiszDokumenty = async () => {
+    const [{ generateOfferPdf }, { generateDecisionCardPdf }] = await Promise.all([
+      import('../pdf/offerPdf'),
+      import('../pdf/decisionCardDoc'),
+    ]);
+    const fd = new FormData();
+    fd.append('id', String(quoteId));
+    fd.append('oferta', await generateOfferPdf(buildOffer(snap)), 'oferta.pdf');
+    fd.append('karta', await generateDecisionCardPdf(buildDecisionCard(snap)), 'karta-decyzji.pdf');
+    const res = await fetch('/api/admin/estimation/quote-documents', {
+      method: 'POST',
+      headers: auth,
+      body: fd,
+    });
+    if (!res.ok) throw new Error(await bladZOdpowiedzi(res));
+  };
+
+  const zmienStatus = async (status: string, lost_reason?: string) => {
+    const res = await fetch('/api/admin/estimation/quote-status', {
+      method: 'POST',
+      headers: { ...auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: quoteId, status, lost_reason }),
+    });
+    if (!res.ok) throw new Error(await bladZOdpowiedzi(res));
+    setOdswiez((k) => k + 1);
+  };
+
+  const onWyslij = () =>
+    run('send', async () => {
+      await zapiszDokumenty();
+      await zmienStatus('sent');
+    });
+  const onWygrana = () => run('won', () => zmienStatus('won'));
+  const onPrzegrana = () =>
+    run('lost', async () => {
+      await zmienStatus('lost', powodPrzegranej);
+      setPytamOPowod(false);
+      setPowodPrzegranej('');
+    });
+  const onDuplikuj = () =>
+    run('dup', async () => {
+      const res = await fetch('/api/admin/estimation/quote-duplicate', {
+        method: 'POST',
+        headers: { ...auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: quoteId }),
+      });
+      if (!res.ok) throw new Error(await bladZOdpowiedzi(res));
+      const d = (await res.json()) as { id: number };
+      onDuplicated?.(d.id);
+    });
+
   const btn = (label: string, key: string, onClick: () => void, primary = false) => (
     <button
       type="button"
@@ -173,6 +251,105 @@ const ResultScreen: React.FC<{ quoteId: number; sessionToken: string | null }> =
         )}
       </div>
       {docError && <p className="text-sm text-red-600">{docError}</p>}
+
+      {/* ── Cykl życia (f2b) ──
+          Rysujemy tylko przejścia legalne w bieżącym statusie. To wygoda, NIE zabezpieczenie:
+          legalności pilnuje quote-status (D30), a UI ma jedynie nie kusić przyciskiem,
+          który i tak dostanie 409. */}
+      <div className="p-4 rounded-lg border border-slate-200 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`px-2 py-0.5 rounded-full text-xs font-bold ${STATUS_STYLE[quote.status] ?? ''}`}
+          >
+            {STATUS_LABEL[quote.status] ?? quote.status}
+          </span>
+          {dataStatusu(quote) && (
+            <span className="text-xs text-gray-500">od {dataStatusu(quote)}</span>
+          )}
+          {quote.status === 'lost' && quote.lost_reason && (
+            <span className="text-xs text-rose-700">powód: {quote.lost_reason}</span>
+          )}
+          <span className="flex-1" />
+          <button
+            type="button"
+            onClick={onDuplikuj}
+            disabled={busy !== null}
+            title="Nowy szkic z tymi samymi odpowiedziami — wysłana wersja zostaje nietknięta"
+            className="px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300 text-dark flex items-center gap-1 disabled:opacity-50"
+          >
+            <Copy size={14} /> {busy === 'dup' ? 'Duplikuję…' : 'Duplikuj (rewizja)'}
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-2 items-center">
+          {MOZLIWE_PRZEJSCIA[quote.status]?.includes('sent') && (
+            <button
+              type="button"
+              onClick={onWyslij}
+              disabled={busy !== null}
+              className="px-4 py-2 rounded-lg font-bold text-sm bg-dark text-white flex items-center gap-2 disabled:opacity-50"
+            >
+              <Send size={16} />
+              {busy === 'send' ? 'Zapisuję dokumenty…' : 'Zapisz dokumenty i oznacz jako wysłaną'}
+            </button>
+          )}
+          {MOZLIWE_PRZEJSCIA[quote.status]?.includes('won') && (
+            <button
+              type="button"
+              onClick={onWygrana}
+              disabled={busy !== null}
+              className="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 text-white disabled:opacity-50"
+            >
+              {busy === 'won' ? 'Zapisuję…' : 'Wygrana'}
+            </button>
+          )}
+          {MOZLIWE_PRZEJSCIA[quote.status]?.includes('lost') && !pytamOPowod && (
+            <button
+              type="button"
+              onClick={() => setPytamOPowod(true)}
+              disabled={busy !== null}
+              className="px-4 py-2 rounded-lg font-bold text-sm border border-rose-300 text-rose-700 disabled:opacity-50"
+            >
+              Przegrana
+            </button>
+          )}
+          {quote.status === 'review' && (
+            <span className="text-xs text-gray-500">
+              Wysyłka zapisze ofertę i Kartę w repozytorium — bez nich status „wysłana" byłby
+              nieprawdą.
+            </span>
+          )}
+        </div>
+
+        {pytamOPowod && (
+          // Powód przegranej jest wymagany przez API (docs/02) — to dane kalibracji F3,
+          // a nie pole do odklikania. Pytamy tu, zamiast dostać 400 po fakcie.
+          <div className="flex flex-wrap gap-2 items-center">
+            <input
+              type="text"
+              value={powodPrzegranej}
+              onChange={(e) => setPowodPrzegranej(e.target.value)}
+              placeholder="Dlaczego przegraliśmy? (np. cena, termin, wybrali konkurencję)"
+              className="flex-1 min-w-64 px-3 py-2 rounded-lg border border-slate-300 text-sm"
+            />
+            <button
+              type="button"
+              onClick={onPrzegrana}
+              disabled={busy !== null || !powodPrzegranej.trim()}
+              className="px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 text-white disabled:opacity-50"
+            >
+              {busy === 'lost' ? 'Zapisuję…' : 'Zapisz przegraną'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setPytamOPowod(false)}
+              className="text-sm text-gray-500 hover:text-dark"
+            >
+              Anuluj
+            </button>
+          </div>
+        )}
+      </div>
 
       {t && (
         <div className="grid sm:grid-cols-2 gap-4">
