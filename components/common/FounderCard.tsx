@@ -37,7 +37,7 @@ const FounderCard: React.FC<FounderCardProps> = ({
     <div
       className={`bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 ${className}`}
     >
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-primary mb-4">{intro}</p>
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-accent-dark mb-4">{intro}</p>
       <div className="flex flex-col sm:flex-row gap-5 items-start">
         <div className="shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden ring-4 ring-primary/10">
           <picture>
