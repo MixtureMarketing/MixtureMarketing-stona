@@ -7,6 +7,7 @@ import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { client } from '../../../services/cms/client';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
+import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
 
 /**
  * Sekcja „Realizacje web" — brakujący szczebel belief ladder: „oni naprawdę robią
@@ -152,10 +153,17 @@ const WebDevRealizations: React.FC = () => {
           className="mb-14 flex flex-col gap-6 md:mb-16 md:flex-row md:items-end md:justify-between"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
         >
-          <div className="max-w-2xl">
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl lg:text-5xl">
-              Realizacje, które możesz otworzyć w przeglądarce.
-            </h2>
+          <div className="max-w-4xl">
+            {/* Flip-dot: nagłówek pasa dowodowego składa się kaskadą tarcz jak
+                na tablicy AlfaZeta. Skala md:text-6xl to ZATWIERDZONY WYJĄTEK
+                od sufitu H2 (decyzja właściciela 2026-07-16) — poniżej ~60px
+                matryca 5×7 nie mieści długich słów i silnik odmawia budowy,
+                zostawiając czysty HTML (tak działa mobile: świadoma degradacja).
+                Prawdziwy h2 stoi pod tablicą (SEO/czytniki/prerender). */}
+            <FlipDotHeading
+              text="Realizacje, które możesz otworzyć w przeglądarce."
+              className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-6xl"
+            />
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/75">
               Nie wizualizacje i nie mockupy. Prawdziwe wdrożenia dla prawdziwych klientów — wejdź w
               każdą i sprawdź, jak działa.
