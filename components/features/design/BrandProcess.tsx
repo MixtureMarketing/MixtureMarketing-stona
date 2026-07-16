@@ -43,7 +43,7 @@ const BrandProcess: React.FC = () => {
                   </div>
 
                   <div className="mb-4">
-                    <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xxs font-bold uppercase tracking-widest mb-3">
+                    <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-secondary text-xxs font-bold uppercase tracking-widest mb-3">
                       {step.time}
                     </span>
                     <h3 className="text-xl font-bold text-dark mb-3 group-hover:text-secondary transition-colors">
