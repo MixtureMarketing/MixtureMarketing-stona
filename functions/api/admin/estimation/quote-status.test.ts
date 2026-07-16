@@ -65,6 +65,18 @@ describe('quote-status — przejścia LEGALNE', () => {
     expect(calls.binds.find((b) => b.sql.includes('UPDATE est_quotes'))!.sql).toContain('won_at');
   });
 
+  it('won → closed: stempluje closed_at (f3a)', async () => {
+    const { res, body, calls } = await wywolaj(
+      { ...GOTOWA, status: 'won' },
+      { id: 4, status: 'closed' },
+    );
+    expect(res.status).toBe(200);
+    expect((body as { status: string }).status).toBe('closed');
+    expect(calls.binds.find((b) => b.sql.includes('UPDATE est_quotes'))!.sql).toContain(
+      'closed_at',
+    );
+  });
+
   it('sent → lost z powodem: stempluje lost_at i zapisuje powód', async () => {
     const { res, calls } = await wywolaj(
       { ...GOTOWA, status: 'sent' },
@@ -91,10 +103,10 @@ describe('quote-status — przejścia NIELEGALNE (409)', () => {
     ['won', 'lost', 'zmiana zdania po rozstrzygnięciu'],
     ['lost', 'won', 'zmiana zdania po rozstrzygnięciu'],
     ['won', 'sent', 'ponowna wysyłka rozstrzygniętej'],
-    // `closed` JEST w słowniku modelu (docs/02), ale nic jeszcze do niego nie prowadzi —
-    // dołoży to F3 po wpisaniu godzin rzeczywistych. Do tego czasu 409, nie 400: żądanie
-    // jest sensowne, tylko przedwczesne.
-    ['won', 'closed', 'zamknięcie należy do F3, nie do tego endpointu'],
+    // f3a: `won → closed` jest już LEGALNE (patrz test niżej). Tu zostają nielegalne wyjścia z closed.
+    ['closed', 'won', 'cofnięcie zamkniętej'],
+    ['closed', 'sent', 'wysyłka zamkniętej'],
+    ['closed', 'lost', 'przegrana zamkniętej'],
   ];
   it.each(nielegalne)('%s → %s jest zablokowane (%s)', async (z, na) => {
     const { res } = await wywolaj(

@@ -120,4 +120,39 @@ describe('GET /api/admin/estimation/quote', () => {
     expect(body.snapshot.validityDays).toBe(30);
     expect(body.snapshot.terms).toEqual(['Ceny netto.', 'SLA 6 msc w cenie.']);
   });
+
+  it('f3a: read-back zwraca actualHours (mapa) + closed_at wyceny', async () => {
+    const routeDB = {
+      prepare: (sql: string) => ({
+        all: async () => (sql.includes('est_params') ? { results: [] } : { results: [] }),
+        bind: () => ({
+          first: async () => ({
+            id: 5,
+            status: 'closed',
+            closed_at: '2026-07-16 12:00:00',
+            totals_json: '{"offer":{"min":1,"max":2}}',
+          }),
+          all: async () => {
+            if (sql.includes('est_actual_hours'))
+              return {
+                results: [
+                  { aspect_code: 'frontend', hours: 45, note: 'więcej' },
+                  { aspect_code: 'module:wishlist', hours: 12, note: null },
+                ],
+              };
+            return { results: [] };
+          },
+        }),
+      }),
+    };
+    const res = await onRequestGet(ctx({ DB: routeDB }, `${URL_BASE}?id=5`));
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      quote: { closed_at: string };
+      snapshot: { actualHours: Record<string, { hours: number; note: string | null }> };
+    };
+    expect(body.quote.closed_at).toBe('2026-07-16 12:00:00');
+    expect(body.snapshot.actualHours.frontend).toEqual({ hours: 45, note: 'więcej' });
+    expect(body.snapshot.actualHours['module:wishlist']).toEqual({ hours: 12, note: null });
+  });
 });

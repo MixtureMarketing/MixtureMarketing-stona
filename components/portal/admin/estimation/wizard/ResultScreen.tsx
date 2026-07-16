@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { CheckCircle2, FileText, FileCode, Send, Copy } from 'lucide-react';
 import { buildOffer, buildDecisionCard, type QuoteSnapshot } from '@/lib/estimation/documents';
-import { categoryName } from './categoryLabels';
 import { STATUS_LABEL, STATUS_STYLE, MOZLIWE_PRZEJSCIA, dataStatusu } from '../status';
+import CloseProjectForm, { type CloseRow } from './CloseProjectForm';
+import ResultDecisions from './ResultDecisions';
 
 // Ekran wyniku (f1c #5/#6): czyta SNAPSHOT z D1 (read-back po finalize), nie stan lokalny.
 // Wersja do odczytania klientowi na spotkaniu: widełki ofertowe + pełne + Confidence + decyzje.
@@ -35,6 +36,7 @@ interface SnapshotAspect {
 }
 interface SnapshotItem {
   item_type: string;
+  ref_code: string | null;
   name: string;
   hours_min: number | null;
   hours_max: number | null;
@@ -55,6 +57,7 @@ interface QuoteMeta {
   sent_at: string | null;
   won_at: string | null;
   lost_at: string | null;
+  closed_at: string | null;
   lost_reason: string | null;
 }
 interface ReadBack {
@@ -64,18 +67,10 @@ interface ReadBack {
     items: SnapshotItem[];
     totals: Totals | null;
     confidenceBreakdown: { reason: string; delta: number }[] | null;
+    /** f3a: godziny rzeczywiste (est_actual_hours), mapa aspect_code → {hours, note}. */
+    actualHours: Record<string, { hours: number; note: string | null }>;
   };
 }
-
-const parseReasons = (json: string | null): string[] => {
-  if (!json) return [];
-  try {
-    const v = JSON.parse(json);
-    return Array.isArray(v) ? v : [];
-  } catch {
-    return [];
-  }
-};
 
 interface Props {
   quoteId: number;
@@ -119,6 +114,26 @@ const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) 
   const t = snapshot.totals;
   // Decyzje techniczne: obszary z godzinami > 0, z uzasadnieniami (Karta decyzji, wersja skrócona).
   const decisions = snapshot.aspects.filter((a) => a.hours_max > 0);
+
+  // f3a: wiersze formularza zamknięcia — obszary + pozycje (moduł/integracja) z godzinami > 0.
+  // Kod itemu = `${item_type}:${ref_code}` (klucz est_actual_hours, jak w docs/03 kalibracji).
+  const closeRows: CloseRow[] = [
+    ...decisions.map((a) => ({
+      code: a.aspect_code,
+      name: a.aspect_name,
+      predMin: a.hours_min,
+      predMax: a.hours_max,
+    })),
+    ...snapshot.items
+      .filter((i) => i.item_type !== 'cost' && (i.hours_max ?? 0) > 0 && i.ref_code)
+      .map((i) => ({
+        code: `${i.item_type}:${i.ref_code}`,
+        name: i.name,
+        predMin: i.hours_min ?? 0,
+        predMax: i.hours_max ?? 0,
+      })),
+  ];
+  const pokazZamkniecie = quote.status === 'won' || quote.status === 'closed';
 
   // f2a: dokumenty budowane ze snapshotu (ten sam obiekt, który wyświetlamy) — nigdy z live.
   const snap = { quote, ...snapshot } as unknown as QuoteSnapshot;
@@ -196,6 +211,7 @@ const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) 
       await zmienStatus('sent');
     });
   const onWygrana = () => run('won', () => zmienStatus('won'));
+  const onZamknij = () => run('close', () => zmienStatus('closed')); // f3a: won → closed
   const onPrzegrana = () =>
     run('lost', async () => {
       await zmienStatus('lost', powodPrzegranej);
@@ -303,6 +319,16 @@ const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) 
               {busy === 'won' ? 'Zapisuję…' : 'Wygrana'}
             </button>
           )}
+          {MOZLIWE_PRZEJSCIA[quote.status]?.includes('closed') && (
+            <button
+              type="button"
+              onClick={onZamknij}
+              disabled={busy !== null}
+              className="px-4 py-2 rounded-lg font-bold text-sm bg-slate-700 text-white disabled:opacity-50"
+            >
+              {busy === 'close' ? 'Zamykam…' : 'Zamknij projekt'}
+            </button>
+          )}
           {MOZLIWE_PRZEJSCIA[quote.status]?.includes('lost') && !pytamOPowod && (
             <button
               type="button"
@@ -351,6 +377,17 @@ const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) 
         )}
       </div>
 
+      {/* f3a: formularz zamknięcia — godziny rzeczywiste do est_actual_hours (won i closed). */}
+      {pokazZamkniecie && (
+        <CloseProjectForm
+          quoteId={quoteId}
+          sessionToken={sessionToken}
+          rows={closeRows}
+          actualHours={snapshot.actualHours ?? {}}
+          onSaved={() => setOdswiez((k) => k + 1)}
+        />
+      )}
+
       {t && (
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
@@ -388,54 +425,7 @@ const ResultScreen: React.FC<Props> = ({ quoteId, sessionToken, onDuplicated }) 
         )}
       </div>
 
-      <div>
-        <h4 className="font-bold text-sm text-gray-500 mb-2">Decyzje techniczne (do omówienia)</h4>
-        <div className="space-y-1">
-          {decisions.map((a) => {
-            const reasons = parseReasons(a.rule_reasons_json);
-            return (
-              <div key={a.aspect_code} className="p-2 rounded-lg border border-slate-200 text-sm">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs text-gray-400">{categoryName(a.category)}</span>
-                  <span className="font-bold flex-1">{a.aspect_name}</span>
-                  <span className="text-xs text-gray-500">poziom {a.chosen_level}</span>
-                  <span className="text-xs text-gray-500 w-20 text-right">
-                    {Math.round(a.hours_min)}–{Math.round(a.hours_max)} h
-                  </span>
-                </div>
-                {reasons.length > 0 && (
-                  <ul className="text-xs text-gray-600 mt-1 list-disc list-inside">
-                    {reasons.map((r, i) => (
-                      <li key={i}>{r}</li>
-                    ))}
-                  </ul>
-                )}
-                {a.override_reason && (
-                  <p className="text-xs text-amber-700 mt-1">Korekta: {a.override_reason}</p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {snapshot.items.length > 0 && (
-        <div>
-          <h4 className="font-bold text-sm text-gray-500 mb-2">Pozycje dodatkowe</h4>
-          <ul className="text-sm space-y-1">
-            {snapshot.items.map((it, i) => (
-              <li key={i} className="flex justify-between border-b border-slate-100 py-1">
-                <span>{it.name}</span>
-                <span className="text-gray-500">
-                  {it.item_type === 'cost'
-                    ? pln(it.amount_pln ?? 0)
-                    : `${Math.round(it.hours_min ?? 0)}–${Math.round(it.hours_max ?? 0)} h`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ResultDecisions decisions={decisions} items={snapshot.items} />
     </div>
   );
 };
