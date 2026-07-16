@@ -55,10 +55,16 @@ const EcommerceOwnership: React.FC = () => {
                   {row.label}
                 </dt>
                 <dd className="grid grid-cols-2 lg:contents">
-                  <span className="bg-gray-50 px-5 py-4 text-[15px] leading-snug text-gray-600 md:px-8 lg:order-1 lg:py-5 lg:text-right">
+                  <span
+                    className="bg-gray-50 px-5 py-4 text-[15px] leading-snug text-gray-600 md:px-8 lg:order-1 lg:py-5 lg:text-right"
+                    style={{ transform: 'translate3d(calc((1 - var(--p, 1)) * -14px), 0, 0)' }}
+                  >
                     {row.saas}
                   </span>
-                  <span className="px-5 py-4 text-right text-[15px] leading-snug font-bold text-dark md:px-8 lg:order-3 lg:text-left">
+                  <span
+                    className="px-5 py-4 text-right text-[15px] leading-snug font-bold text-dark md:px-8 lg:order-3 lg:text-left"
+                    style={{ transform: 'translate3d(calc((1 - var(--p, 1)) * 14px), 0, 0)' }}
+                  >
                     {row.own}
                   </span>
                 </dd>

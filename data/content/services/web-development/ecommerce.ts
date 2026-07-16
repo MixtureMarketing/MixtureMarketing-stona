@@ -33,11 +33,15 @@ export const ECOMMERCE_CONTENT = {
     images: [
       {
         src: '/assets/images/realizacje/driftmark-sklep-home.webp',
+        width: 1440,
+        height: 900,
         alt: 'Strona główna sklepu Driftmark Marine: ciemne hero z łodzią w ruchu, nawigacja z katalogiem modeli i przyciskiem wyceny',
         caption: 'Strona główna — wejście do katalogu i szybka ścieżka „Request a quote”.',
       },
       {
         src: '/assets/images/realizacje/driftmark-karta-produktu.webp',
+        width: 1440,
+        height: 860,
         alt: 'Karta produktu łodzi Driftmark 250 AL: zdjęcie, lista wyposażenia z ikonami, cena 39 700 euro i przycisk wyceny',
         caption: 'Karta produktu — wyposażenie, realna cena i wycena jednym kliknięciem.',
       },
@@ -86,9 +90,9 @@ export const ECOMMERCE_CONTENT = {
     /** W środku sklepu — mechanizmy sprzedaży (dawne „boosters", bez kart-atrap). */
     insideLabel: 'A w środku sklepu:',
     inside: [
-      'wyszukiwarka, która toleruje literówki i podpowiada w trakcie pisania,',
-      'podpowiedzi „klienci kupili również” i zestawy produktów,',
-      'zakupy bez zakładania konta, z adresem uzupełnianym z InPost.',
+      'wyszukiwarka, która toleruje literówki i podpowiada w trakcie pisania',
+      'podpowiedzi „klienci kupili również” i zestawy produktów',
+      'zakupy bez zakładania konta, z adresem uzupełnianym z InPost',
     ],
   },
   /** Utrzymanie + własność kodu — pieczęć w brzmieniu zatwierdzonym na hubie. */

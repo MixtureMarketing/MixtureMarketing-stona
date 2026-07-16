@@ -51,6 +51,7 @@ const EcommerceExisting: React.FC<EcommerceExistingProps> = ({ onConsult }) => {
               <li
                 key={path.title}
                 className="flex flex-col gap-4 px-6 py-7 md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:gap-10 md:px-9"
+                style={{ transform: `translate3d(0, calc((1 - var(--p, 1)) * ${10 * i}px), 0)` }}
               >
                 <div className="flex items-start gap-4">
                   <Icon size={22} className="mt-1 shrink-0 text-secondary" aria-hidden="true" />

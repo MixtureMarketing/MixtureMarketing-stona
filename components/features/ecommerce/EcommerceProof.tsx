@@ -41,8 +41,11 @@ const EcommerceProof: React.FC = () => {
           className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-12"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
         >
-          {CONTENT.proof.images.map((img) => (
-            <figure key={img.src}>
+          {CONTENT.proof.images.map((img, i) => (
+            <figure
+              key={img.src}
+              style={{ transform: `translate3d(0, calc((1 - var(--p, 1)) * ${16 * i}px), 0)` }}
+            >
               <Link
                 to={CONTENT.proof.linkTo}
                 className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
@@ -50,8 +53,8 @@ const EcommerceProof: React.FC = () => {
                 <img
                   src={img.src}
                   alt={img.alt}
-                  width={1440}
-                  height={880}
+                  width={img.width}
+                  height={img.height}
                   sizes="(min-width: 768px) 50vw, 100vw"
                   loading="lazy"
                   decoding="async"
