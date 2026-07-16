@@ -109,29 +109,39 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
         >
           <Container>
             <div className="bg-white rounded-b-[2.5rem] shadow-[0_40px_100px_-20px_rgba(33,50,97,0.2)] border border-gray-100 border-t-0 overflow-hidden flex flex-row">
-              {/* Categories */}
-              <div className="flex-1 p-10 grid grid-cols-2 gap-4">
+              {/* Kategorie — REALNE linki do przefiltrowanej bazy
+                  (?kategoria=…); wcześniej wszystkie cztery prowadziły do
+                  tej samej strony co przycisk „cała baza". */}
+              <div className="flex-1 p-10 grid grid-cols-2 gap-4 content-center">
                 {[
                   {
                     label: 'Technologia & Dev',
                     icon: Database,
                     desc: 'Redis, CDN, Edge Computing',
+                    target: '/baza-wiedzy/?kategoria=tech',
                   },
                   {
                     label: 'Marketing Cyfrowy',
                     icon: Megaphone,
                     desc: 'Google Ads, Meta, SEO',
+                    target: '/baza-wiedzy/?kategoria=marketing',
                   },
                   {
                     label: 'Design & UX',
                     icon: Palette,
                     desc: 'Audyty, WebP, Core Web Vitals',
+                    target: '/baza-wiedzy/?kategoria=design',
                   },
-                  { label: 'Analityka & Dane', icon: BarChart3, desc: 'CAPI, SST, GA4' },
+                  {
+                    label: 'Analityka & Dane',
+                    icon: BarChart3,
+                    desc: 'CAPI, SST, GA4',
+                    target: '/baza-wiedzy/?kategoria=analytics',
+                  },
                 ].map((cat, i) => (
                   <Link
                     key={i}
-                    to="/baza-wiedzy"
+                    to={cat.target}
                     onClick={() => setActiveDropdown(null)}
                     className="group/kb flex items-center gap-4 p-4 rounded-2xl hover:bg-[#F9FAFB] transition-all focus:outline-none focus:ring-2 focus:ring-primary"
                     aria-label={`Artykuły z kategorii: ${cat.label}`}

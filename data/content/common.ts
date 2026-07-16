@@ -108,12 +108,10 @@ export const NAVBAR_CONTENT = {
   pricing: DICTIONARY.labels.pricing,
   offer: {
     label: 'Oferta',
-    title: 'Zbudujmy coś',
-    accent: 'wyjątkowego.',
-    desc: 'Opowiedz nam o swoim pomyśle. Pomożemy dobrać technologię i przygotujemy bezpłatną wycenę.',
+    title: 'Nie wiesz, od czego',
+    accent: 'zacząć?',
+    desc: 'Umów bezpłatną rozmowę — powiemy wprost, co ma sens w Twojej sytuacji, a wycenę widełkową dostaniesz w 24 godziny.',
     button: DICTIONARY.cta.book,
-    features: ['Analiza techniczna', 'Dobór kanałów Ads', 'Plan wdrożenia'],
-    badge: 'Rozmowa Strategiczna',
   },
   knowledgeBase: {
     label: DICTIONARY.labels.knowledgeBase,
