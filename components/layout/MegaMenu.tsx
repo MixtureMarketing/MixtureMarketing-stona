@@ -137,8 +137,14 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
   return (
     <div
       id="offer-mega-menu"
-      className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all duration-500 origin-top ${isVisible ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
-      style={{ display: isVisible ? 'block' : 'none' }} // Keep inline style for JS control if needed, but classes handle it well
+      className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all origin-top ${isVisible ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-2 invisible pointer-events-none'}`}
+      // Tempo menu wg reguły 100/300/500: otwarcie 300 ms (state change),
+      // zamknięcie ~75% tego; ease-out-quint zamiast domyślnej krzywej.
+      style={{
+        display: isVisible ? 'block' : 'none',
+        transitionDuration: isVisible ? '300ms' : '200ms',
+        transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      }}
       role="region"
       aria-labelledby="offer-menu-button"
     >
@@ -181,7 +187,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
                       <Link
                         to={item.target}
                         onClick={onClose}
-                        className="group/item flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 border border-transparent hover:border-primary/10 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="group/item flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all duration-200 border border-transparent hover:border-primary/10 focus:outline-none focus:ring-2 focus:ring-primary motion-safe:active:scale-[0.98]"
                       >
                         <div className="w-10 h-10 shrink-0 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 group-hover/item:text-secondary group-hover/item:bg-blue-50 transition-colors duration-300">
                           <item.icon size={20} aria-hidden="true" />
@@ -209,18 +215,31 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
             }`}
             style={{ transitionDelay: isVisible ? '260ms' : '0ms' }}
           >
+            {/* Moment podpisowy menu: sygnet SKŁADA SIĘ z lekkiej rozsypki
+                przy każdym otwarciu (teza chaos→forma; czysty CSS na
+                transformach per kropka, zero rAF; reduced-motion zeruje
+                przejścia globalnym CSS → forma od razu złożona). */}
             <svg
               viewBox={`0 0 ${SYGNET.vb[0]} ${SYGNET.vb[1]}`}
               className="pointer-events-none absolute -right-8 -bottom-6 h-56 w-auto opacity-[0.35]"
               aria-hidden="true"
             >
-              {SYGNET.dots.map(([x, y, w], i) => (
+              {SYGNET.dots.map(([x, y, w, sx, sy], i) => (
                 <circle
                   key={i}
                   cx={x}
                   cy={y}
                   r={0.9 + w * 0.9}
                   fill={`rgba(97,182,222,${(0.25 + 0.5 * w).toFixed(2)})`}
+                  className="transition-transform"
+                  style={{
+                    transform: isVisible
+                      ? 'translate(0, 0)'
+                      : `translate(${(sx * 0.35).toFixed(1)}px, ${(sy * 0.35).toFixed(1)}px)`,
+                    transitionDuration: isVisible ? '420ms' : '150ms',
+                    transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    transitionDelay: isVisible ? `${180 + (i % 7) * 24}ms` : '0ms',
+                  }}
                 />
               ))}
             </svg>
