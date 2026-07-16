@@ -162,8 +162,9 @@ const Ecommerce: React.FC = () => {
           <>
             Od 2020 buduję sklepy internetowe i marketplace&apos;y dla firm z Podkarpacia. Stack:
             WooCommerce, PrestaShop, przy nietypowej sprzedaży Medusa.js albo Sylius. Integracje
-            płatności (Przelewy24, Stripe), kurierów, Allegro i ERP przez BaseLinker. Sam koduję —
-            bez &quot;kogoś z agencji od backendu&quot;.
+            płatności (Przelewy24, Stripe), kurierów, Allegro i ERP przez BaseLinker. Projekt
+            prowadzę osobiście od analizy po wdrożenie — koduje nasz zespół, a Ty masz jeden punkt
+            kontaktu.
           </>
         }
       />

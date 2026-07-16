@@ -638,9 +638,10 @@ const WebDevRzeszow: React.FC = () => {
               intro="Z kim się spotkasz"
               bio={
                 <>
-                  Od 2020 buduję strony WWW i aplikacje webowe dla firm z Podkarpacia. Sam koduję,
-                  projektuję i prowadzę projekt — od briefu po launch. Bez gry w głuchy telefon
-                  między grafikiem a developerem.
+                  Od 2020 buduję strony WWW i aplikacje webowe dla firm z Podkarpacia. Prowadzę
+                  projekt osobiście — od analizy wymagań po wdrożenie — a koduje nasz zespół
+                  developerów. Masz jeden punkt kontaktu, bez gry w głuchy telefon między grafikiem
+                  a developerem.
                 </>
               }
             />
