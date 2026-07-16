@@ -12,17 +12,28 @@
  */
 import {
   validateLibraryPatch,
+  validateLibraryCreate,
   ENTITY_FIELDS,
+  CREATE_FIELDS,
   type LibraryEntity,
 } from '../../../../lib/estimation/libraryEdit';
+import { validateRule, buildRuleContext } from '../../../../lib/estimation/ruleValidation';
 
 interface Env {
   DB: D1Database;
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
-  const { env } = context;
+  const { env, request } = context;
   const all = (sql: string) => env.DB.prepare(sql).all();
+  // scope=editor: pełny odczyt dla edytora reguł (reguły też NIEAKTYWNE + kolumna is_active).
+  // Domyślnie GET jest engine-facing (tylko aktywne) — nie psujemy podglądu wizarda.
+  const editor = new URL(request.url).searchParams.get('scope') === 'editor';
+  const rulesSql = editor
+    ? `SELECT id, name, rule_type, condition_json, actions_json, reason_template, priority, is_active
+       FROM est_rules ORDER BY priority DESC, id`
+    : `SELECT id, name, rule_type, condition_json, actions_json, reason_template, priority
+       FROM est_rules WHERE is_active = 1 ORDER BY priority DESC, id`;
   try {
     const [
       aspects,
@@ -52,8 +63,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       all(`SELECT code, text, help_text, answer_type, options_json, allow_unknown, visibility,
                   unknown_weight, visible_if_json, question_group, sort_order
            FROM est_questions WHERE is_active = 1 ORDER BY sort_order`),
-      all(`SELECT id, name, rule_type, condition_json, actions_json, reason_template, priority
-           FROM est_rules WHERE is_active = 1 ORDER BY priority DESC, id`),
+      all(rulesSql),
       all(`SELECT code, name, description, includes, excludes, hours_min, hours_max, risk, archetypes_json, goals_json
            FROM est_modules WHERE is_active = 1`),
       all(`SELECT code, name, category, hours_platform_min, hours_platform_max,
@@ -94,6 +104,7 @@ const TABLE: Record<LibraryEntity, string> = {
   integration: 'est_integrations',
   question: 'est_questions',
   param: 'est_params',
+  rule: 'est_rules',
 };
 
 const KNOWN_ENTITIES: LibraryEntity[] = [
@@ -103,7 +114,44 @@ const KNOWN_ENTITIES: LibraryEntity[] = [
   'integration',
   'question',
   'param',
+  'rule',
 ];
+
+/** Kontekst spójności reguł (kody biblioteki) — do walidacji semantycznej reguł (sieroty). */
+async function loadRuleContext(DB: D1Database) {
+  const all = (sql: string) => DB.prepare(sql).all();
+  const [
+    aspects,
+    levels,
+    modules,
+    integrations,
+    multipliers,
+    costItemTypes,
+    questions,
+    archetypes,
+  ] = await Promise.all([
+    all(`SELECT code FROM est_aspects WHERE is_active = 1`),
+    all(
+      `SELECT a.code AS aspect_code, l.level FROM est_levels l JOIN est_aspects a ON a.id = l.aspect_id`,
+    ),
+    all(`SELECT code FROM est_modules WHERE is_active = 1`),
+    all(`SELECT code FROM est_integrations WHERE is_active = 1`),
+    all(`SELECT code FROM est_multipliers WHERE is_active = 1`),
+    all(`SELECT code FROM est_cost_item_types WHERE is_active = 1`),
+    all(`SELECT code FROM est_questions WHERE is_active = 1`),
+    all(`SELECT code FROM est_archetypes WHERE is_active = 1`),
+  ]);
+  return buildRuleContext({
+    aspects: (aspects.results ?? []) as any,
+    levels: (levels.results ?? []) as any,
+    modules: (modules.results ?? []) as any,
+    integrations: (integrations.results ?? []) as any,
+    multipliers: (multipliers.results ?? []) as any,
+    costItemTypes: (costItemTypes.results ?? []) as any,
+    questions: (questions.results ?? []) as any,
+    archetypes: (archetypes.results ?? []) as any,
+  });
+}
 
 interface PatchBody {
   entity?: string;
@@ -158,6 +206,15 @@ async function loadTarget(
     };
   }
 
+  // reguła: tożsamość to id (niezmienne)
+  if (entity === 'rule') {
+    const id = Number(key.id);
+    const current = (await DB.prepare('SELECT * FROM est_rules WHERE id = ?')
+      .bind(id)
+      .first()) as any;
+    return { current, where: 'id = ?', whereBinds: [id] };
+  }
+
   // pozostałe encje: naturalny klucz to code (aspect/module/integration/question) lub key (param)
   const keyCol = entity === 'param' ? 'key' : 'code';
   const keyVal = entity === 'param' ? key.key : key.code;
@@ -187,6 +244,19 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     if (!current) return json({ error: 'Wiersz biblioteki nie istnieje.' }, 404);
 
     const errors = validateLibraryPatch({ entity, patch, current, siblingLevels });
+
+    // Reguła: gdy patch rusza drzewo/akcje — walidacja SEMANTYCZNA (sieroty) z kontekstem biblioteki.
+    // Bierzemy stronę nieruszohaną z current (edycja tylko warunku LUB tylko akcji też ma być spójna).
+    if (
+      entity === 'rule' &&
+      (patch.condition_json !== undefined || patch.actions_json !== undefined)
+    ) {
+      const cond = (patch.condition_json ?? current.condition_json) as string;
+      const acts = (patch.actions_json ?? current.actions_json) as string;
+      const ctx = await loadRuleContext(env.DB);
+      errors.push(...validateRule(cond, acts, ctx));
+    }
+
     if (errors.length > 0) return json({ errors }, 400);
 
     // UPDATE wyłącznie z pól whitelisty (nazwy kolumn ze stałej listy — nie z inputu; wartości bindowane).
@@ -198,6 +268,51 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       .run();
 
     return json({ ok: true, entity, updated: cols });
+  } catch (err: any) {
+    return json({ error: err.message }, 500);
+  }
+};
+
+// ── POST: CREATE modułu / integracji (f2c-2a) ───────────────────────────────
+
+interface CreateBody {
+  entity?: string;
+  code?: string;
+  row?: Record<string, unknown>;
+}
+
+export const onRequestPost: PagesFunction<Env> = async (context) => {
+  const { env, request } = context;
+  try {
+    const body = (await request.json()) as CreateBody;
+    const entity = body.entity;
+    if (entity !== 'module' && entity !== 'integration')
+      return json({ error: 'Tworzyć można tylko moduł lub integrację.' }, 400);
+
+    const code = body.code;
+    const row = body.row ?? {};
+
+    const errors = validateLibraryCreate({ entity, code, row });
+    if (errors.length > 0) return json({ errors }, 400);
+
+    // unikalność kodu (kod = kontrakt; kolizja → 409, nie cichy upsert)
+    const existing = await env.DB.prepare(`SELECT 1 FROM ${TABLE[entity]} WHERE code = ?`)
+      .bind(code)
+      .first();
+    if (existing) return json({ error: `Kod „${code}" już istnieje.` }, 409);
+
+    // INSERT: code + pola whitelisty obecne w row (nazwy kolumn ze stałej listy; wartości bindowane).
+    // is_active/risk/nullable domyślne z DDL, gdy nieobecne.
+    const cols = ['code', ...CREATE_FIELDS[entity].filter((f) => row[f] !== undefined)];
+    const binds = cols.map((c) => (c === 'code' ? code : row[c]));
+    const placeholders = cols.map(() => '?').join(', ');
+    await env.DB.prepare(
+      `INSERT INTO ${TABLE[entity]} (${cols.join(', ')}) VALUES (${placeholders})`,
+    )
+      .bind(...binds)
+      .run();
+
+    return json({ ok: true, entity, code }, 201);
   } catch (err: any) {
     return json({ error: err.message }, 500);
   }

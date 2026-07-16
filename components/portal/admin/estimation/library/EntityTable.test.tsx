@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import EntityTable from './EntityTable';
 import { ENTITY_CONFIGS } from './libraryFields';
+import type { PatchResult } from './useLibraryMutations';
 
 // Logika edytora (§1: testujemy logikę, nie markup): diff — do PATCH idą TYLKO zmienione pola;
 // brak zmian = brak wywołania; błędy walidacji serwera pokazane przy formularzu.
@@ -16,7 +17,11 @@ const row = {
   sort_order: 1,
 };
 
-const renderTable = (onSave: ReturnType<typeof vi.fn>, onSaved = vi.fn()) =>
+type OnSave = (
+  key: Record<string, unknown>,
+  patch: Record<string, unknown>,
+) => Promise<PatchResult>;
+const renderTable = (onSave: OnSave, onSaved = vi.fn()) =>
   render(
     <EntityTable
       config={aspectCfg}

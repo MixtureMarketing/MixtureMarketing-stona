@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { onRequestGet, onRequestPatch } from './library';
+import { onRequestGet, onRequestPatch, onRequestPost } from './library';
 
 type Ctx = Parameters<typeof onRequestGet>[0];
 function mockEnv(opts: { throwErr?: string } = {}) {
@@ -14,7 +14,8 @@ function mockEnv(opts: { throwErr?: string } = {}) {
   };
   return { DB };
 }
-const ctx = (env: unknown): Ctx => ({ env }) as unknown as Ctx;
+const ctx = (env: unknown, url = 'http://x/api/admin/estimation/library'): Ctx =>
+  ({ env, request: { url } }) as unknown as Ctx;
 
 describe('GET /api/admin/estimation/library', () => {
   it('zwraca komplet biblioteki (11 kolekcji)', async () => {
@@ -195,5 +196,197 @@ describe('PATCH /api/admin/estimation/library', () => {
       pctx(m.env, { entity: 'param', key: { key: 'hourly_rate' }, patch: { value: 'abc' } }),
     );
     expect(res.status).toBe(400);
+  });
+});
+
+// ── f2c-2a: PATCH reguły (semantyka) + POST create + GET scope=editor ────────
+
+function mockLibEnv(opts: {
+  currentRule?: Record<string, unknown> | null;
+  existingCode?: boolean;
+  ctxData?: {
+    aspects?: string[];
+    levels?: { aspect_code: string; level: number }[];
+    modules?: string[];
+    integrations?: string[];
+    multipliers?: string[];
+    costItemTypes?: string[];
+    questions?: string[];
+    archetypes?: string[];
+  };
+}) {
+  const writes: { sql: string; binds: unknown[] }[] = [];
+  const c = opts.ctxData ?? {};
+  const codes = (arr?: string[]) => (arr ?? []).map((x) => ({ code: x }));
+  // loadRuleContext woła prepare(sql).all() BEZ bind — wspólna logika all dla obu ścieżek.
+  const allFor = async (sql: string) => {
+    if (/FROM est_levels/.test(sql)) return { results: c.levels ?? [] };
+    if (/FROM est_aspects/.test(sql)) return { results: codes(c.aspects) };
+    if (/FROM est_modules/.test(sql)) return { results: codes(c.modules) };
+    if (/FROM est_integrations/.test(sql)) return { results: codes(c.integrations) };
+    if (/FROM est_multipliers/.test(sql)) return { results: codes(c.multipliers) };
+    if (/FROM est_cost_item_types/.test(sql)) return { results: codes(c.costItemTypes) };
+    if (/FROM est_questions/.test(sql)) return { results: codes(c.questions) };
+    if (/FROM est_archetypes/.test(sql)) return { results: codes(c.archetypes) };
+    return { results: [] };
+  };
+  const DB = {
+    prepare: (sql: string) => ({
+      all: () => allFor(sql),
+      bind: (...binds: unknown[]) => ({
+        first: async () => {
+          if (/FROM est_rules WHERE id/.test(sql)) return opts.currentRule ?? null;
+          if (/SELECT 1 FROM est_(modules|integrations) WHERE code/.test(sql))
+            return opts.existingCode ? { 1: 1 } : null;
+          return null;
+        },
+        all: () => allFor(sql),
+        run: async () => {
+          writes.push({ sql, binds });
+          return { success: true };
+        },
+      }),
+    }),
+  };
+  return { env: { DB }, writes };
+}
+
+const CTX_OK = {
+  aspects: ['high_availability'],
+  levels: [
+    { aspect_code: 'high_availability', level: 0 },
+    { aspect_code: 'high_availability', level: 1 },
+    { aspect_code: 'high_availability', level: 2 },
+  ],
+  modules: ['wishlist'],
+  multipliers: ['hard_deadline'],
+  questions: ['downtime_tolerance'],
+};
+
+const RULE_ROW = {
+  id: 1,
+  condition_json: JSON.stringify({ q: 'downtime_tolerance', op: 'answered' }),
+  actions_json: JSON.stringify([{ type: 'multiplier', code: 'hard_deadline' }]),
+};
+
+describe('PATCH reguły — semantyka spójności', () => {
+  it('zmiana progu + akcja na istniejący kod → 200, UPDATE', async () => {
+    const m = mockLibEnv({ currentRule: RULE_ROW, ctxData: CTX_OK });
+    const res = await onRequestPatch(
+      pctx(m.env, {
+        entity: 'rule',
+        key: { id: 1 },
+        patch: {
+          priority: 5,
+          condition_json: JSON.stringify({
+            q: 'downtime_tolerance',
+            op: 'eq',
+            val: 'critical_247',
+          }),
+          actions_json: JSON.stringify([
+            { type: 'min_level', aspect: 'high_availability', level: 2 },
+          ]),
+        },
+      }),
+    );
+    expect(res.status).toBe(200);
+    expect(m.writes).toHaveLength(1);
+    expect(m.writes[0].sql).toMatch(/UPDATE est_rules SET/);
+  });
+
+  it('sierota AKCJI (moduł nie istnieje) → 400, brak UPDATE', async () => {
+    const m = mockLibEnv({ currentRule: RULE_ROW, ctxData: CTX_OK });
+    const res = await onRequestPatch(
+      pctx(m.env, {
+        entity: 'rule',
+        key: { id: 1 },
+        patch: { actions_json: JSON.stringify([{ type: 'suggest_module', code: 'ghost' }]) },
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(m.writes).toHaveLength(0);
+  });
+
+  it('sierota WARUNKU (pytanie nie istnieje) → 400', async () => {
+    const m = mockLibEnv({ currentRule: RULE_ROW, ctxData: CTX_OK });
+    const res = await onRequestPatch(
+      pctx(m.env, {
+        entity: 'rule',
+        key: { id: 1 },
+        patch: { condition_json: JSON.stringify({ q: 'widmo', op: 'eq', val: 'x' }) },
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(m.writes).toHaveLength(0);
+  });
+});
+
+describe('POST /library — CREATE modułu/integracji', () => {
+  it('nowy moduł poprawny → 201 + INSERT', async () => {
+    const m = mockLibEnv({ existingCode: false });
+    const res = await onRequestPost(
+      pctx(m.env, {
+        entity: 'module',
+        code: 'nowy_modul',
+        row: { name: 'Nowy moduł', hours_min: 8, hours_max: 16, risk: 'low' },
+      }),
+    );
+    expect(res.status).toBe(201);
+    expect(m.writes[0].sql).toMatch(/INSERT INTO est_modules/);
+  });
+
+  it('duplikat code → 409, brak INSERT', async () => {
+    const m = mockLibEnv({ existingCode: true });
+    const res = await onRequestPost(
+      pctx(m.env, {
+        entity: 'module',
+        code: 'wishlist',
+        row: { name: 'X', hours_min: 8, hours_max: 16 },
+      }),
+    );
+    expect(res.status).toBe(409);
+    expect(m.writes).toHaveLength(0);
+  });
+
+  it('kod nie-snake_case → 400 (przed sprawdzeniem unikalności)', async () => {
+    const m = mockLibEnv({ existingCode: false });
+    const res = await onRequestPost(
+      pctx(m.env, {
+        entity: 'module',
+        code: 'Zły-Kod',
+        row: { name: 'X', hours_min: 1, hours_max: 2 },
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(m.writes).toHaveLength(0);
+  });
+
+  it('integracja bez kategorii → 400', async () => {
+    const m = mockLibEnv({ existingCode: false });
+    const res = await onRequestPost(
+      pctx(m.env, {
+        entity: 'integration',
+        code: 'nowa_int',
+        row: { name: 'X', hours_custom_min: 10, hours_custom_max: 20 },
+      }),
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('encja spoza {module,integration} → 400', async () => {
+    const m = mockLibEnv({});
+    const res = await onRequestPost(pctx(m.env, { entity: 'aspect', code: 'x', row: {} }));
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /library?scope=editor', () => {
+  it('zwraca 200 (pełny odczyt dla edytora)', async () => {
+    const res = await onRequestGet(
+      ctx(mockEnv(), 'http://x/api/admin/estimation/library?scope=editor'),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as Record<string, unknown[]>;
+    expect(Array.isArray(body.rules)).toBe(true);
   });
 });
