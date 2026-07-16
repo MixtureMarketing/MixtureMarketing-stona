@@ -23,7 +23,6 @@ import WebDevProjectTypes from '../features/web-development/WebDevProjectTypes';
 import WebDevWpCustom from '../features/web-development/WebDevWpCustom';
 import WebDevInfrastructure from '../features/web-development/WebDevInfrastructure';
 import WebDevComparison from '../features/web-development/WebDevComparison';
-import WebDevFacts from '../features/web-development/WebDevFacts';
 import FaqSection from '../sections/FaqSection';
 
 const WebDevelopment: React.FC = () => {
@@ -188,10 +187,6 @@ const WebDevelopment: React.FC = () => {
         <WebDevInfrastructure />
 
         <WebDevComparison />
-
-        {/* Kotwica wiarygodności: zmierzone fakty o TYM serwisie — po Comparison
-            (odpowiada „czym różnicie się od taniej agencji"), przed FAQ. */}
-        <WebDevFacts />
 
         {/* --- FAQ — bez `subtitle`: eyebrow „Ekspercka Wiedza" nad „Najczęstsze pytania"
           nic nie wnosił (The Jeden Eyebrow Rule) --- */}
