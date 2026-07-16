@@ -1,156 +1,155 @@
+/**
+ * Treść /marketing/google-ads/ — przepisana 2026-07-16 (krytyka 13/40).
+ * Decyzje właściciela: Google Partner = PRAWDA (zostaje); CSS Partner
+ * niepotwierdzony (wypada); liczby branżowe bez procentów (mechanika);
+ * cena hero = najniższy pakiet CMS (Start 1 500 zł/mc); raportowanie =
+ * dashboard 24/7 + spotkanie co miesiąc. Zero obietnic pozycji („1. miejsce"
+ * wypadło z H1 — własne FAQ SEO mówi wprost, że pozycji się nie gwarantuje).
+ * Usunięte wcześniej: „+320% (Sklep Meblowy)" — wymyślona liczba.
+ */
 export const GOOGLE_ADS_CONTENT = {
   seo: {
-    title: 'Kampanie Google Ads (SEM) | Agencja Google Ads',
+    title: 'Kampanie Google Ads — agencja Google Partner | Mixture',
     description:
-      'Prowadzimy skuteczne kampanie Google Ads (linki sponsorowane), które generują sprzedaż. Płać tylko za efekty (PPC) i osiągaj wysoki zwrot z inwestycji (ROAS).',
+      'Prowadzenie kampanii Google Ads: Search, Shopping, Performance Max. Pilnujemy wykluczeń i jakości ruchu, konto reklamowe zostaje Twoje. Dashboard z wynikami 24/7.',
     image: '/assets/images/google-ads.png',
   },
   hero: {
-    badge: 'Certyfikowana Agencja Google Partner',
     title: {
-      line1: 'Twoja firma na',
-      line2: '1. miejscu w Google.',
+      line1: 'Google Ads bez',
+      line2: 'przepalania budżetu.',
     },
     description:
-      'Przechwytuj klientów dokładnie w momencie, gdy szukają Twoich produktów. Precyzyjne kampanie SEM, które skalują sprzedaż, a nie koszty.',
-    cta: 'Darmowy Audyt Konta',
-    microCopy: 'Płać tylko za efekt (PPC)',
-    // caseStudy „+320% (Sklep Meblowy)" USUNIĘTE 2026-07-16: wymyślona liczba
-    // (potwierdzone przez właściciela — copy, nie pomiar). Usunąć, nie podmieniać.
-    simulator: {
-      placeholder: 'skuteczna agencja google ads warszawa',
-      ad: {
-        label: 'Sponsorowane',
-        title: 'Profesjonalne Kampanie Google Ads | Zwrot z Inwestycji',
-        desc: 'Nie przepalaj budżetu. Skuteczne kampanie Linków Sponsorowanych. Certyfikowani specjaliści, jasne raporty i realne wyniki. Zamów darmowy audyt.',
-        links: ['Darmowa Wycena', 'Case Studies', 'Cennik', 'Kontakt'],
-      },
-    },
+      'Reklamy dla ludzi, którzy już szukają tego, co sprzedajesz. Pilnujemy wykluczeń, jakości ruchu i kosztu konwersji — a Ty patrzysz na te same liczby co my, w dashboardzie dostępnym 24/7.',
+    cta: 'Darmowy audyt konta',
+    microCopy: 'Płacisz za kliknięcie, nie za obietnice',
   },
   painPoints: {
     title: 'Gdzie uciekają Twoje pieniądze?',
     description:
-      "System Google Ads jest skomplikowany. Jeden zły 'ptaszek' w ustawieniach może kosztować Cię tysiące złotych miesięcznie. Sprawdź, czy nie popełniasz tych błędów.",
+      'System Google Ads jest skomplikowany. Jeden zły „ptaszek" w ustawieniach może kosztować Cię tysiące złotych miesięcznie. To trzy błędy, które widzimy najczęściej na przejmowanych kontach.',
     items: [
       {
-        title: 'Brak Wykluczeń (Negative Keywords)',
-        desc: "Wyświetlasz reklamy na słowa 'darmowe', 'chomikuj' lub 'praca'? Płacisz za ruch śmieciowy, który nigdy nie kupi.",
+        title: 'Brak wykluczeń',
+        desc: 'Reklama wyświetla się na frazy z „darmowe", „chomikuj" albo „praca". Płacisz za ruch, który z definicji nigdy nie kupi.',
       },
       {
-        title: 'Złe Dopasowanie (Broad Match)',
-        desc: 'Używasz dopasowania przybliżonego bez kontroli? Google pokazuje Cię każdemu, nie tylko zdecydowanym klientom.',
+        title: 'Dopasowanie przybliżone bez kontroli',
+        desc: 'Google pokazuje Twoją reklamę „podobnym" zapytaniom — bez pilnowania raportu wyszukiwań budżet idzie na hasła, których nie wybrałeś.',
       },
       {
-        title: 'Niski Wynik Jakości (QS)',
-        desc: 'Masz słabą stronę docelową lub nieadekwatne teksty? Google każe Ci płacić nawet 400% więcej za kliknięcie niż konkurencji.',
+        title: 'Niski Wynik Jakości',
+        desc: 'Słaba strona docelowa i nieadekwatne teksty reklam podbijają stawkę za kliknięcie — za ten sam ruch płacisz wielokrotnie więcej niż konkurent z lepszym kontem.',
       },
     ],
   },
   industries: {
     title: 'Strategia dopasowana do branży',
     description:
-      'Inaczej promuje się sklep z tysiącem produktów, a inaczej lokalnego usługodawcę. Dobieramy narzędzia pod Twój model biznesowy.',
+      'Inaczej promuje się sklep z tysiącem produktów, a inaczej lokalnego usługodawcę. Dobieramy typy kampanii do Twojego modelu biznesowego.',
     services: {
-      title: 'Firmy Usługowe',
-      subtitle: 'Lead Generation',
-      desc: 'Dla prawników, lekarzy, hydraulików i B2B. Celem jest telefon od klienta lub wypełnienie formularza.',
+      title: 'Firmy usługowe',
+      subtitle: 'Zapytania i telefony',
+      desc: 'Dla prawników, lekarzy, warsztatów i firm B2B. Celem jest telefon od klienta albo wypełniony formularz.',
       features: [
-        '<strong>Google Search:</strong> Przechwytywanie "gorących" zapytań (np. "awaria rury warszawa").',
-        '<strong>Google Maps:</strong> Promowanie wizytówki w wynikach lokalnych.',
-        '<strong>Remarketing:</strong> "Śledzenie" niezdedicated banerami graficznymi.',
+        '<strong>Google Search:</strong> przechwytywanie pilnych zapytań (np. „awaria rury rzeszów").',
+        '<strong>Google Maps:</strong> promowanie wizytówki w wynikach lokalnych.',
+        '<strong>Remarketing:</strong> przypominanie się osobom, które były na stronie i nie zadzwoniły.',
       ],
-      cta: 'Strategia dla Usług',
+      cta: 'Strategia dla usług',
     },
     ecommerce: {
-      title: 'Sklepy Internetowe',
-      subtitle: 'E-commerce / ROAS',
-      desc: 'Dla sklepów online. Celem jest bezpośrednia sprzedaż produktu z jak najwyższym zwrotem z inwestycji (ROAS).',
+      title: 'Sklepy internetowe',
+      subtitle: 'Sprzedaż produktów',
+      desc: 'Dla sklepów online. Celem jest sprzedaż z pilnowanym kosztem pozyskania i zwrotem z wydatków reklamowych.',
       features: [
-        '<strong>Google Shopping (PLA):</strong> Reklamy ze zdjęciem i ceną produktu.',
-        '<strong>Google CSS Partner:</strong> -20% tańsze kliknięcia w kampaniach produktowych.',
-        '<strong>Performance Max:</strong> Automatyzacja wyświetlania w całym ekosystemie Google.',
+        '<strong>Google Shopping:</strong> reklamy ze zdjęciem i ceną produktu prosto z Twojego katalogu.',
+        '<strong>Performance Max:</strong> automatyzacja wyświetleń w całym ekosystemie Google — pod naszą kontrolą budżetową.',
+        '<strong>Remarketing dynamiczny:</strong> pokazujemy dokładnie te produkty, które klient oglądał.',
       ],
-      cta: 'Strategia E-commerce',
+      cta: 'Strategia e-commerce',
     },
   },
+  /**
+   * Kalkulator = arytmetyka ZAŁOŻEŃ użytkownika, nie prognoza wyniku
+   * (poprzednik: „Symulator Zysków… zobacz, jak budżet zamienia się
+   * w przychód" + wiersz „Zysk netto"). Zastrzeżenie jest częścią treści.
+   */
   calculator: {
-    title: 'Symulator Zysków',
+    title: 'Matematyka kampanii',
     description:
-      'Sprawdź, jakiego efektu możesz się spodziewać. Przesuwaj suwaki i zobacz, jak budżet zamienia się w przychód.',
+      'Przesuń suwaki i zobacz, jak budżet, koszt kliknięcia i konwersja składają się na koszt pozyskania klienta. To arytmetyka Twoich założeń — nie obietnica wyniku.',
+    disclaimer:
+      'Realne CPC i konwersję w Twojej branży poznasz po pierwszym miesiącu kampanii — dopiero wtedy te liczby przestają być założeniami.',
     labels: {
-      budget: 'Miesięczny Budżet',
-      budgetDesc: 'Budżet wpłacany bezpośrednio do Google.',
+      budget: 'Miesięczny budżet mediowy',
+      budgetDesc: 'Kwota wpłacana bezpośrednio do Google — osobno od naszego wynagrodzenia.',
       cpc: 'Koszt kliknięcia (CPC)',
-      cpcDesc: 'Średnia stawka w Twojej branży.',
-      cr: 'Konwersja (CR)',
-      crDesc: 'Ile % odwiedzających kupuje/dzwoni.',
-      aov: 'Średnia Wartość Zamówienia',
-      traffic: 'Ruch na stronie',
-      leads: 'Ilość Transakcji',
-      cpa: 'Koszt Pozyskania (CPA)',
-      roas: 'ROAS (Zwrot)',
-      revenue: 'Przewidywany Przychód',
-      profit: 'Zysk netto (est.)',
+      cpcDesc: 'Średnia stawka w Twojej branży — sprawdzimy ją w audycie.',
+      cr: 'Konwersja strony',
+      crDesc: 'Ile procent odwiedzających kupuje albo dzwoni.',
+      aov: 'Średnia wartość zamówienia',
+      traffic: 'Kliknięcia miesięcznie',
+      leads: 'Transakcje / zapytania',
+      cpa: 'Koszt pozyskania',
+      revenue: 'Wartość zamówień przy tych założeniach',
     },
   },
-  algorithm: {
-    title: 'Nasz Algorytm Sukcesu',
-    subtitle: 'Procedura Operacyjna',
+  /** Proces — bez mono-teatru („> init_tracking", statusy „Connected"). */
+  process: {
+    title: 'Jak prowadzimy konto',
     description:
-      'Nie zgadujemy. Działamy według sprawdzonego procesu inżynieryjnego, który eliminuje ryzyko przepalenia budżetu i gwarantuje skalowalność.',
+      'Nie zgadujemy. Każde konto przechodzi ten sam proces — od pomiaru, przez strukturę, po skalowanie tego, co faktycznie dowozi.',
     steps: [
       {
-        step: '01',
-        title: 'Deep Audit & Setup',
-        desc: 'Fundament. Sprawdzamy poprawność danych, konfigurujemy konwersje w GA4 i eliminujemy błędy techniczne.',
-        cmd: '> init_tracking --ga4',
-        status: 'Connected',
+        title: 'Audyt i pomiar',
+        desc: 'Zanim wydamy złotówkę: poprawna konfiguracja konwersji w GA4, sprzątanie błędów technicznych, przegląd historii konta.',
       },
       {
-        step: '02',
-        title: 'Struktura SKAG',
-        desc: 'Hiper-precyzja. Tworzymy grupy reklam (Single Keyword Ad Groups) dla najwyższego Wyniku Jakości (QS).',
-        cmd: '> build_structure --granular',
-        status: 'Optimized',
+        title: 'Struktura kampanii',
+        desc: 'Precyzyjne grupy reklam i trafne teksty — to one decydują o Wyniku Jakości, czyli o tym, ile realnie płacisz za kliknięcie.',
       },
       {
-        step: '03',
-        title: 'Bid Management',
-        desc: 'Inteligentne stawki. Wykluczamy nierentowne słowa i dostosowujemy stawki godzinowe oraz urządzeń.',
-        cmd: '> adjust_bids --maximize_roas',
-        status: 'Processing',
+        title: 'Optymalizacja stawek',
+        desc: 'Cotygodniowy przegląd raportu wyszukiwań: wykluczamy nierentowne frazy, dostosowujemy stawki do pory dnia i urządzeń.',
       },
       {
-        step: '04',
-        title: 'Skalowanie Wyniku',
-        desc: 'Zwiększamy budżet tylko na kampanie, które dowożą wynik. Ekspansja na nowe frazy i kanały (YouTube/Discovery).',
-        cmd: '> scale_profit --up',
-        status: 'Growing',
+        title: 'Skalowanie wyniku',
+        desc: 'Budżet rośnie tylko tam, gdzie liczby tego bronią. Ekspansja na nowe frazy i formaty — po dowiezieniu bazy.',
       },
     ],
   },
+  /** Google Partner — potwierdzone przez właściciela 2026-07-16. */
+  partner: {
+    label: 'Agencja Google Partner',
+    desc: 'Status weryfikowany przez Google — wymaga utrzymania wyników kont i certyfikacji zespołu. Możesz go sprawdzić w publicznym rejestrze partnerów.',
+  },
   faqs: [
     {
-      q: 'Ile muszę wydać na reklamy (Budżet Mediowy)?',
-      a: 'To zależy od branży i konkurencji. Zalecamy start od min. 2000-3000 PLN miesięcznie, aby algorytmy miały wystarczającą ilość danych do nauki. Pamiętaj: ten budżet trafia bezpośrednio do Google.',
+      q: 'Ile muszę wydać na reklamy (budżet mediowy)?',
+      a: 'To zależy od branży i konkurencji. Zalecamy start od min. 2000–3000 zł miesięcznie, aby algorytmy miały wystarczającą ilość danych do nauki. Ten budżet trafia bezpośrednio do Google — osobno od naszego wynagrodzenia.',
     },
     {
       q: 'Czy płacę za wyświetlenie reklamy?',
-      a: 'W sieci wyszukiwania (Search) - NIE. Płacisz tylko wtedy, gdy ktoś kliknie w reklamę i wejdzie na Twoją stronę (model PPC - Pay Per Click). Wyświetlenia są darmowe.',
+      a: 'W sieci wyszukiwania (Search) — nie. Płacisz tylko wtedy, gdy ktoś kliknie w reklamę i wejdzie na Twoją stronę (model PPC). Wyświetlenia są darmowe.',
     },
     {
       q: 'Dlaczego moja konkurencja jest wyżej?',
-      a: 'Pozycja zależy od iloczynu: Stawka CPC x Wynik Jakości. Jeśli masz lepszą stronę i trafniejszą reklamę, możesz być wyżej niż konkurencja, płacąc mniej za kliknięcie. Nad tym właśnie pracujemy.',
+      a: 'Pozycja reklamy zależy od iloczynu stawki i Wyniku Jakości. Jeśli masz lepszą stronę docelową i trafniejszą reklamę, możesz być wyżej, płacąc mniej za kliknięcie. Nad tym właśnie pracujemy.',
     },
     {
-      q: "Co to jest 'Fee Agencji'?",
+      q: 'Co to jest „fee agencji"?',
       a: 'To nasze wynagrodzenie za konfigurację, optymalizację, pisanie tekstów i raportowanie. Jest oddzielone od budżetu reklamowego, dzięki czemu masz pełną przejrzystość kosztów.',
+    },
+    {
+      q: 'Jak wygląda raportowanie?',
+      a: 'Dostajesz dostęp do dashboardu (Looker Studio) z wynikami 24/7 — patrzysz na te same liczby co my. Raz w miesiącu spotykamy się i omawiamy wyniki oraz plan na kolejny okres.',
     },
   ],
   ctaAudit: {
     title: 'Zacznij od audytu. To nic nie kosztuje.',
     description:
       'Sprawdzimy Twoje obecne konto i wskażemy miejsca, gdzie uciekają pieniądze. Bez zobowiązań.',
-    button: 'Zamów Darmowy Audyt Konta',
+    button: 'Zamów darmowy audyt konta',
   },
 };

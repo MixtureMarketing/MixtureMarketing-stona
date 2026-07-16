@@ -35,7 +35,7 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({ tier, isHighlight, on
         <div className="mb-8">
           <div
             className={`inline-block px-3 py-1 rounded-full text-xxs font-black uppercase tracking-wider mb-4 ${
-              isHighlight ? 'bg-primary/10 text-accent-dark' : 'bg-gray-100 text-gray-600'
+              isHighlight ? 'bg-blue-50 text-secondary' : 'bg-gray-100 text-gray-600'
             }`}
           >
             {tier.subtitle || 'Pakiet'}
