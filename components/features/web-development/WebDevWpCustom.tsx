@@ -6,6 +6,7 @@ import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { client } from '../../../services/cms/client';
 import { WEB_DEV_CONTENT } from '../../../data/content';
+import WanderingGlow from '../../visuals/WanderingGlow';
 
 /**
  * Sekcja „custom w znajomym WordPressie" — teza: klient pracuje w znanym panelu,
@@ -58,24 +59,44 @@ const ProofTag: React.FC<{ label: string }> = ({ label }) => {
   );
 };
 
+/**
+ * Okno halftone-wywołania dowodu głównego (wzorzec z ProtoLab): raster trzyma
+ * pełną moc, aż figura wjedzie ~1/3 w kadr (p=0.4), ostry zrzut domyka się
+ * przy ~3/4 widoczności (p=0.85). CSS przycina opacity do [0,1];
+ * spoczynek/prerender/reduced = ostry dowód (var(--p,1)).
+ * Oba layery z public/ (ten sam plik źródłowy co raster — nie mieszamy CDN
+ * z assetem lokalnym): oryginał pobrany po przypiętym hashu PROOF.engine,
+ * raster liczony build-time (scripts/generate-halftone.mjs --invert:
+ * na granacie świeci TUSZ interfejsu, nie białe tło).
+ */
+const ENGINE_SHARP = '/assets/images/realizacje/np-silnik-rezerwacji.webp';
+const ENGINE_HALFTONE = '/assets/images/realizacje/np-silnik-rezerwacji-halftone.webp';
+const DEVELOP = (invert: boolean) =>
+  invert ? 'calc(1 - (var(--p, 1) - 0.4) / 0.45)' : 'calc((var(--p, 1) - 0.4) / 0.45)';
+
 const WebDevWpCustom: React.FC = () => {
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
+  // Postęp wywołania mierzy FIGURA dowodu głównego, nie sekcja — --p sekcji
+  // dobija do 1, zanim figura wejdzie w kadr (lekcja z labu).
+  const figRef = useSectionProgress<HTMLElement>(0.9);
 
   return (
     // Sekcja CIEMNA — The Ciemnia Rule: granat istnieje po to, żeby realizacje
     // świeciły, a tu świecą trzy realne zrzuty działającego wdrożenia.
+    // Szew (choreografia całości): ciemna wyspa najeżdża grzbietem na biel
+    // StackChoice — jedyne lustrzane odwrócenie sygnaturowego arkusza na hubie.
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-deep-dark py-24 md:py-32 lg:py-36"
+      className="relative z-10 -mt-8 overflow-hidden rounded-t-[2rem] bg-deep-dark py-24 md:-mt-12 md:py-32 lg:py-36"
     >
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(38% 44% at 6% 8%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 64%),' +
-            'radial-gradient(40% 46% at 94% 92%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 66%)',
-        }}
-        aria-hidden="true"
+      {/* „Jedno światło, dwie wyspy": ta sama poświata, która przewędrowała
+          przez Realizacje, wchodzi tu od lewej i wędruje dalej z --p. */}
+      <WanderingGlow
+        amplitude={12}
+        background={
+          'radial-gradient(38% 44% at 6% 8%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 64%),' +
+          'radial-gradient(40% 46% at 94% 92%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 66%)'
+        }
       />
       <Container className="relative z-10">
         {/* 45/55 — dowód dostaje więcej szerokości niż teza. Uwaga właściciela
@@ -116,7 +137,7 @@ const WebDevWpCustom: React.FC = () => {
             className="w-full lg:w-[55%]"
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
           >
-            <figure className="relative">
+            <figure ref={figRef} className="relative">
               <div
                 className="pointer-events-none absolute -inset-8 -z-10"
                 style={{
@@ -128,16 +149,32 @@ const WebDevWpCustom: React.FC = () => {
               <ProofTag label="Integracje API" />
               <Link
                 to="/portfolio/fundacja-niepodzielni"
-                className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                className="group relative block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
               >
+                {/* Halftone-wywołanie: szkielet interfejsu z kropek brandu
+                    doostrza się do zrzutu wraz z wjazdem figury w kadr. */}
                 <img
-                  src={builder.image(PROOF.engine).width(1400).fit('max').auto('format').url()}
+                  src={ENGINE_SHARP}
                   alt="Silnik rezerwacji Fundacji Niepodzielni: wspólny kalendarz wielu specjalistów z filtrami i najbliższymi wolnymi terminami"
+                  width={1900}
+                  height={895}
                   sizes="(min-width: 1024px) 55vw, 100vw"
                   loading="lazy"
                   decoding="async"
                   onError={hideBrokenFigure}
                   className="w-full"
+                  style={{ opacity: DEVELOP(false) }}
+                />
+                <img
+                  src={ENGINE_HALFTONE}
+                  alt=""
+                  aria-hidden="true"
+                  width={1900}
+                  height={895}
+                  loading="lazy"
+                  decoding="async"
+                  className="pointer-events-none absolute inset-0 h-full w-full"
+                  style={{ opacity: DEVELOP(true) }}
                 />
               </Link>
               {/* Granica odpowiedzialności nazwana wprost — silnik nasz, Bookero cudze. */}

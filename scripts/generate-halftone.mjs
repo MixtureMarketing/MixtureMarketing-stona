@@ -11,9 +11,17 @@
  */
 import sharp from 'sharp';
 
-const [src, out, stepArg] = process.argv.slice(2);
+const args = process.argv.slice(2).filter((a) => a !== '--invert');
+/**
+ * --invert: rastruj TUSZ, nie papier — dla JASNYCH zrzutów (UI na bieli).
+ * Bez inwersji jasne źródło daje kropkę w niemal każdej komórce (ściana
+ * rastra, ~0.5 MB webp); z inwersją świecą ciemne elementy interfejsu —
+ * szkielet layoutu na granacie, plik rzędu dziesiątek kB.
+ */
+const INVERT = process.argv.includes('--invert');
+const [src, out, stepArg] = args;
 if (!src || !out) {
-  console.error('Użycie: node scripts/generate-halftone.mjs <src> <out> [step-px]');
+  console.error('Użycie: node scripts/generate-halftone.mjs <src> <out> [step-px] [--invert]');
   process.exit(1);
 }
 const STEP = Number(stepArg) || 12;
@@ -48,7 +56,7 @@ const { data } = await sharp(src)
 let circles = '';
 for (let r = 0; r < rows; r++) {
   for (let c = 0; c < cols; c++) {
-    const lum = data[r * cols + c] / 255;
+    const lum = INVERT ? 1 - data[r * cols + c] / 255 : data[r * cols + c] / 255;
     // Gamma 0.85 podbija światła — raster czyta sylwetkę layoutu, nie mrok.
     const rad = Math.pow(lum, 0.85) * STEP * 0.46;
     if (rad < 0.6) continue;

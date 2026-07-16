@@ -6,6 +6,7 @@ import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { client } from '../../../services/cms/client';
 import { SanityImage } from '../../../types/sanity';
+import WanderingGlow from '../../visuals/WanderingGlow';
 
 /**
  * Sekcja „Realizacje web" — brakujący szczebel belief ladder: „oni naprawdę robią
@@ -134,15 +135,16 @@ const WebDevRealizations: React.FC = () => {
       data-takeover-front
       className="relative overflow-hidden bg-deep-dark py-24 md:py-28"
     >
-      {/* Tanie poświaty radialne (bez blur-filtra) — głębia pod zrzutami */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(40% 45% at 88% 4%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 62%),' +
-            'radial-gradient(42% 48% at 6% 96%, color-mix(in srgb, var(--color-secondary) 24%, transparent), transparent 66%)',
-        }}
-        aria-hidden="true"
+      {/* Wędrujące światło (wątek „jedno światło, dwie wyspy"): poświata
+          przesuwa się L→P przez cały tranzyt sekcji; w drugiej ciemni huba
+          (WpCustom) to samo światło wchodzi od lewej i wędruje dalej —
+          wrażenie, że pod jasnymi arkuszami przeszło jedno źródło. */}
+      <WanderingGlow
+        amplitude={12}
+        background={
+          'radial-gradient(40% 45% at 88% 4%, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent 62%),' +
+          'radial-gradient(42% 48% at 6% 96%, color-mix(in srgb, var(--color-secondary) 24%, transparent), transparent 66%)'
+        }
       />
 
       <Container className="relative z-10">

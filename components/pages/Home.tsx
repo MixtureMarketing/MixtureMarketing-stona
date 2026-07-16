@@ -1,10 +1,10 @@
-import React, { Suspense, lazy, useEffect, useRef } from 'react';
+import React, { Suspense, lazy, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from '@/context/ModalContext';
 import Seo from '@/components/common/Seo';
 import Hero from '@/components/sections/Hero';
 import StickyMobileBar from '@/components/common/StickyMobileBar';
-import { addScrollTask } from '@/hooks/useSectionProgress';
+import { usePagePulse } from '@/hooks/useSectionProgress';
 import { SITE_CONFIG } from '@/config/site';
 
 // These components were defined inline in App.tsx, moving them here to separate file
@@ -21,27 +21,9 @@ const Home = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const leadMagnetRef = useRef<HTMLDivElement>(null);
 
-  // Puls strony (--page-p, 0..1 całego scrolla) na :root — ambient, siatki
-  // i inne warstwy tła dryfują z KAŻDYM pikselem przewijania, w obie strony
-  // (wątek „żywej całości", 2026-07-16). Wspólny scheduler READ→WRITE;
-  // prerender/reduced-motion: brak zmiennej → var(--page-p, 0) = statyka.
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.isPrerendering) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const root = document.documentElement;
-    let last = -1;
-    const remove = addScrollTask(() => {
-      const max = root.scrollHeight - window.innerHeight;
-      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-      if (Math.abs(p - last) < 0.002) return;
-      last = p;
-      return () => root.style.setProperty('--page-p', p.toFixed(3));
-    });
-    return () => {
-      remove();
-      root.style.removeProperty('--page-p');
-    };
-  }, []);
+  // Puls strony (--page-p) — patrz usePagePulse: ambient i siatki dryfują
+  // z każdym pikselem przewijania, w obie strony.
+  usePagePulse();
 
   return (
     <>

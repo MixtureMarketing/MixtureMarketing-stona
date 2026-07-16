@@ -195,6 +195,28 @@ const ProtoLab: React.FC = () => (
       </Container>
     </section>
 
+    {/* PROTOTYP A (hub): flip-dot z DOKŁADNYM tekstem nagłówka Realizacji,
+        dwie kandydackie skale — materiał do decyzji właściciela o wyjątku
+        skali display dla H2 pasa dowodowego (werdykt ewaluatora huba). */}
+    <section className="bg-deep-dark py-24" data-proto="flipdot-real">
+      <Container>
+        <p className="mb-4 text-sm font-bold text-white/50">Wariant A — obecna skala H2 (48px):</p>
+        <FlipDotHeading
+          text="Realizacje, które możesz otworzyć w przeglądarce."
+          className="text-3xl font-extrabold tracking-tight text-white md:text-4xl lg:text-5xl"
+          replayOnClick
+        />
+        <p className="mt-16 mb-4 text-sm font-bold text-white/50">
+          Wariant B — wyjątek skali (60px+):
+        </p>
+        <FlipDotHeading
+          text="Realizacje, które możesz otworzyć w przeglądarce."
+          className="text-4xl font-extrabold tracking-tight text-white md:text-6xl"
+          replayOnClick
+        />
+      </Container>
+    </section>
+
     {/* Rozdzielnik — halftone musi wjechać zza krawędzi, nie startować w kadrze. */}
     <section className="min-h-[40vh] bg-white py-24">
       <Container>

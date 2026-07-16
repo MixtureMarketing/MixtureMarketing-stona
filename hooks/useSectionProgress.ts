@@ -51,6 +51,33 @@ export function addScrollTask(task: ScrollTask): () => void {
 }
 
 /**
+ * Puls strony (--page-p, 0..1 całego scrolla) publikowany na :root — warstwy
+ * tła (ambient, siatki, poświaty) dryfują z KAŻDYM pikselem przewijania,
+ * w obie strony (wątek „żywej całości", 2026-07-16). Jeden hook per strona
+ * (Home, huby usług). Prerender/reduced-motion: brak zmiennej →
+ * var(--page-p, 0) = statyka; sprzątanie usuwa zmienną przy zmianie trasy.
+ */
+export function usePagePulse() {
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.isPrerendering) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.documentElement;
+    let last = -1;
+    const remove = addScrollTask(() => {
+      const max = root.scrollHeight - window.innerHeight;
+      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      if (Math.abs(p - last) < 0.002) return;
+      last = p;
+      return () => root.style.setProperty('--page-p', p.toFixed(3));
+    });
+    return () => {
+      remove();
+      root.style.removeProperty('--page-p');
+    };
+  }, []);
+}
+
+/**
  * Scrollem sterowany postęp wejścia sekcji (0..1) publikowany jako CSS var
  * `--p` na elemencie sekcji. Dwukierunkowy; liczony z pozycji, nie one-shot.
  *
