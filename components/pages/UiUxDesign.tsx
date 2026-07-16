@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Fingerprint, Palette } from 'lucide-react';
+import { Palette } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
@@ -11,7 +11,6 @@ import DesignSpokeFooter from '../common/DesignSpokeFooter';
 import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import LazyHydrate from '../common/LazyHydrate';
-import { UiUxHeroVisual } from '../visuals/hero/UiUxVisual';
 import { SITE_CONFIG } from '../../config/site';
 
 // Refactored Sub-components
@@ -31,7 +30,7 @@ const UiUxDesign: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-secondary/20">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -49,20 +48,21 @@ const UiUxDesign: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift kategorii design, 2026-07-16)
+          — wizual-atrapa i badge usunięte; cena potwierdzona przez właściciela. */}
       <div ref={heroRef}>
         <StandardHero
-          badge={CONTENT.hero.badge}
-          badgeIcon={Fingerprint}
+          tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
-          priceHint="od 4 500 zł / projekt · Figma + design system · prototyping w cenie"
-          trustLine={<HeroTrustLine promise="Sam projektuję w Figma, sam buduję design system" />}
+          priceHint="od 2 000 zł / projekt · Figma · prototyp w cenie"
+          trustLine={
+            <HeroTrustLine tone="dark" promise="Sam projektuję w Figma, sam buduję design system" />
+          }
           ctaPrimaryText={CONTENT.hero.cta}
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'uiux' })}
           backLinkPath="/design/"
-          backLinkLabel="Wróć do Designu"
-          visual={<UiUxHeroVisual />}
+          backLinkLabel="Design"
         />
       </div>
 

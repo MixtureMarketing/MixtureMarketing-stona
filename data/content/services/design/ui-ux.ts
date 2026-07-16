@@ -1,3 +1,11 @@
+/**
+ * Treść /design/ui-ux/ — przepisana 2026-07-16 (krytyka 16/40).
+ * Usunięte: atrapa dashboardu analitycznego („Conversion 24.8% / Bounce 12.4%"
+ * — zakaz atrap: playground tokenów pokazuje teraz uczciwe wzorniki komponentów),
+ * angielskie etykiety kostiumu (Human-Centric Interface, Variable Control,
+ * Get Started, Press Me), błąd gramatyczny „z inżynierską precyzję".
+ * Cena potwierdzona przez właściciela 2026-07-16: od 2 000 zł.
+ */
 export const UI_UX_DESIGN_CONTENT = {
   seo: {
     title: 'UI/UX Design | Projektowanie Stron i Aplikacji',
@@ -6,62 +14,65 @@ export const UI_UX_DESIGN_CONTENT = {
     image: '/assets/images/audyt-ux.png',
   },
   hero: {
-    badge: 'Human-Centric Interface',
     title: {
       line1: 'Interfejsy,',
       line2: 'które rozmawiają.',
     },
     description:
-      'Projektujemy doświadczenia, nie tylko ekrany. Nasz proces łączy psychologię poznawczą z inżynierską precyzję, by Twoi użytkownicy poczuli różnicę od pierwszego kliknięcia.',
-    cta: 'Rozpocznij Projekt',
-    microCopy: {
-      label: 'Workflow',
-      value: 'Figma Prototype',
-    },
+      'Projektujemy doświadczenia, nie tylko ekrany. Nasz proces łączy psychologię poznawczą z inżynierską precyzją, by Twoi użytkownicy poczuli różnicę od pierwszego kliknięcia.',
+    cta: 'Rozpocznij projekt',
   },
   designTokens: {
-    title: 'Design Tokens',
-    subtitle: 'Variable Control',
+    title: 'Design tokens',
+    subtitle: 'Zmienne pod kontrolą',
+    description:
+      'Zamiast malować ekrany, definiujemy zmienne: kolor, promień, motyw. Przestaw suwak — a cały interfejs obok przeprojektuje się sam. Tak wygląda system, który oddajemy programistom.',
     labels: {
-      color: 'Brand Primary',
-      radius: 'Corner Radius',
-      theme: 'System Theme',
+      color: 'Kolor marki',
+      radius: 'Promień narożników',
+      theme: 'Motyw',
     },
   },
+  /** Uczciwy podgląd: wzorniki komponentów sterowane tokenami — bez wymyślonych metryk. */
   preview: {
-    title: 'User Dashboard',
-    subtitle: 'Real-time Interface Analytics',
-    stats: {
-      conversion: 'Conversion',
-      bounce: 'Bounce Rate',
+    title: 'Podgląd komponentów',
+    subtitle: 'Jeden system, żywe tokeny',
+    specimens: {
+      form: 'Formularz',
+      emailLabel: 'Adres e-mail',
+      emailPlaceholder: 'jan@firma.pl',
+      submit: 'Wyślij',
+      buttons: 'Stany przycisku',
+      primary: 'Główny',
+      secondary: 'Drugorzędny',
+      card: 'Karta z treścią',
     },
-    button: 'Confirm Action',
   },
   rwd: {
     title: 'Mobile First. Zawsze.',
     description:
       'Ponad 70% ruchu to smartfony. Projektujemy zaczynając od najmniejszego ekranu, aby mieć pewność, że kluczowe treści są zawsze czytelne i dostępne.',
     labels: {
-      compact: 'Compact',
-      adaptive: 'Adaptive',
-      full: 'Full Experience',
+      compact: 'Smartfon',
+      adaptive: 'Tablet',
+      full: 'Desktop',
     },
   },
   transformation: {
     title: 'Od szkicu do produktu',
     description:
-      'Zobacz, jak przekuwamy surowe makiety funkcjonalne (Wireframes) w dopracowany interfejs (Hi-Fi). Przełącz widok, aby zobaczyć różnicę.',
+      'Zobacz, jak przekuwamy surowe makiety funkcjonalne (wireframes) w dopracowany interfejs (hi-fi). Przełącz widok, aby zobaczyć różnicę.',
     labels: {
-      lofi: 'UX Wireframe',
-      hifi: 'UI Final Design',
+      lofi: 'Makieta UX',
+      hifi: 'Finalne UI',
     },
     hifi: {
-      cta: 'Get Started',
-      secondary: 'Learn More',
+      cta: 'Rozpocznij',
+      secondary: 'Dowiedz się więcej',
     },
     lofi: {
-      cta: 'Button',
-      secondary: 'Secondary',
+      cta: 'Przycisk',
+      secondary: 'Drugi przycisk',
     },
   },
   atomic: {
@@ -74,12 +85,12 @@ export const UI_UX_DESIGN_CONTENT = {
       'Stosujemy metodologię Atomic Design. Rozbijamy interfejs na najmniejsze cząstki (atomy), z których budujemy większe komponenty. Dzięki temu Twój projekt jest spójny, łatwy w utrzymaniu i gotowy na rozwój.',
     features: [
       {
-        title: 'Spójność (Consistency)',
+        title: 'Spójność',
         desc: 'Ten sam przycisk wygląda tak samo na każdej z 50 podstron.',
       },
       {
         title: 'Szybkość wdrażania',
-        desc: 'Programiści otrzymują gotowe klocki, a nie obrazek do "odrysowania".',
+        desc: 'Programiści otrzymują gotowe klocki, a nie obrazek do „odrysowania".',
       },
     ],
   },
@@ -97,14 +108,15 @@ export const UI_UX_DESIGN_CONTENT = {
         desc: 'Płynne animacje między widokami eliminują dezorientację.',
       },
       {
-        title: 'System Feedbacku',
+        title: 'System feedbacku',
         desc: 'Użytkownik zawsze wie, co dzieje się w systemie.',
       },
     ],
     labels: {
-      ripple: 'Ripple Engine',
-      logic: 'Logic Switch',
-      perspective: '3D Perspective',
+      ripple: 'Naciśnij mnie',
+      rippleCaption: 'Fala po kliknięciu',
+      logic: 'Przełącznik stanu',
+      perspective: 'Perspektywa 3D',
     },
   },
   faqs: [
@@ -127,6 +139,6 @@ export const UI_UX_DESIGN_CONTENT = {
       line2: 'czego nie da się zapomnieć.',
     },
     description: 'Masz tylko 3 sekundy, aby zrobić dobre pierwsze wrażenie. Nie zmarnuj ich.',
-    button: 'Wyceń Prototyp',
+    button: 'Wyceń prototyp',
   },
 };

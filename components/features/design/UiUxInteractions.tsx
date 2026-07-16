@@ -34,12 +34,17 @@ const UiUxInteractions: React.FC = () => {
 
         <div className="lg:w-1/2 grid grid-cols-2 gap-6">
           <GlassCard className="p-10 flex flex-col items-center justify-center h-56 hover:shadow-2xl transition-all cursor-pointer group bg-white border-gray-100">
-            <button className="relative overflow-hidden px-8 py-4 bg-dark text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all w-full group-hover:bg-secondary">
-              Press Me
-              <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-[2.5] transition-transform duration-500 rounded-full"></div>
-            </button>
-            <span className="text-xxs text-gray-600 mt-6 font-black uppercase tracking-widest">
+            {/* Wzornik interakcji, nie kontrolka strony — div aria-hidden zamiast
+                martwego <button>; fala nadal działa dla wskaźnika (group-active). */}
+            <div
+              aria-hidden="true"
+              className="relative overflow-hidden px-8 py-4 bg-dark text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl text-center group-active:scale-95 transition-all w-full group-hover:bg-secondary"
+            >
               {CONTENT.interactions.labels.ripple}
+              <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-[2.5] transition-transform duration-500 rounded-full"></div>
+            </div>
+            <span className="text-xxs text-gray-600 mt-6 font-black uppercase tracking-widest">
+              {CONTENT.interactions.labels.rippleCaption}
             </span>
           </GlassCard>
 
