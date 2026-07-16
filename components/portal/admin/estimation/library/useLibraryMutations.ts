@@ -37,5 +37,31 @@ export function useLibraryMutations(sessionToken: string | null) {
     }
   };
 
-  return { patchRow, saving };
+  const createItem = async (
+    entity: 'module' | 'integration',
+    code: string,
+    row: Record<string, unknown>,
+  ): Promise<PatchResult> => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/estimation/library', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ entity, code, row }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { errors?: string[]; error?: string };
+      if (!res.ok)
+        return { ok: false, errors: data.errors ?? [data.error ?? `HTTP ${res.status}`] };
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, errors: [e instanceof Error ? e.message : 'Błąd zapisu'] };
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return { patchRow, createItem, saving };
 }

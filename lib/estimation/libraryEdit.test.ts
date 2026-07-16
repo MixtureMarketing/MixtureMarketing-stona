@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { validateLibraryPatch, ENTITY_FIELDS, type PatchContext } from './libraryEdit';
+import {
+  validateLibraryPatch,
+  validateLibraryCreate,
+  ENTITY_FIELDS,
+  CODE_RE,
+  type PatchContext,
+} from './libraryEdit';
 
 // TWARDE GRANICE edytora biblioteki (f2c-1, ruling #2 + inwariant „kod = kontrakt danych").
 // Walidator jest CZYSTY: dostaje encję, patch, bieżący wiersz (i rodzeństwo poziomów dla
@@ -312,5 +318,113 @@ describe('validateLibraryPatch — parametry: zachowanie TYPU (bez hardkodu dome
         }),
       ),
     ).toEqual([]);
+  });
+});
+
+describe('validateLibraryPatch — reguła (pola proste; semantykę robi ruleValidation)', () => {
+  it('priority nie-całkowite → błąd', () => {
+    expect(
+      validateLibraryPatch(base({ entity: 'rule', patch: { priority: 1.5 }, current: { id: 1 } }))
+        .length,
+    ).toBeGreaterThan(0);
+  });
+  it('priority całkowite ≥0 + is_active toggle → OK', () => {
+    expect(
+      validateLibraryPatch(
+        base({ entity: 'rule', patch: { priority: 10, is_active: 0 }, current: { id: 1 } }),
+      ),
+    ).toEqual([]);
+  });
+  it('condition_json/actions_json są dozwolonymi polami (semantyka poza tym walidatorem)', () => {
+    expect(ENTITY_FIELDS.rule).toContain('condition_json');
+    expect(ENTITY_FIELDS.rule).toContain('actions_json');
+    expect(ENTITY_FIELDS.rule).not.toContain('id');
+  });
+});
+
+describe('validateLibraryCreate — CREATE modułu/integracji', () => {
+  it('moduł poprawny → []', () => {
+    expect(
+      validateLibraryCreate({
+        entity: 'module',
+        code: 'nowy_modul',
+        row: {
+          name: 'Nowy moduł',
+          hours_min: 8,
+          hours_max: 16,
+          risk: 'low',
+          goals_json: '["sklep"]',
+        },
+      }),
+    ).toEqual([]);
+  });
+  it('kod nie-snake_case → błąd', () => {
+    expect(CODE_RE.test('Nowy-Modul')).toBe(false);
+    expect(
+      validateLibraryCreate({
+        entity: 'module',
+        code: 'Nowy-Modul',
+        row: { name: 'X', hours_min: 1, hours_max: 2 },
+      }).length,
+    ).toBeGreaterThan(0);
+  });
+  it('moduł min>max → błąd', () => {
+    expect(
+      validateLibraryCreate({
+        entity: 'module',
+        code: 'm',
+        row: { name: 'X', hours_min: 20, hours_max: 10 },
+      }).length,
+    ).toBeGreaterThan(0);
+  });
+  it('goals_json nie-tablica → błąd', () => {
+    expect(
+      validateLibraryCreate({
+        entity: 'module',
+        code: 'm',
+        row: { name: 'X', hours_min: 1, hours_max: 2, goals_json: 'sklep' },
+      }).length,
+    ).toBeGreaterThan(0);
+  });
+  it('integracja: custom min>max → błąd; platform null + kategoria OK → []', () => {
+    expect(
+      validateLibraryCreate({
+        entity: 'integration',
+        code: 'nowa_int',
+        row: { name: 'X', category: 'payments', hours_custom_min: 30, hours_custom_max: 16 },
+      }).length,
+    ).toBeGreaterThan(0);
+    expect(
+      validateLibraryCreate({
+        entity: 'integration',
+        code: 'nowa_int',
+        row: {
+          name: 'X',
+          category: 'shipping',
+          hours_platform_min: null,
+          hours_platform_max: null,
+          hours_custom_min: 10,
+          hours_custom_max: 20,
+          risk: 'low',
+        },
+      }),
+    ).toEqual([]);
+  });
+
+  it('integracja: brak/zła kategoria → błąd (NOT NULL, słownik)', () => {
+    expect(
+      validateLibraryCreate({
+        entity: 'integration',
+        code: 'nowa_int',
+        row: { name: 'X', hours_custom_min: 10, hours_custom_max: 20 },
+      }).length,
+    ).toBeGreaterThan(0);
+    expect(
+      validateLibraryCreate({
+        entity: 'integration',
+        code: 'nowa_int',
+        row: { name: 'X', category: 'wymyslona', hours_custom_min: 10, hours_custom_max: 20 },
+      }).length,
+    ).toBeGreaterThan(0);
   });
 });

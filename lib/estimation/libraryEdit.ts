@@ -9,7 +9,14 @@
 // hours_min ŚCIŚLE rosnące po poziomach ORAZ hours_max ŚCIŚLE rosnące; NAKŁADANIE pasm
 // (min[L+1] < max[L], np. frontend L2 40–100 vs L3 80–160) jest LEGALNE.
 
-export type LibraryEntity = 'aspect' | 'level' | 'module' | 'integration' | 'question' | 'param';
+export type LibraryEntity =
+  | 'aspect'
+  | 'level'
+  | 'module'
+  | 'integration'
+  | 'question'
+  | 'param'
+  | 'rule';
 
 /** Pola edytowalne per encja. Wszystko poza tą listą (w tym code/key/value opcji/answer_type)
  *  odrzucane jako „nieedytowalne". Kolejność bez znaczenia. */
@@ -48,6 +55,9 @@ export const ENTITY_FIELDS: Record<LibraryEntity, readonly string[]> = {
     'is_active',
   ],
   param: ['value'],
+  // Reguła: pola proste tu; condition_json/actions_json waliduje SEMANTYCZNIE ruleValidation
+  // (endpoint, z kontekstem biblioteki). `id` niezmienne (tożsamość reguły).
+  rule: ['name', 'priority', 'is_active', 'reason_template', 'condition_json', 'actions_json'],
 };
 
 const RISK = new Set(['low', 'medium', 'high']);
@@ -122,6 +132,16 @@ export function validateLibraryPatch(c: PatchContext): string[] {
     !(typeof val('sort_order') === 'number' && Number.isInteger(val('sort_order')))
   )
     errors.push('Pole „sort_order" musi być liczbą całkowitą.');
+  // priority reguły: liczba całkowita ≥ 0 (kolejność ewaluacji, docs/05)
+  if (
+    has('priority') &&
+    !(
+      typeof val('priority') === 'number' &&
+      Number.isInteger(val('priority')) &&
+      (val('priority') as number) >= 0
+    )
+  )
+    errors.push('Pole „priority" musi być liczbą całkowitą ≥ 0.');
 
   // widełki min≤max (nullable = para integracji platform)
   const checkPair = (minK: string, maxK: string, label: string, nullable: boolean) => {
@@ -204,6 +224,111 @@ export function validateLibraryPatch(c: PatchContext): string[] {
       if (curNumeric && !(nv.trim() !== '' && Number.isFinite(Number(nv))))
         errors.push('Ten parametr jest liczbowy — podaj liczbę.');
     }
+  }
+
+  return errors;
+}
+
+// ── CREATE modułów / integracji (f2c-2a) ─────────────────────────────────────
+
+/** Kod nowej pozycji: snake_case, zaczyna od litery. Po zapisie immutable (jak wszystkie kody). */
+export const CODE_RE = /^[a-z][a-z0-9_]*$/;
+
+/** Pola akceptowane przy tworzeniu (poza `code`). Whitelist — reszta ignorowana przy INSERT. */
+export const CREATE_FIELDS: Record<'module' | 'integration', readonly string[]> = {
+  module: [
+    'name',
+    'description',
+    'includes',
+    'excludes',
+    'hours_min',
+    'hours_max',
+    'risk',
+    'archetypes_json',
+    'goals_json',
+  ],
+  integration: [
+    'name',
+    'category',
+    'hours_platform_min',
+    'hours_platform_max',
+    'hours_custom_min',
+    'hours_custom_max',
+    'risk',
+    'requirements',
+  ],
+};
+
+/** Słownik kategorii integracji (est_integrations.category, NOT NULL). Strukturalny, nie domenowy. */
+const INTEGRATION_CATEGORY = new Set([
+  'payments',
+  'shipping',
+  'erp',
+  'marketplace',
+  'feeds',
+  'marketing',
+  'other',
+]);
+
+/** JSON tablica stringów albo null/undefined (goals_json / archetypes_json z checkboxów). */
+function isStringArrayJsonOrNull(raw: unknown): boolean {
+  if (raw == null) return true;
+  if (typeof raw !== 'string') return false;
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) && v.every((x) => typeof x === 'string');
+  } catch {
+    return false;
+  }
+}
+
+export interface CreateContext {
+  entity: 'module' | 'integration';
+  code: unknown;
+  row: Record<string, unknown>;
+}
+
+/** Walidacja kształtu nowej pozycji. UNIKALNOŚĆ code sprawdza endpoint (SELECT w D1) — tu tylko
+ *  format kodu i pola. Reużywa reguł min≤max/enum z edycji. */
+export function validateLibraryCreate(c: CreateContext): string[] {
+  const errors: string[] = [];
+  const { row } = c;
+
+  if (typeof c.code !== 'string' || !CODE_RE.test(c.code))
+    errors.push(
+      'Kod musi być snake_case (mała litera na początku, dalej litery/cyfry/podkreślnik).',
+    );
+
+  if (typeof row.name !== 'string' || row.name.trim() === '') errors.push('Nazwa jest wymagana.');
+
+  if (row.risk !== undefined && !RISK.has(String(row.risk)))
+    errors.push('Ryzyko musi być: low, medium lub high.');
+
+  const num = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  const pair = (minK: string, maxK: string, label: string, nullable: boolean) => {
+    const mn = row[minK];
+    const mx = row[maxK];
+    if (nullable && mn == null && mx == null) return;
+    if (!num(mn)) errors.push(`Pole „${minK}" musi być liczbą ≥ 0.`);
+    if (!num(mx)) errors.push(`Pole „${maxK}" musi być liczbą ≥ 0.`);
+    if (num(mn) && num(mx) && (mn as number) > (mx as number))
+      errors.push(`${label}: min (${mn}) > maks (${mx}).`);
+  };
+
+  if (c.entity === 'module') {
+    pair('hours_min', 'hours_max', 'Widełki godzin', false);
+    for (const f of ['archetypes_json', 'goals_json']) {
+      if (!isStringArrayJsonOrNull(row[f]))
+        errors.push(`Pole „${f}" musi być tablicą kodów (JSON) albo puste.`);
+    }
+  } else {
+    // integracja: kategoria wymagana (NOT NULL), taryfa custom wymagana, platform nullable
+    if (!INTEGRATION_CATEGORY.has(String(row.category)))
+      errors.push(
+        'Kategoria integracji musi być: payments, shipping, erp, marketplace, feeds, marketing lub other.',
+      );
+    pair('hours_platform_min', 'hours_platform_max', 'Taryfa platform', true);
+    pair('hours_custom_min', 'hours_custom_max', 'Taryfa custom', false);
   }
 
   return errors;

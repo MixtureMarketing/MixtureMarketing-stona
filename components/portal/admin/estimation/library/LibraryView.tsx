@@ -1,9 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { ArrowLeft, BookOpen, Plus } from 'lucide-react';
 import { useEstimationLibrary } from '../useEstimationLibrary';
 import { useLibraryMutations } from './useLibraryMutations';
+import { useEditorRules } from './useEditorRules';
 import { ENTITY_CONFIGS } from './libraryFields';
 import EntityTable from './EntityTable';
+import RulesEditor from './RulesEditor';
+import CreateItemForm from './CreateItemForm';
 import type { QMap } from './visibleIf';
 
 interface Props {
@@ -11,12 +14,16 @@ interface Props {
   onBack: () => void;
 }
 
-/** Edytor biblioteki wiedzy (f2c-1). Zmiany działają wyłącznie WPRZÓD — snapshoty wycen
- *  są nietykalne (inwariant 3). Kody/klucze i value opcji są nieedytowalne (kontrakt danych). */
+type Tab = string; // kod encji z ENTITY_CONFIGS albo 'rule'
+
+/** Edytor biblioteki wiedzy (f2c). Zmiany działają wyłącznie WPRZÓD — snapshoty wycen nietykalne
+ *  (inwariant 3). Kody/klucze/value opcji nieedytowalne; reguły-sieroty odrzuca serwer (400). */
 const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
   const { library, loading, error, reload } = useEstimationLibrary(sessionToken);
-  const { patchRow, saving } = useLibraryMutations(sessionToken);
-  const [active, setActive] = useState(ENTITY_CONFIGS[0].entity);
+  const editorRules = useEditorRules(sessionToken);
+  const { patchRow, createItem, saving } = useLibraryMutations(sessionToken);
+  const [active, setActive] = useState<Tab>(ENTITY_CONFIGS[0].entity);
+  const [creating, setCreating] = useState<'module' | 'integration' | null>(null);
 
   const qmap: QMap = useMemo(() => {
     const m: QMap = {};
@@ -33,7 +40,12 @@ const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
     return m;
   }, [library]);
 
-  const cfg = ENTITY_CONFIGS.find((c) => c.entity === active)!;
+  const cfg = ENTITY_CONFIGS.find((c) => c.entity === active);
+  const tabs = [
+    ...ENTITY_CONFIGS.map((c) => ({ key: c.entity, label: c.tab })),
+    { key: 'rule', label: 'Reguły' },
+  ];
+  const canCreate = active === 'module' || active === 'integration';
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm">
@@ -54,34 +66,81 @@ const LibraryView: React.FC<Props> = ({ sessionToken, onBack }) => {
       </p>
 
       <div className="flex flex-wrap gap-2 border-b border-gray-200 mb-4">
-        {ENTITY_CONFIGS.map((c) => (
+        {tabs.map((t) => (
           <button
-            key={c.entity}
+            key={t.key}
             type="button"
-            onClick={() => setActive(c.entity)}
+            onClick={() => {
+              setActive(t.key);
+              setCreating(null);
+            }}
             className={`px-3 py-2 text-sm font-bold -mb-px border-b-2 transition-colors ${
-              active === c.entity
+              active === t.key
                 ? 'border-accent text-dark'
                 : 'border-transparent text-gray-400 hover:text-dark'
             }`}
           >
-            {c.tab}
+            {t.label}
           </button>
         ))}
       </div>
 
       {loading && <p className="text-sm text-gray-400">Ładowanie biblioteki…</p>}
       {error && <p className="text-sm text-red-600">Błąd: {error}</p>}
-      {library && (
-        <EntityTable
-          key={cfg.entity}
-          config={cfg}
-          rows={cfg.rowsFrom(library)}
-          qmap={qmap}
-          saving={saving}
-          onSave={(key, patch) => patchRow(cfg.entity, key, patch)}
-          onSaved={reload}
-        />
+
+      {/* Reguły */}
+      {active === 'rule' && library && (
+        <>
+          {editorRules.loading && <p className="text-sm text-gray-400">Ładowanie reguł…</p>}
+          {editorRules.error && <p className="text-sm text-red-600">Błąd: {editorRules.error}</p>}
+          <RulesEditor
+            rows={editorRules.rules}
+            library={library}
+            saving={saving}
+            onSave={(key, patch) => patchRow('rule', key, patch)}
+            onSaved={editorRules.reload}
+          />
+        </>
+      )}
+
+      {/* Encje proste (f2c-1) + CREATE (f2c-2a) */}
+      {cfg && library && (
+        <>
+          {canCreate && (
+            <div className="mb-3">
+              {creating ? (
+                <CreateItemForm
+                  entity={creating}
+                  library={library}
+                  saving={saving}
+                  onCreate={createItem}
+                  onCreated={() => {
+                    setCreating(null);
+                    reload();
+                  }}
+                  onCancel={() => setCreating(null)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setCreating(active as 'module' | 'integration')}
+                  className="text-xs font-bold border border-gray-300 text-dark px-3 py-1.5 rounded flex items-center gap-1 hover:bg-gray-50"
+                >
+                  <Plus size={14} /> Nowy {active === 'module' ? 'moduł' : 'integracja'}
+                </button>
+              )}
+            </div>
+          )}
+          <EntityTable
+            key={cfg.entity}
+            config={cfg}
+            rows={cfg.rowsFrom(library)}
+            qmap={qmap}
+            saving={saving}
+            onSave={(key, patch) => patchRow(cfg.entity, key, patch)}
+            onSaved={reload}
+          />
+        </>
       )}
     </div>
   );
