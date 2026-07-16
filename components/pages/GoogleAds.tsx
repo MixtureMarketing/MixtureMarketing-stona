@@ -29,6 +29,7 @@ import FaqSection from '../sections/FaqSection';
 import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
 import Container from '../common/Container';
+import PlotterTimeline from '../common/PlotterTimeline';
 
 /**
  * /marketing/google-ads/ — przebudowa 2026-07-16 (krytyka 13/40, pełna
@@ -126,35 +127,39 @@ const GoogleAds: React.FC = () => {
       {/* Diagnoza — ekspertyza bez liczb: wiersze z rozróżnialnymi ikonami. */}
       <section ref={painsRef} className="relative z-10 bg-white py-24">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.painPoints.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.painPoints.description}
-            </p>
-          </div>
-          <div className="mt-12 max-w-3xl divide-y divide-gray-100">
-            {CONTENT.painPoints.items.map((item, i) => (
-              <div
-                key={item.title}
-                className="flex items-start gap-5 py-7"
-                style={{
-                  transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
-                }}
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
-                  <Target size={20} aria-hidden="true" />
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.painPoints.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.painPoints.description}
+              </p>
+            </div>
+            <div className="mt-12 divide-y divide-gray-100 lg:col-span-7 lg:mt-0">
+              {CONTENT.painPoints.items.map((item, i) => (
+                <div
+                  key={item.title}
+                  className="flex items-start gap-5 py-7 first:pt-0"
+                  style={{
+                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
+                  }}
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
+                    <Target size={20} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-extrabold tracking-tight text-dark">{item.title}</h3>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Container>
       </section>
@@ -230,69 +235,36 @@ const GoogleAds: React.FC = () => {
           zamiast ciemnego mono-teatru z fejk-statusami. */}
       <section ref={processRef} className="relative bg-light-gray py-20 md:py-28">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.process.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.process.description}
-            </p>
-          </div>
-
-          <div className="relative mt-12 max-w-3xl">
-            <svg
-              className="absolute top-2 bottom-2 left-[21px] w-[2px]"
-              aria-hidden="true"
-              preserveAspectRatio="none"
-              viewBox="0 0 2 100"
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
             >
-              <path
-                d="M1 0 L1 100"
-                pathLength={1}
-                stroke="var(--color-secondary)"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="1"
-                style={{ strokeDashoffset: 'calc(1 - var(--p, 1))' }}
-              />
-            </svg>
-            <ol className="space-y-10">
-              {CONTENT.process.steps.map((step, i) => {
-                const Icon = PROCESS_ICONS[i] ?? ScanSearch;
-                const start = i / CONTENT.process.steps.length;
-                return (
-                  <li
-                    key={step.title}
-                    className="relative flex items-start gap-6"
-                    style={{ opacity: `calc((var(--p, 1) - ${start.toFixed(2)}) / 0.2)` }}
-                  >
-                    <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-secondary bg-white text-secondary">
-                      <Icon size={19} aria-hidden="true" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-extrabold tracking-tight text-dark">
-                        {step.title}
-                      </h3>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">
-                        {step.desc}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.process.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.process.description}
+              </p>
+              {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
+              <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
+                <BadgeCheck
+                  size={18}
+                  className="mt-0.5 shrink-0 text-secondary"
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
+                  {CONTENT.partner.desc}
+                </span>
+              </p>
+            </div>
+            <PlotterTimeline
+              className="mt-12 lg:col-span-7 lg:mt-0"
+              items={CONTENT.process.steps}
+              icons={PROCESS_ICONS}
+            />
           </div>
-
-          {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
-          <p className="mt-12 flex max-w-3xl items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
-            <BadgeCheck size={18} className="mt-0.5 shrink-0 text-secondary" aria-hidden="true" />
-            <span>
-              <strong className="text-dark">{CONTENT.partner.label}.</strong> {CONTENT.partner.desc}
-            </span>
-          </p>
         </Container>
       </section>
 

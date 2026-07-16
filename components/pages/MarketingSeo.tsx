@@ -30,6 +30,7 @@ import { SEO_CONTENT as CONTENT } from '../../data/content';
 import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
 import StandardFaq from '../common/StandardFaq';
 import RelatedArticles from '../articles/RelatedArticles';
+import PlotterTimeline from '../common/PlotterTimeline';
 
 /**
  * /marketing/seo/ — przebudowa 2026-07-16 (krytyka 14/40, pełna ścieżka
@@ -112,43 +113,49 @@ const MarketingSeo: React.FC = () => {
         />
       </div>
 
-      {/* Trzy filary — wiersze z rozróżnialnymi ikonami. */}
+      {/* Trzy filary — asymetryczna siatka: nagłówek z lewej (sticky),
+          wiersze z prawej. Cała szerokość pracuje (zgłoszenie właściciela:
+          „prawa strona pusta wszędzie"). */}
       <section ref={pillarsRef} className="relative z-10 bg-white py-24">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.pillars.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.pillars.description}
-            </p>
-          </div>
-          <div className="mt-12 max-w-3xl divide-y divide-gray-100">
-            {CONTENT.pillars.items.map((item, i) => {
-              const Icon = PILLAR_ICONS[i] ?? Wrench;
-              return (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-5 py-7"
-                  style={{
-                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
-                  }}
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
-                    <Icon size={20} aria-hidden="true" />
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.pillars.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.pillars.description}
+              </p>
+            </div>
+            <div className="mt-12 divide-y divide-gray-100 lg:col-span-7 lg:mt-0">
+              {CONTENT.pillars.items.map((item, i) => {
+                const Icon = PILLAR_ICONS[i] ?? Wrench;
+                return (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-5 py-7 first:pt-0"
+                    style={{
+                      transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
+                    }}
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
+                      <Icon size={20} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-extrabold tracking-tight text-dark">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">
+                        {item.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </Container>
       </section>
@@ -164,48 +171,52 @@ const MarketingSeo: React.FC = () => {
           }
         />
         <Container className="relative z-10">
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
-              {CONTENT.technicalSeo.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-white/75">
-              {CONTENT.technicalSeo.description}
-            </p>
-          </div>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
+                {CONTENT.technicalSeo.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-white/75">
+                {CONTENT.technicalSeo.description}
+              </p>
+            </div>
 
-          <div
-            className="mt-10 max-w-3xl rounded-2xl border border-success/25 bg-success/[0.07] p-5"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 40px), 0)' }}
-          >
-            <p className="flex items-center gap-2 text-sm font-bold text-white">
-              <Gauge size={16} className="shrink-0 text-success" aria-hidden="true" />
-              {CONTENT.technicalSeo.proof.label}
-            </p>
-            <p className="mt-1.5 pl-6 text-xs leading-relaxed text-white/55">
-              {CONTENT.technicalSeo.proof.detail}{' '}
-              <a
-                href={CONTENT.technicalSeo.proof.linkTo}
-                className="font-bold text-primary underline-offset-4 hover:underline"
+            <div className="mt-10 lg:col-span-7 lg:mt-0">
+              <div
+                className="rounded-2xl border border-success/25 bg-success/[0.07] p-5"
+                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 40px), 0)' }}
               >
-                {CONTENT.technicalSeo.proof.linkLabel}
-              </a>
-            </p>
-          </div>
+                <p className="flex items-center gap-2 text-sm font-bold text-white">
+                  <Gauge size={16} className="shrink-0 text-success" aria-hidden="true" />
+                  {CONTENT.technicalSeo.proof.label}
+                </p>
+                <p className="mt-1.5 pl-6 text-xs leading-relaxed text-white/55">
+                  {CONTENT.technicalSeo.proof.detail}{' '}
+                  <a
+                    href={CONTENT.technicalSeo.proof.linkTo}
+                    className="font-bold text-primary underline-offset-4 hover:underline"
+                  >
+                    {CONTENT.technicalSeo.proof.linkLabel}
+                  </a>
+                </p>
+              </div>
 
-          <ul
-            className="mt-10 grid max-w-3xl grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
-          >
-            {CONTENT.technicalSeo.stack.map((item) => (
-              <li key={item} className="flex items-start gap-3 text-[15px] text-white/75">
-                <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-primary" />
-                {item}
-              </li>
-            ))}
-          </ul>
+              <ul
+                className="mt-8 grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2"
+                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
+              >
+                {CONTENT.technicalSeo.stack.map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-[15px] text-white/75">
+                    <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-primary" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </Container>
       </section>
 
@@ -215,93 +226,59 @@ const MarketingSeo: React.FC = () => {
         className="relative z-10 -mt-8 rounded-t-[2rem] bg-white pt-20 pb-24 md:-mt-12"
       >
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.localSeo.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.localSeo.description}
-            </p>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.localSeo.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.localSeo.description}
+              </p>
+            </div>
+            <ul className="mt-10 space-y-5 lg:col-span-7 lg:mt-2">
+              {CONTENT.localSeo.items.map((item, i) => (
+                <li
+                  key={item}
+                  className="flex items-start gap-3.5 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-[15px] leading-relaxed text-gray-700 shadow-sm"
+                  style={{
+                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${20 + i * 12}px), 0)`,
+                  }}
+                >
+                  <MapPin size={18} className="mt-0.5 shrink-0 text-secondary" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="mt-10 max-w-3xl space-y-4">
-            {CONTENT.localSeo.items.map((item, i) => (
-              <li
-                key={item}
-                className="flex items-start gap-3.5 text-[15px] leading-relaxed text-gray-700"
-                style={{
-                  transform: `translate3d(0, calc((1 - var(--p, 1)) * ${20 + i * 12}px), 0)`,
-                }}
-              >
-                <MapPin size={18} className="mt-0.5 shrink-0 text-secondary" aria-hidden="true" />
-                {item}
-              </li>
-            ))}
-          </ul>
         </Container>
       </section>
 
       {/* Roadmapa — linia plotera rysowana scrollem przez 4 etapy. */}
       <section ref={roadRef} className="relative bg-light-gray py-20 md:py-28">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.roadmap.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.roadmap.description}
-            </p>
-          </div>
-
-          <div className="relative mt-12 max-w-3xl">
-            <svg
-              className="absolute top-2 bottom-2 left-[21px] w-[2px]"
-              aria-hidden="true"
-              preserveAspectRatio="none"
-              viewBox="0 0 2 100"
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
             >
-              <path
-                d="M1 0 L1 100"
-                pathLength={1}
-                stroke="var(--color-secondary)"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="1"
-                style={{ strokeDashoffset: 'calc(1 - var(--p, 1))' }}
-              />
-            </svg>
-            <ol className="space-y-10">
-              {CONTENT.roadmap.steps.map((step, i) => {
-                const start = i / CONTENT.roadmap.steps.length;
-                return (
-                  <li
-                    key={step.title}
-                    className="relative flex items-start gap-6"
-                    style={{ opacity: `calc((var(--p, 1) - ${start.toFixed(2)}) / 0.2)` }}
-                  >
-                    <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-secondary bg-white text-xs font-black tabular-nums text-secondary">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
-                        {step.month}
-                      </p>
-                      <h3 className="mt-1 text-lg font-extrabold tracking-tight text-dark">
-                        {step.title}
-                      </h3>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">
-                        {step.desc}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.roadmap.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.roadmap.description}
+              </p>
+            </div>
+            <PlotterTimeline
+              className="mt-12 lg:col-span-7 lg:mt-0"
+              items={CONTENT.roadmap.steps.map((s) => ({
+                kicker: s.month,
+                title: s.title,
+                desc: s.desc,
+              }))}
+            />
           </div>
         </Container>
       </section>

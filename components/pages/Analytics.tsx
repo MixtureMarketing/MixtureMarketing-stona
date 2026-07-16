@@ -103,40 +103,44 @@ const Analytics: React.FC = () => {
       {/* Sygnały ostrzegawcze — wiersze z rozróżnialnymi ikonami. */}
       <section ref={painsRef} className="relative z-10 bg-white py-24">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.painPoints.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.painPoints.description}
-            </p>
-          </div>
-          <div className="mt-12 max-w-3xl divide-y divide-gray-100">
-            {CONTENT.painPoints.items.map((item, i) => {
-              const Icon = PAIN_ICONS[i] ?? Scale;
-              return (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-5 py-7"
-                  style={{
-                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
-                  }}
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
-                    <Icon size={20} aria-hidden="true" />
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.painPoints.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.painPoints.description}
+              </p>
+            </div>
+            <div className="mt-12 divide-y divide-gray-100 lg:col-span-7 lg:mt-0">
+              {CONTENT.painPoints.items.map((item, i) => {
+                const Icon = PAIN_ICONS[i] ?? Scale;
+                return (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-5 py-7 first:pt-0"
+                    style={{
+                      transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
+                    }}
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
+                      <Icon size={20} aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-extrabold tracking-tight text-dark">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">
+                        {item.desc}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
-                      {item.title}
-                    </h3>
-                    <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </Container>
       </section>
@@ -152,35 +156,40 @@ const Analytics: React.FC = () => {
           }
         />
         <Container className="relative z-10">
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
-              {CONTENT.compliance.title.line1}{' '}
-              <span className="text-primary">{CONTENT.compliance.title.line2}</span>
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-white/75">
-              {CONTENT.compliance.description}
-            </p>
-          </div>
-          <div
-            className="mt-10 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 44px), 0)' }}
-          >
-            {CONTENT.compliance.features.map((feat) => (
-              <div key={feat.title} className="flex items-start gap-3.5">
-                <ShieldCheck
-                  size={20}
-                  className="mt-0.5 shrink-0 text-primary"
-                  aria-hidden="true"
-                />
-                <div>
-                  <h3 className="text-sm font-bold text-white">{feat.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-white/65">{feat.desc}</p>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
+                {CONTENT.compliance.title.line1}{' '}
+                <span className="text-primary">{CONTENT.compliance.title.line2}</span>
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-white/75">
+                {CONTENT.compliance.description}
+              </p>
+            </div>
+            <div
+              className="mt-10 grid grid-cols-1 content-center gap-8 lg:col-span-7 lg:mt-0"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 44px), 0)' }}
+            >
+              {CONTENT.compliance.features.map((feat) => (
+                <div
+                  key={feat.title}
+                  className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6"
+                >
+                  <ShieldCheck
+                    size={22}
+                    className="mt-0.5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <h3 className="text-base font-bold text-white">{feat.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-white/65">{feat.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Container>
       </section>
@@ -234,31 +243,33 @@ const Analytics: React.FC = () => {
           Store/CRM/POS i fontów 7px). */}
       <section ref={warehouseRef} className="relative bg-light-gray py-20 md:py-28">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.warehouse.title.line1}{' '}
-              <span className="text-accent-dark">{CONTENT.warehouse.title.line2}</span>
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.warehouse.description}
-            </p>
-          </div>
-          <div className="mt-10 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
-            {CONTENT.warehouse.features.map((feat, i) => (
-              <div
-                key={feat.title}
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-                style={{
-                  transform: `translate3d(0, calc((1 - var(--p, 1)) * ${24 + i * 14}px), 0)`,
-                }}
-              >
-                <h3 className="text-lg font-extrabold tracking-tight text-dark">{feat.title}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-gray-700">{feat.desc}</p>
-              </div>
-            ))}
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.warehouse.title.line1}{' '}
+                <span className="text-accent-dark">{CONTENT.warehouse.title.line2}</span>
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.warehouse.description}
+              </p>
+            </div>
+            <div className="mt-10 grid grid-cols-1 content-center gap-6 sm:grid-cols-2 lg:col-span-7 lg:mt-0">
+              {CONTENT.warehouse.features.map((feat, i) => (
+                <div
+                  key={feat.title}
+                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                  style={{
+                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${24 + i * 14}px), 0)`,
+                  }}
+                >
+                  <h3 className="text-lg font-extrabold tracking-tight text-dark">{feat.title}</h3>
+                  <p className="mt-2 text-[15px] leading-relaxed text-gray-700">{feat.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
       </section>

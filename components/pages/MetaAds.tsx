@@ -17,6 +17,7 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import Container from '../common/Container';
 import WanderingGlow from '../visuals/WanderingGlow';
+import PlotterTimeline from '../common/PlotterTimeline';
 
 /**
  * /marketing/meta-ads/ — przebudowa 2026-07-16 (krytyka 11/40, pełna
@@ -107,62 +108,26 @@ const MetaAds: React.FC = () => {
           zamiast „command center" z symulowaną telemetrią). */}
       <section ref={funnelRef} className="relative z-10 bg-white py-24">
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.funnel.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.funnel.description}
-            </p>
-          </div>
-
-          <div className="relative mt-12 max-w-3xl">
-            <svg
-              className="absolute top-2 bottom-2 left-[21px] w-[2px]"
-              aria-hidden="true"
-              preserveAspectRatio="none"
-              viewBox="0 0 2 100"
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
             >
-              <path
-                d="M1 0 L1 100"
-                pathLength={1}
-                stroke="var(--color-secondary)"
-                strokeWidth="2"
-                fill="none"
-                strokeDasharray="1"
-                style={{ strokeDashoffset: 'calc(1 - var(--p, 1))' }}
-              />
-            </svg>
-            <ol className="space-y-10">
-              {CONTENT.funnel.stages.map((stage, i) => {
-                const start = i / CONTENT.funnel.stages.length;
-                return (
-                  <li
-                    key={stage.step}
-                    className="relative flex items-start gap-6"
-                    style={{ opacity: `calc((var(--p, 1) - ${start.toFixed(2)}) / 0.2)` }}
-                  >
-                    <div className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-secondary bg-white text-xs font-black tabular-nums text-secondary">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-wide text-gray-500">
-                        {stage.label}
-                      </p>
-                      <h3 className="mt-1 text-lg font-extrabold tracking-tight text-dark">
-                        {stage.step}
-                      </h3>
-                      <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">
-                        {stage.desc}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.funnel.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.funnel.description}
+              </p>
+            </div>
+            <PlotterTimeline
+              className="mt-12 lg:col-span-7 lg:mt-0"
+              items={CONTENT.funnel.stages.map((s) => ({
+                kicker: s.label,
+                title: s.step,
+                desc: s.desc,
+              }))}
+            />
           </div>
         </Container>
       </section>
@@ -178,29 +143,40 @@ const MetaAds: React.FC = () => {
           }
         />
         <Container className="relative z-10">
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
-              {CONTENT.capi.title.line1}{' '}
-              <span className="text-primary">{CONTENT.capi.title.line2}</span>
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-white/75">{CONTENT.capi.description}</p>
-          </div>
-          <div
-            className="mt-10 grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 44px), 0)' }}
-          >
-            {CONTENT.capi.features.map((feat) => (
-              <div key={feat.title} className="flex items-start gap-3.5">
-                <ServerCog size={20} className="mt-0.5 shrink-0 text-primary" aria-hidden="true" />
-                <div>
-                  <h3 className="text-sm font-bold text-white">{feat.title}</h3>
-                  <p className="mt-1 text-sm leading-relaxed text-white/65">{feat.desc}</p>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
+                {CONTENT.capi.title.line1}{' '}
+                <span className="text-primary">{CONTENT.capi.title.line2}</span>
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-white/75">
+                {CONTENT.capi.description}
+              </p>
+            </div>
+            <div
+              className="mt-10 grid grid-cols-1 content-center gap-8 lg:col-span-7 lg:mt-0"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 44px), 0)' }}
+            >
+              {CONTENT.capi.features.map((feat) => (
+                <div
+                  key={feat.title}
+                  className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6"
+                >
+                  <ServerCog
+                    size={22}
+                    className="mt-0.5 shrink-0 text-primary"
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <h3 className="text-base font-bold text-white">{feat.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-white/65">{feat.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </Container>
       </section>
@@ -212,64 +188,69 @@ const MetaAds: React.FC = () => {
         className="relative z-10 -mt-8 rounded-t-[2rem] bg-white pt-20 pb-24 md:-mt-12"
       >
         <Container>
-          <div
-            className="max-w-3xl"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-          >
-            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-              {CONTENT.strategySelector.title}
-            </h2>
-            <p className="mt-5 text-lg leading-relaxed text-gray-700">
-              {CONTENT.strategySelector.description}
-            </p>
-          </div>
-
-          <div
-            className="mt-10 flex max-w-3xl flex-col gap-3 sm:flex-row"
-            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 36px), 0)' }}
-          >
-            {(['ecommerce', 'b2b'] as const).map((key) => {
-              const opt = CONTENT.strategySelector[key];
-              const active = model === key;
-              const Icon = key === 'ecommerce' ? ShoppingBag : MessageSquare;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setModel(key)}
-                  aria-pressed={active}
-                  className={`flex flex-1 items-center gap-4 rounded-2xl border-2 p-5 text-left transition-colors ${
-                    active
-                      ? 'border-secondary bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
-                >
-                  <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                      active ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-500'
-                    }`}
-                  >
-                    <Icon size={20} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <p className="font-extrabold tracking-tight text-dark">{opt.label}</p>
-                    <p className="text-sm text-gray-600">{opt.desc}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-8 grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
-            {activeModel.items.map((item) => (
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.strategySelector.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.strategySelector.description}
+              </p>
+            </div>
+            <div className="lg:col-span-7">
               <div
-                key={item.title}
-                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="mt-10 flex flex-col gap-3 sm:flex-row lg:mt-0"
+                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 36px), 0)' }}
               >
-                <h3 className="text-lg font-extrabold tracking-tight text-dark">{item.title}</h3>
-                <p className="mt-2 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
+                {(['ecommerce', 'b2b'] as const).map((key) => {
+                  const opt = CONTENT.strategySelector[key];
+                  const active = model === key;
+                  const Icon = key === 'ecommerce' ? ShoppingBag : MessageSquare;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setModel(key)}
+                      aria-pressed={active}
+                      className={`flex flex-1 items-center gap-4 rounded-2xl border-2 p-5 text-left transition-colors ${
+                        active
+                          ? 'border-secondary bg-blue-50'
+                          : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
+                    >
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+                          active ? 'bg-secondary text-white' : 'bg-gray-100 text-gray-500'
+                        }`}
+                      >
+                        <Icon size={20} aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="font-extrabold tracking-tight text-dark">{opt.label}</p>
+                        <p className="text-sm text-gray-600">{opt.desc}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-            ))}
+
+              <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+                {activeModel.items.map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                  >
+                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </Container>
       </section>
