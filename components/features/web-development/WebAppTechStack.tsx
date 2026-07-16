@@ -52,17 +52,19 @@ const WebAppTechStack: React.FC = () => {
                     </React.Fragment>
                   ))}
                 </dd>
-                <Link
-                  to={g.link}
-                  className="group inline-flex items-center gap-1.5 text-sm font-bold text-accent-dark underline-offset-4 hover:underline"
-                >
-                  Przewodnik
-                  <ArrowRight
-                    size={14}
-                    aria-hidden="true"
-                    className="transition-transform group-hover:translate-x-1"
-                  />
-                </Link>
+                <dd>
+                  <Link
+                    to={g.link}
+                    className="group inline-flex items-center gap-1.5 text-sm font-bold text-accent-dark underline-offset-4 hover:underline"
+                  >
+                    Przewodnik
+                    <ArrowRight
+                      size={14}
+                      aria-hidden="true"
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </Link>
+                </dd>
               </div>
             ))}
           </dl>
