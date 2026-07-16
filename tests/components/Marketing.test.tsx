@@ -6,65 +6,38 @@ import { BrowserRouter } from 'react-router-dom';
 import { ModalProvider } from '../../context/ModalContext';
 import { HelmetProvider } from 'react-helmet-async';
 
-// Mock content
+// Mock content — kształt po przebudowie 2026-07-16 (proof/models/services).
 vi.mock('@/data/content', () => ({
   MARKETING_CONTENT: {
     seo: { title: 'Test Title', description: 'Test Desc', image: 'test.jpg' },
     hero: {
-      badge: 'Test Badge',
       title: 'Hero Title',
       titleAccent: 'Accent',
       description: 'Hero Desc',
       cta: 'Hero CTA',
-      revenueLabel: 'Revenue',
     },
-    arsenal: {
-      title: 'Arsenal Title',
-      subtitle: 'Arsenal Sub',
-      description: 'Arsenal Desc',
-      items: [],
+    proof: {
+      title: 'Proof Title',
+      description: 'Proof Desc',
+      method: [],
+      linkLabel: 'Link',
+      linkTo: '/portfolio',
     },
-    strategy: {
-      title: 'Strategy Title',
-      description: 'Strategy Desc',
-      quick: {
-        title: 'Quick',
-        subtitle: 'Sub',
-        paramsTitle: 'Params',
-        timeLabel: 'Time',
-        timeVal: '1m',
-        durabilityLabel: 'Dur',
-        durabilityVal: 'Low',
-      },
-      stable: {
-        title: 'Stable',
-        subtitle: 'Sub',
-        paramsTitle: 'Params',
-        timeLabel: 'Time',
-        timeVal: '1y',
-        durabilityLabel: 'Dur',
-        durabilityVal: 'High',
-      },
-      quickTools: [],
-      stableTools: [],
+    painPoints: { title: 'Pains Title', description: 'Pains Desc', items: [] },
+    models: {
+      title: 'Models Title',
+      description: 'Models Desc',
+      sprint: { title: 'Sprint', lines: [], note: 'Note' },
+      marathon: { title: 'Maraton', lines: [], note: 'Note' },
     },
-    synergy: {
-      title: 'Synergy Title',
-      description: 'Synergy Desc',
-      items: [],
-    },
-    industries: {
-      title: 'Industries Title',
-      description: 'Industries Desc',
-      items: [],
-    },
+    synergy: { title: 'Synergy Title', description: 'Synergy Desc', items: [] },
+    services: { title: 'Services Title', description: 'Services Desc', items: [] },
     faqs: [],
     cta: {
       title: 'CTA Title',
       description: 'CTA Desc',
       button: 'CTA Button',
     },
-    painPoints: { items: [] },
   },
 }));
 

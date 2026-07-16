@@ -15,10 +15,8 @@ export const GOOGLE_ADS_CONTENT = {
       'Przechwytuj klientów dokładnie w momencie, gdy szukają Twoich produktów. Precyzyjne kampanie SEM, które skalują sprzedaż, a nie koszty.',
     cta: 'Darmowy Audyt Konta',
     microCopy: 'Płać tylko za efekt (PPC)',
-    caseStudy: {
-      label: 'Ostatni Wynik (Sklep Meblowy)',
-      desc: 'Zwiększyliśmy przychód o <strong>+320%</strong> w 3 miesiące, redukując koszt kliknięcia o 40%.',
-    },
+    // caseStudy „+320% (Sklep Meblowy)" USUNIĘTE 2026-07-16: wymyślona liczba
+    // (potwierdzone przez właściciela — copy, nie pomiar). Usunąć, nie podmieniać.
     simulator: {
       placeholder: 'skuteczna agencja google ads warszawa',
       ad: {

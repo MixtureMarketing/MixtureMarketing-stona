@@ -13,6 +13,12 @@ export const useCounter = (endValue: number, options: UseCounterOptions = {}) =>
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
+    // Reduced-motion: wartość końcowa od razu (jedna klatka), zero animacji
+    // i zero tykania (audyt 2026-07-16: interwał ignorował preferencję).
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const raf = window.requestAnimationFrame(() => setCount(endValue));
+      return () => window.cancelAnimationFrame(raf);
+    }
 
     let interval: NodeJS.Timeout;
 
