@@ -1,121 +1,150 @@
+/**
+ * Treść /marketing/seo/ — przepisana 2026-07-16 (krytyka 14/40).
+ * Zasady: zero obietnic pozycji (TOP 3 / „Zdominuj" wypadły — własne FAQ
+ * mówi wprost, że pozycji się nie gwarantuje i to zostaje jako atut);
+ * liczby branżowe bez procentów (mechanika); cena hero = najniższy pakiet
+ * CMS (SEO lokalne 1 200 zł/mc — wcześniej hero mówiło 1 500 wbrew własnej
+ * tabeli); dowód szybkości = REALNY pomiar CrUX wdrożenia klienta z datą
+ * (ten sam, którym dowodzi /web-development/), nie teatr „LIVE OPTIMIZATION".
+ */
 export const SEO_CONTENT = {
   seo: {
-    title: 'SEO i Content Marketing | Pozycjonowanie Stron',
+    title: 'Pozycjonowanie stron (SEO) — Rzeszów i cała Polska | Mixture',
     description:
-      'Zdobądź wysokie pozycje w Google dzięki naszym usługom SEO i content marketingu. Budujemy autorytet domeny i generujemy darmowy ruch organiczny.',
+      'SEO bez gwarancji „1. miejsca" i bez raportów-wydmuszek: technika, treści eksperckie i linki, z pomiarem widoczności w GSC. Pakiety od 1 200 zł/mc.',
     image: '/assets/images/core-web-vitals.png',
   },
   hero: {
-    badge: 'Organic Growth',
     title: {
-      line1: 'Pozycjonowanie Stron.',
-      line2: 'Darmowy ruch na lata.',
+      line1: 'Widoczność, która',
+      line2: 'zostaje z Tobą.',
     },
     description:
-      'Przestań płacić za każde kliknięcie. Zbuduj widoczność, która jest <strong>aktywem</strong> Twojej firmy, a nie kosztem. Zdominuj wyniki wyszukiwania dzięki strategii Data-Driven SEO.',
-    cta: 'Darmowy Audyt SEO',
-    microCopy: 'Działamy Globalnie',
+      'Reklamy przestają działać w dniu, w którym przestajesz płacić. Pozycjonowanie buduje ruch, który zostaje — o ile ktoś robi je uczciwie: techniką, treścią i linkami, nie obietnicami pozycji.',
+    cta: 'Darmowy audyt SEO',
+  },
+  /** Trzy filary — na nich stoi każda widoczność organiczna. */
+  pillars: {
+    title: 'Na czym naprawdę stoi SEO',
+    description:
+      'Nie ma sekretnej sztuczki. Jest technika, którą robot umie przeczytać, treść, którą człowiek chce przeczytać, i autorytet, który przekonuje jednych i drugich.',
+    items: [
+      {
+        title: 'Technika',
+        desc: 'Indeksacja, struktura, szybkość. Strona, której Google nie umie przeczytać, nie ma czego pozycjonować — dlatego każdy projekt zaczynamy od audytu technicznego.',
+      },
+      {
+        title: 'Treść',
+        desc: 'Odpowiedzi na pytania, które Twoi klienci naprawdę wpisują w Google — pisane przez ludzi, weryfikowane merytorycznie. Nie „teksty pod SEO".',
+      },
+      {
+        title: 'Autorytet',
+        desc: 'Linki z miejsc, które mają znaczenie w Twojej branży, i opinie, które budują zaufanie. Zdobywane, nie kupowane hurtem.',
+      },
+    ],
   },
   localSeo: {
-    title: 'Bądź widoczny lokalnie (Maps)',
+    title: 'Widoczność lokalna zaczyna się od map',
     description:
-      'Dla wielu biznesów usługowych (restauracje, mechanicy, lekarze) 50% ruchu pochodzi z map. Optymalizujemy Wizytówki Google (GBP), abyś był pierwszym wyborem w okolicy.',
+      'Dla firm usługowych — restauracji, warsztatów, gabinetów — duża część klientów zaczyna od wyników mapowych, nie od klasycznej listy. To osobna dyscyplina i osobna robota.',
     items: [
-      'Pozycjonowanie w Map Pack (TOP 3)',
-      'Zarządzanie opiniami i reputacją',
-      'Optymalizacja "Near Me"',
+      'Optymalizacja wizytówki Google (profil, kategorie, zdjęcia)',
+      'Zarządzanie opiniami i odpowiedziami',
+      'Spójność danych firmy w katalogach (NAP)',
     ],
   },
-  contentIntelligence: {
-    title: 'Content, który buduje zaufanie',
-    description:
-      'Nie piszemy "tekstów pod SEO". Piszemy odpowiedzi na realne problemy Twoich klientów. Budujemy Topical Authority, który czyni Cię liderem opinii.',
-    pillars: [
-      { label: 'Experience', desc: 'Doświadczenie' },
-      { label: 'Expertise', desc: 'Wiedza' },
-      { label: 'Authority', desc: 'Autorytet' },
-      { label: 'Trust', desc: 'Zaufanie' },
-    ],
-  },
+  /**
+   * Szybkość — ciemnia Z DOWODEM: realny pomiar CrUX wdrożenia klienta.
+   * PRZED ZMIANĄ TEKSTU: zmierz ponownie i zaktualizuj datę. Nigdy z ręki.
+   * Źródło: PageSpeed Insights API, dane polowe CrUX dla niepodzielni.com,
+   * pomiar 15.07.2026 (ten sam dowód co na /web-development/).
+   */
   technicalSeo: {
-    title: 'Szybkość to Ranking',
-    subtitle: 'Core Web Vitals',
+    title: 'Szybkość to ranking.',
     description:
-      "Google to robot. Jeśli Twoja strona jest wolna, robot traci zasoby i obniża Twój ranking. My nie 'instalujemy wtyczek'. My optymalizujemy kod z chirurgiczną precyzją.",
-    impact: {
-      conversion: '-7%',
-      bounce: '+50%',
+      'Google mierzy, jak Twoja strona ładuje się u realnych użytkowników (Core Web Vitals) — i wolne strony przegrywają, zanim zacznie się walka o treść. My tę szybkość robimy i mierzymy, nie deklarujemy.',
+    proof: {
+      label: 'Core Web Vitals: zaliczone — mobile i desktop',
+      detail:
+        'LCP 1,0 s · CLS 0 · dane polowe Google CrUX dla wdrożenia klienta (niepodzielni.com), pomiar 15.07.2026',
+      linkLabel: 'Zobacz case study',
+      linkTo: '/portfolio/fundacja-niepodzielni',
     },
     stack: [
-      'Formaty Next-Gen (WebP/AVIF)',
-      'Eliminacja zasobów blokujących (Render Blocking)',
-      'Minifikacja i kompresja GZIP/Brotli',
-      'Server-Side Caching (Redis/Varnish)',
-      'Optymalizacja TTFB (Time to First Byte)',
+      'Nowoczesne formaty obrazów (WebP/AVIF)',
+      'Eliminacja zasobów blokujących renderowanie',
+      'Kompresja i cache po stronie serwera',
+      'Optymalizacja czasu odpowiedzi serwera (TTFB)',
     ],
   },
   roadmap: {
-    title: 'Roadmapa Wzrostu',
+    title: 'Jak wygląda pierwszy rok',
     description:
-      'SEO to proces. Zobacz, jak wyglądają kolejne etapy współpracy i kiedy spodziewać się pierwszych efektów.',
+      'SEO to proces — każdy, kto obiecuje skok w miesiąc, zgaduje albo kłamie. Tak wygląda uczciwa mapa drogi.',
     steps: [
       {
         month: 'Miesiąc 1',
-        title: 'Audyt & Quick Wins',
-        desc: 'Eliminujemy błędy krytyczne. Naprawa indeksacji i szybkości daje natychmiastowy skok jakości w oczach Google.',
+        title: 'Audyt i szybkie naprawy',
+        desc: 'Eliminujemy błędy krytyczne: indeksację, duplikaty, szybkość. To fundament — bez niego dalsza praca nie ma na czym stanąć.',
       },
       {
-        month: 'Miesiąc 2-3',
-        title: 'Content & Struktura',
-        desc: 'Nasycamy stronę treścią (Topical Authority). Poprawiamy nagłówki, meta tagi i linkowanie wewnętrzne.',
+        month: 'Miesiące 2–3',
+        title: 'Treść i struktura',
+        desc: 'Budujemy treści wokół tematów, w których masz realną wiedzę, porządkujemy nagłówki, meta tagi i linkowanie wewnętrzne.',
       },
       {
-        month: 'Miesiąc 4-6',
-        title: 'Autorytet & Linki',
-        desc: 'Pozyskujemy mocne linki z zewnętrznych portali branżowych. To paliwo, które winduje frazy do TOP 3.',
+        month: 'Miesiące 4–6',
+        title: 'Autorytet i linki',
+        desc: 'Pozyskujemy wartościowe linki z portali branżowych. W tym okresie zwykle widać pierwsze mierzalne ruchy widoczności.',
       },
       {
         month: 'Miesiąc 7+',
-        title: 'Dominacja & Skalowanie',
-        desc: 'Rozbudowujemy klastry tematyczne o nowe nisze. Optymalizujemy konwersję (CRO), aby ruch zamieniał się w pieniądze.',
+        title: 'Rozbudowa i konwersja',
+        desc: 'Poszerzamy klastry tematyczne i pracujemy nad tym, żeby rosnący ruch zamieniał się w zapytania i sprzedaż.',
       },
     ],
   },
+  /** Kalkulator = arytmetyka założeń użytkownika (CTR jest suwakiem!). */
   roi: {
-    title: 'Wycena Ruchu (ROI)',
+    title: 'Ile ten sam ruch kosztuje w reklamach',
     description:
-      "Sprawdź, ile musiałbyś zapłacić w Google Ads za ten sam ruch, który SEO może dostarczać Ci 'za darmo' miesiąc w miesiąc.",
+      'Prosta arytmetyka: weź frazę, jej miesięczne wyszukiwania i stawkę za kliknięcie w Ads — i zobacz, jaką wartość ma ruch organiczny z tej frazy. Założenia ustawiasz sam.',
+    disclaimer:
+      'To arytmetyka Twoich założeń, nie prognoza. Realny CTR zależy od pozycji, wyglądu wyniku i konkurencji — a pozycji nie obiecujemy, co do zasady.',
     labels: {
-      volume: 'Miesięczna liczba wyszukiwań frazy',
-      cpc: 'Średni koszt kliknięcia (CPC)',
-      potential: 'Potencjał TOP 3',
-      traffic: 'Est. Ruch',
-      equivalent: 'Ekwiwalent Ads',
-      saving: 'oszczędności / msc',
+      volume: 'Miesięczne wyszukiwania frazy',
+      cpc: 'Koszt kliknięcia w Ads (CPC)',
+      ctr: 'Założony CTR wyniku organicznego',
+      traffic: 'Wejścia miesięcznie przy tych założeniach',
+      equivalent: 'Wartość tego ruchu w cenach Ads',
     },
   },
   faqs: [
     {
       q: 'Kiedy zobaczę pierwsze efekty SEO?',
-      a: 'SEO to maraton, nie sprint. Pierwsze wzrosty widoczności (ilość słów kluczowych w TOP50) widać po 3 miesiącach. Realny wzrost ruchu i sprzedaży następuje zazwyczaj między 6. a 9. miesiącem systematycznej pracy.',
+      a: 'SEO to maraton, nie sprint. Pierwsze wzrosty widoczności (liczba słów kluczowych w TOP50) widać zwykle po 3 miesiącach. Realny wzrost ruchu i sprzedaży następuje zazwyczaj między 6. a 9. miesiącem systematycznej pracy.',
     },
     {
       q: 'Czy muszę mieć bloga?',
-      a: "Tak, jeśli chcesz skalować biznes. Blog pozwala pokryć tysiące zapytań typu 'long-tail' (np. 'jaka pompa ciepła do domu 100m2'), na które Twoi klienci szukają odpowiedzi przed zakupem. To buduje zaufanie i ściąga ruch.",
+      a: 'Tak, jeśli chcesz skalować widoczność. Blog pozwala pokryć setki zapytań typu long-tail (np. „jaka pompa ciepła do domu 100m2"), na które Twoi klienci szukają odpowiedzi przed zakupem. To buduje zaufanie i ściąga ruch.',
     },
     {
       q: 'Czy gwarantujecie 1. miejsce w Google?',
-      a: 'Nie. Google oficjalnie ostrzega przed agencjami dającymi takie gwarancje. Algorytm jest tajny i zmienny. Gwarantujemy natomiast rzetelną realizację strategii, wzrost widoczności i transparentne raporty z efektów.',
+      a: 'Nie. Google oficjalnie ostrzega przed agencjami dającymi takie gwarancje — algorytm jest tajny i zmienny. Gwarantujemy rzetelną realizację strategii, pomiar widoczności w Google Search Console i transparentne omówienie efektów co miesiąc.',
     },
     {
       q: 'Czy używacie AI do pisania tekstów?',
-      a: 'Traktujemy AI jako asystenta (research, struktura), ale nie jako autora. Wszystkie treści są pisane lub weryfikowane przez doświadczonych copywriterów, aby zachować unikalny ton marki i wartość merytoryczną.',
+      a: 'Traktujemy AI jako asystenta (research, struktura), ale nie jako autora. Treści są pisane lub weryfikowane przez ludzi z wiedzą merytoryczną — bo tekst, który nie pomaga czytelnikowi, nie pomoże też w Google.',
+    },
+    {
+      q: 'Jak wygląda raportowanie?',
+      a: 'Dostajesz dostęp do danych na żywo (Google Search Console + dashboard) i raz w miesiącu spotykamy się, żeby omówić widoczność, ruch i plan na kolejny okres. Zero 50-stronicowych PDF-ów, których nikt nie czyta.',
     },
   ],
   cta: {
-    title: 'Sprawdź, na co zarabia konkurencja.',
+    title: 'Sprawdź, na co widoczna jest konkurencja.',
     description:
-      'Większość stron ma ukryte błędy techniczne. Przygotujemy dla Ciebie darmowy raport, który pokaże, na jakie słowa kluczowe widoczna jest Twoja konkurencja, a Ty nie.',
-    button: 'Zamów Analizę Konkurencji',
+      'Przygotujemy darmową analizę: na jakie frazy widoczna jest Twoja konkurencja, a Ty nie — i co z tego realnie wynika dla Twojego biznesu.',
+    button: 'Zamów analizę konkurencji',
   },
 };
