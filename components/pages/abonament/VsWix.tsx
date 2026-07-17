@@ -34,9 +34,10 @@ const COMPARE_ROWS = [
     wix: { status: 'no', text: 'Brak' },
   },
   {
+    // Bez wymyślonej liczby LCP konkurenta (reklama porównawcza bez pomiaru)
     label: 'Czas ładowania (LCP)',
     mixture: { status: 'ok', text: '<1s (Cloudflare edge)' },
-    wix: { status: 'mid', text: '3-4s (Wix server)' },
+    wix: { status: 'mid', text: 'Zależny od szablonu i aplikacji' },
   },
   {
     label: 'Hosting + SSL',
@@ -49,8 +50,9 @@ const COMPARE_ROWS = [
     wix: { status: 'ok', text: 'Wix Editor (drag&drop)' },
   },
   {
+    // 16 branż potwierdzone przez właściciela (FAQ i strona główna abonamentu)
     label: 'Galeria szablonów',
-    mixture: { status: 'mid', text: '~4 branże, każda kustomizowana' },
+    mixture: { status: 'mid', text: '16 branż (4 dema online), każda kustomizowana' },
     wix: { status: 'ok', text: '900+ szablonów' },
   },
   {
