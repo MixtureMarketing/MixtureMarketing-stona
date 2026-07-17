@@ -8,22 +8,27 @@ interface AuditProgressProps {
   isDataReady: boolean;
 }
 
+// Kroki = to, co backend NAPRAWDĘ robi (scrape HTML, PSI, detekcja tagów,
+// Google Places) — poprzednie („analiza słów kluczowych", „skanowanie
+// serwera") opisywały nieistniejące pomiary.
 const STEPS = [
-  { icon: Smartphone, label: 'Wykonywanie zdjęcia wersji mobilnej...' },
-  { icon: Search, label: 'Analiza słów kluczowych i widoczności...' },
-  { icon: Zap, label: 'Testowanie Core Web Vitals (LCP, CLS)...' },
-  { icon: Server, label: 'Skanowanie konfiguracji serwera...' },
-  { icon: Database, label: 'Weryfikacja tagów analitycznych (GTM)...' },
-  { icon: CheckCircle2, label: 'Generowanie raportu końcowego...' },
+  { icon: Server, label: 'Pobieranie i analiza kodu strony...' },
+  { icon: Zap, label: 'Google PageSpeed Insights — Core Web Vitals (LCP, CLS)...' },
+  { icon: Smartphone, label: 'Zrzut ekranu wersji mobilnej...' },
+  { icon: Database, label: 'Wykrywanie analityki i pixeli (GA4, GTM, Meta)...' },
+  { icon: Search, label: 'Google Places — ocena i opinie...' },
+  { icon: CheckCircle2, label: 'Składanie raportu...' },
 ];
 
+// Bez niesourcowanych procentów („SSL obniża konwersję o 40%") — fakty
+// procesowe i definicje zamiast liczb bez źródła.
 const TIPS = [
-  'Czy wiesz, że 53% użytkowników mobilnych opuszcza stronę, która ładuje się dłużej niż 3 sekundy?',
   'Google używa „Mobile-First Indexing” — Twoja wersja mobilna decyduje o pozycji w wyszukiwarce.',
-  'Brak certyfikatu SSL może obniżyć konwersję nawet o 40% z powodu ostrzeżeń przeglądarki.',
-  'Poprawa wyniku LCP o 1 sekundę może zwiększyć przychody sklepu internetowego o 7%.',
-  'Piksel Facebooka pozwala na remarketing — docieranie do osób, które już były na Twojej stronie.',
+  'LCP (Largest Contentful Paint) mierzy, po jakim czasie użytkownik widzi główną treść. Próg Google: 2,5 s.',
+  'Piksel Meta pozwala na remarketing — docieranie do osób, które już były na Twojej stronie.',
+  'CLS mierzy „skakanie” układu strony podczas ładowania — im bliżej zera, tym lepiej.',
   'Dobre UX to nie wygląd, lecz łatwość realizacji celu przez klienta.',
+  'Wynik pochodzi z realnych pomiarów: Twojego kodu HTML, Google PageSpeed Insights i Google Places.',
 ];
 
 const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, isDataReady }) => {
@@ -180,7 +185,7 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
             </div>
           </div>
           <p className="text-[11px] text-gray-400">
-            Silnik oparty o Google Lighthouse i Puppeteer.
+            Silnik: analiza kodu strony + Google PageSpeed Insights + Google Places.
           </p>
         </div>
       </div>

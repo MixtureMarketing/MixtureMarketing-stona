@@ -9,13 +9,13 @@ interface AuditScoreSidebarProps {
 }
 
 const tone = (s: number) =>
-  s >= 80
+  s >= 85
     ? {
         stroke: '#00c853',
         ink: 'text-success',
         tag: 'bg-[#e7f8ee] text-[#027a34] border-[#bfead0]',
       }
-    : s >= 50
+    : s >= 60
       ? {
           stroke: '#f4b400',
           ink: 'text-[#b45309]',
@@ -27,10 +27,12 @@ const tone = (s: number) =>
           tag: 'bg-[#fff1f2] text-[#be123c] border-[#fecdd3]',
         };
 
+// Progi: min. możliwy wynik to 55 (suma kar −45), więc „krytyczny" < 50 był
+// nieosiągalny — skala kłamała optymizmem. Teraz: <60 krytyczny, <85 ostrzegawczy.
 const label = (s: number) =>
-  s >= 80
+  s >= 85
     ? { tag: 'Stan wzorowy', desc: 'Świetna robota — Twoja strona pracuje na wynik.' }
-    : s >= 50
+    : s >= 60
       ? {
           tag: 'Stan ostrzegawczy',
           desc: 'Solidna baza, ale tracisz potencjał. Kilka poprawek dzieli Cię od czołówki.',

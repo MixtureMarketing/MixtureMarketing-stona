@@ -35,7 +35,7 @@ const AuditWizard: React.FC = () => {
         setResult(data);
       } catch (err) {
         console.error(err);
-        setError('Nie udało się przeprowadzić audytu. Sprawź adres URL i spróbuj ponownie.');
+        setError('Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.');
         setStep('INPUT');
       }
     },
@@ -63,14 +63,25 @@ const AuditWizard: React.FC = () => {
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // Zapis leada (source='audit') — best-effort, nie blokuje pokazania raportu.
+    // Zapis leada + wysyłka PDF do użytkownika (obietnica z bramki — realna
+    // od 2026-07-17). Best-effort w tle, nie blokuje pokazania raportu online.
     if (result) {
-      void auditService.captureLead({
-        email,
-        url: result.client.url || url,
-        companyName: companyName || undefined,
-        score: result.client.total_score,
-      });
+      void (async () => {
+        let pdf: Blob | undefined;
+        try {
+          const { generateAuditPdf } = await import('../../../services/auditPdfService');
+          pdf = await generateAuditPdf(result);
+        } catch (err) {
+          console.error('audit pdf generation failed:', err);
+        }
+        await auditService.captureLead({
+          email,
+          url: result.client.url || url,
+          companyName: companyName || undefined,
+          score: result.client.total_score,
+          pdf,
+        });
+      })();
     }
     setStep('RESULT');
   };

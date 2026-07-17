@@ -76,7 +76,11 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, onReset }) => {
             </Block>
 
             <Block>
-              <AuditQuickWins />
+              <AuditQuickWins
+                lcp={lcp}
+                imagesNoAlt={client.content?.images_no_alt ?? 0}
+                hasAnalytics={!!client.tech?.analytics}
+              />
             </Block>
           </div>
         </div>

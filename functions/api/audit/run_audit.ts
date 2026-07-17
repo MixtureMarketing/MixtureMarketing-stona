@@ -101,6 +101,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       fetchPlaces(placeId, companyName, env.GOOGLE_BACKEND_KEY),
     ]);
 
+    // Bez pomiaru PSI nie ma uczciwego wyniku — fallbacki (LCP 2.5s, score 0)
+    // pokazywaly uzytkownikowi zmyslone liczby jako JEGO pomiar.
+    if (!psiData?.lighthouseResult) {
+      return json(
+        {
+          status: 'error',
+          message:
+            'Pomiar wydajności (PageSpeed Insights) chwilowo niedostępny — spróbuj ponownie za minutę.',
+        },
+        503,
+      );
+    }
+
     const auditResult = calculateScore({
       url: normalizedUrl,
       scrape: pageContent,
@@ -346,6 +359,9 @@ async function fetchPSI(url: string, key: string): Promise<any> {
     `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}` +
     `&key=${key}&strategy=mobile&category=PERFORMANCE&category=SEO&category=ACCESSIBILITY&category=BEST_PRACTICES`;
   const res = await fetch(psiUrl);
+  // Bez res.ok cicha awaria PSI fabrykowała wynik (fallback „LCP 2.50 s"
+  // pokazywany użytkownikowi jako JEGO pomiar). Teraz brak pomiaru = błąd.
+  if (!res.ok) return null;
   return res.json();
 }
 
@@ -471,7 +487,7 @@ function calculateScore(data: any) {
   }
   if (scrape.content.images_no_alt > 0) {
     totalScore -= 5;
-    errors.MISSING_ALT = true;
+    errors.NO_ALTS = true;
   }
   if (!scrape.tech.analytics) {
     totalScore -= 5;
