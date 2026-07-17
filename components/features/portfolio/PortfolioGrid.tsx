@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { SanityCaseStudy } from '../../../types';
 import { SanityImage } from '../../../types/sanity';
@@ -18,8 +18,16 @@ interface PortfolioGridProps {
   loading: boolean;
 }
 
+/** Etykiety PL i kolor plakietki kategorii — paleta marki zamiast blue/indigo/purple. */
+const CATEGORY_BADGE: Record<string, { label: string; className: string }> = {
+  web: { label: 'Web Development', className: 'bg-secondary/90' },
+  marketing: { label: 'Marketing', className: 'bg-accent-dark/90' },
+  design: { label: 'Design', className: 'bg-dark/90' },
+};
+
 const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
-  const navigate = useNavigate();
+  // Framer omija globalny CSS-kill reduced-motion — respektujemy ręcznie
+  const reducedMotion = useReducedMotion();
 
   if (loading) {
     return (
@@ -49,19 +57,20 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
         {projects.map((project) => (
           <motion.div
             key={project._id}
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
+            layout={!reducedMotion}
+            initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.4 }}
-            onClick={() => navigate(`/portfolio/${project.slug}`)}
-            className="group cursor-pointer h-full"
+            exit={reducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
+            transition={{ duration: reducedMotion ? 0 : 0.4 }}
+            className="group h-full"
           >
+            {/* Karta klikalna przez stretched-link na tytule (klawiatura + czytniki),
+                nie przez onClick na divie. */}
             <BaseCard
               variant="solid"
               padding="none"
               hover="lift"
-              className="h-full flex flex-col border-gray-100"
+              className="h-full flex flex-col border-gray-100 relative"
             >
               {/* Image Container */}
               <div className="relative h-72 overflow-hidden bg-gray-100">
@@ -83,23 +92,19 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                 {/* Overlay Tags */}
                 <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
                   <span
-                    className={`px-3 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg backdrop-blur-md shadow-sm border border-white/20 text-white ${
-                      project.category === 'web'
-                        ? 'bg-blue-600/90'
-                        : project.category === 'marketing'
-                          ? 'bg-indigo-600/90'
-                          : 'bg-purple-600/90'
+                    className={`px-3 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-white/20 text-white ${
+                      CATEGORY_BADGE[project.category]?.className ?? 'bg-dark/90'
                     }`}
                   >
-                    {project.category}
+                    {CATEGORY_BADGE[project.category]?.label ?? project.category}
                   </span>
                 </div>
 
                 {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                <div className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300">
                     <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
-                      Zobacz Case Study <ArrowRight size={16} />
+                      Zobacz case study <ArrowRight size={16} aria-hidden="true" />
                     </span>
                   </div>
                 </div>
@@ -109,7 +114,12 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               <div className="p-8 flex flex-col flex-grow">
                 <div className="mb-4">
                   <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    {project.title}
+                    <Link
+                      to={`/portfolio/${project.slug}`}
+                      className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
+                    >
+                      {project.title}
+                    </Link>
                   </h3>
                   <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">
                     {project.client || 'Klient poufny'}
