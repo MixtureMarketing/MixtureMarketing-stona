@@ -5,8 +5,8 @@
  * klik na "Otworz formularz" w modalu).
  */
 import React, { useRef } from 'react';
-import { Turnstile } from '@marsidev/react-turnstile';
-import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import TurnstileWidget from './TurnstileWidget';
+import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
 import { useContactForm } from '../../../hooks/useContactForm';
 import { ContactType } from '../../../types';
 import { SITE_CONFIG } from '../../../config/site';
@@ -21,18 +21,8 @@ interface InlineContactFormProps {
   type?: ContactType;
 }
 
-// Stała referencja — MUSI być poza komponentem. Inline `options={{...}}` tworzyło
-// nowy obiekt przy każdym renderze, przez co react-turnstile re-inicjalizował widget
-// (wielokrotne ładowanie api.js + zgubiony onloadTurnstileCallback -> brak tokenu).
-const TURNSTILE_OPTIONS = {
-  size: 'invisible',
-  execution: 'execute',
-  appearance: 'interaction-only',
-  language: 'pl',
-} as const;
-
 const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' }) => {
-  const turnstileRef = useRef<TurnstileInstance>(null);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
   // onClose nie ma sensu w inline kontekscie — pass no-op (Success render zostaje na stronie)
   const noop = () => {};
 
@@ -59,12 +49,7 @@ const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' 
   const currentConfig = FORM_CONFIG[type] || null;
 
   const turnstileWidget = (
-    <Turnstile
-      ref={turnstileRef}
-      siteKey={SITE_CONFIG.contact.turnstileSiteKey}
-      options={TURNSTILE_OPTIONS}
-      style={{ position: 'fixed', bottom: 0, right: 0, zIndex: -1 }}
-    />
+    <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
   );
 
   if (isSubmitted) {

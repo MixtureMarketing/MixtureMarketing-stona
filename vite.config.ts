@@ -65,7 +65,8 @@ export default defineConfig(({ mode }) => {
           //
           // NIE splituj: framer-motion (uzywane w lazy chunks - naturalnie split),
           // lucide-react (tree-shake), @sanity/* (uzywane w lazy templates),
-          // @portabletext/* (lazy), @marsidev/react-turnstile (ContactModal lazy).
+          // @portabletext/* (lazy). Turnstile: własny utils/turnstile (bez zależności npm —
+          // api.js ładowany runtime z CDN Cloudflare przez jawny render, po incydencie 2026-07-16).
           manualChunks(id) {
             if (!id.includes('node_modules')) return undefined;
             // Granularny split: router + helmet wydzielone z vendor-react-core,
