@@ -10,10 +10,8 @@ import {
   Briefcase,
 } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
-import AmbientBackground from '../common/AmbientBackground';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
-import HeroBadge from '../common/HeroBadge';
 import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
@@ -56,7 +54,7 @@ const ContactPage: React.FC = () => {
         `${SITE_CONFIG.contact.address.street}, ${SITE_CONFIG.contact.address.city}`,
       )}`,
       sub: `${SITE_CONFIG.contact.address.street} · pracujemy mobilnie — dojazd do klienta`,
-      color: '#00C853',
+      color: '#213261',
     },
   ];
 
@@ -68,22 +66,30 @@ const ContactPage: React.FC = () => {
         image={CONTENT.seo.image}
       />
 
-      {/* --- HERO SECTION --- */}
-      <section className="relative py-20 bg-deep-dark text-white overflow-hidden">
-        <AmbientBackground />
+      {/* Hero words-only (lift 2026-07-17) — badge „Start A Project" z pulsującą
+          kropką i gradient-text out; pod hero trzy POTWIERDZONE atuty
+          (45–60 min — decyzja właściciela, /contact twierdził „15-minutowa"). */}
+      <section className="relative py-24 bg-deep-dark text-white overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
 
         <Container className="relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <HeroBadge accent="primary" className="mb-6">
-              {CONTENT.hero.badge}
-            </HeroBadge>
+          <div className="max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
               {CONTENT.hero.title.line1} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                {CONTENT.hero.title.line2}
-              </span>
+              <span className="text-primary">{CONTENT.hero.title.line2}</span>
             </h1>
-            <p className="text-gray-300 text-lg">{CONTENT.hero.description}</p>
+            <p className="text-gray-300 text-lg mb-10">{CONTENT.hero.description}</p>
+
+            <ul className="flex flex-wrap gap-x-10 gap-y-4">
+              {CONTENT.highlights.map((h) => (
+                <li key={h.title}>
+                  <div className="text-sm font-black uppercase tracking-wider text-white">
+                    {h.title}
+                  </div>
+                  <div className="text-sm text-gray-300">{h.desc}</div>
+                </li>
+              ))}
+            </ul>
           </div>
         </Container>
       </section>
@@ -164,23 +170,27 @@ const ContactPage: React.FC = () => {
                       <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                         <div>
                           <div className="flex items-center gap-2 text-xxs text-gray-200 uppercase mb-1">
-                            <FileText size={12} /> {CONTENT.invoiceData.nipLabel}
+                            <FileText size={12} aria-hidden="true" /> {CONTENT.invoiceData.nipLabel}
                           </div>
-                          <div className="text-white font-bold text-xl tracking-wider text-primary">
+                          <div className="font-bold text-xl tracking-wider text-primary">
                             {CONTENT.invoiceData.nip}
                           </div>
                         </div>
                         <button
                           onClick={handleCopyNip}
                           className="p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all text-primary relative group"
-                          title="Skopiuj NIP"
+                          aria-label={copied ? 'NIP skopiowany' : 'Skopiuj NIP do schowka'}
                         >
                           {copied ? (
-                            <CheckCircle2 size={20} className="text-green-400" />
+                            <CheckCircle2 size={20} className="text-green-400" aria-hidden="true" />
                           ) : (
-                            <Copy size={20} />
+                            <Copy size={20} aria-hidden="true" />
                           )}
                         </button>
+                        {/* Potwierdzenie kopiowania także dla czytników ekranu */}
+                        <span aria-live="polite" className="sr-only">
+                          {copied ? 'NIP skopiowany do schowka' : ''}
+                        </span>
                       </div>
                     </div>
                   </div>
