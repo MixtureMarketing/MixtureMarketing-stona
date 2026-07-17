@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Activity } from 'lucide-react';
@@ -17,13 +17,39 @@ import {
 } from './admin/AdminModals';
 import { Client, Project, Lead, Milestone } from './types';
 
+// Moduł wycen — lazy chunk (nie wchodzi do głównego bundla; size-limit).
+const EstimationTab = lazy(() => import('./admin/estimation/EstimationTab'));
+
+type AdminTab = 'clients' | 'projects' | 'leads' | 'chat' | 'metrics' | 'wyceny';
+const ADMIN_TABS: readonly AdminTab[] = [
+  'clients',
+  'projects',
+  'leads',
+  'chat',
+  'metrics',
+  'wyceny',
+];
+const TAB_LABEL: Record<AdminTab, string> = {
+  clients: 'Clients',
+  projects: 'Projects',
+  leads: 'Leads',
+  chat: 'Chat',
+  metrics: 'Metrics',
+  wyceny: 'Wyceny',
+};
+
 const AdminDashboard: React.FC = () => {
   const { user, sessionToken, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'clients' | 'projects' | 'leads' | 'chat' | 'metrics'>(
-    'clients',
-  );
+  // Deep-link ?tab=wyceny (SPA fallback w _redirects) — zakładka z URL, fallback 'clients'.
+  const initialTab = ((): AdminTab => {
+    if (typeof window === 'undefined') return 'clients';
+    const t = new URLSearchParams(window.location.search).get('tab');
+    return (ADMIN_TABS as readonly string[]).includes(t ?? '') ? (t as AdminTab) : 'clients';
+  })();
+
+  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
   const {
@@ -151,14 +177,14 @@ const AdminDashboard: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-black text-dark">Admin Panel</h1>
           <div className="flex gap-4">
-            {(['clients', 'projects', 'leads', 'chat', 'metrics'] as const).map((tab) => (
+            {ADMIN_TABS.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`px-4 py-2 rounded-lg font-bold transition-colors flex items-center gap-2 ${activeTab === tab ? 'bg-dark text-white' : 'bg-white text-gray-600'}`}
               >
                 {tab === 'metrics' && <Activity size={18} />}
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {TAB_LABEL[tab]}
               </button>
             ))}
           </div>
@@ -212,6 +238,11 @@ const AdminDashboard: React.FC = () => {
             onConvert={handleConvertLead}
             onReply={setReplyingTo}
           />
+        )}
+        {activeTab === 'wyceny' && (
+          <Suspense fallback={<p className="text-gray-500">Ładowanie modułu wycen…</p>}>
+            <EstimationTab sessionToken={sessionToken} />
+          </Suspense>
         )}
         {activeTab === 'chat' && (
           <AdminChat

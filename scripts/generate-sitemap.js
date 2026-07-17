@@ -4,10 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { routes } from '../routes.js';
 import { createClient } from '@sanity/client';
 
+// Konwencja repo to `.env.local` (jak w Vite), nie `.env`. Bez argumentu `loadEnvFile`
+// czytał nieistniejący `.env`, więc `npm run build`/`sitemap` padał lokalnie na braku
+// `VITE_SANITY_PROJECT_ID`. Brak pliku (np. w CI, gdzie zmienne idą wprost z workflow)
+// jest w porządku — dlatego try/catch.
 try {
-  process.loadEnvFile();
-} catch (e) {
-  // Ignored
+  process.loadEnvFile('.env.local');
+} catch {
+  // brak .env.local (CI podaje zmienne przez env) — nieistotne
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

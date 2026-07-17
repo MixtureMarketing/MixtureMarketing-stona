@@ -8,10 +8,14 @@ import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
 
+// Konwencja repo to `.env.local` (jak w Vite), nie `.env`. Bez argumentu `loadEnvFile`
+// czytał nieistniejący `.env`, więc `npm run prerender`/`build:full` padał lokalnie na
+// `createClient` Sanity (brak `VITE_SANITY_PROJECT_ID`). Brak pliku (np. w CI, gdzie zmienne
+// idą wprost z workflow) jest w porządku — dlatego try/catch. Bliźniak fixu generate-sitemap (a2bb840).
 try {
-  process.loadEnvFile();
-} catch (e) {
-  // .env might not exist
+  process.loadEnvFile('.env.local');
+} catch {
+  // brak .env.local (CI podaje zmienne przez env) — nieistotne
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

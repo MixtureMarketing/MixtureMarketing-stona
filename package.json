@@ -81,6 +81,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^17.2.0",
     "jsdom": "^27.4.0",
+    "pdf-parse": "^2.4.5",
     "prettier": "^3.8.1",
     "puppeteer": "^24.36.1",
     "react-scan": "^0.4.3",

@@ -1,0 +1,19 @@
+# Config TYLKO do operacji na D1 (migracje + seedy) modułu wycen — lokalnie i (w przyszłości) CI.
+# CELOWO nazwany inaczej niż wrangler.toml: Cloudflare Pages czyta wyłącznie `wrangler.toml`/
+# `wrangler.jsonc`, więc TEN plik jest przez Pages IGNOROWANY → zero wpływu na deploy żywego situ.
+#
+# Użycie:
+#   Migracje (lokalnie / Miniflare):
+#     npx wrangler d1 migrations apply DB --local --config wrangler.d1.toml
+#   Seedy (kolejność: aspects → levels → archetypes → reszta):
+#     npx wrangler d1 execute DB --local --config wrangler.d1.toml --file=migrations/seed/aspects.sql
+#   Produkcja (dopiero po włączeniu kroku CI): --remote (wymaga CLOUDFLARE_API_TOKEN
+#     + prawdziwego database_id poniżej).
+
+name = "mixture-d1-tools"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"                    # zgodne z functions/api/**: env.DB
+database_name = "mixture-db"                          # produkcyjna baza D1 (potwierdzone)
+database_id = "8a11290b-b947-431a-996d-4bedd08ee988"  # prod D1 (identyfikator, nie sekret)

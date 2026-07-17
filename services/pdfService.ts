@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CalculatorSelections } from '../hooks/useCalculator';
+import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
+import { formatujLiczbe } from '@/lib/pdf/text';
 
 interface PdfData {
   selections: CalculatorSelections;
@@ -17,6 +19,9 @@ interface PdfData {
 export const generatePdf = async (data: PdfData): Promise<Blob> => {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
+  // Polskie znaki: wbudowany helvetica to WinAnsi (brak Latin Ext) — „Piłsudskiego", „Wstępny"
+  // wychodziły połamane w PDF-ie z naszym logo, wysyłanym klientom.
+  await registerPlFont(doc);
   const { selections, result, contact } = data;
 
   // --- CONFIG ---
@@ -30,13 +35,13 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
   // Logo placeholder (text for now, can be image)
   doc.setFontSize(24);
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.text('Mixture Marketing', margin, y);
 
   y += 10;
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.text('Software House & Marketing Agency', margin, y);
   doc.text('ul. Piłsudskiego 17/4, Rzeszów', margin, y + 5);
   doc.text('kontakt@mixturemarketing.pl', margin, y + 10);
@@ -54,7 +59,7 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
   y += 15;
   doc.setFontSize(18);
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.text('Wstępny Kosztorys Projektu', margin, y);
 
   // --- SUMMARY ---
@@ -73,9 +78,9 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
       doc.addPage();
       y = 30;
     }
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.text(`${label}:`, margin, y);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(PDF_FONT, 'normal');
 
     // Multi-line value handling
     const splitValue = doc.splitTextToSize(value, 120);
@@ -118,8 +123,11 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
   doc.text('Szacunkowy Budżet:', margin + 10, y);
 
   doc.setFontSize(20);
-  doc.setFont('helvetica', 'bold');
-  const priceRange = `${result.minPrice.toLocaleString()} - ${result.maxPrice.toLocaleString()}`;
+  doc.setFont(PDF_FONT, 'bold');
+  // formatujLiczbe, nie toLocaleString(): bez argumentu bierze locale przegladarki
+  // (polski dokument pokazywalby "11,400"), a z 'pl-PL' wstawia twarda spacje,
+  // ktora psuje i render, i pomiar szerokosci pod dopisek " PLN" nizej.
+  const priceRange = `${formatujLiczbe(result.minPrice)} - ${formatujLiczbe(result.maxPrice)}`;
   doc.text(priceRange, margin + 10, y + 15);
 
   const priceWidth = doc.getTextWidth(priceRange);
@@ -128,7 +136,7 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
   doc.text(' PLN', margin + 10 + priceWidth, y + 15);
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.setTextColor(180, 180, 180); // Light gray
   doc.text('*Kwoty netto', margin + 120, y + 15);
 
@@ -161,7 +169,7 @@ export const generatePdf = async (data: PdfData): Promise<Blob> => {
 
   y += 15;
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.text('Umów bezpłatną konsultację: +48 123 456 789 | www.mixturemarketing.pl', margin, y);
 
   return doc.output('blob');
