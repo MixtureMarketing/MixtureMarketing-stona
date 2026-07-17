@@ -24,6 +24,7 @@ const MetaAds = lazy(() => import('@/components/pages/MetaAds'));
 const MarketingSeo = lazy(() => import('@/components/pages/MarketingSeo'));
 const Analytics = lazy(() => import('@/components/pages/Analytics'));
 const ContactPage = lazy(() => import('@/components/pages/ContactPage'));
+const WycenaCalculator = lazy(() => import('@/components/pages/WycenaCalculator'));
 const PrivacyPolicy = lazy(() => import('@/components/pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('@/components/pages/TermsOfService'));
 const KnowledgeBase = lazy(() => import('@/components/pages/KnowledgeBase'));
@@ -88,6 +89,7 @@ export const appRoutes: RouteObject[] = [
   { path: '/', element: <Home /> },
   { path: '/offers', element: <Offers /> },
   { path: '/contact', element: <ContactPage /> },
+  { path: '/wycena', element: <WycenaCalculator /> },
   { path: '/o-nas', element: <AboutUs /> },
   { path: '/privacy-policy', element: <PrivacyPolicy /> },
   { path: '/terms', element: <TermsOfService /> },
