@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   ArrowRight,
   Building2,
-  Wrench,
   Sparkles,
   Phone,
 } from 'lucide-react';
@@ -23,8 +22,6 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import HeroBadge from '../common/HeroBadge';
-import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
@@ -37,7 +34,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku?',
       answer:
-        'Widełki cenowe w Mixture Marketing: prosty landing page od 3 900 zł, strona korporacyjna z CMS od 7 500 zł, sklep internetowy (Shoper/WooCommerce/dedykowany) od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
+        'Widełki cenowe w Mixture Marketing: prosty landing page od 2 500 zł, strona korporacyjna z CMS od 4 500 zł, sklep internetowy (Shoper/WooCommerce/dedykowany) od 6 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
     },
     {
       question: 'Jak długo trwa realizacja strony internetowej?',
@@ -89,14 +86,16 @@ const WebDevRzeszow: React.FC = () => {
         '@type': 'OfferCatalog',
         name: 'Pakiety stron internetowych Rzeszów',
         itemListElement: [
+          // Ceny zgodne z CMS (2026-07-17): landing 2 500, korporacyjna 4 500,
+          // sklep 6 000 — poprzednie wartości (3 900/7 500/12 000) właściciel
+          // kazał wyciąć już 16.07 na stronach usługowych.
           {
             '@type': 'Offer',
             itemOffered: { '@type': 'Service', name: 'Landing Page' },
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              price: '3900',
-              minPrice: '3900',
+              minPrice: '2500',
             },
           },
           {
@@ -105,7 +104,7 @@ const WebDevRzeszow: React.FC = () => {
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              minPrice: '7500',
+              minPrice: '4500',
             },
           },
           {
@@ -114,7 +113,7 @@ const WebDevRzeszow: React.FC = () => {
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              minPrice: '12000',
+              minPrice: '6000',
             },
           },
         ],
@@ -123,10 +122,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
-      },
+      // speakable usunięte — selektory itemprop wskazywały w próżnię (brak microdata w DOM)
       mainEntity: faq.map((f) => ({
         '@type': 'Question',
         name: f.question,
@@ -141,12 +137,7 @@ const WebDevRzeszow: React.FC = () => {
       name: 'Jak zamówić stronę internetową w Rzeszowie',
       description:
         'Pięciofazowy proces realizacji strony internetowej w Mixture Marketing dla firm z Rzeszowa i Podkarpacia.',
-      totalTime: 'P4W',
-      estimatedCost: {
-        '@type': 'MonetaryAmount',
-        currency: 'PLN',
-        value: '7500',
-      },
+      // totalTime/estimatedCost usunięte — wymyślona „średnia" wysyłana Google jako dana
       step: [
         {
           '@type': 'HowToStep',
@@ -197,60 +188,59 @@ const WebDevRzeszow: React.FC = () => {
         jsonLd={jsonLd}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-32 pb-20 relative z-10">
-        <Container>
-          {/* HERO */}
-          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <HeroBadge accent="secondary" className="mb-6">
-              Web Development · Rzeszów
-            </HeroBadge>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
-              Strony Internetowe{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Rzeszów
-              </span>
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — HeroBadge
+          i gradient-text out. */}
+      <div ref={heroRef} className="bg-deep-dark text-white pt-40 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        <Container className="relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Strony internetowe <span className="text-primary">Rzeszów</span>
               <br />
-              Tworzenie i Projektowanie WWW
+              tworzenie i projektowanie WWW
             </h1>
-            <p className="text-xl text-gray-600 mb-4">
+            <p className="text-xl text-gray-300 mb-4 max-w-3xl">
               Tworzymy strony WWW, sklepy e-commerce i aplikacje webowe dla firm z Rzeszowa, Mielca,
               Stalowej Woli, Krosna i Przemyśla. Pracujemy mobilnie — dojeżdżamy do klienta na
               terenie Podkarpacia, wycena widełkowa od pierwszego maila.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-8">
               <Button onClick={() => openModal('general', { specificType: 'webdev_rzeszow' })}>
                 Bezpłatna wycena
               </Button>
               <a
                 href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 border-2 border-white/15 text-white hover:border-primary hover:text-primary font-bold rounded-full transition-colors"
               >
                 <Phone size={18} aria-hidden="true" />
                 Zadzwoń: {SITE_CONFIG.contact.phone}
               </a>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-white/70 mt-3">
               Pn–Pt 9–17 · Wycena widełkowa w 24h · Bezpłatna konsultacja 45–60 min
             </p>
           </div>
+        </Container>
+      </div>
 
+      <div className="py-20 relative z-10">
+        <AmbientBackground />
+        <Container className="relative z-10">
           {/* H2: Dla firm z Rzeszowa i Podkarpacia */}
           <div className="mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
               Tworzenie stron internetowych dla firm z Rzeszowa i Podkarpacia
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Mixture Marketing to rzeszowski software house z adresem rejestrowym przy Al.
-              Piłsudskiego 17/4 (biuro wirtualne) — pracujemy mobilnie, dojeżdżamy do klienta na
+              Mixture Marketing to rzeszowska agencja i software house z adresem rejestrowym przy
+              Al. Piłsudskiego 17/4 (biuro wirtualne) — pracujemy mobilnie, dojeżdżamy do klienta na
               Podkarpaciu. Realizujemy projekty webowe — od prostych landing page&apos;y po
               zaawansowane systemy dedykowane. Pracujemy z lokalnymi firmami z Podkarpacia i
               klientami z całej Polski.
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <Building2 size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Realna lokalność</h3>
@@ -261,7 +251,7 @@ const WebDevRzeszow: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <Workflow size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Full-stack zespół</h3>
@@ -271,7 +261,7 @@ const WebDevRzeszow: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <Gauge size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Wydajność jako standard</h3>
@@ -296,43 +286,43 @@ const WebDevRzeszow: React.FC = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  <Layers className="text-blue-600" size={22} />
+                  <Layers className="text-secondary" size={22} />
                   Kiedy WordPress / Shoper?
                 </h3>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>
                       Strona firmowa z CMS dla nietechnicznego zespołu (marketing edytuje treść)
                     </span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Sklep z gotowymi integracjami: kurierzy, płatności, magazyn</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Budżet do 15 000 zł i czas realizacji 4–6 tygodni</span>
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
+                    <span>Niższy budżet i czas realizacji 4–6 tygodni</span>
                   </li>
                 </ul>
               </div>
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
-                  <Zap className="text-violet-600" size={22} />
+                  <Zap className="text-secondary" size={22} />
                   Kiedy Next.js / dedykowana aplikacja?
                 </h3>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Performance marketing — Core Web Vitals jako element strategii SEO</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Aplikacja SaaS / portal klienta / integracje z API zewnętrznymi</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Skala — przewidywany ruch &gt; 50 tys. sesji/mies, peak loads</span>
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
+                    <span>Duża skala ruchu i piki obciążenia</span>
                   </li>
                 </ul>
               </div>
@@ -406,60 +396,23 @@ const WebDevRzeszow: React.FC = () => {
               Wybrane projekty (część anonimizowana ze względu na NDA klientów). Pełne case studies
               prezentujemy na spotkaniu.
             </p>
-            <div className="grid md:grid-cols-3 gap-6">
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider mb-2">
-                  Producent · SSE Mielec
-                </p>
-                <h3 className="text-lg font-bold mb-2">Strona korporacyjna B2B + rekrutacja</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Headless Next.js + Sanity CMS. Wielojęzyczność (PL/EN/DE). Landing page
-                  rekrutacyjny dla 200+ stanowisk.
-                </p>
-                <p className="text-2xl font-extrabold text-orange-700">
-                  +<CountUp to={127} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">organic traffic w 6 miesięcy</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-2">
-                  E-commerce · Rzeszów
-                </p>
-                <h3 className="text-lg font-bold mb-2">Sklep B2B wyposażenia biurowego</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Shoper + custom moduł rabatów hurtowych. Integracja z systemem ERP klienta. 1200
-                  SKU.
-                </p>
-                <p className="text-2xl font-extrabold text-emerald-700">
-                  −<CountUp to={47} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">redukcja kosztu pozyskania klienta</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wider mb-2">
-                  Software House · Podkarpacie
-                </p>
-                <h3 className="text-lg font-bold mb-2">Rebranding + strona firmowa</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Next.js, animacje Framer Motion, blog techniczny z MDX. Wdrożenie systemu
-                  rekrutacyjnego.
-                </p>
-                <p className="text-2xl font-extrabold text-indigo-700">
-                  <CountUp to={3.2} decimals={1} suffix="×" />
-                </p>
-                <p className="text-xs text-gray-500">leady z formularza WWW</p>
-              </article>
-            </div>
-            <p className="text-center mt-8">
+            {/* Trzy anonimowe karty z metrykami (+127% / −47% / 3.2×) usunięte —
+                te same liczby powtarzały się na /agencja-seo-rzeszow z innymi
+                ramami czasowymi (odcisk palca generatora, nie pomiaru).
+                Dowód = podpisane case studies z CMS w portfolio. */}
+            <div className="text-center bg-white rounded-3xl p-10 border border-gray-100 shadow-sm max-w-3xl mx-auto">
+              <p className="text-lg text-gray-700 mb-6">
+                Nie pokazujemy tu anonimowych procentów. Podpisane realizacje — KorepetytorAI,
+                Impackt Edu, Fundacja Niepodzielni, Driftmark Marine i kolejne — znajdziesz w
+                portfolio z opisem zakresu prac.
+              </p>
               <Link
                 to="/portfolio/"
-                className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
+                className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
               >
-                Zobacz pełne portfolio realizacji <ArrowRight size={16} />
+                Zobacz pełne portfolio realizacji <ArrowRight size={16} aria-hidden="true" />
               </Link>
-            </p>
+            </div>
           </div>
 
           {/* H2: Proces */}
@@ -519,7 +472,7 @@ const WebDevRzeszow: React.FC = () => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Landing Page
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 3 900 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 2 500 zł</p>
                 <p className="text-sm text-gray-600">
                   Konwersyjna jedna strona pod kampanie Google Ads / Meta Ads. 7–14 dni.
                 </p>
@@ -528,16 +481,16 @@ const WebDevRzeszow: React.FC = () => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Strona firmowa
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 7 500 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 4 500 zł</p>
                 <p className="text-sm text-gray-600">
                   CMS, blog, formularz, integracje analityki. 4–8 tygodni.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-primary/40">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                   Sklep internetowy
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 12 000 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 6 000 zł</p>
                 <p className="text-sm text-gray-600">
                   Shoper / WooCommerce / dedykowany. Integracje kurier+płatności. 6–12 tyg.
                 </p>
@@ -559,13 +512,9 @@ const WebDevRzeszow: React.FC = () => {
           </div>
 
           {/* Internal link do SEO spoke */}
-          <div className="mb-20 bg-gradient-to-br from-violet-50 to-white rounded-3xl p-8 md:p-12 border border-violet-100">
+          <div className="mb-20 bg-blue-50/50 rounded-3xl p-8 md:p-12 border border-gray-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-100 text-violet-800 text-xs font-bold uppercase tracking-wider mb-4">
-                  <Wrench size={14} />
-                  <span>Połącz z marketingiem</span>
-                </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">Strona to dopiero początek</h3>
                 <p className="text-gray-600 mb-6">
                   Nawet najlepiej zaprojektowana strona bez ruchu organicznego i kampanii Ads
@@ -575,13 +524,13 @@ const WebDevRzeszow: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   <Link
                     to="/agencja-seo-rzeszow/"
-                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                    className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
                   >
                     Pozycjonowanie SEO w Rzeszowie <ArrowRight size={16} aria-hidden="true" />
                   </Link>
                   <Link
                     to="/agencja-interaktywna-rzeszow/"
-                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                    className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
                   >
                     Agencja interaktywna Rzeszów (pełna oferta 360°){' '}
                     <ArrowRight size={16} aria-hidden="true" />
@@ -670,7 +619,7 @@ const WebDevRzeszow: React.FC = () => {
                   <strong>Telefon:</strong>{' '}
                   <a
                     href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.phone}
                   </a>
@@ -679,7 +628,7 @@ const WebDevRzeszow: React.FC = () => {
                   <strong>E-mail:</strong>{' '}
                   <a
                     href={`mailto:${SITE_CONFIG.contact.email}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.email}
                   </a>
