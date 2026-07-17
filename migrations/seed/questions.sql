@@ -172,3 +172,11 @@ ON CONFLICT(code) DO UPDATE SET
   options_json = excluded.options_json, allow_unknown = excluded.allow_unknown,
   unknown_weight = excluded.unknown_weight, visible_if_json = excluded.visible_if_json,
   question_group = excluded.question_group, sort_order = excluded.sort_order, is_active = 1;
+
+-- f4a: podzbiór PUBLICZNY kalkulatora (visibility='public'). Kuratela treści = Level 2 (Jakub,
+-- zatwierdzone dla kontraktu v1). Kolumna visibility nie jest w INSERT-ach powyżej (default 'internal'),
+-- więc ustawiamy ją tu — UPDATE jest idempotentny i niezależny od ON CONFLICT wyżej.
+-- Zestaw: pytania, na które właściciel firmy bez IT odpowie samodzielnie (kontrakt §8).
+UPDATE est_questions SET visibility = 'public'
+ WHERE code IN ('project_goal', 'languages', 'views_count', 'users_type',
+                'sensitive_data', 'downtime_tolerance', 'custom_logic', 'frontend_headless');

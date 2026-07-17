@@ -21,6 +21,14 @@ INSERT INTO est_params (key, value, description) VALUES
   -- konkretny okres w cenie każdego projektu (draft f2a obiecywał 6 miesięcy — odrzucone).
   ('offer_terms',
    'Wycena obejmuje projekt, wdrożenie i uruchomienie zakresu opisanego powyżej.|Kod semantyczny zoptymalizowany pod SEO i wydajność (Core Web Vitals).|Zarządzanie treścią przez panel — edycja bez ryzyka uszkodzenia układu.|Okres wsparcia technicznego po wdrożeniu oraz warunki opieki (SLA) — zgodnie z wybranym pakietem utrzymaniowym, doprecyzowanym w umowie.|Widełki wynikają z zakresu ustalonego na dzień wystawienia; zmiana zakresu wymaga aneksu.|Ceny netto; nie zawierają licencji ani usług zewnętrznych wskazanych w „Kosztach dodatkowych".',
-   'f2a: warunki oferty, pozycje rozdzielone znakiem |. Treść zatwierdzona przez Jakuba (właściciel) — zobowiązanie umowne, spójne z S6 na stronie.')
+   'f2a: warunki oferty, pozycje rozdzielone znakiem |. Treść zatwierdzona przez Jakuba (właściciel) — zobowiązanie umowne, spójne z S6 na stronie.'),
+  -- f4a: parametry publicznego kalkulatora (docs/estimation/kontrakt-kalkulator-publiczny.md §8).
+  -- Transform prezentacyjny (§4) — poszerzenie/zaokrąglenie NIE zmieniają agregacji ani engine_version.
+  ('public_widen_k', '0.15', 'f4a: poszerzenie publicznych widełek (±15%) względem oferty silnika.'),
+  ('public_round_pln', '500', 'f4a: krok zaokrąglenia publicznych widełek [zł] (min w dół, max w górę).'),
+  ('public_rate_per_hour', '5', 'f4a: limit żądań publicznego POST na godzinę na IP (rate-limit KV).'),
+  ('public_archetype_fallback',
+   '{"sklep":"woocommerce","wizytowka":"wordpress","portal_tresci":"wordpress","aplikacja":"laravel","b2b":"laravel"}',
+   'f4a: fallback archetypu per cel, gdy reguły recommend_archetype nie zwrócą rekomendacji (kontrakt §5).')
 ON CONFLICT(key) DO UPDATE SET
   value = excluded.value, description = excluded.description;
