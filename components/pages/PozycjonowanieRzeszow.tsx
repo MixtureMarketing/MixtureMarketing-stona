@@ -20,7 +20,6 @@ import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import HeroBadge from '../common/HeroBadge';
 import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
@@ -34,12 +33,12 @@ const PozycjonowanieRzeszow: React.FC = () => {
     {
       question: 'Czy warto pozycjonować stronę firmową w Rzeszowie?',
       answer:
-        'Tak, jeżeli klient szuka Twojej usługi w Google. W Rzeszowie miesięcznie ~200–500 osób szuka usług lokalnych typu „dentysta Rzeszów", „kancelaria Rzeszów", „agencja marketingowa Rzeszów". Bez pozycjonowania konkurencja zbiera te kliknięcia za darmo. Inwestycja w SEO 1 200–3 500 zł/mies zwraca się przy stawce 200 zł za lead (typowo branża usługowa) już od 15 nowych zapytań/mies.',
+        'Tak, jeżeli klient szuka Twojej usługi w Google — frazy typu „dentysta Rzeszów" czy „kancelaria Rzeszów" mają stały, mierzalny popyt (sprawdzisz go w Google Keyword Planner). Bez pozycjonowania konkurencja zbiera te kliknięcia za darmo. Opłacalność liczysz prosto: koszt SEO na miesiąc podziel przez wartość jednego pozyskanego klienta w Twojej branży.',
     },
     {
       question: 'Ile kosztuje pozycjonowanie strony WWW w Rzeszowie?',
       answer:
-        'Cennik widełkowy Mixture Marketing 2026: lokalne SEO (jedno miasto, do 10 fraz) od 1 200 zł/mies; ogólnopolskie SEO (do 30 fraz) od 2 500 zł/mies; e-commerce SEO (500+ SKU) od 3 500 zł/mies; jednorazowy audyt techniczny od 1 900 zł. Wycena zależy od konkurencyjności branży, stanu wyjściowego strony i zakresu prac. Bezpłatna wstępna wycena po 45-minutowym calls.',
+        'Cennik widełkowy Mixture Marketing 2026: lokalne SEO (jedno miasto, do 10 fraz) od 1 200 zł/mies; ogólnopolskie SEO (do 30 fraz) od 2 500 zł/mies; e-commerce SEO (500+ SKU) od 3 500 zł/mies; jednorazowy audyt techniczny od 1 900 zł. Wycena zależy od konkurencyjności branży, stanu wyjściowego strony i zakresu prac. Bezpłatna wstępna wycena po 45-minutowej rozmowie.',
     },
     {
       question: 'Po jakim czasie pozycjonowanie zaczyna działać?',
@@ -140,10 +139,6 @@ const PozycjonowanieRzeszow: React.FC = () => {
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
-      },
       mainEntity: faq.map((f) => ({
         '@type': 'Question',
         name: f.question,
@@ -166,49 +161,50 @@ const PozycjonowanieRzeszow: React.FC = () => {
         jsonLd={jsonLd}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-32 pb-20 relative z-10">
-        <Container>
-          {/* HERO */}
-          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <HeroBadge accent="secondary" className="mb-6">
-              SEO · Rzeszów · Podkarpacie
-            </HeroBadge>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
-              Pozycjonowanie Stron{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Rzeszów
-              </span>
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — HeroBadge
+          i gradient-text out. */}
+      <div ref={heroRef} className="bg-deep-dark text-white pt-40 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        <Container className="relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Pozycjonowanie stron <span className="text-primary">Rzeszów</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-4">
+            <p className="text-xl text-gray-300 mb-4 max-w-3xl">
               Jak działa pozycjonowanie stron WWW, ile kosztuje, kiedy zobaczysz pierwsze efekty.
               Praktyczny przewodnik po lokalnym i ogólnopolskim SEO dla firm z Rzeszowa, Mielca,
               Stalowej Woli i Podkarpacia.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-8">
               <Button onClick={() => openModal('general', { specificType: 'seo_rzeszow' })}>
                 Bezpłatna konsultacja SEO
               </Button>
               <Link
                 to="/agencja-seo-rzeszow/"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-pink-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 border-2 border-white/15 text-white hover:border-primary hover:text-primary font-bold rounded-full transition-colors"
               >
                 <ArrowRight size={18} aria-hidden="true" />
                 Zobacz agencję SEO
               </Link>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-white/70 mt-3">
               Bezpłatna konsultacja 45–60 min · Cennik widełkowy w 24h
             </p>
           </div>
+        </Container>
+      </div>
 
+      <div className="py-20 relative z-10">
+        <AmbientBackground />
+        <Container className="relative z-10">
           {/* Stats strip */}
           <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {/* „200+ fraz w TOP 30" usunięte (niezmierzone — decyzja właściciela);
+                staż jako „od 2020" (doświadczenie zespołu), spółka od 2023. */}
             {[
-              { value: 6, suffix: '+', label: 'lat doświadczenia', decimals: 0 },
-              { value: 200, suffix: '+', label: 'fraz w TOP 30', decimals: 0 },
-              { value: 8, suffix: 'tyg', label: 'pierwszych efektów', decimals: 0 },
+              { value: 2020, prefix: 'od ', label: 'doświadczenie zespołu', decimals: 0 },
+              { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
+              { value: 8, suffix: ' tyg', label: 'pierwsze sygnały efektów', decimals: 0 },
               {
                 value: 1200,
                 prefix: 'od ',
@@ -274,7 +270,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
           </div>
 
           {/* H2: Specyfika lokalna Rzeszów */}
-          <div className="mb-20 max-w-4xl mx-auto bg-gradient-to-br from-pink-50 to-white rounded-3xl p-8 md:p-12 border border-pink-100">
+          <div className="mb-20 max-w-4xl mx-auto bg-blue-50/50 rounded-3xl p-8 md:p-12 border border-gray-100">
             <div className="flex items-center gap-3 mb-4">
               <MapPin size={32} className="text-primary" />
               <h2 className="text-3xl md:text-4xl font-bold">
@@ -287,18 +283,17 @@ const PozycjonowanieRzeszow: React.FC = () => {
                 Krakowa czy Wrocławia:
               </p>
               <div className="grid md:grid-cols-3 gap-4 mt-6">
-                <div className="bg-white p-5 rounded-2xl border border-pink-100">
-                  <p className="text-xs font-semibold text-pink-700 uppercase tracking-wider mb-2">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                  <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                     Konkurencja
                   </p>
                   <p className="text-sm">
                     <strong>Mniejsza niż w Warszawie</strong>, ale rosnąca — Aviation Valley, SSE
-                    Mielec i napływ kapitału IT (Asseco, ITSG, Pegasystems) podnoszą popyt na SEO
-                    B2B.
+                    Mielec i napływ kapitału IT podnoszą popyt na SEO B2B.
                   </p>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-pink-100">
-                  <p className="text-xs font-semibold text-pink-700 uppercase tracking-wider mb-2">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                  <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                     Frazy
                   </p>
                   <p className="text-sm">
@@ -306,8 +301,8 @@ const PozycjonowanieRzeszow: React.FC = () => {
                     — łatwiejsze do wypozycjonowania niż ogólnopolskie head terms.
                   </p>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-pink-100">
-                  <p className="text-xs font-semibold text-pink-700 uppercase tracking-wider mb-2">
+                <div className="bg-white p-5 rounded-2xl border border-gray-100">
+                  <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                     Backlinki
                   </p>
                   <p className="text-sm">
@@ -317,9 +312,10 @@ const PozycjonowanieRzeszow: React.FC = () => {
                 </div>
               </div>
               <p className="mt-6">
-                <strong>Skutek:</strong> firma w Rzeszowie inwestująca 1 500–2 500 zł/mies w SEO
-                lokalne typowo osiąga TOP 10 dla 5–10 fraz w 4–8 miesięcy. Ten sam budżet w
-                Warszawie wystarcza często tylko na utrzymanie pozycji.
+                <strong>Skutek:</strong> ten sam budżet SEO idzie w Rzeszowie dalej niż w Warszawie
+                — mniejsza konkurencja w SERP oznacza szybsze, widoczne postępy dla fraz lokalnych.
+                Konkretnych pozycji nie obiecujemy (patrz FAQ) — pokazujemy je w miesięcznych
+                raportach.
               </p>
             </div>
           </div>
@@ -361,7 +357,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
                   name: 'Audyt SEO',
                   price: 'od 1 900',
                   suffix: 'zł (jednorazowo)',
-                  desc: 'Pełny audyt techniczny, on-page, content, konkurencji. 40+ stron raportu.',
+                  desc: 'Pełny audyt techniczny, on-page, content, konkurencji. obszerny raport.',
                   bestFor: 'Punkt startowy, second opinion',
                 },
               ].map((p) => (
@@ -372,7 +368,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
                   }`}
                 >
                   {p.highlight && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                       Najczęściej wybierane
                     </span>
                   )}
@@ -458,19 +454,19 @@ const PozycjonowanieRzeszow: React.FC = () => {
                 </div>
                 <ul className="text-gray-600 space-y-2 text-sm mb-4">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Mniejsza konkurencja → szybsze efekty (3–6 mies)</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Niższy budżet (od 1 200 zł/mies)</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Map Pack + Google Business Profile</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Idealne: usługi B2C, lokalne sklepy, gabinety</span>
                   </li>
                 </ul>
@@ -482,19 +478,19 @@ const PozycjonowanieRzeszow: React.FC = () => {
                 </div>
                 <ul className="text-gray-600 space-y-2 text-sm mb-4">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Większy zasięg, dłuższy horyzont (6–12 mies)</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Wyższy budżet (od 2 500 zł/mies)</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Content marketing + link building</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Idealne: B2B, SaaS, e-commerce ogólnopolskie</span>
                   </li>
                 </ul>
@@ -503,10 +499,10 @@ const PozycjonowanieRzeszow: React.FC = () => {
           </div>
 
           {/* Cluster — link do agencji */}
-          <div className="mb-20 bg-gradient-to-br from-violet-50 to-white rounded-3xl p-8 md:p-12 border border-violet-100">
+          <div className="mb-20 bg-gradient-to-br from-violet-50 to-white rounded-3xl p-8 md:p-12 border border-gray-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-100 text-violet-800 text-xs font-bold uppercase tracking-wider mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-4">
                   <Calendar size={14} />
                   <span>Kolejny krok</span>
                 </div>
@@ -519,7 +515,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
                 </p>
                 <Link
                   to="/agencja-seo-rzeszow/"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white font-bold rounded-full hover:bg-pink-700 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white font-bold rounded-full hover:bg-secondary/90 transition-colors"
                 >
                   Agencja SEO Rzeszów <ArrowRight size={18} />
                 </Link>
@@ -598,7 +594,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
               </Button>
               <a
                 href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-pink-50 hover:text-secondary font-bold rounded-full transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors"
               >
                 <Phone size={18} aria-hidden="true" />
                 Zadzwoń: {SITE_CONFIG.contact.phone}
