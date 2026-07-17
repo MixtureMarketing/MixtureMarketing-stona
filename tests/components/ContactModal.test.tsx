@@ -6,20 +6,19 @@ import { ModalProvider } from '../../context/ModalContext';
 import { leadService } from '../../services/leadService';
 import { ContactType } from '../../types';
 
-// Mock dependencies — Turnstile widget z .executeAsync() na ref.
+// Mock TurnstileWidget — handle imperatywne { getToken, reset } (jak utils/turnstile).
 // vi.mock factory jest hoisted; uzywamy React z await import wewnatrz.
-vi.mock('@marsidev/react-turnstile', async () => {
+vi.mock('../../components/features/contact/TurnstileWidget', async () => {
   const ReactMod = await import('react');
-  const Turnstile = ReactMod.forwardRef<unknown, unknown>((_props, ref) => {
+  const TurnstileWidget = ReactMod.forwardRef<unknown, unknown>((_props, ref) => {
     ReactMod.useImperativeHandle(ref, () => ({
-      executeAsync: () => Promise.resolve('dummy-turnstile-token'),
+      getToken: () => Promise.resolve('dummy-turnstile-token'),
       reset: () => undefined,
-      getResponse: () => 'dummy-turnstile-token',
     }));
     return null;
   });
-  Turnstile.displayName = 'TurnstileMock';
-  return { Turnstile };
+  TurnstileWidget.displayName = 'TurnstileWidgetMock';
+  return { default: TurnstileWidget };
 });
 
 vi.mock('../../services/leadService', () => ({

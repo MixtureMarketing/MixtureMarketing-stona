@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
-import { Turnstile } from '@marsidev/react-turnstile';
-import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import TurnstileWidget from './contact/TurnstileWidget';
+import type { TurnstileWidgetHandle } from '../../utils/turnstile';
 import Modal from '../common/Modal';
 import { useModal } from '../../context/ModalContext';
 import { ContactType } from '../../types';
@@ -20,19 +20,9 @@ interface ContactModalProps {
   type: ContactType;
 }
 
-// Stała referencja — poza komponentem, żeby react-turnstile nie re-inicjalizował
-// widgetu przy każdym renderze (inline obiekt = nowa referencja = wielokrotne
-// ładowanie api.js i zgubiony onloadTurnstileCallback).
-const TURNSTILE_OPTIONS = {
-  size: 'invisible',
-  execution: 'execute',
-  appearance: 'interaction-only',
-  language: 'pl',
-} as const;
-
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) => {
   const { additionalData } = useModal();
-  const turnstileRef = useRef<TurnstileInstance>(null);
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
 
   const {
     step,
@@ -60,16 +50,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, type }) =>
 
   const step2Content = getStep2Fallback(type);
 
-  // Invisible Turnstile widget — render zawsze gdy modal otwarty, zeby
-  // executeAsync() byl gotowy. Widget jest poza modalem (fixed position)
-  // bo modal moze byc zamykany/otwierany dynamicznie a my chcemy stabilny ref.
+  // Niewidoczny widget Turnstile — renderowany gdy modal otwarty. Jawny render przez
+  // utils/turnstile (bez onload-callbacku); widget poza modalem (fixed) dla stabilnego ref.
   const turnstileWidget = isOpen && (
-    <Turnstile
-      ref={turnstileRef}
-      siteKey={SITE_CONFIG.contact.turnstileSiteKey}
-      options={TURNSTILE_OPTIONS}
-      style={{ position: 'fixed', bottom: 0, right: 0, zIndex: -1 }}
-    />
+    <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
   );
 
   if (isSubmitted) {

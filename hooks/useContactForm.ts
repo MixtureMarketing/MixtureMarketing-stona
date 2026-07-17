@@ -5,15 +5,15 @@ import { contactSchema } from '../types/validation';
 import { useModal } from '../context/ModalContext';
 import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
-import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { ContactFormData } from '../components/features/contact/types';
-import { executeTurnstileWithTimeout, isLocalhost } from '../utils/contactFormHelpers';
+import { isLocalhost } from '../utils/contactFormHelpers';
 import { trackEvent } from '../utils/analytics';
 
 export const useContactForm = (
   type: ContactType,
   onClose: () => void,
-  turnstileRef?: RefObject<TurnstileInstance | null>,
+  turnstileRef?: RefObject<TurnstileWidgetHandle | null>,
 ) => {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -23,7 +23,11 @@ export const useContactForm = (
   const { additionalData } = useModal();
   const isInitialized = useRef(false);
 
-  const getCaptchaToken = async () => executeTurnstileWithTimeout(turnstileRef?.current ?? null);
+  const getCaptchaToken = async (): Promise<string> => {
+    const handle = turnstileRef?.current;
+    if (!handle) throw new Error('TURNSTILE_NOT_READY');
+    return handle.getToken();
+  };
   const resetCaptcha = () => turnstileRef?.current?.reset();
 
   const formMethods = useForm<ContactFormData>({
