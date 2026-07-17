@@ -50,13 +50,24 @@ Pliki: `services/calculatorService.ts`, `components/features/calculator/{formLog
 | Stany loading/429/403/sieć po ludzku, bez reloadu | `usePublicCalculator.test` (429 → komunikat, phase ready); `humanError` test |
 | Wszystko nowe w **lazy chunku** | size-limit: kalkulator `WycenaCalculator-*.js` 12 kB; index.js bez wzrostu |
 | `build:full` zielony, typecheck bez nowych błędów | jw. |
-| **Routing `/wycena/` 200 z Pages** | ⏸ **do preview/prod** (ZASADY §1 — nie dowodzę lokalnie) |
-| **E2E preview: UI 200 + `priceRange` z Turnstile** | ⏸ **blokada: brak żywego tokenu CF** (placeholder `[JAKUB WKLEJA]`; §5 — nie wskrzeszam z historii) |
+| **Routing `/wycena/` 200 z Pages** | ✅ **preview** `f4b-preview.mixturemarketing-stona.pages.dev/wycena/` → **200**, title „Kalkulator wyceny…", intro prerenderowane |
+| **Przepływ UI (data-driven, kroki, walidacja, submit, obsługa błędu)** | ✅ **E2E puppeteer na preview**: formularz z API, wybór celu, kroki, e-mail, submit; Turnstile fail → komunikat po ludzku (zero cichej porażki) |
+| **E2E: realny submit → 200 + `priceRange`** | ⏸ **do smoke prod** — Turnstile odrzuca hostname `*.pages.dev` (sitekey zawężony do `mixturemarketing.pl`); na prodzie host dozwolony (f4a: realny token → 200 + priceRange). Prod D1 czysty (POST nie poszedł) |
 
 ## Ryzyka i długi
-1. **Preview-E2E + routing-na-Pages niedowiedzione** — czekają wyłącznie na token CF (Pages:Edit, TTL 24h). Cała logika UI pokryta testami; brakuje warstwy Pages/real-Turnstile.
-2. **Stary kalkulator** dubluje funkcję do czasu wygaszenia — świadome, decyzja L2 o timingu.
-3. **Weryfikacja draft/lead w D1 + sprzątanie wpisów testowych (preview I prod)** = sesja wycen (granica własności) — po smoke prod.
+1. **Realny submit → priceRange tylko na prodzie** — Turnstile odrzuca `*.pages.dev` (sitekey
+   zawężony do `mixturemarketing.pl`). Do smoke prod; alternatywa: dodać `pages.dev` w konfigu
+   Turnstile na czas testu (decyzja Jakuba). Reszta ścieżki UI dowiedziona na preview.
+2. **🔴 Znalezisko środowiskowe (build hygiene):** prerender łączy się z `vite preview` na stałym
+   porcie **4173**; **osierocone `vite preview` z drugiego worktree (`MM-site`)** trzymało 4173 i
+   serwowało STARY dist bez `/wycena` — przez co prerender `/wycena` dawał 404, a wszystkie HTML-e
+   miały nieaktualny hash. Wykryte i naprawione (ubito 24 osierocone procesy → czysty build →
+   `/wycena` prerenderuje się poprawnie). **Dług:** prerender powinien używać losowego/wolnego portu
+   albo ubijać stale-listenery przed startem; do backlogu (dotyczy każdego builda, nie tylko f4b).
+3. **Stary kalkulator** dubluje funkcję do czasu wygaszenia — świadome, decyzja L2 o timingu.
+4. **Weryfikacja draft/lead w D1 + sprzątanie wpisów testowych** = sesja wycen (granica własności) —
+   po smoke prod. Z preview NIC nie powstało (Turnstile zablokował POST), więc do sprzątnięcia będzie
+   wyłącznie ewentualny przebieg smoke prod.
 
 ## Propozycja następnego kroku
 1. **Świeży token CF** (Pages:Edit) → preview deploy → dowód UI (200 + `priceRange`, zrzut/JSON) + `/wycena/` 200 z Pages.
