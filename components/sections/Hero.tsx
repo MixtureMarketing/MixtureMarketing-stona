@@ -1,161 +1,167 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Mouse, MapPin } from 'lucide-react';
+import { ArrowRight, MapPin, Pause, Play } from 'lucide-react';
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Button from '../common/Button';
-import AmbientBackground from '../common/AmbientBackground';
-import HeroBadge from '../common/HeroBadge';
-import TextReveal from '../common/TextReveal';
-import { BrowserMockup, CodeSnippet, AdsDashboardMini } from '../visuals/hero/HomeHeroDecorations';
-import { useMousePosition } from '../../hooks/useMousePosition';
-import { useWindowSize } from '../../hooks/useWindowSize';
-import { HERO_CONTENT } from '../../data/content';
+import TrustMarquee from '../common/TrustMarquee';
+import MixtureField from '../visuals/hero/MixtureField';
+import { HERO_CONTENT, HERO_TRUST } from '../../data/content';
 
 interface HeroProps {
   onOpenModal?: () => void;
 }
 
+/**
+ * Hero „Scena Mixture" — monumentalna typografia na sygnaturowym wizualu
+ * generatywnym: inżynierska siatka kropek, przez którą płyną i mieszają się
+ * barwne prądy marki (precyzja × kreatywność = Mixture, dosłownie).
+ * Zero atrap, zero zrzutów realizacji, zero wymyślonych liczb — dowód niesie
+ * typograficzny pas realizacji (TrustMarquee) i sekcje poniżej.
+ *
+ * LCP = tekst H1 (widoczny domyślnie, prerender-safe). Canvas montuje się
+ * dopiero po hydratacji (dynamiczny import silnika); prerender i no-JS widzą
+ * czysty granat z poświatami CSS. Reduced-motion: statyczna klatka pola.
+ *
+ * Scroll-takeover (desktop, motion-safe — klasy hero-runway/hero-pin w Home):
+ * hero jest przypięty, arkusz „Kompetencji" najeżdża od dołu, silnik rozpycha
+ * kropki przed jego krawędzią, a treść (--cover) lekko ucieka i gaśnie.
+ */
 const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
   const navigate = useNavigate();
-  const mousePosition = useMousePosition();
-  const windowSize = useWindowSize();
-
-  const scrollToServices = () => {
-    const element = document.getElementById('services');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Calculate percentage for spotlight
-  const spotlightX = (mousePosition.x / (windowSize.width || 1)) * 100;
-  const spotlightY = (mousePosition.y / (windowSize.height || 1)) * 100;
+  // Pauza ruchu ciągłego (scena + marquee) — wymóg WCAG 2.2.2 (pause/stop/hide).
+  const [motionPaused, setMotionPaused] = useState(false);
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-gray-50">
-      <AmbientBackground />
+    <section className="relative flex min-h-screen flex-col overflow-hidden bg-deep-dark pt-28 md:pt-32">
+      {/* Baza sceny — głębia + poświaty w kolorach prądów (widoczne też w prerenderze) */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            'linear-gradient(180deg, var(--color-deep-dark) 0%, #0d1529 55%, var(--color-deep-dark) 100%),' +
+            'radial-gradient(42% 34% at 26% 24%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 64%),' +
+            'radial-gradient(38% 34% at 76% 72%, color-mix(in srgb, var(--color-secondary) 14%, transparent), transparent 66%)',
+          backgroundBlendMode: 'normal, screen, screen',
+        }}
+      />
 
-      {/* Grain Overlay */}
-      <div className="absolute inset-0 z-[1] bg-grain pointer-events-none"></div>
-
-      {/* --- FLOATING DECORATIONS (PARALLAX + FLOAT) --- */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <BrowserMockup mousePosition={mousePosition} />
-        <CodeSnippet mousePosition={mousePosition} />
-        <AdsDashboardMini mousePosition={mousePosition} />
+      {/* Pole mieszania — siatka × prądy (canvas, klient-only) */}
+      <div className="pointer-events-none absolute inset-0 z-[1]">
+        <MixtureField paused={motionPaused} />
       </div>
 
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-5xl mx-auto">
-          <AnimateOnScroll>
-            <HeroBadge accent="primary" className="mb-8 md:mb-10">
-              {HERO_CONTENT.badge}
-            </HeroBadge>
+      {/* Winieta — wtapia krawędzie pola w mrok, prowadzi wzrok do środka */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[2]"
+        style={{
+          background:
+            'radial-gradient(118% 88% at 50% 44%, transparent 52%, rgba(5,9,20,0.72) 100%)',
+        }}
+      />
 
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-8 md:mb-10 leading-[1.05] md:leading-[0.95]">
-              <TextReveal delay={100} className="text-dark" priority>
-                {HERO_CONTENT.title.line1}
-              </TextReveal>
-              <TextReveal delay={300} className="text-dark" priority>
-                {HERO_CONTENT.title.line2}
-              </TextReveal>
-              <span
-                className="text-transparent bg-clip-text block mt-2 md:mt-4 pb-2 relative inline-block animate-fade-in transition-all duration-300"
-                style={{
-                  animationDelay: '0.6s',
-                  backgroundImage:
-                    windowSize.width > 1024
-                      ? `radial-gradient(circle at ${spotlightX}% ${spotlightY}%, #61B6DE 0%, #213261 60%)`
-                      : `linear-gradient(90deg, #61B6DE, #213261)`,
-                  backgroundSize: '200% 200%',
-                }}
-              >
-                {/*
-                  Tekst renderowany BEZPOSREDNIO (bez TextReveal). Powod: gradient
-                  jest nakladany przez background-clip:text na TYM spanie, a
-                  `-webkit-background-clip:text` nie maluje przez dziecko z wlasnym
-                  `transform`. TextReveal owija kazde slowo w `.reveal-text-item`,
-                  ktory po animacji zostaje na `transform: translateY(0)` (warstwa
-                  kompozytowa) — przez co gradientowe slowa staja sie niewidoczne.
-                  Fade-in dziedziczony z `animate-fade-in` na rodzicu.
-                */}
-                {HERO_CONTENT.title.line3}
-                <div className="absolute bottom-0 left-0 w-full h-[4px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-30 blur-[1px]"></div>
-              </span>
-            </h1>
-          </AnimateOnScroll>
+      {/* Grain — spójny z resztą sceny */}
+      <div
+        className="pointer-events-none absolute inset-0 z-[3] opacity-[0.05]"
+        style={{ backgroundImage: "url('/assets/noise.svg')", backgroundSize: '160px 160px' }}
+        aria-hidden="true"
+      />
 
-          <AnimateOnScroll delay={1000}>
-            <p className="text-lg md:text-2xl text-gray-700 mb-10 md:mb-14 max-w-2xl mx-auto leading-relaxed font-medium px-4 md:px-0">
-              {HERO_CONTENT.description}
-            </p>
-
-            <div className="flex flex-col gap-6 items-center relative z-20 px-4 sm:px-0">
-              <div className="flex flex-col sm:flex-row gap-4 md:gap-5 justify-center items-center w-full">
-                <Button
-                  onClick={() => navigate('/audyt-360/')}
-                  variant="primary"
-                  size="lg"
-                  className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg shadow-2xl shadow-secondary/30 motion-safe:hover:scale-105 transition-transform duration-300"
-                  icon={<ArrowRight size={22} />}
-                >
-                  Darmowy audyt strony w 60s
-                </Button>
-
-                <Button
-                  onClick={() => navigate('/offers#calculator')}
-                  variant="secondary"
-                  size="lg"
-                  className="w-full sm:w-auto h-14 md:h-16 px-10 text-lg border-gray-200"
-                >
-                  Oblicz wycenę projektu
-                </Button>
-              </div>
-
-              {/* Micro-copy under CTA — trust signals (BH3 legal-biznesowy) */}
-              <div
-                className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xxs font-black text-gray-600 uppercase tracking-[0.2em] mt-4 animate-fade-in"
-                style={{ animationDelay: '1.5s' }}
-              >
-                <span className="flex items-center gap-2">
-                  <Zap size={14} className="text-amber-400 fill-amber-400" aria-hidden="true" />
-                  {HERO_CONTENT.microCopy.responseTime}
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-200" aria-hidden="true"></span>
-                <span>Sp. z&nbsp;o.o. PL · NIP w&nbsp;stopce</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-200" aria-hidden="true"></span>
-                <span>{HERO_CONTENT.microCopy.noObligation}</span>
-              </div>
-
-              {/* Lokalny anchor — wzmacnia istotne 'Agencja Marketingowa Rzeszów' i kieruje do pillar /miasto/rzeszow/ */}
-              <Link
-                to="/miasto/rzeszow/"
-                className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors mt-2 underline-offset-4 hover:underline"
-                style={{ animationDelay: '1.7s' }}
-              >
-                <MapPin size={14} className="text-primary" />
-                <span>
-                  Z biura w Rzeszowie obsługujemy całą Polskę —{' '}
-                  <strong className="font-semibold">Agencja Marketingowa Rzeszów</strong>
-                </span>
-              </Link>
-            </div>
-          </AnimateOnScroll>
-        </div>
-      </div>
-
-      {/* --- SCROLL INDICATOR --- */}
-      <button
-        type="button"
-        onClick={scrollToServices}
-        aria-label="Przewiń do sekcji usług"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 motion-safe:animate-bounce cursor-pointer opacity-50 hover:opacity-100 focus-visible:opacity-100 transition-opacity rounded-full p-2"
+      {/* --cover (0..1, ustawiane przez MixtureField przy scroll-takeover):
+          treść lekko ucieka w górę i gaśnie, gdy arkusz „Kompetencji" najeżdża */}
+      <div
+        data-hero-covers
+        className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-14 text-center sm:px-6"
+        style={{
+          // Ucieczka treści pod arkusz: unosi się, delikatnie maleje i gaśnie —
+          // skala dodaje głębi, której samo przesunięcie nie miało.
+          transform:
+            'translate3d(0, calc(var(--cover, 0) * -48px), 0) scale(calc(1 - var(--cover, 0) * 0.05))',
+          opacity: 'calc(1 - var(--cover, 0) * 0.45)',
+        }}
       >
-        <span className="flex flex-col items-center gap-2">
-          <span className="text-xxs font-black uppercase tracking-[0.2em] text-dark">Scroll</span>
-          <Mouse size={24} className="text-primary" aria-hidden="true" />
-        </span>
-      </button>
+        <AnimateOnScroll>
+          <h1 className="text-balance tracking-tight text-white">
+            <span className="block text-2xl font-medium text-white/60 sm:text-3xl lg:text-4xl">
+              {HERO_CONTENT.title.line1} {HERO_CONTENT.title.line2}
+            </span>
+            <span className="mt-4 block text-[clamp(3rem,8.5vw,6rem)] font-black leading-[1.04]">
+              Wybierz <span className="text-primary">Partnera</span>.
+            </span>
+          </h1>
+        </AnimateOnScroll>
+
+        <AnimateOnScroll delay={450}>
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-white/75 md:text-xl">
+            {HERO_CONTENT.description}
+          </p>
+
+          <div className="mt-10 flex flex-col items-center justify-center gap-5 sm:flex-row sm:gap-7">
+            <Button
+              onClick={() => navigate('/audyt-360/')}
+              variant="primary"
+              size="lg"
+              className="h-14 w-full px-9 text-base shadow-2xl shadow-secondary/30 motion-safe:hover:scale-[1.03] sm:w-auto md:h-16 md:text-lg"
+              icon={<ArrowRight size={22} />}
+            >
+              Darmowy audyt strony w 60s
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/offers#calculator')}
+              className="group inline-flex min-h-11 items-center gap-2 px-2 text-base font-medium text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
+            >
+              Oblicz wycenę projektu
+              <ArrowRight
+                size={18}
+                aria-hidden="true"
+                className="transition-transform group-hover:translate-x-1"
+              />
+            </button>
+          </div>
+
+          <Link
+            to="/miasto/rzeszow/"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 px-2 text-sm text-white/55 transition-colors hover:text-white/85"
+          >
+            <MapPin size={15} className="text-primary" aria-hidden="true" />
+            <span>Rzeszów i cała Polska</span>
+          </Link>
+        </AnimateOnScroll>
+      </div>
+
+      {/* Typograficzny pas realizacji — uczciwy dowód bez zrzutów (logo klientów
+          podmienimy tu bez zmiany struktury, gdy prawa będą zebrane).
+          Przycisk pauzy zatrzymuje marquee + scenę (WCAG 2.2.2); ukryty przy
+          reduced-motion, bo wtedy nic się nie rusza. */}
+      <div
+        data-hero-covers
+        className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6 md:pb-32"
+      >
+        <AnimateOnScroll delay={650}>
+          <div className="flex items-center gap-4">
+            <TrustMarquee
+              className="min-w-0 flex-1"
+              label={HERO_TRUST.label}
+              items={HERO_TRUST.items}
+              paused={motionPaused}
+            />
+            <button
+              type="button"
+              onClick={() => setMotionPaused((p) => !p)}
+              aria-pressed={motionPaused}
+              aria-label={motionPaused ? 'Wznów animacje tła' : 'Zatrzymaj animacje tła'}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/60 transition-colors hover:border-white/35 hover:text-white motion-reduce:hidden"
+            >
+              {motionPaused ? (
+                <Play size={15} aria-hidden="true" />
+              ) : (
+                <Pause size={15} aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </AnimateOnScroll>
+      </div>
     </section>
   );
 };

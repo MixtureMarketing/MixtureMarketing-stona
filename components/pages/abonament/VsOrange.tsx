@@ -49,9 +49,10 @@ const COMPARE_ROWS = [
     orange: { status: 'mid', text: 'Platforma (bez transparentności)' },
   },
   {
+    // Bez wymyślonej liczby LCP konkurenta (reklama porównawcza bez pomiaru)
     label: 'Czas ładowania (LCP)',
     mixture: { status: 'ok', text: '<1s Cloudflare edge' },
-    orange: { status: 'mid', text: '~2s (Orange infra)' },
+    orange: { status: 'mid', text: 'Zależny od platformy' },
   },
   {
     label: 'Pakiet RODO+ (DPA jako procesor)',
@@ -278,7 +279,7 @@ const VsOrange: React.FC = () => {
                     Wartość
                   </th>
                   <th className="text-right py-3 text-xs font-black uppercase tracking-[0.15em] text-gray-500">
-                    Cena u dewelopera/agencji
+                    Cena u dewelopera/agencji (szacunkowo)
                   </th>
                   <th className="text-right py-3 text-xs font-black uppercase tracking-[0.15em] text-emerald-700">
                     W Mixture
@@ -300,7 +301,7 @@ const VsOrange: React.FC = () => {
                   </tr>
                 ))}
                 <tr className="border-t-2 border-emerald-200">
-                  <td className="pt-4 font-black text-dark">RAZEM (rynkowa wartość)</td>
+                  <td className="pt-4 font-black text-dark">RAZEM (szacunek rynkowy)</td>
                   <td className="pt-4 text-right font-extrabold text-dark">~ 700 zł / mc</td>
                   <td className="pt-4 text-right font-extrabold text-emerald-700 text-base">
                     + 140 zł

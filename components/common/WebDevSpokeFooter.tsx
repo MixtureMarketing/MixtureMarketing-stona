@@ -33,7 +33,7 @@ const ALL_SPOKES: {
   {
     type: 'ecommerce',
     title: 'Sklepy internetowe',
-    desc: 'Shoper, WooCommerce, dedykowany Next.js+Sanity, integracje płatności.',
+    desc: 'WooCommerce, PrestaShop, przy nietypowej sprzedaży Medusa.js/Sylius. Płatności i BaseLinker.',
     path: '/web-development/ecommerce/',
     icon: ShoppingCart,
     accent: 'bg-emerald-100 text-emerald-700',

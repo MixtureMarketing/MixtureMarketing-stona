@@ -56,12 +56,8 @@ import '@fontsource/manrope/latin-400.css';
 import '@fontsource/manrope/latin-ext-400.css';
 import '@fontsource/manrope/latin-800.css';
 import '@fontsource/manrope/latin-ext-800.css';
-import '@fontsource/montserrat/latin-900.css';
-import '@fontsource/montserrat/latin-ext-900.css';
-import '@fontsource/playfair-display/latin-400.css';
-import '@fontsource/playfair-display/latin-ext-400.css';
-import '@fontsource/playfair-display/latin-700.css';
-import '@fontsource/playfair-display/latin-ext-700.css';
+// Montserrat + Playfair przeniesione do BrandDnaMixer (jedyny użytkownik) —
+// ładują się z lazy chunkiem /design/branding zamiast na każdej stronie.
 
 // Initialize accessibility auditor in development
 if (import.meta.env.DEV) {

@@ -4,6 +4,7 @@ import { useModal } from '@/context/ModalContext';
 import Seo from '@/components/common/Seo';
 import Hero from '@/components/sections/Hero';
 import StickyMobileBar from '@/components/common/StickyMobileBar';
+import { usePagePulse } from '@/hooks/useSectionProgress';
 import { SITE_CONFIG } from '@/config/site';
 
 // These components were defined inline in App.tsx, moving them here to separate file
@@ -12,6 +13,7 @@ const WhyUs = lazy(() => import('@/components/sections/WhyUs'));
 const Services = lazy(() => import('@/components/sections/Services'));
 const LeadMagnet = lazy(() => import('@/components/sections/LeadMagnet'));
 const KnowledgeBaseTeaser = lazy(() => import('@/components/sections/KnowledgeBaseTeaser'));
+const FinalBand = lazy(() => import('@/components/sections/FinalBand'));
 
 const Home = () => {
   const { openModal: _openModal } = useModal();
@@ -19,12 +21,15 @@ const Home = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const leadMagnetRef = useRef<HTMLDivElement>(null);
 
+  // Puls strony (--page-p) — patrz usePagePulse: ambient i siatki dryfują
+  // z każdym pikselem przewijania, w obie strony.
+  usePagePulse();
+
   return (
     <>
       <Seo
         title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
         description="Agencja marketingowa Rzeszów. Strony WWW, SEO, Google Ads, Meta Ads, branding. Pracujemy mobilnie — dojeżdżamy do klientów w Rzeszowie i na Podkarpaciu. Realizacje dla firm z całej Polski. Wycena widełkowa."
-        lcpImage="/assets/images/sygnet.png"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
@@ -41,18 +46,36 @@ const Home = () => {
         }}
       />
 
-      <div ref={heroRef}>
-        <Hero onOpenModal={() => _openModal('general')} />
+      {/* Scroll-takeover (desktop, motion-safe): runway 200vh z przypiętym hero,
+          arkusz „Kompetencji" (-mt-[100vh] przez .hero-takeover-offset) najeżdża
+          na niego przy scrollu. Mobile/reduced-motion: klasy są bierne → klasyczny
+          przepływ. Definicje w index.css. */}
+      <div ref={heroRef} className="hero-runway relative">
+        <div className="hero-pin">
+          <Hero onOpenModal={() => _openModal('general')} />
+        </div>
       </div>
 
-      <Suspense fallback={<div className="h-screen" />}>
-        <Services />
-        <WhyUs />
-        <div ref={leadMagnetRef}>
-          <LeadMagnet />
-        </div>
-        <KnowledgeBaseTeaser />
-      </Suspense>
+      <div className="hero-takeover-offset relative z-10">
+        {/* Fallback = sylwetka nadjeżdżającego arkusza (nie biała dziura):
+            ten sam zaokrąglony grzbiet i tło co Services, zanim chunk dojedzie */}
+        <Suspense
+          fallback={
+            <div
+              className="relative z-10 -mt-10 h-screen rounded-t-[2rem] bg-gray-50 md:-mt-16 md:rounded-t-[3rem]"
+              aria-hidden="true"
+            />
+          }
+        >
+          <Services />
+          <WhyUs />
+          <div ref={leadMagnetRef}>
+            <LeadMagnet />
+          </div>
+          <KnowledgeBaseTeaser />
+          <FinalBand onOpenModal={() => _openModal('general')} />
+        </Suspense>
+      </div>
 
       {/* Sticky mobile CTA bar (Sprint B3 → Sprint C2 reuse jako wspolny StickyMobileBar) */}
       <StickyMobileBar

@@ -1,9 +1,10 @@
+/* eslint-disable max-lines -- wspólne CTA: 3 warianty + ikona + 2 przyciski w jednym pliku */
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import Button from './Button';
 import AnimateOnScroll from './AnimateOnScroll';
 
-export type CtaVariant = 'dark' | 'gradient' | 'glass' | 'white';
+export type CtaVariant = 'dark' | 'gradient' | 'white'; // 'glass' out: nieużywany + No-Glass
 
 interface BaseCtaProps {
   title: string;
@@ -40,7 +41,6 @@ const BaseCta: React.FC<BaseCtaProps> = ({
   const containerVariants: Record<CtaVariant, string> = {
     dark: 'bg-dark text-white',
     gradient: 'bg-gradient-to-br from-dark to-secondary text-white',
-    glass: 'bg-white/10 backdrop-blur-md border border-white/20 text-white',
     white: 'bg-white border border-gray-100 text-dark',
   };
 
@@ -59,9 +59,15 @@ const BaseCta: React.FC<BaseCtaProps> = ({
         <div
           className={`rounded-[2.5rem] p-8 md:p-16 text-center relative overflow-hidden group shadow-2xl ${containerVariants[variant]}`}
         >
-          {/* Decorative Background Elements */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-primary rounded-full blur-[100px] opacity-20 group-hover:opacity-30 transition-opacity duration-1000"></div>
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-secondary rounded-full blur-[100px] opacity-20"></div>
+          {/* Tania poświata: jeden gradient zamiast dwóch blur-[100px] */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(40% 55% at 96% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 62%), radial-gradient(40% 55% at 4% 100%, color-mix(in srgb, var(--color-secondary) 18%, transparent), transparent 62%)',
+            }}
+            aria-hidden="true"
+          ></div>
 
           <div className="relative z-10 flex flex-col items-center">
             {Icon && (
@@ -76,7 +82,9 @@ const BaseCta: React.FC<BaseCtaProps> = ({
             <h2 className="text-3xl md:text-5xl font-black mb-6 tracking-tight max-w-3xl mx-auto leading-tight">
               {title}
             </h2>
-            <p className="text-gray-300 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed opacity-90">
+            <p
+              className={`text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed ${variant === 'white' ? 'text-gray-700' : 'text-white/90'}`}
+            >
               {description}
             </p>
 

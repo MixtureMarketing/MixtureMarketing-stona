@@ -1,45 +1,34 @@
 import { SITE_CONFIG } from '../../../config/site';
 
+/**
+ * Poprawki 2026-07-17 (krytyka 25/40): konsultacja ujednolicona do
+ * 45–60 min (decyzja właściciela — /contact twierdził „15-minutowa"
+ * wbrew /o-nas); oba „24h" potwierdzone. Usunięte: badge „Start A Project"
+ * (hero words-only), martwy blok ctaCard (nierenderowany — obietnice
+ * żyły w repo bez strony). Trzy potwierdzone atuty przeniesione do
+ * `highlights` (renderowane pod hero).
+ */
 export const CONTACT_PAGE_CONTENT = {
   seo: {
     title: 'Kontakt | Umów się na Darmową Konsultację',
     description:
-      'Skontaktuj się z nami, aby omówić swój projekt. Wypełnij formularz lub zadzwoń. Oferujemy darmową, 15-minutową konsultację strategiczną.',
+      'Skontaktuj się z nami, aby omówić swój projekt. Wypełnij formularz lub zadzwoń. Oferujemy bezpłatną konsultację strategiczną (45–60 min).',
     image: '/assets/images/sygnet.png',
   },
   hero: {
-    badge: 'Start A Project',
     title: {
       line1: 'Porozmawiajmy o',
-      line2: 'Twoim Biznesie.',
+      line2: 'Twoim biznesie.',
     },
     description:
       'Masz pytania? Chcesz wycenić projekt? A może po prostu napić się kawy w Rzeszowie? Jesteśmy do Twojej dyspozycji.',
   },
-  ctaCard: {
-    title: 'Gotowy na start?',
-    description:
-      'Nie marnuj czasu na skomplikowane maile. Wypełnij nasz interaktywny brief, a my wrócimy do Ciebie z konkretną wyceną i planem działania.',
-    features: [
-      {
-        icon: 'Zap',
-        title: 'Szybka Wycena',
-        desc: 'Wstępne widełki budżetowe w 24h',
-      },
-      {
-        icon: 'Clock',
-        title: 'Darmowa Konsultacja',
-        desc: '15 min rozmowy strategicznej gratis',
-      },
-      {
-        icon: 'ShieldCheck',
-        title: 'Brak Zobowiązań',
-        desc: 'Otrzymujesz ofertę i sam decydujesz',
-      },
-    ],
-    button: 'Wypełnij Brief Online',
-    microCopy: 'Zajmie to mniej niż 2 minuty.',
-  },
+  /** Potwierdzone przez właściciela 2026-07-17 — bez obietnic z powietrza. */
+  highlights: [
+    { title: 'Szybka wycena', desc: 'Wstępne widełki budżetowe w 24h' },
+    { title: 'Bezpłatna konsultacja', desc: '45–60 min rozmowy strategicznej' },
+    { title: 'Brak zobowiązań', desc: 'Otrzymujesz ofertę i sam decydujesz' },
+  ],
   contactMethods: {
     phone: {
       label: 'Zadzwoń do nas',

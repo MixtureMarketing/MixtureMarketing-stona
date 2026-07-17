@@ -5,18 +5,28 @@ interface BusinessLossCalculatorProps {
   lcp: number;
 }
 
+/**
+ * Uczciwy model wpływu szybkości (2026-07-17): poprzednia wersja liczyła
+ * „Stratę przychodu" z budżetu marketingowego wzorem 7%/s od progu 2,0 s —
+ * niezgodnym z własnym przypisem (1%/100 ms = 10%/s) i z progiem Google
+ * (2,5 s). Teraz: model jawnie nazwany szacunkiem, próg 2,5 s (Google),
+ * stawka 1%/100 ms zgodna z cytowanym badaniem, etykieta mówi o budżecie
+ * pracującym mniej efektywnie — nie o „przychodzie".
+ */
 const BusinessLossCalculator: React.FC<BusinessLossCalculatorProps> = ({ lcp }) => {
   const [budget, setBudget] = useState(2500);
 
-  const delay = Math.max(0, lcp - 2.0);
-  const lossPercentage = Math.min(delay * 0.07, 0.5);
+  // Próg „dobrego" LCP wg Google: 2,5 s. Model: ~1% konwersji na każde 100 ms
+  // powyżej progu (badania branżowe), z sufitem 50%.
+  const delay = Math.max(0, lcp - 2.5);
+  const lossPercentage = Math.min(delay * 0.1, 0.5);
   const monthlyLoss = Math.round(budget * lossPercentage);
 
   return (
     <div className="rounded-2xl p-6 md:p-8 bg-dark text-white grid grid-cols-1 md:grid-cols-[1fr_320px] gap-7 items-center">
       <div>
         <h3 className="text-[26px] font-bold leading-[1.15] tracking-tight mb-5">
-          Twoje błędy mają <span className="text-[#ff9db0]">konkretną cenę.</span>
+          Wolna strona to <span className="text-[#ff9db0]">mniej z każdej złotówki.</span>
         </h3>
 
         <div className="flex justify-between items-end mb-2">
@@ -39,7 +49,7 @@ const BusinessLossCalculator: React.FC<BusinessLossCalculatorProps> = ({ lcp }) 
             className="w-full h-1.5 bg-white/12 rounded-full appearance-none cursor-pointer accent-success relative z-10"
           />
         </div>
-        <div className="flex justify-between text-[11px] font-medium text-blue-300/40 tabular-nums">
+        <div className="flex justify-between text-[11px] font-medium text-blue-200/70 tabular-nums">
           <span>500 PLN</span>
           <span>50 000 PLN</span>
         </div>
@@ -47,7 +57,7 @@ const BusinessLossCalculator: React.FC<BusinessLossCalculatorProps> = ({ lcp }) 
 
       <div className="bg-white/[0.04] rounded-xl p-6 border border-white/10 text-center">
         <p className="text-[11px] font-bold text-blue-200/70 uppercase tracking-[0.1em] mb-1.5">
-          Strata przychodu / mies.
+          Szacunkowo mniej efektywny budżet / mies.
         </p>
         <div className="text-[46px] font-extrabold text-[#ff8fa3] leading-none tabular-nums tracking-tight mb-3">
           {monthlyLoss > 0 ? '−' : ''}
@@ -63,16 +73,18 @@ const BusinessLossCalculator: React.FC<BusinessLossCalculatorProps> = ({ lcp }) 
         >
           {delay > 0 ? (
             <>
-              <AlertCircle size={14} /> Opóźnienie {delay.toFixed(1).replace('.', ',')} s
+              <AlertCircle size={14} aria-hidden="true" /> LCP {lcp.toFixed(1).replace('.', ',')} s
+              — {delay.toFixed(1).replace('.', ',')} s ponad próg Google
             </>
           ) : (
             <>
-              <CheckCircle2 size={14} /> Optymalna szybkość
+              <CheckCircle2 size={14} aria-hidden="true" /> LCP w progu Google (≤ 2,5 s)
             </>
           )}
         </div>
-        <p className="text-[10.5px] text-blue-300/45 mt-4 leading-relaxed">
-          Wg badań Google &amp; Amazon: każde 100 ms opóźnienia to ~1% spadku konwersji.
+        <p className="text-[10.5px] text-blue-200/70 mt-4 leading-relaxed">
+          Model szacunkowy (~1% konwersji na 100 ms ponad 2,5 s — badania branżowe), nie pomiar
+          Twoich leadów. Jedyny zmierzony parametr to LCP Twojej strony.
         </p>
       </div>
     </div>

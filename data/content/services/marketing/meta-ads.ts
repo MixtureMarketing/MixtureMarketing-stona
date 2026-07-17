@@ -1,152 +1,130 @@
+/**
+ * Treść /marketing/meta-ads/ — przepisana 2026-07-16 (krytyka 11/40).
+ * Decyzje właściciela: TikTok Ads NIE świadczymy (karta + FAQ wypadły),
+ * „Meta Business Partner" NIE mamy (badge wypadł), LinkedIn Ads NIE
+ * (decyzja z huba); liczby branżowe bez procentów (mechanika CAPI zamiast
+ * „odzyskujemy 30%"); cena hero = pakiet Start z CMS (1 500 zł/mc).
+ * Usunięte atrapy: panel „META_ADS_MANAGER_V2.0" (ROAS 8.4x z powietrza),
+ * „Flow Efficiency 98.2%", surowe tagi <strong> w hero.
+ */
 export const META_ADS_CONTENT = {
   seo: {
-    title: 'Kampanie Meta Ads | Reklama na Facebooku i Instagramie',
+    title: 'Kampanie Meta Ads — reklama na Facebooku i Instagramie | Mixture',
     description:
-      'Skalujemy sprzedaż i generujemy leady dzięki precyzyjnym kampaniom Meta Ads. Prowadzimy reklamę na Facebooku i Instagramie z wykorzystaniem CAPI.',
+      'Kampanie sprzedażowe i leadowe na Facebooku i Instagramie: lejek, remarketing, Conversions API. Dashboard z wynikami 24/7, budżety od 1 500 zł/mc.',
     image: '/assets/images/meta-ads.png',
   },
   hero: {
-    badge: 'Meta Business Partner',
     title: {
-      line1: 'Kampanie Facebook',
-      line2: '& Instagram Ads.',
-      accent: 'Skalujemy sprzedaż.',
+      line1: 'Facebook i Instagram,',
+      line2: 'które sprzedają.',
     },
     description:
-      'Google odpowiada na pytania. Facebook <strong>tworzy pragnienia</strong>. Docieramy do Twoich klientów precyzyjnym targetowaniem behawioralnym, zanim oni poszukają konkurencji.',
-    cta: 'Darmowa Strategia',
-    microCopy: 'Popyt Utajony',
+      'Google łapie tych, którzy już szukają. Meta dociera do tych, którzy jeszcze nie wiedzą, że szukają — precyzyjnymi grupami odbiorców, testami kreacji i remarketingiem, który domyka sprzedaż.',
+    cta: 'Umów bezpłatną konsultację',
   },
+  /** Lejek — treść edukacyjna (bez „command center" z fejkową telemetrią). */
   funnel: {
-    title: 'Architektura Lejka Sprzedażowego',
+    title: 'Reklama to lejek, nie pojedynczy post',
     description:
-      "Nie wierzymy w pojedyncze reklamy. Budujemy wielopoziomowe systemy, które 'ogrzewają' klienta i domykają sprzedaż z chirurgiczną precyzją.",
+      'Pojedyncza reklama „na sprzedaż" do zimnej publiczności to najdroższy sposób wydawania budżetu. Budujemy sekwencję, w której każdy etap ma swoje zadanie.',
     stages: [
       {
-        step: 'TOF (Top of Funnel)',
-        label: 'Zasięg & Świadomość',
-        desc: 'Docieramy do nowych osób (Cold Audience). Celem jest zatrzymanie scrollowania i przedstawienie marki.',
+        step: 'Zasięg',
+        label: 'TOF — nowi odbiorcy',
+        desc: 'Docieramy do osób, które nie znają Twojej marki. Zadanie: zatrzymać kciuk i zostawić ślad — nie sprzedawać na siłę.',
       },
       {
-        step: 'MOF (Middle of Funnel)',
-        label: 'Edukacja & Ruch',
-        desc: 'Budujemy zaufanie. Kierujemy ruch na bloga, pokazujemy wideo z produktem lub opinie klientów.',
+        step: 'Zaufanie',
+        label: 'MOF — edukacja i ruch',
+        desc: 'Pokazujemy produkt w użyciu, opinie klientów, materiał ekspercki. Zadanie: sprawić, żeby marka była znajoma, zanim padnie cena.',
       },
       {
-        step: 'BOF (Bottom of Funnel)',
-        label: 'Konwersja & Sprzedaż',
-        desc: 'Domknięcie sprzedaży. Remarketing do osób, które porzuciły koszyk lub wyświetliły ofertę.',
+        step: 'Sprzedaż',
+        label: 'BOF — domknięcie',
+        desc: 'Remarketing do osób, które oglądały ofertę albo porzuciły koszyk. Zadanie: usunąć ostatnią wątpliwość.',
       },
       {
-        step: 'Loyalty',
-        label: 'Lojalność & LTV',
-        desc: 'Cross-selling i Up-selling do obecnych klientów. Zwiększamy wartość życiową klienta (LTV).',
+        step: 'Powroty',
+        label: 'Lojalność',
+        desc: 'Oferty dla obecnych klientów — dosprzedaż i powracalność. Najtańsza sprzedaż to ta do kogoś, kto już Ci zaufał.',
       },
     ],
-    commandCenter: {
-      title: 'Strategia',
-      subtitle: 'High-ROI',
-      goalsLabel: 'Cele aktualnej fazy:',
-      efficiencyLabel: 'Flow Efficiency',
-      features: ['Automatyczne wykluczanie kupujących', 'Dynamiczne odświeżanie kreacji'],
-      button: 'Zbuduj swój lejek',
-    },
   },
   capi: {
-    badge: 'Server-Side Tracking',
     title: {
-      line1: 'Blokady iOS i Cookies?',
-      line2: 'Odzyskujemy Twoje dane.',
+      line1: 'Blokady cookies zaniżają pomiar.',
+      line2: 'CAPI go uzupełnia.',
     },
     description:
-      'Pixel Facebooka traci skuteczność przez AdBlocki i politykę Apple (iOS 14+). Wdrażamy <strong>Conversions API (CAPI)</strong> – bezpośredni most danych między Twoim serwerem a Meta.',
+      'AdBlocki i polityka Apple sprawiają, że klasyczny Pixel nie widzi części konwersji. Conversions API przesyła zdarzenia bezpośrednio z Twojego serwera do Meta — bez pośrednictwa przeglądarki.',
     features: [
       {
-        title: 'Precyzyjna Analityka',
-        desc: 'Widzisz 20-30% więcej konwersji w panelu reklamowym.',
+        title: 'Pełniejszy pomiar',
+        desc: 'Algorytm uczy się na zdarzeniach, których Pixel nie zarejestrował — decyzje o budżecie zapadają na lepszych danych.',
       },
       {
-        title: 'Lepszy Remarketing',
-        desc: 'Algorytmy uczą się szybciej, bo mają "pełny obraz" danych.',
+        title: 'Skuteczniejszy remarketing',
+        desc: 'Grupy odbiorców budowane z danych serwerowych obejmują także osoby, które blokują skrypty w przeglądarce.',
       },
     ],
   },
-  ecosystem: {
-    title: 'Ekosystem Social Ads',
-    description:
-      'Facebook to potęga, ale nie jedyny gracz. Dobieramy platformy tam, gdzie są Twoi klienci.',
-    platforms: [
-      {
-        name: 'Meta (FB & IG)',
-        desc: 'Najlepsze algorytmy sprzedażowe na świecie. Idealne do skalowania E-commerce i generowania leadów B2B/B2C.',
-        features: ['Precyzyjne Targetowanie', 'Skalowanie Sprzedaży'],
-        tag: 'Core',
-      },
-      {
-        name: 'TikTok Ads',
-        desc: 'Niskie koszty zasięgu i potężny potencjał wiralowy. Kluczowe dla marek kierowanych do Gen Z i produktów impulsowych.',
-        features: ['Niski CPM (Tani Zasięg)', 'User Generated Content'],
-        tag: 'Viral',
-      },
-      {
-        name: 'LinkedIn Ads',
-        desc: 'Chirurgiczna precyzja w dotarciu do decydentów (CEO, Dyrektorzy). Droższe, ale niezbędne w sprzedaży usług high-ticket.',
-        features: ['Targetowanie po Stanowiskach', 'Account Based Marketing'],
-        tag: 'Premium B2B',
-      },
-    ],
-  },
+  /** Dwa modele setupu — uczciwy przełącznik (bez fejkowego panelu metryk). */
   strategySelector: {
     title: 'Strategia dopasowana do celu',
     description:
-      'Algorytmy Mety działają inaczej dla sklepu, a inaczej dla usług. Wybierz swój model, aby zobaczyć dedykowany setup.',
+      'Algorytmy Mety działają inaczej dla sklepu, a inaczej dla usług. Wybierz swój model, żeby zobaczyć, jak wygląda setup.',
     ecommerce: {
       label: 'E-commerce',
-      desc: 'Sprzedaż bezpośrednia, ROAS, Katalogi.',
-      advantage: {
-        title: 'Advantage+ Shopping Campaign',
-        desc: 'Pełna automatyzacja AI. System sam dobiera produkty z katalogu, które mają największą szansę na sprzedaż konkretnemu użytkownikowi.',
-      },
-      remarketing: {
-        title: 'Dynamic Remarketing',
-        desc: '"Porzuciłeś koszyk?". Wyświetlamy dokładnie te produkty, które użytkownik oglądał, z kodem rabatowym na zachętę.',
-      },
+      desc: 'Sprzedaż z katalogu produktów.',
+      items: [
+        {
+          title: 'Advantage+ Shopping',
+          desc: 'Automatyzacja Mety pod naszą kontrolą budżetową: system dobiera produkty z katalogu pod konkretnego odbiorcę, my pilnujemy kosztu i wykluczeń.',
+        },
+        {
+          title: 'Remarketing dynamiczny',
+          desc: 'Osoba, która oglądała konkretny produkt, widzi w reklamie dokładnie ten produkt — nie ogólny baner.',
+        },
+      ],
     },
     b2b: {
-      label: 'Usługi & B2B',
-      desc: 'Generowanie leadów, Formularze, Spotkania.',
-      forms: {
-        title: 'Instant Forms (Lead Ads)',
-        desc: 'Formularze wewnątrz Facebooka/Instagrama. Automatyczne uzupełnianie danych. Użytkownik nie wychodzi z aplikacji = wyższa konwersja.',
-      },
-      messenger: {
-        title: 'Click-to-Messenger',
-        desc: 'Rozpocznij konwersację. Boty kwalifikujące leady i szybki kontakt z handlowcem. Idealne dla usług Premium.',
-      },
+      label: 'Usługi i B2B',
+      desc: 'Zapytania, formularze, spotkania.',
+      items: [
+        {
+          title: 'Formularze Lead Ads',
+          desc: 'Formularz otwiera się wewnątrz Facebooka i sam uzupełnia dane — mniej tarcia, więcej wypełnień niż przy przekierowaniu na stronę.',
+        },
+        {
+          title: 'Click-to-Messenger',
+          desc: 'Reklama zaczyna rozmowę zamiast zbierać kliknięcia — dobre tam, gdzie klient przed zakupem musi zapytać.',
+        },
+      ],
     },
   },
   faqs: [
     {
       q: 'Czy muszę mieć konto na Instagramie?',
-      a: 'Zalecamy, ale nie jest to technicznie wymagane do puszczania reklam na Facebooku. Jednak do reklam na Instagramie (zwłaszcza Reels) profil firmowy jest kluczowy dla wiarygodności.',
+      a: 'Zalecamy, ale nie jest to technicznie wymagane do reklam na Facebooku. Do reklam na Instagramie (zwłaszcza Reels) profil firmowy jest jednak kluczowy dla wiarygodności.',
     },
     {
       q: 'Ile kosztuje dotarcie do 1000 osób?',
-      a: 'To zależy od branży (CPM). w Polsce średnio jest to między 10 a 25 PLN. Oznacza to, że za 1000 zł możesz wyświetlić reklamę nawet 50-100 tysięcy razy.',
+      a: 'To zależy od branży i grupy odbiorców (stawka CPM). W Polsce to zwykle kilkanaście–dwadzieścia kilka złotych za tysiąc wyświetleń — realną stawkę dla Twojej branży poznasz po pierwszych tygodniach kampanii.',
     },
     {
-      q: 'Co to jest CAPI (Server-Side)?',
-      a: "To nowoczesna metoda przesyłania danych z Twojego serwera do Facebooka, która omija blokady cookies (iOS14+). Dzięki temu odzyskujemy nawet 30% konwersji, których 'zwykły' Pixel nie widzi.",
+      q: 'Co to jest CAPI (Conversions API)?',
+      a: 'To metoda przesyłania zdarzeń (zakupów, formularzy) bezpośrednio z Twojego serwera do Meta, z pominięciem przeglądarki. Dzięki temu pomiar nie znika razem z blokadą cookies, a algorytm uczy się na pełniejszych danych.',
     },
     {
-      q: 'Czy robicie też TikTok Ads?',
-      a: 'Tak. TikTok to potężne narzędzie nie tylko dla Gen Z. Jeśli Twoja grupa docelowa tam jest, zaadaptujemy materiały wideo z Reels pod specyfikę TikToka.',
+      q: 'Jak wygląda raportowanie?',
+      a: 'Dostajesz dostęp do dashboardu z wynikami 24/7 — patrzysz na te same liczby co my. Raz w miesiącu spotykamy się i omawiamy wyniki oraz plan na kolejny okres.',
     },
   ],
   cta: {
-    title: 'Twoi klienci tam są. Ty też powinieneś.',
+    title: 'Twoi klienci scrollują. Pytanie, co zobaczą.',
     description:
-      'Nie pozwól, aby konkurencja przejęła ich uwagę. Uruchom kampanię, która zapada w pamięć i sprzedaje.',
-    button: 'Uruchom Kampanię',
+      'Umów się na bezpłatną konsultację — powiemy wprost, czy Meta Ads ma sens w Twojej sytuacji i od jakiego budżetu zaczyna się sensowna kampania.',
+    button: 'Umów konsultację',
   },
 };

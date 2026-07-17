@@ -3,6 +3,14 @@ import { BookOpen, Monitor, Clock, Zap, Move, Box } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import SectionWrapper from '../../common/SectionWrapper';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
+// Fonty pokazowe miksera DNA — tylko ten komponent ich używa, więc ładują się
+// z tym lazy chunkiem (wcześniej globalnie w index.tsx = koszt na każdej stronie).
+import '@fontsource/montserrat/latin-900.css';
+import '@fontsource/montserrat/latin-ext-900.css';
+import '@fontsource/playfair-display/latin-400.css';
+import '@fontsource/playfair-display/latin-ext-400.css';
+import '@fontsource/playfair-display/latin-700.css';
+import '@fontsource/playfair-display/latin-ext-700.css';
 
 const BrandDnaMixer: React.FC = () => {
   const [dna, setDna] = useState({ style: 50, energy: 50, weight: 50 });
@@ -176,7 +184,7 @@ const BrandDnaMixer: React.FC = () => {
                 width: `${150 + dna.weight}px`,
                 height: `${150 + dna.weight}px`,
                 borderRadius: '50%',
-                background: `linear-gradient(${dna.style * 3.6}deg, #E1306C, #FFD700)`,
+                background: `linear-gradient(${dna.style * 3.6}deg, #E1306C, #61b6de)`,
                 transform: `translate(${dna.energy / 2}px, -${dna.energy / 2}px)`,
                 filter: `blur(${30}px)`,
               }}
@@ -191,7 +199,7 @@ const BrandDnaMixer: React.FC = () => {
                       ? '"Playfair Display", serif'
                       : dna.style > 60
                         ? '"Montserrat", sans-serif'
-                        : '"Inter", sans-serif',
+                        : '"Manrope", sans-serif',
                   fontWeight: dna.weight > 60 ? '900' : dna.weight < 40 ? '200' : '500',
                   color: '#213261',
                   letterSpacing: dna.style > 80 ? '0.2em' : '-0.05em',
@@ -201,7 +209,7 @@ const BrandDnaMixer: React.FC = () => {
               >
                 BRAND
               </h3>
-              <p className="text-xs font-bold text-primary uppercase tracking-[0.3em] bg-white/80 backdrop-blur-sm py-1 px-4 rounded-full inline-block shadow-sm">
+              <p className="text-xs font-bold text-accent-dark uppercase tracking-[0.3em] bg-white/80 backdrop-blur-sm py-1 px-4 rounded-full inline-block shadow-sm">
                 {dna.style < 30 ? 'Heritage' : dna.style > 70 ? 'Future' : 'Modern'}
                 {' • '}
                 {dna.energy < 30 ? 'Calm' : dna.energy > 70 ? 'Dynamic' : 'Active'}

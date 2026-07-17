@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Microscope, Fingerprint } from 'lucide-react';
+import { Fingerprint } from 'lucide-react';
 import Seo from '../common/Seo';
 import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
@@ -8,7 +8,6 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import BaseCta from '../common/BaseCta';
 import { useModal } from '../../context/ModalContext';
 import { VISUAL_AUDIT_CONTENT as CONTENT } from '../../data/content/services/design/visual-audit';
-import { VisualAuditHeroVisual } from '../visuals/hero/VisualAuditVisual';
 import FiveSecondTest from '../features/audit/FiveSecondTest';
 import WcagTerminal from '../features/audit/WcagTerminal';
 import HeuristicsGrid from '../features/audit/HeuristicsGrid';
@@ -25,7 +24,7 @@ const VisualAudit: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-instagram/30">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -43,22 +42,21 @@ const VisualAudit: React.FC = () => {
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze (lift kategorii design, 2026-07-16)
+          — wizual-atrapa z chipami PASSED/FAILED usunięty. */}
       <div ref={heroRef}>
         <StandardHero
-          badge={CONTENT.hero.badge}
-          badgeIcon={Microscope}
+          tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
           priceHint="od 2 500 zł / audyt · raport w 5–7 dni · konkretne rekomendacje"
-          trustLine={<HeroTrustLine promise="Sam piszę raport — nie szablon z juniora" />}
+          trustLine={
+            <HeroTrustLine tone="dark" promise="Sam piszę raport — nie szablon z juniora" />
+          }
           ctaPrimaryText={CONTENT.hero.cta}
           ctaPrimaryOnClick={() => openModal('design', { specificType: 'visual_audit' })}
           backLinkPath="/design/"
           backLinkLabel="Design"
-          accentGradientFrom="#E1306C"
-          accentGradientTo="#833AB4"
-          visual={<VisualAuditHeroVisual />}
         />
       </div>
 

@@ -7,18 +7,18 @@ import { PRINT_DESIGN_CONTENT as CONTENT } from '../../../data/content';
 const PrintPackaging: React.FC = () => {
   return (
     <SectionWrapper variant="dark" overflow={true}>
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-10"></div>
+      <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
 
       <div className="flex flex-col lg:flex-row gap-16 items-center">
         <div className="lg:w-1/2">
           <AnimateOnScroll>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#F4B400] text-xs font-bold uppercase tracking-wider mb-6">
-              <Ruler size={14} /> {CONTENT.packaging.badge}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-primary text-xs font-bold uppercase tracking-wider mb-6">
+              <Ruler size={14} aria-hidden="true" /> {CONTENT.packaging.badge}
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               {CONTENT.packaging.title.line1}
               <br />
-              <span className="text-[#F4B400]">{CONTENT.packaging.title.line2}</span>
+              <span className="text-primary">{CONTENT.packaging.title.line2}</span>
             </h2>
             <p className="text-gray-300 text-lg mb-8 leading-relaxed">
               {CONTENT.packaging.description}
@@ -27,8 +27,12 @@ const PrintPackaging: React.FC = () => {
             <ul className="space-y-4">
               {CONTENT.packaging.features.map((feat, i) => (
                 <li key={i} className="flex items-start gap-4">
-                  <div className="mt-1 p-1 rounded bg-[#F4B400]/20 text-[#F4B400]">
-                    {i === 0 ? <Scissors size={16} /> : <Box size={16} />}
+                  <div className="mt-1 p-1 rounded bg-primary/20 text-primary">
+                    {i === 0 ? (
+                      <Scissors size={16} aria-hidden="true" />
+                    ) : (
+                      <Box size={16} aria-hidden="true" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-bold text-white text-sm">{feat.title}</h3>
@@ -76,8 +80,10 @@ const PrintPackaging: React.FC = () => {
                   className="opacity-50"
                 />
 
-                <g className="text-[6px] fill-[#F4B400] font-mono">
-                  <text x="90" y="45">
+                {/* Linie w konwencji drukarskiej: cięcie = magenta, big = zielona
+                    przerywana. Wymiary poglądowe — to szkic wykrojnika, nie projekt. */}
+                <g className="text-[9px] fill-white font-mono opacity-80">
+                  <text x="88" y="45">
                     100mm
                   </text>
                   <text x="155" y="100">
@@ -86,8 +92,8 @@ const PrintPackaging: React.FC = () => {
                 </g>
               </svg>
 
-              <div className="absolute bottom-4 left-4 bg-white/10 px-2 py-1 rounded text-xxs text-[#F4B400] font-mono">
-                Die_Cut_v3.ai
+              <div className="absolute bottom-4 left-4 bg-white/10 px-2 py-1 rounded text-xxs text-gray-300 font-mono">
+                wykrojnik · cięcie + bigowanie
               </div>
             </div>
           </AnimateOnScroll>

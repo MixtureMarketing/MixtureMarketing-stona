@@ -27,11 +27,13 @@ const ContactStepper: React.FC<ContactStepperProps> = ({ step }) => {
             key={s.id}
             className="flex flex-col items-center gap-2 md:gap-3 bg-white px-2 md:px-4 relative"
           >
+            {/* Nieaktywne kroki: gray-500 (po remapie #374151) zamiast gray-300
+                (~1.5:1 na bieli — etykiety jedynej nawigacji postępu były niewidoczne) */}
             <div
               className={`w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl flex items-center justify-center border-2 transition-all duration-500 ${
                 isActive
                   ? 'bg-dark border-dark text-white shadow-lg'
-                  : 'bg-white border-gray-200 text-gray-300'
+                  : 'bg-white border-gray-300 text-gray-500'
               } ${isCurrent ? 'ring-4 ring-primary/20 scale-110 -translate-y-1' : ''}`}
             >
               {isActive && step > s.id ? (
@@ -42,7 +44,7 @@ const ContactStepper: React.FC<ContactStepperProps> = ({ step }) => {
             </div>
             <span
               className={`text-xxs md:text-xxs font-black uppercase tracking-widest ${
-                isActive ? 'text-dark' : 'text-gray-300'
+                isActive ? 'text-dark' : 'text-gray-500'
               }`}
             >
               {s.label}

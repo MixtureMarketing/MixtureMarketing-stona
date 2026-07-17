@@ -96,20 +96,23 @@ export const auditService = {
     return json.data;
   },
 
-  // Zapis leada po przejsciu bramki e-mail (source='audit'). Best-effort — nie blokuje UI.
+  // Zapis leada po przejsciu bramki e-mail (source='audit') + wysyłka raportu
+  // PDF do użytkownika (multipart — wzorzec kalkulatora). Best-effort — nie blokuje UI.
   async captureLead(payload: {
     email: string;
     url: string;
     companyName?: string;
     score?: number;
-    details?: Record<string, unknown>;
+    pdf?: Blob;
   }): Promise<void> {
     try {
-      await fetch(CAPTURE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const form = new FormData();
+      form.append('email', payload.email);
+      form.append('url', payload.url);
+      if (payload.companyName) form.append('companyName', payload.companyName);
+      if (typeof payload.score === 'number') form.append('score', String(payload.score));
+      if (payload.pdf) form.append('pdf', payload.pdf, 'audyt_mixture.pdf');
+      await fetch(CAPTURE_URL, { method: 'POST', body: form });
     } catch {
       /* nie przerywamy flow raportu, jesli zapis leada sie nie uda */
     }

@@ -62,23 +62,25 @@ const TextReveal: React.FC<TextRevealProps> = ({
     };
   }, [deferred, priority]);
 
+  // Prawdziwe spacje MIĘDZY spanami (nie margin!) — inline-block bez spacji
+  // skleja słowa w accessibility tree / ekstrakcji tekstu („Kompetencje,którychpotrzebujesz").
   const processText = (text: string) => {
-    return text.split(' ').map((word, i) => (
-      <span
-        key={i}
-        className="inline-block overflow-hidden align-bottom"
-        style={{ marginRight: '0.25em' }}
-      >
-        <span
-          className="reveal-text-item block"
-          style={{
-            animationDelay: isVisible ? `${delay + i * stagger}ms` : '999s',
-            animationPlayState: isVisible ? 'running' : 'paused',
-          }}
-        >
-          {word}
+    const words = text.split(' ');
+    return words.map((word, i) => (
+      <React.Fragment key={i}>
+        <span className="inline-block overflow-hidden align-bottom">
+          <span
+            className="reveal-text-item block"
+            style={{
+              animationDelay: isVisible ? `${delay + i * stagger}ms` : '999s',
+              animationPlayState: isVisible ? 'running' : 'paused',
+            }}
+          >
+            {word}
+          </span>
         </span>
-      </span>
+        {i < words.length - 1 ? ' ' : null}
+      </React.Fragment>
     ));
   };
 

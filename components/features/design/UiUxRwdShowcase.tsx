@@ -89,8 +89,8 @@ const UiUxRwdShowcase: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]"></div>
                   <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]"></div>
                 </div>
-                <div className="ml-6 flex-1 h-6 bg-deep-dark rounded-lg flex items-center px-3 text-xxs text-gray-700 font-mono tracking-tighter">
-                  mixture-design-system.v3
+                <div className="ml-6 flex-1 h-6 bg-deep-dark rounded-lg flex items-center px-3 text-xxs text-white/60 font-mono tracking-tighter">
+                  design-system
                 </div>
               </div>
               <div className="w-full h-full bg-white p-6 overflow-hidden">

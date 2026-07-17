@@ -8,8 +8,6 @@ const PrintPaperEngineering: React.FC = () => {
 
   return (
     <SectionWrapper variant="light-gray" overflow={true} containerClassName="max-w-screen-xl">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-5 pointer-events-none"></div>
-
       <SectionHeader
         title={CONTENT.paper.title}
         description={CONTENT.paper.description}
@@ -50,7 +48,7 @@ const PrintPaperEngineering: React.FC = () => {
                 </div>
               </div>
               <div
-                className={`text-sm font-medium ${paperWeight === index ? 'text-primary' : 'text-gray-600'}`}
+                className={`text-sm font-medium ${paperWeight === index ? 'text-secondary' : 'text-gray-600'}`}
               >
                 {type.use.split(',')[0]}
               </div>
@@ -61,7 +59,7 @@ const PrintPaperEngineering: React.FC = () => {
         <div className="lg:w-1/2 w-full flex justify-center perspective-[1200px]">
           <div className="relative w-80 h-80 flex items-center justify-center">
             <div
-              className="relative w-64 h-48 bg-white transition-all duration-700 ease-out preserve-3d"
+              className="relative w-64 h-48 bg-white transition-all duration-700 ease-out [transform-style:preserve-3d]"
               style={{
                 transform: `rotateX(55deg) rotateZ(-30deg) translateZ(${paperWeight * 10}px)`,
                 boxShadow: `-20px 20px 50px rgba(0,0,0,0.15)`,
@@ -76,13 +74,15 @@ const PrintPaperEngineering: React.FC = () => {
                     {CONTENT.paper.items[paperWeight].name.split('/')[0]}
                   </div>
                 </div>
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-10 mix-blend-overlay"></div>
               </div>
 
+              {/* Krawędź arkusza: „rotateY(90deg)" jako klasa było martwym zapisem
+                  (to nie jest klasa Tailwinda) — transform musi żyć w style. */}
               <div
-                className="absolute top-0 right-0 h-full origin-right transform rotateY(90deg) flex flex-col"
+                className="absolute top-0 right-0 h-full origin-right flex flex-col"
                 style={{
                   width: `${Math.max(2, CONTENT.paper.items[paperWeight].thickness * 3)}px`,
+                  transform: 'rotateY(-90deg)',
                 }}
               >
                 {CONTENT.paper.items[paperWeight].weight.includes('600g') ? (
@@ -97,9 +97,10 @@ const PrintPaperEngineering: React.FC = () => {
               </div>
 
               <div
-                className="absolute bottom-0 left-0 w-full origin-bottom transform rotateX(90deg) flex flex-col"
+                className="absolute bottom-0 left-0 w-full origin-bottom flex flex-col"
                 style={{
                   height: `${Math.max(2, CONTENT.paper.items[paperWeight].thickness * 3)}px`,
+                  transform: 'rotateX(90deg)',
                 }}
               >
                 {CONTENT.paper.items[paperWeight].weight.includes('600g') ? (
@@ -125,14 +126,14 @@ const PrintPaperEngineering: React.FC = () => {
 
           <div className="absolute bottom-0 right-0 p-8 text-right pointer-events-none">
             <div className="text-xs font-mono text-gray-600 uppercase tracking-widest mb-1">
-              Grubość (approx)
+              Grubość (ok.)
             </div>
             <div className="text-3xl font-bold text-dark">
               {(CONTENT.paper.items[paperWeight].thickness * 0.1).toFixed(1)} mm
             </div>
             {CONTENT.paper.items[paperWeight].weight.includes('600g') && (
-              <div className="text-xs font-bold text-[#E1306C] mt-2 bg-pink-50 inline-block px-2 py-1 rounded animate-pulse">
-                + COLOR CORE
+              <div className="text-xs font-bold text-pink-800 mt-2 bg-pink-50 inline-block px-2 py-1 rounded">
+                + barwiony rdzeń
               </div>
             )}
           </div>

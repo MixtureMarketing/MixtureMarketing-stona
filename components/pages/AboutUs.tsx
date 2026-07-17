@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Linkedin, Mail, MapPin, Building2, GraduationCap, Users, Award } from 'lucide-react';
+import { Linkedin, Mail, Building2, GraduationCap, Award } from 'lucide-react';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import Button from '../common/Button';
@@ -53,37 +53,37 @@ const AboutUs: React.FC = () => {
         jsonLd={personSchemas}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-32 pb-20 relative z-10">
-        <Container>
-          {/* HERO */}
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-800 text-sm font-bold uppercase tracking-wider mb-6">
-              <Users size={16} />
-              <span>Nasz zespół</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
-              Jesteśmy{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Mixture Marketing
-              </span>
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — badge
+          indigo, gradient-text out; wzmianka o RzeszowJS/Tech Tuesdays
+          usunięta (niepotwierdzone bieżące zaangażowanie — decyzja
+          właściciela); „każda kampania kończy się raportem" POTWIERDZONE. */}
+      <div className="bg-deep-dark text-white pt-40 pb-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        <Container className="relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Jesteśmy <span className="text-primary">Mixture Marketing.</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-4">
+            <p className="text-xl text-gray-300 mb-4 max-w-3xl">
               Agencja marketingowa 360° i software house z Rzeszowa. Łączymy inżynierską precyzję
-              Software House&apos;u z kreatywnością Agencji Marketingowej.
+              software house&apos;u z kreatywnością agencji marketingowej.
             </p>
-            <p className="text-lg text-gray-500">
+            <p className="text-lg text-white/70 max-w-3xl">
               Tworzymy strony, sklepy i aplikacje, prowadzimy performance marketing i projektujemy
               marki — dla firm z Rzeszowa, Podkarpacia i całej Polski.
             </p>
           </div>
+        </Container>
+      </div>
 
-          {/* VALUES */}
+      <div className="py-20 relative z-10">
+        <AmbientBackground />
+        <Container className="relative z-10">
+          {/* VALUES — paleta marki zamiast indigo/emerald/orange */}
           <div className="grid md:grid-cols-3 gap-6 mb-20">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center mb-4">
-                <Building2 size={24} />
+              <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
+                <Building2 size={24} aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-3">Inżynierska precyzja</h3>
               <p className="text-gray-600">
@@ -92,8 +92,8 @@ const AboutUs: React.FC = () => {
               </p>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
-                <Award size={24} />
+              <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
+                <Award size={24} aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-3">Wynik nad vanity metrics</h3>
               <p className="text-gray-600">
@@ -102,13 +102,13 @@ const AboutUs: React.FC = () => {
               </p>
             </div>
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
-                <GraduationCap size={24} />
+              <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
+                <GraduationCap size={24} aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold mb-3">Lokalne korzenie, globalne standardy</h3>
               <p className="text-gray-600">
-                Siedziba w Rzeszowie, klienci w całej Polsce. Działamy w ekosystemie Politechniki
-                Rzeszowskiej i lokalnej społeczności IT (RzeszowJS, Tech Tuesdays).
+                Siedziba w Rzeszowie, klienci w całej Polsce. Znamy lokalny rynek od podszewki i
+                pracujemy w standardach, które obronią się wszędzie.
               </p>
             </div>
           </div>
@@ -169,10 +169,6 @@ const AboutUs: React.FC = () => {
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100 mb-20">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-100 text-rose-800 text-xs font-bold uppercase tracking-wider mb-4">
-                  <MapPin size={14} />
-                  <span>Nasze biuro</span>
-                </div>
                 <h2 className="text-3xl font-bold mb-4">Rzeszów — gdzie się spotykamy</h2>
                 <p className="text-gray-600 mb-2">
                   <strong>{SITE_CONFIG.companyName}</strong>
@@ -186,7 +182,7 @@ const AboutUs: React.FC = () => {
                   Telefon:{' '}
                   <a
                     href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.phone}
                   </a>
@@ -195,7 +191,7 @@ const AboutUs: React.FC = () => {
                   E-mail:{' '}
                   <a
                     href={`mailto:${SITE_CONFIG.contact.email}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.email}
                   </a>

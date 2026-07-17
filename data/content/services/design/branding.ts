@@ -19,7 +19,7 @@ export const BRAND_IDENTITY_CONTENT = {
   process: {
     title: 'Jak powstaje marka?',
     description:
-      'To nie jest chwila natchnienia. To ułożony proces, który gwarantuje, że efekt końcowy będzie spójny z Twoją strategią biznesową.',
+      'To nie jest chwila natchnienia. To ułożony proces, który pilnuje, żeby efekt końcowy był spójny z Twoją strategią biznesową.',
     steps: [
       {
         title: 'Warsztat Strategiczny',
@@ -153,7 +153,7 @@ export const BRAND_IDENTITY_CONTENT = {
     },
     {
       q: 'Jak długo trwa proces brandingu?',
-      a: 'Profesjonalny proces trwa zazwyczaj od 2 do 4 tygodni. Obejmuje to warsztaty, fazę koncepcyjną, projektowanie i przygotowanie plików produkcyjnych.',
+      a: 'Profesjonalny proces trwa zazwyczaj 3–4 tygodnie. Obejmuje to warsztaty, fazę koncepcyjną, projektowanie i przygotowanie plików produkcyjnych.',
     },
   ],
   cta: {

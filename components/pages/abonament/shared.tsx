@@ -69,11 +69,17 @@ export const CountUp: React.FC<CountUpProps> = ({
   duration = 1200,
   className,
 }) => {
-  const [value, setValue] = React.useState(0);
+  // Start od wartości docelowej przy prerenderze: Puppeteer zapisywał do
+  // dist/**/index.html stan „0" sprzed IntersectionObservera — Google
+  // indeksował „od 0 zł" i „0+" zamiast realnych liczb (P0, 2026-07-17).
+  const [value, setValue] = React.useState(() =>
+    typeof window !== 'undefined' && window.isPrerendering ? to : 0,
+  );
   const ref = React.useRef<HTMLSpanElement>(null);
   const startedRef = React.useRef(false);
 
   React.useEffect(() => {
+    if (window.isPrerendering) return;
     const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     if (prefersReducedMotion) {
       setValue(to);

@@ -4,19 +4,32 @@ import { MARKETING_CONTENT } from '@/data/content';
 import StandardHero from '@/components/common/StandardHero';
 import HeroTrustLine from '@/components/common/HeroTrustLine';
 import StickyMobileBar from '@/components/common/StickyMobileBar';
-import { MarketingHeroVisual } from '@/components/visuals/hero/MarketingVisual';
 import { SITE_CONFIG } from '@/config/site';
-import { Target, Zap } from 'lucide-react';
-import MarketingStrategy from '@/components/features/marketing/MarketingStrategy';
-import MarketingOmnichannel from '@/components/features/marketing/MarketingOmnichannel';
-import MarketingIndustries from '@/components/features/marketing/MarketingIndustries';
-import MarketingArsenal from '@/components/features/marketing/MarketingArsenal';
+import { Zap } from 'lucide-react';
+import MarketingProof from '@/components/features/marketing/MarketingProof';
+import MarketingPains from '@/components/features/marketing/MarketingPains';
+import MarketingModels from '@/components/features/marketing/MarketingModels';
+import MarketingSynergy from '@/components/features/marketing/MarketingSynergy';
+import MarketingServices from '@/components/features/marketing/MarketingServices';
 import StandardFaq from '@/components/common/StandardFaq';
 import BaseCta from '../common/BaseCta';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '@/context/ModalContext';
 
+/**
+ * Hub /marketing/ — przebudowa 2026-07-16 (krytyka 12/40, pełna ścieżka;
+ * snapshot w .impeccable/critique/). Porządek = drabina zaufania persony:
+ * hero words-only (ciemne) → ciemnia dowodowa (realizacje ads/seo + metoda,
+ * flip-dot) → jasny arkusz „dlaczego reklamy nie działają" (ekspertyza bez
+ * liczb) → dwa modele wzrostu (uczciwe lustro) → synergia (linia plotera)
+ * → drabinka usług → FAQ → artykuły → CTA.
+ * Usunięte atrapy: fejkowy dashboard hero (losowo rosnący „przychód",
+ * „ROAS 8.5"), pseudo-symulacja parametrów, wieczna orbita „DATA HUB",
+ * plakietki „TOP 3 w Google". Decyzje właściciela: kotwica od 1 200 zł/mc,
+ * raportowanie = dashboard 24/7 + spotkanie co miesiąc, bez LinkedIn
+ * Ads / Cold Mailingu / YouTube Ads (niepotwierdzone).
+ */
 const Marketing: React.FC = () => {
   const { openModal } = useModal();
   const heroRef = useRef<HTMLDivElement>(null);
@@ -25,8 +38,10 @@ const Marketing: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  const openConsult = () => openModal('marketing');
+
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans overflow-hidden">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={MARKETING_CONTENT.seo.title}
         description={MARKETING_CONTENT.seo.description}
@@ -35,7 +50,7 @@ const Marketing: React.FC = () => {
           {
             '@context': 'https://schema.org',
             '@type': 'Service',
-            serviceType: 'Performance Marketing',
+            serviceType: 'Digital Marketing',
             provider: {
               '@type': 'Organization',
               name: 'Mixture Marketing',
@@ -46,7 +61,7 @@ const Marketing: React.FC = () => {
             hasOfferCatalog: {
               '@type': 'OfferCatalog',
               name: 'Usługi Marketingowe',
-              itemListElement: MARKETING_CONTENT.arsenal.items.map((item) => ({
+              itemListElement: MARKETING_CONTENT.services.items.map((item) => ({
                 '@type': 'Offer',
                 itemOffered: {
                   '@type': 'Service',
@@ -60,45 +75,38 @@ const Marketing: React.FC = () => {
         ]}
       />
 
+      {/* Hero words-only w ciemnym rejestrze (The Hero Is Words Rule) —
+          fejkowy dashboard z licznikiem przychodu usunięty wraz z plikiem.
+          Kotwica cenowa = najniższy realny pakiet CMS (SEO lokalne 1 200). */}
       <div ref={heroRef}>
         <StandardHero
-          badge={MARKETING_CONTENT.hero.badge}
-          badgeIcon={Target}
+          tone="dark"
           title={{ line1: MARKETING_CONTENT.hero.title, line2: MARKETING_CONTENT.hero.titleAccent }}
           description={MARKETING_CONTENT.hero.description}
-          priceHint="od 800 zł / mc · SEO / Google Ads / Meta Ads / Analytics · raporty co tydzień"
-          trustLine={<HeroTrustLine />}
+          priceHint="od 1 200 zł / mc · Google Ads / Meta Ads / SEO / Analytics · dashboard z wynikami 24/7"
+          trustLine={<HeroTrustLine tone="dark" />}
           ctaPrimaryText={MARKETING_CONTENT.hero.cta}
-          ctaPrimaryOnClick={() => openModal('marketing')}
+          ctaPrimaryOnClick={openConsult}
           backLinkPath="/"
-          backLinkLabel="Wróć do głównej"
-          accentGradientFrom="#61B6DE"
-          accentGradientTo="#FFFFFF"
-          visual={<MarketingHeroVisual />}
+          backLinkLabel="Wróć na stronę główną"
         />
       </div>
 
-      {/* Missing Pain Points Section - placeholder if needed or implemented later */}
-
-      <LazyHydrate minHeight="600px">
-        <MarketingStrategy />
+      <LazyHydrate minHeight="700px">
+        <MarketingProof />
       </LazyHydrate>
 
-      <LazyHydrate minHeight="500px">
-        <MarketingOmnichannel />
-      </LazyHydrate>
+      <MarketingPains />
 
-      <LazyHydrate minHeight="600px">
-        <MarketingIndustries />
-      </LazyHydrate>
+      <MarketingModels />
 
-      <LazyHydrate minHeight="800px">
-        <MarketingArsenal />
-      </LazyHydrate>
+      <MarketingSynergy />
+
+      <MarketingServices />
 
       <LazyHydrate minHeight="400px">
-        <section className="py-20 md:py-24 bg-white relative z-10">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative z-10 bg-white py-20 md:py-24">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <StandardFaq items={MARKETING_CONTENT.faqs} />
           </div>
         </section>
@@ -108,28 +116,26 @@ const Marketing: React.FC = () => {
         <RelatedArticles category="marketing" layout="service" />
       </LazyHydrate>
 
-      {/* --- CTA --- */}
       <div ref={finalCtaRef}>
         <BaseCta
           title={MARKETING_CONTENT.cta.title}
           description={MARKETING_CONTENT.cta.description}
           buttonText={MARKETING_CONTENT.cta.button}
           icon={Zap}
-          onClick={() => openModal('marketing')}
+          onClick={openConsult}
           variant="dark"
         />
       </div>
 
-      {/* EH2 reuse — Sticky mobile CTA bar */}
       <StickyMobileBar
         aboveRef={heroRef}
         belowRef={finalCtaRef}
         label="Bezpłatna konsultacja"
-        sublabel="Marketing 360° · raport co tydzień"
+        sublabel="Dashboard 24/7 · spotkanie co miesiąc"
         telephone={SITE_CONFIG.contact.phoneFull}
         telephoneDisplay={SITE_CONFIG.contact.phone}
         primaryLabel="Zapytaj"
-        onPrimary={() => openModal('marketing')}
+        onPrimary={openConsult}
       />
     </div>
   );

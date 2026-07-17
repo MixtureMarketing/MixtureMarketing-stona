@@ -66,12 +66,12 @@ const BrandAssetDelivery: React.FC = () => {
             </div>
             <div className="mt-8 flex justify-between items-end">
               <div>
-                <div className="text-xxs uppercase text-gray-600 mb-1">Prawa Autorskie</div>
+                <div className="text-xxs uppercase text-white/65 mb-1">Prawa Autorskie</div>
                 <div className="font-bold flex items-center gap-2 text-success">
                   <ShieldCheck size={16} /> Pełne Przekazanie Praw (IP)
                 </div>
               </div>
-              <div className="bg-white/10 p-3 rounded-lg text-white hover:bg-white/20 transition-colors cursor-pointer">
+              <div className="bg-white/10 p-3 rounded-lg text-white" aria-hidden="true">
                 <Download size={20} />
               </div>
             </div>

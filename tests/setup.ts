@@ -61,3 +61,26 @@ vi.mock('@sanity/image-url', () => ({
 // Mock scrollIntoView
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 window.HTMLElement.prototype.scrollTo = vi.fn();
+
+// Mock document.fonts (jsdom go nie ma) — FlipDotHeading czeka na fonts.ready.
+if (!('fonts' in document)) {
+  Object.defineProperty(document, 'fonts', {
+    value: { ready: Promise.resolve(), load: vi.fn().mockResolvedValue([]) },
+  });
+}
+
+// Mock matchMedia (jsdom go nie ma) — hooki motion-safe (useSectionProgress,
+// usePagePulse, FlipDotHeading, useCounter) czytają prefers-reduced-motion.
+vi.stubGlobal(
+  'matchMedia',
+  vi.fn((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+);

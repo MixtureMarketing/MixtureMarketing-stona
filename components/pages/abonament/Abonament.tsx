@@ -274,7 +274,7 @@ const INCLUDES = [
     num: '05',
     label: 'Leady',
     title: 'SMS w 30 sek',
-    desc: 'Formularz → SMS do Ciebie w 30 sekund. 9× większa szansa zamknięcia.',
+    desc: 'Formularz → SMS do Ciebie w 30 sekund. Kontakt w 5 minut wielokrotnie zwiększa szansę na klienta (HBR).',
     accent: 'blue',
   },
   { num: '06', title: 'Panel klienta', desc: 'Leady, faktury, raporty w jednym miejscu.' },
@@ -1016,21 +1016,24 @@ const Abonament: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
             <div className="md:col-span-2 lg:row-span-2 relative p-8 rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-950 text-white overflow-hidden flex flex-col justify-between">
               {techGrid}
+              {/* Liczby pilotażu (19h / 8 rezerwacji / #2) usunięte — niezweryfikowany
+                  pomiar (decyzja właściciela 2026-07-17). Kafel pokazuje potwierdzony
+                  fakt produktowy: 16 branżowych szablonów. */}
               <div className="relative z-10">
                 <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-300 mb-3">
                   <Activity size={12} aria-hidden="true" />
-                  Pilotaż · 30 dni
+                  Szablony branżowe
                 </div>
                 <h4 className="text-2xl font-bold mb-4 leading-tight">
-                  Pierwsza klientka — fryzjerka z Drabinianki
+                  Twoja branża prawdopodobnie już na nas czeka
                 </h4>
               </div>
               <div className="relative z-10 mt-8">
                 <p className="text-8xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">
-                  19<span className="text-3xl font-bold text-indigo-300">h</span>
+                  16
                 </p>
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300 mt-3">
-                  do go-live · 8 rezerwacji w 14 dni · #2 lokalne Google
+                  branż · fryzjer, beauty, budowlanka, gastro i więcej · 4 dema online
                 </p>
               </div>
             </div>
@@ -1056,7 +1059,7 @@ const Abonament: React.FC = () => {
                 30<span className="text-xl font-bold">s</span>
               </p>
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                9× większa szansa zamknięcia (HBR)
+                kontakt w 5 min wielokrotnie zwiększa szansę (HBR)
               </p>
             </div>
             <div className="md:col-span-2 relative p-6 rounded-3xl bg-white border-2 border-slate-200 flex items-center justify-between gap-4">
@@ -1066,15 +1069,7 @@ const Abonament: React.FC = () => {
                 </p>
                 <h4 className="text-2xl font-bold text-slate-950">25 minut zamiast 6 tygodni.</h4>
               </div>
-              <div className="hidden md:flex items-end gap-1 h-16">
-                {[20, 35, 28, 50, 42, 65, 58, 80].map((h, i) => (
-                  <span
-                    key={i}
-                    className="w-2 rounded-full bg-gradient-to-t from-indigo-200 to-indigo-600"
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
-              </div>
+              {/* Wykresik z wymyślonych słupków usunięty (atrapa telemetrii) */}
             </div>
           </div>
 
@@ -1275,12 +1270,8 @@ const Abonament: React.FC = () => {
                   >
                     {tier.tagline}
                   </p>
+                  {/* „od" usunięte — każdy pakiet ma jedną, sztywną cenę */}
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span
-                      className={`text-sm font-semibold ${isFeatured ? 'text-slate-400' : 'text-slate-500'}`}
-                    >
-                      od
-                    </span>
                     <span
                       className={`text-6xl font-black leading-none ${
                         isFeatured
@@ -1300,7 +1291,7 @@ const Abonament: React.FC = () => {
                     / miesięcznie
                   </p>
                   <p
-                    className={`text-[11px] mb-6 ${isFeatured ? 'text-slate-500' : 'text-slate-400'}`}
+                    className={`text-[11px] mb-6 ${isFeatured ? 'text-slate-400' : 'text-slate-500'}`}
                   >
                     netto · brutto {tier.priceGross} zł · Faktura VAT w panelu
                   </p>
@@ -1621,7 +1612,7 @@ const Abonament: React.FC = () => {
                 {
                   icon: Cpu,
                   title: 'SMS leady w 30 sekund',
-                  desc: 'Formularz → SMS do Ciebie w 30 sekund. HBR: szansa zamknięcia leada spada 9-krotnie jeśli zadzwonisz po 5 minutach. Na WordPressie wymaga Zapier + Twilio + osobny abonament.',
+                  desc: 'Formularz → SMS do Ciebie w 30 sekund. Według badania cytowanego przez HBR kontakt w pierwszych 5 minutach wielokrotnie zwiększa szansę na zakwalifikowanie leada. Na WordPressie wymaga Zapier + Twilio + osobny abonament.',
                 },
                 {
                   icon: Cloud,

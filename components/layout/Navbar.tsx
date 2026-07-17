@@ -72,6 +72,17 @@ const Navbar: React.FC = () => {
     setActiveDropdown(name);
   };
 
+  // Escape zamyka otwarte mega menu (audyt menu 2026-07-16 — wcześniej
+  // jedyną drogą było kliknięcie poza panelem albo zmiana trasy).
+  useEffect(() => {
+    if (activeDropdown === null) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveDropdown(null);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [activeDropdown]);
+
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
       setActiveDropdown(null);

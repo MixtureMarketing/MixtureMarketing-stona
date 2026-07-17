@@ -1,3 +1,9 @@
+/**
+ * Treść /design/print/ — poprawki 2026-07-16 (krytyka 23/40).
+ * Usunięte: obietnica „do 1h" (decyzja właściciela: bez SLA godzinowego —
+ * „priorytetowo, bezpłatnie"), badge/microCopy hero (hero words-only).
+ * Cena potwierdzona: od 800 zł.
+ */
 export const PRINT_DESIGN_CONTENT = {
   seo: {
     title: 'Projektowanie do Druku (DTP) | Wizytówki, Katalogi',
@@ -6,26 +12,24 @@ export const PRINT_DESIGN_CONTENT = {
     image: '/assets/images/audyt-ux.png',
   },
   hero: {
-    badge: 'Print Engineering',
     title: {
       line1: 'Design, który można',
       line2: 'dotknąć.',
     },
     description:
       'W świecie cyfrowym fizyczny produkt to luksus. Projektujemy materiały, które przechodzą test dotyku. Precyzja co do milimetra, idealne odwzorowanie kolorów i szlachetne uszlachetnienia.',
-    cta: 'Wyceń Druk',
-    microCopy: 'CMYK Ready',
+    cta: 'Wyceń druk',
   },
   guarantee: {
-    title: 'Gwarancja Poprawności Technicznej',
+    title: 'Gwarancja poprawności technicznej',
     description:
-      'Bierzemy pełną odpowiedzialność za pliki produkcyjne. Jeśli drukarnia odrzuci nasz projekt z przyczyn technicznych, poprawiamy go w trybie priorytetowym (do 1h) bezpłatnie.',
-    items: ['Zgodność Kolorów', 'Poprawne Spady', 'Krzywe Wektorowe'],
+      'Bierzemy pełną odpowiedzialność za pliki produkcyjne. Jeśli drukarnia odrzuci nasz projekt z przyczyn technicznych, poprawiamy go priorytetowo i bezpłatnie.',
+    items: ['Zgodność kolorów', 'Poprawne spady', 'Krzywe wektorowe'],
   },
   finishes: {
     title: 'Laboratorium Uszlachetnień',
     description:
-      'Druk to nie tylko kolor. To faktura, błysk i głębia. Wybierz efekt i poruszaj myszką nad wizytówką, aby zobaczyć grę światła.',
+      'Druk to nie tylko kolor. To faktura, błysk i głębia. Wybierz uszlachetnienie — karta złapie światło. Poruszaj kursorem nad wizytówką, aby samemu poprowadzić odbicie.',
     items: [
       { id: 'none', label: 'Standard', desc: 'Druk cyfrowy lub offsetowy. Czysty, matowy papier.' },
       {
@@ -122,7 +126,7 @@ export const PRINT_DESIGN_CONTENT = {
     title: 'Twój Arsenał Marketingowy',
     items: [
       { label: 'Wizytówki', sub: 'Premium / NFC', shape: 'w-24 h-14' },
-      { label: 'Katalogi', sub: 'Klejonie / Szycie', shape: 'w-20 h-28' },
+      { label: 'Katalogi', sub: 'Klejenie / Szycie', shape: 'w-20 h-28' },
       { label: 'Teczki', sub: 'Ofertowe', shape: 'w-24 h-32 rounded-tr-[30px]' },
       { label: 'Ulotki', sub: 'DL / A5 / Składane', shape: 'w-16 h-32' },
       { label: 'Opakowania', sub: 'Produktowe' },

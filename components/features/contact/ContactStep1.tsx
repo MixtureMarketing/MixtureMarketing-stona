@@ -37,7 +37,7 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
         ) : (
           <p className="text-gray-700 text-sm font-medium leading-relaxed">
             Wypełnij ten krok, abyśmy mogli zapisać Twoje zgłoszenie. <br />
-            <span className="text-primary font-bold">Zajmie Ci to mniej niż 30 sekund.</span>
+            <span className="text-secondary font-bold">Zajmie Ci to mniej niż 30 sekund.</span>
           </p>
         )}
       </div>
@@ -99,7 +99,7 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
             <a
               href="/privacy-policy"
               target="_blank"
-              className="text-primary hover:underline font-bold"
+              className="text-secondary hover:underline font-bold"
             >
               Politykę Prywatności
             </a>{' '}

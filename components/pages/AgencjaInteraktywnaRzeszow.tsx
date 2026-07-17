@@ -11,7 +11,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Briefcase,
-  Wrench,
   Eye,
   Phone,
 } from 'lucide-react';
@@ -22,7 +21,6 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import HeroBadge from '../common/HeroBadge';
 import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
@@ -64,14 +62,14 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia (Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło). Alternatywnie ustalamy spotkanie w wybranej kawiarni lub przestrzeni coworkingowej w centrum Rzeszowa, albo online (Google Meet / Zoom). Standardowo bezpłatna konsultacja trwa 45–60 minut.',
     },
     {
-      question: 'Czym Mixture różni się od software house’u z Rzeszowa (Asseco, ITSG, ZETO)?',
+      question: 'Czym Mixture różni się od dużego software house’u?',
       answer:
-        'Duże software house’y z Rzeszowa specjalizują się w długich projektach enterprise (ERP, banking, telco) — minimalne projekty często od 200 000 zł. Mixture jest agencją interaktywną dla MŚP i scale-upów: projekty 8 000–80 000 zł, terminy 4–12 tygodni, jedna osoba kontaktowa, zwinność w decyzjach. Łączymy też marketing i design, czego software house nie robi.',
+        'Duże software house’y specjalizują się w długich projektach enterprise (ERP, banking, telco). Mixture jest agencją interaktywną dla MŚP i scale-upów: projekty 8 000–80 000 zł, terminy 4–12 tygodni, jedna osoba kontaktowa, zwinność w decyzjach. Łączymy też marketing i design, czego klasyczny software house nie robi.',
     },
     {
       question: 'Jakie technologie stosujecie?',
       answer:
-        'Frontend: React, Next.js, Vue, Astro, vanilla JS. CMS: WordPress, Sanity, Strapi, Shoper, WooCommerce. Backend: Node.js, PHP (Symfony, Laravel), Python. Mobile: React Native, PWA. Design: Figma, Adobe CC. Analityka: GA4, GSC, Hotjar, Clarity. Stack dobieramy do projektu, nie odwrotnie.',
+        'Frontend: React, Next.js, Astro. CMS: WordPress, Sanity, Shoper, WooCommerce. Backend: Node.js, PHP (Laravel), Go. Design: Figma, Adobe CC. Analityka: GA4, GSC, Hotjar, Clarity. Stack dobieramy do projektu, nie odwrotnie.',
     },
     {
       question: 'Czy mogę zobaczyć Wasze realizacje z Rzeszowa i Podkarpacia?',
@@ -139,8 +137,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
       name: 'Jak współpracujemy — proces agencji interaktywnej Mixture Marketing',
       description:
         'Sześciofazowy proces realizacji projektu interaktywnego — od briefu, przez koncepcję, design, wdrożenie, aż po launch i opiekę.',
-      totalTime: 'P8W',
-      estimatedCost: { '@type': 'MonetaryAmount', currency: 'PLN', value: '15000' },
+      // totalTime/estimatedCost usunięte — wymyślona „średnia" wysyłana Google jako dana
       step: [
         {
           '@type': 'HowToStep',
@@ -183,10 +180,6 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
-      },
       mainEntity: faq.map((f) => ({
         '@type': 'Question',
         name: f.question,
@@ -209,46 +202,45 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         jsonLd={jsonLd}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-32 pb-20 relative z-10">
-        <Container>
-          {/* HERO */}
-          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <HeroBadge accent="primary" className="mb-6">
-              Agencja Interaktywna · Rzeszów
-            </HeroBadge>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
-              Agencja Interaktywna{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Rzeszów
-              </span>
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — HeroBadge
+          i gradient-text out. */}
+      <div ref={heroRef} className="bg-deep-dark text-white pt-40 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        <Container className="relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Agencja interaktywna <span className="text-primary">Rzeszów</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-4">
+            <p className="text-xl text-gray-300 mb-4 max-w-3xl">
               Strategia + design + technologia + marketing pod jednym dachem. Tworzymy strony,
               aplikacje, brandy i kampanie dla firm z Rzeszowa, Mielca, Krosna i całej Polski.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-8">
               <Button onClick={() => openModal('general', { specificType: 'interactive_rzeszow' })}>
                 Bezpłatna konsultacja
               </Button>
               <a
                 href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-pink-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 border-2 border-white/15 text-white hover:border-primary hover:text-primary font-bold rounded-full transition-colors"
               >
                 <Phone size={18} aria-hidden="true" />
                 Zadzwoń: {SITE_CONFIG.contact.phone}
               </a>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-white/70 mt-3">
               Pn–Pt 9–17 · Odpowiadamy w 24h · Bezpłatna konsultacja 45–60 min
             </p>
           </div>
+        </Container>
+      </div>
 
+      <div className="py-20 relative z-10">
+        <AmbientBackground />
+        <Container className="relative z-10">
           {/* Stats strip — trust signals dla lokalnego B2B */}
           <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {[
-              { value: 6, suffix: '+', label: 'lat na rynku', decimals: 0 },
+              { value: 2020, prefix: 'od ', label: 'doświadczenie zespołu', decimals: 0 },
               { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
               { value: 15, suffix: '+', label: 'branż', decimals: 0 },
               { value: 24, suffix: 'h', label: 'czas odpowiedzi', decimals: 0 },
@@ -321,10 +313,10 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
               <p>
                 Mixture Marketing działa w tej formule od początku. Mamy adres rejestrowy przy Al.
                 Piłsudskiego 17/4 w Rzeszowie (biuro wirtualne), a pracujemy mobilnie — dojeżdżamy
-                do klienta na terenie Rzeszowa i Podkarpacia. Nasz zespół łączy: UX/UI designerów,
-                programistów (PHP, React, Node.js), specjalistów performance marketing (Google Ads,
-                Meta Ads), copywriterów, animatorów i analityków danych. Dzięki temu klient nie musi
-                koordynować 3–4 dostawców — wszystko płynie z jednego brieffa.
+                do klienta na terenie Rzeszowa i Podkarpacia. Zespół łączy kompetencje UX/UI,
+                programowania (PHP, React, Node.js) i performance marketingu (Google Ads, Meta Ads),
+                a projekt prowadzi jedna osoba kontaktowa. Dzięki temu klient nie musi koordynować
+                3–4 dostawców — wszystko płynie z jednego briefu.
               </p>
             </div>
           </div>
@@ -405,19 +397,19 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                 </div>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Producenci z Mielca, Stalowej Woli, Rzeszowa</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Klaster Lotnictwa Polskiego, Aviation Valley</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Software house&apos;y i firmy IT z Podkarpacia</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Eksport: strony EN/DE/CZ, materiały na targi</span>
                   </li>
                 </ul>
@@ -429,19 +421,19 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                 </div>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>E-commerce: sklepy Shoper, WooCommerce, dedykowane</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Kancelarie prawne, gabinety medyczne, fizjoterapia</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Restauracje, hotele, turystyka, agroturystyka</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Szkoły językowe, kursy, akademie biznesu</span>
                   </li>
                 </ul>
@@ -454,56 +446,19 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
               Projekty interaktywne — wybrane realizacje
             </h2>
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-pink-700 uppercase tracking-wider mb-2">
-                  Konfigurator · Producent SSE Mielec
-                </p>
-                <h3 className="text-lg font-bold mb-2">Konfigurator produktów B2B</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Interaktywny konfigurator komponentów lotniczych. PDF eksport, integracja z CRM,
-                  formularz zapytania ofertowego.
-                </p>
-                <p className="text-2xl font-extrabold text-pink-700">
-                  +<CountUp to={62} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">zapytania ofertowe miesięcznie</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-violet-700 uppercase tracking-wider mb-2">
-                  Kalkulator · Firma usługowa Rzeszów
-                </p>
-                <h3 className="text-lg font-bold mb-2">Kalkulator wyceny online</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Wieloetapowy quiz lead-genowy z natychmiastową wstępną wyceną. Integracja z
-                  mailingiem i CRM.
-                </p>
-                <p className="text-2xl font-extrabold text-violet-700">
-                  <CountUp to={3.8} decimals={1} suffix="×" />
-                </p>
-                <p className="text-xs text-gray-500">więcej leadów niż klasyczny formularz</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wider mb-2">
-                  Branding + WWW · Software house
-                </p>
-                <h3 className="text-lg font-bold mb-2">Rebranding + portal kariery</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Identyfikacja wizualna, strona firmowa Next.js, portal rekrutacyjny z ATS.
-                  Employer branding w IT.
-                </p>
-                <p className="text-2xl font-extrabold text-indigo-700">
-                  +<CountUp to={210} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">aplikacje kandydatów / kwartał</p>
-              </article>
+            {/* Trzy anonimowe karty z metrykami (+62% / 3.8x / +210%) usunięte —
+                wzorzec z pozostałych stron pSEO (liczby bez pomiaru). */}
+            <div className="text-center bg-white rounded-3xl p-10 border border-gray-100 shadow-sm max-w-3xl mx-auto mt-12">
+              <p className="text-lg text-gray-700 mb-6">
+                Budujemy narzędzia interaktywne — konfiguratory produktów, kalkulatory wycen, quizy
+                lead-genowe — ale nie pokazujemy tu anonimowych procentów. Podpisane realizacje z
+                opisem zakresu prac znajdziesz w portfolio.
+              </p>
             </div>
             <p className="text-center mt-8">
               <Link
                 to="/portfolio/"
-                className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
+                className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
               >
                 Zobacz pełne portfolio <ArrowRight size={16} />
               </Link>
@@ -511,13 +466,9 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
           </div>
 
           {/* Cluster internal links */}
-          <div className="mb-20 bg-gradient-to-br from-pink-50 to-white rounded-3xl p-8 md:p-12 border border-pink-100">
+          <div className="mb-20 bg-blue-50/50 rounded-3xl p-8 md:p-12 border border-gray-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-100 text-pink-800 text-xs font-bold uppercase tracking-wider mb-4">
-                  <Wrench size={14} />
-                  <span>Cluster lokalny</span>
-                </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4">Szukasz konkretnej usługi?</h3>
                 <p className="text-gray-600 mb-6">
                   Mamy dedykowane podstrony lokalne pod konkretne usługi — szczegółowe cenniki, case
@@ -527,7 +478,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   <li>
                     <Link
                       to="/web-development/rzeszow/"
-                      className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
+                      className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
                     >
                       → Tworzenie stron internetowych Rzeszów
                     </Link>
@@ -535,7 +486,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   <li>
                     <Link
                       to="/agencja-seo-rzeszow/"
-                      className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
+                      className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
                     >
                       → Pozycjonowanie stron Rzeszów
                     </Link>
@@ -622,7 +573,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   <strong>Telefon:</strong>{' '}
                   <a
                     href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.phone}
                   </a>
@@ -631,7 +582,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                   <strong>E-mail:</strong>{' '}
                   <a
                     href={`mailto:${SITE_CONFIG.contact.email}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.email}
                   </a>

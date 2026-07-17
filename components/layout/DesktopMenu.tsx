@@ -28,6 +28,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
   openModal,
   dropdownRef,
 }) => {
+  const kbOpen = activeDropdown === CONTENT.knowledgeBase.label;
   return (
     <div className="hidden lg:flex space-x-1 items-center h-full" ref={dropdownRef}>
       <Link
@@ -100,38 +101,56 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
 
         <div
           id="kb-mega-menu"
-          className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all duration-500 origin-top ${activeDropdown === CONTENT.knowledgeBase.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
+          className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all origin-top ${activeDropdown === CONTENT.knowledgeBase.label ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-2 invisible pointer-events-none'}`}
+          // Tempo jak w menu Oferty: 300 ms wejście / 200 ms wyjście, quint.
           style={{
             display: activeDropdown === CONTENT.knowledgeBase.label ? 'block' : 'none',
+            transitionDuration: activeDropdown === CONTENT.knowledgeBase.label ? '300ms' : '200ms',
+            transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
           }}
           role="region"
           aria-labelledby="kb-menu-button"
         >
           <Container>
             <div className="bg-white rounded-b-[2.5rem] shadow-[0_40px_100px_-20px_rgba(33,50,97,0.2)] border border-gray-100 border-t-0 overflow-hidden flex flex-row">
-              {/* Categories */}
-              <div className="flex-1 p-10 grid grid-cols-2 gap-4">
+              {/* Kategorie — REALNE linki do przefiltrowanej bazy
+                  (?kategoria=…); wcześniej wszystkie cztery prowadziły do
+                  tej samej strony co przycisk „cała baza". */}
+              <div
+                className={`flex-1 p-10 grid grid-cols-2 gap-4 content-center transition-all duration-300 ${
+                  kbOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                }`}
+                style={{ transitionDelay: kbOpen ? '80ms' : '0ms' }}
+              >
                 {[
                   {
                     label: 'Technologia & Dev',
                     icon: Database,
                     desc: 'Redis, CDN, Edge Computing',
+                    target: '/baza-wiedzy/?kategoria=tech',
                   },
                   {
                     label: 'Marketing Cyfrowy',
                     icon: Megaphone,
                     desc: 'Google Ads, Meta, SEO',
+                    target: '/baza-wiedzy/?kategoria=marketing',
                   },
                   {
                     label: 'Design & UX',
                     icon: Palette,
                     desc: 'Audyty, WebP, Core Web Vitals',
+                    target: '/baza-wiedzy/?kategoria=design',
                   },
-                  { label: 'Analityka & Dane', icon: BarChart3, desc: 'CAPI, SST, GA4' },
+                  {
+                    label: 'Analityka & Dane',
+                    icon: BarChart3,
+                    desc: 'CAPI, SST, GA4',
+                    target: '/baza-wiedzy/?kategoria=analytics',
+                  },
                 ].map((cat, i) => (
                   <Link
                     key={i}
-                    to="/baza-wiedzy"
+                    to={cat.target}
                     onClick={() => setActiveDropdown(null)}
                     className="group/kb flex items-center gap-4 p-4 rounded-2xl hover:bg-[#F9FAFB] transition-all focus:outline-none focus:ring-2 focus:ring-primary"
                     aria-label={`Artykuły z kategorii: ${cat.label}`}
@@ -150,7 +169,12 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
               </div>
 
               {/* Featured Articles */}
-              <div className="w-[450px] bg-[#F9FAFB] border-l border-gray-100 p-10">
+              <div
+                className={`w-[450px] bg-[#F9FAFB] border-l border-gray-100 p-10 transition-all duration-300 ${
+                  kbOpen ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                }`}
+                style={{ transitionDelay: kbOpen ? '160ms' : '0ms' }}
+              >
                 <div className="text-xxs font-black text-accent-dark uppercase tracking-[0.2em] mb-6">
                   {CONTENT.knowledgeBase.badge}
                 </div>

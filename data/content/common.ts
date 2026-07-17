@@ -18,13 +18,87 @@ export const HERO_CONTENT = {
     responseTime: DICTIONARY.labels.responseTime,
     noObligation: DICTIONARY.labels.noObligation,
   },
-  visuals: {
-    codeSnippet: {
-      comment: '// Odzyskujemy 30% danych',
-      strategy: 'Smart Scaling',
-      status: 'Ready',
-    },
+};
+
+/**
+ * Hero — realne realizacje jako wizual (zastępuje dawne atrapy: BrowserMockup /
+ * CodeSnippet / AdsDashboardMini z wymyślonymi liczbami).
+ *
+ * STATYCZNA selekcja WSZYSTKICH 7 case studies (kolejność pierwszych 4 bez
+ * zmian — kompatybilność z dotychczasowymi wizualami). Świadomie statyczna,
+ * nie fetch z CMS — karty muszą być w prerenderowanym HTML bez zależności od
+ * zapytania sieciowego. `imageRef` to asset._ref z Sanity (dataset
+ * azuef2ua/production) — URL budowany przez urlFor() z width+auto=format.
+ * Pełne case studies (dynamiczne) żyją na /portfolio/ i /portfolio/:slug.
+ */
+export const HERO_SHOWCASE = [
+  {
+    slug: 'impackt-edu',
+    client: 'Stowarzyszenie Impakt',
+    label: 'Web · Google Ad Grants',
+    imageRef: 'image-ae038546ee455a6a1787eae30b3086ef5188f552-1940x967-png',
+    alt: 'Platforma edukacyjno-turystyczna Impackt Edu — realizacja Mixture Marketing',
   },
+  {
+    slug: 'driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
+    client: 'Driftmark Marine',
+    label: 'E-commerce · Konfigurator',
+    imageRef: 'image-a539086aaa4f5481bbb01304095f55eb872b48bd-1440x1253-png',
+    alt: 'Sklep Driftmark Marine z konfiguratorem łodzi — realizacja Mixture Marketing',
+  },
+  {
+    slug: 'studentpi',
+    client: 'KorepetytorAI',
+    label: 'SaaS · React + Laravel',
+    imageRef: 'image-0a94d2d9c79ab9a503686ab2309f3d2a1f4c0304-1920x850-png',
+    alt: 'Platforma SaaS KorepetytorAI z asystentem AI — realizacja Mixture Marketing',
+  },
+  {
+    slug: 'bdb-biuro-strona',
+    client: 'BDB Biuro',
+    label: 'Web · Kalkulatory',
+    imageRef: 'image-9eef749dccecfcc6a55d82378c98ce09162dfbea-1084x1282-png',
+    alt: 'Strona biura rachunkowego BDB z kalkulatorami finansowymi — realizacja Mixture Marketing',
+  },
+  {
+    slug: 'high-performance-landing-page-dla-aplikacji-mobilnej-pickme',
+    client: 'PickMe',
+    label: 'Landing · Performance',
+    imageRef: 'image-5649e197640665b817ef110ec66d54496d341be3-1920x1040-png',
+    alt: 'High-performance landing page aplikacji mobilnej PickMe — realizacja Mixture Marketing',
+  },
+  {
+    slug: 'fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance',
+    client: 'FBX',
+    label: 'Aplikacja · Redesign',
+    imageRef: 'image-19ae4cf4bad31cd8d4cd86b3ba9ecf0d24d62be7-393x852-png',
+    alt: 'Redesign aplikacji ogłoszeniowej FBX — realizacja Mixture Marketing',
+  },
+  {
+    slug: 'glamspace',
+    client: 'GlamSpace',
+    label: 'Web · UI Premium',
+    imageRef: 'image-e42195da4d5aa09c1c3cb05e186150eead88846a-1445x903-png',
+    alt: 'Premium strona pola glampingowego GlamSpace — realizacja Mixture Marketing',
+  },
+] as const;
+
+/**
+ * Pas zaufania (marquee) — wariant TYPOGRAFICZNY (nazwy realizacji). Logo klientów
+ * dokładamy podmianą, bez zmiany struktury, gdy właściciel dostarczy pliki + zgody.
+ * Bez wymyślonych liczb — dowód jest nazwą realnej realizacji.
+ */
+export const HERO_TRUST = {
+  label: 'Wybrane realizacje',
+  items: [
+    'Impackt Edu',
+    'Driftmark Marine',
+    'BDB Biuro',
+    'PickMe',
+    'FBX',
+    'GlamSpace',
+    'KorepetytorAI',
+  ],
 };
 
 export const NAVBAR_CONTENT = {
@@ -34,12 +108,10 @@ export const NAVBAR_CONTENT = {
   pricing: DICTIONARY.labels.pricing,
   offer: {
     label: 'Oferta',
-    title: 'Zbudujmy coś',
-    accent: 'wyjątkowego.',
-    desc: 'Opowiedz nam o swoim pomyśle. Pomożemy dobrać technologię i przygotujemy bezpłatną wycenę.',
+    title: 'Nie wiesz, od czego',
+    accent: 'zacząć?',
+    desc: 'Umów bezpłatną rozmowę — powiemy wprost, co ma sens w Twojej sytuacji, a wycenę widełkową dostaniesz w 24 godziny.',
     button: DICTIONARY.cta.book,
-    features: ['Analiza techniczna', 'Dobór kanałów Ads', 'Plan wdrożenia'],
-    badge: 'Rozmowa Strategiczna',
   },
   knowledgeBase: {
     label: DICTIONARY.labels.knowledgeBase,

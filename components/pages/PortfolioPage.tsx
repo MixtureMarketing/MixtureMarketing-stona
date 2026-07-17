@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Filter, Layers, Layout, Zap, PenTool } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { cmsService } from '../../services/cmsService';
 import Seo from '../common/Seo';
 import PortfolioGrid from '../features/portfolio/PortfolioGrid';
@@ -13,6 +13,8 @@ const PortfolioPage = () => {
   const [projects, setProjects] = useState<SanityCaseStudy[]>([]);
   const [filter, setFilter] = useState<'all' | 'web' | 'marketing' | 'design'>('all');
   const [loading, setLoading] = useState(true);
+  // Globalny CSS-kill nie łapie animacji JS framera — respektujemy reduced-motion ręcznie
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -47,39 +49,33 @@ const PortfolioPage = () => {
       />
 
       <div className="min-h-screen bg-gray-50 text-dark">
-        {/* --- HERO SECTION --- */}
-        <div className="pt-32 pb-20 relative overflow-hidden">
-          {/* Background Decor */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-b from-blue-100/50 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-gradient-to-t from-purple-100/50 to-transparent rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+        {/* Hero words-only w ciemnym rejestrze (lift 2026-07-16) — gradient-text,
+            eyebrow „Wybrane Realizacje" i fioletowe orby usunięte. */}
+        <div className="pt-40 pb-20 relative overflow-hidden bg-deep-dark text-white">
+          <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none" />
 
           <Container className="relative z-10">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="max-w-4xl"
             >
-              <p className="text-sm font-bold tracking-[0.2em] text-primary uppercase mb-4 pl-1">
-                Wybrane Realizacje
-              </p>
-              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight text-dark">
+              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight text-white">
                 Tworzymy cyfrowe <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">
-                  doświadczenia
-                </span>
+                <span className="text-primary">doświadczenia.</span>
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl leading-relaxed">
-                Od zaawansowanych aplikacji webowych, przez skuteczne kampanie marketingowe, po
-                unikalny branding. Poznaj projekty, które przynoszą realne wyniki.
+              <p className="text-xl text-gray-300 max-w-2xl leading-relaxed">
+                Od zaawansowanych aplikacji webowych, przez kampanie marketingowe, po branding.
+                Każdy projekt niżej pochodzi z naszego CMS — wejdź i oceń sam.
               </p>
             </motion.div>
 
             {/* --- FILTERS --- */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: reducedMotion ? 0 : 0.2 }}
               className="mt-16 flex flex-wrap gap-4"
             >
               {categories.map((cat) => {
@@ -92,24 +88,29 @@ const PortfolioPage = () => {
                     aria-pressed={isActive}
                     className={`relative px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 group overflow-hidden ${
                       isActive
-                        ? 'text-white'
-                        : 'text-gray-500 hover:text-dark bg-white border border-gray-200'
+                        ? 'text-deep-dark'
+                        : 'text-white/80 hover:text-white bg-white/5 border border-white/15'
                     }`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeFilter"
-                        className="absolute inset-0 bg-dark"
-                        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                        className="absolute inset-0 bg-white rounded-full"
+                        transition={
+                          reducedMotion
+                            ? { duration: 0 }
+                            : { type: 'spring', bounce: 0.2, duration: 0.6 }
+                        }
                       />
                     )}
                     <span className="relative z-10 flex items-center gap-2">
                       <Icon
                         size={16}
+                        aria-hidden="true"
                         className={
                           isActive
-                            ? 'text-primary'
-                            : 'text-gray-400 group-hover:text-primary transition-colors'
+                            ? 'text-secondary'
+                            : 'text-white/50 group-hover:text-primary transition-colors'
                         }
                       />
                       {cat.label}

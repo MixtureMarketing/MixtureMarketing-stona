@@ -35,20 +35,23 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({ tier, isHighlight, on
         <div className="mb-8">
           <div
             className={`inline-block px-3 py-1 rounded-full text-xxs font-black uppercase tracking-wider mb-4 ${
-              isHighlight ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-600'
+              isHighlight ? 'bg-blue-50 text-secondary' : 'bg-gray-100 text-gray-600'
             }`}
           >
             {tier.subtitle || 'Pakiet'}
           </div>
           <h3 className="text-2xl font-black text-dark mb-4">{tier.title}</h3>
 
+          {/* „od" i waluta tylko przy cenie NUMERYCZNEJ — „od Stawka / h PLN"
+              czytało się jak błąd (krytyka 2026-07-16). Walutę normalizujemy
+              do „zł" — jedna konwencja zapisu w całym serwisie. */}
           <div className="flex items-baseline flex-wrap gap-2 mb-6">
-            {tier.price !== 'Wycena' && (
+            {/^\d/.test(tier.price?.trim() ?? '') && (
               <span className="text-gray-600 text-sm font-medium">od</span>
             )}
             <span className="text-4xl xs:text-5xl font-black text-dark">{tier.price}</span>
             <span className="text-gray-700 font-bold text-base md:text-lg">
-              {tier.currency || (tier.price === 'Wycena' ? '' : 'PLN')}
+              {/^\d/.test(tier.price?.trim() ?? '') ? 'zł' : ''}
             </span>
             {tier.priceSuffix && (
               <span className="text-xs text-gray-500 ml-1">{tier.priceSuffix}</span>
@@ -95,7 +98,8 @@ const PricingTierCard: React.FC<PricingTierCardProps> = ({ tier, isHighlight, on
               : 'border-gray-200 hover:border-primary hover:text-primary'
           }`}
         >
-          {tier.buttonText || (tier.price === 'Wycena' ? 'Zapytaj o Ofertę' : 'Wybierz Pakiet')}
+          {tier.buttonText ||
+            (/^\d/.test(tier.price?.trim() ?? '') ? 'Wybierz Pakiet' : 'Zapytaj o Ofertę')}
         </Button>
       </BaseCard>
     </div>

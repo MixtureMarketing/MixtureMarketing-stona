@@ -1,9 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  BookOpen,
   ArrowRight,
   Search,
   Tag,
@@ -16,7 +13,6 @@ import {
   TrendingUp,
 } from 'lucide-react';
 
-import AmbientBackground from '../common/AmbientBackground';
 import SectionHeader from '../common/SectionHeader';
 import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
@@ -25,7 +21,6 @@ import Breadcrumbs from '../common/Breadcrumbs';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 
-import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
 import { useKnowledgeSearch } from '@/hooks/useKnowledgeSearch';
 import { formatDate } from '@/utils/date';
@@ -65,55 +60,48 @@ const KnowledgeBase = () => {
         ]}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-24 pb-16 relative z-10">
-        <Container>
-          <Breadcrumbs />
-
-          {/* Header Section */}
-          <div className="text-center mb-16 mt-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-6">
-              <BookOpen size={14} /> {CONTENT.header.badge}
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark tracking-tight leading-tight">
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — badge
+          „Knowledge Hub" i gradient-text out; wyszukiwarka filtruje na żywo,
+          więc martwy przycisk „Szukaj" (bez handlera) usunięty. */}
+      <div className="bg-deep-dark text-white pt-32 pb-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        {/* Breadcrumbs ma własny Container — poza naszym, żeby nie dublować paddingu */}
+        <div className="relative z-10">
+          <Breadcrumbs tone="dark" />
+        </div>
+        <Container className="relative z-10">
+          <div className="max-w-3xl mt-8">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
               {CONTENT.header.title.line1} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary via-primary to-secondary">
-                {CONTENT.header.title.line2}
-              </span>
+              <span className="text-primary">{CONTENT.header.title.line2}</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            <p className="text-lg md:text-xl text-gray-300 max-w-2xl mb-10 leading-relaxed">
               {CONTENT.header.subtitle}
             </p>
 
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto relative group">
-              <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition duration-500"></div>
-              <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.05)] focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+            <div className="max-w-2xl relative">
+              <div className="relative flex items-center bg-white border border-gray-200 rounded-2xl p-2 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.2)] focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/20 transition-all">
                 <div className="pl-4 text-gray-700">
                   <Search size={22} aria-hidden="true" />
                 </div>
                 <input
-                  type="text"
+                  type="search"
                   placeholder={CONTENT.search.placeholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-transparent border-none outline-none text-dark placeholder-gray-500 px-4 py-3 text-lg"
-                  aria-label="Szukaj w bazie wiedzy"
+                  aria-label="Szukaj w bazie wiedzy (filtruje podczas pisania)"
                 />
-                <Button
-                  className="hidden sm:flex shadow-none"
-                  size="md"
-                  aria-label="Uruchom wyszukiwanie"
-                >
-                  {CONTENT.search.button}
-                </Button>
               </div>
             </div>
           </div>
+        </Container>
+      </div>
 
+      <div className="pt-12 pb-16 relative z-10">
+        <Container>
           {/* Categories Navigation */}
           <nav
             className="mb-12 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
@@ -152,7 +140,6 @@ const KnowledgeBase = () => {
                 ? CONTENT.grid.newest
                 : `${CONTENT.grid.categoryPrefix} ${CATEGORIES.find((c) => c.id === activeCategory)?.label}`
             }
-            subtitle="Eksploruj"
             align="left"
             className="mb-8"
           />
@@ -232,14 +219,13 @@ const KnowledgeBase = () => {
                         ))}
                       </div>
 
-                      <Link to={article.slug} aria-label={`Czytaj więcej: ${article.title}`}>
-                        <button
-                          className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-secondary hover:bg-secondary hover:text-white transition-all duration-300 group-hover:scale-110"
-                          aria-hidden="true"
-                          tabIndex={-1}
-                        >
-                          <ArrowRight size={18} />
-                        </button>
+                      {/* span zamiast button-w-Linku (interactive-in-interactive) */}
+                      <Link
+                        to={article.slug}
+                        aria-label={`Czytaj więcej: ${article.title}`}
+                        className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-secondary hover:bg-secondary hover:text-white transition-all duration-300 group-hover:scale-110"
+                      >
+                        <ArrowRight size={18} aria-hidden="true" />
                       </Link>
                     </div>
                   </div>

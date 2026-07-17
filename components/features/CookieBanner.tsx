@@ -105,7 +105,9 @@ const CookieBanner: React.FC = () => {
     <div
       ref={bannerRef}
       className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-fade-in-up"
-      role="complementary"
+      // region zamiast complementary — banner renderuje się wewnątrz landmarku,
+      // a complementary musi być top-level (axe: landmark-complementary-is-top-level)
+      role="region"
       aria-label="Baner plików cookies"
       tabIndex={-1}
     >

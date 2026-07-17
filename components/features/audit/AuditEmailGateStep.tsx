@@ -24,7 +24,7 @@ const AuditEmailGateStep: React.FC<AuditEmailGateStepProps> = ({ email, setEmail
 
       <h2 className="text-2xl font-bold text-dark mb-2.5 tracking-tight">Analiza zakończona</h2>
       <p className="text-gray-500 mb-8">
-        Raport PDF jest gotowy. Podaj e-mail, na który mamy go wysłać.
+        Podaj e-mail — wyślemy Ci raport PDF z pomiarów, a wynik zobaczysz też od razu online.
       </p>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -38,9 +38,9 @@ const AuditEmailGateStep: React.FC<AuditEmailGateStepProps> = ({ email, setEmail
           autoFocus
         />
         <Button className="w-full h-14 text-lg justify-center rounded-xl active:scale-[0.98] transition-transform">
-          Pokaż raport i wyślij PDF <ArrowRight className="ml-2" size={20} />
+          Pokaż raport i wyślij PDF <ArrowRight className="ml-2" size={20} aria-hidden="true" />
         </Button>
-        <p className="text-[11px] text-gray-400 font-medium">
+        <p className="text-[11px] text-gray-500 font-medium">
           Nie wysyłamy spamu. Tylko Twój darmowy raport.
         </p>
       </form>

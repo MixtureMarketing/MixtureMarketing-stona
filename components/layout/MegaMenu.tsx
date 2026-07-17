@@ -15,15 +15,14 @@ import {
   Layers,
   Eye,
   ArrowRight,
-  Calendar,
   Phone,
-  Check,
 } from 'lucide-react';
 import Button from '@/components/common/Button';
 import Container from '@/components/common/Container';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { SITE_CONFIG } from '@/config/site';
 import { ContactType } from '@/types';
+import SYGNET from '@/data/content/sygnet-dots.json';
 
 // Map icon names to components for "data-driven" rendering if needed,
 // though currently CONTENT is hardcoded so we can map directly or keep static.
@@ -138,30 +137,44 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
   return (
     <div
       id="offer-mega-menu"
-      className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all duration-500 origin-top ${isVisible ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-4 invisible pointer-events-none'}`}
-      style={{ display: isVisible ? 'block' : 'none' }} // Keep inline style for JS control if needed, but classes handle it well
+      className={`fixed left-0 w-full top-20 z-[var(--z-nav)] transform transition-all origin-top ${isVisible ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-2 invisible pointer-events-none'}`}
+      // Tempo menu wg reguły 100/300/500: otwarcie 300 ms (state change),
+      // zamknięcie ~75% tego; ease-out-quint zamiast domyślnej krzywej.
+      style={{
+        display: isVisible ? 'block' : 'none',
+        transitionDuration: isVisible ? '300ms' : '200ms',
+        transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      }}
       role="region"
       aria-labelledby="offer-menu-button"
     >
       <Container>
         <div className="bg-white rounded-b-[2.5rem] shadow-[0_40px_100px_-20px_rgba(33,50,97,0.2)] border border-gray-100 border-t-0 overflow-hidden flex flex-row">
-          {/* Left Side: Services Grid */}
+          {/* Left Side: Services Grid — kolumny wchodzą kaskadą (delay per
+              kolumna; motion-safe przez globalny reduced-motion CSS). */}
           <div className="flex-1 grid grid-cols-3 divide-x divide-gray-50 p-10">
             {MEGA_MENU_DATA.map((section, idx) => (
-              <div key={idx} className="px-8 group/col first:pl-0 last:pr-0">
+              <div
+                key={idx}
+                className={`px-8 group/col first:pl-0 last:pr-0 transition-all duration-300 ${
+                  isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                }`}
+                style={{ transitionDelay: isVisible ? `${80 + idx * 60}ms` : '0ms' }}
+              >
                 <Link
                   to={section.target}
                   onClick={onClose}
                   className="block mb-8 group/head focus:outline-none focus:ring-2 focus:ring-primary rounded-lg p-1"
                   aria-label={`Zobacz kategorię: ${section.category}`}
                 >
-                  <h3 className="text-dark font-black text-xl mb-2 group-hover/head:text-accent-dark transition-colors flex items-center gap-2">
+                  {/* <p>, nie <h3> — nagłówki w nav zaśmiecały outline dokumentu przed H1 */}
+                  <p className="text-dark font-black text-xl mb-2 group-hover/head:text-accent-dark transition-colors flex items-center gap-2">
                     {section.category}
                     <ArrowRight
                       size={18}
                       className="opacity-0 -translate-x-2 group-hover/head:opacity-100 group-hover/head:translate-x-0 transition-all text-accent-dark"
                     />
-                  </h3>
+                  </p>
                   <p className="text-xs text-gray-700 font-bold uppercase tracking-widest leading-relaxed">
                     {section.description}
                   </p>
@@ -169,22 +182,21 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
                 <ul className="space-y-3">
                   {section.items.map((item, itemIdx) => (
                     <li key={itemIdx}>
+                      {/* Opis ZAWSZE widoczny — ukrywanie do hovera psuło
+                          wyrównanie wierszy i chowało treść przed klawiaturą. */}
                       <Link
                         to={item.target}
                         onClick={onClose}
-                        className="group/item flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 border border-transparent hover:border-primary/10 focus:outline-none focus:ring-2 focus:ring-primary"
-                        aria-label={`${item.label} - ${item.desc}`}
+                        className="group/item flex items-center gap-4 p-3 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all duration-200 border border-transparent hover:border-primary/10 focus:outline-none focus:ring-2 focus:ring-primary motion-safe:active:scale-[0.98]"
                       >
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 group-hover/item:text-secondary group-hover/item:bg-blue-50 group-hover/item:scale-110 transition-all duration-300">
+                        <div className="w-10 h-10 shrink-0 rounded-xl bg-gray-50 flex items-center justify-center text-gray-600 group-hover/item:text-secondary group-hover/item:bg-blue-50 transition-colors duration-300">
                           <item.icon size={20} aria-hidden="true" />
                         </div>
                         <div>
                           <div className="text-base font-black text-dark group-hover/item:text-secondary transition-colors">
                             {item.label}
                           </div>
-                          <div className="text-xxs text-gray-500 font-medium opacity-0 group-hover/item:opacity-100 transition-all">
-                            {item.desc}
-                          </div>
+                          <div className="text-xxs text-gray-500 font-medium">{item.desc}</div>
                         </div>
                       </Link>
                     </li>
@@ -194,19 +206,54 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
             ))}
           </div>
 
-          {/* Right Side: Featured/Contact Panel */}
-          <div className="w-96 bg-gray-50/50 border-l border-gray-100 p-10 flex flex-col relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-50"></div>
+          {/* Right Side: panel kontaktowy w rejestrze marki. Kaskada wejścia
+              jak kolumny; konstelacja sygnetu (kropki próbkowane build-time)
+              zamiast blur-bloba — statyczna, zero rAF. */}
+          <div
+            className={`w-96 bg-gray-50/50 border-l border-gray-100 p-10 flex flex-col relative overflow-hidden transition-all duration-300 ${
+              isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+            }`}
+            style={{ transitionDelay: isVisible ? '260ms' : '0ms' }}
+          >
+            {/* Moment podpisowy menu: sygnet SKŁADA SIĘ z lekkiej rozsypki
+                przy każdym otwarciu (teza chaos→forma; czysty CSS na
+                transformach per kropka, zero rAF; reduced-motion zeruje
+                przejścia globalnym CSS → forma od razu złożona). */}
+            <svg
+              viewBox={`0 0 ${SYGNET.vb[0]} ${SYGNET.vb[1]}`}
+              className="pointer-events-none absolute -right-8 -bottom-6 h-56 w-auto opacity-[0.35]"
+              aria-hidden="true"
+            >
+              {SYGNET.dots.map(([x, y, w, sx, sy], i) => (
+                <circle
+                  key={i}
+                  cx={x}
+                  cy={y}
+                  r={0.9 + w * 0.9}
+                  fill={`rgba(97,182,222,${(0.25 + 0.5 * w).toFixed(2)})`}
+                  className="transition-transform"
+                  style={{
+                    transform: isVisible
+                      ? 'translate(0, 0)'
+                      : `translate(${(sx * 0.35).toFixed(1)}px, ${(sy * 0.35).toFixed(1)}px)`,
+                    transitionDuration: isVisible ? '420ms' : '150ms',
+                    transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    transitionDelay: isVisible ? `${180 + (i % 7) * 24}ms` : '0ms',
+                  }}
+                />
+              ))}
+            </svg>
             <div className="relative z-10">
-              {/* NOWY PRODUKT: Strona w abonamencie */}
+              {/* Strona w abonamencie — cena zweryfikowana (Starter 179 zł/mc);
+                  granat marki zamiast szmaragdowego gradientu, bez pulsu. */}
               <Link
                 to="/abonament/"
                 onClick={onClose}
-                className="block mb-6 p-4 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 text-white hover:shadow-lg hover:shadow-emerald-500/30 motion-safe:hover:-translate-y-0.5 transition-all group"
+                className="block mb-8 p-4 rounded-2xl bg-dark text-white hover:shadow-lg hover:shadow-secondary/30 motion-safe:hover:-translate-y-0.5 transition-all group"
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="inline-flex items-center gap-1.5 text-xxs font-black uppercase tracking-[0.2em] text-emerald-100">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Nowość
+                  <span className="text-xxs font-black uppercase tracking-[0.2em] text-primary">
+                    Nowość
                   </span>
                   <ArrowRight
                     size={16}
@@ -214,33 +261,20 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
                   />
                 </div>
                 <p className="text-base font-black leading-tight mb-1">Strona w abonamencie</p>
-                <p className="text-xs text-emerald-50 font-medium">
+                <p className="text-xs text-white/70 font-medium">
                   Strona + SEO + leady na telefon · od 179 zł/mc
                 </p>
               </Link>
 
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-100 text-secondary text-xxs font-black uppercase tracking-wider mb-8 shadow-sm">
-                <Calendar size={12} fill="currentColor" aria-hidden="true" /> {CONTENT.offer.badge}
-              </div>
-              <h3 className="font-black text-dark text-2xl mb-4 leading-tight">
+              <p className="font-black text-dark text-2xl mb-4 leading-tight">
                 {CONTENT.offer.title} <br />
                 <span className="text-accent-dark">{CONTENT.offer.accent}</span>
-              </h3>
+              </p>
               <p className="text-sm text-gray-700 leading-relaxed mb-8 font-medium">
                 {CONTENT.offer.desc}
               </p>
-              <div className="space-y-4 mb-10">
-                {CONTENT.offer.features.map((text, i) => (
-                  <div key={i} className="flex items-center gap-3 text-xs font-bold text-dark">
-                    <div className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 border border-emerald-100">
-                      <Check size={12} aria-hidden="true" />
-                    </div>
-                    {text}
-                  </div>
-                ))}
-              </div>
             </div>
-            <div className="mt-auto">
+            <div className="mt-auto relative z-10">
               <Button
                 variant="primary"
                 size="md"
@@ -253,7 +287,7 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
               >
                 {CONTENT.offer.button}
               </Button>
-              <div className="flex items-center gap-2 text-xs font-black text-dark tracking-widest bg-white/50 px-3 py-1.5 rounded-full border border-gray-100 mt-4">
+              <div className="inline-flex items-center gap-2 text-xs font-black text-dark tracking-widest bg-white/80 px-3 py-1.5 rounded-full border border-gray-100 mt-4">
                 <Phone size={10} aria-hidden="true" /> {SITE_CONFIG.contact.phone}
               </div>
             </div>

@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Zap, ArrowRight, ShieldCheck, Globe, Sparkles } from 'lucide-react';
+import { Search, Zap, ArrowRight, ShieldCheck, Globe } from 'lucide-react';
 
+/**
+ * Zajawka darmowego audytu (formularz → /audyt-360). Przepisana 2026-07-16
+ * (audyt B czterech podstron marketingu — komponent skażał każdą stronę,
+ * na której stoi): usunięte gradient-text (zakaz), szklany wariant
+ * (No-Glass), obce palety emerald/google/indigo (zostaje paleta marki)
+ * oraz SFABRYKOWANY social proof („+4k" awatarów i „Zaufali nam liderzy
+ * branży" — liczba z powietrza). Nagłówek konfigurowalny (domyślnie h2 —
+ * komponent stoi zwykle tuż po hero i h3 przeskakiwał poziom).
+ * Stare propsy variant/colorScheme są przyjmowane i ignorowane poza
+ * light/dark — wołające strony nie wymagają zmian.
+ */
 interface AuditTeaserProps {
   placeholder?: string;
   buttonText?: string;
@@ -10,6 +21,7 @@ interface AuditTeaserProps {
   variant?: 'light' | 'dark' | 'glass';
   colorScheme?: 'emerald' | 'blue' | 'indigo';
   layout?: 'default' | 'compact';
+  headingLevel?: 'h2' | 'h3';
 }
 
 const AuditTeaser: React.FC<AuditTeaserProps> = ({
@@ -18,18 +30,19 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
   className = '',
   initialUrl = '',
   variant = 'light',
-  colorScheme = 'emerald',
   layout = 'default',
+  headingLevel = 'h2',
 }) => {
   const [url, setUrl] = useState(initialUrl);
   const navigate = useNavigate();
 
   const isCompact = layout === 'compact';
+  const isDark = variant === 'dark';
+  const Heading = headingLevel;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
-
     let cleanUrl = url.trim();
     if (!cleanUrl.startsWith('http')) {
       cleanUrl = `https://${cleanUrl}`;
@@ -37,138 +50,66 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
     navigate(`/audyt-360?url=${encodeURIComponent(cleanUrl)}`);
   };
 
-  const schemeClasses = {
-    emerald: {
-      primary: '#10b981',
-      secondary: '#059669',
-      accent: 'from-emerald-400 to-teal-500',
-      glow: 'bg-emerald-500/10',
-      badge: 'bg-emerald-500/10 text-emerald-600',
-      text: 'text-emerald-500',
-      inputFocus: 'focus:border-emerald-500/50 focus:ring-emerald-500/5',
-    },
-    blue: {
-      primary: '#4285F4',
-      secondary: '#1a73e8',
-      accent: 'from-[#4285F4] to-[#34A853]',
-      glow: 'bg-blue-500/10',
-      badge: 'bg-blue-500/10 text-blue-600',
-      text: 'text-blue-500',
-      inputFocus: 'focus:border-blue-500/50 focus:ring-blue-500/5',
-    },
-    indigo: {
-      primary: '#6366f1',
-      secondary: '#4f46e5',
-      accent: 'from-indigo-400 to-purple-500',
-      glow: 'bg-indigo-500/10',
-      badge: 'bg-indigo-500/10 text-indigo-600',
-      text: 'text-indigo-500',
-      inputFocus: 'focus:border-indigo-500/50 focus:ring-indigo-500/5',
-    },
-  };
-
-  const currentScheme = schemeClasses[colorScheme];
-
-  const containerClasses =
-    variant === 'glass'
-      ? 'bg-white/80 backdrop-blur-2xl border-white shadow-[0_32px_64px_-12px_rgba(0,0,0,0.1)]'
-      : variant === 'dark'
-        ? 'bg-[#0B1120] border-white/10 text-white shadow-2xl'
-        : 'bg-white border-gray-100 shadow-xl';
-
-  const titleColor = variant === 'dark' ? 'text-white' : 'text-dark';
-
   return (
     <div
-      className={`rounded-[2.5rem] p-1 border transition-all duration-500 ${containerClasses} ${className} ${isCompact ? 'rounded-3xl' : 'sm:p-2'}`}
+      className={`rounded-[2.5rem] border p-1 ${
+        isDark
+          ? 'border-white/10 bg-deep-dark text-white shadow-2xl'
+          : 'border-gray-100 bg-white shadow-xl'
+      } ${className} ${isCompact ? 'rounded-3xl' : 'sm:p-2'}`}
     >
       <div
-        className={`relative overflow-hidden rounded-[2.2rem] ${isCompact ? 'p-6 rounded-[1.4rem]' : 'px-6 py-10 sm:p-10'}`}
+        className={`relative overflow-hidden rounded-[2.2rem] ${
+          isCompact ? 'rounded-[1.4rem] p-6' : 'px-6 py-10 sm:p-10'
+        }`}
       >
-        {/* Abstract Background Elements */}
+        {/* Tania poświata w palecie marki (radial, bez blur-filtra). */}
         {!isCompact && (
-          <>
-            <div
-              className={`absolute -top-24 -right-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}
-            ></div>
-            <div
-              className={`absolute -bottom-24 -left-24 w-64 h-64 ${currentScheme.glow} rounded-full blur-[80px] pointer-events-none`}
-            ></div>
-          </>
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(40% 60% at 100% 0%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent 65%),' +
+                'radial-gradient(40% 60% at 0% 100%, color-mix(in srgb, var(--color-secondary) 8%, transparent), transparent 65%)',
+            }}
+            aria-hidden="true"
+          />
         )}
 
         <div className="relative z-10">
-          <div
-            className={`flex flex-col gap-4 ${isCompact ? 'mb-6' : 'lg:flex-row lg:items-end justify-between lg:gap-8 mb-10'}`}
-          >
-            <div className={isCompact ? 'w-full' : 'max-w-xl'}>
-              <div
-                className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border border-current/10 bg-white/50 backdrop-blur-sm shadow-sm ${isCompact ? 'mb-4' : 'mb-6'}`}
-              >
-                <Sparkles size={14} className={currentScheme.text} />
-                <span className="text-xxs font-black uppercase tracking-[0.2em] text-gray-500">
-                  {isCompact ? 'Darmowy Audyt' : 'Darmowy Audyt Digital 360™'}
-                </span>
-              </div>
-
-              <h3
-                className={`font-black leading-[1.1] tracking-tight ${titleColor} ${isCompact ? 'text-xl' : 'text-3xl sm:text-4xl md:text-5xl'}`}
-              >
-                {isCompact ? (
-                  <>
-                    Analiza Twojej{' '}
-                    <span
-                      className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}
-                    >
-                      Strony WWW
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    Odkryj błędy na <br />
-                    <span
-                      className={`text-transparent bg-clip-text bg-gradient-to-r ${currentScheme.accent}`}
-                    >
-                      Twojej stronie WWW
-                    </span>
-                  </>
-                )}
-              </h3>
-            </div>
-
-            {!isCompact && (
-              <div className="hidden lg:block pb-2">
-                <div className="flex flex-col items-end gap-2 text-right">
-                  <div className="flex -space-x-2">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 flex items-center justify-center text-xxs font-bold text-gray-600 shadow-sm"
-                      >
-                        {String.fromCharCode(64 + i)}
-                      </div>
-                    ))}
-                    <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-500 flex items-center justify-center text-xxs font-bold text-white shadow-sm">
-                      +4k
-                    </div>
-                  </div>
-                  <p className="text-xxs font-bold text-gray-400 uppercase tracking-widest">
-                    Zaufali nam liderzy branży
-                  </p>
-                </div>
-              </div>
-            )}
+          <div className={isCompact ? 'mb-6' : 'mb-10 max-w-xl'}>
+            <p
+              className={`mb-4 text-xxs font-black uppercase tracking-[0.2em] ${
+                isDark ? 'text-white/50' : 'text-gray-500'
+              } ${isCompact ? '' : 'sm:mb-6'}`}
+            >
+              {isCompact ? 'Darmowy audyt' : 'Darmowy audyt w 60 sekund'}
+            </p>
+            <Heading
+              className={`font-black leading-[1.1] tracking-tight text-balance ${
+                isDark ? 'text-white' : 'text-dark'
+              } ${isCompact ? 'text-xl' : 'text-3xl sm:text-4xl'}`}
+            >
+              {isCompact ? (
+                <>
+                  Analiza Twojej <span className="text-accent-dark">strony WWW</span>
+                </>
+              ) : (
+                <>
+                  Odkryj błędy na <span className="text-accent-dark">swojej stronie WWW</span>
+                </>
+              )}
+            </Heading>
           </div>
 
-          <form onSubmit={handleSubmit} className="relative group/form">
+          <form onSubmit={handleSubmit} className="group/form relative">
             <div
-              className={`flex flex-col gap-3 p-2 bg-gray-50/50 border border-gray-100 rounded-[1.8rem] backdrop-blur-sm transition-all group-focus-within/form:bg-white group-focus-within/form:shadow-2xl group-focus-within/form:shadow-black/5 ${!isCompact && 'md:flex-row'}`}
+              className={`flex flex-col gap-3 rounded-[1.8rem] border border-gray-100 bg-gray-50/50 p-2 transition-all group-focus-within/form:bg-white group-focus-within/form:shadow-2xl group-focus-within/form:shadow-black/5 ${
+                !isCompact && 'md:flex-row'
+              }`}
             >
-              <div className="relative flex-1 flex items-center">
-                <div
-                  className="absolute left-5 text-gray-400 group-focus-within/form:text-current transition-colors"
-                  style={{ color: url ? currentScheme.primary : undefined }}
-                >
+              <div className="relative flex flex-1 items-center">
+                <div className="absolute left-5 text-gray-400 transition-colors group-focus-within/form:text-secondary">
                   <Globe size={isCompact ? 18 : 22} />
                 </div>
                 <input
@@ -176,18 +117,22 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
                   placeholder={placeholder}
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  className={`w-full bg-transparent pr-6 py-5 outline-none font-medium text-dark placeholder:text-gray-400 ${isCompact ? 'pl-12 text-sm' : 'pl-14 text-lg'}`}
+                  className={`w-full bg-transparent py-5 pr-6 font-medium text-dark outline-none placeholder:text-gray-500 ${
+                    isCompact ? 'pl-12 text-sm' : 'pl-14 text-lg'
+                  }`}
                   required
                 />
               </div>
               <button
                 type="submit"
-                className={`w-full bg-dark text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all hover:bg-secondary active:scale-[0.98] shadow-lg shadow-[#213261]/20 hover:shadow-[#213261]/30 group/btn ${isCompact ? 'py-4 text-sm' : 'md:w-auto px-8 py-5 text-lg'}`}
+                className={`group/btn flex w-full items-center justify-center gap-3 rounded-2xl bg-dark font-bold text-white shadow-lg shadow-[#213261]/20 transition-all hover:bg-secondary hover:shadow-[#213261]/30 active:scale-[0.98] ${
+                  isCompact ? 'py-4 text-sm' : 'px-8 py-5 text-lg md:w-auto'
+                }`}
               >
                 <span>{buttonText}</span>
                 <ArrowRight
                   size={isCompact ? 16 : 20}
-                  className="group-hover/btn:translate-x-1 transition-transform"
+                  className="transition-transform group-hover/btn:translate-x-1"
                 />
               </button>
             </div>
@@ -195,29 +140,28 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
 
           {!isCompact && (
             <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <div className="flex items-center gap-2.5 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                  <ShieldCheck size={16} />
+              {[
+                { Icon: ShieldCheck, label: 'Bezpieczna analiza' },
+                { Icon: Zap, label: 'Wynik w 60 sekund' },
+                { Icon: Search, label: 'Analiza 20+ czynników' },
+              ].map(({ Icon, label }) => (
+                <div
+                  key={label}
+                  className={`flex items-center gap-2.5 text-xs font-bold uppercase tracking-wide ${
+                    isDark ? 'text-white/60' : 'text-gray-500'
+                  }`}
+                >
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-secondary">
+                    <Icon size={16} />
+                  </div>
+                  {label}
                 </div>
-                Bezpieczna analiza
-              </div>
-              <div className="flex items-center gap-2.5 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                <div className="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
-                  <Zap size={16} />
-                </div>
-                Wynik w 60 sekund
-              </div>
-              <div className="hidden sm:flex items-center gap-2.5 text-xs font-bold text-gray-500 uppercase tracking-wide">
-                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                  <Search size={16} />
-                </div>
-                Analiza 20+ czynników
-              </div>
+              ))}
             </div>
           )}
 
           {isCompact && (
-            <p className="mt-4 text-center text-xxs font-bold text-gray-400 uppercase tracking-widest">
+            <p className="mt-4 text-center text-xxs font-bold uppercase tracking-widest text-gray-500">
               Bezpłatnie • Wynik w 60s
             </p>
           )}

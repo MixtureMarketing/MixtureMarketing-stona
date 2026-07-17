@@ -1,139 +1,148 @@
+/**
+ * Treść huba /design/ — przepisana 2026-07-16 (krytyka 14/40).
+ * Usunięte: surowy HTML w hero (widoczny tag <strong>), sekcja ROI
+ * z liczbami z powietrza („0.05s / 94% / 200% wzrost konwersji" — zakaz:
+ * usuwać, nie podmieniać), angielski kostium („Creative Engineering",
+ * „Industry Standard Stack", „Physical Touch"). Czas realizacji brandingu
+ * ujednolicony do 3–4 tygodni (potwierdzony przez właściciela; wcześniej
+ * trzy różne wersje na trzech stronach). Ceny potwierdzone 2026-07-16:
+ * Print od 800, Branding od 3 500/8 000, UI/UX od 2 000, Audyt od 2 500.
+ */
 export const DESIGN_BRANDING_CONTENT = {
   seo: {
-    title: 'Projektowanie Graficzne i Branding | Identyfikacja Wizualna',
+    title: 'Projektowanie graficzne i branding — logo, UI/UX, druk | Mixture',
     description:
-      'Budujemy marki, które zapadają w pamięć. Oferujemy kompleksowy branding, projektowanie logo, księgi znaku, UI/UX design i materiały do druku.',
+      'Branding, projektowanie logo i ksiąg znaku, UI/UX oraz materiały do druku. Projektujemy jak inżynierowie: na siatkach, z zasadami i plikami produkcyjnymi.',
     image: '/assets/images/audyt-ux.png',
   },
   hero: {
-    badge: 'Creative Engineering',
     title: {
-      line1: 'Studio Graficzne & UI.',
-      line2: 'Design to inżynieria wizualna.',
+      line1: 'Wygląd to',
+      line2: 'inżynieria.',
     },
     description:
-      'Łączymy psychologię koloru, matematykę siatek i strategię biznesową. Projektujemy systemy, które nie tylko wyglądają, ale przede wszystkim – <strong>działają i sprzedają.</strong>',
-    cta: 'Konsultacja Wizualna',
+      'Logo, interfejsy i materiały do druku projektujemy jak systemy: na siatkach, z zasadami zapisanymi w księdze znaku i z plikami produkcyjnymi, które drukarnia i programista przyjmują bez poprawek.',
+    cta: 'Umów bezpłatną konsultację',
   },
   toolkit: {
-    title: 'Narzędzia',
-    subtitle: 'Industry Standard Stack',
+    title: 'Narzędzia, w których pracujemy',
     tools: [
-      { name: 'Figma', desc: 'UI/UX Design' },
-      { name: 'Adobe CC', desc: 'Creative Suite' },
-      { name: 'Blender', desc: '3D Modeling' },
-      { name: 'Rive / AE', desc: 'Motion' },
-      { name: 'Midjourney', desc: 'Gen AI' },
+      { name: 'Figma', desc: 'Projekty UI i prototypy' },
+      { name: 'Adobe CC', desc: 'Grafika i przygotowanie do druku' },
+      { name: 'Blender', desc: 'Wizualizacje 3D' },
+      { name: 'Rive / AE', desc: 'Animacje' },
+      { name: 'Midjourney', desc: 'Generowanie koncepcji' },
     ],
   },
   ecosystem: {
-    title: 'Design 360°',
+    title: 'Jeden system, trzy światy',
     description:
-      'Traktujemy design jako jeden organizm. Twój branding zasila UI, UI zasila marketing, a materiały drukowane domykają doświadczenie w świecie fizycznym.',
+      'Traktujemy design jako jeden organizm: branding zasila interfejsy, interfejsy zasilają marketing, a druk domyka doświadczenie w świecie fizycznym.',
     items: [
       {
         step: '01',
-        title: 'Strategia & DNA',
-        desc: 'Fundament. Określamy archetyp marki, paletę kolorów i język komunikacji. To źródło prawdy dla wszystkich innych działań.',
-        tags: ['Brand Book', 'Logo', 'Tone of Voice'],
+        title: 'Strategia i DNA marki',
+        desc: 'Fundament: archetyp marki, paleta, język komunikacji. To źródło prawdy dla wszystkich dalszych decyzji wizualnych.',
+        tags: ['Logo', 'Księga znaku', 'Ton komunikacji'],
       },
       {
         step: '02',
-        title: 'Digital Experience',
-        desc: 'Wdrożenie. Przekuwamy zasady brandingu na piksele. Strony WWW, aplikacje i social media, które konwertują.',
-        tags: ['Web Design', 'App UI', 'Social Media'],
+        title: 'Doświadczenie cyfrowe',
+        desc: 'Zasady brandingu przekute na piksele: strony, aplikacje i materiały do kampanii — spójne z marką i mierzalne.',
+        tags: ['Web design', 'UI aplikacji', 'Social media'],
       },
       {
         step: '03',
-        title: 'Physical Touch',
-        desc: 'Utrwalenie. Przenosimy markę do świata realnego. Opakowania, wizytówki i gadżety, które budują prestiż.',
-        tags: ['Packaging', 'Print', 'Merch'],
+        title: 'Świat fizyczny',
+        desc: 'Marka, którą można dotknąć: opakowania, wizytówki i materiały firmowe z plikami gotowymi do druku.',
+        tags: ['Opakowania', 'Druk', 'Materiały firmowe'],
       },
     ],
   },
   sectors: {
-    title: 'Design dla Twojej Branży',
+    title: 'Design dopasowany do branży',
     description:
-      'Każdy sektor rządzi się innymi prawami wizualnymi. Dopasowujemy estetykę do oczekiwań Twoich klientów.',
+      'Każdy sektor rządzi się innymi prawami wizualnymi. Dopasowujemy estetykę do oczekiwań Twoich klientów — nie do naszego portfolio.',
     items: [
       {
-        title: 'Tech & SaaS',
-        desc: 'Czystość, abstrakcja, dark mode. Budujemy wizerunek innowatora.',
+        title: 'Technologie i SaaS',
+        desc: 'Czystość, abstrakcja, ciemne motywy. Wizerunek firmy, która wie, co robi.',
       },
       {
         title: 'E-commerce',
-        desc: 'Ekspozycja produktu, jasne tła, czytelne CTA. Design nastawiony na sprzedaż.',
+        desc: 'Ekspozycja produktu, jasne tła, czytelne wezwania do działania. Design nastawiony na sprzedaż.',
       },
       {
-        title: 'Law & Finance',
-        desc: 'Szeryfowa typografia, granat, złoto. Wzbudzanie zaufania i stabilności.',
+        title: 'Kancelarie i finanse',
+        desc: 'Szeryfowa typografia, granat, umiar. Wzbudzanie zaufania i stabilności.',
       },
       {
-        title: 'Beauty & Wellness',
-        desc: 'Pastele, dużo światła, eleganckie detale. Granie na emocjach i zmysłach.',
+        title: 'Beauty i wellness',
+        desc: 'Światło, powietrze, eleganckie detale. Granie na emocjach i zmysłach.',
       },
     ],
   },
   pillars: {
-    title: 'Cztery Filary Designu',
+    title: 'Cztery filary designu',
     description:
-      'Kompleksowa obsługa wizualna Twojej firmy. Traktujemy design jako proces inżynierski, a nie tylko estetyczny.',
+      'Kompleksowa obsługa wizualna firmy. Każdy filar to osobna dyscyplina — i osobna podstrona z konkretami.',
     items: [
       {
         id: '01',
-        title: 'Brand Identity',
-        role: 'Strategia & DNA',
-        desc: 'Tworzymy marki, które zapadają w pamięć. Budujemy spójny system identyfikacji wizualnej, który buduje zaufanie i uzasadnia cenę premium.',
-        features: ['Strategia Marki', 'Logo & Księga Znaku', 'Archetypy Marki', 'Naming'],
+        title: 'Branding',
+        role: 'Strategia i tożsamość',
+        desc: 'Marki, które zapadają w pamięć: spójny system identyfikacji, który buduje zaufanie i uzasadnia cenę.',
+        features: ['Strategia marki', 'Logo i księga znaku', 'Archetypy marki', 'Naming'],
         path: '/design/branding/',
       },
       {
         id: '02',
         title: 'UI/UX Design',
-        role: 'Interfejsy & Użyteczność',
-        desc: 'Projektujemy intuicyjne strony i aplikacje. Skupiamy się na ścieżce użytkownika (User Journey) i konwersji, a nie tylko na ładnych obrazkach.',
-        features: ['Web Design (RWD)', 'Makiety Aplikacji', 'Prototypowanie', 'Design Systems'],
+        role: 'Interfejsy i użyteczność',
+        desc: 'Intuicyjne strony i aplikacje: projektujemy ścieżkę użytkownika i konwersję, nie tylko ładne ekrany.',
+        features: ['Web design (RWD)', 'Makiety aplikacji', 'Prototypowanie', 'Design systemy'],
         path: '/design/ui-ux/',
       },
       {
         id: '03',
-        title: 'Print & Packaging',
-        role: 'Doświadczenie Fizyczne',
-        desc: 'Przenieś markę do świata realnego. Projektujemy opakowania, które sprzedają produkt na półce oraz materiały premium (DTP).',
+        title: 'Print i opakowania',
+        role: 'Doświadczenie fizyczne',
+        desc: 'Marka w świecie realnym: opakowania, które sprzedają na półce, i materiały premium z poprawnymi plikami produkcyjnymi.',
         features: [
-          'Opakowania (Unboxing)',
-          'Katalogi i Oferty',
-          'Wizytówki Premium',
+          'Opakowania',
+          'Katalogi i oferty',
+          'Wizytówki premium',
           'Przygotowanie do druku',
         ],
         path: '/design/print/',
       },
       {
         id: '04',
-        title: 'Audyt Wizualny',
-        role: 'Analiza & Optymalizacja',
-        desc: 'Twoja strona nie sprzedaje? Sprawdzimy dlaczego. Analizujemy błędy UX, spójność marki i czytelność, wskazując konkretne elementy do poprawy.',
+        title: 'Audyt wizualny',
+        role: 'Analiza i optymalizacja',
+        desc: 'Strona nie sprzedaje? Sprawdzimy dlaczego: błędy UX, spójność marki, czytelność — z konkretną listą poprawek.',
         features: [
           'Analiza UX/UI',
-          'Audyt Spójności Marki',
-          'Weryfikacja Dostępności',
+          'Audyt spójności marki',
+          'Weryfikacja dostępności',
           'Raport z zaleceniami',
         ],
         path: '/design/visual-audit/',
       },
     ],
   },
-  roi: {
-    items: [
-      { val: '0.05s', label: 'Czas na zrobienie pierwszego wrażenia' },
-      { val: '94%', label: 'Użytkowników ocenia wiarygodność po wyglądzie' },
-      { val: '200%', label: 'Wzrost konwersji przy dobrym UX' },
-    ],
+  /** Ciemnia dowodowa — realizacje z tagami design z CMS. */
+  proof: {
+    title: 'Projekty, nie deklaracje.',
+    description:
+      'Zamiast procentów z powietrza — realne projekty, przy których robiliśmy branding, interfejsy i materiały: wejdź i oceń sam.',
+    linkLabel: 'Zobacz wszystkie realizacje',
+    linkTo: '/portfolio',
   },
   cta: {
     title: 'Wygląd ma znaczenie.',
-    text: 'Masz tylko 3 sekundy, aby zrobić dobre pierwsze wrażenie. Nie zmarnuj ich.',
-    button: 'Zamów Darmowy Audyt Wizualny',
+    text: 'Pierwsze wrażenie robi się raz. Porozmawiajmy, zanim zrobi je za Ciebie przypadkowy szablon.',
+    button: 'Zamów darmowy audyt wizualny',
   },
   faqs: [
     {
@@ -142,15 +151,15 @@ export const DESIGN_BRANDING_CONTENT = {
     },
     {
       q: 'W jakich formatach otrzymam gotowe pliki?',
-      a: 'Dostarczamy kompletny pakiet produkcyjny: formaty wektorowe (AI, EPS, SVG, PDF) dla druku i skalowania, oraz formaty rastrowe (PNG, JPG) zoptymalizowane pod Internet i social media.',
+      a: 'Dostarczamy kompletny pakiet produkcyjny: formaty wektorowe (AI, EPS, SVG, PDF) dla druku i skalowania oraz formaty rastrowe (PNG, JPG) zoptymalizowane pod internet i social media.',
     },
     {
       q: 'Ile trwa proces projektowy?',
-      a: 'Czas realizacji zależy od stopnia skomplikowania. Prosty branding (logo + księga znaku) to zazwyczaj 2-3 tygodnie. Projektowanie UI/UX dla strony www trwa od 2 do 4 tygodni, wliczając fazę makietowania i prototypowania.',
+      a: 'Czas zależy od zakresu. Branding (logo + księga znaku) to zazwyczaj 3–4 tygodnie. Projektowanie UI/UX strony trwa od 2 do 4 tygodni, wliczając makiety i prototyp.',
     },
     {
       q: 'Czy projektujecie również materiały do druku?',
-      a: 'Tak, oferujemy kompleksowe przygotowanie do druku (DTP). Projektujemy wizytówki, katalogi, opakowania, teczki ofertowe oraz banery wielkoformatowe, dbając o poprawność techniczną plików dla drukarni.',
+      a: 'Tak, oferujemy kompleksowe przygotowanie do druku (DTP): wizytówki, katalogi, opakowania, teczki ofertowe i banery wielkoformatowe — z poprawnymi technicznie plikami dla drukarni.',
     },
   ],
 };

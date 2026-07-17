@@ -39,10 +39,12 @@ const PrintPreflight: React.FC = () => {
           const isChecked = checkedItems.includes(i);
           return (
             <AnimateOnScroll key={i} delay={i * 100} className="h-full">
-              <div
+              {/* button, nie div z onClick — checklista musi działać z klawiatury */}
+              <button
                 onClick={() => toggleCheck(i)}
-                className={`p-6 rounded-2xl border transition-all h-full group cursor-pointer relative overflow-hidden
-                                ${isChecked ? 'bg-dark border-dark text-white shadow-lg transform -translate-y-1' : 'bg-white border-gray-100 hover:border-[#F4B400]'}
+                aria-pressed={isChecked}
+                className={`p-6 rounded-2xl border transition-all h-full w-full text-left group cursor-pointer relative overflow-hidden
+                                ${isChecked ? 'bg-dark border-dark text-white shadow-lg transform -translate-y-1' : 'bg-white border-gray-100 hover:border-secondary'}
                             `}
               >
                 {isChecked && (
@@ -52,7 +54,7 @@ const PrintPreflight: React.FC = () => {
                 )}
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors
-                                  ${isChecked ? 'bg-white/10 text-white' : 'bg-light-gray text-dark group-hover:text-[#F4B400]'}
+                                  ${isChecked ? 'bg-white/10 text-white' : 'bg-light-gray text-dark group-hover:text-secondary'}
                               `}
                 >
                   {item.icon}
@@ -67,7 +69,7 @@ const PrintPreflight: React.FC = () => {
                 >
                   {item.desc}
                 </p>
-              </div>
+              </button>
             </AnimateOnScroll>
           );
         })}

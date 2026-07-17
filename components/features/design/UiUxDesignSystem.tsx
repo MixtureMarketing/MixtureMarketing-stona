@@ -4,10 +4,35 @@ import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
 import { UI_UX_DESIGN_CONTENT as CONTENT } from '../../../data/content/services/design/ui-ux';
 
+/**
+ * Playground design tokens — jedyna sekcja, w której odwiedzający „projektuje"
+ * razem z nami: zmiana tokenu przemalowuje cały podgląd obok. Podgląd pokazuje
+ * UCZCIWE wzorniki komponentów (formularz, stany przycisku, karta) — atrapa
+ * dashboardu z wymyślonymi metrykami usunięta 2026-07-16 (zakaz atrap).
+ */
+
+/** Token „on-color": tekst na kolorze marki wybierany z luminancji (WCAG),
+ *  jak w prawdziwym design systemie — system sam pilnuje kontrastu. */
+const onColor = (hex: string): string => {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return lum > 0.35 ? '#0F172A' : '#FFFFFF';
+};
+
 const UiUxDesignSystem: React.FC = () => {
   const [sysColor, setSysColor] = useState('#61B6DE');
   const [sysRadius, setSysRadius] = useState(12);
   const [sysDark, setSysDark] = useState(false);
+  const sysInk = onColor(sysColor);
+
+  const inkMain = sysDark ? 'text-white' : 'text-dark';
+  const inkMuted = sysDark ? 'text-gray-300' : 'text-gray-700';
+  const specimenCard = sysDark
+    ? 'bg-white/5 border-white/10'
+    : 'bg-white border-gray-200 shadow-sm';
 
   return (
     <SectionWrapper variant="dark" overflow={true}>
@@ -15,29 +40,35 @@ const UiUxDesignSystem: React.FC = () => {
 
       <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
         {/* Left: Controls */}
-        <div className="lg:w-[35%] w-full bg-white/[0.03] backdrop-blur-xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl">
-          <div className="flex items-center gap-4 mb-10 pb-6 border-b border-white/5">
+        <div className="lg:w-[35%] w-full bg-white/[0.03] p-10 rounded-[2.5rem] border border-white/10 shadow-2xl">
+          <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
             <div className="p-3 bg-primary/20 rounded-2xl text-primary">
-              <Sliders size={24} />
+              <Sliders size={24} aria-hidden="true" />
             </div>
             <div>
-              <h3 className="font-black text-xl tracking-tight">{CONTENT.designTokens.title}</h3>
-              <p className="text-xxs text-gray-700 uppercase font-bold tracking-[0.2em]">
+              <h3 className="font-black text-xl tracking-tight text-white">
+                {CONTENT.designTokens.title}
+              </h3>
+              <p className="text-xxs text-white/60 uppercase font-bold tracking-[0.2em]">
                 {CONTENT.designTokens.subtitle}
               </p>
             </div>
           </div>
 
+          <p className="text-sm text-gray-300 leading-relaxed mb-10">
+            {CONTENT.designTokens.description}
+          </p>
+
           <div className="space-y-10">
             <div>
               <div className="flex justify-between items-center mb-4">
-                <label className="text-xxs font-black text-gray-600 uppercase tracking-widest">
+                <label className="text-xxs font-black text-white/70 uppercase tracking-widest">
                   {CONTENT.designTokens.labels.color}
                 </label>
-                <span className="text-xxs font-mono text-gray-700">{sysColor}</span>
+                <span className="text-xxs font-mono text-white/60">{sysColor}</span>
               </div>
               <div className="flex gap-4">
-                {['#61B6DE', '#E1306C', '#00C853', '#F4B400'].map((c) => (
+                {['#61B6DE', '#C2185B', '#00C853', '#F4B400'].map((c) => (
                   <button
                     key={c}
                     onClick={() => setSysColor(c)}
@@ -54,7 +85,7 @@ const UiUxDesignSystem: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <label
                   id="sys-radius-label"
-                  className="text-xxs font-black text-gray-600 uppercase tracking-widest"
+                  className="text-xxs font-black text-white/70 uppercase tracking-widest"
                 >
                   {CONTENT.designTokens.labels.radius}
                 </label>
@@ -66,64 +97,59 @@ const UiUxDesignSystem: React.FC = () => {
                 max="32"
                 value={sysRadius}
                 onChange={(e) => setSysRadius(parseInt(e.target.value))}
-                className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#61B6DE]"
+                className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#61b6de]"
                 aria-labelledby="sys-radius-label"
               />
             </div>
 
             <div>
-              <label className="text-xxs font-black text-gray-600 uppercase tracking-widest mb-4 block">
+              <label className="text-xxs font-black text-white/70 uppercase tracking-widest mb-4 block">
                 {CONTENT.designTokens.labels.theme}
               </label>
-              <div className="grid grid-cols-2 gap-3 bg-black/40 p-1.5 rounded-2xl border border-white/5">
+              <div className="grid grid-cols-2 gap-3 bg-black/40 p-1.5 rounded-2xl border border-white/10">
                 <button
                   onClick={() => setSysDark(false)}
-                  className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                  aria-pressed={!sysDark}
+                  className={`py-3 rounded-xl text-xs font-black transition-all ${!sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-white/60 hover:text-white'}`}
                 >
-                  LIGHT
+                  JASNY
                 </button>
                 <button
                   onClick={() => setSysDark(true)}
-                  className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-gray-700 hover:text-gray-300'}`}
+                  aria-pressed={sysDark}
+                  className={`py-3 rounded-xl text-xs font-black transition-all ${sysDark ? 'bg-white text-deep-dark shadow-xl' : 'text-white/60 hover:text-white'}`}
                 >
-                  DARK
+                  CIEMNY
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right: Preview Area */}
-        <div className="lg:w-[65%] w-full relative">
-          <div className="absolute -top-10 left-0 flex gap-4 pointer-events-none opacity-40">
-            <div className="w-px h-20 bg-white/20"></div>
-            <span className="text-xxxs font-mono text-gray-700 transform rotate-90">
-              VIEWPORT_VAR
-            </span>
-          </div>
-
+        {/* Right: żywy podgląd wzorników — same divy, żadnych martwych przycisków */}
+        <div className="lg:w-[65%] w-full">
           <AnimateOnScroll delay={200}>
             <div
-              className="w-full aspect-auto min-h-[600px] lg:aspect-[16/10] rounded-[3rem] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] p-10 md:p-16 transition-all duration-700 overflow-hidden relative border border-white/5"
+              className="w-full rounded-[3rem] shadow-[0_60px_120px_-20px_rgba(0,0,0,0.6)] p-8 md:p-14 transition-colors duration-700 overflow-hidden relative border border-white/5"
               style={{ backgroundColor: sysDark ? '#0F172A' : '#F9FAFB' }}
             >
-              <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] pointer-events-none"></div>
-
-              <div className="relative z-10 flex justify-between items-center mb-12">
+              <div className="relative z-10 flex justify-between items-center mb-10">
                 <div>
-                  <h3
-                    className={`text-3xl font-black mb-2 tracking-tight ${sysDark ? 'text-white' : 'text-dark'}`}
-                  >
+                  <h3 className={`text-3xl font-black mb-2 tracking-tight ${inkMain}`}>
                     {CONTENT.preview.title}
                   </h3>
-                  <p className="text-xs text-gray-600 font-bold uppercase tracking-widest">
+                  <p
+                    className={`text-xs font-bold uppercase tracking-widest ${sysDark ? 'text-gray-300' : 'text-gray-600'}`}
+                  >
                     {CONTENT.preview.subtitle}
                   </p>
                 </div>
                 <div
-                  className="w-14 h-14 rounded-3xl flex items-center justify-center text-white shadow-2xl transition-all duration-500"
+                  className="w-14 h-14 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-500"
                   style={{
                     backgroundColor: sysColor,
+                    color: sysInk,
+                    borderRadius: `${Math.max(sysRadius, 8)}px`,
                     boxShadow: `0 20px 40px -10px ${sysColor}60`,
                   }}
                 >
@@ -131,58 +157,99 @@ const UiUxDesignSystem: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                {/* Wzornik: formularz */}
                 <div
-                  className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
+                  className={`p-8 border transition-all duration-500 ${specimenCard}`}
                   style={{ borderRadius: `${sysRadius}px` }}
                 >
-                  <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
-                    {CONTENT.preview.stats.conversion}
-                  </div>
                   <div
-                    className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
+                    className={`text-xxs uppercase font-black tracking-[0.2em] mb-5 ${inkMuted}`}
                   >
-                    24.8%
+                    {CONTENT.preview.specimens.form}
                   </div>
-                </div>
-                <div
-                  className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
-                  style={{ borderRadius: `${sysRadius}px` }}
-                >
-                  <div className="text-gray-600 text-xxs uppercase font-black tracking-[0.2em] mb-4 text-center">
-                    {CONTENT.preview.stats.bounce}
+                  <div className={`text-xs font-bold mb-2 ${inkMain}`}>
+                    {CONTENT.preview.specimens.emailLabel}
                   </div>
                   <div
-                    className={`text-5xl font-black text-center ${sysDark ? 'text-white' : 'text-dark'}`}
+                    className={`px-4 py-3 text-sm border-2 mb-4 transition-all duration-500 ${sysDark ? 'bg-black/30 text-gray-300' : 'bg-white text-gray-600'}`}
+                    style={{ borderRadius: `${sysRadius * 0.7}px`, borderColor: sysColor }}
                   >
-                    12.4%
+                    {CONTENT.preview.specimens.emailPlaceholder}
                   </div>
-                </div>
-              </div>
-
-              <div
-                className={`p-8 border-2 transition-all duration-500 ${sysDark ? 'bg-white/5 border-white/5' : 'bg-white border-gray-100 shadow-sm'}`}
-                style={{ borderRadius: `${sysRadius}px` }}
-              >
-                <div className="flex items-center gap-6">
                   <div
-                    className="w-16 h-16 bg-gray-200/20 animate-pulse transition-all duration-500"
-                    style={{ borderRadius: `${sysRadius * 0.8}px` }}
-                  ></div>
-                  <div className="space-y-3 flex-1">
-                    <div className="h-4 w-3/4 bg-gray-200/20 rounded-full animate-pulse"></div>
-                    <div className="h-3 w-1/2 bg-gray-200/10 rounded-full animate-pulse"></div>
-                  </div>
-                  <button
-                    className="px-10 py-4 text-white font-black text-xs uppercase tracking-widest transition-all duration-500 hover:scale-105 active:scale-95"
+                    className="inline-block px-8 py-3 font-black text-xs uppercase tracking-widest transition-all duration-500"
                     style={{
                       backgroundColor: sysColor,
+                      color: sysInk,
                       borderRadius: `${sysRadius}px`,
                       boxShadow: `0 15px 30px -5px ${sysColor}66`,
                     }}
                   >
-                    {CONTENT.preview.button}
-                  </button>
+                    {CONTENT.preview.specimens.submit}
+                  </div>
+                </div>
+
+                {/* Wzornik: stany przycisku */}
+                <div
+                  className={`p-8 border transition-all duration-500 ${specimenCard}`}
+                  style={{ borderRadius: `${sysRadius}px` }}
+                >
+                  <div
+                    className={`text-xxs uppercase font-black tracking-[0.2em] mb-5 ${inkMuted}`}
+                  >
+                    {CONTENT.preview.specimens.buttons}
+                  </div>
+                  <div className="flex flex-col items-start gap-4">
+                    <div
+                      className="px-8 py-3 font-black text-xs uppercase tracking-widest transition-all duration-500"
+                      style={{
+                        backgroundColor: sysColor,
+                        color: sysInk,
+                        borderRadius: `${sysRadius}px`,
+                      }}
+                    >
+                      {CONTENT.preview.specimens.primary}
+                    </div>
+                    <div
+                      className="px-8 py-3 font-black text-xs uppercase tracking-widest border-2 transition-all duration-500"
+                      style={{
+                        color: sysDark ? '#fff' : '#111827',
+                        borderColor: sysColor,
+                        borderRadius: `${sysRadius}px`,
+                      }}
+                    >
+                      {CONTENT.preview.specimens.secondary}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wzornik: karta z treścią (szkielet — celowo bez tekstu, to makieta układu) */}
+              <div
+                className={`p-8 border transition-all duration-500 ${specimenCard}`}
+                style={{ borderRadius: `${sysRadius}px` }}
+              >
+                <div className={`text-xxs uppercase font-black tracking-[0.2em] mb-5 ${inkMuted}`}>
+                  {CONTENT.preview.specimens.card}
+                </div>
+                <div className="flex items-center gap-6">
+                  <div
+                    className={`w-16 h-16 transition-all duration-500 ${sysDark ? 'bg-white/10' : 'bg-gray-200'}`}
+                    style={{ borderRadius: `${sysRadius * 0.8}px` }}
+                  ></div>
+                  <div className="space-y-3 flex-1">
+                    <div
+                      className={`h-4 w-3/4 rounded-full ${sysDark ? 'bg-white/10' : 'bg-gray-200'}`}
+                    ></div>
+                    <div
+                      className={`h-3 w-1/2 rounded-full ${sysDark ? 'bg-white/5' : 'bg-gray-100'}`}
+                    ></div>
+                  </div>
+                  <div
+                    className="hidden sm:block w-24 h-10 transition-all duration-500"
+                    style={{ backgroundColor: sysColor, borderRadius: `${sysRadius}px` }}
+                  ></div>
                 </div>
               </div>
             </div>

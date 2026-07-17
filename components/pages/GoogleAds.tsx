@@ -1,20 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import DOMPurify from 'dompurify';
 import {
-  ShieldCheck,
-  TrendingUp,
-  Database,
-  Layers,
-  Cpu,
-  Terminal,
-  Target,
-  ShoppingCart,
-  Briefcase,
-  Store,
+  BadgeCheck,
   CheckCircle2,
+  Filter,
+  Phone,
+  ScanSearch,
+  SlidersHorizontal,
+  Target,
+  TrendingUp,
 } from 'lucide-react';
-import { Phone } from 'lucide-react';
-import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Button from '../common/Button';
 import Seo from '../common/Seo';
@@ -22,6 +17,7 @@ import HeroTrustLine from '../common/HeroTrustLine';
 import MarketingSpokeFooter from '../common/MarketingSpokeFooter';
 import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
+import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { SITE_CONFIG } from '../../config/site';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
@@ -32,13 +28,18 @@ import BaseCta from '../common/BaseCta';
 import FaqSection from '../sections/FaqSection';
 import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
-import { GoogleAdsHeroVisual } from '../visuals/hero/GoogleAdsVisual';
 import Container from '../common/Container';
+import PlotterTimeline from '../common/PlotterTimeline';
 
 /**
- * FB3 — sanityzacja CMS content z whitelistą tylko bezpiecznych tagow.
- * Eliminuje XSS risk z `dangerouslySetInnerHTML` bez utraty formatowania
- * (<strong>, <em>) z Sanity. Whitelist explicit — wszystko inne wyciete.
+ * /marketing/google-ads/ — przebudowa 2026-07-16 (krytyka 13/40, pełna
+ * ścieżka podstron marketingu). Usunięte: H1-obietnica „1. miejsce
+ * w Google" (własne FAQ SEO jej przeczyło), zmyślony „ROAS 4.2× / CPA −47%"
+ * (hero, bio, sticky bar), atrapa SERP w hero (plik GoogleAdsVisual
+ * skasowany), mono-teatr „Algorytmu" (statusy Connected/Processing),
+ * „Symulator Zysków" (teraz: arytmetyka założeń z zastrzeżeniem),
+ * paleta logo Google jako akcenty. Cena hero = pakiet Start z CMS
+ * (1 500 zł/mc). Google Partner zostaje — potwierdzony przez właściciela.
  */
 const sanitize = (html: string): string =>
   DOMPurify.sanitize(html, {
@@ -46,11 +47,18 @@ const sanitize = (html: string): string =>
     ALLOWED_ATTR: [],
   });
 
+/** Ikony kroków procesu — rozróżnialne, bez terminala i fejk-statusów. */
+const PROCESS_ICONS = [ScanSearch, Filter, SlidersHorizontal, TrendingUp];
+
 const GoogleAds: React.FC = () => {
   const { openModal } = useModal();
   const [pricingData, setPricingData] = useState<PricingSection | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
+  const painsRef = useSectionProgress<HTMLElement>(0.85);
+  const industriesRef = useSectionProgress<HTMLElement>(0.85);
+  const processRef = useSectionProgress<HTMLElement>(0.8);
+  const calcRef = useSectionProgress<HTMLElement>(0.85);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -58,29 +66,17 @@ const GoogleAds: React.FC = () => {
       if (data) {
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({
           ...tier,
-          onCtaClick: () =>
-            openModal('marketing', {
-              specificType: 'ads',
-              package: tier.title,
-            }),
+          onCtaClick: () => openModal('marketing', { specificType: 'ads', package: tier.title }),
         }));
         setPricingData({ ...data, tiers: tiersWithActions });
       }
     });
   }, [openModal]);
 
-  const algorithmSteps = CONTENT.algorithm.steps.map((item, i) => {
-    const icons = [
-      <Database key="db" size={20} />,
-      <Layers key="layers" size={20} />,
-      <Cpu key="cpu" size={20} />,
-      <TrendingUp key="trend" size={20} />,
-    ];
-    return { ...item, icon: icons[i] };
-  });
+  const openConsult = () => openModal('marketing', { specificType: 'ads' });
 
   return (
-    <div className="bg-white pt-20 animate-fade-in font-sans selection:bg-[#4285F4]/20">
+    <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">
       <Seo
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
@@ -93,26 +89,26 @@ const GoogleAds: React.FC = () => {
         service={{
           name: 'Google Ads / Performance Marketing',
           description:
-            'Kampanie Google Ads: Search, Performance Max, Shopping, Display. Optymalizacja CPA i ROAS dla e-commerce, B2B i lokalnych usług. Zarządzanie budżetem, A/B testy kreacji, integracje z GA4.',
+            'Kampanie Google Ads: Search, Performance Max, Shopping. Optymalizacja kosztu pozyskania, zarządzanie budżetem, integracja z GA4. Konto reklamowe zostaje własnością klienta.',
           serviceType: 'Google Ads / PPC Management',
         }}
       />
 
-      {/* --- HERO SECTION --- */}
+      {/* Hero words-only w ciemnym rejestrze — atrapa SERP usunięta z plikiem.
+          Kotwica = pakiet Start z CMS (koniec rozjazdu 1 200 vs 1 500). */}
       <div ref={heroRef}>
         <StandardHero
-          badge={CONTENT.hero.badge}
-          badgeIcon={ShieldCheck}
+          tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
-          priceHint="od 1 200 zł / mc + budżet reklamowy · ROAS sredni 4.2× · raporty co tydzień"
-          trustLine={<HeroTrustLine promise="Sam optymalizuję kampanie, raporty pisze ja" />}
+          priceHint="od 1 500 zł / mc + budżet mediowy · Search / Shopping / PMax · dashboard 24/7"
+          trustLine={<HeroTrustLine tone="dark" />}
           ctaPrimaryText={CONTENT.hero.cta}
-          ctaPrimaryOnClick={() => openModal('marketing', { specificType: 'ads' })}
+          ctaPrimaryOnClick={openConsult}
           ctaSecondaryNode={
             <a
               href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-secondary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border-2 border-white/20 px-6 py-3 font-bold text-white transition-colors hover:border-white/50 hover:bg-white/10"
             >
               <Phone size={18} aria-hidden="true" />
               Zadzwoń: {SITE_CONFIG.contact.phone}
@@ -120,221 +116,158 @@ const GoogleAds: React.FC = () => {
           }
           backLinkPath="/marketing/"
           backLinkLabel="Marketing"
-          accentGradientFrom="#4285F4"
-          accentGradientTo="#34A853"
-          visual={<GoogleAdsHeroVisual />}
         />
       </div>
 
-      {/* --- AUDIT TEASER --- */}
-      <div className="relative z-30 max-w-4xl mx-auto -mt-12 px-4">
-        <AuditTeaser
-          variant="glass"
-          colorScheme="blue"
-          buttonText="Audyt Konta Ads"
-          placeholder="Adres Twojej strony..."
-        />
+      {/* Darmowy audyt — realne narzędzie serwisu (audyt-360), bez szkła. */}
+      <div className="relative z-30 mx-auto -mt-12 max-w-4xl px-4">
+        <AuditTeaser buttonText="Audyt konta Ads" placeholder="Adres Twojej strony..." />
       </div>
 
-      {/* --- DIAGNOSIS --- */}
-      <section className="py-24 bg-white relative z-10">
+      {/* Diagnoza — ekspertyza bez liczb: wiersze z rozróżnialnymi ikonami. */}
+      <section ref={painsRef} className="relative z-10 bg-white py-24">
         <Container>
-          <SectionHeader
-            title={CONTENT.painPoints.title}
-            description={CONTENT.painPoints.description}
-            className="mb-12"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {CONTENT.painPoints.items.map((item, i) => {
-              const icons = [
-                <Terminal key="filter" size={32} className="text-red-500" />,
-                <Target key="target" size={32} className="text-red-500" />,
-                <ShieldCheck key="award" size={32} className="text-red-500" />,
-              ];
-              return (
-                <AnimateOnScroll key={i} delay={i * 100}>
-                  <div className="bg-[#FFF5F5] border border-red-100 p-8 rounded-2xl h-full hover:shadow-lg transition-all hover:-translate-y-1 group">
-                    <div className="mb-6 bg-white w-14 h-14 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      {icons[i]}
-                    </div>
-                    <h3 className="text-xl font-bold text-dark mb-3">{item.title}</h3>
-                    <p className="text-gray-600 leading-relaxed text-sm">{item.desc}</p>
-                  </div>
-                </AnimateOnScroll>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
-
-      {/* --- INDUSTRY STRATEGY --- */}
-      <section className="py-24 bg-light-gray relative overflow-hidden">
-        <Container className="relative z-10">
-          <SectionHeader
-            title={CONTENT.industries.title}
-            description={CONTENT.industries.description}
-            className="mb-16"
-          />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <AnimateOnScroll className="h-full">
-              <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-lg h-full flex flex-col hover:border-[#4285F4] transition-colors relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Briefcase size={120} className="text-[#4285F4]" />
-                </div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-[#4285F4]">
-                    <Target size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-dark">
-                      {CONTENT.industries.services.title}
-                    </h3>
-                    <p className="text-sm text-gray-700 font-bold uppercase tracking-wider">
-                      {CONTENT.industries.services.subtitle}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  {CONTENT.industries.services.desc}
-                </p>
-                <ul className="space-y-4 mb-8 flex-grow">
-                  {CONTENT.industries.services.features.map((feat, i) => (
-                    <li key={i} className="flex gap-3 items-start">
-                      <CheckCircle2 size={18} className="text-[#4285F4] mt-0.5 shrink-0" />
-                      <span
-                        className="text-sm text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: sanitize(feat) }}
-                      />
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant="outline"
-                  onClick={() => openModal('marketing', { specificType: 'ads' })}
-                >
-                  {CONTENT.industries.services.cta}
-                </Button>
-              </div>
-            </AnimateOnScroll>
-
-            <AnimateOnScroll delay={100} className="h-full">
-              <div className="bg-white rounded-3xl p-8 border-2 border-[#34A853]/20 shadow-xl h-full flex flex-col hover:border-[#34A853] transition-colors relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Store size={120} className="text-[#34A853]" />
-                </div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 bg-[#E8F5E9] rounded-xl flex items-center justify-center text-[#34A853]">
-                    <ShoppingCart size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-dark">
-                      {CONTENT.industries.ecommerce.title}
-                    </h3>
-                    <p className="text-sm text-gray-700 font-bold uppercase tracking-wider">
-                      {CONTENT.industries.ecommerce.subtitle}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  {CONTENT.industries.ecommerce.desc}
-                </p>
-                <ul className="space-y-4 mb-8 flex-grow">
-                  {CONTENT.industries.ecommerce.features.map((feat, i) => (
-                    <li key={i} className="flex gap-3 items-start">
-                      <CheckCircle2 size={18} className="text-[#34A853] mt-0.5 shrink-0" />
-                      <span
-                        className="text-sm text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: sanitize(feat) }}
-                      />
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  variant="primary"
-                  onClick={() => openModal('marketing', { specificType: 'ads' })}
-                  className="!bg-[#008a3a] hover:!bg-[#007a33] border-none"
-                >
-                  {CONTENT.industries.ecommerce.cta}
-                </Button>
-              </div>
-            </AnimateOnScroll>
-          </div>
-        </Container>
-      </section>
-
-      {/* --- CALCULATOR --- */}
-      <section className="py-24 bg-white relative z-20">
-        <Container>
-          <SectionHeader
-            title={CONTENT.calculator.title}
-            description={CONTENT.calculator.description}
-            className="mb-12"
-          />
-          <GoogleAdsCalculator />
-        </Container>
-      </section>
-
-      {/* --- ALGORITHM --- */}
-      <section className="py-24 bg-deep-dark text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
-
-        <Container className="relative z-10">
-          <SectionHeader
-            title={CONTENT.algorithm.title}
-            subtitle={CONTENT.algorithm.subtitle}
-            description={CONTENT.algorithm.description}
-            lightMode
-            className="mb-16"
-          />
-
-          <div className="relative">
-            <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-[#1E293B] -translate-y-1/2 z-0"></div>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
             <div
-              className="hidden lg:block absolute top-1/2 left-0 h-0.5 bg-gradient-to-r from-[#4285F4] to-[#34A853] -translate-y-1/2 z-0 animate-width-grow"
-              style={{ width: '100%', animationDuration: '3s' }}
-            ></div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {algorithmSteps.map((item, i) => (
-                <AnimateOnScroll key={i} delay={i * 150} className="relative z-10">
-                  <div className="group bg-[#1E293B] rounded-2xl p-6 border border-[#334155] hover:border-[#4285F4] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(66,133,244,0.15)] flex flex-col h-full">
-                    <div className="absolute -top-4 -right-4 text-6xl font-black text-white opacity-5 select-none transition-opacity group-hover:opacity-10">
-                      {item.step}
-                    </div>
-
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-deep-dark flex items-center justify-center text-[#4285F4] border border-[#334155] group-hover:scale-110 transition-transform shadow-lg">
-                        {item.icon}
-                      </div>
-                      <div className="flex items-center gap-1.5 bg-[#4285F4]/10 px-2 py-1 rounded text-xxs font-bold text-[#4285F4] border border-[#4285F4]/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#4285F4] animate-pulse"></div>
-                        {item.status}
-                      </div>
-                    </div>
-
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-[#4285F4] transition-colors">
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.painPoints.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.painPoints.description}
+              </p>
+            </div>
+            <div className="mt-12 divide-y divide-gray-100 lg:col-span-7 lg:mt-0">
+              {CONTENT.painPoints.items.map((item, i) => (
+                <div
+                  key={item.title}
+                  className="flex items-start gap-5 py-7 first:pt-0"
+                  style={{
+                    transform: `translate3d(0, calc((1 - var(--p, 1)) * ${28 + i * 16}px), 0)`,
+                  }}
+                >
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
+                    <Target size={20} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold tracking-tight text-dark">
                       {item.title}
                     </h3>
-                    <p className="text-sm text-gray-300 leading-relaxed mb-6 flex-grow">
-                      {item.desc}
-                    </p>
-
-                    <div className="mt-auto bg-deep-dark rounded-lg p-3 font-mono text-xxs text-gray-300 border border-[#334155] flex items-center gap-2 overflow-hidden">
-                      <Terminal size={12} className="text-[#34A853] shrink-0" />
-                      <span className="truncate group-hover:text-[#34A853] transition-colors">
-                        {item.cmd}
-                      </span>
-                    </div>
+                    <p className="mt-1.5 text-[15px] leading-relaxed text-gray-700">{item.desc}</p>
                   </div>
-                </AnimateOnScroll>
+                </div>
               ))}
             </div>
           </div>
         </Container>
       </section>
 
-      {/* --- PRICING --- */}
+      {/* Branże — lustro dwóch strategii (usługi | e-commerce), wjazd
+          przeciwbieżny na --p; bez wielkich ikon-watermarków. */}
+      <section ref={industriesRef} className="relative bg-light-gray py-20 md:py-28">
+        <Container>
+          <div
+            className="max-w-3xl"
+            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+          >
+            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+              {CONTENT.industries.title}
+            </h2>
+            <p className="mt-5 text-lg leading-relaxed text-gray-700">
+              {CONTENT.industries.description}
+            </p>
+          </div>
+
+          <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-0 lg:divide-x lg:divide-gray-200">
+            {[CONTENT.industries.services, CONTENT.industries.ecommerce].map((col, ci) => (
+              <div
+                key={col.title}
+                className={ci === 0 ? 'lg:pr-12' : 'lg:pl-12'}
+                style={{
+                  transform: `translate3d(calc((1 - var(--p, 1)) * ${ci === 0 ? -14 : 14}px), 0, 0)`,
+                }}
+              >
+                <p className="text-sm font-semibold text-gray-500">{col.subtitle}</p>
+                <h3 className="mt-1 text-xl font-extrabold tracking-tight text-dark">
+                  {col.title}
+                </h3>
+                <p className="mt-3 text-[15px] leading-relaxed text-gray-700">{col.desc}</p>
+                <ul className="mt-6 space-y-4">
+                  {col.features.map((feat) => (
+                    <li key={feat} className="flex items-start gap-3">
+                      <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-secondary" />
+                      <span
+                        className="text-sm leading-relaxed text-gray-700"
+                        dangerouslySetInnerHTML={{ __html: sanitize(feat) }}
+                      />
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" className="mt-8" onClick={openConsult}>
+                  {col.cta}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* Matematyka kampanii — arytmetyka założeń użytkownika (z jawnym
+          zastrzeżeniem), nie „symulator zysków". */}
+      <section ref={calcRef} className="relative z-20 bg-white py-24">
+        <Container>
+          <div style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}>
+            <SectionHeader
+              title={CONTENT.calculator.title}
+              description={CONTENT.calculator.description}
+              className="mb-12"
+            />
+          </div>
+          <div style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}>
+            <GoogleAdsCalculator />
+          </div>
+        </Container>
+      </section>
+
+      {/* Proces — linia plotera rysowana scrollem (język „żywej całości"),
+          zamiast ciemnego mono-teatru z fejk-statusami. */}
+      <section ref={processRef} className="relative bg-light-gray py-20 md:py-28">
+        <Container>
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+            <div
+              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+            >
+              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                {CONTENT.process.title}
+              </h2>
+              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                {CONTENT.process.description}
+              </p>
+              {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
+              <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
+                <BadgeCheck
+                  size={18}
+                  className="mt-0.5 shrink-0 text-secondary"
+                  aria-hidden="true"
+                />
+                <span>
+                  <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
+                  {CONTENT.partner.desc}
+                </span>
+              </p>
+            </div>
+            <PlotterTimeline
+              className="mt-12 lg:col-span-7 lg:mt-0"
+              items={CONTENT.process.steps}
+              icons={PROCESS_ICONS}
+            />
+          </div>
+        </Container>
+      </section>
+
       {pricingData && (
         <PricingTable
           title={pricingData.title}
@@ -343,29 +276,26 @@ const GoogleAds: React.FC = () => {
         />
       )}
 
-      {/* --- FAQ SECTION --- */}
       <FaqSection title="Pytania o Google Ads" items={CONTENT.faqs} />
 
-      {/* FC1+FC2 — FounderCard + spoke cross-linking */}
       <MarketingSpokeFooter
         currentType="google-ads"
         founderBio={
           <>
-            Od 2020 prowadzę kampanie Google Ads dla firm z Podkarpacia — Search, PMax, Shopping.
-            Sam piszę reklamy, sam optymalizuję bidy, sam czytam raport. Sredni ROAS 4.2× w
-            kampaniach lokalnych B2C, sredni CPA −47% w e-commerce.
+            Od 2020 prowadzimy kampanie Google Ads dla firm z Podkarpacia — Search, Performance Max,
+            Shopping. Projekt prowadzę osobiście: od audytu konta po comiesięczne omówienie wyników,
+            a Ty patrzysz na te same liczby co my w dashboardzie.
           </>
         }
       />
 
-      {/* --- CTA --- */}
       <div ref={finalCtaRef}>
         <BaseCta
           title={CONTENT.ctaAudit.title}
           description={CONTENT.ctaAudit.description}
           buttonText={CONTENT.ctaAudit.button}
           icon={Target}
-          onClick={() => openModal('marketing', { specificType: 'ads' })}
+          onClick={openConsult}
           variant="dark"
         />
       </div>
@@ -374,11 +304,11 @@ const GoogleAds: React.FC = () => {
         aboveRef={heroRef}
         belowRef={finalCtaRef}
         label="Bezpłatna konsultacja Google Ads"
-        sublabel="ROAS 4.2× · raporty co tydzień"
+        sublabel="Dashboard 24/7 · konto zostaje Twoje"
         telephone={SITE_CONFIG.contact.phoneFull}
         telephoneDisplay={SITE_CONFIG.contact.phone}
         primaryLabel="Wyceń"
-        onPrimary={() => openModal('marketing', { specificType: 'ads' })}
+        onPrimary={openConsult}
       />
     </div>
   );

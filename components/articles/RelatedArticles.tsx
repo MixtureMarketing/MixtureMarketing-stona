@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calendar, BookOpen } from 'lucide-react';
 import { cmsService, urlFor } from '../../services/cmsService';
+import { hasRealScreenshot } from '../../services/cms/mockupSlugs';
 import { SanityImage } from '../../types/sanity';
 import { formatDate } from '@/utils/date';
 
@@ -45,7 +46,15 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
           cleanSlug === 'unknown' ? '' : cleanSlug,
           category,
         );
-        setItems(data as RelatedItem[]);
+        // Odsiew makiet: `caseStudy`, których mainImage to komp z Figmy z lorem
+        // ipsum. Bez tego wracały tu tylnymi drzwiami — wykluczone z sekcji
+        // „Realizacje", wyświetlały się 3000 px niżej na tej samej stronie.
+        // Artykuły (_type === 'article') przepuszczamy bez zmian.
+        setItems(
+          (data as RelatedItem[]).filter(
+            (i) => i._type !== 'caseStudy' || hasRealScreenshot(i.slug),
+          ),
+        );
       } catch (error) {
         console.error('Failed to fetch related content:', error);
       } finally {
@@ -91,11 +100,23 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   </div>
                 ))
               : items.map((item) => (
-                  <Link key={item.slug} to={`/baza-wiedzy/${item.slug}`} className="group block">
+                  <Link
+                    key={item.slug}
+                    // Case study żyje pod /portfolio/, nie /baza-wiedzy/. Wariant
+                    // `standard` rozgałęział po `_type` poprawnie, `service` nie —
+                    // przez co realizacje linkowały w 404 (zweryfikowane: brak
+                    // dist/baza-wiedzy/fundacja-niepodzielni, jest dist/portfolio/…).
+                    to={
+                      item._type === 'caseStudy'
+                        ? `/portfolio/${item.slug}`
+                        : `/baza-wiedzy/${item.slug}`
+                    }
+                    className="group block"
+                  >
                     <div className="relative h-64 rounded-2xl overflow-hidden mb-6 shadow-md group-hover:shadow-xl transition-all duration-500">
                       {item.mainImage?.asset ? (
                         <img
-                          src={urlFor(item.mainImage).width(600).height(400).url()}
+                          src={urlFor(item.mainImage).width(600).height(400).crop('top').url()}
                           alt={item.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           loading="lazy"
@@ -168,7 +189,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   <div className="relative h-48 overflow-hidden">
                     {item.mainImage?.asset ? (
                       <img
-                        src={urlFor(item.mainImage).width(600).height(400).url()}
+                        src={urlFor(item.mainImage).width(600).height(400).crop('top').url()}
                         alt={item.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         loading="lazy"

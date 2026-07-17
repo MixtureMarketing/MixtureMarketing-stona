@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-07-16T10:14:31.519Z",
+  "url": "https://mixturemarketing.pl/",
+  "budget": {
+    "jsKB": 66,
+    "jsLimitKB": 300,
+    "cssKB": 29.2,
+    "cssLimitKB": 50,
+    "passed": true,
+    "method": "size-limit (rozmiar po kompresji), wymuszany przy każdym buildzie"
+  },
+  "lighthouse": null,
+  "crux": null,
+  "notes": ["PSI pominięte: brak PSI_API_KEY (darmowy klucz: Google Cloud Console)"]
+}

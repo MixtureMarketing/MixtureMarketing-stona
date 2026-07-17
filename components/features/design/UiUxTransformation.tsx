@@ -47,8 +47,8 @@ const UiUxTransformation: React.FC = () => {
               <div className="w-3.5 h-3.5 rounded-full bg-gray-200"></div>
               <div className="w-3.5 h-3.5 rounded-full bg-gray-200"></div>
             </div>
-            <div className="flex-1 bg-white h-8 rounded-xl border border-gray-200 flex items-center px-4 text-xxs font-mono text-gray-300">
-              https://interface-audit.mixturemarketing.pl
+            <div className="flex-1 bg-white h-8 rounded-xl border border-gray-200 flex items-center px-4 text-xxs font-mono text-gray-600">
+              https://mixturemarketing.pl
             </div>
           </div>
 

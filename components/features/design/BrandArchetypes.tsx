@@ -56,7 +56,7 @@ const BrandArchetypes: React.FC = () => {
                   {isActive && <CheckCircle2 className="text-primary" size={20} />}
                 </div>
                 <p
-                  className={`text-sm leading-relaxed ${isActive ? 'text-gray-300' : 'text-gray-700'}`}
+                  className={`text-sm leading-relaxed ${isActive ? 'text-white/80' : 'text-white/55'}`}
                 >
                   {arch.desc}
                 </p>
@@ -84,7 +84,7 @@ const BrandArchetypes: React.FC = () => {
                   {activeArchetype === 'ruler' && <Award size={64} />}
                 </div>
                 <div className="text-xs font-bold uppercase tracking-[0.3em] opacity-80">
-                  EST. 2024
+                  EST. 2020
                 </div>
               </div>
             </div>

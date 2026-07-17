@@ -19,11 +19,11 @@ const IntegrationGrid: React.FC<IntegrationGridProps> = memo(({ categories }) =>
       {categories.map((cat, i) => (
         <AnimateOnScroll key={i} delay={i * 100} className="h-full">
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-gray-200/60 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full relative overflow-hidden">
-            {/* Top Connector Status */}
-            <div className="absolute top-4 right-4 flex items-center gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xxs font-bold text-gray-600 uppercase">Active</span>
-            </div>
+            {/* Badge „Active" z pulsującą zieloną kropką usunięty 2026-07-15:
+                udawał żywy status połączenia, którego na stronie ofertowej nie ma
+                — nic tu nie jest „aktywne". To ta sama fikcja co licznik zablokowanych
+                ataków, tylko mniejsza. Przy okazji: `opacity-50` na text-gray-600 dawało
+                #a4aab2, czyli 2.34:1 — naruszenie kontrastu WCAG AA. */}
 
             {/* Icon */}
             <div
@@ -52,10 +52,10 @@ const IntegrationGrid: React.FC<IntegrationGridProps> = memo(({ categories }) =>
               ))}
             </div>
 
-            {/* Bottom Connector Graphic */}
+            {/* Stopka karty: nazwa mechanizmu zamiast martwej etykiety „API Ready" */}
             <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-gray-600 group-hover:text-primary transition-colors">
-              <span>API Ready</span>
-              <Plug size={14} />
+              <span>Integracja przez API</span>
+              <Plug size={14} aria-hidden="true" />
             </div>
           </div>
         </AnimateOnScroll>

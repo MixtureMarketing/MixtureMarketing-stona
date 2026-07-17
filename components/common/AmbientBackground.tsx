@@ -9,7 +9,13 @@ const AmbientBackground: React.FC = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+    // Dryf z pulsem strony (--page-p z Home): tło odpowiada na każdy piksel
+    // scrolla; na innych stronach zmiennej nie ma → transform 0 (statyka).
+    // -inset-y-6 nadmiaruje warstwę, żeby dryf nie odsłaniał krawędzi.
+    <div
+      className="absolute -inset-y-6 inset-x-0 overflow-hidden pointer-events-none z-0"
+      style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -24px), 0)' }}
+    >
       {/* Architectural Grid Pattern - Simplified SVG */}
       <svg
         className="absolute inset-0 w-full h-full opacity-[0.03]"
@@ -28,7 +34,8 @@ const AmbientBackground: React.FC = () => {
         <>
           <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-instagram rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
+          {/* Trzeci orb w palecie marki (był bg-instagram — obcy róż przeciekał na 3 strony) */}
+          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-accent-dark rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
         </>
       )}
     </div>

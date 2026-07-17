@@ -16,7 +16,7 @@ export const getErrorDetails = (
 ): Record<string, ErrorDetail> => ({
   NO_CITY_KEYWORD: {
     title: 'Brak Miasta w Treści',
-    impact: '📉 Klient Cię nie znajdzie',
+    impact: 'Klient Cię nie znajdzie',
     desc: 'Twoja firma działa w konkretnym mieście, ale nie ma o nim wzmianki w treści strony, nagłówku H1 ani tytule. Tracisz klientów wpisujących "usługa + miasto".',
     cta: 'Pozycjonowanie Lokalne',
     offerLink: '/marketing/seo',
@@ -25,7 +25,7 @@ export const getErrorDetails = (
   },
   NO_PIXEL: {
     title: 'Ślepota Facebooka',
-    impact: '📉 Tracisz powracających klientów',
+    impact: 'Tracisz powracających klientów',
     desc: 'Twoja strona nie wysyła danych do Facebooka. Remarketing jest niemożliwy. Każdy odwiedzający przepada bezpowrotnie.',
     cta: 'Wdróż Meta Pixel',
     offerLink: '/marketing/meta-ads',
@@ -34,7 +34,7 @@ export const getErrorDetails = (
   },
   NO_ANALYTICS: {
     title: 'Brak Analityki',
-    impact: '📉 Lecisz z zamkniętymi oczami',
+    impact: 'Lecisz z zamkniętymi oczami',
     desc: 'Nie wiesz, skąd przychodzą klienci i na czym tracisz pieniądze. Konieczne wdrożenie GA4.',
     cta: 'Wdróż GA4',
     offerLink: '/marketing/analytics',
@@ -42,8 +42,8 @@ export const getErrorDetails = (
   },
   SLOW_LCP: {
     title: 'Wolny Serwer (LCP)',
-    impact: '📉 Klienci uciekają',
-    desc: 'Klient czeka ponad 2.5 sekundy na treść. Według Google, każda sekunda opóźnienia to spadek konwersji o 7%. Tracisz budżet reklamowy na puste kliknięcia.',
+    impact: 'Klienci uciekają',
+    desc: 'Klient czeka ponad 2.5 sekundy na treść. Według badań branżowych (Akamai) każda sekunda opóźnienia wyraźnie obniża konwersję. Tracisz budżet reklamowy na puste kliknięcia.',
     cta: 'Przyspiesz Stronę',
     offerLink: '/web-development/corporate',
     articleLink: '/baza-wiedzy/core-web-vitals-2025',
@@ -52,7 +52,7 @@ export const getErrorDetails = (
   },
   MED_LCP: {
     title: 'Można Szybciej',
-    impact: '⚠️ Tracisz potencjał',
+    impact: 'Tracisz potencjał',
     desc: 'Jesteś w normie, ale konkurencja może być szybsza. Warto zoptymalizować zdjęcia i skrypty.',
     cta: 'Optymalizacja Szybkości',
     offerLink: '/web-development/corporate',
@@ -62,7 +62,7 @@ export const getErrorDetails = (
   },
   NO_MOBILE: {
     title: 'Brak Wersji Mobile',
-    impact: '📉 Ignorujesz 70% rynku',
+    impact: 'Ignorujesz 70% rynku',
     desc: 'Twoja strona nie skaluje się na telefonach. Ponad 70% ruchu z reklam to mobile - ci ludzie nic u Ciebie nie kupią.',
     cta: 'Nowa Strona RWD',
     offerLink: '/web-development/landing-page',
@@ -71,7 +71,7 @@ export const getErrorDetails = (
   },
   NO_SSL: {
     title: 'Strona Niezabezpieczona',
-    impact: '📉 Brak zaufania',
+    impact: 'Brak zaufania',
     desc: 'Brak kłódki (SSL). Przeglądarki oznaczają Twoją stronę jako "Niebezpieczną", co drastycznie odstrasza klientów.',
     cta: 'Zabezpiecz Stronę',
     offerLink: '/web-development/custom-app',
@@ -80,7 +80,7 @@ export const getErrorDetails = (
   },
   GHOST_FIRM: {
     title: 'Firma Widmo',
-    impact: '📉 Niska wiarygodność',
+    impact: 'Niska wiarygodność',
     desc: 'Masz mniej niż 5 opinii. Dla nowego klienta wyglądasz na firmę, która powstała wczoraj. Trucno zaufać takiej wizytówce.',
     cta: 'Strategia Reputacji',
     offerLink: '/kontakt',
@@ -89,7 +89,7 @@ export const getErrorDetails = (
   },
   BAD_RATING: {
     title: 'Niska Ocena',
-    impact: '📉 Klienci wybierają innych',
+    impact: 'Klienci wybierają innych',
     desc: 'Twoja średnia to poniżej 4.2. Klienci wybierają konkurencję z lepszymi ocenami. To wymaga pilnej strategii naprawczej.',
     cta: 'Napraw Reputację',
     offerLink: '/kontakt',
@@ -98,7 +98,7 @@ export const getErrorDetails = (
   },
   NO_PHOTOS: {
     title: 'Pusta Wizytówka',
-    impact: '📉 Mniej kliknięć',
+    impact: 'Mniej kliknięć',
     desc: 'Brak zdjęć w wizytówce Google. Klienci kupują oczami. Profile ze zdjęciami mają 2x więcej kliknięć.',
     cta: 'Uzupełnij wizytówkę',
     offerLink: '/kontakt',
@@ -106,7 +106,7 @@ export const getErrorDetails = (
   },
   HIGH_CLS: {
     title: 'Skacząca Treść',
-    impact: '📉 Irytacja użytkownika',
+    impact: 'Irytacja użytkownika',
     desc: 'Elementy strony przesuwają się podczas ładowania. To irytuje użytkowników i obniża wynik Core Web Vitals.',
     cta: 'Napraw Stabilność',
     offerLink: '/web-development/corporate',
@@ -115,7 +115,7 @@ export const getErrorDetails = (
   },
   BIG_IMAGES: {
     title: 'Ciężkie Zdjęcia',
-    impact: '📉 Wolne ładowanie',
+    impact: 'Wolne ładowanie',
     desc: 'Twoje grafiki nie są skompresowane lub używają starych formatów (JPG/PNG). Przejdź na WebP/AVIF, aby zyskać na szybkości.',
     cta: 'Zoptymalizuj Grafiki',
     offerLink: '/web-development/corporate',
@@ -124,7 +124,7 @@ export const getErrorDetails = (
   },
   NO_GTM: {
     title: 'Brak Tag Managera',
-    impact: '📉 Wyższe koszty zmian',
+    impact: 'Wyższe koszty zmian',
     desc: 'Kody wpięte na sztywno utrudniają zarządzanie marketingiem i generują koszty programistyczne.',
     cta: 'Wdrożenie GTM',
     offerLink: '/marketing/analytics',
@@ -132,7 +132,7 @@ export const getErrorDetails = (
   },
   NO_DESC: {
     title: 'Brak Opisu SEO',
-    impact: '📉 Słabsze SEO',
+    impact: 'Słabsze SEO',
     desc: 'Google nie wie, jaki opis wyświetlić w wyszukiwarce. Tracisz darmowe kliknięcia z SEO organicznego.',
     cta: 'Audyt SEO',
     offerLink: '/kontakt',
@@ -141,7 +141,7 @@ export const getErrorDetails = (
   },
   OLD_JS: {
     title: 'Przestarzały Kod',
-    impact: '📉 Ryzyko błędów',
+    impact: 'Ryzyko błędów',
     desc: 'Strona używa starych bibliotek JS. Może to powodować problemy na nowych telefonach i obniżać bezpieczeństwo.',
     cta: 'Modernizacja Strony',
     offerLink: '/web-development/custom-app',
@@ -149,7 +149,7 @@ export const getErrorDetails = (
   },
   NO_SOCIAL: {
     title: 'Brak Social Media',
-    impact: '📉 Ograniczony zasięg',
+    impact: 'Ograniczony zasięg',
     desc: 'Nie wykryliśmy linków do mediów społecznościowych. Tracisz szansę na budowanie społeczności i lojalności klientów.',
     cta: 'Strategia Social',
     offerLink: '/kontakt',
@@ -157,7 +157,7 @@ export const getErrorDetails = (
   },
   BAD_A11Y: {
     title: 'Niedostępna Strona',
-    impact: '📉 Wykluczenie użytkowników',
+    impact: 'Wykluczenie użytkowników',
     desc: 'Twoja strona jest trudna w obsłudze dla osób niepełnosprawnych (np. czytniki ekranu). Wynik dostępności poniżej 70/100.',
     cta: 'Popraw dostępność',
     offerLink: '/web-development/corporate',
@@ -165,7 +165,7 @@ export const getErrorDetails = (
   },
   NO_OG: {
     title: 'Brzydkie Linki',
-    impact: '📉 Mniej kliknięć z Facebooka',
+    impact: 'Mniej kliknięć z Facebooka',
     desc: 'Brak tagów Open Graph. Gdy ktoś udostępni Twoją stronę na Facebooku/LinkedIn, pojawi się brzydki, pusty link bez zdjęcia i opisu.',
     cta: 'Wdróż Open Graph',
     offerLink: '/web-development/corporate',
@@ -173,7 +173,7 @@ export const getErrorDetails = (
   },
   NO_SCHEMA: {
     title: 'Brak Danych Strukturalnych',
-    impact: '📉 Gorsza widoczność w Google',
+    impact: 'Gorsza widoczność w Google',
     desc: 'Google nie rozumie kontekstu Twojej strony (nie wie, że to Firma Lokalna, Produkt czy Artykuł). Tracisz szansę na rozszerzone wyniki wyszukiwania (gwiazdki, ceny w Google).',
     cta: 'Wdróż Schema.org',
     offerLink: '/kontakt',
@@ -182,7 +182,7 @@ export const getErrorDetails = (
   },
   NO_FAVICON: {
     title: 'Brak Ikony (Favicon)',
-    impact: '📉 Brak profesjonalizmu',
+    impact: 'Brak profesjonalizmu',
     desc: 'W pasku przeglądarki brakuje logo Twojej firmy. To drobiazg, który buduje zaufanie i rozpoznawalność marki.',
     cta: 'Dodaj Favicon',
     offerLink: '/design/branding',
@@ -190,7 +190,7 @@ export const getErrorDetails = (
   },
   NO_ALTS: {
     title: 'Ślepe Obrazki (Brak ALT)',
-    impact: '📉 Gorsze SEO i Dostępność',
+    impact: 'Gorsze SEO i Dostępność',
     desc: 'Wiele Twoich zdjęć nie ma opisu alternatywnego. Google nie wie, co na nich jest, a osoby niewidome nie mogą ich "zobaczyć".',
     cta: 'Uzupełnij atrybuty ALT',
     offerLink: '/web-development/corporate',
@@ -199,7 +199,7 @@ export const getErrorDetails = (
   },
   BAD_H1: {
     title: 'Chaotyczne Nagłówki',
-    impact: '📉 Google gubi wątek',
+    impact: 'Google gubi wątek',
     desc: 'Na stronie powinien być dokładnie jeden nagłówek główny (H1). U Ciebie jest ich 0 lub więcej niż 1. To osłabia pozycjonowanie.',
     cta: 'Napraw Strukturę',
     offerLink: '/marketing/seo',
@@ -207,7 +207,7 @@ export const getErrorDetails = (
   },
   THIN_CONTENT: {
     title: 'Zbyt Mało Treści',
-    impact: '📉 Strona uznana za pustą',
+    impact: 'Strona uznana za pustą',
     desc: 'Wykryliśmy mniej niż 200 słów treści. Google może uznać Twoją stronę za mało wartościową (tzw. Thin Content) i pominąć ją w wynikach.',
     cta: 'Rozbuduj Treści',
     offerLink: '/marketing/seo',

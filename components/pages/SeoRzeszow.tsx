@@ -22,8 +22,6 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import HeroBadge from '../common/HeroBadge';
-import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 
@@ -132,10 +130,6 @@ const SeoRzeszow: React.FC = () => {
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      speakable: {
-        '@type': 'SpeakableSpecification',
-        cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
-      },
       mainEntity: faq.map((f) => ({
         '@type': 'Question',
         name: f.question,
@@ -158,44 +152,43 @@ const SeoRzeszow: React.FC = () => {
         jsonLd={jsonLd}
       />
 
-      <AmbientBackground />
-
-      <div className="pt-32 pb-20 relative z-10">
-        <Container>
-          {/* HERO */}
-          <div ref={heroRef} className="max-w-4xl mx-auto text-center mb-20">
-            <HeroBadge accent="secondary" className="mb-6">
-              SEO · Pozycjonowanie · Rzeszów
-            </HeroBadge>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 text-dark leading-tight">
-              Agencja SEO{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-                Rzeszów
-              </span>
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — HeroBadge
+          i gradient-text out; „audyt w 5 dni" potwierdzony przez właściciela. */}
+      <div ref={heroRef} className="bg-deep-dark text-white pt-40 pb-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none"></div>
+        <Container className="relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Agencja SEO <span className="text-primary">Rzeszów</span>
               <br />
-              Pozycjonowanie Stron Internetowych
+              pozycjonowanie stron internetowych
             </h1>
-            <p className="text-xl text-gray-600 mb-4">
+            <p className="text-xl text-gray-300 mb-4 max-w-3xl">
               Pozycjonujemy strony dla firm z Rzeszowa, Mielca, Stalowej Woli, Krosna i Przemyśla.
               Lokalne SEO + Mapy Google, ogólnopolskie SEO, e-commerce SEO. Bezpłatny audyt wstępny.
             </p>
-            <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mt-8">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 mt-8">
               <Button onClick={() => openModal('general', { specificType: 'seo_rzeszow' })}>
                 Bezpłatny audyt SEO
               </Button>
               <a
                 href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-dark hover:border-primary hover:bg-blue-50 hover:text-secondary font-bold rounded-full transition-colors motion-safe:focus-visible:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 border-2 border-white/15 text-white hover:border-primary hover:text-primary font-bold rounded-full transition-colors"
               >
                 <Phone size={18} aria-hidden="true" />
                 Zadzwoń: {SITE_CONFIG.contact.phone}
               </a>
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p className="text-xs text-white/70 mt-3">
               Pn–Pt 9–17 · Audyt wstępny w 5 dni · Bez zobowiązań
             </p>
           </div>
+        </Container>
+      </div>
 
+      <div className="py-20 relative z-10">
+        <AmbientBackground />
+        <Container className="relative z-10">
           {/* H2: Jak dzialamy */}
           <div className="mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
@@ -208,7 +201,7 @@ const SeoRzeszow: React.FC = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-violet-100 text-violet-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <FileSearch size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Audyt na start</h3>
@@ -218,7 +211,7 @@ const SeoRzeszow: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <Target size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Frazy biznesowe</h3>
@@ -228,7 +221,7 @@ const SeoRzeszow: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">
                   <BarChart3 size={24} />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Transparentne raporty</h3>
@@ -258,25 +251,26 @@ const SeoRzeszow: React.FC = () => {
                 </h3>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>
-                      Map Pack w SERP zajmuje 30–60% widoku — bez optymalizacji GBP nie wygrasz
+                      Map Pack w SERP potrafi zdominować pierwszy ekran wyników — bez optymalizacji
+                      GBP nie wygrasz
                     </span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>
                       Konkurencja: 50–150 firm per branża zamiast tysięcy — szybsze efekty
                     </span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>
                       Lokalne sygnały: NAP w katalogach PL, recenzje Google, schema LocalBusiness
                     </span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>
                       Backlinki regionalne: Klaster IT Podkarpacie, RARR, biznes.rzeszow.pl, PRz
                     </span>
@@ -290,19 +284,19 @@ const SeoRzeszow: React.FC = () => {
                 </h3>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Content hub — 50+ artykułów eksperckich, pillar pages, klastry</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <span>Backlink profile — DR 40+ ogólnopolskie portale, branżowe media</span>
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
+                    <span>Backlink profile — mocne portale ogólnopolskie i branżowe media</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>Brand SEO — wzmianki bez linka liczą się dla Google E-E-A-T</span>
                   </li>
                   <li className="flex gap-2">
-                    <CheckCircle2 size={18} className="text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
                     <span>GEO / AI search — llms.txt, schema, cytowalność dla AI Overviews</span>
                   </li>
                 </ul>
@@ -371,60 +365,23 @@ const SeoRzeszow: React.FC = () => {
               Wybrane przypadki realizacji (część anonimowa ze względu na NDA). Pełne dane
               prezentujemy na spotkaniu.
             </p>
-            <div className="grid md:grid-cols-3 gap-6">
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-violet-700 uppercase tracking-wider mb-2">
-                  Kancelaria prawna · Rzeszów
-                </p>
-                <h3 className="text-lg font-bold mb-2">Lokalne SEO + Google Business Profile</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  TOP3 dla 8 fraz typu „adwokat Rzeszów", „kancelaria prawna Rzeszów" w 5 miesięcy.
-                  Wzrost połączeń z GBP +280%.
-                </p>
-                <p className="text-2xl font-extrabold text-violet-700">
-                  +<CountUp to={340} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">leady z formularza WWW w 6 miesięcy</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-2">
-                  Producent B2B · SSE Mielec
-                </p>
-                <h3 className="text-lg font-bold mb-2">Ogólnopolskie SEO + content hub</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  35 artykułów eksperckich, podstrony usługowe, pillar pages. TOP10 dla 47 fraz
-                  ogólnopolskich w branży lotnictwa.
-                </p>
-                <p className="text-2xl font-extrabold text-emerald-700">
-                  +<CountUp to={127} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">organic traffic w 8 miesięcy</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider mb-2">
-                  E-commerce · Podkarpacie
-                </p>
-                <h3 className="text-lg font-bold mb-2">SEO sklepu — 1200 SKU</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Optymalizacja kategorii, filtrów, snippetów produktowych (Product schema).
-                  Konsolidacja duplikatów. Audyt indeksacji.
-                </p>
-                <p className="text-2xl font-extrabold text-orange-700">
-                  −<CountUp to={47} suffix="%" />
-                </p>
-                <p className="text-xs text-gray-500">CPA — koszt pozyskania klienta</p>
-              </article>
-            </div>
-            <p className="text-center mt-8">
+            {/* Trzy anonimowe karty z metrykami (TOP3/8 fraz, +280%, +340%,
+                TOP10/47 fraz, +127% „w 8 mies", −47%/„1200 SKU") usunięte —
+                te same liczby żyły na /web-development/rzeszow z INNYMI ramami
+                czasowymi (odcisk palca generatora, nie pomiaru). */}
+            <div className="text-center bg-white rounded-3xl p-10 border border-gray-100 shadow-sm max-w-3xl mx-auto">
+              <p className="text-lg text-gray-700 mb-6">
+                Nie pokazujemy tu anonimowych procentów. Podpisane realizacje z opisem zakresu prac
+                znajdziesz w portfolio — a na spotkaniu pokażemy raporty z GSC i Senuto dla
+                projektów, które możemy omówić.
+              </p>
               <Link
                 to="/portfolio/"
-                className="text-primary hover:underline font-semibold inline-flex items-center gap-2"
+                className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
               >
-                Zobacz pełne portfolio realizacji <ArrowRight size={16} />
+                Zobacz pełne portfolio realizacji <ArrowRight size={16} aria-hidden="true" />
               </Link>
-            </p>
+            </div>
           </div>
 
           {/* H2: Cennik */}
@@ -448,7 +405,7 @@ const SeoRzeszow: React.FC = () => {
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-primary/40">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
+                <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                   Ogólnopolskie SEO
                 </p>
                 <p className="text-3xl font-extrabold mb-2">od 2 500 zł/mies</p>
@@ -476,8 +433,8 @@ const SeoRzeszow: React.FC = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 text-center mt-6">
-              Minimum współpracy: 3 miesiące. Po pierwszym kwartale otrzymujesz pełen raport wpływu
-              i decydujesz, czy kontynuujemy.
+              Umowy od 3 miesięcy (polecamy 6 — patrz FAQ). Po pierwszym kwartale otrzymujesz pełen
+              raport wpływu i decydujesz, czy kontynuujemy.
             </p>
           </div>
 
@@ -485,7 +442,7 @@ const SeoRzeszow: React.FC = () => {
           <div className="mb-20 bg-gradient-to-br from-blue-50 to-white rounded-3xl p-8 md:p-12 border border-blue-100">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 text-xs font-bold uppercase tracking-wider mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 text-secondary text-xs font-bold uppercase tracking-wider mb-4">
                   <Wrench size={14} />
                   <span>Połącz z web</span>
                 </div>
@@ -500,14 +457,14 @@ const SeoRzeszow: React.FC = () => {
                 <div className="flex flex-col gap-2">
                   <Link
                     to="/web-development/rzeszow/"
-                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                    className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
                   >
                     Tworzenie stron internetowych Rzeszów{' '}
                     <ArrowRight size={16} aria-hidden="true" />
                   </Link>
                   <Link
                     to="/agencja-interaktywna-rzeszow/"
-                    className="inline-flex items-center gap-2 text-primary font-semibold hover:underline"
+                    className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
                   >
                     Agencja interaktywna Rzeszów (pełna oferta 360°){' '}
                     <ArrowRight size={16} aria-hidden="true" />
@@ -547,7 +504,7 @@ const SeoRzeszow: React.FC = () => {
             </p>
             <Link
               to="/pozycjonowanie-rzeszow/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-bold rounded-full hover:bg-pink-700 transition-colors text-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-bold rounded-full hover:bg-secondary/90 transition-colors text-sm"
             >
               Przewodnik: Pozycjonowanie Rzeszów <ArrowRight size={16} />
             </Link>
@@ -615,7 +572,7 @@ const SeoRzeszow: React.FC = () => {
                   <strong>Telefon:</strong>{' '}
                   <a
                     href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.phone}
                   </a>
@@ -624,7 +581,7 @@ const SeoRzeszow: React.FC = () => {
                   <strong>E-mail:</strong>{' '}
                   <a
                     href={`mailto:${SITE_CONFIG.contact.email}`}
-                    className="text-primary hover:underline"
+                    className="text-secondary font-bold hover:underline"
                   >
                     {SITE_CONFIG.contact.email}
                   </a>

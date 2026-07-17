@@ -1,134 +1,195 @@
 import React from 'react';
 import { ArrowRight, CheckCircle2, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import AmbientBackground from '../common/AmbientBackground';
-import GlassCard from '../common/GlassCard';
+import WanderingGlow from '../visuals/WanderingGlow';
+import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { SERVICES_CONTENT as CONTENT } from '../../data/content';
 import { SERVICES_SECTION_DATA } from '../../data/content/services';
-import { CodeVisual, ChartVisual, UiVisual } from '../visuals/ServiceVisuals';
 
-const VisualMap = {
-  code: <CodeVisual />,
-  chart: <ChartVisual />,
-  ui: <UiVisual />,
+/**
+ * Sekcja „Kompetencje, których potrzebujesz".
+ *
+ * Redesign: usunięto atrapy (fejkowy kod/wykres/bloki UI z ServiceVisuals) oraz
+ * watermark „SERVICES". 3 realne kompetencje (Web/Marketing/Design) w siatce,
+ * każda z własnym akcentem koloru marki; „Strona w abonamencie" (SaaS) wydzielona
+ * jako osobny, wyróżniony pas — bo to produkt, nie równorzędny obszar.
+ *
+ * Immersyjny scroll (--p z useSectionProgress): to arkusz, który najeżdża na
+ * hero — treść „dogania" go z opóźnieniem rosnącym z głębią (nagłówek szybko,
+ * karty kolejno, pasy SaaS/lokalny najpóźniej). Scroll-linked = działa w obie
+ * strony; spoczynek to var(--p, 1) — prerender/reduced-motion widzi statykę.
+ */
+
+// Dryf zależny od głębi: 0 przy p=1 (spoczynek), px przy p=0.
+const drift = (px: number): React.CSSProperties => ({
+  transform: `translate3d(0, calc((1 - var(--p, 1)) * ${px}px), 0)`,
+});
+
+// Akcent per domena — z palety marki (bez nowych kolorów). Statyczne klasy,
+// żeby Tailwind je zachował (nie budujemy nazw klas dynamicznie ze stringów).
+const ACCENT: Record<string, { icon: string; iconHover: string; check: string; border: string }> = {
+  web: {
+    icon: 'bg-primary/10 text-primary',
+    iconHover: 'group-hover:bg-primary',
+    check: 'text-primary',
+    border: 'hover:border-primary',
+  },
+  marketing: {
+    icon: 'bg-secondary/10 text-secondary',
+    iconHover: 'group-hover:bg-secondary',
+    check: 'text-secondary',
+    border: 'hover:border-secondary',
+  },
+  design: {
+    icon: 'bg-brand-pink/10 text-brand-pink',
+    iconHover: 'group-hover:bg-brand-pink',
+    check: 'text-brand-pink',
+    border: 'hover:border-brand-pink',
+  },
 };
 
 const Services: React.FC = () => {
+  const core = SERVICES_SECTION_DATA.filter((s) => s.key !== 'saas');
+  const saas = SERVICES_SECTION_DATA.find((s) => s.key === 'saas');
+  const sectionRef = useSectionProgress<HTMLElement>(0.9);
+
   return (
-    <section id="services" className="py-32 relative bg-gray-50 overflow-hidden">
+    <section
+      id="services"
+      ref={sectionRef}
+      data-mixture-front
+      className="relative z-10 -mt-10 overflow-hidden rounded-t-[2rem] bg-gray-50 pt-20 pb-24 md:-mt-16 md:rounded-t-[3rem] md:pt-28 md:pb-28"
+    >
       <AmbientBackground />
 
-      {/* --- PARALLAX BACKGROUND TEXT --- */}
-      <div className="absolute top-20 left-0 w-full overflow-hidden pointer-events-none z-0 opacity-5 select-none">
-        <div
-          className="text-[20vw] font-black text-dark whitespace-nowrap leading-none tracking-tighter"
-          style={{ transform: 'translateX(-10%)' }}
-        >
-          SERVICES
-        </div>
-      </div>
-
-      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="max-w-2xl">
-            <SectionHeader align="left" title={CONTENT.title} description={CONTENT.description} />
-          </div>
+      <div className="relative z-10 mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-14 max-w-2xl md:mb-16" style={drift(24)}>
+          <SectionHeader
+            align="left"
+            triad
+            title={CONTENT.title}
+            description={CONTENT.description}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch">
-          {SERVICES_SECTION_DATA.map((service, index) => {
+        {/* 3 realne kompetencje */}
+        <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-3 md:gap-7">
+          {core.map((service, index) => {
             const Icon = service.icon;
+            const accent = ACCENT[service.key] ?? ACCENT.web;
             return (
-              <AnimateOnScroll
-                key={index}
-                delay={index * 100}
-                className={`h-full ${index === 2 ? 'md:col-span-2 lg:col-span-1' : ''}`}
-              >
-                <GlassCard
-                  className={`
-                    group relative p-0 overflow-hidden flex flex-col h-full z-10 transition-all duration-500
-                    hover:border-primary hover:shadow-2xl motion-safe:hover:-translate-y-2
-                `}
+              <div key={service.key} className="h-full" style={drift(56 + index * 30)}>
+                <Link
+                  to={service.path}
+                  className={`group relative flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl motion-safe:hover:-translate-y-1 ${accent.border}`}
                 >
-                  {/* Card Header with Icon */}
-                  <div className="p-6 md:p-8 pb-0">
-                    <div className="flex justify-between items-start mb-4 md:mb-6">
-                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-gray-50 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
-                        <Icon
-                          size={24}
-                          className="group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
-                      <span className="text-xxs md:text-xs font-black uppercase tracking-widest text-gray-600 bg-gray-50 px-3 py-1 rounded-full group-hover:bg-blue-50 group-hover:text-secondary transition-colors">
-                        {service.subtitle}
-                      </span>
-                    </div>
-
-                    <h3 className="text-xl md:text-2xl font-bold mb-3 text-dark">
-                      {service.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed text-sm mb-6">{service.desc}</p>
-                  </div>
-
-                  {/* Features List */}
-                  <div className="px-6 md:px-8 pb-6 flex-grow">
-                    <ul className="space-y-2 md:space-y-3">
-                      {service.features.map((feat, i) => (
-                        <li
-                          key={i}
-                          className="flex items-center gap-3 text-sm font-medium text-gray-600"
-                        >
-                          <CheckCircle2 size={14} className="text-primary shrink-0" />
-                          {feat}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Visual Footer area */}
-                  <div className="mt-auto border-t border-gray-100 bg-gray-50/50 p-6 pt-4 group-hover:bg-white transition-colors">
-                    {/* Abstract Mini Visualization */}
-                    <div className="mb-4 opacity-50 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0">
-                      {VisualMap[service.visualType as keyof typeof VisualMap]}
-                    </div>
-
-                    {/* Stretched link (WCAG 4.1.2): jedyny focusable element karty.
-                        Link sam jest static, ale jego ::after jest absolute pokrywajacy
-                        GlassCard (najblizszy `relative` ancestor) — cala karta klikalna,
-                        ale tylko 1 element interaktywny dla SR/klawiatury. */}
-                    <Link
-                      to={service.path}
-                      className="w-full inline-flex items-center justify-between gap-2 px-4 py-2 text-sm font-bold rounded-lg text-dark group-hover:bg-blue-50 group-hover:text-secondary transition-colors after:absolute after:content-[''] after:inset-0 after:rounded-2xl"
+                  <div className="mb-6 flex items-center justify-between">
+                    <div
+                      className={`flex h-14 w-14 items-center justify-center rounded-2xl transition-colors duration-300 group-hover:text-white ${accent.icon} ${accent.iconHover}`}
                     >
-                      <span className="relative z-10">{service.button}</span>
-                      <ArrowRight
-                        size={18}
-                        aria-hidden="true"
-                        className="relative z-10 transform group-hover:translate-x-1 transition-transform"
-                      />
-                    </Link>
+                      <Icon size={26} />
+                    </div>
+                    <span className="text-xxs font-black uppercase tracking-[0.18em] text-gray-400">
+                      {service.subtitle}
+                    </span>
                   </div>
-                </GlassCard>
-              </AnimateOnScroll>
+
+                  <h3 className="mb-3 text-2xl font-bold tracking-tight text-dark">
+                    {service.title}
+                  </h3>
+                  <p className="mb-6 text-sm leading-relaxed text-gray-600">{service.desc}</p>
+
+                  <ul className="mb-8 space-y-3">
+                    {service.features.map((feat, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center gap-3 text-sm font-medium text-gray-700"
+                      >
+                        <CheckCircle2 size={16} className={`shrink-0 ${accent.check}`} />
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Stretched link (WCAG 4.1.2): karta jest jedynym focusable elementem */}
+                  <span className="mt-auto inline-flex items-center gap-2 text-sm font-bold text-dark after:absolute after:inset-0 after:rounded-2xl group-hover:gap-3">
+                    <span>{service.button}</span>
+                    <ArrowRight
+                      size={16}
+                      aria-hidden="true"
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </span>
+                </Link>
+              </div>
             );
           })}
         </div>
 
+        {/* SaaS — osobny, wyróżniony pas (produkt, nie obszar) */}
+        {saas && (
+          <div style={drift(120)}>
+            <Link
+              to={saas.path}
+              className="group relative mt-6 flex flex-col gap-8 overflow-hidden rounded-3xl bg-dark p-8 text-white transition-shadow duration-300 hover:shadow-2xl hover:shadow-secondary/30 md:mt-7 md:flex-row md:items-center md:justify-between md:p-10"
+            >
+              {/* Wędrujące światło — pas SaaS odpowiada na scroll przez cały
+                  tranzyt (wątek „żywej całości"; kompozytor, nie paint) */}
+              <WanderingGlow
+                className="z-0"
+                background={
+                  'radial-gradient(45% 90% at 100% 0%, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 60%),' +
+                  'radial-gradient(40% 90% at 0% 100%, color-mix(in srgb, var(--color-secondary) 30%, transparent), transparent 65%)'
+                }
+              />
+              <div className="relative z-10 max-w-2xl">
+                <span className="mb-4 inline-block rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xxs font-black uppercase tracking-[0.18em] text-primary">
+                  {saas.subtitle}
+                </span>
+                <h3 className="text-2xl font-black tracking-tight md:text-3xl">{saas.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/70 md:text-base">
+                  {saas.desc}
+                </p>
+                <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+                  {saas.features.map((feat, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center gap-2 text-sm font-medium text-white/80"
+                    >
+                      <CheckCircle2 size={16} className="shrink-0 text-primary" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <span className="relative z-10 inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-base font-bold text-dark transition-transform motion-safe:group-hover:scale-[1.03]">
+                {saas.button}
+                <ArrowRight
+                  size={18}
+                  aria-hidden="true"
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </span>
+            </Link>
+          </div>
+        )}
+
         {/* Lokalny CTA-band — sygnał lokalny + crawl depth do spoke'ow Rzeszow */}
-        <AnimateOnScroll delay={400}>
-          <div className="mt-16 bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="flex items-start md:items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-secondary flex items-center justify-center shrink-0">
+        <div style={drift(140)}>
+          <div className="mt-8 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm md:mt-10 md:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start gap-3 md:items-center">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-secondary">
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-500 mb-1">
+                  <p className="mb-1 text-xs font-black uppercase tracking-[0.2em] text-gray-500">
                     Lokalnie · Rzeszów
                   </p>
-                  <p className="text-sm md:text-base text-gray-700">
+                  <p className="text-sm text-gray-700 md:text-base">
                     Szukasz konkretnej usługi dla firmy z Rzeszowa lub Podkarpacia?
                   </p>
                 </div>
@@ -136,38 +197,38 @@ const Services: React.FC = () => {
               <div className="flex flex-wrap gap-2">
                 <Link
                   to="/web-development/rzeszow/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
                 >
                   Strony WWW Rzeszów <ArrowRight size={12} />
                 </Link>
                 <Link
                   to="/pozycjonowanie-rzeszow/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
                 >
                   Pozycjonowanie Rzeszów <ArrowRight size={12} />
                 </Link>
                 <Link
                   to="/agencja-seo-rzeszow/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
                 >
                   Agencja SEO Rzeszów <ArrowRight size={12} />
                 </Link>
                 <Link
                   to="/agencja-interaktywna-rzeszow/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-gray-50 hover:bg-blue-50 hover:text-secondary rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
                 >
                   Agencja interaktywna <ArrowRight size={12} />
                 </Link>
                 <Link
                   to="/miasto/rzeszow/"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-secondary text-white hover:bg-secondary/90 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90"
                 >
                   Hub lokalny <ArrowRight size={12} />
                 </Link>
               </div>
             </div>
           </div>
-        </AnimateOnScroll>
+        </div>
       </div>
     </section>
   );

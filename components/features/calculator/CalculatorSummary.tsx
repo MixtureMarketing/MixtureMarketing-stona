@@ -98,9 +98,9 @@ const CalculatorSummary: React.FC<CalculatorSummaryProps> = memo(({ selections, 
             </p>
             <div className="text-3xl font-black tracking-tight">
               {result.minPrice.toLocaleString()} - {result.maxPrice.toLocaleString()}{' '}
-              <span className="text-sm text-white/40">PLN</span>
+              <span className="text-sm text-white/70">PLN</span>
             </div>
-            <p className="text-xxs text-white/40 mt-4 leading-tight">
+            <p className="text-xxs text-white/70 mt-4 leading-tight">
               * Kwoty netto. Ostateczna wycena zależy od precyzyjnej specyfikacji projektu.
             </p>
           </div>

@@ -13,7 +13,21 @@ interface SectionHeaderProps {
   lightMode?: boolean; // If true, text is optimized for dark backgrounds
   animate?: boolean;
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+  /**
+   * Triada prądów (opt-in, sekcje strony głównej): trzy kropki w kolorach
+   * prądów Sceny Mixture zbiegają się z rozsypki do rzędu na var(--p)
+   * sekcji-rodzica — mikro-motyw materii hero wraca na poziomie oka.
+   * Spoczynek/prerender/reduced = uformowany rząd (var(--p, 1)).
+   */
+  triad?: boolean;
 }
+
+/** Kropki triady: kolor prądu + deterministyczna rozsypka startowa (px). */
+const TRIAD = [
+  { cls: 'bg-primary', sx: -26, sy: 14 },
+  { cls: 'bg-secondary', sx: 8, sy: -20 },
+  { cls: 'bg-brand-pink', sx: 30, sy: 10 },
+] as const;
 
 const SectionHeader: React.FC<SectionHeaderProps> = memo(
   ({
@@ -27,6 +41,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = memo(
     lightMode = false,
     animate = true,
     level = 'h2',
+    triad = false,
   }) => {
     // Determine alignment: priority to 'align', then 'centered/center' toggles
     let effectiveAlign: 'left' | 'center' | 'right' = 'center';
@@ -62,6 +77,24 @@ const SectionHeader: React.FC<SectionHeaderProps> = memo(
 
     const Content = (
       <div className={`max-w-3xl ${alignClass} ${className}`}>
+        {triad && (
+          <div
+            className={`mb-5 flex items-center gap-2.5 ${
+              effectiveAlign === 'center' ? 'justify-center' : ''
+            }`}
+            aria-hidden="true"
+          >
+            {TRIAD.map(({ cls, sx, sy }) => (
+              <span
+                key={cls}
+                className={`h-2 w-2 rounded-full ${cls}`}
+                style={{
+                  transform: `translate3d(calc((1 - var(--p, 1)) * ${sx}px), calc((1 - var(--p, 1)) * ${sy}px), 0)`,
+                }}
+              />
+            ))}
+          </div>
+        )}
         {subtitle && (
           <p className={`text-xs font-bold tracking-widest uppercase mb-4 ${subtitleColor}`}>
             {subtitle}

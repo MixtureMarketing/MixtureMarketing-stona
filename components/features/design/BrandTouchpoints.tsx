@@ -38,7 +38,7 @@ const BrandTouchpoints: React.FC = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary rounded-full blur-[100px] opacity-10 group-hover:opacity-20 transition-opacity"></div>
 
             <div className="relative z-10 h-full flex flex-col">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl flex items-center justify-center text-primary mb-8 border border-white/10 group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-primary mb-8 border border-white/10 group-hover:scale-110 transition-transform">
                 {touchpoints[0].icon}
               </div>
               <h3 className="text-3xl font-bold text-white mb-4">{touchpoints[0].title}</h3>
@@ -57,14 +57,16 @@ const BrandTouchpoints: React.FC = () => {
         </AnimateOnScroll>
 
         <AnimateOnScroll delay={100} className="md:col-span-2">
+          {/* variant="dark", nie solid+bg-dark: dwie klasy tła (bg-white z wariantu
+              i doklejone bg-dark) walczą w CSS i wygrywała biała — biały tekst
+              na białym tle (zgłoszone przez właściciela 2026-07-16). */}
           <BaseCard
-            variant="solid"
+            variant="dark"
             hover="zoom"
             rounded="3xl"
             padding="lg"
-            className="h-full bg-gradient-to-br from-[#E1306C] to-secondary border-none group"
+            className="h-full border-white/10 group"
           >
-            <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] opacity-50"></div>
             <div className="absolute -bottom-10 -right-10 text-white/10 rotate-12 transition-transform group-hover:rotate-0 duration-700">
               <Share2 size={240} strokeWidth={1} />
             </div>
@@ -78,7 +80,7 @@ const BrandTouchpoints: React.FC = () => {
                 {touchpoints[1].list?.map((item, i) => (
                   <li
                     key={i}
-                    className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold border border-white/20 whitespace-nowrap"
+                    className="px-4 py-2 rounded-full bg-white/20 text-white text-xs font-bold border border-white/20 whitespace-nowrap"
                   >
                     {item}
                   </li>
@@ -96,8 +98,6 @@ const BrandTouchpoints: React.FC = () => {
             padding="lg"
             className="h-full border-gray-100 group hover:bg-white"
           >
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-5"></div>
-
             <div className="relative z-10 flex flex-col h-full">
               <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-dark mb-6 group-hover:bg-dark group-hover:text-white transition-all">
                 {touchpoints[2].icon}
@@ -105,7 +105,10 @@ const BrandTouchpoints: React.FC = () => {
               <h3 className="text-xl font-bold text-dark mb-4">{touchpoints[2].title}</h3>
               <ul className="space-y-2">
                 {touchpoints[2].list?.map((item, i) => (
-                  <li key={i} className="text-xs font-medium text-gray-700 flex items-center gap-2">
+                  <li
+                    key={i}
+                    className="text-xs font-semibold text-gray-800 flex items-center gap-2"
+                  >
                     <div className="w-1 h-1 rounded-full bg-gray-300 group-hover:bg-dark"></div>
                     {item}
                   </li>
@@ -128,14 +131,14 @@ const BrandTouchpoints: React.FC = () => {
                 <div className="w-12 h-12 rounded-xl bg-[#F0F7FF] flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                   {touchpoints[3].icon}
                 </div>
-                <span className="text-xxs font-bold text-gray-300 uppercase tracking-widest">
+                <span className="text-xxs font-bold text-gray-600 uppercase tracking-widest">
                   Premium
                 </span>
               </div>
               <h3 className="text-xl font-bold text-dark mb-4">{touchpoints[3].title}</h3>
               <ul className="space-y-2 mb-6">
                 {touchpoints[3].list?.map((item, i) => (
-                  <li key={i} className="text-xs font-medium text-gray-700">
+                  <li key={i} className="text-xs font-semibold text-gray-800">
                     {item}
                   </li>
                 ))}
