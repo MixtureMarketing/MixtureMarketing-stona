@@ -16,6 +16,7 @@ import CalculatorSummary from './calculator/CalculatorSummary';
 
 const PriceCalculator: React.FC = () => {
   const {
+    config,
     loading,
     selections,
     result,
@@ -109,6 +110,25 @@ const PriceCalculator: React.FC = () => {
         <Loader2 className="w-12 h-12 text-secondary animate-spin mb-4" />
         <p className="text-gray-500 font-medium">Inicjalizacja systemu wycen...</p>
       </div>
+    );
+  }
+
+  // Bez stawek z Sanity kalkulator liczyłby „0 – 0 PLN" i podawał to jako
+  // wycenę (cichy stan zerowy). Uczciwy komunikat zamiast fałszywej liczby.
+  if (!config) {
+    return (
+      <section className="py-24 bg-[#F9FAFB]" id="calculator">
+        <Container className="max-w-screen-md text-center">
+          <div className="bg-white rounded-3xl shadow-xl p-12 border border-gray-100">
+            <h3 className="text-2xl font-bold text-dark mb-4">Kalkulator chwilowo niedostępny</h3>
+            <p className="text-lg text-gray-600 mb-8">
+              Nie udało się pobrać aktualnych stawek. Napisz do nas — wstępne widełki budżetowe
+              wyślemy w 24h.
+            </p>
+            <Button onClick={() => navigate('/contact')}>Przejdź do kontaktu</Button>
+          </div>
+        </Container>
+      </section>
     );
   }
 

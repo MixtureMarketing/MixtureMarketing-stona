@@ -33,22 +33,13 @@ const Offers: React.FC = () => {
 
       <OffersBackground />
 
-      {/* --- HERO SECTION --- */}
-      <section className="relative py-24 lg:py-32 overflow-hidden bg-gray-50">
+      {/* Hero words-only w ciemnym rejestrze (lift 2026-07-17) — badge „Tryb:"
+          z pulsującą kropką i gradient-text out. Floor cenowy wg Sanity
+          (kalkulator liczy od 2 500 zł — hero twierdził 3 900 wbrew
+          kalkulatorowi jeden scroll niżej). */}
+      <section className="relative py-24 lg:py-32 overflow-hidden bg-deep-dark text-white">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-tech-grid opacity-30"></div>
-          <div
-            className={`absolute inset-0 transition-opacity duration-1000 ${scale === 'startup' ? 'opacity-10' : 'opacity-0'}`}
-            style={{
-              background: 'radial-gradient(circle at 50% 30%, #61B6DE 0%, transparent 60%)',
-            }}
-          ></div>
-          <div
-            className={`absolute inset-0 transition-opacity duration-1000 ${scale === 'enterprise' ? 'opacity-10' : 'opacity-0'}`}
-            style={{
-              background: 'radial-gradient(circle at 50% 30%, #3F3D91 0%, transparent 60%)',
-            }}
-          ></div>
+          <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
         </div>
 
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -56,7 +47,7 @@ const Offers: React.FC = () => {
             {/* Back Button */}
             <button
               onClick={() => navigate('/')}
-              className="absolute top-0 left-4 lg:left-8 group flex items-center text-sm font-semibold text-gray-700 hover:text-secondary transition-colors uppercase tracking-wide"
+              className="absolute top-0 left-4 lg:left-8 group flex items-center text-sm font-semibold text-white/70 hover:text-white transition-colors uppercase tracking-wide"
               aria-label="Wróć do strony głównej"
             >
               <ArrowLeft
@@ -67,33 +58,21 @@ const Offers: React.FC = () => {
               Wróć
             </button>
 
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-primary/20 shadow-sm mb-8 animate-fade-in-down">
-              <div
-                className={`w-2 h-2 rounded-full ${scale === 'startup' ? 'bg-accent-dark' : 'bg-secondary'} animate-pulse`}
-              ></div>
-              <span className="text-xs font-bold text-gray-700 tracking-widest uppercase">
-                Tryb: {scale === 'startup' ? 'Agile / MVP' : 'Enterprise / SLA'}
-              </span>
-            </div>
-
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 text-dark leading-tight">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
               <span className="block mb-2">{CONTENT.hero.title.label}</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-primary">
-                {CONTENT.hero.title.highlight}
-              </span>
+              <span className="text-primary">{CONTENT.hero.title.highlight}</span>
             </h1>
 
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-8">
               {CONTENT.hero.subtitle}
             </p>
 
-            {/* Price floor — redukuje 48% porzucen z "nieznanej ceny" (Baymard).
-                Konkretne widelki: landing page od 3 900 zl, sklep od 12 000 zl. */}
-            <div className="inline-flex flex-wrap items-center justify-center gap-2 mb-12">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-emerald-200 text-emerald-700 text-sm font-bold shadow-sm">
-                Strony WWW od 3 900 zł netto
+            {/* Floor cenowy zgodny ze stawkami kalkulatora z Sanity */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm font-bold">
+                Strony WWW od 2 500 zł netto
               </span>
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-secondary/20 text-secondary text-sm font-bold shadow-sm">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm font-bold">
                 Wycena widełkowa w 24h
               </span>
             </div>
@@ -175,8 +154,8 @@ const Offers: React.FC = () => {
 
           <OfferFeatureSection
             badge={marketing[scale].badge}
-            badgeBg="bg-[#FFE4F0]"
-            badgeTextColor="text-instagram"
+            badgeBg="bg-blue-50"
+            badgeTextColor="text-secondary"
             title={marketing[scale].title}
             description={marketing[scale].desc}
             features={marketing[scale].features}
@@ -200,10 +179,11 @@ const Offers: React.FC = () => {
       <LazyHydrate minHeight="100px">
         <section className="py-12 bg-gray-50 border-y border-gray-100 overflow-hidden">
           <div className="flex items-center gap-12 whitespace-nowrap animate-infinite-scroll">
+            {/* gray-400 (po remapie #4b5563) zamiast gray-200 — pasek był nieczytelny */}
             {[...techStack, ...techStack].map((tech, i) => (
               <span
                 key={i}
-                className="text-2xl font-black text-gray-200 uppercase tracking-tighter hover:text-secondary transition-colors cursor-default"
+                className="text-2xl font-black text-gray-400 uppercase tracking-tighter hover:text-secondary transition-colors cursor-default"
               >
                 {tech}
               </span>

@@ -1,3 +1,9 @@
+/**
+ * Poprawki 2026-07-17 (krytyka 13/40): usunięte wymyślone liczby
+ * („Średni ROAS 650%", „Obsługa Budżetów 1M+ PLN"), SLA 99.9% → 99.5%/4h
+ * (jedyne SLA potwierdzone przez właściciela), stack przycięty do
+ * potwierdzonego (out: Docker, Google Cloud), etykiety EN → PL.
+ */
 export const OFFERS_CONTENT = {
   web: {
     startup: {
@@ -23,7 +29,7 @@ export const OFFERS_CONTENT = {
         'Architektura Mikroserwisów',
         'Audyty Bezpieczeństwa',
       ],
-      stat: { label: 'Gwarancja SLA', value: '99.9%' },
+      stat: { label: 'SLA (umowy utrzymaniowe)', value: '99.5% · reakcja 4h' },
       modules: ['Microservices', 'Cloud AWS', 'Load Balancing', 'Security Audit'],
     },
   },
@@ -38,8 +44,8 @@ export const OFFERS_CONTENT = {
         'Konfiguracja Analityki',
         'Remarketing',
       ],
-      stat: { label: 'Średni ROAS', value: '650%' },
-      widgets: { budget: '2k - 10k', metric: 'Sales Focused' },
+      stat: { label: 'Budżety klientów', value: '2–10 tys. zł/mc' },
+      widgets: { budget: '2k - 10k', metric: 'Kampanie sprzedażowe' },
     },
     enterprise: {
       badge: 'Dominacja & Wizerunek',
@@ -51,8 +57,8 @@ export const OFFERS_CONTENT = {
         'Kampanie Wideo (YouTube)',
         'Raportowanie BI',
       ],
-      stat: { label: 'Obsługa Budżetów', value: '1M+ PLN' },
-      widgets: { budget: '50k+', metric: 'Brand & LTV' },
+      stat: { label: 'Model rozliczeń', value: 'Flat fee / prowizja' },
+      widgets: { budget: '50k+', metric: 'Marka i LTV' },
     },
   },
   seo: {
@@ -82,12 +88,13 @@ export const OFFERS_CONTENT = {
   button: 'Szczegóły Techniczne',
   techStack: [
     'React',
+    'Next.js',
+    'Astro',
     'TypeScript',
     'Laravel',
     'Node.js',
-    'Docker',
+    'Go',
     'AWS',
-    'Google Cloud',
     'WordPress',
     'WooCommerce',
     'Figma',
