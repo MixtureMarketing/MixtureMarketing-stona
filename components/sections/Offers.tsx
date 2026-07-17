@@ -9,8 +9,6 @@ import FaqSection from './FaqSection';
 import OfferFeatureSection from './OfferFeatureSection';
 import { BrowserMockup, SalesFunnelVisual } from '../visuals/offers/OfferVisuals';
 
-const PriceCalculator = React.lazy(() => import('../features/PriceCalculator'));
-
 type BusinessScale = 'startup' | 'enterprise';
 
 const Offers: React.FC = () => {
@@ -18,8 +16,16 @@ const Offers: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Wygaszenie starego kalkulatora (akceptacja /wycena/, 2026-07-17):
+    // linki /offers#calculator (m.in. CTA na landing-page i corporate) lecą
+    // na nowy publiczny kalkulator. Klasyczny 301 w _redirects nie widzi
+    // fragmentu #, więc przekierowanie musi żyć po stronie klienta.
+    if (window.location.hash.startsWith('#calculator')) {
+      navigate('/wycena/', { replace: true });
+      return;
+    }
     window.scrollTo(0, 0);
-  }, []);
+  }, [navigate]);
 
   const { web, marketing, techStack, faqs } = CONTENT;
 
@@ -192,16 +198,9 @@ const Offers: React.FC = () => {
         </section>
       </LazyHydrate>
 
-      {/* --- PRICE CALCULATOR --- */}
-      <LazyHydrate minHeight="600px">
-        <React.Suspense
-          fallback={
-            <div className="h-40 flex items-center justify-center">Ładowanie kalkulatora...</div>
-          }
-        >
-          <PriceCalculator />
-        </React.Suspense>
-      </LazyHydrate>
+      {/* Sekcja PriceCalculator wygaszona 2026-07-17 — publiczny kalkulator
+          żyje na /wycena/ (moduł wycen, f4b); #calculator przekierowuje tam
+          w useEffect wyżej. */}
 
       {/* --- FAQ SECTION --- */}
       <LazyHydrate minHeight="400px">
