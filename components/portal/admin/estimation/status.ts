@@ -27,7 +27,7 @@ export const MOZLIWE_PRZEJSCIA: Record<string, string[]> = {
   draft: [],
   review: ['sent'],
   sent: ['won', 'lost'],
-  won: [],
+  won: ['closed'], // f3a: zamknięcie projektu (godziny rzeczywiste)
   lost: [],
   closed: [],
 };
@@ -37,6 +37,7 @@ interface ZDatami {
   sent_at?: string | null;
   won_at?: string | null;
   lost_at?: string | null;
+  closed_at?: string | null;
   created_at?: string | null;
 }
 
@@ -46,12 +47,14 @@ interface ZDatami {
  */
 export function dataStatusu(q: ZDatami): string | null {
   const d =
-    q.status === 'won'
-      ? q.won_at
-      : q.status === 'lost'
-        ? q.lost_at
-        : q.status === 'sent'
-          ? q.sent_at
-          : null;
+    q.status === 'closed'
+      ? q.closed_at
+      : q.status === 'won'
+        ? q.won_at
+        : q.status === 'lost'
+          ? q.lost_at
+          : q.status === 'sent'
+            ? q.sent_at
+            : null;
   return (d ?? null)?.slice(0, 10) ?? null;
 }

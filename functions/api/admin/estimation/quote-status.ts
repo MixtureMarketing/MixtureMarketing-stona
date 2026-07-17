@@ -18,9 +18,9 @@ const PRZEJSCIA: Record<string, string[]> = {
   draft: [], // najpierw finalize (quote-finalize: draft/review → review)
   review: ['sent'],
   sent: ['won', 'lost'],
-  won: [], // rozstrzygnięte; „won → closed" dołoży F3 (godziny rzeczywiste)
+  won: ['closed'], // f3a: zamknięcie projektu (godziny rzeczywiste w est_actual_hours)
   lost: [],
-  closed: [],
+  closed: [], // stan końcowy — actuale edytowalne osobno (quote-close), bez zmiany statusu
 };
 
 /**
@@ -34,7 +34,12 @@ const PRZEJSCIA: Record<string, string[]> = {
 const ZNANE_STATUSY = new Set(['draft', 'review', 'sent', 'won', 'lost', 'closed']);
 
 /** Kolumna ze stemplem czasu dla docelowego statusu. */
-const STEMPEL: Record<string, string> = { sent: 'sent_at', won: 'won_at', lost: 'lost_at' };
+const STEMPEL: Record<string, string> = {
+  sent: 'sent_at',
+  won: 'won_at',
+  lost: 'lost_at',
+  closed: 'closed_at', // f3a (0008)
+};
 
 interface Body {
   id?: number;

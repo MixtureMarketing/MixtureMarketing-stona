@@ -40,10 +40,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     }
 
     // Snapshot warstwy wyceny (obecny dopiero po finalize). Read-back ekranu wyniku (f1c #6).
-    const [aspectsRes, itemsRes, multipliersRes, validityRes] = await Promise.all([
+    const [aspectsRes, itemsRes, multipliersRes, actualsRes, validityRes] = await Promise.all([
       env.DB.prepare('SELECT * FROM est_quote_aspects WHERE quote_id = ?').bind(id).all(),
       env.DB.prepare('SELECT * FROM est_quote_items WHERE quote_id = ?').bind(id).all(),
       env.DB.prepare('SELECT * FROM est_quote_multipliers WHERE quote_id = ?').bind(id).all(),
+      // f3a: godziny rzeczywiste (est_actual_hours) — fundament pod raporty f3b. Read-back
+      // formularza zamknięcia (prefill) + eksport. Klucz aspect_code = obszar LUB item (module:/integration:).
+      env.DB.prepare('SELECT aspect_code, hours, note FROM est_actual_hours WHERE quote_id = ?')
+        .bind(id)
+        .all(),
       // f2a: termin ważności oferty — wartość domenowa, więc z est_params (inwariant 2).
       // Świadomie NIE ze snapshotu params_json: to parametr dokumentu, nie obliczeń — zmiana
       // polityki („oferty ważne 14 dni") ma działać na dokumentach generowanych od teraz.
@@ -64,10 +69,21 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .map((t) => t.trim())
       .filter(Boolean);
 
+    // f3a: mapa aspect_code → {hours, note} — do prefillu formularza i raportów f3b.
+    const actualHours: Record<string, { hours: number; note: string | null }> = {};
+    for (const r of (actualsRes.results ?? []) as {
+      aspect_code: string;
+      hours: number;
+      note: string | null;
+    }[]) {
+      actualHours[r.aspect_code] = { hours: r.hours, note: r.note };
+    }
+
     const snapshot = {
       aspects: aspectsRes.results ?? [],
       items: itemsRes.results ?? [],
       multipliers: multipliersRes.results ?? [],
+      actualHours, // f3a: godziny rzeczywiste (closed_at już w `quote` przez SELECT *)
       totals: parseJson((quote as any).totals_json),
       confidenceBreakdown: parseJson((quote as any).confidence_breakdown_json),
       warnings: parseJson((quote as any).warnings_json) ?? [], // f2a: alerty do Karty decyzji
