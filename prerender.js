@@ -110,11 +110,12 @@ async function processRoute(browser, critters, route, attempt = 1) {
       );
     } catch {
       if (attempt === 1) {
-        // Zimny start (pierwsza partia na swiezym Chromium/preview) — druga
-        // wizyta jest juz ciepla i przechodzi. Retry zamiast fallbacku.
+        // Nie retry'ujemy inline: w fazie przeciazenia retry laduje w tym
+        // samym scisku i tez pada (run 29654122582). Trasa idzie do
+        // sekwencyjnej rundy naprawczej PO oproznieniu kolejki.
         throw new Error('__HELMET_RETRY__');
       }
-      console.warn(`⚠️ Helmet hydration timeout (30s) dla ${route} TAKZE po retry`);
+      console.warn(`⚠️ Helmet hydration timeout (30s) dla ${route} TAKZE w rundzie naprawczej`);
       helmetFailures.push(route);
     }
 
@@ -164,15 +165,16 @@ async function processRoute(browser, critters, route, attempt = 1) {
     console.log(`✅ Prerendered & Optimized: ${route}${attempt > 1 ? ' (po retry)' : ''}`);
   } catch (err) {
     if (err.message === '__HELMET_RETRY__') {
-      console.warn(`♻️ Helmet timeout dla ${route} (zimny start) — retry...`);
+      console.warn(`♻️ Helmet timeout dla ${route} — odkladam do rundy naprawczej`);
       await closePage();
-      return processRoute(browser, critters, route, attempt + 1);
+      return false; // sygnal dla petli: trasa do ponowienia po oproznieniu kolejki
     }
     console.error(`❌ Failed to prerender ${route}:`, err.message);
     throw err;
   } finally {
     await closePage();
   }
+  return true;
 }
 
 async function prerender() {
@@ -195,7 +197,19 @@ async function prerender() {
     // 3. Launch Browser
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        // Helmet-async flushuje head przez requestAnimationFrame; przy
+        // MAX_CONCURRENCY stronach w jednej przegladarce wszystkie poza
+        // aktywna sa "tabami tla" i Chromium dlawi im rAF/timery — na CI
+        // dawalo to 30s+ timeouty waitu Helmeta na losowych trasach
+        // (run 29654122582). Ten zestaw flag wylacza throttling tla.
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+      ],
       timeout: 60000,
     });
 
@@ -253,24 +267,46 @@ async function prerender() {
       console.warn('⚠️ Warm-up failed (kontynuuję):', e.message);
     }
 
-    const queue = [...routes, ...dynamicRoutes];
+    // Dedupe: dynamiczne trasy z Sanity nie maja trailing slasha i duplikowaly
+    // statyczne wpisy z routes.js (np. /baza-wiedzy/X vs /baza-wiedzy/X/) —
+    // ten sam plik renderowal sie dwa razy (marnowany czas + wyscig zapisu).
+    const seenRoutes = new Set();
+    const queue = [...routes, ...dynamicRoutes].filter((r) => {
+      const key = r === '/' ? '/' : `${r.replace(/\/+$/, '')}/`;
+      if (seenRoutes.has(key)) return false;
+      seenRoutes.add(key);
+      return true;
+    });
+    const retryQueue = [];
     const workers = [];
 
     const next = async () => {
       while (queue.length > 0) {
         const route = queue.shift();
-        if (route) await processRoute(browser, critters, route);
+        if (route) {
+          const ok = await processRoute(browser, critters, route);
+          if (ok === false) retryQueue.push(route);
+        }
       }
     };
 
     for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
 
+    // Runda naprawcza: trasy z timeoutem Helmeta ponawiamy SEKWENCYJNIE po
+    // oproznieniu kolejki — jedna aktywna strona, zero konkurencji o CPU/rAF.
+    if (retryQueue.length > 0) {
+      console.log(`♻️ Runda naprawcza dla ${retryQueue.length} tras (sekwencyjnie)...`);
+      for (const route of retryQueue) {
+        await processRoute(browser, critters, route, 2);
+      }
+    }
+
     // Fail-loud: strona bez heada to SEO-dziura na produkcji (zly title,
     // brak canonical/description) — lepiej czerwone CI niz cichy fallback.
     if (helmetFailures.length > 0) {
       throw new Error(
-        `Helmet nie zhydratowal heada (po retry) dla ${helmetFailures.length} tras: ${helmetFailures.join(', ')}`,
+        `Helmet nie zhydratowal heada (po rundzie naprawczej) dla ${helmetFailures.length} tras: ${helmetFailures.join(', ')}`,
       );
     }
 
