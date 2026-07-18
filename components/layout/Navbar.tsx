@@ -22,11 +22,17 @@ const Navbar: React.FC = () => {
   const { scrollToId } = useSmoothScroll();
   const { scrolled } = useScroll(20);
 
-  const toggleMenu = () => {
-    const nextState = !isOpen;
-    setIsOpen(nextState);
-    toggleScroll(nextState);
-  };
+  const toggleMenu = () => setIsOpen((prev) => !prev);
+
+  // Blokada scrolla sprzęgnięta ze STANEM menu, nie z handlerami (bugfix
+  // 2026-07-18): zamknięcie przez X, przez CTA konsultacji (bez zmiany trasy)
+  // i przez linki z własnym setIsOpen(false) zostawiało body overflow:hidden
+  // — strona losowo przestawała się scrollować na mobile. Jeden efekt =
+  // każda ścieżka zamknięcia odblokowuje.
+  useEffect(() => {
+    toggleScroll(isOpen);
+    return () => toggleScroll(false);
+  }, [isOpen, toggleScroll]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,7 +49,6 @@ const Navbar: React.FC = () => {
     navigate('/');
     window.scrollTo(0, 0);
     setIsOpen(false);
-    toggleScroll(false);
   };
 
   const handleAnchorLink = (anchorId: string, e: React.MouseEvent) => {
@@ -54,7 +59,6 @@ const Navbar: React.FC = () => {
       scrollToId(anchorId);
     }
     setIsOpen(false);
-    toggleScroll(false);
   };
 
   useEffect(() => {
@@ -95,23 +99,14 @@ const Navbar: React.FC = () => {
 
   const isAnyDropdownOpen = activeDropdown !== null;
 
-  // Zamknij menu/dropdown TYLKO przy zmianie route'a (nie przy zmianie isOpen).
-  // Wczesniej deps zawieraly isOpen + toggleScroll co powodowalo ze open()
-  // natychmiast zamykal samo siebie (regression). Ref aktualizowany w useEffect
-  // (NIE w render body — react/no-access-state-during-render).
-  const closeMenuRef = useRef<() => void>(() => {});
+  // Zamknij menu/dropdown przy zmianie route'a. Odblokowanie scrolla robi
+  // efekt [isOpen] wyżej — tu tylko stan (wcześniejsze `if (prev) unlock`
+  // gubiło odblokowanie, gdy link zdążył ustawić isOpen=false przed nawigacją).
   useEffect(() => {
-    closeMenuRef.current = () => {
+    const timer = setTimeout(() => {
       setActiveDropdown(null);
-      setIsOpen((prev) => {
-        if (prev) toggleScroll(false);
-        return false;
-      });
-    };
-  });
-
-  useEffect(() => {
-    const timer = setTimeout(() => closeMenuRef.current(), 0);
+      setIsOpen(false);
+    }, 0);
     return () => clearTimeout(timer);
   }, [location.pathname, location.search]);
 
