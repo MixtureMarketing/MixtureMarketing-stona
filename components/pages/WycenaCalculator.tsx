@@ -21,6 +21,7 @@ const WycenaCalculator: React.FC = () => (
     <Seo
       title="Kalkulator wyceny strony i aplikacji — Mixture Marketing"
       description="Policz orientacyjny koszt strony internetowej lub aplikacji w kilka minut. Widełki na podstawie realnego modelu wyceny — bez zobowiązań."
+      canonical="/wycena/"
     />
 
     <section className="relative py-16 md:py-24 overflow-hidden">
