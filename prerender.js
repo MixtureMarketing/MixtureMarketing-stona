@@ -53,8 +53,22 @@ async function waitForServer(port, timeout = 60000) {
   throw new Error(`Server at port ${port} did not start within ${timeout}ms`);
 }
 
-async function processRoute(browser, critters, route) {
+// Trasy, ktore po retry nadal nie maja pelnego heada (title/canonical/meta) —
+// build konczy sie bledem zamiast cicho wysylac SEO-dziure na produkcje.
+// (2026-07-18: pierwsze ~6 tras kolejki na CI zapisywalo sie bez heada —
+// zimny start przegladarki/preview przekraczal 30s wait, fallback maskowal problem;
+// prod mial home-title i zero canonical na /, /offers/, /contact/, /wycena/,
+// /o-nas/, /privacy-policy/.)
+const helmetFailures = [];
+
+async function processRoute(browser, critters, route, attempt = 1) {
   const page = await browser.newPage();
+  let pageClosed = false;
+  const closePage = async () => {
+    if (pageClosed) return;
+    pageClosed = true;
+    await page.close().catch(() => {});
+  };
   try {
     await page.setViewport({ width: 1280, height: 800 });
 
@@ -80,20 +94,28 @@ async function processRoute(browser, critters, route) {
     // Czekaj az React Helmet w pelni zhydratowal head: title + meta description +
     // canonical link. Wszystkie trzy elementy ustawia Seo.tsx, wiec ich obecnosc
     // sygnalizuje ze Helmet skonczyl prace.
-    const PLACEHOLDER_TITLE = 'Agencja Marketingowa Rzeszów — Mixture Marketing';
     try {
+      // Sygnal ukonczenia Helmeta: canonical + meta description z data-rh
+      // (oba wstawia Seo.tsx na KAZDEJ stronie). Poprzedni warunek
+      // `title !== placeholder` byl z definicji falszywy dla home — jej
+      // realny tytul JEST placeholderem — wiec home zawsze wpadala w
+      // timeout+fallback i szla na prod bez canonical (2026-07-18).
       await page.waitForFunction(
-        (placeholder) => {
-          const titleOk = document.title && document.title !== placeholder;
+        () => {
           const canonical = document.querySelector('link[rel="canonical"][data-rh="true"]');
           const metaDesc = document.querySelector('meta[name="description"][data-rh="true"]');
-          return titleOk && canonical && metaDesc;
+          return !!(document.title && canonical && metaDesc);
         },
         { timeout: 30000, polling: 200 },
-        PLACEHOLDER_TITLE,
       );
     } catch {
-      console.warn(`⚠️ Helmet hydration timeout (30s) dla ${route} — fallback do default title`);
+      if (attempt === 1) {
+        // Zimny start (pierwsza partia na swiezym Chromium/preview) — druga
+        // wizyta jest juz ciepla i przechodzi. Retry zamiast fallbacku.
+        throw new Error('__HELMET_RETRY__');
+      }
+      console.warn(`⚠️ Helmet hydration timeout (30s) dla ${route} TAKZE po retry`);
+      helmetFailures.push(route);
     }
 
     // Dodatkowy buffer dla async schemas (JSON-LD wstrzykiwany przez Helmet).
@@ -139,12 +161,17 @@ async function processRoute(browser, critters, route) {
     }
 
     fs.writeFileSync(filePath, html);
-    console.log(`✅ Prerendered & Optimized: ${route}`);
+    console.log(`✅ Prerendered & Optimized: ${route}${attempt > 1 ? ' (po retry)' : ''}`);
   } catch (err) {
+    if (err.message === '__HELMET_RETRY__') {
+      console.warn(`♻️ Helmet timeout dla ${route} (zimny start) — retry...`);
+      await closePage();
+      return processRoute(browser, critters, route, attempt + 1);
+    }
     console.error(`❌ Failed to prerender ${route}:`, err.message);
     throw err;
   } finally {
-    await page.close();
+    await closePage();
   }
 }
 
@@ -210,6 +237,22 @@ async function prerender() {
       console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
     }
 
+    // Rozgrzewka: jedna wizyta na home ZANIM ruszy kolejka — zimny Chromium +
+    // preview + Beasties powodowaly, ze pierwsza partia workerow przekraczala
+    // 30s wait Helmeta i zapisywala strony bez heada (patrz helmetFailures).
+    console.log('🔥 Warm-up render (throwaway)...');
+    try {
+      const warmup = await browser.newPage();
+      await warmup.goto(`http://localhost:${PORT}/`, {
+        waitUntil: 'networkidle0',
+        timeout: 90000,
+      });
+      await warmup.waitForSelector('#root', { timeout: 90000 });
+      await warmup.close();
+    } catch (e) {
+      console.warn('⚠️ Warm-up failed (kontynuuję):', e.message);
+    }
+
     const queue = [...routes, ...dynamicRoutes];
     const workers = [];
 
@@ -222,6 +265,14 @@ async function prerender() {
 
     for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
+
+    // Fail-loud: strona bez heada to SEO-dziura na produkcji (zly title,
+    // brak canonical/description) — lepiej czerwone CI niz cichy fallback.
+    if (helmetFailures.length > 0) {
+      throw new Error(
+        `Helmet nie zhydratowal heada (po retry) dla ${helmetFailures.length} tras: ${helmetFailures.join(', ')}`,
+      );
+    }
 
     // CF Pages soft-404 fix: prerender NotFound jako dist/404.html.
     // CF Pages automatycznie serwuje ten plik ze statusem 404 dla URL-i ktore

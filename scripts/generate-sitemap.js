@@ -219,6 +219,16 @@ ${allEntries
 
   fs.writeFileSync(SITEMAP_PATH, xml);
   console.log(`Sitemap generated at: ${SITEMAP_PATH} (${allEntries.length} URLs)`);
+
+  // Build ma kolejnosc `vite build && sitemap && ...` — vite kopiuje public/
+  // do dist/ ZANIM ten skrypt sie uruchomi, wiec deploy serwowal sitemape
+  // zakomitowana w repo (zawsze o jeden build za pozno; prod 2026-07-18 nie
+  // mial /wycena/ i lastmod <= 07-15). Swieza wersja musi trafic TEZ do dist/.
+  const distSitemap = path.resolve(__dirname, '../dist/sitemap.xml');
+  if (fs.existsSync(path.dirname(distSitemap))) {
+    fs.writeFileSync(distSitemap, xml);
+    console.log(`Sitemap copied to: ${distSitemap}`);
+  }
 }
 
 generateSitemap();
