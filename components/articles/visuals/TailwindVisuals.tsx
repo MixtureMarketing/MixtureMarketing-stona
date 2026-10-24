@@ -17,14 +17,14 @@ import AnimateOnScroll from '../../common/AnimateOnScroll';
 
 // --- HERO: BUTTON BUILDER ANIMATION ---
 const TAILWIND_CLASSES = [
-  'bg-blue-500',
+  'bg-blue-600',
   'text-white',
   'rounded-xl',
   'shadow-xl',
   'px-8',
   'py-4',
   'font-bold',
-  'hover:bg-blue-600',
+  'hover:bg-blue-700',
   'transition-all',
   'scale-110',
 ];
@@ -41,15 +41,18 @@ export const TailwindButtonBuilder = () => {
 
   return (
     <div className="relative w-full bg-gray-50 rounded-[3rem] p-12 md:p-20 overflow-hidden border border-gray-100 shadow-inner flex flex-col items-center justify-center min-h-[400px]">
-      {/* Code Stream */}
-      <div className="absolute top-10 left-0 w-full flex flex-wrap justify-center gap-2 px-4 opacity-20 pointer-events-none">
+      {/* Code Stream — dekoracja tła (opacity-20): tekst jako content pseudo-elementu
+          + aria-hidden; te same klasy czytnik dostaje w bloku kodu poniżej. */}
+      <div
+        className="absolute top-10 left-0 w-full flex flex-wrap justify-center gap-2 px-4 opacity-20 pointer-events-none"
+        aria-hidden="true"
+      >
         {TAILWIND_CLASSES.map((c, i) => (
           <span
             key={i}
-            className={`text-xs font-mono font-bold transition-all duration-500 ${i < step ? 'text-blue-600 scale-110' : 'text-gray-400'}`}
-          >
-            .{c}
-          </span>
+            data-cls={`.${c}`}
+            className={`text-xs font-mono font-bold transition-all duration-500 before:content-[attr(data-cls)] ${i < step ? 'text-blue-600 scale-110' : 'text-gray-400'}`}
+          />
         ))}
       </div>
 
@@ -58,7 +61,7 @@ export const TailwindButtonBuilder = () => {
         <button
           className={`
                 transition-all duration-500 ease-in-out
-                ${step > 0 ? 'bg-blue-500' : 'bg-gray-300'}
+                ${step > 0 ? 'bg-blue-600' : 'bg-gray-300'}
                 ${step > 1 ? 'text-white' : 'text-transparent'}
                 ${step > 2 ? 'rounded-xl' : 'rounded-none'}
                 ${step > 3 ? 'shadow-[0_20px_50px_rgba(59,130,246,0.4)]' : 'shadow-none'}
@@ -89,21 +92,21 @@ export const TailwindButtonBuilder = () => {
           <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-gray-500">{'<'}button</span>
+          <span className="text-slate-400">{'<'}button</span>
           <div className="pl-4">
             <span className="text-purple-400">class</span>
-            <span className="text-gray-500">="</span>
+            <span className="text-slate-400">="</span>
             <span className="text-emerald-400 break-words">
               {TAILWIND_CLASSES.slice(0, step).join(' ')}
               {step < TAILWIND_CLASSES.length && (
                 <span className="animate-pulse inline-block w-2 h-4 bg-emerald-400 ml-1"></span>
               )}
             </span>
-            <span className="text-gray-500">"</span>
+            <span className="text-slate-400">"</span>
           </div>
-          <span className="text-gray-500">{'>'}</span>
+          <span className="text-slate-400">{'>'}</span>
           <div className="pl-4 text-white">Start Project</div>
-          <span className="text-gray-500">
+          <span className="text-slate-400">
             {'</'}button{'>'}
           </span>
         </div>
@@ -147,7 +150,7 @@ export const LegoVsPlaymobil: React.FC = () => {
         <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:rotate-12 transition-transform text-blue-600">
           <Puzzle size={120} />
         </div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xxs font-black uppercase tracking-wider mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xxs font-black uppercase tracking-wider mb-8">
           Podejście Utility-First (Tailwind)
         </div>
 
@@ -183,17 +186,15 @@ export const BootstrapVsTailwindPreview: React.FC = () => {
               Generic "Bootstrap" Style
             </span>
           </div>
-          <div className="space-y-6 opacity-60">
-            <div className="h-10 bg-blue-600 rounded flex items-center px-4 text-white font-bold text-sm">
-              Navbar
-            </div>
+          {/* Wygaszona makieta (opacity-60) — etykiety „Navbar”/„Button Primary” to część
+              rysunku, nie treść: pseudo-content + aria-hidden. */}
+          <div className="space-y-6 opacity-60" aria-hidden="true">
+            <div className="h-10 bg-blue-600 rounded flex items-center px-4 text-white font-bold text-sm before:content-['Navbar']" />
             <div className="bg-white p-6 rounded border border-gray-200 shadow-sm space-y-4">
               <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
               <div className="h-2 w-full bg-gray-100 rounded"></div>
               <div className="h-2 w-3/4 bg-gray-100 rounded"></div>
-              <div className="h-10 w-32 bg-blue-600 rounded text-white flex items-center justify-center text-xs">
-                Button Primary
-              </div>
+              <div className="h-10 w-32 bg-blue-600 rounded text-white flex items-center justify-center text-xs before:content-['Button_Primary']" />
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (

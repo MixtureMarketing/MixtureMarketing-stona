@@ -22,7 +22,7 @@ const RestaurantAnalogyVisual = () => {
           <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover/item:scale-110 group-hover/item:-rotate-3 transition-all">
             <UtensilsCrossed size={32} />
           </div>
-          <div className="text-xxs font-black uppercase text-amber-600 tracking-widest mb-1">
+          <div className="text-xxs font-black uppercase text-amber-700 tracking-widest mb-1">
             2. Kelner
           </div>
           <h3 className="font-bold text-dark mb-2">API</h3>
@@ -48,7 +48,7 @@ const RestaurantAnalogyVisual = () => {
           <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover/item:scale-110 transition-all">
             <Warehouse size={32} />
           </div>
-          <div className="text-xxs font-black uppercase text-emerald-600 tracking-widest mb-1">
+          <div className="text-xxs font-black uppercase text-emerald-700 tracking-widest mb-1">
             4. Spiżarnia
           </div>
           <h3 className="font-bold text-dark mb-2">Baza Danych</h3>

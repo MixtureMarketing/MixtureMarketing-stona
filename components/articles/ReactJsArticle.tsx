@@ -81,7 +81,7 @@ const ReactJsArticle = () => {
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 mt-0 tracking-tight">
               {content.busFactor.title}
             </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-8">{content.busFactor.text}</p>
+            <p className="text-white/75 text-lg leading-relaxed mb-8">{content.busFactor.text}</p>
             <ul className="space-y-4">
               {content.busFactor.list.map((item, i) => (
                 <li
@@ -111,7 +111,7 @@ const ReactJsArticle = () => {
                     <div className="text-2xl font-bold text-white">
                       {content.busFactor.stats.jobs}
                     </div>
-                    <div className="text-xxs text-gray-500 uppercase tracking-wide mt-1">
+                    <div className="text-xxs text-slate-400 uppercase tracking-wide mt-1">
                       {content.busFactor.stats.jobsLabel}
                     </div>
                   </div>
@@ -119,7 +119,7 @@ const ReactJsArticle = () => {
                     <div className="text-2xl font-bold text-[#059669]">
                       {content.busFactor.stats.market}
                     </div>
-                    <div className="text-xxs text-gray-500 uppercase tracking-wide mt-1">
+                    <div className="text-xxs text-slate-400 uppercase tracking-wide mt-1">
                       {content.busFactor.stats.marketLabel}
                     </div>
                   </div>

@@ -20,7 +20,7 @@ const MainThreadVisualizer = () => {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h3 className="font-bold text-lg">Symulator Głównego Wątku</h3>
-          <p className="text-gray-600 text-xs uppercase tracking-widest">Main Thread Status</p>
+          <p className="text-slate-400 text-xs uppercase tracking-widest">Main Thread Status</p>
         </div>
         <Button
           onClick={runHeavyScript}
@@ -41,7 +41,7 @@ const MainThreadVisualizer = () => {
             <div className="font-bold text-sm">
               Przeglądarka: {isBusy ? 'PRZECIĄŻONA' : 'GOTOWA'}
             </div>
-            <div className="text-xxs text-gray-700 uppercase font-black">
+            <div className="text-xxs text-slate-400 uppercase font-black">
               {isBusy ? 'Mielenie JavaScriptu...' : 'Oczekiwanie na akcję'}
             </div>
           </div>

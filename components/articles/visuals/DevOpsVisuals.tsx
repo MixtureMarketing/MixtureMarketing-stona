@@ -213,7 +213,7 @@ export const DevOpsProcessVisual = () => {
         </div>
 
         {/* Final Status Badge - Relative to container */}
-        <div className="md:absolute md:right-0 md:top-0 bg-emerald-500 text-white text-xxs font-black px-4 py-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-bounce mt-4 md:mt-0 tracking-[0.2em] uppercase">
+        <div className="md:absolute md:right-0 md:top-0 bg-emerald-700 text-white text-xxs font-black px-4 py-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-bounce mt-4 md:mt-0 tracking-[0.2em] uppercase">
           System Live 24/7
         </div>
       </div>

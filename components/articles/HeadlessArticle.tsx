@@ -74,7 +74,9 @@ const HeadlessArticle = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12 not-prose">
           {CONTENT.whatIs.items.map((item, i) => (
             <div key={i} className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
-              <div className="text-xxs font-black text-primary uppercase mb-2">{item.label}</div>
+              <div className="text-xxs font-black text-accent-dark uppercase mb-2">
+                {item.label}
+              </div>
               <p className="text-xs m-0" dangerouslySetInnerHTML={{ __html: item.desc }} />
             </div>
           ))}
@@ -127,7 +129,7 @@ const HeadlessArticle = () => {
             align="left"
           />
           <p
-            className="text-gray-400 mb-8 max-w-2xl"
+            className="text-white/75 mb-8 max-w-2xl"
             dangerouslySetInnerHTML={{ __html: CONTENT.developers.text }}
           />
 
@@ -197,7 +199,7 @@ const HeadlessArticle = () => {
           </div>
 
           <div className="p-8 bg-emerald-50/30 rounded-[2rem] border border-emerald-100 shadow-sm">
-            <div className="flex items-center gap-2 text-emerald-600 font-black uppercase text-xs tracking-widest mb-6">
+            <div className="flex items-center gap-2 text-emerald-700 font-black uppercase text-xs tracking-widest mb-6">
               <CheckCircle2 size={16} /> {CONTENT.analysis.good.title}
             </div>
             <ul className="space-y-4">

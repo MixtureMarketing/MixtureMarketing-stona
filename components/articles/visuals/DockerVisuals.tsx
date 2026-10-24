@@ -126,7 +126,7 @@ export const DockerVsVmVisual = () => {
             <div className="w-36 h-36 bg-gray-100 rounded-3xl flex items-center justify-center border-4 border-gray-200 shadow-inner group-hover/vm:bg-gray-200 transition-colors">
               <Server size={56} className="text-gray-400" />
             </div>
-            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-xxs font-black uppercase border border-red-200 shadow-sm flex items-center gap-2">
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-700 px-4 py-1.5 rounded-full text-xxs font-black uppercase border border-red-200 shadow-sm flex items-center gap-2">
               <TrendingDown size={14} /> Heavy (GB)
             </div>
           </div>

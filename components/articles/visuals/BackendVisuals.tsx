@@ -125,11 +125,9 @@ export const BackendDecisionTree = ({ content }: BackendDecisionTreeProps) => (
           </div>
           <div className="flex-1 w-full">
             <div
-              className={`p-5 rounded-2xl text-center shadow-xl transform hover:-translate-y-1 transition-transform border ${i === 0 ? 'bg-emerald-500 border-emerald-400' : i === 1 ? 'bg-blue-600 border-blue-500' : i === 2 ? 'bg-dark border-white/10' : 'bg-cyan-600 border-cyan-500'} text-white`}
+              className={`p-5 rounded-2xl text-center shadow-xl transform hover:-translate-y-1 transition-transform border ${i === 0 ? 'bg-emerald-700 border-emerald-400' : i === 1 ? 'bg-blue-600 border-blue-500' : i === 2 ? 'bg-dark border-white/10' : 'bg-cyan-700 border-cyan-500'} text-white`}
             >
-              <div className="text-xxxs font-black uppercase mb-1 tracking-widest opacity-80">
-                Wybierz:
-              </div>
+              <div className="text-xxxs font-black uppercase mb-1 tracking-widest">Wybierz:</div>
               <div className="font-black text-lg">{step.ans}</div>
             </div>
           </div>

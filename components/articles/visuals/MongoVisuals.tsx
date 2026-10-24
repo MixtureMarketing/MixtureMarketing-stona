@@ -34,13 +34,13 @@ export const MongoHeroVisual: React.FC = () => {
         <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 mb-16">
           <button
             onClick={() => setActive('sql')}
-            className={`px-8 py-3 rounded-xl text-xxs font-black uppercase tracking-widest transition-all ${active === 'sql' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-8 py-3 rounded-xl text-xxs font-black uppercase tracking-widest transition-all ${active === 'sql' ? 'bg-white/10 text-white shadow-lg' : 'text-slate-400 hover:text-gray-300'}`}
           >
             Tradycyjny SQL
           </button>
           <button
             onClick={() => setActive('mongo')}
-            className={`px-8 py-3 rounded-xl text-xxs font-black uppercase tracking-widest transition-all ${active === 'mongo' ? 'bg-[#00ED64] text-black shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-8 py-3 rounded-xl text-xxs font-black uppercase tracking-widest transition-all ${active === 'mongo' ? 'bg-[#00ED64] text-black shadow-lg' : 'text-slate-400 hover:text-gray-300'}`}
           >
             MongoDB (NoSQL)
           </button>
@@ -96,7 +96,7 @@ export const MongoHeroVisual: React.FC = () => {
             {active === 'sql' ? (
               <div className="animate-fade-in">
                 <p className="text-xl font-bold text-white mb-4">Sztywne tabele</p>
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-sm text-slate-400 leading-relaxed">
                   Każdy rekord musi mieć ten sam zestaw kolumn. Próba zapisania nietypowych danych
                   kończy się iskrzeniem i błędami.
                 </p>
@@ -112,7 +112,7 @@ export const MongoHeroVisual: React.FC = () => {
             ) : (
               <div className="animate-fade-in">
                 <p className="text-xl font-bold text-[#00ED64] mb-4">Swoboda dokumentu</p>
-                <p className="text-sm text-gray-400 leading-relaxed">
+                <p className="text-sm text-slate-400 leading-relaxed">
                   Zapisujesz dane tak, jak przychodzą. MongoDB dopasowuje się do Twojego obiektu jak
                   woda do naczynia.
                 </p>
@@ -184,7 +184,7 @@ export const CarGarageAnalogy: React.FC = () => {
         <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none group-hover:translate-x-4 transition-transform text-[#00ED64]">
           <Truck size={120} />
         </div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00ED64]/10 text-[#00ED64] text-xxs font-black uppercase tracking-wider mb-8 border border-[#00ED64]/20">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00ED64]/10 text-[#00684A] text-xxs font-black uppercase tracking-wider mb-8 border border-[#00ED64]/20">
           Podejście MongoDB (Dokumentowe)
         </div>
 
@@ -212,20 +212,20 @@ export const ShardingSimulator: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
         <div>
           <h3 className="text-xl font-bold mb-2">Skalowanie Poziome (Sharding)</h3>
-          <p className="text-xs text-gray-500 uppercase tracking-widest font-black">
+          <p className="text-xs text-slate-400 uppercase tracking-widest font-black">
             Horizontal Growth Engine
           </p>
         </div>
         <div className="flex gap-4">
           <button
             onClick={() => setNodes(1)}
-            className={`px-4 py-2 rounded-lg text-xxs font-bold border transition-all ${nodes === 1 ? 'bg-white text-black border-white' : 'border-white/10 text-gray-500 hover:text-white'}`}
+            className={`px-4 py-2 rounded-lg text-xxs font-bold border transition-all ${nodes === 1 ? 'bg-white text-black border-white' : 'border-white/10 text-slate-400 hover:text-white'}`}
           >
             SINGLE NODE
           </button>
           <button
             onClick={() => setNodes(3)}
-            className={`px-4 py-2 rounded-lg text-xxs font-bold border transition-all ${nodes === 3 ? 'bg-[#00ED64] text-black border-[#00ED64]' : 'border-white/10 text-gray-500 hover:text-white'}`}
+            className={`px-4 py-2 rounded-lg text-xxs font-bold border transition-all ${nodes === 3 ? 'bg-[#00ED64] text-black border-[#00ED64]' : 'border-white/10 text-slate-400 hover:text-white'}`}
           >
             SHARDED CLUSTER
           </button>
@@ -240,7 +240,7 @@ export const ShardingSimulator: React.FC = () => {
               <div className="h-2 w-20 bg-red-500/20 rounded-full overflow-hidden">
                 <div className="h-full w-full bg-red-500 animate-pulse"></div>
               </div>
-              <span className="text-xxxs font-black mt-2 text-red-500 uppercase">OVERLOADED</span>
+              <span className="text-xxxs font-black mt-2 text-red-400 uppercase">OVERLOADED</span>
             </div>
           </div>
         ) : (
@@ -258,7 +258,7 @@ export const ShardingSimulator: React.FC = () => {
                 <div className="h-1.5 w-12 bg-white/5 rounded-full overflow-hidden">
                   <div className="h-full w-[33%] bg-[#00ED64]"></div>
                 </div>
-                <span className="text-xxxs font-black mt-2 text-gray-500 uppercase tracking-widest">
+                <span className="text-xxxs font-black mt-2 text-slate-400 uppercase tracking-widest">
                   SHARD {i}
                 </span>
               </div>
@@ -269,10 +269,10 @@ export const ShardingSimulator: React.FC = () => {
 
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
         <div className="space-y-2">
-          <div className="text-xxs font-black text-gray-600 uppercase tracking-widest">
+          <div className="text-xxs font-black text-slate-400 uppercase tracking-widest">
             SQL (Vertical)
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-400">
             Musisz kupić gigantyczny, drogi serwer. Jest granica, której nie przeskoczysz.
           </p>
         </div>
@@ -280,7 +280,7 @@ export const ShardingSimulator: React.FC = () => {
           <div className="text-xxs font-black text-[#00ED64] uppercase tracking-widest">
             MongoDB (Horizontal)
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-slate-400">
             Dokupujesz setki tanich serwerów. Twoja baza rośnie w bok, w nieskończoność.
           </p>
         </div>

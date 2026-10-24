@@ -22,13 +22,13 @@ const InpSimulator = () => {
         <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
           <button
             onClick={() => setMode('bad')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'bad' ? 'bg-rose-500' : 'text-gray-600'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'bad' ? 'bg-rose-600' : 'text-slate-400'}`}
           >
             Wysokie INP (Złe)
           </button>
           <button
             onClick={() => setMode('good')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'good' ? 'bg-emerald-500' : 'text-gray-600'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${mode === 'good' ? 'bg-emerald-700' : 'text-slate-400'}`}
           >
             Niskie INP (Dobre)
           </button>
@@ -38,7 +38,7 @@ const InpSimulator = () => {
         <button
           onClick={handleInteraction}
           disabled={status !== 'idle'}
-          className={`px-10 py-5 rounded-2xl font-black text-lg transition-all transform active:scale-95 flex items-center gap-3 ${status === 'loading' ? 'bg-gray-700' : status === 'done' ? 'bg-emerald-500 text-white' : 'bg-primary text-white'}`}
+          className={`px-10 py-5 rounded-2xl font-black text-lg transition-all transform active:scale-95 flex items-center gap-3 ${status === 'loading' ? 'bg-gray-700' : status === 'done' ? 'bg-emerald-700 text-white' : 'bg-primary text-deep-dark'}`}
         >
           {status === 'loading' ? (
             <RefreshCw className="animate-spin" />

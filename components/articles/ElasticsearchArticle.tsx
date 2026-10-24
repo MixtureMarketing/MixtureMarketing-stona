@@ -119,7 +119,7 @@ const ElasticsearchArticle = () => {
           </div>
           <h3 className="text-2xl font-bold text-dark mb-6 mt-0">{CONTENT.elkStack.title}</h3>
           <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">{CONTENT.elkStack.text}</p>
-          <div className="flex gap-4 opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+          <div className="flex gap-4 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
             {CONTENT.elkStack.badges.map((badge, i) => (
               <span
                 key={i}

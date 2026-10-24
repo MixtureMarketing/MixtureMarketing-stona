@@ -30,7 +30,7 @@ export const EdgeCodeBlock = () => {
           <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
           <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
         </div>
-        <span className="text-gray-600 text-xxs font-bold uppercase tracking-widest">
+        <span className="text-slate-400 text-xxs font-bold uppercase tracking-widest">
           cloudflare-worker.js
         </span>
       </div>

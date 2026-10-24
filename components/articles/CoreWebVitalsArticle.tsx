@@ -72,7 +72,7 @@ const CoreWebVitalsArticle = () => {
           subtitle={CONTENT.metrics.items[0].subtitle}
           desc={CONTENT.metrics.items[0].desc}
           target={CONTENT.metrics.items[0].target}
-          color="text-emerald-500"
+          color="text-emerald-600"
         />
         <MetricIntroCard
           title={CONTENT.metrics.items[1].title}
@@ -228,9 +228,11 @@ interface CaseStudyCardProps {
 
 const CaseStudyCard = ({ brand, metric, result }: CaseStudyCardProps) => (
   <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center group hover:border-primary transition-all">
-    <div className="text-xxs font-black text-primary uppercase tracking-widest mb-2">{brand}</div>
+    <div className="text-xxs font-black text-accent-dark uppercase tracking-widest mb-2">
+      {brand}
+    </div>
     <div className="text-xl font-bold text-dark mb-1">{metric}</div>
-    <div className="text-sm font-bold text-emerald-500">{result}</div>
+    <div className="text-sm font-bold text-emerald-700">{result}</div>
   </div>
 );
 

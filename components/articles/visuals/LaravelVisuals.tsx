@@ -138,8 +138,8 @@ export const EloquentComparison: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
         {/* SQL Side */}
-        <div className="opacity-50 blur-[0.5px] hover:opacity-100 hover:blur-0 transition-all duration-500">
-          <div className="text-xs text-gray-400 uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+        <div className="opacity-90 blur-[0.5px] hover:opacity-100 hover:blur-0 transition-all duration-500">
+          <div className="text-xs text-slate-300 uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
             <Database size={12} /> Raw SQL (The Hard Way)
           </div>
           <div className="text-gray-300 leading-relaxed">
@@ -157,11 +157,11 @@ export const EloquentComparison: React.FC = () => {
         <div className="relative">
           <div className="absolute -inset-4 bg-[#FF2D20]/10 rounded-xl blur-lg"></div>
           <div className="relative z-10">
-            <div className="text-xs text-[#FF2D20] uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+            <div className="text-xs text-[#ff6b61] uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
               <Code2 size={12} /> Eloquent ORM (The Laravel Way)
             </div>
             <div className="text-white leading-loose font-bold">
-              <span className="text-[#FF2D20]">$users</span> = User::
+              <span className="text-[#ff6b61]">$users</span> = User::
               <span className="text-yellow-400">where</span>(
               <span className="text-green-400">'active'</span>,{' '}
               <span className="text-blue-400">true</span>)<br />
@@ -179,7 +179,7 @@ export const EloquentComparison: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-8 pt-8 border-t border-white/10 text-center text-gray-500 text-xs italic">
+      <div className="mt-8 pt-8 border-t border-white/10 text-center text-slate-400 text-xs italic">
         "Kod, który czyta się jak zdanie w języku angielskim."
       </div>
     </div>
@@ -209,7 +209,7 @@ export const LaravelPerformanceChart: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1 text-[#FF2D20]">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1 text-[#c4231b]">
                 <span>Laravel Octane</span>
                 <span>~4000+ req/sec</span>
               </div>

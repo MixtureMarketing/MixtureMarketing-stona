@@ -80,11 +80,11 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
     cards: [
       {
         label: 'Koszt Naprawy',
-        text: 'Naprawa błędu w kodzie kosztuje <strong class="text-red-500 text-lg">100x więcej</strong> niż na etapie makiety UX.',
+        text: 'Naprawa błędu w kodzie kosztuje <strong class="text-red-700 text-lg">100x więcej</strong> niż na etapie makiety UX.',
       },
       {
         label: 'Efekt Skali',
-        text: 'Wzrost konwersji z 1% na 2% to <strong class="text-emerald-600 text-lg">2x większy przychód</strong> bez wydawania złotówki na reklamy.',
+        text: 'Wzrost konwersji z 1% na 2% to <strong class="text-emerald-700 text-lg">2x większy przychód</strong> bez wydawania złotówki na reklamy.',
       },
     ],
   },

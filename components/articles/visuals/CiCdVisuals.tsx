@@ -31,7 +31,7 @@ export const CiCdHeroVisual = () => {
 
             <div className="w-32 h-32 bg-green-500 rounded-full shadow-[0_0_40px_rgba(34,197,94,0.4),inset_0_4px_10px_rgba(255,255,255,0.4)] flex flex-col items-center justify-center relative active:scale-90 transition-transform duration-100 group-hover/panel:bg-green-400 group-hover/panel:shadow-[0_0_60px_rgba(34,197,94,0.6)]">
               <Rocket size={40} className="text-white mb-1 drop-shadow-lg animate-bounce-gentle" />
-              <span className="text-white font-black text-xl uppercase tracking-widest">
+              <span className="text-deep-dark font-black text-xl uppercase tracking-widest">
                 Deploy
               </span>
             </div>

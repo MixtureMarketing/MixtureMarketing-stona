@@ -101,11 +101,11 @@ export const SecurityShieldVisual = ({ content }: SecurityShieldVisualProps) => 
             <div className="absolute inset-0 bg-[#00684A] rounded-3xl -rotate-6 opacity-10"></div>
             <div className="absolute inset-0 bg-white rounded-3xl border border-gray-100 shadow-2xl flex items-center justify-center z-10">
               <ShieldCheck size={100} className="text-[#00684A] drop-shadow-2xl" />
-              <div className="absolute top-4 right-4 text-red-400 text-xs font-mono bg-red-50 px-2 py-1 rounded animate-bounce">
+              <div className="absolute top-4 right-4 text-red-700 text-xs font-mono bg-red-50 px-2 py-1 rounded animate-bounce">
                 XSS Blocked
               </div>
               <div
-                className="absolute bottom-4 left-4 text-blue-400 text-xs font-mono bg-blue-50 px-2 py-1 rounded animate-bounce"
+                className="absolute bottom-4 left-4 text-blue-700 text-xs font-mono bg-blue-50 px-2 py-1 rounded animate-bounce"
                 style={{ animationDelay: '0.5s' }}
               >
                 SQLi Blocked
@@ -127,7 +127,7 @@ export const DjangoAdminPreview = () => {
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
         </div>
-        <div className="ml-4 px-3 py-1 bg-[#1e293b] rounded text-gray-400 text-xs flex-1 text-center">
+        <div className="ml-4 px-3 py-1 bg-[#1e293b] rounded text-slate-400 text-xs flex-1 text-center">
           admin.twoja-firma.com/dashboard
         </div>
       </div>
@@ -138,14 +138,14 @@ export const DjangoAdminPreview = () => {
             Django Admin
           </div>
           <div className="space-y-3">
-            <div className="text-gray-400 text-xs uppercase mb-1">Aplikacja</div>
+            <div className="text-slate-400 text-xs uppercase mb-1">Aplikacja</div>
             <div className="text-white hover:bg-[#334155] p-2 rounded cursor-pointer flex items-center gap-2">
               <Briefcase size={14} /> Produkty
             </div>
             <div className="text-white hover:bg-[#334155] p-2 rounded cursor-pointer flex items-center gap-2">
               <Globe size={14} /> Zamówienia
             </div>
-            <div className="text-gray-400 text-xs uppercase mt-4 mb-1">Auth</div>
+            <div className="text-slate-400 text-xs uppercase mt-4 mb-1">Auth</div>
             <div className="text-white hover:bg-[#334155] p-2 rounded cursor-pointer flex items-center gap-2">
               <Lock size={14} /> Users
             </div>
@@ -191,14 +191,14 @@ export const DjangoAdminPreview = () => {
                 key={i}
                 className="flex items-center justify-between bg-[#1e293b] p-3 rounded border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer"
               >
-                <div className="w-16 text-gray-400">{row.id}</div>
+                <div className="w-16 text-slate-400">{row.id}</div>
                 <div className="flex-1 text-white font-medium">{row.user}</div>
                 <div className={`w-24 ${row.color} text-xs uppercase font-bold`}>{row.status}</div>
                 <div className="w-24 text-right text-gray-300">{row.amount}</div>
               </div>
             ))}
           </div>
-          <div className="mt-4 text-center text-gray-500 text-xs">
+          <div className="mt-4 text-center text-slate-400 text-xs">
             * Ten panel został wygenerowany automatycznie w 3 minuty.
           </div>
         </div>

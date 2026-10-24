@@ -32,7 +32,7 @@ export const ImageFormatsHero = () => (
       <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
         <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
         <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
-        <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
+        <div className="bg-primary text-deep-dark px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
           FORMAT: AVIF (2025)
         </div>
         <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
@@ -104,7 +104,7 @@ export const ImageComparisonDuel = () => {
             <div className="text-3xl font-black text-white">{data[selected].size}</div>
           </div>
           {selected !== 'jpg' && (
-            <div className="bg-emerald-500 text-white px-3 py-1 rounded-lg text-sm font-black animate-bounce">
+            <div className="bg-emerald-700 text-white px-3 py-1 rounded-lg text-sm font-black animate-bounce">
               {data[selected].savings}
             </div>
           )}
@@ -254,7 +254,7 @@ export const LoadingSimulator = () => {
       <div className="flex justify-between items-center mb-12 relative z-10">
         <div>
           <h3 className="text-white font-bold text-xl mb-1">Symulacja Łącza 3G</h3>
-          <p className="text-gray-600 text-sm">Prędkość: 1.5 Mbps (Słaby zasięg)</p>
+          <p className="text-slate-400 text-sm">Prędkość: 1.5 Mbps (Słaby zasięg)</p>
         </div>
         <Button
           onClick={startLoading}

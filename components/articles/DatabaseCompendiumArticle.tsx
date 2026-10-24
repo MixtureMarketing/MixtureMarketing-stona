@@ -103,6 +103,8 @@ const DatabaseCompendiumArticle = () => {
               />,
             ];
             const bgColors = ['#336791', '#47a248', '#dc382d', '#f1c40f'];
+            // Tekst pigułki: ciemniejsze odcienie tych samych barw — ≥ 5:1 na tle bgColors+20.
+            const pillText = ['#336791', '#2e6b2f', '#b3261e', '#7a5c00'];
             return (
               <div
                 key={i}
@@ -132,7 +134,7 @@ const DatabaseCompendiumArticle = () => {
                     {item.name}{' '}
                     <span
                       className="text-xxs px-3 py-1 rounded-full uppercase tracking-wider font-extrabold"
-                      style={{ backgroundColor: `${bgColors[i]}20`, color: bgColors[i] }}
+                      style={{ backgroundColor: `${bgColors[i]}20`, color: pillText[i] }}
                     >
                       {item.type}
                     </span>

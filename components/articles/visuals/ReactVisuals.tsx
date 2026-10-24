@@ -99,7 +99,7 @@ export const InterfaceAssembly = () => {
           </div>
 
           <div className="p-6 grid grid-cols-3 gap-4">
-            <div className="col-span-3 h-16 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 flex items-center justify-center text-blue-600 font-mono text-xs relative group/item">
+            <div className="col-span-3 h-16 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 flex items-center justify-center text-blue-700 font-mono text-xs relative group/item">
               <span className="absolute -top-3 left-4 bg-blue-100 px-2 text-xxs font-bold">
                 Header.jsx
               </span>
@@ -120,7 +120,7 @@ export const InterfaceAssembly = () => {
               {[1, 2].map((i) => (
                 <div
                   key={i}
-                  className="h-16 rounded border border-green-200 bg-white flex items-center justify-center text-green-500 font-mono text-xxs"
+                  className="h-16 rounded border border-green-200 bg-white flex items-center justify-center text-green-700 font-mono text-xxs"
                 >
                   Card.jsx (Instance {i})
                 </div>
@@ -208,7 +208,7 @@ export const ReactTrendChart = () => {
               </div>
               <div>
                 <h3 className="text-white font-bold text-xl">Dominacja Rynkowa</h3>
-                <p className="text-gray-400 text-xs uppercase tracking-wider">
+                <p className="text-slate-400 text-xs uppercase tracking-wider">
                   Udział w nowych projektach Enterprise
                 </p>
               </div>
@@ -220,7 +220,7 @@ export const ReactTrendChart = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-gray-600 rounded-full"></div>
-                <span className="text-gray-400 text-xs">Starsze technologie</span>
+                <span className="text-slate-400 text-xs">Starsze technologie</span>
               </div>
             </div>
           </div>
@@ -244,7 +244,7 @@ export const ReactTrendChart = () => {
             ))}
           </div>
 
-          <div className="flex justify-between text-gray-500 text-xs mt-4 font-mono uppercase">
+          <div className="flex justify-between text-slate-400 text-xs mt-4 font-mono uppercase">
             {data.map((item) => (
               <span key={item.year} className="flex-1 text-center">
                 {item.year}
@@ -254,7 +254,7 @@ export const ReactTrendChart = () => {
         </div>
 
         <div className="lg:w-1/3 w-full bg-[#0F172A] p-6 rounded-3xl border border-gray-700 shadow-xl">
-          <h4 className="text-gray-400 text-xs uppercase tracking-widest mb-6 border-b border-gray-700 pb-2">
+          <h4 className="text-slate-400 text-xs uppercase tracking-widest mb-6 border-b border-gray-700 pb-2">
             Statystyki 2025
           </h4>
           <div className="space-y-6">
@@ -266,18 +266,18 @@ export const ReactTrendChart = () => {
               <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
                 <div className="bg-[#61DAFB] h-full w-[85%] shadow-[0_0_10px_#61DAFB]"></div>
               </div>
-              <p className="text-gray-500 text-xxs mt-1">Największy wybór bibliotek i narzędzi.</p>
+              <p className="text-slate-400 text-xxs mt-1">Największy wybór bibliotek i narzędzi.</p>
             </div>
 
             <div>
               <div className="flex justify-between text-white text-sm font-bold mb-2">
                 <span>Konkurencja</span>
-                <span className="text-gray-400">Malejąca</span>
+                <span className="text-slate-400">Malejąca</span>
               </div>
               <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
                 <div className="bg-gray-600 h-full w-[35%]"></div>
               </div>
-              <p className="text-gray-500 text-xxs mt-1">
+              <p className="text-slate-400 text-xxs mt-1">
                 Starsze frameworki tracą udział w rynku.
               </p>
             </div>
@@ -289,7 +289,7 @@ export const ReactTrendChart = () => {
                 </div>
                 <div>
                   <div className="text-white font-bold text-lg">+124%</div>
-                  <div className="text-gray-500 text-xs">Wzrost wdrożeń Enterprise</div>
+                  <div className="text-slate-400 text-xs">Wzrost wdrożeń Enterprise</div>
                 </div>
               </div>
             </div>

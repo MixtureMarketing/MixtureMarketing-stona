@@ -105,7 +105,7 @@ const ServerSideTrackingArticle = () => {
                   key={i}
                   className="flex gap-6 items-center bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/50"
                 >
-                  <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-black shrink-0 shadow-lg">
+                  <div className="w-10 h-10 bg-primary text-deep-dark rounded-full flex items-center justify-center font-black shrink-0 shadow-lg">
                     {i + 1}
                   </div>
                   <div>

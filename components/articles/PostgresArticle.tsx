@@ -180,7 +180,7 @@ const PostgresArticle = () => {
             lightMode
             align="left"
           />
-          <p className="text-gray-400 mb-8 max-w-2xl">
+          <p className="text-white/75 mb-8 max-w-2xl">
             To funkcja, która zmienia zasady gry. Możesz przeszukiwać miliony dokumentów JSON z
             prędkością bazy SQL, bez utrzymywania osobnej bazy NoSQL.
           </p>

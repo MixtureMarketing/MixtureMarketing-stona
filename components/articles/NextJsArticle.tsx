@@ -67,7 +67,7 @@ const NextJsArticle = () => {
           </p>
           <Link
             to={content.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
+            className="text-sm text-accent-dark hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
           >
             {content.contextBox.linkText} <ArrowRight size={14} />
           </Link>
@@ -137,7 +137,7 @@ const NextJsArticle = () => {
               <Code2 size={14} /> {content.rendering.cards[1].badge}
             </div>
             <p
-              className="text-sm text-gray-400 m-0 leading-relaxed font-mono"
+              className="text-sm text-white/75 m-0 leading-relaxed font-mono"
               dangerouslySetInnerHTML={{ __html: content.rendering.cards[1].text }}
             ></p>
           </div>
@@ -209,7 +209,7 @@ const NextJsArticle = () => {
           {content.giants.badge}
         </div>
         <h3 className="text-2xl font-bold text-dark mb-12">{content.giants.title}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700">
           <div className="flex justify-center">
             <span className="font-black text-2xl tracking-tighter">NETFLIX</span>
           </div>
@@ -239,7 +239,7 @@ const NextJsArticle = () => {
             lightMode
             align="left"
           />
-          <p className="text-gray-400 mb-8 max-w-2xl">{content.developer.text}</p>
+          <p className="text-white/75 mb-8 max-w-2xl">{content.developer.text}</p>
 
           <button
             onClick={() => setShowCode(!showCode)}

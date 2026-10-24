@@ -94,7 +94,7 @@ const MongoArticle = () => {
 }`}</code>
             </ScrollRegion>
           </div>
-          <p className="mt-6 text-gray-400 text-sm italic">{CONTENT.code.text}</p>
+          <p className="mt-6 text-slate-400 text-sm italic">{CONTENT.code.text}</p>
         </div>
       </div>
 

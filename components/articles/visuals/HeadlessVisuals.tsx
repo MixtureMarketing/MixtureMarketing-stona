@@ -182,7 +182,7 @@ export const ArchitectureDiagram: React.FC = () => {
               className="h-8 mb-2 grayscale opacity-50"
               alt="WP"
             />
-            <span className="text-xs font-bold text-[#21759B]">Silnik PHP + Szablon (Theme)</span>
+            <span className="text-xs font-bold text-[#1d6a8c]">Silnik PHP + Szablon (Theme)</span>
             <p className="text-xxs text-gray-500 mt-2">Wszystko spięte w jedną całość</p>
           </div>
           <div className="flex justify-center py-2">
@@ -207,7 +207,7 @@ export const ArchitectureDiagram: React.FC = () => {
         <div className="space-y-4 relative z-10">
           <div className="p-6 bg-white/5 rounded-2xl border border-white/10 flex flex-col items-center text-center">
             <Database size={32} className="text-gray-400 mb-2" />
-            <span className="text-xs font-bold text-gray-400">WordPress Backend (API)</span>
+            <span className="text-xs font-bold text-slate-400">WordPress Backend (API)</span>
           </div>
           <div className="flex justify-center py-2 relative">
             <ArrowRight className="rotate-90 text-primary" size={20} />

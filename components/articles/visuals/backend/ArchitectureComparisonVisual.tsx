@@ -13,7 +13,7 @@ const ArchitectureComparisonVisual = () => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-dark m-0">Monolit</h3>
-              <span className="text-xxs font-black uppercase text-blue-500 tracking-[0.2em]">
+              <span className="text-xxs font-black uppercase text-blue-700 tracking-[0.2em]">
                 Jedna Twierdza
               </span>
             </div>
@@ -61,7 +61,7 @@ const ArchitectureComparisonVisual = () => {
             </div>
             <div>
               <h3 className="text-xl font-bold text-dark m-0">Mikroserwisy</h3>
-              <span className="text-xxs font-black uppercase text-cyan-500 tracking-[0.2em]">
+              <span className="text-xxs font-black uppercase text-cyan-700 tracking-[0.2em]">
                 Sieć Miast
               </span>
             </div>

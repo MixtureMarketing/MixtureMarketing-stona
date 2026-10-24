@@ -79,7 +79,7 @@ const EdgeComputingArticle = () => {
               <p className="text-sm m-0 leading-relaxed">{CONTENT.analogy.cloud.desc}</p>
             </div>
             <div>
-              <h3 className="text-primary font-bold text-sm uppercase mb-2">
+              <h3 className="text-accent-dark font-bold text-sm uppercase mb-2">
                 {CONTENT.analogy.edge.title}
               </h3>
               <p className="text-sm m-0 leading-relaxed">{CONTENT.analogy.edge.desc}</p>

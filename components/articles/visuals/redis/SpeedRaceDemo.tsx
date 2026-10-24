@@ -48,7 +48,7 @@ const SpeedRaceDemo = () => {
         <Button
           onClick={startRace}
           disabled={racing && sqlProgress < 100}
-          className="bg-primary hover:bg-secondary text-white border-none shadow-[0_0_20px_rgba(97,182,222,0.4)]"
+          className="bg-primary hover:bg-secondary text-deep-dark hover:text-white border-none shadow-[0_0_20px_rgba(97,182,222,0.4)]"
         >
           {racing && sqlProgress < 100 ? (
             <RefreshCw className="animate-spin mr-2" size={18} />

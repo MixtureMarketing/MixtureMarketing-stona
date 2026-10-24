@@ -29,14 +29,14 @@ const DdosSimulator = () => {
         <div className="flex gap-4">
           <button
             onClick={() => setIsAttacking(!isAttacking)}
-            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${isAttacking ? 'bg-rose-500 text-white shadow-lg' : 'bg-white/10 text-gray-600 hover:bg-white/20'}`}
+            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${isAttacking ? 'bg-rose-600 text-white shadow-lg' : 'bg-white/10 text-slate-400 hover:bg-white/20'}`}
           >
             {isAttacking ? <ZapOff size={18} /> : <Zap size={18} />}
             {isAttacking ? 'Zatrzymaj Atak' : 'Symuluj Atak DDoS'}
           </button>
           <button
             onClick={() => setWafEnabled(!wafEnabled)}
-            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${wafEnabled ? 'bg-emerald-500 text-white shadow-lg' : 'bg-rose-500 text-white shadow-lg'}`}
+            className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${wafEnabled ? 'bg-emerald-700 text-white shadow-lg' : 'bg-rose-600 text-white shadow-lg'}`}
           >
             {wafEnabled ? <ShieldCheck size={18} /> : <ShieldAlert size={18} />}
             WAF: {wafEnabled ? 'WŁĄCZONY' : 'WYŁĄCZONY'}
@@ -57,7 +57,9 @@ const DdosSimulator = () => {
           <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-gray-700">
             <Bot size={32} />
           </div>
-          <span className="text-xxs font-bold text-gray-700 uppercase tracking-widest">Botnet</span>
+          <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">
+            Botnet
+          </span>
         </div>
 
         <div
@@ -76,7 +78,7 @@ const DdosSimulator = () => {
           >
             <Server size={40} />
           </div>
-          <span className="text-xxs font-bold text-gray-600 uppercase tracking-widest">
+          <span className="text-xxs font-bold text-slate-400 uppercase tracking-widest">
             Origin Server
           </span>
         </div>

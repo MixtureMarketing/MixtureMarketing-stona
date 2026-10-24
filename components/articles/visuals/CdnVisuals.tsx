@@ -60,7 +60,7 @@ export const EdgeComputingVisual = () => {
               </div>
               <div className="absolute inset-0 border border-primary rounded-2xl animate-ping opacity-20"></div>
             </div>
-            <span className="text-xxs font-black text-gray-700 uppercase mt-4 tracking-widest">
+            <span className="text-xxs font-black text-slate-400 uppercase mt-4 tracking-widest">
               Edge Node 0{i}
             </span>
           </div>
@@ -125,7 +125,7 @@ export const CdnQuiz = ({ content }: CdnQuizProps) => {
           style={{ width: `${(step / content.questions.length) * 100}%` }}
         ></div>
       </div>
-      <span className="text-xxs font-black text-primary uppercase tracking-[0.2em] mb-4 block">
+      <span className="text-xxs font-black text-accent-dark uppercase tracking-[0.2em] mb-4 block">
         Krok {step + 1} z {content.questions.length}
       </span>
       <h3 className="text-xl md:text-2xl font-bold text-dark mb-10 leading-tight">

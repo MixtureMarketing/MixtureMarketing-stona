@@ -120,12 +120,12 @@ const DevOpsArticle = () => {
               className={`bg-white p-6 rounded-2xl border ${i === 1 ? 'border-primary shadow-xl transform md:-translate-y-4' : 'border-gray-100 shadow-sm hover:border-primary'} transition-colors relative overflow-hidden group`}
             >
               {i === 1 && (
-                <div className="absolute right-4 top-4 bg-primary text-white text-xxxs font-black px-2 py-1 rounded uppercase tracking-widest">
+                <div className="absolute right-4 top-4 bg-primary text-deep-dark text-xxxs font-black px-2 py-1 rounded uppercase tracking-widest">
                   Polecane
                 </div>
               )}
               <div
-                className={`text-xs font-black uppercase ${i === 1 ? 'text-primary' : 'text-gray-400'} mb-2`}
+                className={`text-xs font-black uppercase ${i === 1 ? 'text-accent-dark' : 'text-gray-400'} mb-2`}
               >
                 {level.lvl}
               </div>

@@ -102,7 +102,7 @@ export const TypeScriptScanner: React.FC = () => {
                 <div className="text-emerald-500 uppercase text-xxs font-black tracking-widest flex items-center justify-center gap-2">
                   <CheckCircle2 size={14} /> Kod poprawny (Build Success)
                 </div>
-                <div className="mt-4 p-4 bg-red-500 text-white rounded-xl shadow-2xl border-2 border-red-400 animate-bounce">
+                <div className="mt-4 p-4 bg-red-600 text-white rounded-xl shadow-2xl border-2 border-red-400 animate-bounce">
                   <div className="flex items-start gap-3">
                     <AlertTriangle size={20} />
                     <div className="text-left">
@@ -158,7 +158,7 @@ export const CostFixChart: React.FC = () => {
         {/* Dev Phase */}
         <div className="w-full md:w-1/3 flex flex-col items-center gap-3 group">
           <div className="relative w-full max-w-[100px]">
-            <div className="w-full bg-[#3178C6] h-8 rounded-t-lg transition-all group-hover:h-10 opacity-80 group-hover:opacity-100 flex items-start justify-center pt-2">
+            <div className="w-full bg-[#3178C6] h-8 rounded-t-lg transition-all group-hover:h-10 opacity-100 group-hover:opacity-100 flex items-start justify-center pt-2">
               <span className="text-xxs font-black text-white">10 PLN</span>
             </div>
             <div className="w-full h-1 bg-gray-100 rounded-b-lg"></div>
@@ -172,8 +172,8 @@ export const CostFixChart: React.FC = () => {
         {/* QA Phase */}
         <div className="w-full md:w-1/3 flex flex-col items-center gap-3 group">
           <div className="relative w-full max-w-[100px]">
-            <div className="w-full bg-orange-400 h-24 rounded-t-lg transition-all group-hover:h-28 opacity-80 group-hover:opacity-100 flex items-start justify-center pt-2">
-              <span className="text-xxs font-black text-white">100 PLN</span>
+            <div className="w-full bg-orange-400 h-24 rounded-t-lg transition-all group-hover:h-28 opacity-100 group-hover:opacity-100 flex items-start justify-center pt-2">
+              <span className="text-xxs font-black text-orange-950">100 PLN</span>
             </div>
             <div className="w-full h-1 bg-gray-100 rounded-b-lg"></div>
           </div>
@@ -191,14 +191,14 @@ export const CostFixChart: React.FC = () => {
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-red-500 animate-bounce">
               <AlertTriangle size={24} />
             </div>
-            <div className="w-full bg-red-500 h-48 md:h-64 rounded-t-lg transition-all group-hover:h-[17rem] opacity-90 group-hover:opacity-100 flex items-start justify-center pt-2 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+            <div className="w-full bg-red-600 h-48 md:h-64 rounded-t-lg transition-all group-hover:h-[17rem] opacity-100 group-hover:opacity-100 flex items-start justify-center pt-2 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
               <span className="text-sm font-black text-white">10 000+ PLN</span>
             </div>
             <div className="w-full h-1 bg-gray-100 rounded-b-lg"></div>
           </div>
           <div className="text-center">
             <div className="text-sm font-bold text-dark">Produkcja</div>
-            <div className="text-xxs text-red-500 font-bold uppercase tracking-widest mt-1">
+            <div className="text-xxs text-red-700 font-bold uppercase tracking-widest mt-1">
               KATASTROFA
             </div>
           </div>
@@ -228,13 +228,13 @@ export const CodeDuel: React.FC = () => {
         <div className="flex bg-black/40 rounded-lg p-1 border border-white/5">
           <button
             onClick={() => setView('js')}
-            className={`px-4 py-1.5 rounded-md text-xxs font-black uppercase transition-all ${view === 'js' ? 'bg-white/10 text-white' : 'text-gray-600 hover:text-gray-400'}`}
+            className={`px-4 py-1.5 rounded-md text-xxs font-black uppercase transition-all ${view === 'js' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-gray-400'}`}
           >
             JavaScript
           </button>
           <button
             onClick={() => setView('ts')}
-            className={`px-4 py-1.5 rounded-md text-xxs font-black uppercase transition-all ${view === 'ts' ? 'bg-[#3178C6] text-white' : 'text-gray-600 hover:text-gray-400'}`}
+            className={`px-4 py-1.5 rounded-md text-xxs font-black uppercase transition-all ${view === 'ts' ? 'bg-[#3178C6] text-white' : 'text-slate-400 hover:text-gray-400'}`}
           >
             TypeScript
           </button>
@@ -249,7 +249,7 @@ export const CodeDuel: React.FC = () => {
       >
         {view === 'js' ? (
           <div className="space-y-4 animate-fade-in">
-            <pre className="text-gray-400">
+            <pre className="text-slate-400">
               <code>{`function obliczSume(cena, podatek) {
   return cena + podatek;
 }
@@ -268,7 +268,7 @@ console.log(wynik); // WYNIK: "10023"`}</code>
           </div>
         ) : (
           <div className="space-y-4 animate-fade-in">
-            <pre className="text-gray-400">
+            <pre className="text-slate-400">
               <code>
                 {`function obliczSume(cena: number, podatek: number): number {
   return cena + podatek;
