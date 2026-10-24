@@ -22,7 +22,7 @@ import { SITE_CONFIG } from '../../config/site';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../data/content';
 import PricingTable from '../common/PricingTable';
 import { cmsService } from '../../services/cmsService';
-import { PricingSection, PricingTier } from '../../types';
+import { PricingSectionData, PricingTier } from '../../types';
 import AuditTeaser from '../features/audit/AuditTeaser';
 import BaseCta from '../common/BaseCta';
 import FaqSection from '../sections/FaqSection';
@@ -52,7 +52,7 @@ const PROCESS_ICONS = [ScanSearch, Filter, SlidersHorizontal, TrendingUp];
 
 const GoogleAds: React.FC = () => {
   const { openModal } = useModal();
-  const [pricingData, setPricingData] = useState<PricingSection | null>(null);
+  const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
   const painsRef = useSectionProgress<HTMLElement>(0.85);

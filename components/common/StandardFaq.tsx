@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Accordion from './Accordion';
 
-interface FaqItem {
+export interface FaqItem {
   q: string;
   a: string;
 }

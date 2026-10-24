@@ -6,7 +6,6 @@ declare global {
       };
       track: (event: string, data?: Record<string, unknown>) => void;
     };
-    dataLayer: Record<string, unknown>[];
   }
   const gtag: (...args: unknown[]) => void;
 }

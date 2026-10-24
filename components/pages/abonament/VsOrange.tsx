@@ -69,7 +69,7 @@ const COMPARE_ROWS = [
     mixture: { status: 'ok', text: 'Bezpośrednio Jakub: +48 794 443 551' },
     orange: { status: 'mid', text: 'Infolinia Orange (kolejka)' },
   },
-];
+] as const;
 
 const STATUS_LABEL: Record<'ok' | 'mid' | 'no', string> = {
   ok: 'Tak',
