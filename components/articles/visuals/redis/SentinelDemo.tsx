@@ -56,7 +56,8 @@ const SentinelDemo = () => {
 
   return (
     <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-xl">
-      <div className="flex justify-between items-center mb-10">
+      {/* flex-wrap: na telefonie podpis „Redis Sentinel Mode" wypadał poza kartę (audyt). */}
+      <div className="flex flex-wrap justify-between items-center gap-4 mb-10">
         <div className="flex gap-4">
           <Button
             onClick={killMaster}

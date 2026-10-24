@@ -14,8 +14,10 @@ import {
 } from 'lucide-react';
 import { useCounter } from '../../../hooks/useCounter';
 
+// Mobile: 21/9 przy p-12 daje ~57 px wysokości na tarczę 100 px + napis — overflow-hidden
+// ucinał górę tarczy i „Layer 7 Protection Active" (audyt renderowania). Na telefonie 4/3.
 export const WafHeroVisual = () => (
-  <div className="relative bg-[#0B1120] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
+  <div className="relative bg-[#0B1120] rounded-[2.5rem] p-6 md:p-12 overflow-hidden aspect-[4/3] md:aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
     <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
     <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-transparent"></div>
 
@@ -115,7 +117,8 @@ export const AirportSecuritySimulator = () => {
         </button>
       </div>
 
-      <div className="relative h-48 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between px-12 overflow-hidden">
+      {/* px-4 na telefonie: przy px-12 węzeł „Application" wychodził 45 px poza pole (audyt). */}
+      <div className="relative h-48 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between px-4 md:px-12 overflow-hidden">
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -translate-y-1/2"></div>
         <div className="relative z-10 flex flex-col items-center gap-2">
           <div className="w-16 h-16 bg-white rounded-full border-2 border-gray-200 flex items-center justify-center shadow-sm">
@@ -150,7 +153,7 @@ export const AirportSecuritySimulator = () => {
           >
             <Plane size={32} />
           </div>
-          <span className="text-xxs font-black uppercase text-gray-600 tracking-widest">
+          <span className="text-xxs font-black uppercase text-gray-600 tracking-wide md:tracking-widest">
             Application
           </span>
         </div>
@@ -221,11 +224,11 @@ export const SqliDemo = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="np. Jan Kowalski"
-              className="flex-grow bg-[#1E293B] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"
+              className="flex-grow min-w-0 bg-[#1E293B] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"
             />
             <button
               onClick={() => setInput("' OR '1'='1' --")}
-              className="bg-secondary text-xs font-bold px-4 py-2 rounded-xl hover:bg-primary"
+              className="shrink-0 bg-secondary text-xs font-bold px-4 py-2 rounded-xl hover:bg-primary"
             >
               Atak
             </button>
