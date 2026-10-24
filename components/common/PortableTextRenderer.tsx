@@ -11,7 +11,7 @@ const components: PortableTextComponents = {
       return (
         <figure className="my-10 overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
           <Image
-            src={urlFor(value).url()}
+            src={urlFor(value).width(1200).fit('max').url()}
             alt={value.alt || 'Zdjęcie artykułu'}
             className="w-full h-auto object-cover"
             width={800}

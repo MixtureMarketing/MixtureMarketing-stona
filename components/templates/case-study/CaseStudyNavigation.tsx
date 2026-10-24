@@ -8,7 +8,8 @@ import { client } from '@/services/cmsService';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
-  return builder.image(source);
+  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
+  return builder.image(source).auto('format');
 }
 
 interface CaseStudyNavigationProps {
@@ -28,8 +29,10 @@ const CaseStudyNavigation: React.FC<CaseStudyNavigationProps> = ({ nextProject }
       {nextProject.mainImage && (
         <div className="absolute inset-0 opacity-20 group-hover:opacity-10 transition-opacity duration-700">
           <img
-            src={urlFor(nextProject.mainImage).width(1920).url()}
+            src={urlFor(nextProject.mainImage).width(1200).url()}
             alt=""
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover grayscale mix-blend-multiply"
           />
         </div>

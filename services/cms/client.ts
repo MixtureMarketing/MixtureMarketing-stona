@@ -16,7 +16,8 @@ export const client = createClient({
 const builder = imageUrlBuilder(client);
 
 export function urlFor(source: SanityImage | { asset: { _ref: string } }) {
-  return builder.image(source);
+  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
+  return builder.image(source).auto('format');
 }
 
 // Simple In-Memory Cache
