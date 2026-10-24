@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
 import { Mail, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import GlassCard from '../common/GlassCard';
 
 const PortalLogin: React.FC = () => {
-  const { login, sessionExpired } = useAuth();
+  const { login, sessionExpired, user, sessionToken, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  // Zalogowany (np. z linku „Zaloguj się, aby odpowiedzieć” w mailu) trafia od razu
+  // do swojego panelu, zamiast zamawiać nowy magic link. Wygasła sesja czyści `user`
+  // w AuthContext, więc wtedy formularz zostaje.
+  const isLoggedIn = !isLoading && !!user && !!sessionToken;
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    navigate(user?.role === 'admin' ? '/portal/admin' : '/portal/dashboard', { replace: true });
+  }, [isLoggedIn, user?.role, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,6 +26,8 @@ const PortalLogin: React.FC = () => {
     const success = await login(email);
     setStatus(success ? 'success' : 'error');
   };
+
+  if (isLoggedIn) return null;
 
   if (status === 'success') {
     return (
