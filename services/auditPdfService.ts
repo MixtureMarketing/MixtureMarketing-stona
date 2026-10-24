@@ -1,5 +1,6 @@
 import type { AuditResult } from './auditService';
 import { getErrorDetails } from '../data/auditErrors';
+import { registerPlFont, PDF_FONT } from '@/lib/pdf/fontPl';
 
 /**
  * Raport PDF audytu 360 — generowany client-side (jspdf, lazy) z REALNYCH
@@ -10,6 +11,9 @@ import { getErrorDetails } from '../data/auditErrors';
 export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
+  // Wbudowana helvetica (WinAnsi) nie ma ą ć ę ł ń ś ź ż — lead dostawał „wydajno[".
+  // Wspólny font PL (lazy, poza głównym bundlem) + sanityzacja text()/splitTextToSize().
+  await registerPlFont(doc);
   const { client } = result;
 
   const margin = 20;
@@ -28,11 +32,11 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   // --- HEADER ---
   doc.setFontSize(22);
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.text('Mixture Marketing', margin, y);
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.text('Audyt 360 — SEO, wydajność, analityka', margin, y + 7);
   doc.text(`Data: ${new Date().toLocaleDateString('pl-PL')}`, pageW - margin, y, {
     align: 'right',
@@ -47,7 +51,7 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   y += 12;
   doc.setFontSize(14);
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   const urlLines = doc.splitTextToSize(`Badana strona: ${client.url}`, pageW - 2 * margin);
   doc.text(urlLines, margin, y);
   y += urlLines.length * 7 + 4;
@@ -64,15 +68,15 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   doc.setFontSize(13);
   doc.text('Zmierzone parametry (Google PageSpeed Insights)', margin, y);
   y += 8;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(PDF_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(40);
 
   const row = (label: string, value: string) => {
     newPageIfNeeded();
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.text(label, margin, y);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(PDF_FONT, 'normal');
     doc.text(value, margin + 90, y);
     y += 7;
   };
@@ -90,7 +94,7 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   // --- TECHNOLOGIA / ANALITYKA ---
   y += 4;
   newPageIfNeeded(20);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.setFontSize(13);
   doc.setTextColor(brandColor);
   doc.text('Wykryte na stronie', margin, y);
@@ -124,7 +128,7 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   if (issues.length > 0) {
     y += 4;
     newPageIfNeeded(24);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(PDF_FONT, 'bold');
     doc.setFontSize(13);
     doc.setTextColor(brandColor);
     doc.text(`Wykryte problemy (${issues.length})`, margin, y);
@@ -132,11 +136,11 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
     doc.setFontSize(10);
     for (const issue of issues) {
       newPageIfNeeded(18);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(PDF_FONT, 'bold');
       doc.setTextColor(40);
       doc.text(`• ${issue.title}`, margin, y);
       y += 5.5;
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(PDF_FONT, 'normal');
       doc.setTextColor(90);
       const descLines = doc.splitTextToSize(issue.desc, pageW - 2 * margin - 6);
       doc.text(descLines, margin + 4, y);
@@ -152,19 +156,15 @@ export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   y += 8;
   doc.setFontSize(9);
   doc.setTextColor(120);
-  doc.text(
+  // Manrope jest szerszy od helvetiki — stopkę łamiemy, żeby nie wyszła za prawy margines.
+  const footLines = [
     'Raport wygenerowany automatycznie z pomiarów: kod strony, Google PageSpeed Insights, Google Places.',
-    margin,
-    y,
-  );
-  doc.text(
     'Audyt automatyczny wykrywa część problemów — pełny audyt robi człowiek. Odpowiedz na maila, chętnie pomożemy.',
-    margin,
-    y + 5,
-  );
-  y += 14;
+  ].flatMap((line) => doc.splitTextToSize(line, pageW - 2 * margin) as string[]);
+  doc.text(footLines, margin, y);
+  y += footLines.length * 5 + 4;
   doc.setTextColor(brandColor);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(PDF_FONT, 'bold');
   doc.text('Mixture Marketing · mixturemarketing.pl · info@mixturemarketing.pl', margin, y);
 
   return doc.output('blob');
