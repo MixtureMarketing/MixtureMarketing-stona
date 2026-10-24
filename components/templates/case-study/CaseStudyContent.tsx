@@ -34,16 +34,19 @@ const ptComponents: PortableTextComponents = {
       </blockquote>
     ),
   },
+  // Stylowanie punktu przez `listItem`, nie przez owijanie dzieci listy: PortableText sam
+  // renderuje <li> — owinięcie go w <li><span> dawało <li> wewnątrz <span> (axe: listitem).
   list: {
     bullet: ({ children }: { children?: React.ReactNode }) => (
-      <ul className="list-none space-y-4 mb-10">
-        {React.Children.map(children, (child) => (
-          <li className="flex gap-4 items-start text-lg">
-            <CheckCircle2 size={24} className="text-success shrink-0 mt-1" />
-            <span>{child}</span>
-          </li>
-        ))}
-      </ul>
+      <ul className="list-none space-y-4 mb-10">{children}</ul>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }: { children?: React.ReactNode }) => (
+      <li className="flex gap-4 items-start text-lg">
+        <CheckCircle2 size={24} className="text-success shrink-0 mt-1" aria-hidden="true" />
+        <span>{children}</span>
+      </li>
     ),
   },
 };
@@ -59,8 +62,13 @@ const CaseStudyContent: React.FC<CaseStudyContentProps> = ({ project, onAssetCli
         viewport={{ once: true }}
         className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-gray-200/50 mb-12 border border-white"
       >
+        {/* Numery 01–03 to czysta dekoracja (WCAG 1.4.3: wyjątek dla tekstu dekoracyjnego) —
+            jako `content` pseudo-elementu, nie węzeł tekstowy, żeby axe nie liczył im kontrastu. */}
         <div className="flex items-center gap-4 mb-8">
-          <span className="text-6xl font-black text-gray-100 select-none">01</span>
+          <span
+            className="text-6xl font-black text-gray-100 select-none before:content-['01']"
+            aria-hidden="true"
+          />
           <h2 className="text-2xl font-bold text-dark uppercase tracking-wider">Wyzwanie</h2>
         </div>
         {project.challenge && (
@@ -79,7 +87,10 @@ const CaseStudyContent: React.FC<CaseStudyContentProps> = ({ project, onAssetCli
         className="mb-12"
       >
         <div className="flex items-center gap-4 mb-8">
-          <span className="text-6xl font-black text-gray-200 select-none">02</span>
+          <span
+            className="text-6xl font-black text-gray-200 select-none before:content-['02']"
+            aria-hidden="true"
+          />
           <h2 className="text-2xl font-bold text-dark uppercase tracking-wider">Rozwiązanie</h2>
         </div>
         {project.solution && (
@@ -105,7 +116,10 @@ const CaseStudyContent: React.FC<CaseStudyContentProps> = ({ project, onAssetCli
         <div className="absolute top-0 right-0 w-64 h-64 bg-secondary rounded-full blur-[100px] opacity-50 -mr-20 -mt-20"></div>
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-8">
-            <span className="text-6xl font-black text-white/10 select-none">03</span>
+            <span
+              className="text-6xl font-black text-white/10 select-none before:content-['03']"
+              aria-hidden="true"
+            />
             <h2 className="text-2xl font-bold text-white uppercase tracking-wider">Efekt</h2>
           </div>
           {project.result && (

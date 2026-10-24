@@ -154,7 +154,7 @@ const PortalDashboard: React.FC = () => {
         onLogout={logout}
       />
 
-      <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <AnimateOnScroll>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
             <div>
@@ -215,7 +215,7 @@ const PortalDashboard: React.FC = () => {
             <PortalSupport />
           </div>
         </div>
-      </main>
+      </div>
 
       <ProfileModal
         isOpen={isProfileModalOpen}
