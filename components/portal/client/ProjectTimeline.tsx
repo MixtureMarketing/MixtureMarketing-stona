@@ -89,6 +89,7 @@ const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
                       }
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
+                      maxLength={5000}
                       rows={3}
                     />
                     <div className="flex gap-2">
