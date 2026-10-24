@@ -2,7 +2,6 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import svgo from 'vite-plugin-svgo';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(({ mode }) => {
@@ -22,20 +21,8 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       tailwindcss(), // Tailwind v4 plugin
-      svgo({
-        plugins: [
-          {
-            name: 'preset-default',
-            params: {
-              overrides: {
-                removeViewBox: false,
-              },
-            },
-          },
-          'removeDimensions',
-          'cleanupIds',
-        ],
-      }),
+      // vite-plugin-svgo usuniety: dzialal tylko na `import x from './x.svg'`
+      // w JS, a takich importow nie ma (SVG leza w public/ i ida jako pliki).
       // Obrazy: optymalizowane offline (scripts/convert-images.js -> webp/avif
       // commitowane) — usunieto ViteImageOptimizer (redundantny 2. przebieg).
       // Kompresja gzip/brotli usunieta: Cloudflare Pages kompresuje na krawedzi,
