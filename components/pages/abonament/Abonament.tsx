@@ -1024,9 +1024,9 @@ const Abonament: React.FC = () => {
                   <Activity size={12} aria-hidden="true" />
                   Szablony branżowe
                 </div>
-                <h4 className="text-2xl font-bold mb-4 leading-tight">
+                <h3 className="text-2xl font-bold mb-4 leading-tight">
                   Twoja branża prawdopodobnie już na nas czeka
-                </h4>
+                </h3>
               </div>
               <div className="relative z-10 mt-8">
                 <p className="text-8xl font-black leading-none bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">
@@ -1067,7 +1067,7 @@ const Abonament: React.FC = () => {
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2">
                   Setup vs klasyczne zlecenie
                 </p>
-                <h4 className="text-2xl font-bold text-slate-950">25 minut zamiast 6 tygodni.</h4>
+                <h3 className="text-2xl font-bold text-slate-950">25 minut zamiast 6 tygodni.</h3>
               </div>
               {/* Wykresik z wymyślonych słupków usunięty (atrapa telemetrii) */}
             </div>
@@ -1462,11 +1462,11 @@ const Abonament: React.FC = () => {
                       {inc.num}
                       {inc.label && ` · ${inc.label}`}
                     </p>
-                    <h4
+                    <h3
                       className={`text-xl font-black mb-2 ${inc.accent ? 'text-white' : 'text-slate-950'}`}
                     >
                       {inc.title}
-                    </h4>
+                    </h3>
                   </div>
                   <p
                     className={`relative z-10 text-sm leading-relaxed ${
@@ -1515,7 +1515,7 @@ const Abonament: React.FC = () => {
                     <s.icon size={18} aria-hidden="true" />
                   </div>
                 </div>
-                <h4 className="text-lg font-bold text-slate-950 mb-1">{s.title}</h4>
+                <h3 className="text-lg font-bold text-slate-950 mb-1">{s.title}</h3>
                 <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-indigo-600 mb-3">
                   ━ {s.time}
                 </div>
@@ -1663,7 +1663,7 @@ const Abonament: React.FC = () => {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-700 mb-4">
                   <k.icon size={22} aria-hidden="true" />
                 </div>
-                <h4 className="text-lg font-bold text-slate-950 mb-3">{k.title}</h4>
+                <h3 className="text-lg font-bold text-slate-950 mb-3">{k.title}</h3>
                 <ul className="space-y-1.5">
                   {k.items.map((it, i) => (
                     <li
@@ -1712,7 +1712,7 @@ const Abonament: React.FC = () => {
                 3 modele zakupu strony WWW
               </div>
               <div className="text-center p-5 rounded-2xl bg-gradient-to-br from-indigo-950 to-slate-950 text-white border-2 border-indigo-500/40">
-                <h4 className="text-xl font-black">Mixture</h4>
+                <h3 className="text-xl font-black">Mixture</h3>
                 <p className="text-xs text-indigo-300 uppercase tracking-[0.15em] font-bold mt-1">
                   Abonament
                 </p>
@@ -1722,7 +1722,7 @@ const Abonament: React.FC = () => {
                 <p className="text-[10px] text-slate-400 mt-1">miesięcznie · min. 3 mies.</p>
               </div>
               <div className="text-center p-5 rounded-2xl bg-slate-50 border-2 border-slate-200">
-                <h4 className="text-xl font-black text-slate-950">Agencja</h4>
+                <h3 className="text-xl font-black text-slate-950">Agencja</h3>
                 <p className="text-xs text-slate-500 uppercase tracking-[0.15em] font-bold mt-1">
                   Klasyczne zlecenie
                 </p>
@@ -1730,7 +1730,7 @@ const Abonament: React.FC = () => {
                 <p className="text-[10px] text-slate-500 mt-1">jednorazowo</p>
               </div>
               <div className="text-center p-5 rounded-2xl bg-slate-50 border-2 border-slate-200">
-                <h4 className="text-xl font-black text-slate-950">DIY</h4>
+                <h3 className="text-xl font-black text-slate-950">DIY</h3>
                 <p className="text-xs text-slate-500 uppercase tracking-[0.15em] font-bold mt-1">
                   Wix / Squarespace
                 </p>
@@ -1790,11 +1790,11 @@ const Abonament: React.FC = () => {
 
           <div className="grid md:grid-cols-2 gap-5 mt-10">
             <div className="p-6 md:p-8 rounded-3xl bg-slate-50 border border-slate-200">
-              <h4 className="text-xl font-bold text-slate-950 mb-4">
+              <h3 className="text-xl font-bold text-slate-950 mb-4">
                 Klasyczne zlecenie,
                 <br />
                 jeśli...
-              </h4>
+              </h3>
               <ul className="space-y-2 text-sm text-slate-700 mb-6">
                 <li className="flex gap-2">
                   <Check size={16} className="text-slate-500 mt-0.5 flex-shrink-0" />
@@ -1819,11 +1819,11 @@ const Abonament: React.FC = () => {
             <div className="relative p-6 md:p-8 rounded-3xl bg-gradient-to-br from-indigo-950 via-slate-950 to-indigo-950 text-white border border-indigo-500/30 overflow-hidden">
               {techGrid}
               <div className="relative z-10">
-                <h4 className="text-xl font-bold mb-4">
+                <h3 className="text-xl font-bold mb-4">
                   Abonament Mixture,
                   <br />
                   jeśli...
-                </h4>
+                </h3>
                 <ul className="space-y-2 text-sm text-slate-200 mb-6">
                   <li className="flex gap-2">
                     <Check size={16} className="text-indigo-400 mt-0.5 flex-shrink-0" />
@@ -2135,7 +2135,7 @@ const Abonament: React.FC = () => {
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-100 to-blue-100 text-indigo-700 mb-4">
                   <card.icon size={22} aria-hidden="true" />
                 </div>
-                <h4 className="text-lg font-bold text-slate-950 mb-3">{card.title}</h4>
+                <h3 className="text-lg font-bold text-slate-950 mb-3">{card.title}</h3>
                 <ul className="space-y-1.5">
                   {card.items.map((item, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
@@ -2180,7 +2180,7 @@ const Abonament: React.FC = () => {
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-[0.15em] mb-3">
                     {r.tag}
                   </span>
-                  <h4 className="text-lg font-bold text-slate-950 mb-1">{r.title}</h4>
+                  <h3 className="text-lg font-bold text-slate-950 mb-1">{r.title}</h3>
                   <p className="text-sm text-slate-600">{r.desc}</p>
                 </div>
                 <span
