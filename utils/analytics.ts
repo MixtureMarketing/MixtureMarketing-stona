@@ -4,7 +4,8 @@ declare global {
       consent: {
         set: (data: Record<string, boolean>) => void;
       };
-      track: (event: string, data?: Record<string, unknown>) => void;
+      // Zaraz zwraca Promise — odrzucany, gdy beacon /cdn-cgi/zaraz/t jest zablokowany.
+      track: (event: string, data?: Record<string, unknown>) => void | Promise<unknown>;
     };
   }
   const gtag: (...args: unknown[]) => void;
@@ -58,7 +59,11 @@ export const applyConsent = (consent: ConsentState) => {
 export const trackEvent = (eventName: string, data?: Record<string, unknown>): void => {
   if (typeof window === 'undefined') return;
   try {
-    window.zaraz?.track(eventName, data);
+    // Beacon idzie asynchronicznie: przy blokerze reklam / braku sieci Promise jest odrzucany
+    // („Failed to fetch"). Bez .catch nieobsłużone odrzucenie trafiało do /api/client-error
+    // jako błąd aplikacji (szum w logach + zjadało limit 5 zgłoszeń na sesję).
+    const pending = window.zaraz?.track(eventName, data);
+    if (pending && typeof pending.catch === 'function') pending.catch(() => undefined);
   } catch (e) {
     // Zaraz moze nie byc gotowy - nic nie blokujemy.
     if (process.env.NODE_ENV !== 'production') {

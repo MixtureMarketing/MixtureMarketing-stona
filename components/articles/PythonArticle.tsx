@@ -157,7 +157,7 @@ const PythonArticle = () => {
           subtitle={CONTENT.comparison.subtitle}
           align="center"
         />
-        <div className="overflow-hidden rounded-3xl border border-gray-200 shadow-2xl mt-12 not-prose bg-white">
+        <div className="overflow-x-auto rounded-3xl border border-gray-200 shadow-2xl mt-12 not-prose bg-white">
           <table className="w-full text-left">
             <thead className="bg-[#092e20] text-white">
               <tr>

@@ -118,7 +118,10 @@ const ElasticsearchArticle = () => {
             <Layers size={16} /> Bonus dla IT i Zarządu
           </div>
           <h3 className="text-2xl font-bold text-dark mb-6 mt-0">{CONTENT.elkStack.title}</h3>
-          <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">{CONTENT.elkStack.text}</p>
+          <p
+            className="text-gray-600 leading-relaxed mb-8 max-w-2xl"
+            dangerouslySetInnerHTML={{ __html: CONTENT.elkStack.text }}
+          />
           <div className="flex gap-4 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
             {CONTENT.elkStack.badges.map((badge, i) => (
               <span

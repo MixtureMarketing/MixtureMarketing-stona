@@ -18,35 +18,40 @@ import SectionHeader from '../../common/SectionHeader';
 import { useCounter } from '../../../hooks/useCounter';
 
 // --- GOOGLE ADS HERO ---
+// Mobile: na 358 px przy p-12/gap-12/w-24 treść miała ~416 px w 262 px pola — etykiety
+// „Twoja Kampania"/„Skalowanie Zysku" ucinał overflow-hidden (audyt renderowania).
 export const GoogleAdsHero = () => (
-  <div className="relative bg-[#0F172A] rounded-[2.5rem] p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
+  <div className="relative bg-[#0F172A] rounded-[2.5rem] p-6 md:p-12 overflow-hidden aspect-[21/9] flex items-center justify-center border border-gray-800 shadow-2xl group">
     <div className="absolute inset-0 bg-tech-grid opacity-10"></div>
 
-    <div className="relative z-10 flex items-center gap-12">
+    <div className="relative z-10 flex items-center gap-3 md:gap-12">
       <div className="flex flex-col items-center">
-        <div className="w-24 h-24 bg-gradient-to-br from-secondary to-dark rounded-3xl flex items-center justify-center shadow-2xl border border-white/10 relative overflow-hidden group-hover:scale-105 transition-transform">
+        <div className="w-16 h-16 md:w-24 md:h-24 bg-gradient-to-br from-secondary to-dark rounded-2xl md:rounded-3xl flex items-center justify-center shadow-2xl border border-white/10 relative overflow-hidden group-hover:scale-105 transition-transform">
           <div className="absolute inset-0 bg-primary opacity-20 blur-xl animate-pulse"></div>
-          <Settings size={48} className="text-white relative z-10 animate-spin-slow" />
+          <Settings
+            size={48}
+            className="w-8 h-8 md:w-12 md:h-12 text-white relative z-10 animate-spin-slow"
+          />
         </div>
-        <span className="text-xxs font-black uppercase text-slate-400 mt-4 tracking-widest">
+        <span className="text-xxs font-black uppercase text-slate-400 mt-2 md:mt-4 tracking-widest">
           Twoja Kampania
         </span>
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
+        <div className="h-1 w-10 md:w-32 bg-gray-800 rounded-full overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary to-transparent animate-shimmer"></div>
         </div>
-        <div className="h-1 w-32 bg-gray-800 rounded-full overflow-hidden relative">
+        <div className="h-1 w-10 md:w-32 bg-gray-800 rounded-full overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-shimmer delay-500"></div>
         </div>
       </div>
 
       <div className="flex flex-col items-center">
-        <div className="w-24 h-24 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-          <DollarSign size={48} className="text-emerald-500" />
+        <div className="w-16 h-16 md:w-24 md:h-24 bg-emerald-500/10 border-2 border-emerald-500/20 rounded-2xl md:rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+          <DollarSign size={48} className="w-8 h-8 md:w-12 md:h-12 text-emerald-500" />
         </div>
-        <span className="text-xxs font-black uppercase text-emerald-500 mt-4 tracking-widest">
+        <span className="text-xxs font-black uppercase text-emerald-500 mt-2 md:mt-4 tracking-widest">
           Skalowanie Zysku
         </span>
       </div>
@@ -223,7 +228,10 @@ export const AiFunnelDiagram = () => {
                 <div className="text-xxs font-black text-primary uppercase tracking-widest mb-4">
                   Analiza Sygnałów (Real-Time)
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                {/* 1 kolumna: w 2 kolumnach pigułka ma ~110–127 px (telefon i desktop), więc
+                    „Przeglądania"/„Zakupowa" wylewały się poza ramkę, a ikony ściskało do 0 px
+                    (audyt renderowania). */}
+                <div className="grid grid-cols-1 gap-3">
                   <SignalPill
                     icon={<Target size={14} />}
                     text="Intencja Zakupowa"
@@ -312,7 +320,7 @@ const SignalPill = ({ icon, text, color }: SignalPillProps) => {
 
   return (
     <div
-      className={`${colors[color]} border px-3 py-2 rounded-lg flex items-center gap-2 transition-transform hover:scale-105 cursor-default`}
+      className={`${colors[color]} border px-3 py-2 rounded-lg flex items-center gap-2 transition-transform hover:scale-105 cursor-default [&>svg]:shrink-0`}
     >
       {icon}
       <span className="text-xxs font-bold uppercase tracking-wide">{text}</span>

@@ -79,11 +79,14 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
     : new Date('2025-01-01').toISOString();
   const isoUpdated = updatedDate ? new Date(updatedDate).toISOString() : isoPublished;
 
+  // Opisy artykułów bywają z inline HTML (<strong>, <a>) — w JSON-LD tylko czysty tekst.
+  const plainDescription = description.replace(/<[^>]*>/g, '');
+
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: titleStr,
-    description,
+    description: plainDescription,
     image: [`${baseUrl}${image}`, `${baseUrl}/assets/images/sygnet.png`],
     author: {
       '@type': 'Person',
@@ -189,9 +192,12 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
               )}
             </h1>
 
-            <p className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium">
-              {description}
-            </p>
+            {/* Statyczna treść z data/content (zaufana) z inline HTML — jako tekst pokazywała
+                surowe „<strong>…</strong>" i „<a href=…>" (audyt renderowania). */}
+            <p
+              className="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed font-medium"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
 
             {/* Author byline — sygnal E-E-A-T (Expertise, Authoritativeness) dla Google + AI search */}
             <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-gray-600">

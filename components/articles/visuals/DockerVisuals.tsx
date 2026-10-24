@@ -77,7 +77,7 @@ export const DockerHeroVisual = () => {
         </div>
 
         <div className="w-full max-w-2xl bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-6 mb-8 relative group-hover:border-blue-500/30 transition-colors duration-700">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0F172A] px-4 py-1 rounded-full border border-white/10 text-xxs font-black text-blue-400 uppercase tracking-[0.3em]">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#0F172A] px-4 py-1 rounded-full border border-white/10 text-xxs font-black text-blue-400 uppercase whitespace-nowrap tracking-wider md:tracking-[0.3em]">
             Docker Runtime Engine
           </div>
           <div className="flex items-center justify-around opacity-40">
@@ -92,7 +92,7 @@ export const DockerHeroVisual = () => {
           <div className="absolute inset-0 bg-tech-grid opacity-20"></div>
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
-            <span className="text-xxs font-black text-white/40 uppercase tracking-[0.5em]">
+            <span className="text-xxs font-black text-white/40 uppercase tracking-wider md:tracking-[0.5em]">
               Physical Infrastructure / Cloud Host
             </span>
           </div>

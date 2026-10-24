@@ -23,7 +23,8 @@ export const FrontendHeroVisual: React.FC = () => {
     <div className="relative w-full bg-[#0F172A] rounded-[3rem] p-12 overflow-hidden border border-white/10 shadow-2xl min-h-[500px] flex flex-col md:flex-row items-center justify-center group">
       {/* Background with abstract grid/lines */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]"></div>
-      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')]"></div>
+      {/* Tekstura circuit-board.png z transparenttextures.com usunięta: zwraca 404 (HTML →
+          ERR_BLOCKED_BY_ORB), więc i tak się nie rysowała — tylko nieudany request. */}
 
       {/* Central Visual: Transformation */}
       <div className="relative z-10 flex items-center justify-center w-full max-w-3xl">
@@ -240,7 +241,9 @@ export const DecisionTreeVisual: React.FC = () => {
             <ArrowRight className="rotate-90 text-red-400" />
             <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 w-full">
               <p className="font-bold mb-2">Budżet / Czas?</p>
-              <div className="grid grid-cols-2 gap-2 mt-4">
+              {/* 1 kolumna na telefonie: w 2 kolumnach kafelki miały 49 px i „React.js"
+                  wychodził 39 px poza ramkę (audyt renderowania). */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                 <div className="bg-emerald-900/50 p-3 rounded-lg border border-emerald-500/30">
                   <span className="block font-bold text-emerald-400 mb-1">Mały / Szybko</span>
                   <span className="font-black text-lg">Vue.js</span>

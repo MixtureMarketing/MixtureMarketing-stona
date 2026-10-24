@@ -125,20 +125,20 @@ const SystemFlowArchitecture = () => {
           </span>
         </div>
 
-        <div className="absolute left-[85%] top-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 w-32">
+        <div className="absolute left-[85%] top-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 w-20 md:w-32 text-center">
           <div
             className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-500 ${status === 'hit' ? 'bg-emerald-500 scale-110' : status === 'miss' ? 'bg-rose-500 scale-95 opacity-50' : 'bg-red-600'}`}
           >
             <Database size={24} className="text-white" />
           </div>
           <span
-            className={`text-xxs font-black uppercase tracking-widest whitespace-nowrap ${status === 'hit' ? 'text-emerald-700' : 'text-red-700'}`}
+            className={`text-xxs font-black uppercase tracking-widest md:whitespace-nowrap ${status === 'hit' ? 'text-emerald-700' : 'text-red-700'}`}
           >
             Redis (RAM)
           </span>
         </div>
 
-        <div className="absolute left-[85%] top-[75%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 w-32">
+        <div className="absolute left-[85%] top-[75%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-10 w-20 md:w-32 text-center">
           <div
             className={`w-16 h-16 bg-white border-2 rounded-2xl flex items-center justify-center transition-all duration-500 ${status === 'fetching' ? 'border-orange-400 bg-orange-50 scale-110 shadow-lg' : 'border-gray-200 opacity-60'}`}
           >

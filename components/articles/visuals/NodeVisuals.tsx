@@ -107,8 +107,9 @@ export const NodeHeroVisual: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Labels */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-8 opacity-30">
+      {/* Floating Labels — tylko od md: na telefonie (układ w kolumnie) pas leżał na napisie
+          „Backend", a „JavaScript"/„V8 Engine" ucinał overflow-hidden (audyt renderowania). */}
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 opacity-30">
         <div className="flex items-center gap-2 text-white text-xxxs font-bold uppercase tracking-widest">
           <Code size={12} /> JavaScript
         </div>

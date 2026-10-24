@@ -15,8 +15,9 @@ import { normalizeTeamMember } from '../../utils/teamMember';
 import { FOUNDER_ID, FOUNDER_NAME, ORG_REF } from '../../utils/seo/organizationSchema';
 
 const builder = imageUrlBuilder(client);
+// Zastępczy awatar: wariant 480 px (3 kB) zamiast sygnet.png 5906×5906 (206 kB) na 128 px.
 const urlFor = (img: SanityTeamMember['image']) =>
-  img ? builder.image(img).width(400).height(400).url() : '/assets/images/sygnet.png';
+  img ? builder.image(img).width(400).height(400).url() : '/assets/images/sygnet-480.webp';
 
 const AboutUs: React.FC = () => {
   const { openModal } = useModal();

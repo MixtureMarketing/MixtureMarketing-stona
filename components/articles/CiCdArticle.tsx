@@ -141,7 +141,7 @@ const CiCdArticle = () => {
         />
 
         <div className="my-12 p-4 not-prose overflow-visible">
-          <div className="overflow-hidden rounded-[2rem] border border-gray-100 shadow-2xl">
+          <div className="overflow-x-auto rounded-[2rem] border border-gray-100 shadow-2xl">
             <table className="w-full text-left border-collapse bg-white">
               <thead>
                 <tr className="bg-dark text-white">

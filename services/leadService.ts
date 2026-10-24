@@ -1,3 +1,5 @@
+import { trackEvent } from '@/utils/analytics';
+
 export interface LeadBase {
   name: string;
   email: string;
@@ -115,12 +117,10 @@ export const leadService = {
       const result = { id, ...data };
 
       // Track lead creation in Cloudflare Zaraz
-      if (typeof window !== 'undefined' && window.zaraz) {
-        window.zaraz.track('lead_start', {
-          service: data.service_interest,
-          source: 'contact_form_step_1',
-        });
-      }
+      trackEvent('lead_start', {
+        service: data.service_interest,
+        source: 'contact_form_step_1',
+      });
 
       return result;
     } catch (error) {
@@ -174,10 +174,8 @@ export const leadService = {
       }
 
       // Track full conversion in Cloudflare Zaraz
-      if (type === 'success' && typeof window !== 'undefined' && window.zaraz) {
-        window.zaraz.track('contact_form_success', {
-          lead_id: id,
-        });
+      if (type === 'success') {
+        trackEvent('contact_form_success', { lead_id: id });
       }
 
       return true;

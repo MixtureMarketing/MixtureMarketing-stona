@@ -70,7 +70,7 @@ const UxAuditArticle = () => {
           subtitle={CONTENT.definition.subtitle}
           align="left"
         />
-        <p>{CONTENT.definition.text}</p>
+        <p dangerouslySetInnerHTML={{ __html: CONTENT.definition.text }} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-12 not-prose">
           <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300">

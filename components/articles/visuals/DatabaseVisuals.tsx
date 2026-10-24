@@ -1,14 +1,17 @@
 import React from 'react';
 import { MousePointer2, Server, Rocket, Search, Database, FileText, Layout } from 'lucide-react';
 
+// Mobile (390 px): rząd Użytkownik → Backend API miał ~390 px w 294 px pola — „Użytkownik"
+// i „Logic Layer" ucinał overflow-hidden, a plakietka „Data Persistence Layer" łamała się
+// na 3 linie i wchodziła na karty (audyt renderowania). Ciaśniejsze odstępy tylko < md.
 export const DatabaseHeroVisual = () => {
   return (
-    <div className="relative w-full bg-[#0B1120] rounded-[3rem] p-8 md:p-16 overflow-hidden border border-white/10 shadow-2xl min-h-[600px] flex items-center justify-center group">
+    <div className="relative w-full bg-[#0B1120] rounded-[3rem] p-4 md:p-16 overflow-hidden border border-white/10 shadow-2xl min-h-[600px] flex items-center justify-center group">
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.04]"></div>
 
       <div className="flex flex-col gap-8 relative z-10 max-w-4xl mx-auto">
         <div className="flex flex-col items-center">
-          <div className="flex items-center gap-6 mb-4">
+          <div className="flex items-center gap-3 md:gap-6 mb-4">
             <div className="flex flex-col items-center gap-2">
               <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center border-2 border-gray-200 shadow-sm">
                 <MousePointer2 size={24} className="text-gray-500" />
@@ -18,12 +21,12 @@ export const DatabaseHeroVisual = () => {
               </span>
             </div>
 
-            <div className="w-24 h-0.5 bg-gradient-to-r from-gray-300 to-blue-500 relative">
+            <div className="w-10 md:w-24 h-0.5 bg-gradient-to-r from-gray-300 to-blue-500 relative">
               <div className="absolute right-0 -top-1 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             </div>
 
             <div className="flex flex-col items-center gap-2">
-              <div className="px-8 py-4 bg-dark rounded-2xl shadow-xl flex items-center gap-3 border border-secondary relative overflow-hidden">
+              <div className="px-4 md:px-8 py-4 bg-dark rounded-2xl shadow-xl flex items-center gap-3 border border-secondary relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
                 <Server size={24} className="text-white" />
                 <span className="text-white font-bold text-sm">Backend API</span>
@@ -39,8 +42,8 @@ export const DatabaseHeroVisual = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-gray-400 rounded-full"></div>
         </div>
 
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-xl relative">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gray-100 px-4 py-1 rounded-full border border-gray-200 text-xxs font-black uppercase text-gray-500 tracking-widest">
+        <div className="bg-white p-5 md:p-8 rounded-[2rem] border border-gray-200 shadow-xl relative">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-gray-100 px-4 py-1 rounded-full border border-gray-200 text-xxs font-black uppercase text-gray-500 tracking-wider md:tracking-widest">
             Data Persistence Layer
           </div>
 

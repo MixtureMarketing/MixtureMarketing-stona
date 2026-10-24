@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { addScrollTask } from './useSectionProgress';
-import { setHeroCovered } from '@/utils/heroCover';
+import { heroCoverAt, setHeroCovered } from '@/utils/heroCover';
 
 /**
  * Scroll-takeover hero: arkusz najeżdżającej sekcji publikuje stopień pokrycia
@@ -49,7 +49,7 @@ export function useHeroTakeover<T extends HTMLElement = HTMLElement>(
       if (!sheet) return;
       // READ: pozycja krawędzi arkusza względem viewportu.
       const top = sheet.getBoundingClientRect().top;
-      const cover = Math.min(1, Math.max(0, (window.innerHeight - top) / window.innerHeight));
+      const cover = heroCoverAt(top, window.innerHeight); // 0 poza przypięciem (mobile)
       if (Math.abs(cover - last) < 0.004) return;
       last = cover;
       // WRITE: zmienna + inert — wszystkie zapisy w fazie zapisu schedulera.

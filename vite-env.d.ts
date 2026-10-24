@@ -6,7 +6,7 @@ declare global {
     gtag?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
     zaraz?: {
-      track: (event: string, data?: Record<string, unknown>) => void;
+      track: (event: string, data?: Record<string, unknown>) => void | Promise<unknown>;
       consent: {
         set: (data: Record<string, boolean>) => void;
       };
