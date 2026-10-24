@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Activity } from 'lucide-react';
@@ -67,6 +67,7 @@ const AdminDashboard: React.FC = () => {
   const {
     isUploadingDoc,
     isSavingMilestone,
+    isSendingChat,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,
@@ -102,9 +103,6 @@ const AdminDashboard: React.FC = () => {
     file: null as File | null,
   });
 
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const isAtBottomRef = useRef(true);
-
   useEffect(() => {
     if (isLoading) return;
     // Brak użytkownika (np. sesja wygasła → AuthContext wylogował) → logowanie;
@@ -112,13 +110,6 @@ const AdminDashboard: React.FC = () => {
     if (!user) navigate('/portal', { replace: true });
     else if (user.role !== 'admin') navigate('/portal/dashboard');
   }, [user, isLoading, navigate]);
-
-  const handleChatScroll = () => {
-    if (chatContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-      isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 50;
-    }
-  };
 
   const onSendAdminMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
@@ -257,10 +248,9 @@ const AdminDashboard: React.FC = () => {
             setAdminMessage={setAdminMessage}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            handleChatScroll={handleChatScroll}
             sendAdminMessage={onSendAdminMessage}
             handleKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendAdminMessage(e)}
-            chatContainerRef={chatContainerRef}
+            isSending={isSendingChat}
           />
         )}
 

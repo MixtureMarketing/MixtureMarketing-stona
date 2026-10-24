@@ -13,6 +13,7 @@ import PortalSupport from './client/PortalSupport';
 import { ProfileModal } from './client/PortalModals';
 import { AlertCircle } from 'lucide-react';
 import { getStatusColor, getStatusLabel } from '../../utils/portalHelpers';
+import { SessionExpiredError } from '../../utils/sessionExpiry';
 
 const PortalDashboard: React.FC = () => {
   const { user, sessionToken, logout, updateUser, isLoading, authFetch } = useAuth();
@@ -32,7 +33,10 @@ const PortalDashboard: React.FC = () => {
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
 
   const [newMessage, setNewMessage] = useState('');
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  // Blokada wysyłki w locie: ref zatrzymuje drugi klik/Enter jeszcze przed
+  // re-renderem (stan sam nie wystarcza — 2 kliki + Enter dawały 3 wiadomości).
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const sendingRef = useRef(false);
 
   // Initialize profile data
   useEffect(() => {
@@ -100,7 +104,9 @@ const PortalDashboard: React.FC = () => {
 
   const handleSendMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !sessionToken) return;
+    if (!newMessage.trim() || !sessionToken || sendingRef.current) return;
+    sendingRef.current = true;
+    setIsSendingMessage(true);
 
     try {
       const res = await authFetch('/api/portal/send_message', {
@@ -119,6 +125,12 @@ const PortalDashboard: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
+      if (!(e instanceof SessionExpiredError)) {
+        showNotification('Brak połączenia — wiadomość nie została wysłana.', 'error');
+      }
+    } finally {
+      sendingRef.current = false;
+      setIsSendingMessage(false);
     }
   };
 
@@ -208,8 +220,7 @@ const PortalDashboard: React.FC = () => {
               setNewMessage={setNewMessage}
               onSendMessage={handleSendMessage}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage(e)}
-              chatContainerRef={chatContainerRef}
-              handleChatScroll={() => {}}
+              isSending={isSendingMessage}
             />
           </div>
           <div className="lg:col-span-1">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import MixtureApiClient from '../../../services/apiClient';
 import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -30,9 +30,15 @@ export const useAdminActions = ({
   const { authFetch } = useAuth();
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isSavingMilestone, setIsSavingMilestone] = useState(false);
+  // Każda wiadomość czatu = mail do klienta. Ref blokuje drugi Enter/klik jeszcze
+  // przed re-renderem; stan steruje UI (przycisk disabled, pole readOnly).
+  const [isSendingChat, setIsSendingChat] = useState(false);
+  const sendingChatRef = useRef(false);
 
   const sendAdminMessage = async (userId: string, content: string) => {
-    if (!userId || !content.trim() || !sessionToken) return false;
+    if (!userId || !content.trim() || !sessionToken || sendingChatRef.current) return false;
+    sendingChatRef.current = true;
+    setIsSendingChat(true);
     try {
       const res = await MixtureApiClient.post<{ warning?: string }>(
         '/api/admin/admin_reply_chat',
@@ -45,7 +51,11 @@ export const useAdminActions = ({
       return true;
     } catch (error) {
       console.error(error);
+      showNotification(serverMessage(error, 'Nie udało się wysłać wiadomości.'), 'error');
       return false;
+    } finally {
+      sendingChatRef.current = false;
+      setIsSendingChat(false);
     }
   };
 
@@ -183,6 +193,7 @@ export const useAdminActions = ({
   return {
     isUploadingDoc,
     isSavingMilestone,
+    isSendingChat,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,

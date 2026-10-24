@@ -3,6 +3,9 @@ import { MessageSquare, CheckCheck, Check, Send } from 'lucide-react';
 import Button from '../../common/Button';
 import GlassCard from '../../common/GlassCard';
 import { Message } from '../types';
+import { useChatScroll } from '../useChatScroll';
+
+const isOwnClientMessage = (m: Message) => m.sender_type === 'client';
 
 interface PortalChatProps {
   messages: Message[];
@@ -10,8 +13,8 @@ interface PortalChatProps {
   setNewMessage: (m: string) => void;
   onSendMessage: (e: React.FormEvent | React.KeyboardEvent) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
-  chatContainerRef: React.RefObject<HTMLDivElement | null>;
-  handleChatScroll: () => void;
+  /** Wysyłka w toku — przycisk zablokowany, pole tylko do odczytu (bez dubli). */
+  isSending?: boolean;
 }
 
 const PortalChat: React.FC<PortalChatProps> = ({
@@ -20,9 +23,9 @@ const PortalChat: React.FC<PortalChatProps> = ({
   setNewMessage,
   onSendMessage,
   onKeyDown,
-  chatContainerRef,
-  handleChatScroll,
+  isSending = false,
 }) => {
+  const { containerRef, onScroll } = useChatScroll(messages, { isOwn: isOwnClientMessage });
   return (
     <GlassCard className="bg-white border border-gray-100 overflow-hidden flex flex-col h-[600px]">
       <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-[#F9FAFB]">
@@ -38,8 +41,8 @@ const PortalChat: React.FC<PortalChatProps> = ({
       </div>
 
       <div
-        ref={chatContainerRef}
-        onScroll={handleChatScroll}
+        ref={containerRef}
+        onScroll={onScroll}
         className="flex-1 p-6 overflow-y-auto custom-scrollbar space-y-4 bg-white"
       >
         {messages.length === 0 ? (
@@ -53,7 +56,7 @@ const PortalChat: React.FC<PortalChatProps> = ({
               className={`flex ${msg.sender_type === 'client' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                className={`max-w-[80%] min-w-0 break-words [overflow-wrap:anywhere] whitespace-pre-wrap p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
                   msg.sender_type === 'client'
                     ? 'bg-secondary text-white rounded-br-none'
                     : 'bg-[#F0F2F5] text-dark rounded-bl-none'
@@ -88,11 +91,18 @@ const PortalChat: React.FC<PortalChatProps> = ({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={onKeyDown}
+            readOnly={isSending}
+            aria-label="Treść wiadomości"
             placeholder="Napisz wiadomość..."
             className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-secondary focus:ring-2 focus:ring-[#E0EFFF] outline-none transition-all"
           />
-          <Button icon={<Send size={18} />} className="px-6">
-            Wyślij
+          <Button
+            icon={<Send size={18} />}
+            className="px-6"
+            isLoading={isSending}
+            disabled={isSending || !newMessage.trim()}
+          >
+            {isSending ? 'Wysyłanie…' : 'Wyślij'}
           </Button>
         </form>
       </div>
