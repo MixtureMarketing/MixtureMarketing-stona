@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { Client, Project, Lead, PerformanceData, Conversation, Message } from '../types';
+import { asArray } from '../../../utils/sessionExpiry';
 
 export const useAdminData = (activeTab: string, activeChatId: string | null) => {
-  const { sessionToken } = useAuth();
+  const { sessionToken, authFetch } = useAuth();
 
   const [clients, setClients] = useState<Client[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -12,55 +13,55 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
+  // authFetch: przy wygasłej sesji wylogowuje i rzuca SessionExpiredError (łapane
+  // niżej). Każda lista z API przechodzi przez asArray — 403/500/obiekt błędu nigdy
+  // nie wpisze `undefined` w stan (wcześniej leads.map rzucał → ErrorBoundary).
+  const getJson = useCallback(
+    async (url: string) => {
+      const res = await authFetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} (${url})`);
+      return res.json();
+    },
+    [authFetch],
+  );
+
   const fetchLeads = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_leads?t=${Date.now()}`, { headers });
-      const data = await res.json();
-      setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(data.leads) ? data.leads : prev));
+      const data = await getJson(`/api/admin/get_leads?t=${Date.now()}`);
+      const next = asArray<Lead>(data?.leads);
+      setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(next) ? next : prev));
     } catch (e) {
       console.error(e);
     }
-  }, [sessionToken]);
+  }, [sessionToken, getJson]);
 
   const fetchMetrics = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_performance_stats?t=${Date.now()}`, { headers });
-      const data = await res.json();
-      setMetricsData(data);
+      const data = await getJson(`/api/admin/get_performance_stats?t=${Date.now()}`);
+      setMetricsData(data && typeof data === 'object' ? data : null);
     } catch (e) {
       console.error(e);
     }
-  }, [sessionToken]);
+  }, [sessionToken, getJson]);
 
   const fetchData = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${sessionToken}`,
-        'X-Auth-Token': sessionToken,
-      };
-      const res = await fetch(`/api/admin/get_all_data?t=${Date.now()}`, { headers });
-      const data = await res.json();
+      const data = await getJson(`/api/admin/get_all_data?t=${Date.now()}`);
+      const nextClients = asArray<Client>(data?.clients);
+      const nextProjects = asArray<Project>(data?.projects);
       setClients((prev) =>
-        JSON.stringify(prev) !== JSON.stringify(data.clients) ? data.clients : prev,
+        JSON.stringify(prev) !== JSON.stringify(nextClients) ? nextClients : prev,
       );
       setProjects((prev) =>
-        JSON.stringify(prev) !== JSON.stringify(data.projects) ? data.projects : prev,
+        JSON.stringify(prev) !== JSON.stringify(nextProjects) ? nextProjects : prev,
       );
     } catch (e) {
       console.error(e);
     }
-  }, [sessionToken]);
+  }, [sessionToken, getJson]);
 
   const fetchChat = useCallback(
     async (userId: string | null = null) => {
@@ -71,27 +72,22 @@ export const useAdminData = (activeTab: string, activeChatId: string | null) => 
           ? `/api/admin/get_all_messages?user_id=${userId}&t=${timestamp}`
           : `/api/admin/get_all_messages?t=${timestamp}`;
 
-        const headers: Record<string, string> = {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        };
-
-        const res = await fetch(url, { headers });
-        const data = await res.json();
-
+        const data = await getJson(url);
+        const nextConversations = asArray<Conversation>(data?.conversations);
         setConversations((prev) =>
-          JSON.stringify(prev) !== JSON.stringify(data.conversations) ? data.conversations : prev,
+          JSON.stringify(prev) !== JSON.stringify(nextConversations) ? nextConversations : prev,
         );
         if (userId) {
+          const nextMessages = asArray<Message>(data?.messages);
           setChatMessages((prev) =>
-            JSON.stringify(prev) !== JSON.stringify(data.messages) ? data.messages : prev,
+            JSON.stringify(prev) !== JSON.stringify(nextMessages) ? nextMessages : prev,
           );
         }
       } catch (e) {
         console.error(e);
       }
     },
-    [sessionToken],
+    [sessionToken, getJson],
   );
 
   // Use a single effect for general data polling

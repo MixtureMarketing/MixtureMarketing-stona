@@ -10,6 +10,7 @@ import React, {
   useCallback,
 } from 'react';
 import { safeGetItem, safeGetJSON, safeRemoveItem, safeSetItem } from '../utils/safeStorage';
+import { assertSessionValid, onSessionExpired } from '../utils/sessionExpiry';
 
 interface User {
   id: string;
@@ -25,6 +26,14 @@ interface AuthContextType {
   login: (email: string) => Promise<boolean>;
   verifyToken: (token: string) => Promise<boolean>;
   logout: () => void;
+  /**
+   * fetch z nagłówkami sesji. Przy 401/403 z /api/admin|/api/portal wylogowuje
+   * (sessionExpired=true → strony portalu wracają do logowania z komunikatem)
+   * i rzuca SessionExpiredError.
+   */
+  authFetch: (url: string, init?: RequestInit) => Promise<Response>;
+  /** Ustawione, gdy wylogowanie nastąpiło przez wygaśnięcie sesji (nie ręcznie). */
+  sessionExpired: boolean;
   updateUser: (userData: User) => void;
   isLoading: boolean;
 }
@@ -41,6 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const login = useCallback(async (email: string) => {
     try {
@@ -70,6 +80,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setSessionToken(data.session_token);
         safeSetItem('portal_user', JSON.stringify(data.user));
         safeSetItem('portal_token', data.session_token);
+        setSessionExpired(false);
         return true;
       }
       return false;
@@ -91,6 +102,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     safeRemoveItem('portal_token');
   }, []);
 
+  // Każde źródło zapytań (authFetch, MixtureApiClient) zgłasza wygaśnięcie sesji tutaj.
+  useEffect(
+    () =>
+      onSessionExpired(() => {
+        logout();
+        setSessionExpired(true);
+      }),
+    [logout],
+  );
+
+  const authFetch = useCallback(
+    async (url: string, init: RequestInit = {}) => {
+      const headers: Record<string, string> = {
+        ...((init.headers as Record<string, string> | undefined) ?? {}),
+      };
+      if (sessionToken) {
+        headers.Authorization = `Bearer ${sessionToken}`;
+        headers['X-Auth-Token'] = sessionToken;
+      }
+      const res = await fetch(url, { ...init, headers });
+      return assertSessionValid(url, res);
+    },
+    [sessionToken],
+  );
+
   const value = useMemo(
     () => ({
       user,
@@ -98,10 +134,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       login,
       verifyToken,
       logout,
+      authFetch,
+      sessionExpired,
       updateUser,
       isLoading,
     }),
-    [user, sessionToken, login, verifyToken, logout, updateUser, isLoading],
+    [
+      user,
+      sessionToken,
+      login,
+      verifyToken,
+      logout,
+      authFetch,
+      sessionExpired,
+      updateUser,
+      isLoading,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

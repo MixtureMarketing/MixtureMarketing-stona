@@ -5,7 +5,7 @@ import { Mail, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import GlassCard from '../common/GlassCard';
 
 const PortalLogin: React.FC = () => {
-  const { login } = useAuth();
+  const { login, sessionExpired } = useAuth();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -46,6 +46,15 @@ const PortalLogin: React.FC = () => {
           <h1 className="text-3xl font-bold text-dark">Strefa Klienta</h1>
           <p className="text-gray-500 mt-2">Zaloguj się bez hasła (Magic Link)</p>
         </div>
+
+        {sessionExpired && (
+          <div
+            role="status"
+            className="flex items-center gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-lg mb-4"
+          >
+            <AlertCircle size={16} aria-hidden="true" /> Sesja wygasła — zaloguj się ponownie.
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

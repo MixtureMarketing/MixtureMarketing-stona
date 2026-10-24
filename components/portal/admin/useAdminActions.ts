@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MixtureApiClient from '../../../services/apiClient';
 import { useNotification } from '../../../context/NotificationContext';
+import { useAuth } from '../../../context/AuthContext';
 import { Lead, Milestone, Client, Project } from '../types';
 
 interface UseAdminActionsProps {
@@ -17,6 +18,7 @@ export const useAdminActions = ({
   refreshChat,
 }: UseAdminActionsProps) => {
   const { showNotification } = useNotification();
+  const { authFetch } = useAuth();
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isSavingMilestone, setIsSavingMilestone] = useState(false);
 
@@ -39,9 +41,7 @@ export const useAdminActions = ({
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download?id=${docId}`, {
-        headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken },
-      });
+      const res = await authFetch(`/api/portal/download?id=${docId}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);

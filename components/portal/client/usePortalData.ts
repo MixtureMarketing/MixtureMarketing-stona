@@ -1,61 +1,57 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { Project, Message } from '../types';
+import { asArray, SessionExpiredError } from '../../../utils/sessionExpiry';
 
 export const usePortalData = () => {
-  const { user, sessionToken } = useAuth();
+  const { user, sessionToken, authFetch } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // authFetch: przy wygasłej sesji wylogowuje (PortalDashboard wraca do logowania
+  // z komunikatem „Sesja wygasła”) i rzuca SessionExpiredError — wtedy NIE
+  // pokazujemy „Błąd ładowania”. Listy z API zawsze przez asArray.
   const fetchProjects = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/dashboard?t=${Date.now()}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
-      if (!res.ok) throw new Error('API Error');
+      const res = await authFetch(`/api/portal/dashboard?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setProjects(data.projects || []);
+      setProjects(asArray<Project>(data?.projects));
+      setError(null);
     } catch (e) {
+      if (e instanceof SessionExpiredError) return;
       console.error('Projects Fetch Error:', e);
       setError('Błąd ładowania projektów.');
     } finally {
       setLoadingProjects(false);
     }
-  }, [sessionToken]);
+  }, [sessionToken, authFetch]);
 
   const fetchMessages = useCallback(async () => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/get_messages?t=${Date.now()}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
+      const res = await authFetch(`/api/portal/get_messages?t=${Date.now()}`);
+      if (!res.ok) return;
       const data = await res.json();
-      if (res.ok) {
-        setMessages((prev) => {
-          if (data.messages.length !== prev.length) {
-            return data.messages;
-          }
-          if (data.messages.length > 0 && prev.length > 0) {
-            const lastServer = data.messages[data.messages.length - 1];
-            const lastLocal = prev[prev.length - 1];
-            if (lastServer.id !== lastLocal.id) return data.messages;
-          }
-          return prev;
-        });
-      }
+      const serverMessages = asArray<Message>(data?.messages);
+      setMessages((prev) => {
+        if (serverMessages.length !== prev.length) {
+          return serverMessages;
+        }
+        if (serverMessages.length > 0 && prev.length > 0) {
+          const lastServer = serverMessages[serverMessages.length - 1];
+          const lastLocal = prev[prev.length - 1];
+          if (lastServer.id !== lastLocal.id) return serverMessages;
+        }
+        return prev;
+      });
     } catch (e) {
       console.error(e);
     }
-  }, [sessionToken]);
+  }, [sessionToken, authFetch]);
 
   useEffect(() => {
     if (sessionToken && user?.role !== 'admin') {

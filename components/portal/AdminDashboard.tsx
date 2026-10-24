@@ -106,9 +106,11 @@ const AdminDashboard: React.FC = () => {
   const isAtBottomRef = useRef(true);
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'admin')) {
-      navigate('/portal/dashboard');
-    }
+    if (isLoading) return;
+    // Brak użytkownika (np. sesja wygasła → AuthContext wylogował) → logowanie;
+    // zalogowany nie-admin → panel klienta.
+    if (!user) navigate('/portal', { replace: true });
+    else if (user.role !== 'admin') navigate('/portal/dashboard');
   }, [user, isLoading, navigate]);
 
   const handleChatScroll = () => {
