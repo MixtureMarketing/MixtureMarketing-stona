@@ -6,7 +6,6 @@ import { getErrorDetails } from '../data/auditErrors';
  * pomiarów (scrape + PageSpeed Insights + Places) i wysyłany użytkownikowi
  * mailem przez /api/audit/capture-lead. Zbudowany 2026-07-17 na decyzję
  * właściciela: bramka obiecywała PDF, który wcześniej nie istniał.
- * Wzorzec: services/pdfService.ts (kalkulator wycen).
  */
 export const generateAuditPdf = async (result: AuditResult): Promise<Blob> => {
   const { jsPDF } = await import('jspdf');
