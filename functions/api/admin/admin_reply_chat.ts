@@ -6,6 +6,16 @@
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
+import { chatCacheKey, kvDelete } from '../_shared/kv';
+import {
+  ValidationError,
+  badRequest,
+  optId,
+  readJsonObject,
+  reqId,
+  reqText,
+} from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -15,17 +25,14 @@ interface Env {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  // Autor odpowiedzi = zalogowany admin (admin/_middleware), nie „id 1” na sztywno.
+  const adminId = (context.data?.user as { id?: number } | undefined)?.id ?? null;
 
   try {
-    const { user_id, content, project_id } = (await request.json()) as {
-      user_id: number;
-      content: string;
-      project_id?: number;
-    };
-
-    if (!user_id || !content) {
-      return new Response('Missing user_id or content', { status: 400 });
-    }
+    const body = await readJsonObject(request);
+    const user_id = reqId(body.user_id, 'user_id');
+    const content = reqText(body.content, 'Treść wiadomości', 10_000);
+    const project_id = optId(body.project_id, 'project_id');
 
     // 1. Save to D1
     await env.DB.prepare(
@@ -34,16 +41,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       VALUES (?, ?, ?, ?, ?, ?)
     `,
     )
-      .bind(user_id, 1, project_id || null, content, 'admin', 0)
+      .bind(user_id, adminId, project_id, content, 'admin', 0)
       .run();
 
-    // 2. Invalidate KV Cache for this user
-    await env.CACHE.delete(`chat_history_${user_id}`);
+    // 2. Invalidate KV Cache for this user. Od tego miejsca wiadomość JEST zapisana —
+    // nic poniżej nie może skończyć się 500 (ponowienie = duplikat wiadomości).
+    await kvDelete(env.CACHE, chatCacheKey(user_id));
 
     // 3. Send Email Notification to Client via Resend
     const client: any = await env.DB.prepare('SELECT email, name FROM users WHERE id = ?')
       .bind(user_id)
-      .first();
+      .first()
+      .catch((e: unknown) => {
+        console.error('[admin_reply_chat] odczyt klienta po zapisie:', e);
+        return null;
+      });
 
     // Wiadomość JEST już zapisana — mail to tylko powiadomienie. Przy porażce nie
     // zwracamy błędu (ponowienie zdublowałoby wiadomość), tylko email_sent:false
@@ -65,7 +77,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       JSON.stringify({
         status: 'success',
         email_sent: mail?.ok === true,
-        ...(mail && !mail.ok
+        ...(!mail?.ok
           ? {
               warning:
                 'Wiadomość zapisana, ale powiadomienie e-mail do klienta NIE zostało wysłane.',
@@ -75,7 +87,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err: any) {
-    console.error('[admin_reply_chat]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    if (err instanceof ValidationError) return badRequest(err.message);
+    return serverError(err, 'admin/admin_reply_chat');
   }
 };

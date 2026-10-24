@@ -4,6 +4,9 @@
  * Path: /api/admin/delete_document
  */
 
+import { ValidationError, badRequest, readJsonObject, reqId } from '../_shared/input';
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
   FILES: R2Bucket;
@@ -13,7 +16,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   try {
-    const { id } = (await request.json()) as { id: number };
+    const id = reqId((await readJsonObject(request)).id, 'id');
 
     // 1. Find file path
     const doc: any = await env.DB.prepare('SELECT file_path FROM documents WHERE id = ?')
@@ -29,6 +32,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    if (err instanceof ValidationError) return badRequest(err.message);
+    return serverError(err, 'admin/delete_document');
   }
 };

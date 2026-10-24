@@ -10,6 +10,8 @@
  * pobieranie plikow po stronie admina.
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
 }
@@ -24,15 +26,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   const token = authHeader.split(' ')[1];
 
-  // Verify token in DB
-  const user: any = await env.DB.prepare(
-    `
+  // Bez try awaria D1 dawała stronę błędu Cloudflare (HTML 1101), na której
+  // front wywracał się na res.json(). Teraz JSON 500 bez szczegółów.
+  let user: any;
+  try {
+    // Verify token in DB
+    user = await env.DB.prepare(
+      `
     SELECT id, email, name, role FROM users 
     WHERE session_token = ? AND julianday(session_expires) > julianday('now') AND is_active = 1
   `,
-  )
-    .bind(token)
-    .first();
+    )
+      .bind(token)
+      .first();
+  } catch (err) {
+    return serverError(err, 'portal/_middleware');
+  }
 
   if (!user) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), { status: 401 });

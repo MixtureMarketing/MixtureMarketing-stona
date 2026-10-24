@@ -4,6 +4,8 @@
  * Path: /api/auth/verify_token
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
 }
@@ -14,7 +16,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { token } = (await request.json()) as { token: string };
 
-    if (!token) {
+    if (!token || typeof token !== 'string') {
       return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
     }
 
@@ -73,6 +75,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       },
     );
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'auth/verify_token');
   }
 };

@@ -95,21 +95,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     safeSetItem('portal_user', JSON.stringify(userData));
   }, []);
 
-  const logout = useCallback(() => {
+  const clearLocalSession = useCallback(() => {
     setUser(null);
     setSessionToken(null);
     safeRemoveItem('portal_user');
     safeRemoveItem('portal_token');
   }, []);
 
+  // Ręczne wylogowanie: unieważnij sesję także na serwerze (POST /api/auth/logout),
+  // inaczej przechwycony token działałby do wygaśnięcia. Best-effort — lokalne
+  // wylogowanie następuje od razu i nie zależy od sieci (keepalive: żądanie
+  // przeżyje nawigację/zamknięcie karty).
+  const logout = useCallback(() => {
+    const token = safeGetItem('portal_token');
+    clearLocalSession();
+    if (!token) return;
+    try {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        keepalive: true,
+      }).catch(() => {});
+    } catch {
+      /* brak fetch / błąd synchroniczny — lokalne wylogowanie już się odbyło */
+    }
+  }, [clearLocalSession]);
+
   // Każde źródło zapytań (authFetch, MixtureApiClient) zgłasza wygaśnięcie sesji tutaj.
+  // Serwer już odrzucił token — wystarczy wyczyścić stan lokalny.
   useEffect(
     () =>
       onSessionExpired(() => {
-        logout();
+        clearLocalSession();
         setSessionExpired(true);
       }),
-    [logout],
+    [clearLocalSession],
   );
 
   const authFetch = useCallback(

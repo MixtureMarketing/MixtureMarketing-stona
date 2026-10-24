@@ -87,6 +87,9 @@ const PortalDashboard: React.FC = () => {
         updateUser(data.user);
         showNotification('Profil zaktualizowany!', 'success');
         setIsProfileModalOpen(false);
+      } else {
+        const err = await res.json().catch(() => null);
+        showNotification(err?.message || 'Nie udało się zapisać profilu.', 'error');
       }
     } catch (e) {
       console.error(e);
@@ -109,6 +112,10 @@ const PortalDashboard: React.FC = () => {
       if (res.ok) {
         setNewMessage('');
         refreshMessages();
+      } else {
+        // Treść zostaje w polu — klient musi wiedzieć, że wiadomość nie wyszła.
+        const err = await res.json().catch(() => null);
+        showNotification(err?.message || 'Nie udało się wysłać wiadomości.', 'error');
       }
     } catch (e) {
       console.error(e);

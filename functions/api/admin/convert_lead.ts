@@ -7,6 +7,8 @@
 
 import { escapeHtml } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
+import { ValidationError, badRequest, readJsonObject, reqText } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -17,7 +19,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   try {
-    const { lead_id } = (await request.json()) as { lead_id: string };
+    const body = await readJsonObject(request);
+    const lead_id = reqText(body.lead_id, 'lead_id', 100);
 
     // 1. Get Lead
     const lead: any = await env.DB.prepare('SELECT * FROM leads WHERE id = ?')
@@ -38,7 +41,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         VALUES (?, ?, ?, ?, ?)
       `,
       )
-        .bind(lead.email, lead.name, lead.website || '', 'client', 1)
+        // users.name jest NOT NULL, a leads.name bywa puste (np. lead z audytu) →
+        // fallback na e-mail. Firma: kolumna `company`, dopiero potem strona www.
+        .bind(
+          lead.email,
+          lead.name || lead.email,
+          lead.company || lead.website || null,
+          'client',
+          1,
+        )
         .run();
 
       // Get the newly created ID
@@ -86,7 +97,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err: any) {
-    console.error('[convert_lead]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    if (err instanceof ValidationError) return badRequest(err.message);
+    return serverError(err, 'admin/convert_lead');
   }
 };

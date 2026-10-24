@@ -4,6 +4,9 @@
  * Path: /api/admin/get_all_messages
  */
 
+import { chatCacheKey, kvDelete } from '../_shared/kv';
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
   CACHE: KVNamespace;
@@ -41,12 +44,19 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       // przeczytane (symetrycznie do portal/get_messages, ktory oznacza wiadomosci
       // admina). Dzieki temu u klienta zapala sie podwojny ptaszek. Czyscimy tez
       // jego cache chatu, zeby nastepny polling zobaczyl is_read=1 od razu.
-      await env.DB.prepare(
-        `UPDATE messages SET is_read = 1 WHERE user_id = ? AND sender_type = 'client'`,
-      )
-        .bind(targetUserId)
-        .run();
-      await env.CACHE.delete(`chat_history_${targetUserId}`);
+      //
+      // TYLKO gdy faktycznie byly nieprzeczytane: panel odpytuje ten endpoint co 5 s
+      // przy otwartej rozmowie, a bezwarunkowy UPDATE + CACHE.delete zjadal dzienny
+      // limit KV (1000 delete na planie Free) po ok. 80 minutach.
+      const hasUnread = messages.some((m) => m.sender_type === 'client' && !Number(m.is_read));
+      if (hasUnread) {
+        await env.DB.prepare(
+          `UPDATE messages SET is_read = 1 WHERE user_id = ? AND sender_type = 'client' AND is_read = 0`,
+        )
+          .bind(targetUserId)
+          .run();
+        await kvDelete(env.CACHE, chatCacheKey(targetUserId)); // fail-open
+      }
     }
 
     return new Response(
@@ -59,6 +69,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       },
     );
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    return serverError(err, 'admin/get_all_messages');
   }
 };

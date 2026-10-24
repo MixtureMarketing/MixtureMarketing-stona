@@ -4,6 +4,8 @@
  * Path: /api/admin/get_performance_stats
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
 }
@@ -38,6 +40,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       },
     );
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    return serverError(err, 'admin/get_performance_stats');
   }
 };

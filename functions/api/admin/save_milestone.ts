@@ -1,45 +1,82 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: admin/save_milestone
  * Path: /api/admin/save_milestone
+ *
+ * Bez `id` (albo id '') → INSERT, z `id` → UPDATE tylko pól obecnych w body.
+ * Żadne pole z body nie trafia do .bind() jako undefined (D1_TYPE_ERROR → 500).
  */
+
+import {
+  ValidationError,
+  badRequest,
+  buildUpdate,
+  intInRange,
+  oneOf,
+  optId,
+  optText,
+  readJsonObject,
+  reqId,
+  reqText,
+} from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
 }
 
+const MILESTONE_STATUSES = ['pending', 'accepted', 'corrections'] as const;
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   try {
-    const data: any = await request.json();
-    const { id, project_id, title, description, due_date, status, order_index } = data;
+    const data = await readJsonObject(request);
+    const id = optId(data.id, 'id');
 
     if (id) {
-      // UPDATE
-      await env.DB.prepare(
-        `
-        UPDATE milestones SET 
-          title = ?, description = ?, due_date = ?, status = ?, order_index = ?
-        WHERE id = ?
-      `,
-      )
-        .bind(title, description, due_date, status, order_index, id)
+      const { sets, values } = buildUpdate(data, {
+        title: (v) => reqText(v, 'Tytuł etapu', 200),
+        description: (v) => optText(v, 'Opis prac', 5000),
+        due_date: (v) => optText(v, 'Termin', 50) || null,
+        status: (v) => oneOf(v, MILESTONE_STATUSES, 'Status', 'pending'),
+        order_index: (v) => intInRange(v, 'Kolejność', 0, 100000, 0),
+      });
+      if (sets.length === 0) return badRequest('Brak pól do zapisania.');
+
+      const res = await env.DB.prepare(`UPDATE milestones SET ${sets.join(', ')} WHERE id = ?`)
+        .bind(...values, id)
         .run();
-    } else {
-      // INSERT
-      await env.DB.prepare(
-        `
-        INSERT INTO milestones (project_id, title, description, due_date, status, order_index)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `,
-      )
-        .bind(project_id, title, description, due_date, status || 'pending', order_index || 0)
-        .run();
+      if (!res.meta?.changes) return badRequest('Etap nie istnieje.', 404);
+      return json({ status: 'success', id });
     }
 
-    return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
-  } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    // INSERT
+    const res = await env.DB.prepare(
+      `
+      INSERT INTO milestones (project_id, title, description, due_date, status, order_index)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `,
+    )
+      .bind(
+        reqId(data.project_id, 'Projekt'),
+        reqText(data.title, 'Tytuł etapu', 200),
+        optText(data.description, 'Opis prac', 5000),
+        optText(data.due_date, 'Termin', 50) || null,
+        oneOf(data.status, MILESTONE_STATUSES, 'Status', 'pending'),
+        intInRange(data.order_index, 'Kolejność', 0, 100000, 0),
+      )
+      .run();
+
+    return json({ status: 'success', id: res.meta?.last_row_id ?? null });
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) return badRequest(err.message);
+    return serverError(err, 'admin/save_milestone');
   }
 };
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
