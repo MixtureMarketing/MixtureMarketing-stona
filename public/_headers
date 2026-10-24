@@ -1,0 +1,39 @@
+# Cloudflare Pages _headers — polityka cache (tylko Cache-Control).
+#
+# Kolejnosc ma znaczenie: zadanie dostaje naglowki WSZYSTKICH pasujacych regul, w kolejnosci
+# z pliku. `! Cache-Control` w regule szczegolowej usuwa wartosc z reguly ogolniejszej (bez tego
+# Pages sklei obie wartosci przecinkiem), a linia ponizej ustawia nowa.
+#
+# UWAGA (stan 2026-10-24): strefa Cloudflare nadpisuje Cache-Control na
+# `public, max-age=31536000, must-revalidate` dla WSZYSTKIEGO (Caching → Configuration →
+# Browser Cache TTL = 1 rok). Dopoki wlasciciel nie przestawi go na „Respect Existing Headers”,
+# ten plik nie ma efektu w przegladarce. Weryfikacja po zmianie: `curl -sI` na HTML, chunk JS
+# i obraz z public/ (preview deployment albo prod).
+#
+# Bez naglowkow bezpieczenstwa (HSTS, CSP itd.) — ustawia je strefa / domyslne Pages;
+# tu wylacznie cache, zeby nie dublowac wartosci.
+
+# Domyslnie: HTML, sitemap.xml, robots.txt, llms.txt, favicon — zawsze rewalidacja (ETag → 304).
+# HTML wskazuje hashe chunkow; trzymany rok w przegladarce odwolywalby sie do plikow,
+# ktorych po kolejnych deployach juz nie ma.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Artefakty Vite (JS/CSS/fonty) maja hash w nazwie — tresc pod danym URL-em sie nie zmienia.
+/assets/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+# Pliki z public/assets BEZ hasha w nazwie (podmiana pod ta sama nazwa musi dotrzec do
+# uzytkownikow) — doba + stale-while-revalidate (tydzien serwowania z cache w tle).
+/assets/images/*
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/team/*
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/assets/noise.svg
+  ! Cache-Control
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
