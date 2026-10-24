@@ -147,7 +147,8 @@ const PortalDashboard: React.FC = () => {
   if (isLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    // pt-20: odstęp pod stały Navbar strony (fixed, h-20) — inaczej zasłania nagłówek portalu.
+    <div className="min-h-screen bg-gray-50 pt-20">
       <PortalHeader
         user={user}
         onEditProfile={() => setIsProfileModalOpen(true)}

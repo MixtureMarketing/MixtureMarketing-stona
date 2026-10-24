@@ -18,7 +18,7 @@ const PortalLogin: React.FC = () => {
 
   if (status === 'success') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 pt-20">
         <GlassCard className="max-w-md w-full p-8 text-center bg-white border-green-100">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
             <CheckCircle2 size={32} />
@@ -37,7 +37,7 @@ const PortalLogin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 pt-20">
       <GlassCard className="max-w-md w-full p-8 bg-white border-gray-200 shadow-xl">
         <div className="text-center mb-8">
           <div className="inline-flex p-3 rounded-xl bg-indigo-50 text-secondary mb-4">

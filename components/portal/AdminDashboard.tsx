@@ -174,7 +174,8 @@ const AdminDashboard: React.FC = () => {
   if (isLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 font-sans">
+    // pt-28 = Navbar strony (fixed, h-20) + dotychczasowy odstęp p-8.
+    <div className="min-h-screen bg-slate-50 p-8 pt-28 font-sans">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-black text-dark">Admin Panel</h1>

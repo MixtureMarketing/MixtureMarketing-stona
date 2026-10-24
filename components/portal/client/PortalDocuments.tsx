@@ -38,18 +38,22 @@ const PortalDocuments: React.FC<PortalDocumentsProps> = ({ projects, onDownload 
             invoices.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-blue-50 transition-colors group"
+                className="flex items-center justify-between gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-blue-50 transition-colors group"
               >
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-dark">{doc.name}</span>
+                {/* min-w-0 + truncate: długa nazwa bez spacji nie wypycha „Pobierz” poza kartę. */}
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-bold text-dark truncate" title={doc.name}>
+                    {doc.name}
+                  </span>
                   <span className="text-xxs text-gray-400">
                     {new Date(doc.created_at).toLocaleDateString('pl-PL')}
                   </span>
                 </div>
                 <button
                   onClick={() => onDownload(doc.id, doc.name)}
-                  className="p-2 bg-white text-blue-600 rounded-xl shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                  className="shrink-0 p-2 bg-white text-blue-600 rounded-xl shadow-sm hover:scale-110 transition-transform cursor-pointer"
                   title="Pobierz fakturę"
+                  aria-label={`Pobierz fakturę: ${doc.name}`}
                 >
                   <FileDown size={18} />
                 </button>
@@ -82,12 +86,14 @@ const PortalDocuments: React.FC<PortalDocumentsProps> = ({ projects, onDownload 
             contracts.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-purple-50 transition-colors group"
+                className="flex items-center justify-between gap-3 p-4 bg-gray-50 rounded-2xl hover:bg-purple-50 transition-colors group"
               >
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-dark">{doc.name}</span>
-                    <span className="text-xxs px-1.5 py-0.5 bg-white text-purple-600 border border-purple-100 rounded-md font-bold uppercase">
+                <div className="flex flex-col min-w-0 flex-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-sm font-bold text-dark truncate" title={doc.name}>
+                      {doc.name}
+                    </span>
+                    <span className="shrink-0 text-xxs px-1.5 py-0.5 bg-white text-purple-600 border border-purple-100 rounded-md font-bold uppercase">
                       {doc.subtype}
                     </span>
                   </div>
@@ -97,8 +103,9 @@ const PortalDocuments: React.FC<PortalDocumentsProps> = ({ projects, onDownload 
                 </div>
                 <button
                   onClick={() => onDownload(doc.id, doc.name)}
-                  className="p-2 bg-white text-purple-600 rounded-xl shadow-sm hover:scale-110 transition-transform cursor-pointer"
+                  className="shrink-0 p-2 bg-white text-purple-600 rounded-xl shadow-sm hover:scale-110 transition-transform cursor-pointer"
                   title="Pobierz dokument"
+                  aria-label={`Pobierz dokument: ${doc.name}`}
                 >
                   <FileDown size={18} />
                 </button>
