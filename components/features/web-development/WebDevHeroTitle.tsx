@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 
 /**
  * H1 hero /web-development/ — „SŁUP": każda linia dociągnięta do OBU krawędzi kadru.
@@ -77,40 +77,74 @@ const LINES: Line[] = [
   },
 ];
 
-const WebDevHeroTitle: React.FC = () => (
-  <h1
-    className="mb-6 tracking-tight text-white"
-    // container-type na samym H1: cqw liczy się od jego szerokości, czyli
-    // szerokości kontenera hero. Bez tego cqw nie ma od czego liczyć.
-    style={{ containerType: 'inline-size' }}
-  >
-    {LINES.map((line, i) => (
-      // Flush TYLKO od md. Poniżej `whitespace-nowrap` wciskałby całą linię w 390 px,
-      // co dawało H1 o stopniu 17 px — mniej niż tekst akapitu. Zmierzone, nie
-      // przewidziane. Na mobile linia łamie się normalnie i dostaje własny clamp;
-      // flush to decyzja dla kadru, który ma szerokość na taką decyzję.
-      <span
-        key={i}
-        className={`block text-[clamp(1.75rem,7vw,2.75rem)] leading-[1.12] md:whitespace-nowrap md:leading-[1.02] ${line.cls}`}
-      >
-        {line.segments.map((s, j) => (
-          <span
-            key={j}
-            style={{
-              fontWeight: s.w,
-              // Spoiwo (400) gaśnie szybciej niż nośne (800), gdy arkusz Realizacji
-              // najeżdża. Spoczynek --cover:0 → opacity 1 → prerender widzi komplet.
-              opacity:
-                s.w === 400 ? 'calc(1 - var(--cover, 0))' : 'calc(1 - var(--cover, 0) * 0.45)',
-            }}
-            className={s.accent ? 'text-primary' : undefined}
-          >
-            {s.t}
-          </span>
-        ))}
-      </span>
-    ))}
-  </h1>
-);
+/**
+ * Bezpiecznik flush: kalibracja cqw dotyczy JEDNEGO fontu, a strona używa stosu
+ * systemowego (Segoe UI / SF / Roboto…). Szerszy font systemowy wypychał linię poza
+ * kadr — np. Linux/Roboto przy 1366 px: ink 1344–1359 px w pudełku 1302 px, a
+ * `overflow-hidden` przypięcia ucinał „webowych." i „technicznego." (audyt renderowania
+ * 2026-10-24). Linia z `nowrap`, która nie mieści się w pudełku, dostaje proporcjonalnie
+ * mniejszy stopień. Tylko pomniejszamy — sufit 6rem i kalibracja zostają nietknięte.
+ */
+export function shrinkLineToFit(line: HTMLElement): void {
+  line.style.fontSize = ''; // powrót do skalibrowanego cqw przed pomiarem
+  const cs = window.getComputedStyle(line);
+  if (cs.whiteSpace !== 'nowrap' || !line.clientWidth) return; // mobile: linia się łamie
+  const overflow = line.scrollWidth / line.clientWidth;
+  if (overflow > 1.002) line.style.fontSize = `${parseFloat(cs.fontSize) / overflow}px`;
+}
+
+const WebDevHeroTitle: React.FC = () => {
+  const ref = useRef<HTMLHeadingElement>(null);
+
+  useLayoutEffect(() => {
+    const h1 = ref.current;
+    if (!h1) return;
+    const fit = () =>
+      Array.from(h1.children as HTMLCollectionOf<HTMLElement>).forEach(shrinkLineToFit);
+    fit();
+    void document.fonts?.ready.then(fit);
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(fit);
+    ro.observe(h1);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <h1
+      ref={ref}
+      className="mb-6 tracking-tight text-white"
+      // container-type na samym H1: cqw liczy się od jego szerokości, czyli
+      // szerokości kontenera hero. Bez tego cqw nie ma od czego liczyć.
+      style={{ containerType: 'inline-size' }}
+    >
+      {LINES.map((line, i) => (
+        // Flush TYLKO od md. Poniżej `whitespace-nowrap` wciskałby całą linię w 390 px,
+        // co dawało H1 o stopniu 17 px — mniej niż tekst akapitu. Zmierzone, nie
+        // przewidziane. Na mobile linia łamie się normalnie i dostaje własny clamp;
+        // flush to decyzja dla kadru, który ma szerokość na taką decyzję.
+        <span
+          key={i}
+          className={`block text-[clamp(1.75rem,7vw,2.75rem)] leading-[1.12] md:whitespace-nowrap md:leading-[1.02] ${line.cls}`}
+        >
+          {line.segments.map((s, j) => (
+            <span
+              key={j}
+              style={{
+                fontWeight: s.w,
+                // Spoiwo (400) gaśnie szybciej niż nośne (800), gdy arkusz Realizacji
+                // najeżdża. Spoczynek --cover:0 → opacity 1 → prerender widzi komplet.
+                opacity:
+                  s.w === 400 ? 'calc(1 - var(--cover, 0))' : 'calc(1 - var(--cover, 0) * 0.45)',
+              }}
+              className={s.accent ? 'text-primary' : undefined}
+            >
+              {s.t}
+            </span>
+          ))}
+        </span>
+      ))}
+    </h1>
+  );
+};
 
 export default WebDevHeroTitle;
