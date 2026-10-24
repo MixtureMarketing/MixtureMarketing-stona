@@ -25,6 +25,7 @@ import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
+import { buildFaqSchema } from '../../utils/seo/commonSchemas';
 
 const AgencjaInteraktywnaRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -175,15 +176,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         },
       ],
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: faq.map((f) => ({
-        '@type': 'Question',
-        name: f.question,
-        acceptedAnswer: { '@type': 'Answer', text: f.answer },
-      })),
-    },
+    buildFaqSchema(faq, { speakable: null }),
   ];
 
   return (
