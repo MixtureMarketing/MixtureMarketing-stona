@@ -67,7 +67,7 @@ const LazyMap: React.FC<LazyMapProps> = ({
           aria-label={`Wczytaj mapę: ${title}`}
           className="group w-full h-full bg-gradient-to-br from-indigo-50 via-white to-rose-50 hover:from-indigo-100 hover:to-rose-100 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer"
         >
-          <div className="absolute inset-0 bg-[url('/assets/images/grid.svg')] opacity-20"></div>
+          <div className="absolute inset-0 bg-line-grid opacity-20"></div>
           <div className="relative z-10 flex flex-col items-center gap-3">
             <div className="w-16 h-16 rounded-full bg-white shadow-lg flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
               <MapPin size={28} />

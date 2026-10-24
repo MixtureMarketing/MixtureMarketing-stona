@@ -456,6 +456,15 @@
     transform: translateZ(0); /* Force GPU */
   }
 
+  /* Neutralna siatka linii 32px (zastępuje nieistniejący /assets/images/grid.svg,
+     który dawał 404). Intensywność steruje się klasą opacity-* na elemencie. */
+  .bg-line-grid {
+    background-image:
+      linear-gradient(rgba(100, 116, 139, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100, 116, 139, 0.5) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
   .bg-grid-pattern {
     background-image: radial-gradient(rgba(33, 50, 97, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;

@@ -94,7 +94,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
         </div>
         <div className="relative">
           <div className="aspect-square bg-gradient-to-br from-gray-100 to-white rounded-3xl border border-gray-200 shadow-2xl flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('/assets/images/grid.svg')] opacity-10"></div>
+            <div className="absolute inset-0 bg-line-grid opacity-10"></div>
             <Building2 size={120} className="text-primary/20" />
             <div className="absolute bottom-8 left-8 right-8 bg-white/80 backdrop-blur-md p-6 rounded-xl border border-white/50 shadow-lg">
               <div className="flex items-center gap-4">
