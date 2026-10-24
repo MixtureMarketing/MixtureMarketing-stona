@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { spawn } from 'node:child_process';
-import { routes } from './routes.js';
+import { routes, prerenderOnlyRoutes } from './routes.js';
 import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
@@ -271,7 +271,9 @@ async function prerender() {
     // statyczne wpisy z routes.js (np. /baza-wiedzy/X vs /baza-wiedzy/X/) —
     // ten sam plik renderowal sie dwa razy (marnowany czas + wyscig zapisu).
     const seenRoutes = new Set();
-    const queue = [...routes, ...dynamicRoutes].filter((r) => {
+    // prerenderOnlyRoutes: strony noindex poza sitemapa (np. /abonament/dziekujemy/),
+    // ktore musza miec fizyczny plik, zeby CF Pages oddal 200, a nie catch-all 404.
+    const queue = [...routes, ...prerenderOnlyRoutes, ...dynamicRoutes].filter((r) => {
       const key = r === '/' ? '/' : `${r.replace(/\/+$/, '')}/`;
       if (seenRoutes.has(key)) return false;
       seenRoutes.add(key);

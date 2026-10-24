@@ -338,8 +338,8 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
         }
       })();
       const successPath = utmStored
-        ? `/abonament/dziekujemy?sid={CHECKOUT_SESSION_ID}&${utmStored}`
-        : '/abonament/dziekujemy?sid={CHECKOUT_SESSION_ID}';
+        ? `/abonament/dziekujemy/?sid={CHECKOUT_SESSION_ID}&${utmStored}`
+        : '/abonament/dziekujemy/?sid={CHECKOUT_SESSION_ID}';
 
       const checkoutRes = await fetch(`${HUB}/api/admin/stripe/checkout`, {
         method: 'POST',

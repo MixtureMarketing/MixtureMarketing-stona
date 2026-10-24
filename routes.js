@@ -41,7 +41,7 @@ export const routes = [
   '/abonament/professional/',
   '/abonament/vs-wix/',
   '/abonament/vs-orange-klikai/',
-  // /abonament/dziekujemy/ - intencjonalnie pominięte (noindex, post-Stripe)
+  // /abonament/dziekujemy/ - NIE tutaj (noindex, post-Stripe) -> prerenderOnlyRoutes nizej
 
   // Design
   '/design/',
@@ -86,4 +86,14 @@ export const routes = [
 
   // Portfolio
   '/portfolio/',
+];
+
+// Trasy prerenderowane (fizyczny dist/<route>/index.html -> HTTP 200 zamiast catch-all
+// 404.html), ale CELOWO poza sitemap. Czyta je WYLACZNIE prerender.js —
+// scripts/generate-sitemap.js (i skrypty audytow) importuja tylko `routes`.
+// Kazda strona tutaj musi miec <Seo noindex /> (test: tests/routes.test.ts).
+export const prerenderOnlyRoutes = [
+  // Strona po platnosci Stripe (success URL z PreonboardModal). Bez prerenderu CF Pages
+  // serwowal 404.html z kodem 404 i migal "Nie znaleziono" przed podmiana przez React.
+  '/abonament/dziekujemy/',
 ];
