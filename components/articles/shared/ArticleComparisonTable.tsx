@@ -22,7 +22,13 @@ const ArticleComparisonTable: React.FC<ArticleComparisonTableProps> = ({
   return (
     <div className="my-24">
       <SectionHeader title={title} subtitle={subtitle} align="left" />
-      <div className="overflow-x-auto rounded-3xl border border-gray-200 shadow-2xl mt-10 not-prose">
+      <div
+        className="overflow-x-auto rounded-3xl border border-gray-200 shadow-2xl mt-10 not-prose"
+        // scrollable-region-focusable: przewijana tabela musi być osiągalna z klawiatury
+        tabIndex={0}
+        role="region"
+        aria-label={`Tabela porównawcza: ${title}`}
+      >
         <table className="w-full text-left bg-white border-collapse">
           <thead className="bg-[#0F172A] text-white">
             <tr>

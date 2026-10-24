@@ -1699,7 +1699,14 @@ const Abonament: React.FC = () => {
             lead="Każdy model ma sens dla innego budżetu i potrzeb. Wybierz świadomie."
           />
 
-          <div className="overflow-x-auto -mx-4 px-4">
+          <div
+            className="overflow-x-auto -mx-4 px-4"
+            // scrollable-region-focusable: tabela porównawcza przewija się w poziomie
+            // na mobile — region musi być osiągalny z klawiatury.
+            tabIndex={0}
+            role="region"
+            aria-label="Porównanie modeli zakupu strony: abonament Mixture, klasyczna strona i DIY"
+          >
             <div className="min-w-[760px] grid grid-cols-4 gap-3 mb-3">
               <div className="text-xs font-bold uppercase tracking-[0.15em] text-slate-500 self-end pb-3">
                 3 modele zakupu strony WWW

@@ -81,7 +81,12 @@ const BackendCompendiumArticle = () => {
         <SectionHeader title={content.part2.title} subtitle={content.part2.subtitle} align="left" />
         <p>{content.part2.text}</p>
 
-        <div className="my-12 overflow-x-auto not-prose">
+        <div
+          className="my-12 overflow-x-auto not-prose"
+          tabIndex={0}
+          role="region"
+          aria-label={`Tabela porównawcza: ${content.part2.title}`}
+        >
           <TechnologyStarsTable content={content.part2} />
         </div>
 
