@@ -19,6 +19,8 @@ export const LeakyBucketVisual = () => {
           </div>
         </div>
 
+        {/* Etykiety wycieków leżą obok wiadra (right-full / left-full) — na telefonie nie było
+            na nie miejsca i overflow-hidden karty ucinał je o 70–113 px; < md wchodzą do środka. */}
         <div className="relative w-64 h-72 z-10 mt-20">
           <div className="absolute inset-0 border-x-4 border-b-4 border-gray-300 rounded-b-[4rem] bg-gradient-to-b from-white to-gray-50 overflow-hidden backdrop-blur-sm shadow-inner">
             <div className="absolute bottom-0 w-full h-[60%] bg-blue-500/10 overflow-hidden">
@@ -60,7 +62,7 @@ export const LeakyBucketVisual = () => {
             ></div>
           </div>
           <div
-            className="absolute top-[35%] right-full mr-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap animate-bounce"
+            className="absolute top-[35%] left-2 md:left-auto md:right-full md:mr-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap animate-bounce"
             style={{ animationDuration: '3s' }}
           >
             Brak Mobile
@@ -74,7 +76,7 @@ export const LeakyBucketVisual = () => {
               style={{ animation: 'drop-fall 1.2s infinite linear', animationDelay: '0.2s' }}
             ></div>
           </div>
-          <div className="absolute top-[55%] left-full ml-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap">
+          <div className="absolute top-[55%] right-2 md:right-auto md:left-full md:ml-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap">
             Trudny Checkout
           </div>
         </div>
