@@ -6,6 +6,7 @@
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
+import { chatCacheKey, kvDelete } from '../_shared/kv';
 import {
   ValidationError,
   badRequest,
@@ -42,13 +43,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(user_id, adminId, project_id, content, 'admin', 0)
       .run();
 
-    // 2. Invalidate KV Cache for this user
-    await env.CACHE.delete(`chat_history_${user_id}`);
+    // 2. Invalidate KV Cache for this user. Od tego miejsca wiadomość JEST zapisana —
+    // nic poniżej nie może skończyć się 500 (ponowienie = duplikat wiadomości).
+    await kvDelete(env.CACHE, chatCacheKey(user_id));
 
     // 3. Send Email Notification to Client via Resend
     const client: any = await env.DB.prepare('SELECT email, name FROM users WHERE id = ?')
       .bind(user_id)
-      .first();
+      .first()
+      .catch((e: unknown) => {
+        console.error('[admin_reply_chat] odczyt klienta po zapisie:', e);
+        return null;
+      });
 
     // Wiadomość JEST już zapisana — mail to tylko powiadomienie. Przy porażce nie
     // zwracamy błędu (ponowienie zdublowałoby wiadomość), tylko email_sent:false
@@ -70,7 +76,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       JSON.stringify({
         status: 'success',
         email_sent: mail?.ok === true,
-        ...(mail && !mail.ok
+        ...(!mail?.ok
           ? {
               warning:
                 'Wiadomość zapisana, ale powiadomienie e-mail do klienta NIE zostało wysłane.',

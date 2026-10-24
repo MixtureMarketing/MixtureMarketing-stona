@@ -6,6 +6,7 @@
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
+import { chatCacheKey, kvDelete } from '../_shared/kv';
 
 interface Env {
   DB: D1Database;
@@ -40,9 +41,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(user.id, project_id || null, content, 'client', 0)
       .run();
 
-    // 2. Invalidate KV Cache
-    const cacheKey = `chat_history_${user.id}`;
-    await env.CACHE.delete(cacheKey);
+    // 2. Invalidate KV Cache. Wiadomość JEST już w D1 — błąd KV (np. limit zapisów)
+    // nie może dać 500, bo ponowienie przez klienta zdublowałoby wiadomość.
+    await kvDelete(env.CACHE, chatCacheKey(user.id));
 
     // 3. Powiadomienie agencji. Wiadomość JEST już zapisana i widoczna w panelu,
     // więc porażka maila nie jest błędem dla klienta (ponowienie zdublowałoby
