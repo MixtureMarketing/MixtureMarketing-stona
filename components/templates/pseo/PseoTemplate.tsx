@@ -67,6 +67,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
+            { name: 'Branże', item: '/branza/' },
             { name: `Branża: ${data.name}`, item: `/branza/${slug}/` },
           ]}
           service={{

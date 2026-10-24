@@ -86,6 +86,9 @@ export const routes = [
 
   // Portfolio
   '/portfolio/',
+
+  // Hub branż (lista z Sanity; same strony /branza/<slug>/ dokłada generator z CMS)
+  '/branza/',
 ];
 
 // Trasy prerenderowane (fizyczny dist/<route>/index.html -> HTTP 200 zamiast catch-all
