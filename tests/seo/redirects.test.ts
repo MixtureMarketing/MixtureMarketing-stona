@@ -38,3 +38,22 @@ describe('public/_redirects — polskie aliasy URL', () => {
     expect(routes).not.toContain(`${alias}/`);
   });
 });
+
+// Cloudflare Pages: pierwsza pasująca reguła wygrywa; splat `/portal/*` NIE łapie `/portal`
+// (bez slasha) — ten adres z maili dostawał HTTP 404 z catch-alla.
+describe('public/_redirects — panel klienta', () => {
+  const idxOf = (from: string) => rules.findIndex((r) => r.from === from);
+
+  it('/portal (bez slasha, link z maili) → 301 /portal/ przed catch-allem', () => {
+    const idx = idxOf('/portal');
+    expect(idx).toBeGreaterThanOrEqual(0);
+    expect(rules[idx]).toEqual({ from: '/portal', to: '/portal/', status: '301' });
+    expect(idx).toBeLessThan(idxOf('/*'));
+  });
+
+  it('/portal/* → SPA rewrite 200 na "/" (obsługuje też cel przekierowania /portal/)', () => {
+    const idx = idxOf('/portal/*');
+    expect(rules[idx]).toEqual({ from: '/portal/*', to: '/', status: '200' });
+    expect(idx).toBeLessThan(idxOf('/*'));
+  });
+});
