@@ -71,7 +71,7 @@ const RedisArticle = () => {
         align="left"
       />
 
-      <p className="mb-8">{CONTENT.howItWorks.text}</p>
+      <p className="mb-8" dangerouslySetInnerHTML={{ __html: CONTENT.howItWorks.text }} />
 
       <AnimateOnScroll>
         <div className="my-12">
