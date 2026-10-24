@@ -95,7 +95,7 @@ export const MongoHeroVisual: React.FC = () => {
           <div className="text-left space-y-6">
             {active === 'sql' ? (
               <div className="animate-fade-in">
-                <h4 className="text-xl font-bold text-white mb-4">Sztywne tabele</h4>
+                <p className="text-xl font-bold text-white mb-4">Sztywne tabele</p>
                 <p className="text-sm text-gray-400 leading-relaxed">
                   Każdy rekord musi mieć ten sam zestaw kolumn. Próba zapisania nietypowych danych
                   kończy się iskrzeniem i błędami.
@@ -111,7 +111,7 @@ export const MongoHeroVisual: React.FC = () => {
               </div>
             ) : (
               <div className="animate-fade-in">
-                <h4 className="text-xl font-bold text-[#00ED64] mb-4">Swoboda dokumentu</h4>
+                <p className="text-xl font-bold text-[#00ED64] mb-4">Swoboda dokumentu</p>
                 <p className="text-sm text-gray-400 leading-relaxed">
                   Zapisujesz dane tak, jak przychodzą. MongoDB dopasowuje się do Twojego obiektu jak
                   woda do naczynia.
@@ -170,7 +170,7 @@ export const CarGarageAnalogy: React.FC = () => {
                 SILNIK
               </div>
             </div>
-            <h4 className="text-lg font-bold text-dark">Rozbieranie na części</h4>
+            <h3 className="text-lg font-bold text-dark">Rozbieranie na części</h3>
             <p className="text-xs text-gray-600 text-center mt-2 leading-relaxed">
               Aby zapisać dane, musisz je rozbić na wiele tabel. Aby je odczytać, musisz je
               "poskładać" (JOINy), co przy dużej skali jest powolne.
@@ -192,7 +192,7 @@ export const CarGarageAnalogy: React.FC = () => {
           <div className="w-32 h-20 bg-[#00ED64]/20 rounded-2xl flex items-center justify-center border-2 border-[#00ED64] shadow-[0_0_20px_rgba(0,237,100,0.2)] mb-4">
             <Truck size={40} className="text-black" />
           </div>
-          <h4 className="text-lg font-bold text-dark">Wjazd całego obiektu</h4>
+          <h3 className="text-lg font-bold text-dark">Wjazd całego obiektu</h3>
           <p className="text-xs text-gray-600 leading-relaxed mt-2">
             Zapisujesz cały samochód jako jeden dokument JSON. Odczyt jest błyskawiczny, bo dane nie
             są rozproszone.

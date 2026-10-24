@@ -37,7 +37,7 @@ export const GoHeroVisual: React.FC = () => {
           </div>
         </div>
         <div className="text-center">
-          <h3 className="text-white/80 font-bold text-lg">Tradycyjne Tech</h3>
+          <p className="text-white/80 font-bold text-lg">Tradycyjne Tech</p>
           <p className="text-white/60 text-xs uppercase tracking-widest">Wysokie zużycie RAM</p>
         </div>
       </div>
@@ -60,7 +60,7 @@ export const GoHeroVisual: React.FC = () => {
           </div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-black text-3xl drop-shadow-md">Go (Golang)</h3>
+          <p className="text-white font-black text-3xl drop-shadow-md">Go (Golang)</p>
           <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-white text-xxs font-black uppercase tracking-widest mt-2 border border-white/20">
             Cloud Native
           </div>
@@ -82,7 +82,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
               <Truck size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-slate-700">Java Threads</h4>
+              <h3 className="font-bold text-slate-700">Java Threads</h3>
               <p className="text-xs text-slate-500">Ciężkie procesy (Ciężarówka)</p>
             </div>
           </div>
@@ -109,7 +109,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
               <Zap size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-slate-700">Go Goroutines</h4>
+              <h3 className="font-bold text-slate-700">Go Goroutines</h3>
               <p className="text-xs text-slate-500">Lekkie Drony</p>
             </div>
           </div>

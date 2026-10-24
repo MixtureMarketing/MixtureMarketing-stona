@@ -56,9 +56,9 @@ const TypeScriptArticle = () => {
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
               <Code2 size={120} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-4">
+            <h3 className="text-xl font-bold text-dark mb-4">
               {content.definition.cards[0].title}
-            </h4>
+            </h3>
             <p
               className="text-sm text-gray-600 leading-relaxed mb-6"
               dangerouslySetInnerHTML={{ __html: content.definition.cards[0].text }}
@@ -77,7 +77,7 @@ const TypeScriptArticle = () => {
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <ShieldCheck size={120} />
             </div>
-            <h4 className="text-xl font-bold mb-4">{content.definition.cards[1].title}</h4>
+            <h3 className="text-xl font-bold mb-4">{content.definition.cards[1].title}</h3>
             <p
               className="text-sm text-blue-100 leading-relaxed mb-6"
               dangerouslySetInnerHTML={{ __html: content.definition.cards[1].text }}
@@ -140,7 +140,7 @@ const TypeScriptArticle = () => {
                   })}
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-dark mb-2">{reason.title}</h4>
+                  <h3 className="text-lg font-bold text-dark mb-2">{reason.title}</h3>
                   {typeof reason.desc === 'string' ? (
                     <p
                       className="text-sm text-gray-600 leading-relaxed m-0"

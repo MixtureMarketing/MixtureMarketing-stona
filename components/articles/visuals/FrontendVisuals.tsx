@@ -143,7 +143,7 @@ export const TechCardsVisual: React.FC = () => {
           <div className="w-10 h-10 rounded-full bg-[#61DAFB] flex items-center justify-center text-white font-bold text-xs">
             R
           </div>
-          <h4 className="font-bold text-slate-800">React.js</h4>
+          <h3 className="font-bold text-slate-800">React.js</h3>
         </div>
         <div className="space-y-2 mb-6">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
@@ -166,7 +166,7 @@ export const TechCardsVisual: React.FC = () => {
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-xs">
             N
           </div>
-          <h4 className="font-bold">Next.js</h4>
+          <h3 className="font-bold">Next.js</h3>
         </div>
         <div className="space-y-2 mb-6">
           <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</div>
@@ -191,7 +191,7 @@ export const TechCardsVisual: React.FC = () => {
           <div className="w-10 h-10 rounded-full bg-[#42B883] flex items-center justify-center text-white font-bold text-xs">
             V
           </div>
-          <h4 className="font-bold text-slate-800">Vue.js</h4>
+          <h3 className="font-bold text-slate-800">Vue.js</h3>
         </div>
         <div className="space-y-2 mb-6">
           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
@@ -230,7 +230,7 @@ export const DecisionTreeVisual: React.FC = () => {
           <div className="flex-1 flex flex-col items-center gap-4">
             <ArrowRight className="rotate-90 text-green-400" />
             <div className="bg-black border border-green-500 p-6 rounded-2xl w-full hover:scale-105 transition-transform shadow-[0_0_20px_rgba(34,197,94,0.3)]">
-              <h4 className="font-black text-xl mb-2">Next.js</h4>
+              <h3 className="font-black text-xl mb-2">Next.js</h3>
               <p className="text-gray-400">E-commerce, Portal, Blog</p>
             </div>
           </div>

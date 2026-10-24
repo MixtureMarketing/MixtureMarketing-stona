@@ -129,7 +129,7 @@ export const LegoVsPlaymobil: React.FC = () => {
           <div className="w-24 h-24 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-200 shadow-inner">
             <Box size={48} className="text-gray-300" />
           </div>
-          <h4 className="text-xl font-bold text-dark">"Gotowe Odlewy"</h4>
+          <h3 className="text-xl font-bold text-dark">"Gotowe Odlewy"</h3>
           <p className="text-sm text-gray-600 max-w-xs">
             Dostajesz gotowy domek. Możesz go pomalować, ale trudno zmienić układ okien czy kształt
             dachu. Wszystko wygląda podobnie.
@@ -155,7 +155,7 @@ export const LegoVsPlaymobil: React.FC = () => {
           <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center border border-blue-200 shadow-xl">
             <Puzzle size={48} className="text-blue-500 animate-pulse" />
           </div>
-          <h4 className="text-xl font-bold text-dark">"Wiadro Klocków"</h4>
+          <h3 className="text-xl font-bold text-dark">"Wiadro Klocków"</h3>
           <p className="text-sm text-gray-600 max-w-xs">
             Dostajesz setki małych klocków (kolor, zaokrąglenie, cień). Budujesz dokładnie to, co
             chcesz. Od zamku po prom kosmiczny.

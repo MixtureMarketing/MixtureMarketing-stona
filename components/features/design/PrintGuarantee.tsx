@@ -15,7 +15,7 @@ const PrintGuarantee: React.FC = () => {
           <ShieldCheck size={48} aria-hidden="true" />
         </div>
 
-        <h3 className="text-3xl font-bold text-dark mb-4">{CONTENT.guarantee.title}</h3>
+        <h2 className="text-3xl font-bold text-dark mb-4">{CONTENT.guarantee.title}</h2>
         <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
           {CONTENT.guarantee.description}
         </p>

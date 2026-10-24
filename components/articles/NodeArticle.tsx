@@ -105,7 +105,7 @@ const NodeArticle = () => {
                 >
                   {icons[i]}
                 </div>
-                <h4 className="font-bold text-dark mb-2">{card.title}</h4>
+                <h3 className="font-bold text-dark mb-2">{card.title}</h3>
                 <p className="text-xs text-gray-600">{card.desc}</p>
               </div>
             );
@@ -141,7 +141,7 @@ const NodeArticle = () => {
                   {icons[i]}
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg text-dark">{card.title}</h4>
+                  <h3 className="font-bold text-lg text-dark">{card.title}</h3>
                   <p
                     className="text-sm text-gray-600 mt-2 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: card.desc }}

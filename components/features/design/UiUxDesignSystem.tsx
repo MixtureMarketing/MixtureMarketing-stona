@@ -46,9 +46,9 @@ const UiUxDesignSystem: React.FC = () => {
               <Sliders size={24} aria-hidden="true" />
             </div>
             <div>
-              <h3 className="font-black text-xl tracking-tight text-white">
+              <h2 className="font-black text-xl tracking-tight text-white">
                 {CONTENT.designTokens.title}
-              </h3>
+              </h2>
               <p className="text-xxs text-white/60 uppercase font-bold tracking-[0.2em]">
                 {CONTENT.designTokens.subtitle}
               </p>

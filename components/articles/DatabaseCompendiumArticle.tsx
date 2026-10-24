@@ -240,7 +240,7 @@ const DatabaseCompendiumArticle = () => {
                     className: `text-${colors[i]}-200 group-hover:text-${colors[i]}-500 transition-colors`,
                   })}
                 </div>
-                <h4 className="text-xl font-bold text-dark mb-2">{step.q}</h4>
+                <h3 className="text-xl font-bold text-dark mb-2">{step.q}</h3>
                 <p className="text-gray-600 text-sm mb-4 min-h-[40px]">{step.desc}</p>
                 <div className="bg-white p-3 rounded-xl border border-blue-100 flex items-center gap-3">
                   <div

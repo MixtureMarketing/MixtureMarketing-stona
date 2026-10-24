@@ -124,7 +124,7 @@ const CiCdArticle = () => {
                 )}
               </div>
               <div>
-                <h4 className="font-bold text-dark text-lg mb-2">{reason.title}</h4>
+                <h3 className="font-bold text-dark text-lg mb-2">{reason.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{reason.desc}</p>
               </div>
             </div>

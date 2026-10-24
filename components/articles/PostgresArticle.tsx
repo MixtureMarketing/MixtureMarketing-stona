@@ -83,7 +83,7 @@ const PostgresArticle = () => {
             <div className="w-12 h-12 bg-blue-50 text-[#336791] rounded-xl flex items-center justify-center mb-6">
               <BarChart3 size={24} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-2">Relacyjny (SQL)</h4>
+            <h3 className="text-xl font-bold text-dark mb-2">Relacyjny (SQL)</h3>
             <p className="text-sm text-gray-600">
               Idealny do tabel, faktur i użytkowników. Porządek jak w Excelu, tylko miliard razy
               szybszy.
@@ -93,7 +93,7 @@ const PostgresArticle = () => {
             <div className="w-12 h-12 bg-emerald-50 text-[#059669] rounded-xl flex items-center justify-center mb-6">
               <Zap size={24} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-2">Obiektowy / NoSQL</h4>
+            <h3 className="text-xl font-bold text-dark mb-2">Obiektowy / NoSQL</h3>
             <p className="text-sm text-gray-600">
               Idealny do elastycznych danych JSON i złożonych struktur. Elastyczność znana z
               MongoDB.

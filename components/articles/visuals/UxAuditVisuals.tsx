@@ -7,7 +7,7 @@ export const LeakyBucketVisual = () => {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
 
       <div className="text-center mb-12 relative z-10">
-        <h3 className="text-2xl font-bold text-dark">Efekt "Dziurawego Wiadra"</h3>
+        <h2 className="text-2xl font-bold text-dark">Efekt "Dziurawego Wiadra"</h2>
         <p className="text-gray-700 text-sm mt-2">Dlaczego reklamy nie przynoszą zysku?</p>
       </div>
 

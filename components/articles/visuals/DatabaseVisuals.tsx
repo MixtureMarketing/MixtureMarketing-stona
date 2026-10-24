@@ -54,7 +54,7 @@ export const DatabaseHeroVisual = () => {
                 <div className="text-xxs font-black text-red-500 uppercase tracking-wide mb-1">
                   1. Hot Data (Cache)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">Redis</h4>
+                <p className="font-bold text-gray-800 text-sm">Redis</p>
                 <p className="text-xs text-gray-500 mt-1">Sesja, Koszyk, Tokeny</p>
               </div>
             </div>
@@ -68,7 +68,7 @@ export const DatabaseHeroVisual = () => {
                 <div className="text-xxs font-black text-yellow-500 uppercase tracking-wide mb-1">
                   2. Search Engine
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">Elasticsearch</h4>
+                <p className="font-bold text-gray-800 text-sm">Elasticsearch</p>
                 <p className="text-xs text-gray-500 mt-1">Katalog, Filtry, Autocomplete</p>
               </div>
             </div>
@@ -82,7 +82,7 @@ export const DatabaseHeroVisual = () => {
                 <div className="text-xxs font-black text-blue-500 uppercase tracking-wide mb-1">
                   3. Core Data (SQL)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">PostgreSQL</h4>
+                <p className="font-bold text-gray-800 text-sm">PostgreSQL</p>
                 <p className="text-xs text-gray-500 mt-1">Zamówienia, Płatności, Faktury</p>
               </div>
             </div>
@@ -96,7 +96,7 @@ export const DatabaseHeroVisual = () => {
                 <div className="text-xxs font-black text-green-500 uppercase tracking-wide mb-1">
                   4. Big Data (NoSQL)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">MongoDB</h4>
+                <p className="font-bold text-gray-800 text-sm">MongoDB</p>
                 <p className="text-xs text-gray-500 mt-1">Logi, Analityka, Rekomendacje</p>
               </div>
             </div>

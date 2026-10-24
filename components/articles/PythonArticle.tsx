@@ -42,7 +42,7 @@ const PythonArticle = () => {
 
       <ArticleContextBox
         icon={Server}
-        text={`<p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">Szerszy Kontekst</p><h4 className="text-lg font-bold text-dark mb-2">${CONTENT.contextBox.title}</h4><p className="text-sm text-gray-600 mb-3">${CONTENT.contextBox.text}</p>`}
+        text={`<p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">Szerszy Kontekst</p><p className="text-lg font-bold text-dark mb-2">${CONTENT.contextBox.title}</p><p className="text-sm text-gray-600 mb-3">${CONTENT.contextBox.text}</p>`}
         linkUrl={CONTENT.contextBox.linkUrl}
         linkText={CONTENT.contextBox.linkText}
       />

@@ -103,7 +103,7 @@ const GoArticle = () => {
                   <CheckCircle2 size={24} />
                 )}
               </div>
-              <h4 className="font-bold text-lg text-dark mb-2">{card.title}</h4>
+              <h3 className="font-bold text-lg text-dark mb-2">{card.title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
             </div>
           ))}

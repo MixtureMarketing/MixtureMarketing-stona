@@ -80,9 +80,9 @@ export const DevOpsMetropolisVisual = () => {
         </div>
 
         <div className="mt-8 text-center max-w-lg relative z-30">
-          <h3 className="text-2xl font-bold text-white mb-2 italic drop-shadow-lg tracking-tight">
+          <p className="text-2xl font-bold text-white mb-2 italic drop-shadow-lg tracking-tight">
             "Stabilność to owoc automatyzacji."
-          </h3>
+          </p>
           <p className="text-blue-200/70 text-sm leading-relaxed">
             Sama aplikacja to tylko silnik. DevOps to system smarowania i chłodzenia, który pozwala
             mu pracować na najwyższych obrotach 24/7.

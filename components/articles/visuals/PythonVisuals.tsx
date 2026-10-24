@@ -253,9 +253,9 @@ export const ScalabilityVisual = ({ content }: ScalabilityVisualProps) => {
 
         <div className="flex-1 bg-dark p-6 rounded-2xl text-white shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ED64] rounded-full blur-[60px] opacity-20"></div>
-          <h4 className="font-bold mb-4 flex items-center gap-2">
+          <h3 className="font-bold mb-4 flex items-center gap-2">
             <Info size={16} className="text-[#00ED64]" /> Jak to skalować?
-          </h4>
+          </h3>
           <ul className="text-sm space-y-2 text-gray-300">
             {content.tips.map((tip, i) => (
               <li key={i}>{tip}</li>

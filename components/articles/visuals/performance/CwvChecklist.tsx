@@ -38,11 +38,11 @@ const CwvChecklist = () => {
               {checked.includes(item.id) && <CheckCircle2 size={14} />}
             </div>
             <div>
-              <h5
+              <h4
                 className={`font-bold text-sm ${checked.includes(item.id) ? 'text-emerald-900' : 'text-dark'}`}
               >
                 {item.title}
-              </h5>
+              </h4>
               <p className="text-xs text-gray-700 mt-1">{item.desc}</p>
             </div>
           </div>

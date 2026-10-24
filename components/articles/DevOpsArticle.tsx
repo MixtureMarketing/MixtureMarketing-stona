@@ -154,7 +154,7 @@ const DevOpsArticle = () => {
                 {i + 1}
               </div>
               <div>
-                <h4 className="font-bold text-dark">{item.title}</h4>
+                <h3 className="font-bold text-dark">{item.title}</h3>
                 <p className="text-sm text-gray-600">{item.text}</p>
               </div>
             </div>

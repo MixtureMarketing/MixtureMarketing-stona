@@ -189,7 +189,7 @@ const NextJsArticle = () => {
                 className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="text-secondary mb-4">{icons[i]}</div>
-                <h4 className="font-bold text-dark mb-2">{item.title}</h4>
+                <h3 className="font-bold text-dark mb-2">{item.title}</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">{item.desc}</p>
               </div>
             );

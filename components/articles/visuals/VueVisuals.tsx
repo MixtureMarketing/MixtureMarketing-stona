@@ -73,7 +73,7 @@ export const FrameworkSpectrum = () => {
           <div className="w-16 h-16 mx-auto bg-[#61DAFB]/10 rounded-full flex items-center justify-center mb-4">
             <Box className="text-[#61DAFB]" size={32} />
           </div>
-          <h4 className="font-bold text-dark">React</h4>
+          <h3 className="font-bold text-dark">React</h3>
           <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Totalna Swoboda</p>
           <p className="text-xs text-gray-400 mt-2">Wymaga wielu decyzji</p>
         </div>
@@ -85,7 +85,7 @@ export const FrameworkSpectrum = () => {
               <Heart className="text-[#42B883]" size={40} fill="currentColor" />
             </div>
           </div>
-          <h4 className="text-2xl font-black text-dark">Vue.js</h4>
+          <h3 className="text-2xl font-black text-dark">Vue.js</h3>
           <div className="inline-block bg-[#42B883] text-white text-xxs font-bold px-3 py-1 rounded-full uppercase tracking-widest mt-2 mb-2">
             Harmonijny Kompromis
           </div>
@@ -96,7 +96,7 @@ export const FrameworkSpectrum = () => {
           <div className="w-16 h-16 mx-auto bg-[#DD0031]/10 rounded-full flex items-center justify-center mb-4">
             <Layers className="text-[#DD0031]" size={32} />
           </div>
-          <h4 className="font-bold text-dark">Angular</h4>
+          <h3 className="font-bold text-dark">Angular</h3>
           <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Pełna Struktura</p>
           <p className="text-xs text-gray-400 mt-2">Sztywne ramy</p>
         </div>

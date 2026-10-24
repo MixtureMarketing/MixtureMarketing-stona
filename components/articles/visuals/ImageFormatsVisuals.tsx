@@ -395,11 +395,11 @@ export const ImageSeoChecklist = () => {
               {checked.includes(item.id) && <CheckCircle2 size={14} />}
             </div>
             <div>
-              <h5
+              <h4
                 className={`font-bold text-sm transition-colors ${checked.includes(item.id) ? 'text-emerald-900' : 'text-dark'}`}
               >
                 {item.title}
-              </h5>
+              </h4>
               <p className="text-xs text-gray-700 mt-1">{item.desc}</p>
             </div>
           </div>
@@ -413,7 +413,7 @@ export const ImageSeoChecklist = () => {
             <div className="w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
               <CheckCircle2 size={28} />
             </div>
-            <h5 className="text-xl font-bold text-dark mb-2">Image SEO ukończone!</h5>
+            <h4 className="text-xl font-bold text-dark mb-2">Image SEO ukończone!</h4>
             <p className="text-gray-700 text-sm max-w-xs mx-auto mb-6 leading-relaxed">
               Twoje grafiki są teraz zoptymalizowane pod kątem wyszukiwarek i szybkości ładowania.
             </p>

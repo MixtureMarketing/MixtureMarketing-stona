@@ -68,9 +68,9 @@ const EdgeComputingArticle = () => {
       <AnimateOnScroll>
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm mb-12 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
-          <h3 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
             <span className="text-2xl">🍕</span> {CONTENT.analogy.title}
-          </h3>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="text-secondary font-bold text-sm uppercase mb-2">

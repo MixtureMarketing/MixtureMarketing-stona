@@ -82,7 +82,9 @@ const AboutUs: React.FC = () => {
       <div className="py-20 relative z-10">
         <AmbientBackground />
         <Container className="relative z-10">
-          {/* VALUES — paleta marki zamiast indigo/emerald/orange */}
+          {/* VALUES — paleta marki zamiast indigo/emerald/orange. Ukryty h2 porządkuje
+              kontur nagłówków (karty h3 szły bezpośrednio po h1 — axe heading-order). */}
+          <h2 className="sr-only">Nasze wartości</h2>
           <div className="grid md:grid-cols-3 gap-6 mb-20">
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
               <div className="w-12 h-12 bg-blue-50 text-secondary rounded-xl flex items-center justify-center mb-4">

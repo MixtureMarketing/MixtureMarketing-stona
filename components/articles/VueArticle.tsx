@@ -38,7 +38,7 @@ const VueArticle = () => {
     >
       <ArticleContextBox
         icon={Layout}
-        text={`<p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">${content.contextBox.title}</p><h4 className="text-lg font-bold text-dark mb-2">${content.contextBox.subtitle}</h4><p className="text-sm text-gray-600 mb-3">${content.contextBox.text}</p>`}
+        text={`<p className="text-xs font-bold text-secondary uppercase tracking-wider mb-1">${content.contextBox.title}</p><p className="text-lg font-bold text-dark mb-2">${content.contextBox.subtitle}</p><p className="text-sm text-gray-600 mb-3">${content.contextBox.text}</p>`}
         linkUrl={content.contextBox.linkUrl}
         linkText={content.contextBox.linkText}
       />

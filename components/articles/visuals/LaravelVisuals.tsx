@@ -36,7 +36,7 @@ export const LaravelHeroVisual: React.FC = () => {
           <div className="absolute top-1/2 left-1/2 w-1 h-12 bg-white/50 origin-bottom -translate-x-1/2 -translate-y-full rotate-[180deg]"></div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-bold text-lg">Inne Technologie</h3>
+          <p className="text-white font-bold text-lg">Inne Technologie</p>
           <p className="text-white/60 text-xs uppercase tracking-widest">
             Konfiguracja, Boilerplate...
           </p>
@@ -60,7 +60,7 @@ export const LaravelHeroVisual: React.FC = () => {
           <div className="absolute top-1/2 left-1/2 w-1.5 h-20 bg-white origin-bottom -translate-x-1/2 -translate-y-full animate-[spin_2s_linear_infinite]"></div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-bold text-2xl">Laravel</h3>
+          <p className="text-white font-bold text-2xl">Laravel</p>
           <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-white text-xxs font-black uppercase tracking-widest mt-2 border border-white/20">
             MVP Ready
           </div>
@@ -192,7 +192,7 @@ export const LaravelPerformanceChart: React.FC = () => {
     <div className="my-16 p-8 bg-white rounded-[2rem] border border-gray-200 shadow-xl overflow-hidden relative">
       <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
         <div className="flex-1">
-          <h4 className="text-2xl font-black text-dark mb-2">Laravel Octane</h4>
+          <h3 className="text-2xl font-black text-dark mb-2">Laravel Octane</h3>
           <p className="text-sm text-gray-600 mb-6">
             Dzięki Octane i serwerowi Swoole/RoadRunner, aplikacja jest ładowana do pamięci RAM
             tylko raz.

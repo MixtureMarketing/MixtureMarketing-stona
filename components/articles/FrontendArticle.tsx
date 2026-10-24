@@ -87,7 +87,7 @@ const FrontendArticle = () => {
               key={i}
               className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border border-white/20"
             >
-              <h5 className="font-bold text-slate-700 text-sm mb-1">{card.title}</h5>
+              <h4 className="font-bold text-slate-700 text-sm mb-1">{card.title}</h4>
               <p className="text-xs text-slate-500">{card.desc}</p>
             </div>
           ))}

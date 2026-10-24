@@ -124,6 +124,8 @@ const PortfolioPage = () => {
 
         {/* --- PROJECTS GRID --- */}
         <Container className="pb-32">
+          {/* Karty projektów to h3 — ukryty h2 domyka kontur nagłówków (h1 → h2 → h3). */}
+          <h2 className="sr-only">Lista realizacji</h2>
           {!loading && filteredProjects.length === 0 ? (
             <BaseCard
               variant="solid"

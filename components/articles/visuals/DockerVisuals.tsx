@@ -26,9 +26,9 @@ export const DockerHeroVisual = () => {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xxs font-black uppercase tracking-[0.2em] mb-4">
           <ShieldCheck size={12} /> Standard Izolacji 2025
         </div>
-        <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 tracking-tight">
           Architektura <span className="text-blue-400">Niezawodności</span>
-        </h3>
+        </h2>
         <p className="text-gray-400 text-sm md:text-base leading-relaxed">
           Docker to nie tylko kontenery. To kompletny system, który izoluje Twoją aplikację od
           problemów serwerowych, gwarantując jej działanie w każdych warunkach.
@@ -198,7 +198,7 @@ export const KubernetesVisual = () => {
           <div className="bg-blue-500/10 border border-blue-500/20 px-4 py-1 rounded-full text-blue-400 text-xxs font-black uppercase tracking-widest mb-2">
             Control Plane
           </div>
-          <h4 className="text-white font-bold text-lg m-0 tracking-tight">K8s Cluster Master</h4>
+          <h3 className="text-white font-bold text-lg m-0 tracking-tight">K8s Cluster Master</h3>
         </div>
       </div>
 

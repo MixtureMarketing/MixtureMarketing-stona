@@ -80,9 +80,9 @@ const CdnArticle = () => {
 
       <AnimateOnScroll>
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm mb-12">
-          <h3 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
             <span className="text-2xl">🍩</span> {CONTENT.donut.title}
-          </h3>
+          </h2>
           <p className="mb-4">{CONTENT.donut.text1}</p>
           <p className="mb-0" dangerouslySetInnerHTML={{ __html: CONTENT.donut.text2 }} />
         </div>
