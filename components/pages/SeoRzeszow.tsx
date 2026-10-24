@@ -24,6 +24,7 @@ import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 const SeoRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -69,10 +70,7 @@ const SeoRzeszow: React.FC = () => {
       '@type': 'Service',
       name: 'Pozycjonowanie stron internetowych Rzeszów (SEO)',
       serviceType: 'SEO / Search Engine Optimization',
-      provider: {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_CONFIG.domain}/#organization`,
-      },
+      provider: ORG_REF,
       areaServed: [
         { '@type': 'City', name: 'Rzeszów' },
         { '@type': 'AdministrativeArea', name: 'Podkarpackie' },

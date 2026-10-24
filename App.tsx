@@ -9,7 +9,6 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import CursorGlow from '@/components/common/CursorGlow';
-import { SITE_CONFIG } from '@/config/site';
 import { leadService } from '@/services/leadService';
 import { installContactLinkTracking } from '@/utils/analytics';
 import { AuthProvider } from '@/context/AuthContext';
@@ -17,42 +16,15 @@ import { NotificationProvider } from '@/context/NotificationContext';
 import CookieBanner from '@/components/features/CookieBanner';
 import { ContactType } from '@/types';
 import { appRoutes } from '@/config/routes';
+import { getOrganizationSchema } from '@/utils/seo/organizationSchema';
 
 // --- Page Components (Lazy Loaded) ---
 const ContactModal = lazy(() => import('@/components/features/ContactModal'));
 
+// Jedna encja firmy (#organization) dla całej domeny — patrz utils/seo/organizationSchema.ts.
 const GlobalSchema = () => (
   <Helmet>
-    <script type="application/ld+json">
-      {JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: SITE_CONFIG.name,
-        url: SITE_CONFIG.domain,
-        logo: `${SITE_CONFIG.domain}/assets/images/sygnet.png`,
-        contactPoint: {
-          '@type': 'ContactPoint',
-          telephone: SITE_CONFIG.contact.phone,
-          contactType: 'customer service',
-          areaServed: 'PL',
-          availableLanguage: ['Polish', 'English'],
-        },
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: SITE_CONFIG.contact.address.street,
-          addressLocality: SITE_CONFIG.contact.address.city,
-          postalCode: SITE_CONFIG.contact.address.postalCode,
-          addressCountry: SITE_CONFIG.contact.address.countryCode,
-        },
-        vatID: SITE_CONFIG.contact.vatID,
-        sameAs: [
-          SITE_CONFIG.social.facebook,
-          SITE_CONFIG.social.instagram,
-          SITE_CONFIG.social.linkedin,
-          SITE_CONFIG.social.tiktok,
-        ],
-      })}
-    </script>
+    <script type="application/ld+json">{JSON.stringify(getOrganizationSchema())}</script>
   </Helmet>
 );
 

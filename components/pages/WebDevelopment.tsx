@@ -24,6 +24,7 @@ import WebDevWpCustom from '../features/web-development/WebDevWpCustom';
 import WebDevInfrastructure from '../features/web-development/WebDevInfrastructure';
 import WebDevComparison from '../features/web-development/WebDevComparison';
 import FaqSection from '../sections/FaqSection';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 const WebDevelopment: React.FC = () => {
   const navigate = useNavigate();
@@ -50,12 +51,7 @@ const WebDevelopment: React.FC = () => {
             '@context': 'https://schema.org',
             '@type': 'Service',
             serviceType: 'Web Development',
-            provider: {
-              '@type': 'Organization',
-              name: 'Mixture Marketing',
-              url: 'https://mixturemarketing.pl',
-              logo: 'https://mixturemarketing.pl/assets/images/sygnet.png',
-            },
+            provider: ORG_REF,
             areaServed: 'PL',
             hasOfferCatalog: {
               '@type': 'OfferCatalog',

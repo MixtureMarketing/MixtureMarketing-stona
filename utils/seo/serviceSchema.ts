@@ -1,3 +1,5 @@
+import { ORG_REF } from './organizationSchema';
+
 interface ServiceSchemaProps {
   name: string;
   description: string;
@@ -10,18 +12,13 @@ export const getServiceSchema = (
   service: ServiceSchemaProps | undefined,
   title: string,
   description: string,
-  baseUrl: string,
 ) => {
   if (!service) return null;
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
     serviceType: service.serviceType || title,
-    provider: {
-      '@type': 'Organization',
-      name: 'Mixture Marketing',
-      url: baseUrl,
-    },
+    provider: ORG_REF,
     areaServed: service.areaServed
       ? { '@type': 'City', name: service.areaServed }
       : { '@type': 'Country', name: 'Poland' },

@@ -27,6 +27,7 @@ import PreonboardModal from './PreonboardModal';
 import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CountUp } from './shared';
 import { trackEvent } from '../../../utils/analytics';
+import { ORG_REF } from '../../../utils/seo/organizationSchema';
 
 const PROFESSIONAL_PRICE = 549;
 const PROFESSIONAL_PRICE_GROSS = 675;
@@ -204,7 +205,7 @@ const Professional: React.FC = () => {
     name: 'Strona dla gabinetu / kancelarii — abonament Professional',
     description:
       'Strona internetowa w abonamencie dla branż regulowanych: adwokat, lekarz, dentysta, fizjoterapeuta, księgowy, doradca podatkowy. Zgodna z RODO+, tajemnicą zawodową. 549 zł/mc.',
-    provider: { '@type': 'Organization', '@id': 'https://mixturemarketing.pl/#organization' },
+    provider: ORG_REF,
     areaServed: { '@type': 'Country', name: 'Polska' },
     audience: {
       '@type': 'BusinessAudience',

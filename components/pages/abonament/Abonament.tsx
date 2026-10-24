@@ -40,6 +40,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
 import { trackEvent } from '../../../utils/analytics';
+import { ORG_REF } from '../../../utils/seo/organizationSchema';
 
 // ============================================================================
 // DATA
@@ -680,11 +681,7 @@ const Abonament: React.FC = () => {
     serviceType: 'SaaS website subscription',
     description:
       'Strona internetowa w modelu abonamentowym dla polskich mikrofirm — strona WWW, Local SEO, Google Business Profile i leady na telefon w stałej miesięcznej cenie od 179 zł.',
-    provider: {
-      '@type': 'Organization',
-      name: 'Mixture Marketing',
-      url: 'https://mixturemarketing.pl',
-    },
+    provider: ORG_REF,
     areaServed: [
       { '@type': 'Country', name: 'Polska' },
       { '@type': 'City', name: 'Rzeszów' },

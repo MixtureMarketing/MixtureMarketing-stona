@@ -1,6 +1,7 @@
 import { Article } from '../../types';
 import { SanityArticle, urlFor } from '../../services/cmsService';
 import { parseToIsoDate, parseReadTime } from './dateUtils';
+import { ORG_PUBLISHER } from './organizationSchema';
 
 export const getArticleSchema = (
   article: Article | SanityArticle | Partial<Article & SanityArticle> | null,
@@ -52,11 +53,7 @@ export const getArticleSchema = (
       }),
     };
   } else {
-    authorSchema = {
-      '@type': 'Organization',
-      name: 'Mixture Marketing Team',
-      url: baseUrl,
-    };
+    authorSchema = ORG_PUBLISHER;
   }
 
   return {
@@ -65,14 +62,7 @@ export const getArticleSchema = (
     headline: article.title,
     image: [ogImage, `${baseUrl}/assets/images/sygnet.png`],
     author: authorSchema,
-    publisher: {
-      '@type': 'Organization',
-      name: 'Mixture Marketing',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/assets/images/sygnet.png`,
-      },
-    },
+    publisher: ORG_PUBLISHER,
     datePublished: isoDate,
     dateModified: isoUpdatedDate,
     description: description,

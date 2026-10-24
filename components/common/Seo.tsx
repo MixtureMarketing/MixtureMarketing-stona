@@ -62,7 +62,7 @@ const Seo: React.FC<SeoProps> = ({
   const schemas = [
     getBreadcrumbsSchema(breadcrumbs || [], baseUrl),
     getFaqSchema(faq || []),
-    getServiceSchema(service, title, description, baseUrl),
+    getServiceSchema(service, title, description),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
   ].filter(Boolean);
 
