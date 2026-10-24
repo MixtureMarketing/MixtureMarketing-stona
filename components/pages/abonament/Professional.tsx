@@ -233,7 +233,6 @@ const Professional: React.FC = () => {
         title="Strona dla kancelarii / gabinetu — zgodna z RODO i tajemnicą zawodową"
         description="Strona w abonamencie dla adwokatów, lekarzy, fizjoterapeutów i księgowych. Pakiet RODO+ (DPA, lista subprocesorów, SCC), SLA 99.9%, RTO 4h. 549 zł/mc."
         canonical="/abonament/professional/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Strona w abonamencie', item: '/abonament/' },

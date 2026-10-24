@@ -59,6 +59,7 @@ const CdnArticle = () => {
           <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">
             <Image
               src="/assets/images/CDN.png"
+              sizes="(max-width: 1024px) 100vw, 1024px"
               alt="Global Content Delivery Network Infrastructure"
               className="w-full h-[400px] object-cover"
               priority

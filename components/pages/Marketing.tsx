@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import Seo from '@/components/common/Seo';
 import { MARKETING_CONTENT } from '@/data/content';
 import StandardHero from '@/components/common/StandardHero';
@@ -35,9 +35,6 @@ const Marketing: React.FC = () => {
   const { openModal } = useModal();
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const openConsult = () => openModal('marketing');
 

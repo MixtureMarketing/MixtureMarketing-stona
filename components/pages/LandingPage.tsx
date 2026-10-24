@@ -37,7 +37,6 @@ const LandingPage: React.FC = () => {
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService.getPricingSection('landing-page').then((data) => {
       if (data) {
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({
@@ -96,7 +95,6 @@ const LandingPage: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
-        lcpImage={CONTENT.seo.image}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Web Development', item: '/web-development/' },

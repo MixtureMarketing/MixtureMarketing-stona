@@ -61,7 +61,6 @@ const GoogleAds: React.FC = () => {
   const calcRef = useSectionProgress<HTMLElement>(0.85);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService.getPricingSection('google-ads').then((data) => {
       if (data) {
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({

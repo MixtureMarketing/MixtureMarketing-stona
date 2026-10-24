@@ -750,7 +750,6 @@ const Abonament: React.FC = () => {
         title="Strona w abonamencie dla małej firmy • Gotowa strona WWW od 179 zł/mc"
         description="Szukasz klientów z Google? Otrzymaj nowoczesną stronę internetową w abonamencie z pełnym pozycjonowaniem lokalnym (SEO) i Mapami Google. Bez opłat startowych!"
         canonical="/abonament/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Strona w abonamencie', item: '/abonament/' },

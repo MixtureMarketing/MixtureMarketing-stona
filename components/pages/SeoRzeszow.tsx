@@ -142,7 +142,6 @@ const SeoRzeszow: React.FC = () => {
         title="Agencja SEO Rzeszów — Pozycjonowanie Stron Internetowych"
         description="Agencja SEO Rzeszów: pozycjonowanie stron dla firm z Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content. Cennik widełkowy."
         canonical="/agencja-seo-rzeszow/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Agencja SEO Rzeszów', item: '/agencja-seo-rzeszow/' },

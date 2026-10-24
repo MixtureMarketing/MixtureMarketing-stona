@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Zap } from 'lucide-react';
 import { useModal } from '../../context/ModalContext';
 import Seo from '../common/Seo';
@@ -23,10 +23,6 @@ const BrandIdentity: React.FC = () => {
   const { openModal } = useModal();
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">

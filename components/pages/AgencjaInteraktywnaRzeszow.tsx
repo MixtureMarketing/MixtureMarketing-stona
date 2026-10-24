@@ -192,7 +192,6 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
         title="Agencja Interaktywna Rzeszów — Web, Branding, Marketing"
         description="Agencja interaktywna Rzeszów: strony WWW, aplikacje webowe, branding, kampanie Google i Meta Ads. Spotkania u klienta na Podkarpaciu lub online."
         canonical="/agencja-interaktywna-rzeszow/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Agencja Interaktywna Rzeszów', item: '/agencja-interaktywna-rzeszow/' },

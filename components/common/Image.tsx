@@ -1,4 +1,5 @@
 import React from 'react';
+import { RESPONSIVE_WIDTHS } from '@/config/responsiveImages';
 
 interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -8,7 +9,19 @@ interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   height?: number | string;
   priority?: boolean;
   isSanity?: boolean;
+  /** Atrybut `sizes` dla srcset (szerokość slotu w layoucie). */
+  sizes?: string;
 }
+
+// Obrazy z public/assets/images (płaska struktura) mają warianty szerokości generowane
+// przez scripts/convert-images.js: <nazwa>-<w>.avif / .webp dla RESPONSIVE_WIDTHS.
+const RESPONSIVE_SRC = /^\/assets\/images\/[^/]+\.(jpe?g|png)$/i;
+
+/** Domyślny `sizes`: znana szerokość slotu → tyle px (ale ≤ 100vw); inaczej pół ekranu. */
+const defaultSizes = (width?: number | string) =>
+  typeof width === 'number'
+    ? `(max-width: ${width}px) 100vw, ${width}px`
+    : '(max-width: 768px) 100vw, 50vw';
 
 /**
  * A reusable Image component that implements the <picture> pattern
@@ -24,6 +37,7 @@ const Image: React.FC<ImageProps> = ({
   height,
   priority = false,
   isSanity = false,
+  sizes,
   ...props
 }) => {
   if (!alt) {
@@ -61,7 +75,7 @@ const Image: React.FC<ImageProps> = ({
     <img
       src={finalSrc}
       srcSet={srcSet}
-      sizes={srcSet ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : undefined}
+      sizes={srcSet ? '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw' : sizes}
       alt={alt}
       className={className}
       loading={effectiveLoading}
@@ -76,13 +90,18 @@ const Image: React.FC<ImageProps> = ({
 
   if (isEnhanceable) {
     const basePath = src.substring(0, src.lastIndexOf('.'));
+    // Warianty szerokości (480/960/1600) zamiast źródła 2752 px; inne lokalne obrazy
+    // (bez wariantów) dostają jak dotąd pojedynczy plik .avif/.webp.
+    const responsive = RESPONSIVE_SRC.test(src);
+    const set = (ext: string) =>
+      responsive
+        ? RESPONSIVE_WIDTHS.map((w) => `${basePath}-${w}.${ext} ${w}w`).join(', ')
+        : `${basePath}.${ext}`;
+    const sizesAttr = responsive ? (sizes ?? defaultSizes(width)) : undefined;
     return (
       <picture className="block w-full h-full" style={style}>
-        <source srcSet={`${basePath}.avif`} type="image/avif" />
-        <source srcSet={`${basePath}.webp`} type="image/webp" />
-        {/* We don't need style on img inside picture if picture handles the ratio/layout, 
-            but keeping it safe often helps. However, picture usually needs the block/ratio. 
-            Let's apply style to picture primarily if it's a wrapper. */}
+        <source srcSet={set('avif')} sizes={sizesAttr} type="image/avif" />
+        <source srcSet={set('webp')} sizes={sizesAttr} type="image/webp" />
         {React.cloneElement(
           imgElement as React.ReactElement<React.ImgHTMLAttributes<HTMLImageElement>>,
           {

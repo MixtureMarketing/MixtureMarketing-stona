@@ -19,7 +19,11 @@ import {
  * prądy marki, które się w nią mieszają (konfiguracja w mixtureConfig; elipsa
  * strefy tekstu chroni kontrast H1). Reduced-motion: jedna statyczna klatka.
  * Auto-pauzy: poza viewportem, karta w tle, pełne zakrycie arkuszem (covered),
- * pauza użytkownika (setPaused, WCAG 2.2.2); degradacja gęstości > ~24 ms.
+ * pauza użytkownika (setPaused, WCAG 2.2.2), bezczynność (IDLE_MS bez ruchu
+ * wskaźnika/scrolla/dotyku/klawisza — pętla staje na stabilnej klatce i wraca przy
+ * pierwszej interakcji); degradacja gęstości > ~24 ms. lowPower: limit ~30 fps.
+ * Czas animacji to zegar wirtualny (suma klatek), więc po każdej pauzie scena
+ * rusza dokładnie z miejsca, w którym stanęła — bez skoku.
  * Wejścia z MixtureField: setPointer (4. prąd), setFront (fala dziobowa),
  * pulse (fala uderzeniowa kliknięcia ze śladem precyzji za frontem).
  * Okresowo, gdy po prawej od kolumny tekstu jest miejsce, z pola wyłania się
@@ -55,6 +59,18 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   let emaDt = 16;
   let frames = 0;
   let lastT = 0;
+
+  // Limit FPS (lowPower) — klatki rAF szybsze niż MIN_FRAME_MS są pomijane.
+  // Margines 4 ms, żeby jitter vsync 60 Hz nie spychał do 20 fps.
+  const MIN_FRAME_MS = opts.lowPower ? 1000 / 30 - 4 : 0;
+  const DEGRADE_MS = opts.lowPower ? 48 : 24; // próg degradacji względem docelowego FPS
+  // Zegar wirtualny (ms): rośnie tylko, gdy pętla rysuje (max 100 ms na klatkę).
+  let clock = 0;
+
+  // Bezczynność: po IDLE_MS bez interakcji pętla staje (na stabilnej klatce).
+  const IDLE_MS = 6000;
+  let lastActivity = performance.now();
+  let lastFormE = 0; // obwiednia sygnetu z ostatniej klatki (stop tylko gdy 0 lub 1)
 
   const pointer = { x: 0, y: 0, dx: 0, dy: 0, active: false };
 
@@ -243,6 +259,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
     if (frontOn && formE > 0) {
       formE *= Math.min(1, Math.max(0, (frontY - (fb.y + fb.ry) + 160) / 180));
     }
+    lastFormE = formE;
 
     for (let d = 0; d < dots.length; d++) {
       const dot = dots[d];
@@ -430,24 +447,46 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
 
   const frame = (tMs: number) => {
     if (!running) return;
+    rafId = requestAnimationFrame(frame);
     if (lastT > 0) {
-      emaDt = emaDt * 0.9 + (tMs - lastT) * 0.1;
+      const dt = tMs - lastT;
+      if (dt < MIN_FRAME_MS) return; // limit FPS: pomiń tę klatkę rAF
+      clock += Math.min(dt, 100);
+      emaDt = emaDt * 0.9 + dt * 0.1;
       frames++;
-      if (frames === 90 && emaDt > 24 && !degraded) {
+      if (frames === 90 && emaDt > DEGRADE_MS && !degraded) {
         degraded = true;
         rebuild();
       }
     }
     lastT = tMs;
-    draw(tMs);
-    rafId = requestAnimationFrame(frame);
+    draw(clock);
+    // Bezczynność → stop, ale tylko na stabilnej klatce: sygnet w pełni złożony
+    // albo nieobecny, bez żywych fal kliknięć (żadnego zamrożenia w pół ruchu).
+    const settled = lastFormE === 0 || lastFormE === 1;
+    if (tMs - lastActivity > IDLE_MS && settled && waves.length === 0) stop();
   };
 
   const start = () => {
     if (running || paused || covered || opts.reducedMotion || !visible || document.hidden) return;
     running = true;
     lastT = 0;
+    lastActivity = performance.now(); // każde wznowienie = pełne okno IDLE_MS
     rafId = requestAnimationFrame(frame);
+  };
+
+  // Interakcja (ruch, scroll, dotyk, klawisz) przedłuża okno i budzi uśpioną pętlę.
+  const ACTIVITY_EVENTS = [
+    'pointermove',
+    'pointerdown',
+    'wheel',
+    'scroll',
+    'keydown',
+    'touchstart',
+  ];
+  const onActivity = () => {
+    lastActivity = performance.now();
+    if (!running) start();
   };
 
   const stop = () => {
@@ -482,6 +521,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   } else {
     start();
     document.addEventListener('visibilitychange', onVisibility);
+    for (const ev of ACTIVITY_EVENTS) window.addEventListener(ev, onActivity, { passive: true });
   }
 
   const io = new IntersectionObserver(([entry]) => {
@@ -525,7 +565,8 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
     },
     pulse(x, y) {
       if (opts.reducedMotion || paused) return;
-      waves.push({ x, y, t0: performance.now() / 1000 });
+      onActivity(); // tap w uśpioną scenę ją budzi (fala startuje od bieżącej klatki)
+      waves.push({ x, y, t0: clock / 1000 });
       if (waves.length > 4) waves.shift();
     },
     destroy() {
@@ -533,6 +574,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       io.disconnect();
       ro.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
+      for (const ev of ACTIVITY_EVENTS) window.removeEventListener(ev, onActivity);
     },
   };
 }

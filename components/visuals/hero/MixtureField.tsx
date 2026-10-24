@@ -8,6 +8,8 @@ import type { MixtureHandle } from './mixtureConfig';
  * (window.isPrerendering → canvas zostaje pusty, bazowe tło sceny niesie CSS).
  * Fade-in po pierwszej narysowanej klatce; reduced-motion dostaje jedną
  * statyczną klatkę (globalny reduced-motion CSS zeruje czas przejścia).
+ * Urządzenia dotykowe / ≤ 4 rdzenie (lowPower): limit ~30 fps. Pauzy (poza
+ * viewportem, karta w tle, bezczynność > 6 s) obsługuje silnik.
  *
  * Komponent zasila silnik zdarzeniami DOM (motion-safe):
  * - pointer: fine → wygładzony kierunek gestu (setPointer, „mieszanie"),
@@ -36,6 +38,8 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
     const host = canvas.closest('section') as HTMLElement | null;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const pointerFine = !reduced && window.matchMedia('(pointer: fine)').matches;
+    const lowPower =
+      window.matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcurrency ?? 8) <= 4;
 
     let handle: MixtureHandle | undefined;
     let cancelled = false;
@@ -94,6 +98,7 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
       if (cancelled) return;
       handle = startMixture(canvas, {
         reducedMotion: reduced,
+        lowPower,
         onFirstFrame: () => setReady(true),
       });
       handleRef.current = handle;

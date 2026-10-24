@@ -40,7 +40,6 @@ const CustomWebApp: React.FC = () => {
   const [pricingFailed, setPricingFailed] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService
       .getPricingSection('custom-web-app')
       .then((data) => {

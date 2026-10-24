@@ -102,9 +102,17 @@ const AuditWizard: React.FC = () => {
     if (result) setStep('EMAIL_GATE');
   };
 
+  // Turnstile (api.js ~85 kB) dopiero przy pierwszej interakcji z kreatorem, nie przy
+  // wejściu na stronę; wysyłka leada i tak poczeka na skrypt (getToken w trybie defer).
+  const prepareCaptcha = () => turnstileRef.current?.prepare?.();
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative overflow-hidden">
-      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
+    <div
+      className="min-h-screen bg-gray-50 flex flex-col relative overflow-hidden"
+      onFocusCapture={prepareCaptcha}
+      onPointerDownCapture={prepareCaptcha}
+    >
+      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
       <div className="absolute top-0 left-0 w-full h-[500px] bg-dark skew-y-3 origin-top-left z-0"></div>
       <Container className="relative z-10 py-12 flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">

@@ -169,6 +169,7 @@ const KnowledgeBase = () => {
                     <Image
                       src={article.image}
                       alt={article.title}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
 

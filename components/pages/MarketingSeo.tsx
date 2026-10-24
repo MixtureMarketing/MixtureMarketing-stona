@@ -57,7 +57,6 @@ const MarketingSeo: React.FC = () => {
   const roiRef = useSectionProgress<HTMLElement>(0.85);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService.getPricingSection('seo').then((data) => {
       if (data) {
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({

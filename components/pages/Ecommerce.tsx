@@ -34,7 +34,6 @@ const Ecommerce: React.FC = () => {
   const [pricingFailed, setPricingFailed] = useState(false);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService
       .getPricingSection('ecommerce')
       .then((data) => {

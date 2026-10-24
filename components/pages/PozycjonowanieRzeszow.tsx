@@ -151,7 +151,6 @@ const PozycjonowanieRzeszow: React.FC = () => {
         title="Pozycjonowanie Stron Rzeszów — Proces, Cennik, Efekty"
         description="Pozycjonowanie stron w Rzeszowie: jak działa, ile kosztuje i kiedy widać efekty. Lokalne i ogólnopolskie SEO dla firm z Podkarpacia — proces i cennik."
         canonical="/pozycjonowanie-rzeszow/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Pozycjonowanie Rzeszów', item: '/pozycjonowanie-rzeszow/' },

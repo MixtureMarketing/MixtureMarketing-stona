@@ -94,6 +94,8 @@ export interface FormDot {
 
 export interface MixtureOptions {
   reducedMotion: boolean;
+  /** Dotyk / ≤ 4 rdzenie: limit ~30 fps (połowa pracy wątku głównego na klatkę). */
+  lowPower?: boolean;
   /** Wywołane po pierwszej narysowanej klatce (fade-in canvasu). */
   onFirstFrame?: () => void;
 }

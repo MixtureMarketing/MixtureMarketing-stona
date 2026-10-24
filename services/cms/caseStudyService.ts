@@ -101,4 +101,27 @@ export const caseStudyService = {
       return [];
     }
   },
+
+  /**
+   * Strona case study: obecny projekt + „następny projekt”. `null` = brak dokumentu
+   * (NotFound); wyjątek z getCaseStudyBySlug = Sanity niedostępne (CmsErrorState, bez
+   * noindex). Lista do „następnego” przy błędzie zwraca [] — nawigacja po prostu znika.
+   */
+  async getCaseStudyPage(
+    slug: string,
+  ): Promise<{ project: SanityCaseStudy; nextProject: SanityCaseStudy | null } | null> {
+    const [current, all] = await Promise.all([
+      caseStudyService.getCaseStudyBySlug(slug),
+      caseStudyService.getCaseStudies(),
+    ]);
+    if (!current) return null;
+    const currentIndex = all.findIndex((p) => p.slug.current === slug);
+    let nextProject: SanityCaseStudy | null = null;
+    if (currentIndex !== -1 && currentIndex < all.length - 1) {
+      nextProject = all[currentIndex + 1];
+    } else if (all.length > 0 && all[0].slug.current !== slug) {
+      nextProject = all[0];
+    }
+    return { project: current, nextProject };
+  },
 };

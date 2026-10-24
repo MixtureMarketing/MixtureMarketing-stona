@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import imageUrlBuilder from '@sanity/image-url';
 import { client, cmsService } from '@/services/cmsService';
-import { SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
@@ -25,30 +24,9 @@ function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 
-// Obecny projekt + „następny projekt”. `null` = brak dokumentu (NotFound);
-// wyjątek z getCaseStudyBySlug = Sanity niedostępne (CmsErrorState, bez noindex).
-// Lista do „następnego” przy błędzie zwraca [] — nawigacja po prostu znika.
-async function fetchCaseStudy(
-  slug: string,
-): Promise<{ project: SanityCaseStudy; nextProject: SanityCaseStudy | null } | null> {
-  const [current, all] = await Promise.all([
-    cmsService.getCaseStudyBySlug(slug),
-    cmsService.getCaseStudies(),
-  ]);
-  if (!current) return null;
-  const currentIndex = all.findIndex((p) => p.slug.current === slug);
-  let nextProject: SanityCaseStudy | null = null;
-  if (currentIndex !== -1 && currentIndex < all.length - 1) {
-    nextProject = all[currentIndex + 1];
-  } else if (all.length > 0 && all[0].slug.current !== slug) {
-    nextProject = all[0];
-  }
-  return { project: current, nextProject };
-}
-
 const CaseStudyTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { status, data, retry } = useCmsDocument(slug, fetchCaseStudy);
+  const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage);
   const project = data?.project ?? null;
   const nextProject = data?.nextProject ?? null;
   const [activeAsset, setActiveAsset] = useState<{ asset: SanityImage; caption?: string } | null>(
@@ -71,7 +49,6 @@ const CaseStudyTemplate = () => {
       <Seo
         title={`${project.title} - Case Study Mixture Marketing`}
         description={project.excerpt || `Zobacz realizację dla klienta ${project.client}`}
-        lcpImage={project.mainImage ? urlFor(project.mainImage).width(1200).url() : undefined}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Article',
