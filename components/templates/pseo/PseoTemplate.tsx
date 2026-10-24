@@ -9,6 +9,7 @@ import CmsErrorState from '../../common/CmsErrorState';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
 import { industryAudience } from '../../../utils/seo/title';
+import { industryDescription } from '../../../utils/seo/description';
 
 interface PseoTemplateProps {
   mode: 'industry' | 'location';
@@ -64,7 +65,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
       {isIndustry(data) ? (
         <Seo
           title={`Marketing i Strony WWW ${industryAudience(data.forWho, data.name)}`}
-          description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
+          description={industryDescription(data.name, data.painPoints)}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
             { name: 'Branże', item: '/branza/' },
