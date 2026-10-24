@@ -2,7 +2,7 @@ export interface Article {
   id: string;
   title: string;
   description: string;
-  category: 'tech' | 'marketing' | 'design' | 'analytics';
+  category: 'tech' | 'marketing' | 'design' | 'analytics' | 'business';
   categoryLabel: string;
   image: string;
   date: string;

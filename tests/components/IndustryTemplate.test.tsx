@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import PseoTemplate from '../../components/templates/pseo/PseoTemplate';
-import { cmsService, SanityIndustry } from '../../services/cmsService';
+import { cmsService, SanityIndustry, SanityLocation } from '../../services/cmsService';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ModalProvider } from '../../context/ModalContext';
 import { HelmetProvider } from 'react-helmet-async';
@@ -54,5 +54,33 @@ describe('PseoTemplate', () => {
       },
       { timeout: 2000 },
     );
+  });
+
+  it('/miasto/rzeszow/: <title> lokalnego huba różni się od strony głównej (bez kanibalizacji)', async () => {
+    vi.mocked(cmsService.getLocationBySlug).mockResolvedValue({
+      _id: 'loc-rzeszow',
+      city: 'Rzeszów',
+      slug: { current: 'rzeszow' },
+      genitive: 'Rzeszowa',
+      businessContext: 'Stolica Podkarpacia.',
+    } as unknown as SanityLocation);
+
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={['/miasto/rzeszow/']}>
+          <ModalProvider>
+            <Routes>
+              <Route path="/miasto/:slug" element={<PseoTemplate mode="location" />} />
+            </Routes>
+          </ModalProvider>
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    await waitFor(() => expect(document.title).toMatch(/^Rzeszów i Podkarpacie/), {
+      timeout: 2000,
+    });
+    // Tytuł strony głównej (components/pages/Home.tsx) zaczyna się od tej frazy.
+    expect(document.title).not.toMatch(/^Agencja Marketingowa Rzeszów/);
   });
 });

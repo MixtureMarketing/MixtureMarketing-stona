@@ -464,6 +464,25 @@ const FAQ = [
   },
 ];
 
+// Linki w sekcji #porownanie — opisy bez nowych twierdzeń (treść żyje na podstronach).
+const COMPARE_LINKS = [
+  {
+    title: 'Mixture vs Wix',
+    desc: 'Abonament z obsługą czy kreator do samodzielnej pracy — porównanie cech.',
+    href: '/abonament/vs-wix/',
+  },
+  {
+    title: 'Mixture vs Orange KlikAI',
+    desc: 'Abonament z obsługą czy kreator AI — porównanie cech.',
+    href: '/abonament/vs-orange-klikai/',
+  },
+  {
+    title: 'Professional — branże regulowane',
+    desc: PROFESSIONAL_TIER.tagline,
+    href: '/abonament/professional/',
+  },
+];
+
 const RELATED = [
   {
     tag: 'Rzeszów',
@@ -1844,6 +1863,37 @@ const Abonament: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Podstrony porównań i Professional nie miały żadnego linku wewnętrznego
+              (znane Google wyłącznie z sitemapy) — linkujemy je w kontekście porównania. */}
+          <nav aria-labelledby="abonament-compare-links" className="mt-16">
+            <h3
+              id="abonament-compare-links"
+              className="text-lg font-black text-slate-950 mb-5 text-center"
+            >
+              Porównania i wersja dla branż regulowanych
+            </h3>
+            <ul className="grid md:grid-cols-3 gap-4">
+              {COMPARE_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    to={l.href}
+                    className="group flex h-full items-center justify-between gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-indigo-300 hover:bg-white transition-colors"
+                  >
+                    <span>
+                      <span className="block font-bold text-slate-950">{l.title}</span>
+                      <span className="block text-sm text-slate-600 mt-1">{l.desc}</span>
+                    </span>
+                    <ArrowRight
+                      size={18}
+                      aria-hidden="true"
+                      className="shrink-0 text-slate-500 group-hover:text-indigo-600 transition-colors"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </Container>
       </section>
 

@@ -43,5 +43,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
 /**
  * Segmenty ścieżki, które nie mają własnej strony (brak trasy → 404).
  * Okruszek renderuje się jako tekst, bez linku.
+ * /branza ma hub (components/pages/IndustryHub.tsx). /miasto celowo bez huba —
+ * strony miast poza Rzeszowem są noindex.
  */
-export const BREADCRUMBS_NO_PAGE: ReadonlySet<string> = new Set(['/branza', '/miasto']);
+export const BREADCRUMBS_NO_PAGE: ReadonlySet<string> = new Set(['/miasto']);

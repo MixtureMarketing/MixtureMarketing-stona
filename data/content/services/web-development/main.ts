@@ -241,6 +241,12 @@ export const WEB_DEV_CONTENT = {
         },
       ],
     },
+    // Link do artykułu BOFU z rozbiciem kosztów (wcześniej bez żadnego linku wewnętrznego).
+    costGuide: {
+      lead: 'Widełki cenowe dla poszczególnych typów stron i to, co wpływa na koszt:',
+      label: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku — pełny cennik',
+      path: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
+    },
   },
   /**
    * Poprawione 2026-07-15. Dwa problemy:

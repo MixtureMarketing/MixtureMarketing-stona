@@ -16,6 +16,12 @@ interface Settled<T> {
 }
 
 type Fetcher<T> = (slug: string) => Promise<T | null>;
+
+/**
+ * Stały klucz dla stron-list bez sluga (np. hub /branza/): ten sam hook i ten sam
+ * preload (config/routes.tsx) co szablony dokumentów, fetcher ignoruje argument.
+ */
+export const CMS_LIST_KEY = 'list';
 type Primed = { status: 'ok' | 'notfound'; data: unknown };
 
 // Dane pobrane PRZED pierwszym renderem (preloadRoute w index.tsx przy starcie z

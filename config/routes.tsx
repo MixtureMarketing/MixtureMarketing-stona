@@ -69,6 +69,7 @@ const CiCdArticle = lazy(() => import('@/components/articles/CiCdArticle'));
 const DevOpsArticle = lazy(() => import('@/components/articles/DevOpsArticle'));
 const ArticleTemplate = lazy(() => import('@/components/templates/ArticleTemplate'));
 const PseoTemplate = lazy(() => import('@/components/templates/pseo/PseoTemplate'));
+const IndustryHub = lazy(() => import('@/components/pages/IndustryHub'));
 const PortfolioPage = lazy(() => import('@/components/pages/PortfolioPage'));
 const CaseStudyTemplate = lazy(() => import('@/components/templates/CaseStudyTemplate'));
 const Home = lazy(() => import('@/components/pages/Home')); // We will extract Home to a page component
@@ -251,6 +252,9 @@ export const appRoutes: RouteObject[] = [
   // Dynamic CMS Article Route
   { path: '/baza-wiedzy/:slug', element: <ArticleTemplate /> },
 
+  // Hub branż (lista z Sanity) — cel okruszka „Branże” i linków do /branza/:slug.
+  { path: '/branza', element: <IndustryHub /> },
+
   // Dynamic Industry Route
   { path: '/branza/:slug', element: <PseoTemplate mode="industry" /> },
 
@@ -284,14 +288,20 @@ const CMS_DOCUMENT: Record<string, (cms: CmsService) => (slug: string) => Promis
   '/portfolio/:slug': (cms) => cms.getCaseStudyPage,
 };
 
+/** Strony-listy (bez :slug) — fetcher wołany ze stałym kluczem CMS_LIST_KEY. */
+const CMS_LIST: Record<string, (cms: CmsService) => (key: string) => Promise<unknown>> = {
+  '/branza': (cms) => cms.getIndustryList,
+};
+
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {
-  const pick = path ? CMS_DOCUMENT[path] : undefined;
-  if (!pick || !slug) return;
-  const [{ cmsService }, { primeCmsDocument }] = await Promise.all([
+  const pick = path ? (CMS_DOCUMENT[path] ?? CMS_LIST[path]) : undefined;
+  const isList = !!path && path in CMS_LIST;
+  if (!pick || (!slug && !isList)) return;
+  const [{ cmsService }, { primeCmsDocument, CMS_LIST_KEY }] = await Promise.all([
     import('@/services/cmsService'),
     import('@/hooks/useCmsDocument'),
   ]);
-  await primeCmsDocument(pick(cmsService), slug);
+  await primeCmsDocument(pick(cmsService), isList ? CMS_LIST_KEY : (slug as string));
 };
 
 /**

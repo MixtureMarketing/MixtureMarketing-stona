@@ -12,15 +12,15 @@ function renderAt(path: string) {
 }
 
 describe('Breadcrumbs', () => {
-  it('segment bez własnej strony (/branza) jest tekstem, nie linkiem do 404', () => {
+  it('/branza ma hub — okruszek „Branże” linkuje do /branza/', () => {
     renderAt('/branza/medycyna/');
-    expect(screen.getByText('Branże').closest('a')).toBeNull();
-    expect(document.querySelector('a[href="/branza/"]')).toBeNull();
+    expect(screen.getByText('Branże').closest('a')?.getAttribute('href')).toBe('/branza/');
   });
 
-  it('/miasto ma polską etykietę i brak linku', () => {
+  it('segment bez własnej strony (/miasto) jest tekstem, nie linkiem do 404', () => {
     renderAt('/miasto/rzeszow/');
     expect(screen.getByText('Miasta').closest('a')).toBeNull();
+    expect(document.querySelector('a[href="/miasto/"]')).toBeNull();
   });
 
   it('segment z własną stroną nadal linkuje', () => {

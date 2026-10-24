@@ -67,6 +67,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
+            { name: 'Branże', item: '/branza/' },
             { name: `Branża: ${data.name}`, item: `/branza/${slug}/` },
           ]}
           service={{
@@ -77,14 +78,17 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
         />
       ) : (
         <Seo
+          // /miasto/rzeszow/ = lokalny hub (Rzeszów + Podkarpacie). Tytuł celowo inny niż
+          // strony głównej („Agencja Marketingowa Rzeszów — …”): dwa niemal identyczne
+          // <title> konkurowały o tę samą frazę (kanibalizacja, raport SEO W7).
           title={
             slug === 'rzeszow'
-              ? 'Agencja Marketingowa Rzeszów — SEO, WWW, Ads'
+              ? 'Rzeszów i Podkarpacie — strony WWW, SEO i reklamy'
               : data.seoTitle || `Agencja Marketingowa ${data.city}`
           }
           description={
             slug === 'rzeszow'
-              ? 'Agencja marketingowa Rzeszów: strony WWW, sklepy, SEO, Google Ads, branding. Spotkania u klienta w Rzeszowie i na Podkarpaciu lub online. Wycena w 24h.'
+              ? 'Dla firm z Rzeszowa i Podkarpacia: strony WWW, sklepy, SEO, Google Ads, branding. Spotkania u klienta na miejscu lub online. Wycena w 24h.'
               : data.seoDescription ||
                 `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Check, Plus } from 'lucide-react';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
@@ -24,7 +25,7 @@ import { WEB_DEV_CONTENT } from '../../../data/content';
  */
 const WebDevInfrastructure: React.FC = () => {
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
-  const { included, optional } = WEB_DEV_CONTENT.infrastructure;
+  const { included, optional, costGuide } = WEB_DEV_CONTENT.infrastructure;
 
   return (
     <section
@@ -78,6 +79,16 @@ const WebDevInfrastructure: React.FC = () => {
             </div>
           ))}
         </div>
+
+        <p className="mx-auto mt-14 max-w-2xl text-center leading-relaxed text-gray-700">
+          {costGuide.lead}{' '}
+          <Link
+            to={costGuide.path}
+            className="font-bold text-secondary underline underline-offset-4 hover:text-primary"
+          >
+            {costGuide.label}
+          </Link>
+        </p>
       </Container>
     </section>
   );

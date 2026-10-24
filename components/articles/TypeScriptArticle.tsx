@@ -29,7 +29,7 @@ const TypeScriptArticle = () => {
       description={content.header.subtitle}
       category="tech"
       categoryLabel={content.header.badge}
-      image={articleData?.image || '/assets/images/typescript.png'}
+      image={articleData?.image || '/assets/images/og-main.png'}
       icon={ShieldCheck}
       accentColor="#3178C6"
       heroVisual={<TypeScriptScanner />}

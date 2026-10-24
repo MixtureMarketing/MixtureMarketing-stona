@@ -108,6 +108,9 @@ export const FOOTER_CONTENT = {
         { label: 'Meta Ads', path: '/marketing/meta-ads/' },
         { label: 'Audyt SEO', path: '/marketing/seo/' },
         { label: 'Branding', path: '/design/branding/' },
+        // /offers/ i hub /branza/ nie miały wcześniej żadnego linku wewnętrznego.
+        { label: 'Branże', path: '/branza/' },
+        { label: 'Cała oferta', path: '/offers/' },
       ],
     },
     // Sekcja lokalna — sygnal dla Google ze strona ma realna ofertę dla Rzeszowa.
