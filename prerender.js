@@ -67,8 +67,21 @@ async function waitForServer(port, timeout = 60000) {
 // /o-nas/, /privacy-policy/.)
 const helmetFailures = [];
 
+// Kazda strona w OSOBNYM oknie, nie w karcie. W nowym headless Chrome
+// `browser.newPage()` otwiera karte we wspolnym oknie i WIDOCZNA jest tylko
+// ostatnio otwarta — pozostale maja `document.visibilityState === 'hidden'`
+// i nie dostaja klatek, wiec requestAnimationFrame nigdy nie odpala.
+// react-helmet-async (defer=true, domyslnie) commituje head WLASNIE w rAF,
+// wiec przy MAX_CONCURRENCY > 1 strony "przykryte" przez nowsza karte
+// wisialy 30s na waicie Helmeta i szly do rundy naprawczej (CI: 12 tras
+// przy concurrency 8; lokalnie 8 przy 4 i 18 przy 8). Flagi
+// --disable-*-throttling/backgrounding tego nie lecza — dotycza timerow,
+// nie produkcji klatek. Osobne okno = kazda strona visible i z rAF.
+// (Bonus: IntersectionObserver/LazyHydrate tez dzialaja jak w jedynej karcie.)
+const openPage = (browser) => browser.newPage({ type: 'window' });
+
 async function processRoute(browser, critters, route, attempt = 1) {
-  const page = await browser.newPage();
+  const page = await openPage(browser);
   let pageClosed = false;
   const closePage = async () => {
     if (pageClosed) return;
@@ -115,6 +128,11 @@ async function processRoute(browser, critters, route, attempt = 1) {
         { timeout: 30000, polling: 200 },
       );
     } catch {
+      // Diagnostyka: strona ukryta = brak klatek = Helmet (rAF) nie zacommituje heada.
+      const visibility = await page.evaluate(() => document.visibilityState).catch(() => '?');
+      if (visibility !== 'visible') {
+        console.warn(`⚠️ ${route}: document.visibilityState=${visibility} (brak rAF)`);
+      }
       if (attempt === 1) {
         // Nie retry'ujemy inline: w fazie przeciazenia retry laduje w tym
         // samym scisku i tez pada (run 29654122582). Trasa idzie do
@@ -282,7 +300,7 @@ async function prerender() {
     // 30s wait Helmeta i zapisywala strony bez heada (patrz helmetFailures).
     console.log('🔥 Warm-up render (throwaway)...');
     try {
-      const warmup = await browser.newPage();
+      const warmup = await openPage(browser);
       await warmup.goto(`http://localhost:${PORT}/`, {
         waitUntil: 'networkidle0',
         timeout: 90000,
@@ -318,8 +336,13 @@ async function prerender() {
       }
     };
 
+    const parallelStart = Date.now();
     for (let i = 0; i < MAX_CONCURRENCY; i++) workers.push(next());
     await Promise.all(workers);
+    console.log(
+      `⏱️ Faza rownolegla (concurrency ${MAX_CONCURRENCY}): ${((Date.now() - parallelStart) / 1000).toFixed(1)}s, ` +
+        `do rundy naprawczej: ${retryQueue.length}`,
+    );
 
     // Runda naprawcza: trasy z timeoutem Helmeta ponawiamy SEKWENCYJNIE po
     // oproznieniu kolejki — jedna aktywna strona, zero konkurencji o CPU/rAF.
@@ -344,7 +367,7 @@ async function prerender() {
     // wiec Google dostaje poprawny sygnal: 404 + noindex.
     console.log('📄 Prerendering /404.html for Pages fallback...');
     try {
-      const page = await browser.newPage();
+      const page = await openPage(browser);
       await page.setViewport({ width: 1280, height: 800 });
       await page.evaluateOnNewDocument(() => {
         window.isPrerendering = true;
