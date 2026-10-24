@@ -163,13 +163,13 @@ const SUBPROCESSORS = [
     name: 'Anthropic Claude',
     service: 'AI text generation (only Premium+; OFF in Professional)',
     location: 'US',
-    dpa: 'anthropic.com/dpa',
+    dpa: 'www.anthropic.com/legal/data-processing-addendum',
   },
   {
     name: 'Stripe',
     service: 'Subskrypcje + płatności',
     location: 'IE (EU)',
-    dpa: 'stripe.com/dpa',
+    dpa: 'stripe.com/legal/dpa',
   },
   { name: 'Resend', service: 'Transactional emails', location: 'US', dpa: 'resend.com/legal/dpa' },
   {
@@ -453,11 +453,8 @@ const Professional: React.FC = () => {
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-8 max-w-2xl mx-auto">
-            Uptime mierzone publicznie. Status page będzie dostępny pod{' '}
-            <a href="https://status.mixturemarketing.pl" className="text-amber-700 hover:underline">
-              status.mixturemarketing.pl
-            </a>{' '}
-            (uruchomienie w Q3 2026). Aktualnie metryki w panelu klienta.
+            Metryki dostępności (uptime) udostępniamy w panelu klienta. Publiczna strona statusu
+            jest w przygotowaniu.
           </p>
         </Container>
       </section>
