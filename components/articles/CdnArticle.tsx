@@ -240,28 +240,28 @@ const CdnArticle = () => {
               icon={<ShieldAlert className="text-rose-500" />}
               title="WAF: Twoja tarcza w Internecie"
               desc="Jak skutecznie blokować ataki SQL Injection i złośliwe boty?"
-              target="/baza-wiedzy/waf-bezpieczenstwo"
+              target="/baza-wiedzy/waf-bezpieczenstwo/"
               status="ready"
             />
             <TopicLink
               icon={<FileCode className="text-blue-500" />}
               title="Edge Computing: Kod na krańcu"
               desc="Serverless bez opóźnień. Poznaj Cloudflare Workers i Lambda@Edge."
-              target="/baza-wiedzy/edge-computing"
+              target="/baza-wiedzy/edge-computing/"
               status="ready"
             />
             <TopicLink
               icon={<Layout className="text-emerald-500" />}
               title="Core Web Vitals in 2025"
               desc="Kompletna strategia optymalizacji LCP, FID i CLS dla Google."
-              target="/baza-wiedzy/core-web-vitals-2025"
+              target="/baza-wiedzy/core-web-vitals-2025/"
               status="ready"
             />
             <TopicLink
               icon={<ImageIcon className="text-purple-500" />}
               title="Formaty jutra: WebP i AVIF"
               desc="Dlaczego Twoja strona wciąż używa ciężkich plików JPEG?"
-              target="/baza-wiedzy/optymalizacja-obrazow-webp-avif"
+              target="/baza-wiedzy/optymalizacja-obrazow-webp-avif/"
               status="ready"
             />
           </div>
@@ -275,7 +275,7 @@ const CdnArticle = () => {
         buttonText={CONTENT.cta.primaryBtn}
         onClick={() => openModal('consultation')}
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="dark"
       />
     </ArticleShell>

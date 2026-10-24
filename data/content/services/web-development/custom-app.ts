@@ -52,7 +52,7 @@ export const CUSTOM_WEB_APP_CONTENT = {
       },
     ],
     linkLabel: 'Zobacz case study: KorepetytorAI',
-    linkTo: '/portfolio/studentpi',
+    linkTo: '/portfolio/studentpi/',
   },
   useCases: {
     title: 'Co możemy dla Ciebie zbudować?',
@@ -109,22 +109,22 @@ export const CUSTOM_WEB_APP_CONTENT = {
     groups: [
       {
         label: 'Backend',
-        link: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto',
+        link: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/',
         items: ['Node.js', 'Python (Django)', 'Laravel'],
       },
       {
         label: 'Front',
-        link: '/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto',
+        link: '/baza-wiedzy/frontend-bez-tajemnic-kompendium-cto/',
         items: ['React', 'Next.js', 'Vue.js', 'Tailwind'],
       },
       {
         label: 'Dane',
-        link: '/baza-wiedzy/bazy-danych-kompendium-architekta',
+        link: '/baza-wiedzy/bazy-danych-kompendium-architekta/',
         items: ['PostgreSQL', 'Redis', 'MongoDB', 'Elasticsearch'],
       },
       {
         label: 'Zaplecze',
-        link: '/baza-wiedzy/devops-fundament-nowoczesnego-biznesu',
+        link: '/baza-wiedzy/devops-fundament-nowoczesnego-biznesu/',
         items: ['Docker', 'Kubernetes', 'CI/CD', 'Cloudflare'],
       },
     ],

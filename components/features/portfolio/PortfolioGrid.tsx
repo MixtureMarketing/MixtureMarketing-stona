@@ -116,7 +116,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                 <div className="mb-4">
                   <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     <Link
-                      to={`/portfolio/${project.slug}`}
+                      to={`/portfolio/${project.slug}/`}
                       className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
                     >
                       {project.title}

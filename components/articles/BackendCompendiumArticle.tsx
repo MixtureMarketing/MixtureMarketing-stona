@@ -219,7 +219,7 @@ const BackendCompendiumArticle = () => {
         buttonText={content.cta.primaryBtn}
         onClick={() => openModal('consultation')}
         secondaryButtonText={content.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="dark"
       />
     </ArticleShell>

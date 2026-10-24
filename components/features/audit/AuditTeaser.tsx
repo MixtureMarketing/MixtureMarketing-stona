@@ -47,7 +47,7 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
     if (!cleanUrl.startsWith('http')) {
       cleanUrl = `https://${cleanUrl}`;
     }
-    navigate(`/audyt-360?url=${encodeURIComponent(cleanUrl)}`);
+    navigate(`/audyt-360/?url=${encodeURIComponent(cleanUrl)}`);
   };
 
   return (

@@ -170,7 +170,7 @@ const WebDevRealizations: React.FC = () => {
             </p>
           </div>
           <Link
-            to="/portfolio"
+            to="/portfolio/"
             className="group inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-bold text-white transition-colors hover:border-white/40 hover:bg-white/10"
           >
             Zobacz wszystkie realizacje
@@ -188,7 +188,7 @@ const WebDevRealizations: React.FC = () => {
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-10 text-center">
             <p className="text-white/75">
               Nie udało się załadować realizacji.{' '}
-              <Link to="/portfolio" className="font-bold text-primary hover:underline">
+              <Link to="/portfolio/" className="font-bold text-primary hover:underline">
                 Przejdź do pełnego portfolio
               </Link>
               .
@@ -204,7 +204,7 @@ const WebDevRealizations: React.FC = () => {
             style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 40px), 0)' }}
           >
             <Link
-              to={`/portfolio/${lead.slug}`}
+              to={`/portfolio/${lead.slug}/`}
               className="group block overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] transition-colors hover:border-primary/50 lg:grid lg:grid-cols-2 lg:items-center"
             >
               <div className="relative overflow-hidden">
@@ -283,7 +283,7 @@ const WebDevRealizations: React.FC = () => {
             return (
               <div key={item._id} className="mb-6 break-inside-avoid">
                 <Link
-                  to={`/portfolio/${item.slug}`}
+                  to={`/portfolio/${item.slug}/`}
                   className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-colors hover:border-primary/50"
                 >
                   <div className="relative overflow-hidden">

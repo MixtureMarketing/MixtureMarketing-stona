@@ -252,9 +252,9 @@ const RedisArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/web-development"
+        buttonLink="/web-development/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#213261"
         variant="dark"
       />

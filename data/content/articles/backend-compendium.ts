@@ -40,7 +40,7 @@ export const BACKEND_COMPENDIUM_CONTENT = {
         desc: 'Używa tego samego języka (JavaScript) co frontend. Idealny do aplikacji działających w czasie rzeczywistym i szybkiego skalowania startupów.',
         for: 'Uber, Chat, Streaming, Real-time',
         linkText: 'Poznaj potęgę Node.js',
-        linkUrl: '/baza-wiedzy/nodejs-jeden-jezyk',
+        linkUrl: '/baza-wiedzy/nodejs-jeden-jezyk/',
       },
       {
         name: 'Python (Django)',
@@ -53,7 +53,7 @@ export const BACKEND_COMPENDIUM_CONTENT = {
         desc: 'Złoty standard w Fintech i AI. Oferuje najwyższe bezpieczeństwo "out of the box" i najszybszą drogę do wdrożenia zaawansowanej logiki.',
         for: 'Fintech, SaaS, AI & Data Science',
         linkText: 'Dlaczego Python to bezpieczeństwo?',
-        linkUrl: '/baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp',
+        linkUrl: '/baza-wiedzy/python-django-bezpieczenstwo-fintech-mvp/',
       },
       {
         name: 'Go (Golang)',
@@ -66,7 +66,7 @@ export const BACKEND_COMPENDIUM_CONTENT = {
         desc: 'Stworzony przez Google do ogromnej skali. Zapewnia brutalną wydajność przy minimalnym zużyciu zasobów serwera. Idealny do mikroserwisów.',
         for: 'Mikroserwisy, High-load, Infrastruktura',
         linkText: 'Sprawdź wydajność Go',
-        linkUrl: '/baza-wiedzy/go-golang-jezyk-chmury',
+        linkUrl: '/baza-wiedzy/go-golang-jezyk-chmury/',
       },
       {
         name: 'Laravel (PHP)',
@@ -79,7 +79,7 @@ export const BACKEND_COMPENDIUM_CONTENT = {
         desc: 'Król szybkości wdrożenia. Posiada gotowe moduły niemal do wszystkiego, co pozwala zbudować MVP w rekordowym czasie.',
         for: 'E-commerce, B2B, Startupy (MVP)',
         linkText: 'Dlaczego warto wybrać Laravel?',
-        linkUrl: '/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie',
+        linkUrl: '/baza-wiedzy/laravel-php-framework-szybkie-wdrozenie/',
       },
     ],
   },
@@ -98,7 +98,7 @@ export const BACKEND_COMPENDIUM_CONTENT = {
       verdict: 'Wybierz, gdy dane szybko się zmieniają.',
     },
     linkText: 'Zobacz pełne Kompendium Baz Danych',
-    linkUrl: '/baza-wiedzy/bazy-danych-kompendium-architekta',
+    linkUrl: '/baza-wiedzy/bazy-danych-kompendium-architekta/',
   },
   part4: {
     title: 'Część 4: Monolit czy Mikroserwisy?',

@@ -403,7 +403,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
-              to="/offers#calculator"
+              to="/wycena/"
               className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-full font-bold hover:bg-secondary/90 transition-colors no-underline"
             >
               Otwórz kalkulator
@@ -557,7 +557,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
-                to="/offers#calculator"
+                to="/wycena/"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-white text-secondary rounded-full font-bold hover:bg-gray-100 transition-colors no-underline shadow-lg"
               >
                 <Calculator size={18} />
@@ -613,7 +613,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
               icon: Award,
               title: 'Core Web Vitals 2025',
               desc: 'Jak mierzyć i poprawiać wydajność strony pod Google Page Experience',
-              link: '/baza-wiedzy/core-web-vitals-2025',
+              link: '/baza-wiedzy/core-web-vitals-2025/',
               color: 'from-orange-50 to-white',
               chip: 'bg-orange-100 text-orange-700',
             },

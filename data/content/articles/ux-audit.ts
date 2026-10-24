@@ -12,7 +12,7 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
       'Wydajesz tysiące złotych na Facebook Ads i Google Ads. Statystyki rosną, użytkownicy wchodzą na stronę... i wychodzą. Koszyki są porzucane, a słupki sprzedaży stoją w miejscu.',
     text: 'Zanim zwolnisz agencję marketingową lub obniżysz ceny produktów, zadaj sobie pytanie: <strong>Czy w moim sklepie da się w ogóle wygodnie kupować?</strong>',
     support:
-      '<strong>Szukasz wsparcia?</strong> Sprawdź naszą usługę <a href="/design/ui-ux" class="text-secondary font-bold hover:underline">Projektowania UI/UX</a> lub zamów profesjonalny <a href="/design/visual-audit" class="text-secondary font-bold hover:underline">Audyt Wizualny</a>.',
+      '<strong>Szukasz wsparcia?</strong> Sprawdź naszą usługę <a href="/design/ui-ux/" class="text-secondary font-bold hover:underline">Projektowania UI/UX</a> lub zamów profesjonalny <a href="/design/visual-audit/" class="text-secondary font-bold hover:underline">Audyt Wizualny</a>.',
   },
   definition: {
     title: 'Czym właściwie jest Audyt UX?',

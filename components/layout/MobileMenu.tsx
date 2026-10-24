@@ -175,7 +175,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
           <Link
             to="/contact/"
             onClick={() => setIsOpen(false)}
-            className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-2xl font-black transition-all ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} ${location.pathname === '/contact' ? 'text-accent-dark' : 'text-dark'}`}
+            className={`flex items-center gap-4 px-4 py-4 rounded-2xl text-2xl font-black transition-all ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'} ${location.pathname === '/contact' || location.pathname === '/contact/' ? 'text-accent-dark' : 'text-dark'}`}
             style={{ transitionDelay: '250ms' }}
             aria-label={`Przejdź do sekcji ${CONTENT.contact.toLowerCase()}`}
           >

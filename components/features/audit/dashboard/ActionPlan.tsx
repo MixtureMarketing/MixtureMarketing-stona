@@ -89,7 +89,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ auditResults, errorDetails }) =
         <div className="mt-6 pt-5 border-t border-gray-100 text-center">
           <p className="text-gray-500 text-[13px] mb-3">Nie masz czasu na samodzielne naprawy?</p>
           <a
-            href="/kontakt"
+            href="/contact/"
             target="_blank"
             className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
           >

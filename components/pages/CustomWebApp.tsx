@@ -94,7 +94,7 @@ const CustomWebApp: React.FC = () => {
           ctaPrimaryText="Umów darmową rozmowę"
           ctaPrimaryOnClick={openConsult}
           ctaSecondaryText="Wyceń aplikację"
-          ctaSecondaryOnClick={() => navigate('/offers#calculator?type=custom')}
+          ctaSecondaryOnClick={() => navigate('/wycena/')}
           ctaSecondaryIcon={Calculator}
           backLinkPath="/web-development/"
           backLinkLabel="Web Development"
@@ -136,7 +136,7 @@ const CustomWebApp: React.FC = () => {
                 Policz widełki dla swojej aplikacji w kalkulatorze — zajmuje to około minuty.
               </p>
               <Link
-                to="/offers#calculator?type=custom"
+                to="/wycena/"
                 className="mt-5 inline-flex items-center gap-2 font-bold text-secondary underline-offset-4 hover:underline"
               >
                 Przejdź do kalkulatora wyceny

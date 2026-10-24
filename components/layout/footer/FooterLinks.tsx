@@ -52,7 +52,7 @@ const FooterLinks: React.FC<FooterLinksProps> = ({
         {showCalculator && (
           <li>
             <Link
-              to="/offers#calculator"
+              to="/wycena/"
               className="hover:text-white transition-colors flex items-center gap-2 group"
             >
               <ArrowRight

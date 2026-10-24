@@ -46,7 +46,7 @@ const PseoIndustryContent: React.FC<PseoIndustryContentProps> = ({ data }) => {
           </Button>
           <Button
             variant="secondary"
-            onClick={() => navigate('/offers#calculator')}
+            onClick={() => navigate('/wycena/')}
             icon={<Calculator size={18} />}
           >
             Wyceń projekt

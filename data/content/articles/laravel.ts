@@ -10,7 +10,7 @@ export const LARAVEL_ARTICLE_CONTENT = {
   contextBox: {
     text: 'Ten artykuł jest częścią serii <strong>Backend Architecture</strong>.',
     linkText: 'Zobacz pełne porównanie: Node vs Python vs Go vs Laravel',
-    linkUrl: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto',
+    linkUrl: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/',
   },
   lead: {
     highlight:

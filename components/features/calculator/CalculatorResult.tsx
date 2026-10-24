@@ -23,7 +23,7 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset
     </p>
     <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
       <Link
-        to="/contact"
+        to="/contact/"
         className="px-6 py-3 rounded-xl bg-primary text-dark font-semibold hover:brightness-110 transition"
       >
         Umów rozmowę

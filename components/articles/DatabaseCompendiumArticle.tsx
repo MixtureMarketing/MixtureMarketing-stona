@@ -292,9 +292,9 @@ const DatabaseCompendiumArticle = () => {
         title={content.cta.title}
         description={content.cta.text}
         buttonText={content.cta.primaryBtn}
-        buttonLink="/contact"
+        buttonLink="/contact/"
         secondaryButtonText={content.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#336791"
         variant="dark"
       />

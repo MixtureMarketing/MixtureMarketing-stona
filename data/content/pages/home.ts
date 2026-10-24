@@ -33,7 +33,7 @@ export const SERVICES_CONTENT = {
   items: [
     {
       key: 'web',
-      path: '/web-development',
+      path: '/web-development/',
       title: 'Web Development',
       subtitle: 'Strony & Sklepy',
       desc: 'Twój biznes online musi być szybki i niezawodny. Budujemy dedykowane strony i sklepy, które nie tylko wyglądają, ale przede wszystkim sprzedają.',
@@ -42,7 +42,7 @@ export const SERVICES_CONTENT = {
     },
     {
       key: 'marketing',
-      path: '/marketing',
+      path: '/marketing/',
       title: 'Marketing Cyfrowy',
       subtitle: 'Ads & SEO',
       desc: 'Przestań przepalać budżet. Wdrażamy kampanie performance, gdzie liczy się zwrot z inwestycji (ROAS), a nie puste zasięgi.',
@@ -51,7 +51,7 @@ export const SERVICES_CONTENT = {
     },
     {
       key: 'design',
-      path: '/design',
+      path: '/design/',
       title: 'Grafika & Design',
       subtitle: 'Branding & UI',
       desc: 'Ludzie kupują oczami. Projektujemy spójną identyfikację wizualną, która buduje zaufanie i wyróżnia Cię na tle konkurencji.',
@@ -60,7 +60,7 @@ export const SERVICES_CONTENT = {
     },
     {
       key: 'saas',
-      path: '/abonament',
+      path: '/abonament/',
       title: 'Strona w abonamencie',
       subtitle: 'SaaS · od 179 zł/mc',
       desc: 'Cały pakiet — strona, SEO, leady — w jednej miesięcznej cenie. Idealne dla mikrofirm które nie chcą inwestować jednorazowo 10 tys. zł.',

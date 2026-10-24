@@ -212,9 +212,9 @@ const WafArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/web-development/custom-app"
+        buttonLink="/web-development/custom-app/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#E1306C"
         variant="dark"
       />

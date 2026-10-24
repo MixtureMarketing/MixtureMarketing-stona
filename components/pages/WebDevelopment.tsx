@@ -95,7 +95,7 @@ const WebDevelopment: React.FC = () => {
             ctaPrimaryText="Umów się na konsultację"
             ctaPrimaryOnClick={() => openModal('web')}
             ctaSecondaryText="Wyceń projekt"
-            ctaSecondaryOnClick={() => navigate('/offers#calculator?type=webApp')}
+            ctaSecondaryOnClick={() => navigate('/wycena/')}
             ctaSecondaryIcon={Calculator}
             backLinkPath="/"
             backLinkLabel="Wróć na stronę główną"

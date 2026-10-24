@@ -25,7 +25,7 @@ export const DEVOPS_ARTICLE_CONTENT = {
         text: 'Eliminuje problem "u mnie działa". Pakujemy aplikację w szczelny kontener z kompletem zależności. To fundament pod nowoczesny backend.',
         role: 'Rola: Standaryzacja środowiska pracy.',
         linkText: 'Czytaj więcej o Dockerze',
-        linkUrl: '/baza-wiedzy/docker-konteneryzacja-przewodnik',
+        linkUrl: '/baza-wiedzy/docker-konteneryzacja-przewodnik/',
       },
       {
         title: '2. Kubernetes (Orkiestracja)',
@@ -42,7 +42,7 @@ export const DEVOPS_ARTICLE_CONTENT = {
         text: 'Automatyczna taśma produkcyjna. Każda zmiana jest testowana przez boty przed publikacją.',
         role: 'Rola: Gwarancja jakości i szybkości.',
         linkText: 'Dlaczego nie wdrażać ręcznie?',
-        linkUrl: '/baza-wiedzy/ci-cd-automatyzacja-wdrozen',
+        linkUrl: '/baza-wiedzy/ci-cd-automatyzacja-wdrozen/',
       },
     ],
   },

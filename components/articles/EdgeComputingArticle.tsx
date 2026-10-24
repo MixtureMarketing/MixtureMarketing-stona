@@ -238,7 +238,7 @@ const EdgeComputingArticle = () => {
         buttonText={CONTENT.cta.primaryBtn}
         onClick={() => openModal('consultation')}
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="dark"
       />
     </ArticleShell>

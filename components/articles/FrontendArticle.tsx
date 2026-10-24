@@ -213,9 +213,9 @@ const FrontendArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/contact"
+        buttonLink="/contact/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="gradient"
       />
     </ArticleShell>

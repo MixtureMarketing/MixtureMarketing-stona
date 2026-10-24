@@ -163,7 +163,7 @@ const ImageFormatsArticle = () => {
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="dark"
       />
     </ArticleShell>
