@@ -1,5 +1,6 @@
 /* eslint-disable max-lines -- schema helpers (Place + OpeningHours + LocalBusiness w jednym pliku) */
 import { SITE_CONFIG } from '../../config/site';
+import { withTrailingSlash } from '../url';
 
 export const getBreadcrumbsSchema = (
   breadcrumbs: { name: string; item: string }[] | undefined,
@@ -13,7 +14,10 @@ export const getBreadcrumbsSchema = (
       '@type': 'ListItem',
       position: index + 1,
       name: crumb.name,
-      item: crumb.item.startsWith('http') ? crumb.item : `${baseUrl}${crumb.item}`,
+      // Zawsze ze slashem — zgodnie z canonicalami (wersja bez slasha to 308 na CF Pages).
+      item: withTrailingSlash(
+        crumb.item.startsWith('http') ? crumb.item : `${baseUrl}${crumb.item}`,
+      ),
     })),
   };
 };

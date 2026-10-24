@@ -46,7 +46,7 @@ export const getArticleSchema = (
     authorSchema = {
       '@type': 'Person',
       name: article.author.name,
-      url: `${baseUrl}/o-nas`, // Fallback link
+      url: `${baseUrl}/o-nas/`, // Fallback link
       ...(article.author.image && {
         image: urlFor(article.author.image).width(400).height(400).url(),
       }),

@@ -56,7 +56,7 @@ const KnowledgeBase = () => {
         image={CONTENT.seo.image}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
-          { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
+          { name: 'Baza Wiedzy', item: '/baza-wiedzy/' },
         ]}
       />
 
