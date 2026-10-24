@@ -794,7 +794,7 @@ const Abonament: React.FC = () => {
 
         <Container className="relative z-10">
           {/* Meta row */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 mb-12">
             <span className="text-indigo-600">● NOWOŚĆ · 2026 · 4 pakiety od 179 zł/mc</span>
             <span className="hidden md:inline">Mixture Marketing · Rzeszów · od 2020</span>
             <span>Pilotaż · Podkarpacie · 10 miejsc</span>

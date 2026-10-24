@@ -283,7 +283,7 @@ const VsWix: React.FC = () => {
               </ul>
             </div>
             <div className="relative bg-white rounded-2xl p-6 border-2 border-emerald-400 shadow-lg shadow-emerald-500/10 lg:scale-[1.02] lg:-my-1">
-              <div className="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-xxs font-black uppercase tracking-[0.15em]">
+              <div className="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-700 text-white text-xxs font-black uppercase tracking-[0.15em]">
                 Rekomendowane
               </div>
               <div className="flex items-center gap-3 mb-4">

@@ -122,7 +122,7 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
 
           <Link
             to="/miasto/rzeszow/"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 px-2 text-sm text-white/55 transition-colors hover:text-white/85"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 px-2 text-sm text-white/70 transition-colors hover:text-white/85"
           >
             <MapPin size={15} className="text-primary" aria-hidden="true" />
             <span>Rzeszów i cała Polska</span>

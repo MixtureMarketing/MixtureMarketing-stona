@@ -359,7 +359,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Strony WWW, sklepy e-commerce, landing page&apos;y, dedykowane aplikacje.
                   WordPress, Next.js, React.
                 </p>
-                <span className="text-xs text-primary font-semibold">Web dev Rzeszów →</span>
+                <span className="text-xs text-accent-dark font-semibold">Web dev Rzeszów →</span>
               </Link>
 
               <Link
@@ -381,7 +381,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Lokalne SEO + Local Pack, audyty techniczne, link building, content SEO. Cennik
                   widełkowy.
                 </p>
-                <span className="text-xs text-primary font-semibold">SEO Rzeszów →</span>
+                <span className="text-xs text-accent-dark font-semibold">SEO Rzeszów →</span>
               </Link>
 
               <Link
@@ -403,7 +403,9 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                   Pełna oferta 360°: strategia, branding, design, web, performance marketing,
                   narzędzia interaktywne.
                 </p>
-                <span className="text-xs text-primary font-semibold">Agencja interaktywna →</span>
+                <span className="text-xs text-accent-dark font-semibold">
+                  Agencja interaktywna →
+                </span>
               </Link>
             </div>
           </div>
