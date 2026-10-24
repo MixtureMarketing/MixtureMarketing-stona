@@ -8,6 +8,7 @@ import { SanityCaseStudy } from '../../types/sanity';
 import Container from '../common/Container';
 import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const PortfolioPage = () => {
   const [projects, setProjects] = useState<SanityCaseStudy[]>([]);
@@ -46,6 +47,7 @@ const PortfolioPage = () => {
       <Seo
         title="Portfolio - Nasze Realizacje | Mixture Marketing"
         description="Zobacz wybrane projekty stron www, kampanii marketingowych i brandingu. Sprawdź, jak łączymy technologię z kreatywnością, by budować przewagę rynkową."
+        breadcrumbs={getPathBreadcrumbs('/portfolio/')}
       />
 
       <div className="min-h-screen bg-gray-50 text-dark">

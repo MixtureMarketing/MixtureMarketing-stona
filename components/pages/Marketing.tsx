@@ -17,6 +17,7 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '@/context/ModalContext';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 /**
  * Hub /marketing/ — przebudowa 2026-07-16 (krytyka 12/40, pełna ścieżka;
@@ -44,6 +45,7 @@ const Marketing: React.FC = () => {
         title={MARKETING_CONTENT.seo.title}
         description={MARKETING_CONTENT.seo.description}
         image={MARKETING_CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/marketing/')}
         jsonLd={[
           {
             '@context': 'https://schema.org',

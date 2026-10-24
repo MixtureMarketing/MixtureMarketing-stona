@@ -68,3 +68,18 @@ describe('Navbar — przyciski menu mobilnego mają różne nazwy', () => {
     expect(screen.getAllByRole('button', { name: 'Zamknij menu nawigacyjne' })).toHaveLength(1);
   });
 });
+
+describe('Navbar — bez nagłówków przed <h1> strony', () => {
+  it('menu (desktop + mobilne, także zamknięte) nie wnosi h1–h6 do konspektu', () => {
+    // Navbar stoi w DOM przed <main> na każdej stronie; prerender zapisuje też zamknięte menu
+    // mobilne, więc crawler bez CSS widział h5 „Web Development” jako pierwszy nagłówek.
+    const { container } = render(
+      <MemoryRouter>
+        <ModalProvider>
+          <Navbar />
+        </ModalProvider>
+      </MemoryRouter>,
+    );
+    expect(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).toHaveLength(0);
+  });
+});

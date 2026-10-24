@@ -14,6 +14,7 @@ import {
 import SectionHeader from '../common/SectionHeader';
 import Seo from '../common/Seo';
 import { PRIVACY_POLICY_CONTENT as CONTENT } from '../../data/content';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const PrivacyPolicy: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const PrivacyPolicy: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/privacy-policy/')}
       />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <SectionHeader

@@ -5,9 +5,11 @@ import Seo from '../../common/Seo';
 import NotFound from '../../common/NotFound';
 import AmbientBackground from '../../common/AmbientBackground';
 import { useCmsDocument } from '../../../hooks/useCmsDocument';
+import { useBreadcrumbLabel } from '../../../context/BreadcrumbLabelContext';
 import CmsErrorState from '../../common/CmsErrorState';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
+import { RZESZOW_FAQ_SCHEMA } from './rzeszowFaq';
 import { industryAudience } from '../../../utils/seo/title';
 import { industryDescription } from '../../../utils/seo/description';
 
@@ -25,6 +27,8 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
 
   // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
   const { status, data, retry } = useCmsDocument<SanityIndustry | SanityLocation>(slug, fetcher);
+  // Okruszek branży: nazwa z CMS zamiast sluga („usugi b2b”). Miasto ma etykietę w mapie.
+  useBreadcrumbLabel(mode === 'industry' ? (data as SanityIndustry | null)?.name : undefined);
 
   if (status === 'loading') {
     return (
@@ -110,42 +114,8 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           }}
           // FAQ ze strony /miasto/rzeszow/ — sygnal dla AI search (ChatGPT,
           // Perplexity, Google AI Overviews) ze strona ma cytowalne odpowiedzi.
-          faq={
-            slug === 'rzeszow'
-              ? [
-                  {
-                    question: 'Czy oferujecie spotkania na żywo w Rzeszowie?',
-                    answer:
-                      'Tak. Preferujemy spotkania u klienta — dojeżdżamy na terenie Rzeszowa i całego Podkarpacia bez dodatkowych opłat. Alternatywnie ustalamy spotkanie w kawiarni lub przestrzeni coworkingowej w centrum miasta, albo online (Google Meet / Zoom). Każda wizyta umawiana wcześniej mailem lub telefonicznie.',
-                  },
-                  {
-                    question: 'Czy obsługujecie firmy spoza Rzeszowa, z całego Podkarpacia?',
-                    answer:
-                      'Tak. Współpracujemy z klientami z Mielca, Krosna, Stalowej Woli, Przemyśla, Dębicy i Jasła — zarówno zdalnie, jak i z dojazdem do siedziby klienta przy większych projektach.',
-                  },
-                  {
-                    question: 'Jak wygląda pierwsza konsultacja?',
-                    answer:
-                      'Bezpłatna rozmowa 45–60 minut — online (Google Meet / Zoom), u Ciebie w siedzibie albo w neutralnej lokalizacji w centrum Rzeszowa. Omawiamy cele biznesowe, sytuację rynkową i wybieramy najwłaściwszy zakres współpracy — bez zobowiązań i bez sztywnej oferty na siłę.',
-                  },
-                  {
-                    question: 'Czy macie portfolio z lokalnymi klientami z Rzeszowa i okolic?',
-                    answer:
-                      "Tak. Realizowaliśmy projekty dla firm produkcyjnych z Mielca i Stalowej Woli, e-commerce z Rzeszowa oraz software house'ów z Podkarpacia. Część realizacji jest objęta NDA — szczegóły omawiamy podczas spotkania.",
-                  },
-                  {
-                    question: 'Jak wybrać agencję marketingową w Rzeszowie?',
-                    answer:
-                      'Wybierając agencję marketingową w Rzeszowie, sprawdź: (1) czy oferuje spotkania na żywo (u klienta lub w neutralnej lokalizacji), (2) czy posiada portfolio z lokalnymi klientami z Podkarpacia, (3) czy łączy kompetencje web development i performance marketing (Google Ads + SEO) pod jednym dachem, (4) czy podaje widełkowy cennik bez ukrytych kosztów, (5) czy oferuje bezpłatną konsultację bez zobowiązań. Mixture Marketing spełnia wszystkie te kryteria — model pracy z dojazdem do klienta na terenie Rzeszowa i Podkarpacia, portfolio m.in. z Mielca, Stalowej Woli i Rzeszowa, wycena widełkowa od pierwszego maila.',
-                  },
-                  {
-                    question: 'Ile kosztuje strona internetowa w Rzeszowie?',
-                    answer:
-                      'Widełki cenowe Mixture Marketing dla firm z Rzeszowa: prosty landing page od 3 900 zł, strona korporacyjna z CMS od 7 500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i uwzględnia copywriting, grafikę, integracje i hosting. Pełen cennik na stronie /web-development/rzeszow/.',
-                  },
-                ]
-              : undefined
-          }
+          // Ta sama lista co widoczna sekcja (rzeszowFaq.ts) — schema = tekst na stronie.
+          faq={slug === 'rzeszow' ? RZESZOW_FAQ_SCHEMA : undefined}
         />
       )}
 

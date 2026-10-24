@@ -9,6 +9,7 @@ import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
 import CmsErrorState from '@/components/common/CmsErrorState';
 import { useCmsDocument } from '@/hooks/useCmsDocument';
+import { useBreadcrumbLabel } from '@/context/BreadcrumbLabelContext';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 
@@ -18,6 +19,7 @@ import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
 import { ORG_PUBLISHER } from '../../utils/seo/organizationSchema';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
@@ -29,6 +31,7 @@ const CaseStudyTemplate = () => {
   const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage);
   const project = data?.project ?? null;
   const nextProject = data?.nextProject ?? null;
+  useBreadcrumbLabel(project?.title);
   const [activeAsset, setActiveAsset] = useState<{ asset: SanityImage; caption?: string } | null>(
     null,
   );
@@ -49,6 +52,7 @@ const CaseStudyTemplate = () => {
       <Seo
         title={`${project.title} - Case Study Mixture Marketing`}
         description={project.excerpt || `Zobacz realizację dla klienta ${project.client}`}
+        breadcrumbs={getPathBreadcrumbs(`/portfolio/${slug}/`, project.title)}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Article',

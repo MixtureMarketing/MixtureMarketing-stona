@@ -71,10 +71,16 @@
 # Wymuszane od razu — dotyczy wylacznie ramkowania, wiec nie moze zepsuc dzialania panelu.
 # Report-Only z /* nadal przychodzi (inna nazwa naglowka); wymuszona polityka jest ostrzejsza.
 # `/portal` osobno, bo splat `/portal/*` nie obejmuje sciezki bez ukosnika.
+# X-Robots-Tag: /portal/* nie jest prerenderowany — rewrite 200 z _redirects serwuje HTML
+# strony glownej (tytul, tresc i canonical `/`), wiec bez naglowka w surowym HTML nie ma
+# zadnego noindex. robots.txt blokuje crawl, ale nie indeksacje URL-a z linku (maile z
+# linkami do panelu); naglowek dziala tez dla botow ignorujacych robots.txt.
 /portal
   X-Frame-Options: DENY
   Content-Security-Policy: frame-ancestors 'none'
+  X-Robots-Tag: noindex, nofollow
 
 /portal/*
   X-Frame-Options: DENY
   Content-Security-Policy: frame-ancestors 'none'
+  X-Robots-Tag: noindex, nofollow

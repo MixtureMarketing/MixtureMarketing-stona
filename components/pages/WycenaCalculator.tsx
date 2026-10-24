@@ -5,6 +5,7 @@ import React from 'react';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import PublicCalculator from '../features/calculator/PublicCalculator';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const isPrerendering =
   typeof window !== 'undefined' &&
@@ -22,6 +23,7 @@ const WycenaCalculator: React.FC = () => (
       title="Kalkulator wyceny strony i aplikacji — Mixture Marketing"
       description="Policz orientacyjny koszt strony internetowej lub aplikacji w kilka minut. Widełki na podstawie realnego modelu wyceny — bez zobowiązań."
       canonical="/wycena/"
+      breadcrumbs={getPathBreadcrumbs('/wycena/')}
     />
 
     <section className="relative py-16 md:py-24 overflow-hidden">

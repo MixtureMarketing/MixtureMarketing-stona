@@ -103,7 +103,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
               <div className="overflow-hidden px-4 space-y-8">
                 {MOBILE_MENU_DATA.map((section, idx) => (
                   <div key={idx} className="mt-4 first:mt-6">
-                    <h5 className="text-xxs font-black text-accent-dark uppercase tracking-[0.2em] mb-4 pl-2 flex items-center justify-between group/cat">
+                    {/* Nie nagłówek: menu leży w DOM każdej strony PRZED <h1> (zamknięte = aria-hidden,
+                        ale crawler bez CSS widzi konspekt h5 → h1). Kategoria to link, nie sekcja. */}
+                    <div className="text-xxs font-black text-accent-dark uppercase tracking-[0.2em] mb-4 pl-2 flex items-center justify-between group/cat">
                       <Link
                         to={section.target}
                         onClick={() => setIsOpen(false)}
@@ -117,7 +119,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                           className="opacity-0 -translate-x-2 group-hover/cat:opacity-100 group-hover/cat:translate-x-0 transition-all"
                         />
                       </Link>
-                    </h5>
+                    </div>
                     <div className="grid grid-cols-1 gap-2">
                       <Link
                         to={section.target}

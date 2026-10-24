@@ -84,6 +84,46 @@ describe('PseoTemplate', () => {
     expect(document.title).not.toMatch(/^Agencja Marketingowa Rzeszów/);
   });
 
+  // Regresja z produkcji: FAQPage na /miasto/rzeszow/ miała 6 pytań z innym brzmieniem
+  // odpowiedzi niż 8 widocznych (zdania obecne tylko w schemie). Schema = widoczny tekst.
+  it('/miasto/rzeszow/: każde pytanie i odpowiedź z FAQPage są dosłownie widoczne', async () => {
+    vi.mocked(cmsService.getLocationBySlug).mockResolvedValue({
+      _id: 'loc-rzeszow',
+      city: 'Rzeszów',
+      slug: { current: 'rzeszow' },
+      genitive: 'Rzeszowa',
+      businessContext: 'Stolica Podkarpacia.',
+    } as unknown as SanityLocation);
+
+    const { container } = render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={['/miasto/rzeszow/']}>
+          <ModalProvider>
+            <Routes>
+              <Route path="/miasto/:slug" element={<PseoTemplate mode="location" />} />
+            </Routes>
+          </ModalProvider>
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    type Faq = { mainEntity: { name: string; acceptedAnswer: { text: string } }[] };
+    let faq: Faq | undefined;
+    await waitFor(() => {
+      faq = Array.from(document.head.querySelectorAll('script[type="application/ld+json"]'))
+        .map((s) => JSON.parse(s.textContent || 'null'))
+        .find((d) => d?.['@type'] === 'FAQPage');
+      expect(faq).toBeDefined();
+    });
+    const norm = (s: string | null) => (s || '').replace(/\s+/g, ' ').trim();
+    const visible = Array.from(container.querySelectorAll('details')).map((d) => ({
+      q: norm(d.querySelector('summary span')?.textContent ?? null),
+      a: norm(d.querySelector('p')?.textContent ?? null),
+    }));
+    const schema = faq!.mainEntity.map((q) => ({ q: q.name, a: q.acceptedAnswer.text }));
+    expect(schema).toEqual(visible);
+  });
+
   // Regresja z produkcji: /branza/saas--startups/ i /branza/usugi-b2b/ (dokumenty bez
   // painPoints) miały meta „… Rozwiązujemy problemy: undefined.”
   it('branża bez painPoints: meta description bez „undefined”', async () => {

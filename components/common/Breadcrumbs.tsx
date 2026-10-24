@@ -1,11 +1,9 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
-import {
-  BREADCRUMBS_PATH_MAP as pathMap,
-  BREADCRUMBS_NO_PAGE as noPage,
-} from '../../config/breadcrumbs';
+import { BREADCRUMBS_NO_PAGE as noPage, breadcrumbLabel } from '../../config/breadcrumbs';
 import Container from './Container';
+import { useCurrentBreadcrumbLabel } from '../../context/BreadcrumbLabelContext';
 
 // Schema BreadcrumbList renderuje Seo.tsx na podstawie prop `breadcrumbs`.
 // Komponent jest wylacznie warstwa wizualna - nie emituje wlasnego JSON-LD,
@@ -13,10 +11,15 @@ import Container from './Container';
 interface BreadcrumbsProps {
   /** `dark` — biel na granatowych hero (domyślne szarości znikają na deep-dark). */
   tone?: 'light' | 'dark';
+  /** Etykieta bieżącej strony (ostatni okruszek), gdy ścieżki nie ma w BREADCRUMBS_PATH_MAP. */
+  currentLabel?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light', currentLabel }) => {
   const location = useLocation();
+  // Prop (ArticleShell) ma pierwszeństwo; globalne okruszki dostają etykietę ze strony z CMS.
+  const reportedLabel = useCurrentBreadcrumbLabel();
+  const lastLabel = currentLabel ?? reportedLabel;
   const pathnames = location.pathname.split('/').filter((x) => x);
   const dark = tone === 'dark';
   const linkCls = dark ? 'text-white/70 hover:text-white' : 'text-gray-700 hover:text-secondary';
@@ -39,7 +42,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join('/')}/`;
               const isLast = index === pathnames.length - 1;
               const hasPage = !noPage.has(routeTo.slice(0, -1));
-              const displayName = pathMap[routeTo.slice(0, -1)] || name.replace(/-/g, ' ');
+              const displayName = breadcrumbLabel(
+                routeTo.slice(0, -1),
+                isLast ? lastLabel : undefined,
+              );
               return (
                 <li key={name} className="flex items-center">
                   <ChevronRight

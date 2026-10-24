@@ -148,7 +148,8 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
       <div className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <Breadcrumbs />
+            {/* Krótka nazwa (część tytułu przed „:”), gdy artykułu nie ma w mapie okruszków. */}
+            <Breadcrumbs currentLabel={titleParts[0].trim() || undefined} />
 
             <div className="flex items-center gap-3">
               <span className="text-xxs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
