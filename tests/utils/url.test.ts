@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { withTrailingSlash } from '../../utils/url';
+import { withTrailingSlash, toExternalHref, toTelHref } from '../../utils/url';
 import { getBreadcrumbsSchema } from '../../utils/seo/commonSchemas';
 
 describe('withTrailingSlash', () => {
@@ -55,5 +55,35 @@ describe('getBreadcrumbsSchema', () => {
       'https://mixturemarketing.pl/baza-wiedzy/',
       'https://mixturemarketing.pl/baza-wiedzy/redis/',
     ]);
+  });
+});
+
+describe('toExternalHref (dane od użytkownika → bezpieczny link)', () => {
+  it('przepuszcza http/https i dopisuje https:// do gołej domeny', () => {
+    expect(toExternalHref('https://sklep-jan.pl/oferta')).toBe('https://sklep-jan.pl/oferta');
+    expect(toExternalHref('http://sklep.pl')).toBe('http://sklep.pl/');
+    expect(toExternalHref('  sklep-jan.pl ')).toBe('https://sklep-jan.pl/');
+    expect(toExternalHref('www.sklep.pl:8080/x')).toBe('https://www.sklep.pl:8080/x');
+  });
+
+  it('odrzuca inne schematy i śmieci', () => {
+    expect(toExternalHref('javascript:alert(1)')).toBeNull();
+    expect(toExternalHref('JavaScript:alert(1)')).toBeNull();
+    expect(toExternalHref('data:text/html,<b>x</b>')).toBeNull();
+    expect(toExternalHref('mailto:a@b.pl')).toBeNull();
+    expect(toExternalHref('nie mam strony')).toBeNull();
+    expect(toExternalHref('')).toBeNull();
+    expect(toExternalHref(null)).toBeNull();
+  });
+});
+
+describe('toTelHref', () => {
+  it('czyści separatory, zostawia +', () => {
+    expect(toTelHref('+48 600-100 (200)')).toBe('tel:+48600100200');
+  });
+  it('null dla pustych i zbyt krótkich wartości', () => {
+    expect(toTelHref('')).toBeNull();
+    expect(toTelHref('brak')).toBeNull();
+    expect(toTelHref(undefined)).toBeNull();
   });
 });

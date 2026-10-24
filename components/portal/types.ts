@@ -41,7 +41,14 @@ export interface Lead extends BusinessEntity {
   created_at: string;
   message: string;
   budget?: string;
-  company_name?: string; // Unified from 'company'
+  /** Kolumna D1 `leads.company` (get_leads robi SELECT *). */
+  company?: string | null;
+  /** Starsze rekordy/inne źródła mogły nieść `company_name` — fallback. */
+  company_name?: string;
+  phone?: string | null;
+  website?: string | null;
+  source?: string | null;
+  source_url?: string | null;
   current_step: number;
   details?: string;
   service_interest?: string;
