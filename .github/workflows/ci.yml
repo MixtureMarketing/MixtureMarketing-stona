@@ -83,6 +83,10 @@ jobs:
       - name: 🔷 TypeScript Typecheck
         run: npx tsc --noEmit -p tsconfig.json
 
+      # Pages Functions (runtime Workers) — osobny tsconfig z @cloudflare/workers-types.
+      - name: 🔷 TypeScript Typecheck (functions)
+        run: npx tsc --noEmit -p functions/tsconfig.json
+
       - name: 🧪 Unit Tests
         run: npm run test -- --run
 
