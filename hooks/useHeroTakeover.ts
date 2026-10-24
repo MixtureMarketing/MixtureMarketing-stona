@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { addScrollTask } from './useSectionProgress';
+import { setHeroCovered } from '@/utils/heroCover';
 
 /**
  * Scroll-takeover hero: arkusz najeżdżającej sekcji publikuje stopień pokrycia
@@ -13,9 +14,10 @@ import { addScrollTask } from './useSectionProgress';
  * odsłonięty. Prerender / no-JS / reduced-motion (hook wtedy nic nie robi)
  * pokazują hero w pełni widoczny; przejęcie to progressive enhancement.
  *
- * Dostępność (WCAG 2.4.11 focus-not-obscured): przy pełnym zakryciu treść
- * oznaczona `[data-hero-covers]` dostaje `inert`, żeby Tab nie ustawił fokusa
- * na przycisku schowanym pod nieprzezroczystym arkuszem.
+ * Dostępność (WCAG 2.4.11 focus-not-obscured): przy pełnym zakryciu elementy
+ * fokusowalne w `[data-hero-covers]` dostają `inert`, żeby Tab nie ustawił fokusa
+ * na przycisku schowanym pod nieprzezroczystym arkuszem. Sam kontener (z h1) zostaje
+ * w drzewie dostępności — patrz utils/heroCover.ts.
  *
  * @param enabled czy przejęcie ma działać. Hooka nie da się wywołać warunkowo,
  *                a StandardHero renderuje też rejestr jasny (14 podstron) — bez tej
@@ -56,9 +58,7 @@ export function useHeroTakeover<T extends HTMLElement = HTMLElement>(
         const covered = cover >= 0.98;
         if (covered !== wasCovered) {
           wasCovered = covered;
-          host.querySelectorAll('[data-hero-covers]').forEach((el) => {
-            el.toggleAttribute('inert', covered);
-          });
+          setHeroCovered(host, covered);
         }
       };
     });
@@ -66,7 +66,7 @@ export function useHeroTakeover<T extends HTMLElement = HTMLElement>(
     return () => {
       remove();
       host.style.removeProperty('--cover');
-      host.querySelectorAll('[data-hero-covers]').forEach((el) => el.removeAttribute('inert'));
+      setHeroCovered(host, false);
     };
   }, [enabled, frontSelector]);
 
