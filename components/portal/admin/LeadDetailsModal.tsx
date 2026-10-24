@@ -2,6 +2,7 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { Lead } from '../types';
 import { toExternalHref, toTelHref } from '../../../utils/url';
+import { leadDetailsEntries } from './leadDetails';
 
 interface LeadDetailsModalProps {
   lead: Lead;
@@ -13,6 +14,8 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({ lead, onClose }) =>
   const company = lead.company || lead.company_name;
   const telHref = toTelHref(lead.phone);
   const websiteHref = toExternalHref(lead.website);
+  // Bezpieczny parse (zły JSON nie wywraca panelu) + odpowiedzi kalkulatora.
+  const details = leadDetailsEntries(lead.details);
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -93,25 +96,21 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({ lead, onClose }) =>
               <div className="text-sm font-bold text-green-600">{lead.budget || '-'}</div>
             </div>
           </div>
-          {lead.details && (
+          {details.length > 0 && (
             <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
               <div className="text-xxs font-black text-secondary uppercase tracking-[0.2em] mb-3">
                 Parametry Szczegółowe
               </div>
-              <div className="grid grid-cols-1 gap-2">
-                {Object.entries(JSON.parse(lead.details)).map(([key, val]) => {
-                  if (!val || typeof val !== 'string') return null;
-                  const label = key
-                    .replace(/([A-Z])/g, ' $1')
-                    .replace(/^./, (str) => str.toUpperCase());
-                  return (
-                    <div key={key} className="flex justify-between text-xs">
-                      <span className="text-gray-500 font-medium">{label}:</span>
-                      <span className="font-bold text-dark">{val}</span>
-                    </div>
-                  );
-                })}
-              </div>
+              <dl className="grid grid-cols-1 gap-2">
+                {details.map(({ key, label, value }) => (
+                  <div key={key} className="flex justify-between gap-4 text-xs">
+                    <dt className="text-gray-500 font-medium shrink-0">{label}:</dt>
+                    <dd className="font-bold text-dark text-right min-w-0 break-words [overflow-wrap:anywhere]">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           )}
           <div>
@@ -119,7 +118,7 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({ lead, onClose }) =>
               Treść / Opis Celu
             </div>
             <div className="bg-gray-50 p-4 rounded-xl text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 font-mono">
-              {lead.message}
+              {lead.message || <span className="text-gray-400 italic">Brak treści</span>}
             </div>
           </div>
           <div className="flex justify-between gap-4 text-xs text-gray-400 pt-4 border-t border-gray-100">
