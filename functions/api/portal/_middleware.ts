@@ -28,7 +28,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const user: any = await env.DB.prepare(
     `
     SELECT id, email, name, role FROM users 
-    WHERE session_token = ? AND session_expires > datetime('now') AND is_active = 1
+    WHERE session_token = ? AND julianday(session_expires) > julianday('now') AND is_active = 1
   `,
   )
     .bind(token)

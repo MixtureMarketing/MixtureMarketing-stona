@@ -9,8 +9,16 @@
  *   - Google Places (reputacja: ocena + liczba recenzji, po placeId lub nazwie firmy)
  *
  * Wynik zwracany jako { status, data: { client, competitor? } } — ksztalt zgodny
- * z services/auditService.ts (AuditResult). Cache KV 24h (klucz po URL).
+ * z services/auditService.ts (AuditResult). Cache KV 24h (klucz = SHA-256 URL).
+ *
+ * Limit (2026-10-24): każdy audyt na żywo to płatne zapytania Google (PSI + Places),
+ * a endpoint jest publiczny — liczymy audyty na żywo per IP (wyniki z cache są darmowe).
  */
+
+import { checkRateLimit } from '../estimation/_rateLimit';
+import { clientIp, safeHttpUrl, sha256Hex } from '../_shared/security';
+
+const LIVE_AUDITS_PER_HOUR = 10;
 
 interface Env {
   GOOGLE_BACKEND_KEY: string; // sekret CF Pages (PageSpeed Insights API + Places API)
@@ -79,19 +87,40 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       placeId?: string;
       force?: boolean;
     };
-    const { url, companyName, placeId, force } = input;
+    const { url, companyName, force } = input;
+    // placeId trafia do ścieżki URL Places API — tylko bezpieczne znaki.
+    const placeId =
+      typeof input.placeId === 'string' && /^[A-Za-z0-9_-]{1,300}$/.test(input.placeId)
+        ? input.placeId
+        : undefined;
 
     if (!url) return json({ status: 'error', message: 'URL is required' }, 400);
 
-    const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
-    // v7 — ksztalt wyniku zmieniony vs v6 (social/local/opportunities/cms), bumpujemy klucz cache.
-    const cacheKey = `v7_live_${btoa(unescape(encodeURIComponent(normalizedUrl))).substring(0, 40)}`;
+    const normalizedUrl = safeHttpUrl(url);
+    if (!normalizedUrl) return json({ status: 'error', message: 'Invalid URL' }, 400);
+    // v8 — klucz to pełny SHA-256 URL (v7 brał 40 znaków base64, więc różne adresy
+    // ze wspólnym początkiem dzieliły wpis cache i dostawały cudzy wynik).
+    const cacheKey = `v8_live_${await sha256Hex(normalizedUrl)}`;
 
     if (!force) {
       const cached = (await env.CACHE.get(cacheKey, 'json')) as any;
       if (cached) {
         return json({ status: 'success', source: 'cache', data: cached });
       }
+    }
+
+    const rl = await checkRateLimit(
+      env.CACHE,
+      clientIp(request),
+      LIVE_AUDITS_PER_HOUR,
+      3600,
+      'audit:run:ip:',
+    );
+    if (!rl.allowed) {
+      return json(
+        { status: 'error', message: 'Limit audytów na godzinę wyczerpany. Spróbuj później.' },
+        429,
+      );
     }
 
     // Silnik rownolegly: scrape + PSI + Places.

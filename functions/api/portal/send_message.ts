@@ -4,6 +4,8 @@
  * Path: /api/portal/send_message
  */
 
+import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+
 interface Env {
   DB: D1Database;
   CACHE: KVNamespace;
@@ -52,8 +54,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         body: JSON.stringify({
           from: 'Mixture Marketing <portal@mixturemarketing.pl>',
           to: [env.NOTIFY_EMAIL],
-          subject: `Nowa wiadomość od ${user.name}`,
-          html: `<p>Użytkownik <strong>${user.name}</strong> wysłał nową wiadomość:</p><blockquote>${content}</blockquote>`,
+          subject: `Nowa wiadomość od ${String(user.name ?? '').replace(/[\r\n]+/g, ' ')}`,
+          html: `<p>Użytkownik <strong>${escapeHtml(user.name)}</strong> wysłał nową wiadomość:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote>`,
         }),
       });
     }

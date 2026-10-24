@@ -5,6 +5,8 @@
  * Path: /api/admin/convert_lead
  */
 
+import { escapeHtml } from '../_shared/security';
+
 interface Env {
   DB: D1Database;
   RESEND_API_KEY: string;
@@ -63,7 +65,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           to: [lead.email],
           subject: 'Twoje konto w portalu Mixture Marketing jest gotowe!',
           html: `
-            <h3>Witaj ${lead.name}!</h3>
+            <h3>Witaj ${escapeHtml(lead.name)}!</h3>
             <p>Z radością informujemy, że utworzyliśmy dla Ciebie konto w naszym portalu klienta.</p>
             <p>Możesz się tam zalogować w każdej chwili, używając swojego adresu email, aby sprawdzić postępy prac lub pobrać dokumenty.</p>
             <a href="https://mixturemarketing.pl/portal" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Przejdź do Portalu</a>

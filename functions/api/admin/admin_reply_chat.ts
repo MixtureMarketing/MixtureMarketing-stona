@@ -4,6 +4,8 @@
  * Path: /api/admin/admin_reply_chat
  */
 
+import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+
 interface Env {
   DB: D1Database;
   CACHE: KVNamespace;
@@ -53,7 +55,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
           to: [client.email],
           subject: 'Nowa wiadomość w Twoim panelu klienta',
-          html: `<p>Witaj ${client.name}!</p><p>Otrzymałeś nową wiadomość w panelu klienta:</p><blockquote>${content}</blockquote><a href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a>`,
+          html: `<p>Witaj ${escapeHtml(client.name)}!</p><p>Otrzymałeś nową wiadomość w panelu klienta:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote><a href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a>`,
         }),
       });
     }

@@ -18,11 +18,28 @@
  * żeby leadService.ts nie wymagał zmian (action: 'create'|'update'|'send_notification'|'get_lead').
  */
 
+import { checkRateLimit } from './estimation/_rateLimit';
+import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
+
 interface Env {
   TURNSTILE_SECRET: string;
   RESEND_API_KEY: string;
   NOTIFY_EMAIL: string;
   DB: D1Database;
+  CACHE?: KVNamespace;
+}
+
+// Akcje bez captchy (update/send_notification/get_lead) — limit per IP na godzinę.
+// Prawdziwy formularz robi kilka wywołań na zgłoszenie, więc 30/h zostawia duży zapas.
+const UNVERIFIED_ACTIONS_PER_HOUR = 30;
+
+async function leadExists(env: Env, id: string): Promise<boolean> {
+  try {
+    const row = await env.DB.prepare('SELECT 1 AS ok FROM leads WHERE id = ?').bind(id).first();
+    return !!row;
+  } catch {
+    return false;
+  }
 }
 
 // Kolumny leads mapowane wprost; reszta pól z formularza ląduje w details (JSON).
@@ -72,32 +89,6 @@ const json = (data: unknown, status = 200) =>
     status,
     headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
   });
-
-async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
-  // Uwaga: NIE ma tu pseudo-tokenów obejścia ('local_bypass' itp.). Wcześniejsza
-  // wersja akceptowała je bezwarunkowo, co pozwalało spamować przez Resend bez
-  // captchy. Dev korzysta z proxy Vite → to nigdy nie trafia do tej funkcji.
-  if (!token || !secret) return false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-    });
-    const data = (await res.json()) as { success: boolean };
-    return data.success === true;
-  } catch {
-    return false;
-  }
-}
-
-function escapeHtml(s: unknown): string {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
 
 async function sendEmail(
   env: Env,
@@ -189,6 +180,16 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   }
   const id = url.searchParams.get('id');
   if (!id) return json({ lead: null });
+  if (env.CACHE) {
+    const rl = await checkRateLimit(
+      env.CACHE,
+      clientIp(request),
+      UNVERIFIED_ACTIONS_PER_HOUR,
+      3600,
+      'contact:rl:',
+    );
+    if (!rl.allowed) return json({ message: 'Zbyt wiele żądań' }, 429);
+  }
   try {
     const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
     return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
@@ -213,7 +214,18 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ message: 'Spam detected' }, 403);
   }
 
-  const ip = request.headers.get('cf-connecting-ip') || '';
+  const ip = clientIp(request);
+
+  if (body.action !== 'create' && env.CACHE) {
+    const rl = await checkRateLimit(
+      env.CACHE,
+      ip,
+      UNVERIFIED_ACTIONS_PER_HOUR,
+      3600,
+      'contact:rl:',
+    );
+    if (!rl.allowed) return json({ message: 'Zbyt wiele żądań' }, 429);
+  }
 
   switch (body.action) {
     case 'create': {
@@ -253,11 +265,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     case 'update': {
       // Update nie wymaga captcha (lead już utworzony i zweryfikowany w kroku 1).
+      // Mail do agencji tylko, gdy lead faktycznie istnieje (UPDATE trafił w wiersz) —
+      // inaczej dowolne `id` pozwalało wysyłać maile z treścią atakującego.
+      let updated = false;
       if (body.id) {
         const d = (body.details || {}) as Record<string, unknown>;
         const detailsJson = JSON.stringify(splitLeadFields(d));
         try {
-          await env.DB.prepare(
+          const res = await env.DB.prepare(
             `UPDATE leads SET
                name = COALESCE(?, name),
                email = COALESCE(?, email),
@@ -283,12 +298,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
               body.id,
             )
             .run();
+          updated = (res.meta?.changes ?? 0) > 0;
         } catch (e) {
           console.error('D1 update lead failed:', e);
         }
       }
       // Email do agencji przy finalnym kroku (step=3).
-      if (body.step === 3 && body.id) {
+      if (body.step === 3 && body.id && updated) {
         const subject = `📝 Aktualizacja leada ${body.id} (step ${body.step})`;
         await sendEmail(env, subject, leadEmailHtml({ id: body.id }, body.details || {}));
       }
@@ -296,13 +312,26 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     }
 
     case 'send_notification': {
+      // Tylko dla istniejącego leada i raz na (lead, typ) — bez tego endpoint był
+      // publiczną pompą maili do skrzynki agencji.
+      if (!body.id || !(await leadExists(env, body.id))) return json({ success: true });
+      const type = body.type || 'success';
+      if (env.CACHE) {
+        const dedupeKey = `contact:notif:${body.id}:${type}`;
+        try {
+          if (await env.CACHE.get(dedupeKey)) return json({ success: true });
+          await env.CACHE.put(dedupeKey, '1', { expirationTtl: 30 * 86400 });
+        } catch {
+          /* KV niedostępne — fail-open, lead i tak istnieje */
+        }
+      }
       const subjectMap: Record<string, string> = {
         success: '✅ Lead skonwertowany',
         abandoned_step_1: '⚠️ Lead porzucony (krok 1)',
         abandoned_step_2: '⚠️ Lead porzucony (krok 2)',
       };
-      const subject = `${subjectMap[body.type || 'success'] || 'Lead notyfikacja'} — ID ${body.id}`;
-      await sendEmail(env, subject, leadEmailHtml({ id: body.id || '?' }));
+      const subject = `${subjectMap[type] || 'Lead notyfikacja'} — ID ${body.id}`;
+      await sendEmail(env, subject, leadEmailHtml({ id: body.id }));
       return json({ success: true });
     }
 
