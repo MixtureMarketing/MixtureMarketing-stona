@@ -12,7 +12,7 @@ export const META_ADS_CONTENT = {
     title: 'Kampanie Meta Ads — reklama na Facebooku i Instagramie | Mixture',
     description:
       'Kampanie sprzedażowe i leadowe na Facebooku i Instagramie: lejek, remarketing, Conversions API. Dashboard z wynikami 24/7, budżety od 1 500 zł/mc.',
-    image: '/assets/images/meta-ads.png',
+    image: '/assets/images/og-main.png',
   },
   hero: {
     title: {
