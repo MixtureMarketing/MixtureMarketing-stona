@@ -8,6 +8,9 @@ import Container from '../../common/Container';
 import TurnstileWidget from '../contact/TurnstileWidget';
 import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
 import { SITE_CONFIG } from '../../../config/site';
+import { reportError } from '../../../utils/errorReporter';
+import AuditPdfNotice from './AuditPdfNotice';
+import { readDeepLinkUrl, PDF_NOT_GENERATED, type PdfDelivery } from './auditDelivery';
 
 // --- COMPONENTS (Lazy Loaded) ---
 const AuditProgress = lazy(() => import('./steps/AuditProgress'));
@@ -16,19 +19,15 @@ const AuditDashboard = lazy(() => import('./steps/AuditDashboard'));
 type Step = 'INPUT' | 'SCANNING' | 'EMAIL_GATE' | 'RESULT';
 
 const AuditWizard: React.FC = () => {
-  const [step, setStep] = useState<Step>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('url') ? 'SCANNING' : 'INPUT';
-  });
+  // Deep-link `?url=` czytany RAZ (bez podwójnego dekodowania — `%` w adresie wywracał stronę).
+  const [deepLinkUrl] = useState(() => readDeepLinkUrl(window.location.search));
+  const [step, setStep] = useState<Step>(deepLinkUrl ? 'SCANNING' : 'INPUT');
   const [companyName, setCompanyName] = useState('');
-  const [url, setUrl] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    const deepLinkUrl = params.get('url');
-    return deepLinkUrl ? decodeURIComponent(deepLinkUrl) : '';
-  });
+  const [url, setUrl] = useState(deepLinkUrl);
   const [email, setEmail] = useState('');
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pdfDelivery, setPdfDelivery] = useState<PdfDelivery>({ state: 'idle' });
   // Niewidoczny Turnstile — serwer wymaga tokenu przed wysłaniem raportu mailem.
   const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
@@ -48,10 +47,8 @@ const AuditWizard: React.FC = () => {
   );
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const deepLinkUrl = params.get('url');
     if (deepLinkUrl) {
-      setTimeout(() => startScanning(decodeURIComponent(deepLinkUrl)), 0);
+      setTimeout(() => startScanning(deepLinkUrl), 0);
     }
     // Uruchamiamy tylko raz na wejsciu z deep-linka (?url=); startScanning zalezy od companyName
     // (pustego przy deep-linku), wiec swiadomie pomijamy je w zaleznosciach.
@@ -65,37 +62,58 @@ const AuditWizard: React.FC = () => {
     startScanning(url);
   };
 
+  // Zapis leada + wysyłka PDF do użytkownika (obietnica z bramki — realna od 2026-07-17).
+  // Działa w tle (raport online pokazujemy od razu), ale WYNIK trafia do UI: przy porażce
+  // (403 captcha, 429, 5xx, sieć, PDF się nie wygenerował) użytkownik widzi komunikat
+  // z ponowieniem, zamiast czekać na maila, który nie przyjdzie.
+  const sendReport = React.useCallback(
+    async (data: AuditResult, mail: string, isRetry: boolean) => {
+      let pdf: Blob | undefined;
+      try {
+        const { generateAuditPdf } = await import('../../../services/auditPdfService');
+        pdf = await generateAuditPdf(data);
+      } catch (err) {
+        console.error('audit pdf generation failed:', err);
+      }
+      let captchaToken: string | undefined;
+      try {
+        captchaToken = await turnstileRef.current?.getToken();
+      } catch (err) {
+        console.error('audit turnstile failed:', err);
+      }
+      const res = await auditService.captureLead({
+        captchaToken,
+        email: mail,
+        url: data.client.url || url,
+        companyName: companyName || undefined,
+        score: data.client.total_score,
+        pdf,
+      });
+      if (res.ok && pdf) {
+        setPdfDelivery({ state: 'sent', afterRetry: isRetry });
+        return;
+      }
+      const status = res.ok ? PDF_NOT_GENERATED : res.status;
+      reportError('audit_capture_lead', new Error(`capture-lead failed: ${status}`));
+      setPdfDelivery({ state: 'failed', status });
+    },
+    [companyName, url],
+  );
+
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // Zapis leada + wysyłka PDF do użytkownika (obietnica z bramki — realna
-    // od 2026-07-17). Best-effort w tle, nie blokuje pokazania raportu online.
     if (result) {
-      void (async () => {
-        let pdf: Blob | undefined;
-        try {
-          const { generateAuditPdf } = await import('../../../services/auditPdfService');
-          pdf = await generateAuditPdf(result);
-        } catch (err) {
-          console.error('audit pdf generation failed:', err);
-        }
-        let captchaToken: string | undefined;
-        try {
-          captchaToken = await turnstileRef.current?.getToken();
-        } catch (err) {
-          console.error('audit turnstile failed:', err);
-        }
-        await auditService.captureLead({
-          captchaToken,
-          email,
-          url: result.client.url || url,
-          companyName: companyName || undefined,
-          score: result.client.total_score,
-          pdf,
-        });
-      })();
+      setPdfDelivery({ state: 'sending' });
+      void sendReport(result, email, false);
     }
     setStep('RESULT');
+  };
+
+  const retryReport = () => {
+    if (!result) return;
+    setPdfDelivery((d) => (d.state === 'failed' ? { ...d, retrying: true } : d));
+    void sendReport(result, email, true);
   };
 
   const handleAnimationComplete = () => {
@@ -115,6 +133,9 @@ const AuditWizard: React.FC = () => {
       <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
       <div className="absolute top-0 left-0 w-full h-[500px] bg-dark skew-y-3 origin-top-left z-0"></div>
       <Container className="relative z-10 py-12 flex-1 flex flex-col justify-center">
+        {step === 'RESULT' && result && (
+          <AuditPdfNotice delivery={pdfDelivery} email={email} onRetry={retryReport} />
+        )}
         <AnimatePresence mode="wait">
           {step === 'INPUT' && (
             <AuditInputStep
@@ -153,6 +174,7 @@ const AuditWizard: React.FC = () => {
                 onReset={() => {
                   setStep('INPUT');
                   setResult(null);
+                  setPdfDelivery({ state: 'idle' });
                 }}
               />
             </Suspense>

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routes } from '../routes.js';
 import { createClient } from '@sanity/client';
+import { fetchDynamicLists } from './sanity-dynamic-routes.js';
 
 // Konwencja repo to `.env.local` (jak w Vite), nie `.env`. Bez argumentu `loadEnvFile`
 // czytał nieistniejący `.env`, więc `npm run build`/`sitemap` padał lokalnie na braku
@@ -108,22 +109,25 @@ async function generateSitemap() {
 
   // Dynamiczne sciezki z Sanity - lastmod = _updatedAt z dokumentu.
   // Portfolio caseStudy dostaje image (xmlns:image) dla Google Image Search.
+  // FAIL-LOUD (scripts/sanity-dynamic-routes.js): błąd pobrania albo pusta lista = wyjątek
+  // i exit 1. Dawniej ostrzeżenie + sitemapa bez /branza/*, /miasto/*, /portfolio/*.
   let dynamicEntries = [];
-  try {
-    const [articles, industries, locations, projects] = await Promise.all([
-      sanityClient.fetch(
+  {
+    const {
+      article: articles,
+      industry: industries,
+      location: locations,
+      caseStudy: projects,
+    } = await fetchDynamicLists(sanityClient, {
+      article:
         '*[_type == "article" && defined(slug.current)]{ "slug": slug.current, _updatedAt, mainImage }',
-      ),
-      sanityClient.fetch(
+      industry:
         '*[_type == "industry" && defined(slug.current)]{ "slug": slug.current, _updatedAt }',
-      ),
-      sanityClient.fetch(
+      location:
         '*[_type == "location" && defined(slug.current)]{ "slug": slug.current, _updatedAt }',
-      ),
-      sanityClient.fetch(
+      caseStudy:
         '*[_type == "caseStudy" && defined(slug.current)]{ "slug": slug.current, _updatedAt, title, "imageRef": gallery[0].asset._ref }',
-      ),
-    ]);
+    });
 
     // Helper: zbuduj URL obrazu z Sanity asset ref.
     const sanityProjectId = process.env.VITE_SANITY_PROJECT_ID;
@@ -175,8 +179,6 @@ async function generateSitemap() {
       }),
     ];
     console.log(`Found ${dynamicEntries.length} dynamic routes.`);
-  } catch (err) {
-    console.warn('Failed to fetch dynamic routes for sitemap:', err.message);
   }
 
   // Deduplikacja po URL (statyczna lista ma korzenie typu /baza-wiedzy/,
@@ -236,4 +238,8 @@ ${allEntries
   }
 }
 
-generateSitemap();
+generateSitemap().catch((err) => {
+  // Sitemapa NIE jest zapisywana — lepiej czerwony build niż sitemapa bez podstron z CMS.
+  console.error(`❌ Sitemap: ${err instanceof Error ? err.message : err}`);
+  process.exitCode = 1;
+});

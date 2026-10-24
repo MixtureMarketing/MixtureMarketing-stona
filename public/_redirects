@@ -62,6 +62,10 @@
 # CEL = "/", NIE "/index.html": Pages kanonizuje /index.html -> / i unieważnia rewrite 200
 # (regula z /index.html przelezala tu martwa od F0 — panel byl nieosiagalny pod URL-em).
 /portal/*  /  200
+# `/portal` BEZ slasha nie pasuje do `/portal/*` (splat wymaga „/") i wpadał w catch-all 404 —
+# a dokładnie ten adres jest w mailach (admin_reply_chat, convert_lead). 301 na wersję ze
+# slashem, którą obsługuje reguła powyżej. MUSI stać przed catch-allem.
+/portal    /portal/  301
 
 # Catch-all: nieznane URL-e -> 404 + /404.html (NotFound z noindex).
 # Google widzi 404 status, uzytkownik widzi friendly NotFound page.

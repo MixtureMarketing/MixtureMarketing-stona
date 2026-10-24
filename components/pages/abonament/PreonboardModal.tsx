@@ -3,6 +3,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, Loader2, AlertTriangle, ShieldCheck, ArrowRight, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../../../utils/analytics';
+import {
+  normalizePhone,
+  isValidPhoneE164,
+  validateNip,
+  isNipTakenError,
+  readDraft,
+  writeDraft,
+  redirectToCheckout,
+} from './preonboardLogic';
 
 export type AbonamentTier = 'starter' | 'standard' | 'premium' | 'professional';
 
@@ -43,29 +52,14 @@ const HUB =
 const PANEL_URL = 'https://panel.mixturemarketing.pl/login';
 const PREONBOARD_KEY = import.meta.env.VITE_MM_PREONBOARD_KEY as string | undefined;
 const CONSENT_TEXT_VERSION = 'v1.0';
+// Limit na cały 2-krokowy flow (preonboard + checkout). Bez niego zawieszony hub
+// zostawiał „Przekierowuję do Stripe..." bez końca i blokował przycisk do przeładowania.
+const HUB_TIMEOUT_MS = 20_000;
 
 interface PreonboardModalProps {
   tier: AbonamentTier | null;
   onClose: () => void;
 }
-
-// PL phone auto-mask: parsuje cokolwiek user wpisze, normalizuje do +48 + 9 cyfr.
-// "600 100 200" → "+48600100200", "+48 600-100-200" → "+48600100200", "48 6001..." → "+486001..."
-const normalizePhone = (raw: string): string => {
-  const digitsOnly = raw.replace(/\D/g, '');
-  if (!digitsOnly) return '';
-  // Jesli zaczyna sie od 48 i ma 11 cyfr — to PL z prefiksem.
-  if (digitsOnly.startsWith('48') && digitsOnly.length === 11) return '+' + digitsOnly;
-  // Jesli ma 9 cyfr — dodaj +48.
-  if (digitsOnly.length === 9) return '+48' + digitsOnly;
-  // Inne — uzytkownik wpisal cos miedzynarodowego, zachowaj + jesli byl.
-  return raw.trim().startsWith('+')
-    ? '+' + digitsOnly
-    : digitsOnly.length > 9
-      ? '+' + digitsOnly
-      : '+48' + digitsOnly;
-};
-const isValidPhoneE164 = (v: string) => /^\+\d{8,15}$/.test(v);
 
 // Display formatter: "+48600100200" → "+48 600 100 200" (user-friendly podgląd)
 const formatPhoneDisplay = (v: string): string => {
@@ -86,41 +80,6 @@ interface OkBody<T> {
   data: T;
 }
 
-// H1: draft persistence — przeżywa errors sieciowe, Stripe cancel, accidental close
-const DRAFT_KEY = 'mm_preonboard_draft';
-interface DraftShape {
-  businessName: string;
-  email: string;
-  phone: string;
-  nip: string;
-  consentMarketing: boolean;
-  selectedTier: AbonamentTier | null;
-}
-const readDraft = (): Partial<DraftShape> => {
-  try {
-    const raw = sessionStorage.getItem(DRAFT_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw) as Partial<DraftShape>;
-  } catch {
-    return {};
-  }
-};
-const writeDraft = (d: Partial<DraftShape>) => {
-  try {
-    const current = readDraft();
-    sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...current, ...d }));
-  } catch {
-    /* ignore quota / private mode */
-  }
-};
-const clearDraft = () => {
-  try {
-    sessionStorage.removeItem(DRAFT_KEY);
-  } catch {
-    /* ignore */
-  }
-};
-
 // H2: inline validators (zwracają komunikat lub null gdy OK)
 const validateBusinessName = (v: string): string | null => {
   if (!v.trim()) return 'Podaj nazwę firmy.';
@@ -138,16 +97,11 @@ const validatePhone = (v: string): string | null => {
   const digits = v.replace(/\D/g, '');
   if (digits.length === 0) return 'Wpisz numer telefonu. Np. 600 100 200.';
   if (digits.length < 9) return `${digits.length}/9 cyfr — w Polsce numer ma 9 cyfr.`;
-  // pełna normalizacja — sprawdzi +48 logikę
+  // pełna normalizacja — +48 i dokładnie 9 cyfr dla PL
+  if (!isValidPhoneE164(normalizePhone(v)))
+    return 'Sprawdź numer — polski numer ma 9 cyfr, np. 600 100 200.';
   return null;
 };
-const validateNip = (v: string): string | null => {
-  if (v.length === 0) return 'Wpisz NIP firmy — potrzebny do faktury VAT.';
-  if (v.length < 10) return `${v.length}/10 cyfr — w PL NIP ma 10 cyfr.`;
-  if (!/^\d{10}$/.test(v)) return 'NIP to 10 cyfr (bez myślników).';
-  return null;
-};
-
 const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   // H1: hydratacja z sessionStorage — przeżywa Stripe cancel + accidental close
   const draft = readDraft();
@@ -172,6 +126,21 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
   }>({});
   const dialogRef = useRef<HTMLDialogElement>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
+  // Wysyłka w locie — zamknięcie modala ją przerywa (i NIE przekierowuje do Stripe).
+  const inFlightRef = useRef<AbortController | null>(null);
+
+  // Odmontowanie w trakcie wysyłki = rezygnacja.
+  useEffect(() => () => inFlightRef.current?.abort(), []);
+
+  // Powrót „Wstecz" ze Stripe z bfcache przywraca stan sprzed przekierowania
+  // (submitting=true) — odblokuj przycisk.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setSubmitting(false);
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   // Sync selectedTier gdy prop się zmieni (np. user kliknął inny tier card)
   useEffect(() => {
@@ -211,6 +180,18 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
   if (!tier || !selectedTier) return null;
   const tierCfg = TIERS[selectedTier];
+
+  // Zamknięcie (X, Esc, backdrop) w trakcie wysyłki anuluje ją — użytkownik zrezygnował,
+  // więc nie wolno go potem przerzucić do Stripe.
+  const handleClose = () => {
+    if (inFlightRef.current) {
+      inFlightRef.current.abort();
+      inFlightRef.current = null;
+      trackEvent('preonboard_error', { tier: selectedTier, error_code: 'USER_CLOSED' });
+    }
+    setSubmitting(false);
+    onClose();
+  };
 
   const handlePhoneChange = (raw: string) => {
     // Pozwalamy uzytkownikowi pisac swobodnie, ale czyscimy znaki niepoprawne.
@@ -269,10 +250,18 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     }
 
     setSubmitting(true);
+    const controller = new AbortController();
+    inFlightRef.current = controller;
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, HUB_TIMEOUT_MS);
     try {
       // ===== 1. Preonboard =====
       const preRes = await fetch(`${HUB}/api/admin/preonboard`, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'X-BP-Preonboard-Key': PREONBOARD_KEY,
@@ -301,7 +290,9 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
           http_status: preRes.status,
         });
 
-        if (errMsg.toLowerCase().includes('nip')) {
+        // Tylko faktyczny duplikat (kod / 409 / komunikat o zajętym NIP-ie) — nie każdy
+        // błąd ze słowem „nip" (np. „Invalid NIP checksum" to walidacja, nie konto).
+        if (isNipTakenError(errCode, preRes.status, errMsg)) {
           setErrorCta('panel');
           throw new Error(
             'Ten NIP jest już zarejestrowany w naszym systemie. Jeśli to Twoja firma — zaloguj się do panelu klienta.',
@@ -311,6 +302,13 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
           throw new Error('Za dużo prób w krótkim czasie. Spróbuj ponownie za godzinę.');
         }
         if (errCode === 'VALIDATION_ERROR' || preRes.status === 422) {
+          if (/\bnip\b/i.test(errMsg)) {
+            setFieldErrors((p) => ({
+              ...p,
+              nip: 'System płatności odrzucił ten NIP — sprawdź cyfry.',
+            }));
+            throw new Error('Sprawdź NIP — system płatności uznał go za nieprawidłowy.');
+          }
           throw new Error(errMsg || 'Sprawdź poprawność wypełnionych pól.');
         }
         if (errCode?.startsWith('AUTH_') || preRes.status === 401 || preRes.status === 403) {
@@ -347,6 +345,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
       const checkoutRes = await fetch(`${HUB}/api/admin/stripe/checkout`, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           'X-BP-Preonboard-Key': PREONBOARD_KEY,
@@ -385,24 +384,37 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
         price_pln: tierCfg.price,
       });
 
+      // Użytkownik zamknął modal w trakcie — nie przekierowujemy.
+      if (controller.signal.aborted) return;
+
       // ===== 3. Redirect do Stripe =====
-      clearDraft(); // H1: user dotarł do Stripe — draft niepotrzebny
-      window.location.href = url;
+      // Draft ZOSTAJE: przy `?stripe=canceled` formularz ma się wypełnić ponownie
+      // (baner obiecuje „Twój wybór nie został utracony"). Czyści go AbonamentSuccess.
+      redirectToCheckout(url);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Nieznany błąd. Spróbuj ponownie.';
+      if (controller.signal.aborted && !timedOut) return; // zamknięty modal — bez komunikatu
+      const message = timedOut
+        ? 'Serwer płatności nie odpowiada. Spróbuj ponownie za chwilę albo napisz: info@mixturemarketing.pl'
+        : err instanceof Error
+          ? err.message
+          : 'Nieznany błąd. Spróbuj ponownie.';
+      if (timedOut) trackEvent('preonboard_error', { tier, error_code: 'TIMEOUT' });
       setError(message);
       setSubmitting(false);
+    } finally {
+      clearTimeout(timer);
+      if (inFlightRef.current === controller) inFlightRef.current = null;
     }
   };
 
   return (
     <dialog
       ref={dialogRef}
-      onClose={onClose}
+      onClose={handleClose}
       onClick={(e) => {
         // Backdrop click: native dialog::backdrop nie jest dzieckiem, więc target === dialog element
         // gdy kliknięto poza wewnętrzny kontener.
-        if (e.target === dialogRef.current) onClose();
+        if (e.target === dialogRef.current) handleClose();
       }}
       aria-labelledby="preonboard-title"
       aria-describedby="preonboard-desc"
@@ -413,7 +425,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
         <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 sm:p-8">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
             aria-label="Zamknij okno"
           >

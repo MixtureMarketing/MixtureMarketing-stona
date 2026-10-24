@@ -83,4 +83,33 @@ describe('PseoTemplate', () => {
     // Tytuł strony głównej (components/pages/Home.tsx) zaczyna się od tej frazy.
     expect(document.title).not.toMatch(/^Agencja Marketingowa Rzeszów/);
   });
+
+  // Regresja z produkcji: /branza/saas--startups/ i /branza/usugi-b2b/ (dokumenty bez
+  // painPoints) miały meta „… Rozwiązujemy problemy: undefined.”
+  it('branża bez painPoints: meta description bez „undefined”', async () => {
+    const { painPoints: _omit, ...withoutPains } = mockIndustry;
+    void _omit;
+    vi.mocked(cmsService.getIndustryBySlug).mockResolvedValue(
+      withoutPains as unknown as SanityIndustry,
+    );
+
+    render(
+      <HelmetProvider>
+        <MemoryRouter initialEntries={['/branza/saas--startups']}>
+          <ModalProvider>
+            <Routes>
+              <Route path="/branza/:slug" element={<PseoTemplate mode="industry" />} />
+            </Routes>
+          </ModalProvider>
+        </MemoryRouter>
+      </HelmetProvider>,
+    );
+
+    await waitFor(() => {
+      const meta = document.head.querySelector('meta[name="description"]');
+      expect(meta?.getAttribute('content')).toBe(
+        'Specjalistyczne usługi IT i marketingu dla branży: E-commerce.',
+      );
+    });
+  });
 });

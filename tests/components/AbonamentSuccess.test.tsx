@@ -50,6 +50,21 @@ describe('AbonamentSuccess', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Płatność');
   });
 
+  it('z sid (płatność potwierdzona) czyści draft formularza abonamentu', () => {
+    sessionStorage.setItem('mm_preonboard_draft', JSON.stringify({ businessName: 'Firma' }));
+    renderAt('/abonament/dziekujemy/?sid=cs_test_123');
+    expect(sessionStorage.getItem('mm_preonboard_draft')).toBeNull();
+  });
+
+  it('bez sid / podczas prerenderu draft zostaje', () => {
+    sessionStorage.setItem('mm_preonboard_draft', JSON.stringify({ businessName: 'Firma' }));
+    renderAt('/abonament/dziekujemy/');
+    window.isPrerendering = true;
+    renderAt('/abonament/dziekujemy/?sid=cs_test_123');
+    expect(sessionStorage.getItem('mm_preonboard_draft')).not.toBeNull();
+    sessionStorage.clear();
+  });
+
   it('jest noindex', async () => {
     renderAt('/abonament/dziekujemy/');
     await waitFor(() => {

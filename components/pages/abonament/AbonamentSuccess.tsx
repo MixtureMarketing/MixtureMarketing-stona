@@ -5,6 +5,7 @@ import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import { trackEvent } from '../../../utils/analytics';
+import { clearDraft } from './preonboardLogic';
 
 const PANEL_URL = 'https://panel.mixturemarketing.pl/login';
 
@@ -22,6 +23,10 @@ const AbonamentSuccess: React.FC = () => {
     if (typeof window === 'undefined' || window.isPrerendering) return;
     if (!sessionId) return;
     tracked.current = true;
+    // Płatność potwierdzona (powrót ze Stripe z `sid`) — dopiero TERAZ draft formularza
+    // jest zbędny. Wcześniej czyścił go modal przed przekierowaniem, więc anulowanie
+    // w Stripe zostawiało pusty formularz.
+    clearDraft();
     trackEvent('purchase', {
       transaction_id: sessionId,
       currency: 'PLN',

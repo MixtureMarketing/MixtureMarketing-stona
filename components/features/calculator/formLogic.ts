@@ -11,6 +11,34 @@ export function visibleQuestions(questions: PublicQuestion[], answers: Answers):
   return questions.filter((q) => q.visible_if == null || matchCondition(q.visible_if, answers));
 }
 
+/** Id kontenera/pola pytania — CalculatorForm ustawia na nim fokus przy błędzie walidacji. */
+export const questionFieldId = (code: string) => `calc-q-${code}`;
+
+/** Krok kontaktowy (e-mail) — zawsze ostatni. */
+export const CONTACT_STEP = '__contact__';
+
+/**
+ * Pierwszy błąd w KOLEJNOŚCI KROKÓW (i pytań w kroku): indeks kroku + id pola do fokusu.
+ * Bez tego błąd pytania z kroku 1 renderował się na niewidocznym kroku, a „Poznaj widełki"
+ * na ostatnim kroku po cichu nic nie robiło.
+ */
+export function firstErrorTarget(
+  steps: string[],
+  visible: PublicQuestion[],
+  errors: Record<string, string>,
+): { stepIdx: number; fieldId: string } | null {
+  for (let i = 0; i < steps.length; i++) {
+    const step = steps[i];
+    if (step === CONTACT_STEP) {
+      if (errors.email) return { stepIdx: i, fieldId: 'calc-email' };
+      continue;
+    }
+    const q = visible.find((x) => (x.group ?? 'projekt') === step && errors[x.code]);
+    if (q) return { stepIdx: i, fieldId: questionFieldId(q.code) };
+  }
+  return null;
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export interface ValidationResult {

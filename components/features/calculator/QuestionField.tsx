@@ -2,6 +2,7 @@
 // Ton: ciemne premium (DESIGN.md). Bez logiki biznesowej — tylko wartość + onChange.
 import React from 'react';
 import type { PublicQuestion } from '../../../services/calculatorService';
+import { questionFieldId } from './formLogic';
 
 interface QuestionFieldProps {
   question: PublicQuestion;
@@ -19,12 +20,24 @@ const INPUT =
 
 const QuestionField: React.FC<QuestionFieldProps> = ({ question, value, onChange, error }) => {
   const { code, text, help_text, answer_type, options } = question;
+  const fieldId = questionFieldId(code);
+  const errId = `${fieldId}-err`;
+  // Błąd jest powiązany z polem (czytnik ekranu odczyta go po fokusie). aria-invalid tylko na
+  // rolach, które go wspierają (textbox, spinbutton, radiogroup) — nie na zwykłym `group`.
+  const describedBy = error ? errId : undefined;
+  const invalid = error ? true : undefined;
 
   const body = () => {
     switch (answer_type) {
       case 'bool':
         return (
-          <div className="flex gap-3" role="group" aria-label={text}>
+          <div
+            id={fieldId}
+            className="flex gap-3"
+            role="group"
+            aria-label={text}
+            aria-describedby={describedBy}
+          >
             {[
               { v: true, l: 'Tak' },
               { v: false, l: 'Nie' },
@@ -44,7 +57,14 @@ const QuestionField: React.FC<QuestionFieldProps> = ({ question, value, onChange
 
       case 'select':
         return (
-          <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={text}>
+          <div
+            id={fieldId}
+            className="grid gap-2 sm:grid-cols-2"
+            role="radiogroup"
+            aria-label={text}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
+          >
             {(options ?? []).map((o) => (
               <button
                 key={o.value}
@@ -65,7 +85,13 @@ const QuestionField: React.FC<QuestionFieldProps> = ({ question, value, onChange
         const toggle = (val: string) =>
           onChange(code, arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val]);
         return (
-          <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label={text}>
+          <div
+            id={fieldId}
+            className="grid gap-2 sm:grid-cols-2"
+            role="group"
+            aria-label={text}
+            aria-describedby={describedBy}
+          >
             {(options ?? []).map((o) => (
               <button
                 key={o.value}
@@ -84,23 +110,29 @@ const QuestionField: React.FC<QuestionFieldProps> = ({ question, value, onChange
       case 'number':
         return (
           <input
+            id={fieldId}
             type="number"
             inputMode="numeric"
             className={INPUT}
             value={value === undefined || value === null ? '' : String(value)}
             onChange={(e) => onChange(code, e.target.value === '' ? '' : Number(e.target.value))}
             aria-label={text}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
           />
         );
 
       default: // text
         return (
           <input
+            id={fieldId}
             type="text"
             className={INPUT}
             value={value === undefined || value === null ? '' : String(value)}
             onChange={(e) => onChange(code, e.target.value)}
             aria-label={text}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
           />
         );
     }
@@ -111,7 +143,11 @@ const QuestionField: React.FC<QuestionFieldProps> = ({ question, value, onChange
       <label className="block text-base font-semibold text-white">{text}</label>
       {help_text && <p className="text-sm text-gray-400">{help_text}</p>}
       {body()}
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <p id={errId} className="text-sm text-red-400">
+          {error}
+        </p>
+      )}
     </div>
   );
 };

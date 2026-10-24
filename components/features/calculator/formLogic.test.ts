@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { visibleQuestions, validate, humanError, pickAnswers } from './formLogic';
+import {
+  visibleQuestions,
+  validate,
+  humanError,
+  pickAnswers,
+  firstErrorTarget,
+  CONTACT_STEP,
+} from './formLogic';
 import type { PublicQuestion } from '../../../services/calculatorService';
 
 const Q = (over: Partial<PublicQuestion>): PublicQuestion => ({
@@ -76,5 +83,30 @@ describe('pickAnswers — tylko kody publiczne, bez pustych', () => {
       sla_detail: '',
     });
     expect(out).toEqual({ project_goal: 'sklep', languages: 2 });
+  });
+});
+
+describe('firstErrorTarget — pierwszy błąd w kolejności kroków', () => {
+  const vis = [
+    Q({ code: 'project_goal', group: 'projekt' }),
+    Q({ code: 'languages', answer_type: 'number', group: 'platforma' }),
+  ];
+  const steps = ['projekt', 'platforma', CONTACT_STEP];
+
+  it('błąd z kroku 1 wygrywa z błędem e-maila na ostatnim kroku', () => {
+    expect(firstErrorTarget(steps, vis, { email: 'x', languages: 'y', project_goal: 'z' })).toEqual(
+      { stepIdx: 0, fieldId: 'calc-q-project_goal' },
+    );
+  });
+
+  it('sam e-mail → krok kontaktowy i pole calc-email', () => {
+    expect(firstErrorTarget(steps, vis, { email: 'x' })).toEqual({
+      stepIdx: 2,
+      fieldId: 'calc-email',
+    });
+  });
+
+  it('brak błędów → null', () => {
+    expect(firstErrorTarget(steps, vis, {})).toBeNull();
   });
 });
