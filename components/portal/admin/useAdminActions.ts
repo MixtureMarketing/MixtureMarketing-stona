@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import MixtureApiClient from '../../../services/apiClient';
 import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -30,9 +30,18 @@ export const useAdminActions = ({
   const { authFetch } = useAuth();
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isSavingMilestone, setIsSavingMilestone] = useState(false);
+  // Każda wiadomość czatu = mail do klienta. Ref blokuje drugi Enter/klik jeszcze
+  // przed re-renderem; stan steruje UI (przycisk disabled, pole readOnly).
+  const [isSendingChat, setIsSendingChat] = useState(false);
+  const sendingChatRef = useRef(false);
+  // Odpowiedź leadowi = mail do potencjalnego klienta; podwójny klik wysyłał 2 maile.
+  const [isReplying, setIsReplying] = useState(false);
+  const replyingRef = useRef(false);
 
   const sendAdminMessage = async (userId: string, content: string) => {
-    if (!userId || !content.trim() || !sessionToken) return false;
+    if (!userId || !content.trim() || !sessionToken || sendingChatRef.current) return false;
+    sendingChatRef.current = true;
+    setIsSendingChat(true);
     try {
       const res = await MixtureApiClient.post<{ warning?: string }>(
         '/api/admin/admin_reply_chat',
@@ -45,7 +54,11 @@ export const useAdminActions = ({
       return true;
     } catch (error) {
       console.error(error);
+      showNotification(serverMessage(error, 'Nie udało się wysłać wiadomości.'), 'error');
       return false;
+    } finally {
+      sendingChatRef.current = false;
+      setIsSendingChat(false);
     }
   };
 
@@ -143,7 +156,9 @@ export const useAdminActions = ({
   };
 
   const handleReply = async (lead: Lead, message: string) => {
-    if (!lead || !message.trim() || !sessionToken) return false;
+    if (!lead || !message.trim() || !sessionToken || replyingRef.current) return false;
+    replyingRef.current = true;
+    setIsReplying(true);
     try {
       await MixtureApiClient.post(
         '/api/admin/reply_lead',
@@ -162,6 +177,9 @@ export const useAdminActions = ({
       // 502 email_failed niesie czytelny komunikat („status leada bez zmian”).
       showNotification(serverMessage(error, 'Błąd wysyłania odpowiedzi.'), 'error');
       return false;
+    } finally {
+      replyingRef.current = false;
+      setIsReplying(false);
     }
   };
 
@@ -183,6 +201,8 @@ export const useAdminActions = ({
   return {
     isUploadingDoc,
     isSavingMilestone,
+    isSendingChat,
+    isReplying,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,

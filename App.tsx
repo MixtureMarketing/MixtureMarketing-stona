@@ -69,8 +69,12 @@ const Loading = () => (
 function App() {
   const { isModalOpen, modalType, openModal, closeModal } = useModal();
   const location = useLocation();
-  // Wszędzie poza stroną główną — chyba że trasa renderuje własne okruszki (bez duplikatu landmarku).
-  const showBreadcrumbs = location.pathname !== '/' && !hasOwnBreadcrumbs(location.pathname);
+  // Wszędzie poza stroną główną i portalem (/portal/* ma własny nagłówek pod stałym Navbarem) —
+  // chyba że trasa renderuje własne okruszki (bez duplikatu landmarku).
+  const showBreadcrumbs =
+    location.pathname !== '/' &&
+    !location.pathname.startsWith('/portal') &&
+    !hasOwnBreadcrumbs(location.pathname);
   const resumeProcessed = React.useRef(false);
 
   // Check if we are in a browser environment and NOT during prerendering

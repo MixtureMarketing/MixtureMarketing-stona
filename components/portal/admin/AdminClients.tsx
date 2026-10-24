@@ -39,7 +39,7 @@ const AdminClients: React.FC<AdminClientsProps> = ({ clients, onEdit }) => {
           Dodaj Klienta
         </Button>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead className="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
             <tr>

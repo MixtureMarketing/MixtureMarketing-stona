@@ -15,7 +15,9 @@ interface PortalHeaderProps {
 
 const PortalHeader: React.FC<PortalHeaderProps> = ({ user, onEditProfile, onLogout }) => {
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    // top-20 = wysokość stałego Navbara strony (h-20): przy przewijaniu nagłówek portalu
+    // przykleja się POD nim, a nie pod nim znika (profil i wyloguj zostają klikalne).
+    <header className="bg-white border-b border-gray-200 sticky top-20 z-30 shadow-sm">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-3 group">

@@ -85,6 +85,36 @@ describe('czat: KV jako cache fail-open', () => {
       count("SELECT COUNT(*) AS n FROM messages WHERE is_read = 0 AND sender_type='admin'"),
     ).toBe(0);
   });
+
+  it('cache trzyma stan PO oznaczeniu: kolejny polling zwraca odpowiedź admina jako przeczytaną', async () => {
+    const env = envWith(createFakeKV());
+    await call(adminReplyChat, env, { body: { user_id: 2, content: 'Hej' }, user: ADMIN });
+
+    // 1. odczyt: z bazy, jeszcze ze stanem „nowa” (klient widzi, co przyszło)
+    const first = await (await call(getMessages, env, { user: CLIENT })).json();
+    expect(first.source).toBe('database');
+    expect(Number(first.messages[0].is_read)).toBe(0);
+
+    // 2. odczyt (polling po 5 s / przeładowanie): z cache i już przeczytana
+    const second = await (await call(getMessages, env, { user: CLIENT })).json();
+    expect(second.source).toBe('cache');
+    expect(Number(second.messages[0].is_read)).toBe(1);
+  });
+
+  it('wiadomości klienta w cache zachowują swój is_read (oznaczamy tylko admina)', async () => {
+    const env = envWith(createFakeKV());
+    await call(sendMessage, env, { body: { content: 'Pytanie' }, user: CLIENT });
+    await call(adminReplyChat, env, { body: { user_id: 2, content: 'Odp' }, user: ADMIN });
+    await call(getMessages, env, { user: CLIENT });
+    const cached = await (await call(getMessages, env, { user: CLIENT })).json();
+    const bySender = Object.fromEntries(
+      cached.messages.map((m: { sender_type: string; is_read: number }) => [
+        m.sender_type,
+        Number(m.is_read),
+      ]),
+    );
+    expect(bySender).toEqual({ client: 0, admin: 1 });
+  });
 });
 
 describe('admin/get_all_messages: polling co 5 s nie zjada limitu KV', () => {

@@ -1,7 +1,10 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Send, CheckCheck, Check } from 'lucide-react';
 import Button from '../../common/Button';
 import { Conversation, Message } from '../types';
+import { useChatScroll } from '../useChatScroll';
+
+const isOwnAdminMessage = (m: Message) => m.sender_type === 'admin';
 
 interface AdminChatProps {
   conversations: Conversation[];
@@ -12,10 +15,10 @@ interface AdminChatProps {
   setAdminMessage: (msg: string) => void;
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  handleChatScroll: () => void;
   sendAdminMessage: (e: React.FormEvent | React.KeyboardEvent) => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
-  chatContainerRef: React.RefObject<HTMLDivElement | null>;
+  /** Wysyłka w toku — każda wiadomość to mail do klienta, więc bez dubli. */
+  isSending?: boolean;
 }
 
 const AdminChat: React.FC<AdminChatProps> = ({
@@ -27,12 +30,14 @@ const AdminChat: React.FC<AdminChatProps> = ({
   setAdminMessage,
   searchTerm,
   setSearchTerm,
-  handleChatScroll,
   sendAdminMessage,
   handleKeyDown,
-  chatContainerRef,
+  isSending = false,
 }) => {
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const { containerRef, onScroll } = useChatScroll(chatMessages, {
+    resetKey: activeChatId,
+    isOwn: isOwnAdminMessage,
+  });
 
   const filteredConversations = (conversations || []).filter(
     (c) =>
@@ -42,9 +47,10 @@ const AdminChat: React.FC<AdminChatProps> = ({
   );
 
   return (
-    <div className="grid grid-cols-12 gap-6 h-[600px] animate-fade-in">
+    // Poniżej md: lista rozmów nad oknem czatu (jedna kolumna), bez poziomego scrolla.
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[600px] animate-fade-in">
       {/* Conversations List */}
-      <div className="col-span-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+      <div className="md:col-span-4 max-h-72 md:max-h-none bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-100 shrink-0">
           <input
             type="text"
@@ -80,15 +86,15 @@ const AdminChat: React.FC<AdminChatProps> = ({
       </div>
 
       {/* Chat Window */}
-      <div className="col-span-8 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+      <div className="md:col-span-8 h-[600px] md:h-auto bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
         {activeChatId ? (
           <>
             <div className="p-4 border-b border-gray-100 font-bold text-dark shrink-0">
               Czat z: {conversations.find((c) => c.id === activeChatId)?.name}
             </div>
             <div
-              ref={chatContainerRef}
-              onScroll={handleChatScroll}
+              ref={containerRef}
+              onScroll={onScroll}
               className="flex-1 p-6 overflow-y-auto space-y-4 bg-gray-50/30 custom-scrollbar"
             >
               {chatMessages.map((msg) => (
@@ -97,7 +103,7 @@ const AdminChat: React.FC<AdminChatProps> = ({
                   className={`flex ${msg.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] p-3 rounded-xl text-sm shadow-sm ${
+                    className={`max-w-[70%] min-w-0 break-words [overflow-wrap:anywhere] whitespace-pre-wrap p-3 rounded-xl text-sm shadow-sm ${
                       msg.sender_type === 'admin'
                         ? 'bg-secondary text-white rounded-br-none'
                         : 'bg-white border border-gray-200 text-gray-700 rounded-bl-none'
@@ -122,7 +128,6 @@ const AdminChat: React.FC<AdminChatProps> = ({
                   </div>
                 </div>
               ))}
-              <div ref={chatEndRef} />
             </div>
             <form
               onSubmit={sendAdminMessage}
@@ -134,8 +139,16 @@ const AdminChat: React.FC<AdminChatProps> = ({
                 value={adminMessage}
                 onChange={(e) => setAdminMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
+                readOnly={isSending}
+                aria-label="Treść wiadomości"
               />
-              <Button icon={<Send size={18} />}>Wyślij</Button>
+              <Button
+                icon={<Send size={18} />}
+                isLoading={isSending}
+                disabled={isSending || !adminMessage.trim()}
+              >
+                {isSending ? 'Wysyłanie…' : 'Wyślij'}
+              </Button>
             </form>
           </>
         ) : (

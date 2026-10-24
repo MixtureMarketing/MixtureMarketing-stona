@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Activity } from 'lucide-react';
@@ -67,6 +67,8 @@ const AdminDashboard: React.FC = () => {
   const {
     isUploadingDoc,
     isSavingMilestone,
+    isSendingChat,
+    isReplying,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,
@@ -102,9 +104,6 @@ const AdminDashboard: React.FC = () => {
     file: null as File | null,
   });
 
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const isAtBottomRef = useRef(true);
-
   useEffect(() => {
     if (isLoading) return;
     // Brak użytkownika (np. sesja wygasła → AuthContext wylogował) → logowanie;
@@ -112,13 +111,6 @@ const AdminDashboard: React.FC = () => {
     if (!user) navigate('/portal', { replace: true });
     else if (user.role !== 'admin') navigate('/portal/dashboard');
   }, [user, isLoading, navigate]);
-
-  const handleChatScroll = () => {
-    if (chatContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-      isAtBottomRef.current = scrollHeight - scrollTop - clientHeight < 50;
-    }
-  };
 
   const onSendAdminMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
@@ -174,11 +166,13 @@ const AdminDashboard: React.FC = () => {
   if (isLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8 font-sans">
+    // pt-28 = Navbar strony (fixed, h-20) + dotychczasowy odstęp p-8.
+    <div className="min-h-screen bg-slate-50 px-4 pb-8 pt-28 sm:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        {/* flex-wrap: 6 zakładek nie mieściło się na telefonie (strona 756 px przy 390). */}
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
           <h1 className="text-3xl font-black text-dark">Admin Panel</h1>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
             {ADMIN_TABS.map((tab) => (
               <button
                 key={tab}
@@ -256,10 +250,9 @@ const AdminDashboard: React.FC = () => {
             setAdminMessage={setAdminMessage}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            handleChatScroll={handleChatScroll}
             sendAdminMessage={onSendAdminMessage}
             handleKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendAdminMessage(e)}
-            chatContainerRef={chatContainerRef}
+            isSending={isSendingChat}
           />
         )}
 
@@ -282,6 +275,7 @@ const AdminDashboard: React.FC = () => {
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
             onReply={onReply}
+            isSending={isReplying}
           />
         )}
         {isMilestoneModalOpen && (

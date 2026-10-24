@@ -9,6 +9,9 @@ import { Project } from '../types';
 interface PortalProjectListProps {
   projects: Project[];
   loading: boolean;
+  /** Błąd ładowania — wtedy NIE pokazujemy pustego stanu „Brak aktywnych projektów”
+   *  (klient z projektami dostawał naraz baner błędu i „nie masz projektów”). */
+  error?: string | null;
   onSelectProject: (id: string) => void;
   getStatusColor: (status: string) => string;
   getStatusLabel: (status: string) => string;
@@ -17,6 +20,7 @@ interface PortalProjectListProps {
 const PortalProjectList: React.FC<PortalProjectListProps> = ({
   projects,
   loading,
+  error = null,
   onSelectProject,
   getStatusColor,
   getStatusLabel,
@@ -30,6 +34,8 @@ const PortalProjectList: React.FC<PortalProjectListProps> = ({
     );
   }
 
+  if (projects.length === 0 && error) return null;
+
   if (projects.length === 0) {
     return (
       <AnimateOnScroll>
@@ -38,13 +44,11 @@ const PortalProjectList: React.FC<PortalProjectListProps> = ({
             <FolderOpen size={40} />
           </div>
           <h3 className="text-xl font-bold text-gray-700 mb-2">Brak aktywnych projektów</h3>
-          <p className="text-500 max-w-md mx-auto mb-8">
+          <p className="text-gray-600 max-w-md mx-auto mb-8">
             Wygląda na to, że nie masz jeszcze przypisanych żadnych projektów. Jeśli uważasz, że to
             błąd, skontaktuj się z nami.
           </p>
-          <Button onClick={() => (window.location.href = 'mailto:kontakt@mixturemarketing.pl')}>
-            Skontaktuj się z opiekunem
-          </Button>
+          <Button href="mailto:info@mixturemarketing.pl">Skontaktuj się z opiekunem</Button>
         </div>
       </AnimateOnScroll>
     );

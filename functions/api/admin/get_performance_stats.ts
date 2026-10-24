@@ -14,12 +14,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { env } = context;
 
   try {
-    // 1. Get Averages
+    // 1. Średnie per metryka i urządzenie (panel pokazuje desktop/mobile osobno,
+    // a średnią łączną liczy ważoną liczbą próbek).
     const averages: any = await env.DB.prepare(
       `
-      SELECT metric_name, AVG(metric_value) as avg_value, COUNT(*) as count
+      SELECT metric_name, device_type, AVG(metric_value) as avg_value, COUNT(*) as count
       FROM performance_metrics
-      GROUP BY metric_name
+      GROUP BY metric_name, device_type
     `,
     ).all();
 
@@ -34,6 +35,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       JSON.stringify({
         averages: averages.results,
         recent: recent.results,
+        sample_size: (averages.results as any[]).reduce((n, r) => n + Number(r.count || 0), 0),
       }),
       {
         headers: { 'Content-Type': 'application/json' },

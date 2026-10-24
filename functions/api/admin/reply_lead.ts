@@ -48,9 +48,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // 2. Update status in D1
-    await env.DB.prepare('UPDATE leads SET status = ? WHERE id = ?')
-      .bind('contacted', lead_id)
+    // 2. Status new → contacted. Tylko z 'new': odpowiedź do leada już
+    // skonwertowanego cofała go na „Kontakt”, a ponowne „Zrób Klienta” wysyłało
+    // drugi mail powitalny.
+    await env.DB.prepare(
+      "UPDATE leads SET status = 'contacted' WHERE id = ? AND (status IS NULL OR status = 'new')",
+    )
+      .bind(lead_id)
       .run();
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });

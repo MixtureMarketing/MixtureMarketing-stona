@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
 import { Mail, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import GlassCard from '../common/GlassCard';
 
 const PortalLogin: React.FC = () => {
-  const { login, sessionExpired } = useAuth();
+  const { login, sessionExpired, user, sessionToken, isLoading } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  // Zalogowany (np. z linku „Zaloguj się, aby odpowiedzieć” w mailu) trafia od razu
+  // do swojego panelu, zamiast zamawiać nowy magic link. Wygasła sesja czyści `user`
+  // w AuthContext, więc wtedy formularz zostaje.
+  const isLoggedIn = !isLoading && !!user && !!sessionToken;
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    navigate(user?.role === 'admin' ? '/portal/admin' : '/portal/dashboard', { replace: true });
+  }, [isLoggedIn, user?.role, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,9 +27,11 @@ const PortalLogin: React.FC = () => {
     setStatus(success ? 'success' : 'error');
   };
 
+  if (isLoggedIn) return null;
+
   if (status === 'success') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 pt-20">
         <GlassCard className="max-w-md w-full p-8 text-center bg-white border-green-100">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
             <CheckCircle2 size={32} />
@@ -37,7 +50,7 @@ const PortalLogin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 pt-20">
       <GlassCard className="max-w-md w-full p-8 bg-white border-gray-200 shadow-xl">
         <div className="text-center mb-8">
           <div className="inline-flex p-3 rounded-xl bg-indigo-50 text-secondary mb-4">

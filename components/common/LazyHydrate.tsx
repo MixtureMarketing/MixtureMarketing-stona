@@ -7,6 +7,12 @@ interface LazyHydrateProps {
   threshold?: number;
   minHeight?: string | number;
   whenVisible?: boolean; // Default behavior, kept for compatibility
+  /**
+   * Wrapper wypełnia wysokość rodzica (height: 100%). Potrzebne, gdy dziecko mierzy
+   * rodzica — np. recharts `ResponsiveContainer height="100%"`: bez tego wrapper ma
+   * wysokość 0 i wykres się nie rysuje.
+   */
+  fill?: boolean;
 }
 
 /**
@@ -27,6 +33,7 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
   rootMargin = '600px',
   threshold = 0.01,
   minHeight = '100px',
+  fill = false,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [hydrated, setHydrated] = useState(isPrerenderBoot);
@@ -75,6 +82,7 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
         minHeight: shouldRenderChildren ? undefined : minHeight,
         display: 'block',
         width: '100%',
+        height: fill ? '100%' : undefined,
       }}
       suppressHydrationWarning={true}
       className={`lazy-hydrate ${hydrated ? 'lazy-hydrated' : 'lazy-placeholder'}`}

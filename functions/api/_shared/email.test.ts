@@ -103,10 +103,9 @@ describe('admin/reply_lead', () => {
     const db = makeDb();
     const res = await call(replyLead as AnyHandler, { DB: db, RESEND_API_KEY: 'k' }, body);
     expect(res.status).toBe(200);
-    expect(db.executed.find((q) => q.sql.includes('UPDATE leads'))?.args).toEqual([
-      'contacted',
-      'L1',
-    ]);
+    const update = db.executed.find((q) => q.sql.includes('UPDATE leads'));
+    expect(update?.sql).toContain("status = 'contacted'");
+    expect(update?.args).toEqual(['L1']);
   });
 });
 

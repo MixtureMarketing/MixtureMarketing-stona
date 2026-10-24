@@ -150,7 +150,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({
                           {doc.type === 'invoice' ? 'Faktura' : doc.subtype}
                         </span>
                       </div>
-                      <div className="flex gap-1 opacity-0 group-hover/doc:opacity-100 transition-opacity">
+                      <div className="flex gap-1 opacity-0 group-hover/doc:opacity-100 focus-within:opacity-100 [@media(pointer:coarse)]:opacity-100 transition-opacity">
                         <button
                           onClick={() => onDownload(doc.id, doc.name)}
                           className="p-1 text-blue-600 hover:bg-blue-50 rounded"
@@ -286,7 +286,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({
                       </div>
                       <button
                         onClick={() => onEditMilestone(m)}
-                        className="p-1 text-gray-400 hover:text-dark opacity-0 group-hover/mile:opacity-100"
+                        className="p-1 text-gray-400 hover:text-dark opacity-0 group-hover/mile:opacity-100 focus-visible:opacity-100 [@media(pointer:coarse)]:opacity-100"
                       >
                         <Edit size={12} />
                       </button>

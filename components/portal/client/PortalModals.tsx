@@ -2,6 +2,7 @@ import React from 'react';
 import { X, RefreshCw, Save } from 'lucide-react';
 import Button from '../../common/Button';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
+import { useDialogA11y } from '../useDialogA11y';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -20,16 +21,26 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onUpdate,
   loading,
 }) => {
+  const dialogRef = useDialogA11y<HTMLDivElement>(onClose, isOpen);
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm p-4">
       <AnimateOnScroll className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden outline-none"
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edytuj swój profil"
+        >
           <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 className="text-xl font-bold text-dark">Edytuj swój profil</h3>
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Zamknij"
               className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all"
             >
               <X size={20} />

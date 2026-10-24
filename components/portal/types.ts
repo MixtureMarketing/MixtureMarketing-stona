@@ -41,34 +41,40 @@ export interface Lead extends BusinessEntity {
   created_at: string;
   message: string;
   budget?: string;
-  company_name?: string; // Unified from 'company'
+  /** Kolumna D1 `leads.company` (get_leads robi SELECT *). */
+  company?: string | null;
+  /** Starsze rekordy/inne źródła mogły nieść `company_name` — fallback. */
+  company_name?: string;
+  phone?: string | null;
+  website?: string | null;
+  source?: string | null;
+  source_url?: string | null;
   current_step: number;
   details?: string;
   service_interest?: string;
 }
 
-export interface MetricValue {
-  desktop: number;
-  mobile: number;
-}
-
 export interface MetricLog {
   metric_name: string;
-  metric_value: number;
-  page_url: string;
-  device_type: string;
+  metric_value: number | null;
+  page_url: string | null;
+  device_type: string | null;
   created_at: string;
 }
 
+/** Wiersz `averages` z admin/get_performance_stats (GROUP BY metric_name, device_type). */
+export interface MetricAverage {
+  metric_name: string;
+  device_type?: string | null;
+  avg_value: number | null;
+  count: number;
+}
+
+/** Kontrakt admin/get_performance_stats (wcześniej UI czytał nieistniejące summary/logs). */
 export interface PerformanceData {
-  summary: {
-    lcp: MetricValue;
-    cls: MetricValue;
-    inp: MetricValue;
-    ttfb: MetricValue;
-    sample_size: number;
-  };
-  logs: MetricLog[];
+  averages?: MetricAverage[];
+  recent?: MetricLog[];
+  sample_size?: number;
 }
 
 export interface ProjectDoc {

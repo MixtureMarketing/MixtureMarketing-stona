@@ -41,7 +41,7 @@ const PortalVerify: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4 pt-20">
         <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6">
           <AlertTriangle size={32} />
         </div>
@@ -55,7 +55,7 @@ const PortalVerify: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 pt-20">
       <Loader2 size={48} className="text-secondary animate-spin mb-4" />
       <p className="text-gray-500 font-medium animate-pulse">Weryfikacja dostępu...</p>
     </div>
