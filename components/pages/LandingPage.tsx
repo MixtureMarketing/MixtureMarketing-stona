@@ -95,7 +95,6 @@ const LandingPage: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
-        lcpImage={CONTENT.seo.image}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Web Development', item: '/web-development/' },

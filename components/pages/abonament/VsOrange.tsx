@@ -126,7 +126,6 @@ const VsOrange: React.FC = () => {
         title="Mixture vs Orange KlikAI — strona w abonamencie dla firmy"
         description="Strona w abonamencie: Mixture 179 zł/mc (Local SEO + GBP + leady SMS) vs Orange KlikAI 39 zł/mc (DIY AI builder). Porównanie 12 cech."
         canonical="/abonament/vs-orange-klikai/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Strona w abonamencie', item: '/abonament/' },

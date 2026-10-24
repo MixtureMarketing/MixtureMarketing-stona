@@ -103,6 +103,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                       className="h-full w-full transform object-cover object-top transition-transform duration-700 group-hover:scale-110"
                       width={600}
                       height={400}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
                     />
                     {/* Fade u dołu — chowa wypalony w grafice tytuł, łączy obraz z kartą */}
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/60 to-transparent" />

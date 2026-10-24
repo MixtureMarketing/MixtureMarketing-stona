@@ -41,6 +41,7 @@ const UxAuditArticle = () => {
           <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">
             <Image
               src="/assets/images/audyt-ux.png"
+              sizes="(max-width: 1024px) 100vw, 1024px"
               alt="UX Team analyzing interface usability"
               className="w-full h-[400px] object-cover"
               priority

@@ -38,7 +38,6 @@ const AbonamentSuccess: React.FC = () => {
         title="Płatność zaakceptowana — startujemy"
         description="Twoja subskrypcja Strona w abonamencie jest aktywna. Sprawdź skrzynkę email — wysłaliśmy magic link do panelu klienta."
         canonical="/abonament/dziekujemy/"
-        lcpImage="/assets/images/sygnet.png"
         noindex
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },

@@ -1,21 +1,14 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { cmsService, SanityIndustry, SanityLocation, client } from '../../../services/cmsService';
+import { cmsService, SanityIndustry, SanityLocation } from '../../../services/cmsService';
 import Seo from '../../common/Seo';
 import NotFound from '../../common/NotFound';
 import AmbientBackground from '../../common/AmbientBackground';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImage } from '../../../types/sanity';
 import { useCmsDocument } from '../../../hooks/useCmsDocument';
 import CmsErrorState from '../../common/CmsErrorState';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
 import { industryAudience } from '../../../utils/seo/title';
-
-const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImage) {
-  return builder.image(source);
-}
 
 interface PseoTemplateProps {
   mode: 'industry' | 'location';
@@ -72,11 +65,6 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
         <Seo
           title={`Marketing i Strony WWW ${industryAudience(data.forWho, data.name)}`}
           description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
-          lcpImage={
-            data.heroImage?.asset?._ref
-              ? urlFor(data.heroImage).width(1200).url()
-              : '/assets/images/sygnet.png'
-          }
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
             { name: `Branża: ${data.name}`, item: `/branza/${slug}/` },
@@ -101,7 +89,6 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
                 `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }
           canonical={slug === 'rzeszow' ? '/miasto/rzeszow/' : `/miasto/${slug}/`}
-          lcpImage="/assets/images/sygnet.png"
           // Strony miejskie inne niz siedziba (Rzeszow) sa tymczasowo noindex
           // do czasu uzupelnienia unikalnej tresci per lokalizacja. Chroni przed
           // doorway pages penalty Google. Zdjac noindex po dodaniu min. 600 slow

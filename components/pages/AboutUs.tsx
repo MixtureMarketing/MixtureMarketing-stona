@@ -49,7 +49,6 @@ const AboutUs: React.FC = () => {
         title="O nas — Zespół Mixture Marketing"
         description="Poznaj zespół Mixture Marketing — agencji marketingowej i software house'u z Rzeszowa. Inżynierska precyzja i kreatywność, na Podkarpaciu i w całej Polsce."
         canonical="/o-nas/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'O nas', item: '/o-nas/' },

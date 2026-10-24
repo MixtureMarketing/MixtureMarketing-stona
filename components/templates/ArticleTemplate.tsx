@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { useParams } from 'react-router-dom';
-import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
+import { cmsService, SanityArticle } from '@/services/cmsService';
 import Seo from '@/components/common/Seo';
 // Lazy — articleSchema (urlFor) trzymane poza glownym Seo chunk, ladowane
 // tylko na stronach artykulow.
@@ -52,11 +52,6 @@ const ArticleTemplate = () => {
       <Seo
         title={article.title}
         description={article.excerpt || 'Artykuł z bazy wiedzy Mixture Marketing'}
-        lcpImage={
-          article.mainImage
-            ? urlFor(article.mainImage).width(1200).url()
-            : '/assets/images/sygnet.png'
-        }
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Baza Wiedzy', item: '/baza-wiedzy/' },

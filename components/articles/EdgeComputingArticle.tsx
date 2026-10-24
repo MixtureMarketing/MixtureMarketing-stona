@@ -53,6 +53,7 @@ const EdgeComputingArticle = () => {
         <div className="mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100">
           <Image
             src="/assets/images/edge-computing.png"
+            sizes="(max-width: 1024px) 100vw, 1024px"
             alt="Edge Computing and Local Data Processing"
             className="w-full h-[400px] object-cover"
             priority

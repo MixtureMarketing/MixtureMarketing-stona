@@ -177,7 +177,6 @@ const WebDevRzeszow: React.FC = () => {
         title="Strony Internetowe Rzeszów — Tworzenie i Projektowanie WWW"
         description="Tworzenie stron internetowych dla firm z Rzeszowa i Podkarpacia: landing page, strony firmowe, sklepy, aplikacje webowe. Cennik widełkowy, bezpłatna wycena."
         canonical="/web-development/rzeszow/"
-        lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Web Development', item: '/web-development/' },

@@ -49,7 +49,6 @@ const CaseStudyTemplate = () => {
       <Seo
         title={`${project.title} - Case Study Mixture Marketing`}
         description={project.excerpt || `Zobacz realizację dla klienta ${project.client}`}
-        lcpImage={project.mainImage ? urlFor(project.mainImage).width(1200).url() : undefined}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Article',

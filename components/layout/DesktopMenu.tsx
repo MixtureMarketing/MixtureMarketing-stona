@@ -197,6 +197,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                             className="w-full h-full object-cover group-hover/art:scale-110 transition-transform duration-500"
                             width={80}
                             height={64}
+                            sizes="80px"
                           />
                         </div>
                         <div className="flex-grow">

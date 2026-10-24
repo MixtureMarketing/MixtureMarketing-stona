@@ -21,7 +21,6 @@ interface SeoProps {
   name?: string;
   canonical?: string;
   image?: string;
-  lcpImage?: string;
   noindex?: boolean;
   article?: Article | SanityArticle | Partial<Article & SanityArticle>;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
@@ -43,7 +42,6 @@ const Seo: React.FC<SeoProps> = ({
   name = 'Mixture Marketing',
   canonical,
   image,
-  lcpImage,
   noindex,
   article,
   jsonLd,
@@ -70,8 +68,6 @@ const Seo: React.FC<SeoProps> = ({
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
   ].filter(Boolean);
 
-  const lcpBasePath = lcpImage?.substring(0, lcpImage.lastIndexOf('.'));
-
   return (
     <Helmet>
       <title>{fullTitle}</title>
@@ -81,25 +77,6 @@ const Seo: React.FC<SeoProps> = ({
       <link rel="alternate" hrefLang="pl-PL" href={canonicalUrl} />
       <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
       {noindex && <meta name="robots" content="noindex, follow" />}
-
-      {lcpBasePath && (
-        <>
-          <link
-            rel="preload"
-            as="image"
-            href={`${lcpBasePath}.avif`}
-            type="image/avif"
-            fetchPriority="high"
-          />
-          <link
-            rel="preload"
-            as="image"
-            href={`${lcpBasePath}.webp`}
-            type="image/webp"
-            fetchPriority="high"
-          />
-        </>
-      )}
 
       {schemas.map((schema, index) => (
         <script key={index} type="application/ld+json">
