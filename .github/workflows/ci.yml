@@ -48,12 +48,17 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1 # plytka kopia, ~5s szybciej
+          # Pelna historia: gitleaks skanuje zakres commitow PR-a / pusha (`<pierwszy>^..<ostatni>`).
+          # Przy fetch-depth: 1 tych commitow nie bylo w klonie — skan konczyl sie
+          # "ambiguous argument … scanned ~0 bytes" i nie sprawdzal niczego (ukryte przez
+          # continue-on-error). Repo jest male (~160 commitow, ~42 MB), koszt kilka sekund.
+          fetch-depth: 0
 
       - name: 🛡️ Gitleaks Security Scan
         uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Na razie nieblokujaco — po kilku zielonych przebiegach z realnym skanem do zdjecia.
         continue-on-error: true
 
       - name: 🟢 Setup Node.js
