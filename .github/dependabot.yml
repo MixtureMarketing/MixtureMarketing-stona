@@ -5,10 +5,15 @@ updates:
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 10
+    # Grupa tylko minor/patch — majory przychodzą jako osobne PR-y (zbiorczy PR z kilkoma
+    # majorami naraz, np. TS 7 + eslint 10, wywalał `npm ci` na peer deps i blokował resztę).
     groups:
       dependencies:
         patterns:
           - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
   # Sanity Studio — osobny projekt z własnym package-lock.json (nie budowany w CI).
   - package-ecosystem: 'npm'
     directory: '/studio-mixture-marketing'
@@ -19,3 +24,6 @@ updates:
       studio-dependencies:
         patterns:
           - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
