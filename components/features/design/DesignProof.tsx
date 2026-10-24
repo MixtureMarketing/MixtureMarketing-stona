@@ -4,6 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { urlFor } from '../../../services/cms/client';
+import { hasRealScreenshot, NOT_DESIGN_WORK } from '../../../services/cms/mockupSlugs';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -13,9 +14,9 @@ import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../../data/content';
  * Ciemnia dowodowa huba /design/ (przebudowa 2026-07-16, krytyka 14/40).
  * Zastępuje sekcję „ROI designu" z liczbami z powietrza (94% / 200%):
  * realizacje z tagami projektowymi z CMS — wejdź i oceń sam.
- * Wykluczenia zweryfikowane OKIEM: makiety z lorem ipsum (impackt,
- * driftmark) oraz glamspace (ilustracja wektorowa, nie zrzut — wróci,
- * jeśli właściciel potwierdzi, że to nasza praca projektowa).
+ * Wykluczenia zweryfikowane OKIEM (services/cms/mockupSlugs.ts): makiety
+ * z lorem ipsum (MOCKUP_SLUGS) oraz NOT_DESIGN_WORK (ilustracja wektorowa,
+ * nie zrzut — wróci, jeśli właściciel potwierdzi, że to nasza praca projektowa).
  */
 
 const DESIGN_TAGS: Record<string, string> = {
@@ -23,12 +24,6 @@ const DESIGN_TAGS: Record<string, string> = {
   uiux: 'UI/UX',
   print: 'Print',
 };
-
-const EXCLUDED_SLUGS = new Set([
-  'impackt-edu',
-  'driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
-  'glamspace',
-]);
 
 interface Realization {
   _id: string;
@@ -54,7 +49,7 @@ const DesignProof: React.FC = () => {
         const today = new Date().toISOString().slice(0, 10);
         const usable = (data as unknown as Realization[])
           .filter((c) => c.mainImage)
-          .filter((c) => !EXCLUDED_SLUGS.has(c.slug))
+          .filter((c) => hasRealScreenshot(c.slug) && !NOT_DESIGN_WORK.has(c.slug))
           .filter((c) => !c.date || c.date <= today)
           .filter(
             (c) =>

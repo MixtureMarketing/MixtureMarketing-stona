@@ -4,6 +4,7 @@ import { ArrowRight, CalendarCheck, KeyRound, LayoutDashboard, LucideIcon } from
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { urlFor } from '../../../services/cms/client';
+import { hasRealScreenshot } from '../../../services/cms/mockupSlugs';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -26,13 +27,6 @@ const MARKETING_TAGS: Record<string, string> = {
   seo: 'SEO',
   analytics: 'Analityka',
 };
-
-/** Makiety z Figmy zamiast zrzutów wdrożeń — nie są dowodem (patrz
- *  WebDevRealizations.MOCKUP_SLUGS; ta sama weryfikacja wizualna 2026-07-15). */
-const MOCKUP_SLUGS = new Set([
-  'impackt-edu',
-  'driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
-]);
 
 const METHOD_ICONS: LucideIcon[] = [LayoutDashboard, CalendarCheck, KeyRound];
 
@@ -61,7 +55,8 @@ const MarketingProof: React.FC = () => {
         const today = new Date().toISOString().slice(0, 10);
         const usable = (data as unknown as Realization[])
           .filter((c) => c.mainImage)
-          .filter((c) => !MOCKUP_SLUGS.has(c.slug))
+          // Makiety z Figmy zamiast zrzutów wdrożeń nie są dowodem (mockupSlugs.ts).
+          .filter((c) => hasRealScreenshot(c.slug))
           .filter((c) => !c.date || c.date <= today)
           // Dowód marketingowy = realizacja z tagiem reklamowym albo SEO.
           .filter((c) =>

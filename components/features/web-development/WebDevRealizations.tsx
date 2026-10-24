@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { urlFor } from '../../../services/cms/client';
+import { hasRealScreenshot } from '../../../services/cms/mockupSlugs';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -55,22 +56,6 @@ const WEB_TAGS: Record<string, string> = {
 const LEAD_SLUG = 'fundacja-niepodzielni';
 
 /**
- * Realizacje wykluczone z sekcji: ich `mainImage` w CMS to makieta z Figmy
- * z tekstem zastępczym „Lorem ipsum", a nie zrzut wdrożonej strony (zweryfikowane
- * wizualnie 2026-07-15). Sekcja obiecuje „Nie wizualizacje i nie mockupy" —
- * pokazanie tu makiety z lorem ipsum robi z nagłówka kłamstwo, a z nas dokładnie
- * tę agencję, od której się odcinamy.
- *
- * TO NIE JEST DOCELOWY FIX. Właściwa naprawa: podmiana `mainImage` w Sanity na
- * prawdziwy zrzut wdrożenia — wtedy skreśl slug z tej listy i realizacja wraca.
- * Nie da się tego wykryć kodem; wymaga oka.
- */
-const MOCKUP_SLUGS = new Set([
-  'impackt-edu',
-  'driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
-]);
-
-/**
  * Dowód wydajności — WYŁĄCZNIE zmierzony, z datą (PRODUCT.md → Constraints).
  * Źródło: PageSpeed Insights API, dane polowe Google CrUX dla https://niepodzielni.com/,
  * pomiar 2026-07-15: mobile LCP 964 ms / CLS 0.000 / INP 101 ms → FAST (zaliczone),
@@ -103,8 +88,9 @@ const WebDevRealizations: React.FC = () => {
         const usable = (data as unknown as Realization[])
           // Bez zrzutu nie ma dowodu — taka realizacja nie wchodzi.
           .filter((c) => c.mainImage)
-          // Makieta z lorem ipsum to nie dowód, tylko atrapa — patrz MOCKUP_SLUGS.
-          .filter((c) => !MOCKUP_SLUGS.has(c.slug))
+          // Makieta z lorem ipsum to nie dowód, tylko atrapa. Sekcja obiecuje „Nie
+          // wizualizacje i nie mockupy" — lista makiet: services/cms/mockupSlugs.ts.
+          .filter((c) => hasRealScreenshot(c.slug))
           // Odporność na daty z przyszłości (KorepetytorAI ma 2026-10-01 w CMS —
           // do potwierdzenia przez właściciela). Bez tego order(date desc) wypycha
           // niewydany projekt na pierwsze miejsce.
