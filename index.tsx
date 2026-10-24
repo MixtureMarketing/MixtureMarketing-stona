@@ -6,7 +6,11 @@ import App from './App';
 import { ModalProvider } from './context/ModalContext';
 import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
 import { trackEvent } from './utils/analytics';
+import { installChunkReloadHandler } from './utils/chunkReload';
 import './index.css';
+
+// Nieaktualne chunki po deployu → jednorazowy reload (z ochroną przed pętlą).
+installChunkReloadHandler();
 
 // Performance Monitoring (Real User Metrics)
 // Wczesniej wysylane do /api/rum-collect.php (Apache PHP backend). Po migracji na
