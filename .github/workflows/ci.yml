@@ -95,6 +95,8 @@ jobs:
           VITE_MM_PREONBOARD_KEY: ${{ secrets.VITE_MM_PREONBOARD_KEY }}
           VITE_MM_HUB_URL: ${{ vars.VITE_MM_HUB_URL || 'https://api.mixturemarketing.pl' }}
           VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          # Wersja builda w raportach bledow frontu (utils/errorReporter.ts).
+          VITE_RELEASE: ${{ github.sha }}
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: false
           # Podbite z 4 -> 8: prerender jest I/O-bound (czeka na hydracje/siec),
           # wiec wiecej rownoleglych stron nakłada sie na czasy oczekiwania.

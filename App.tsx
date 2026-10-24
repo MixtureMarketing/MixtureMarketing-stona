@@ -17,6 +17,7 @@ import CookieBanner from '@/components/features/CookieBanner';
 import { ContactType } from '@/types';
 import { appRoutes } from '@/config/routes';
 import { getOrganizationSchema } from '@/utils/seo/organizationSchema';
+import { SITE_CONFIG } from '@/config/site';
 
 // --- Page Components (Lazy Loaded) ---
 const ContactModal = lazy(() => import('@/components/features/ContactModal'));
