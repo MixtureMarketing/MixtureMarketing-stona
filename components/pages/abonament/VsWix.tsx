@@ -5,7 +5,7 @@ import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import MagneticButton from './MagneticButton';
-import { HeroBadge, GhostButton } from './shared';
+import { HeroBadge, GhostButton, CompareFaq, faqPageJsonLd } from './shared';
 
 const COMPARE_ROWS = [
   {
@@ -82,6 +82,22 @@ const COMPARE_ROWS = [
   },
 ] as const;
 
+/**
+ * FAQ widoczne na stronie i w JSON-LD z jednej tablicy (wcześniej tylko w schemie —
+ * naruszenie wytycznych Google). Usunięte pytanie „Dlaczego Mixture jest 3× droższy"
+ * (zmyślona wycena czasu klienta „500-1000 zł/mc") i niepotwierdzone „~5 dni roboczych".
+ */
+const FAQ = [
+  {
+    q: 'Czy Mixture jest lepszy od Wix?',
+    a: 'Wix jest lepszy dla DIY (sam robisz, 60-165 zł/mc, dużo szablonów, app mobilna). Mixture jest lepszy dla managed (my robimy za Ciebie, Local SEO + GBP w cenie, polski support, Cloudflare edge). Wybór zależy od tego, czy chcesz prowadzić firmę czy stronę.',
+  },
+  {
+    q: 'Czy mogę przenieść stronę z Wix na Mixture?',
+    a: 'Tak. Migracja jest częścią procesu setup w cenie pakietu. Przenosimy treści, zdjęcia, przekierowujemy domenę.',
+  },
+] as const;
+
 const STATUS_LABEL: Record<'ok' | 'mid' | 'no', string> = {
   ok: 'Tak',
   mid: 'Częściowo',
@@ -114,37 +130,6 @@ const StatusCell: React.FC<{ status: 'ok' | 'mid' | 'no'; text: string; featured
 };
 
 const VsWix: React.FC = () => {
-  const compareJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'Czy Mixture jest lepszy od Wix?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Wix jest lepszy dla DIY (sam robisz, 60-165 zł/mc, dużo szablonów, app mobilna). Mixture jest lepszy dla managed (my robimy za Ciebie, Local SEO + GBP w cenie, polski support, Cloudflare edge). Wybór zależy od tego, czy chcesz prowadzić firmę czy stronę.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Dlaczego Mixture jest 3× droższy od Wix?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Mixture to managed service — robimy stronę za Ciebie, prowadzimy Google Business Profile, generujemy treści przez AI (Premium+). Wix to DIY platform — sam wszystko klikasz. Realna różnica: 10 godzin pracy klienta z Wix wycenione na koszt = 500-1000 zł/mc straconego czasu vs 119 zł różnicy z Mixture.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Czy mogę przenieść stronę z Wix na Mixture?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Tak. Migracja jest częścią procesu setup w cenie pakietu. Przenosimy treści, zdjęcia, przekierowujemy domenę. Wymaga ~5 dni roboczych z Wix na Mixture.',
-        },
-      },
-    ],
-  };
-
   return (
     <div className="min-h-screen bg-white text-dark">
       <Seo
@@ -157,7 +142,7 @@ const VsWix: React.FC = () => {
           { name: 'Strona w abonamencie', item: '/abonament/' },
           { name: 'Mixture vs Wix', item: '/abonament/vs-wix/' },
         ]}
-        jsonLd={compareJsonLd}
+        jsonLd={faqPageJsonLd(FAQ)}
       />
 
       <AmbientBackground />
@@ -330,8 +315,10 @@ const VsWix: React.FC = () => {
         </Container>
       </section>
 
+      <CompareFaq items={FAQ} className="bg-gray-50/60" />
+
       {/* ============ CTA ============ */}
-      <section className="py-20 md:py-28 bg-gray-50/60">
+      <section className="py-20 md:py-28">
         <Container>
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-sm border border-emerald-100 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-4">

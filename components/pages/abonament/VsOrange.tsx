@@ -5,7 +5,7 @@ import Seo from '../../common/Seo';
 import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import MagneticButton from './MagneticButton';
-import { HeroBadge, GhostButton } from './shared';
+import { HeroBadge, GhostButton, CompareFaq, faqPageJsonLd } from './shared';
 
 const COMPARE_ROWS = [
   {
@@ -71,6 +71,23 @@ const COMPARE_ROWS = [
   },
 ] as const;
 
+/**
+ * FAQ widoczne na stronie i w JSON-LD z jednej tablicy (wcześniej tylko w schemie —
+ * naruszenie wytycznych Google). Usunięte pytanie „5× droższy" (zmyślone „wartości
+ * rynkowe" 1500/300/200 zł/mc, „≈ 2000 zł różnicy") oraz niepotwierdzone „OVH
+ * (rekomendowane)" i „5-7 dni roboczych".
+ */
+const FAQ = [
+  {
+    q: 'Czy Mixture jest lepszy od Orange KlikAI?',
+    a: 'KlikAI jest tańszy (39 zł/mc) ale to AI-generated DIY platforma — sam korzystasz. Mixture (179 zł/mc) to managed service z Local SEO, Google Business Profile management, leadami SMS, panelem klienta. Wybór zależy od skali — KlikAI dla wizytówki, Mixture dla aktywnego pozyskiwania klientów.',
+  },
+  {
+    q: 'Czy mogę przenieść stronę z Orange KlikAI na Mixture?',
+    a: 'Tak — migracja treści jest w cenie pakietu.',
+  },
+] as const;
+
 const STATUS_LABEL: Record<'ok' | 'mid' | 'no', string> = {
   ok: 'Tak',
   mid: 'Częściowo',
@@ -103,37 +120,6 @@ const StatusCell: React.FC<{ status: 'ok' | 'mid' | 'no'; text: string; featured
 };
 
 const VsOrange: React.FC = () => {
-  const compareJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: 'Czy Mixture jest lepszy od Orange KlikAI?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'KlikAI jest tańszy (39 zł/mc) ale to AI-generated DIY platforma — sam korzystasz. Mixture (179 zł/mc) to managed service z Local SEO, Google Business Profile management, leadami SMS, panelem klienta. Wybór zależy od skali — KlikAI dla wizytówki, Mixture dla aktywnego pozyskiwania klientów.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Czemu Mixture jest prawie 5× droższy od KlikAI?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Bo KlikAI to tylko hosting + AI-generated treści. Mixture dodaje: managed Local SEO (1500 zł/mc u agencji), Google Business Profile management (300 zł/mc u agencji), automatyzacja generowania leadów (200 zł/mc u dewelopera), backup szyfrowany. Łączna wartość Mixture vs KlikAI ≈ 2000 zł różnicy w usługach.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: 'Czy mogę przenieść stronę z Orange KlikAI na Mixture?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Tak — migracja treści jest w cenie pakietu. Domena może zostać u Orange lub przenieść do OVH (rekomendowane). Trwa 5-7 dni roboczych.',
-        },
-      },
-    ],
-  };
-
   return (
     <div className="min-h-screen bg-white text-dark">
       <Seo
@@ -146,7 +132,7 @@ const VsOrange: React.FC = () => {
           { name: 'Strona w abonamencie', item: '/abonament/' },
           { name: 'Mixture vs Orange KlikAI', item: '/abonament/vs-orange-klikai/' },
         ]}
-        jsonLd={compareJsonLd}
+        jsonLd={faqPageJsonLd(FAQ)}
       />
 
       <AmbientBackground />
@@ -384,8 +370,10 @@ const VsOrange: React.FC = () => {
         </Container>
       </section>
 
+      <CompareFaq items={FAQ} />
+
       {/* ============ CTA ============ */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 bg-gray-50/60">
         <Container>
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-sm border border-emerald-100 text-center">
             <h2 className="text-2xl md:text-3xl font-bold text-dark mb-4">

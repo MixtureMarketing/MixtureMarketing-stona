@@ -5,6 +5,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Container from '../../common/Container';
 
 // Re-export wspolnego HeroBadge (moved to common/HeroBadge.tsx w Sprint B3)
 export { default as HeroBadge } from '../../common/HeroBadge';
@@ -145,3 +146,61 @@ export const GhostButton: React.FC<GhostProps> = (props) => {
     </button>
   );
 };
+
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+/**
+ * FAQPage JSON-LD budowany z TEJ SAMEJ tablicy, którą renderuje <CompareFaq>.
+ * Wytyczne Google: dane strukturalne muszą odpowiadać treści widocznej na stronie —
+ * wcześniej /abonament/vs-wix/ i /vs-orange-klikai/ miały FAQ wyłącznie w schemie.
+ */
+export const faqPageJsonLd = (items: readonly FaqItem[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+});
+
+/** Widoczne FAQ stron porównawczych (natywne <details> — działa bez JS i w prerenderze). */
+export const CompareFaq: React.FC<{ items: readonly FaqItem[]; className?: string }> = ({
+  items,
+  className = '',
+}) => (
+  <section className={`py-20 md:py-28 ${className}`} aria-labelledby="compare-faq-title">
+    <Container>
+      <div className="max-w-3xl mx-auto">
+        <h2
+          id="compare-faq-title"
+          className="text-3xl md:text-4xl font-bold text-dark leading-tight mb-8 text-center"
+        >
+          Częste pytania
+        </h2>
+        <div className="space-y-3">
+          {items.map((f) => (
+            <details
+              key={f.q}
+              className="group bg-white rounded-2xl border border-gray-200 open:border-emerald-300 open:shadow-md transition-all"
+            >
+              <summary className="flex items-start justify-between gap-4 p-5 md:p-6 cursor-pointer list-none marker:hidden font-bold text-dark text-base md:text-lg">
+                <span>{f.q}</span>
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-emerald-700 text-xl leading-none group-open:rotate-45 transition-transform"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="px-5 md:px-6 pb-5 md:pb-6 text-gray-700 leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </Container>
+  </section>
+);
