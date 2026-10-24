@@ -48,8 +48,13 @@ const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' 
   const step2Content = getStep2Fallback(type);
   const currentConfig = FORM_CONFIG[type] || null;
 
+  // Turnstile (api.js ~85 kB) dopiero przy pierwszej interakcji z formularzem, nie przy
+  // wejściu na /contact/; wysyłka i tak poczeka na skrypt (getToken w trybie defer).
+  // Ten sam wzorzec co PublicCalculator / AuditWizard.
+  const prepareCaptcha = () => turnstileRef.current?.prepare?.();
+
   const turnstileWidget = (
-    <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
+    <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
   );
 
   if (isSubmitted) {
@@ -62,7 +67,11 @@ const InlineContactForm: React.FC<InlineContactFormProps> = ({ type = 'general' 
   }
 
   return (
-    <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-gray-100">
+    <div
+      className="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-gray-100"
+      onFocusCapture={prepareCaptcha}
+      onPointerDownCapture={prepareCaptcha}
+    >
       {turnstileWidget}
       <div className="mb-6">
         <h2 className="text-2xl md:text-3xl font-bold text-dark mb-2">
