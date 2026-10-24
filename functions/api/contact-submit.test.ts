@@ -104,3 +104,66 @@ describe('contact-submit — akcje bez captchy', () => {
     expect(last).toBe(429);
   });
 });
+
+describe('contact-submit — create nie gubi leada po cichu', () => {
+  const lead = { id: 'nowy', name: 'A', email: 'a@example.com', captcha_token: 'dobry' };
+
+  function stubNetwork(resendStatus: number) {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        if (String(url).includes('turnstile')) return new Response('{"success":true}');
+        emails++;
+        return new Response('{}', { status: resendStatus });
+      }),
+    );
+  }
+
+  function envWithBrokenDb() {
+    return {
+      ...makeEnv(),
+      DB: {
+        prepare: () => ({
+          bind: () => ({
+            first: async () => null,
+            run: async () => {
+              throw new Error('D1_ERROR: overloaded');
+            },
+          }),
+        }),
+      },
+    };
+  }
+
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  it('D1 i Resend padły → 500 LEAD_NOT_SAVED (użytkownik widzi błąd i może ponowić)', async () => {
+    stubNetwork(500);
+    const res = await call(envWithBrokenDb(), { action: 'create', lead });
+    expect(res.status).toBe(500);
+    expect(((await res.json()) as { code: string }).code).toBe('LEAD_NOT_SAVED');
+  });
+
+  it('D1 padło, ale mail wyszedł → sukces (degraded)', async () => {
+    stubNetwork(200);
+    const res = await call(envWithBrokenDb(), { action: 'create', lead });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true, degraded: true });
+    expect(emails).toBe(1);
+  });
+
+  it('D1 zapisało, mail padł → sukces (lead jest w bazie)', async () => {
+    stubNetwork(500);
+    const res = await call(makeEnv(), { action: 'create', lead });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true, degraded: true });
+  });
+
+  it('wszystko OK → sukces bez degraded', async () => {
+    stubNetwork(200);
+    const res = await call(makeEnv(), { action: 'create', lead });
+    expect(await res.json()).toMatchObject({ success: true, degraded: false });
+  });
+});

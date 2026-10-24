@@ -20,6 +20,7 @@
 
 import { checkRateLimit } from './estimation/_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
+import { sendEmail as sendResendEmail } from './_shared/email';
 
 interface Env {
   TURNSTILE_SECRET: string;
@@ -90,31 +91,25 @@ const json = (data: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
   });
 
+// Powiadomienie agencji — wspólny helper (res.ok + console.error przy porażce).
 async function sendEmail(
   env: Env,
   subject: string,
   html: string,
   replyTo?: string,
 ): Promise<boolean> {
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Mixture Marketing <leads@mixturemarketing.pl>',
-        to: [env.NOTIFY_EMAIL],
-        subject,
-        html,
-        reply_to: replyTo,
-      }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  const result = await sendResendEmail(
+    env,
+    {
+      from: 'Mixture Marketing <leads@mixturemarketing.pl>',
+      to: [env.NOTIFY_EMAIL],
+      subject,
+      html,
+      reply_to: replyTo,
+    },
+    'contact-submit',
+  );
+  return result.ok;
 }
 
 function leadEmailHtml(lead: LeadPayload, details: Record<string, unknown> = {}): string {
@@ -237,6 +232,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
       // Zapis do D1 (źródło prawdy). INSERT OR IGNORE — idempotentny przy wznowieniu
       // (ten sam lead.id może przyjść ponownie).
+      let stored = true;
       try {
         await env.DB.prepare(
           `INSERT OR IGNORE INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
@@ -253,14 +249,29 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           .run();
       } catch (e) {
         // Zapis nie może blokować powiadomienia — logujemy i lecimy dalej.
+        stored = false;
         console.error('D1 insert lead failed:', e);
       }
 
       // Powiadomienie do agencji.
       const subject = `🆕 Nowy lead — ${body.lead.name} (${body.lead.service_interest || 'general'})`;
-      await sendEmail(env, subject, leadEmailHtml(body.lead), body.lead.email);
+      const mailed = await sendEmail(env, subject, leadEmailHtml(body.lead), body.lead.email);
 
-      return json({ success: true, id: body.lead.id });
+      // Ani rekordu w D1, ani maila → lead przepadłby bez śladu. Użytkownik MUSI
+      // dostać błąd, żeby spróbować ponownie (INSERT OR IGNORE → retry jest bezpieczny).
+      if (!stored && !mailed) {
+        console.error('[contact-submit] LEAD_NOT_SAVED — D1 i Resend zawiodły', body.lead.id);
+        return json(
+          {
+            message:
+              'Nie udało się zapisać zgłoszenia (chwilowa awaria). Spróbuj ponownie za chwilę lub zadzwoń.',
+            code: 'LEAD_NOT_SAVED',
+          },
+          500,
+        );
+      }
+
+      return json({ success: true, id: body.lead.id, degraded: !stored || !mailed });
     }
 
     case 'update': {

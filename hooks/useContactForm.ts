@@ -7,7 +7,11 @@ import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { ContactFormData } from '../components/features/contact/types';
-import { isLocalhost } from '../utils/contactFormHelpers';
+import {
+  isLocalhost,
+  describeLeadError,
+  CAPTCHA_CLIENT_ERROR_MESSAGE,
+} from '../utils/contactFormHelpers';
 import { trackEvent } from '../utils/analytics';
 
 export const useContactForm = (
@@ -78,8 +82,20 @@ export const useContactForm = (
           await leadService.updateLead(leadId, values, 1);
           setStep(2);
         } else {
+          // Token captchy osobno: tylko JEGO brak to „weryfikacja Turnstile nieudana”.
+          // Błędy serwera (403 captcha / 429 / 5xx / sieć) rozróżnia describeLeadError.
+          let token: string;
           try {
-            const token = await getCaptchaToken();
+            token = await getCaptchaToken();
+          } catch {
+            if (!isLocalhost()) {
+              setSubmitError(CAPTCHA_CLIENT_ERROR_MESSAGE);
+              resetCaptcha();
+              return;
+            }
+            token = 'local_bypass';
+          }
+          try {
             const createdLead = await leadService.createLead({
               ...leadData,
               captcha_token: token,
@@ -88,21 +104,8 @@ export const useContactForm = (
               setLeadId(createdLead.id);
               setStep(2);
             }
-            resetCaptcha();
-          } catch (_err) {
-            if (isLocalhost()) {
-              const createdLead = await leadService.createLead({
-                ...leadData,
-                captcha_token: 'local_bypass',
-              });
-              if (createdLead) {
-                setLeadId(createdLead.id);
-                setStep(2);
-              }
-            } else {
-              setSubmitError('Weryfikacja Turnstile nieudana. Spróbuj ponownie.');
-              resetCaptcha();
-            }
+          } finally {
+            resetCaptcha(); // token Turnstile jest jednorazowy — po każdej próbie nowy
           }
         }
       } else if (step === 2) {
@@ -111,8 +114,8 @@ export const useContactForm = (
       } else {
         setStep((prev) => prev + 1);
       }
-    } catch (_error) {
-      setSubmitError('Błąd zapisu danych.');
+    } catch (error) {
+      setSubmitError(describeLeadError(error));
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +143,7 @@ export const useContactForm = (
         } catch {
           token = isLocalhost() ? 'local_bypass' : '';
           if (!token) {
-            setSubmitError('Błąd weryfikacji bezpieczeństwa.');
+            setSubmitError(CAPTCHA_CLIENT_ERROR_MESSAGE);
             return;
           }
         }
@@ -168,8 +171,9 @@ export const useContactForm = (
       }
       setIsSubmitted(true);
       resetCaptcha();
-    } catch (_error) {
-      setSubmitError('Błąd wysyłania formularza.');
+    } catch (error) {
+      setSubmitError(describeLeadError(error));
+      resetCaptcha();
     }
   };
 

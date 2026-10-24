@@ -20,6 +20,43 @@ export interface Lead extends LeadBase, LeadDetails {
   id: string;
 }
 
+/**
+ * Błąd wywołania /api/contact-submit z zachowanym statusem HTTP (0 = brak
+ * połączenia), żeby formularz mógł pokazać właściwy komunikat zamiast zawsze
+ * „Weryfikacja Turnstile nieudana”.
+ */
+export class LeadSubmitError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly code?: string,
+  ) {
+    super(message);
+    this.name = 'LeadSubmitError';
+  }
+}
+
+async function postLeadApi(body: unknown): Promise<Response> {
+  let response: Response;
+  try {
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    throw new LeadSubmitError(err instanceof Error ? err.message : 'Network error', 0);
+  }
+  if (!response.ok) {
+    // 5xx bywa HTML-em z Cloudflare — response.json() wtedy rzuca.
+    const data = (await response.json().catch(() => ({}))) as { message?: string; code?: string };
+    throw new LeadSubmitError(data.message || 'Server error', response.status, data.code);
+  }
+  return response;
+}
+
 // Simple UUID generator (Client-side)
 function generateUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -64,26 +101,15 @@ export const leadService = {
     const id = generateUUID();
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      await postLeadApi({
+        action: 'create',
+        source_url: window.location.href,
+        website_verify: data.website_verify || '', // Honeypot
+        lead: {
+          id: id,
+          ...data,
         },
-        body: JSON.stringify({
-          action: 'create',
-          source_url: window.location.href,
-          website_verify: data.website_verify || '', // Honeypot
-          lead: {
-            id: id,
-            ...data,
-          },
-        }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Server error');
-      }
 
       // Return the lead object with ID
       const result = { id, ...data };
@@ -109,23 +135,12 @@ export const leadService = {
    */
   async updateLead(id: string, details: LeadDetails, step?: number) {
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'update',
-          id: id,
-          details: details,
-          step: step,
-        }),
+      await postLeadApi({
+        action: 'update',
+        id: id,
+        details: details,
+        step: step,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Server error');
-      }
 
       return true;
     } catch (error) {
