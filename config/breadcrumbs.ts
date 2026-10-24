@@ -45,6 +45,8 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/baza-wiedzy/core-web-vitals-2025': 'Core Web Vitals 2025',
   '/baza-wiedzy/google-ads-skalowanie-budzetu': 'Google Ads - Skalowanie',
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026': 'Ile kosztuje strona Rzeszów 2026',
+  // Tytuł to pytanie z „:” w środku — część przed dwukropkiem nie jest nazwą.
+  '/baza-wiedzy/audyt-ux-sklepu-internetowego': 'Audyt UX sklepu internetowego',
 };
 
 /**
@@ -62,7 +64,10 @@ const HOME_CRUMB = { name: 'Strona Główna', item: '/' };
  * (`currentLabel`, tylko ostatni segment — np. tytuł case study z CMS) → slug ze spacjami.
  */
 export const breadcrumbLabel = (path: string, currentLabel?: string): string =>
-  BREADCRUMBS_PATH_MAP[path] || currentLabel || path.split('/').pop()!.replace(/-/g, ' ');
+  BREADCRUMBS_PATH_MAP[path] ||
+  // Tytuły z CMS bywają z końcową/podwójną spacją („GlamSpace ”) — trafiłyby do schemy.
+  currentLabel?.replace(/\s+/g, ' ').trim() ||
+  path.split('/').pop()!.replace(/-/g, ' ');
 
 /**
  * Okruszki dla schemy BreadcrumbList (Seo `breadcrumbs`) — te same etykiety co widoczne

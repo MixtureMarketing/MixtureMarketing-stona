@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Breadcrumbs from '../../components/common/Breadcrumbs';
 import { getPathBreadcrumbs } from '../../config/breadcrumbs';
+import { BreadcrumbLabelProvider, useBreadcrumbLabel } from '../../context/BreadcrumbLabelContext';
 
 function renderAt(path: string) {
   return render(
@@ -32,6 +33,38 @@ describe('Breadcrumbs', () => {
   });
 });
 
+describe('BreadcrumbLabelContext — etykieta strony z CMS w globalnych okruszkach', () => {
+  const Reporter = ({ label }: { label?: string }) => {
+    useBreadcrumbLabel(label);
+    return null;
+  };
+
+  it('strona z CMS zgłasza nazwę — okruszek pokazuje ją zamiast sluga', () => {
+    render(
+      <MemoryRouter initialEntries={['/branza/usugi-b2b/']}>
+        <BreadcrumbLabelProvider>
+          <Breadcrumbs />
+          <Reporter label="Usługi B2B" />
+        </BreadcrumbLabelProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('Usługi B2B')).toBeTruthy();
+    expect(screen.queryByText('usugi b2b')).toBeNull();
+  });
+
+  it('bez zgłoszonej etykiety zostaje fallback ze sluga', () => {
+    render(
+      <MemoryRouter initialEntries={['/branza/usugi-b2b/']}>
+        <BreadcrumbLabelProvider>
+          <Breadcrumbs />
+          <Reporter />
+        </BreadcrumbLabelProvider>
+      </MemoryRouter>,
+    );
+    expect(screen.getByText('usugi b2b')).toBeTruthy();
+  });
+});
+
 describe('getPathBreadcrumbs — schema BreadcrumbList = widoczne okruszki', () => {
   it('strony statyczne mają etykiety z mapy, nie surowy slug', () => {
     expect(getPathBreadcrumbs('/privacy-policy/')).toEqual([
@@ -56,6 +89,8 @@ describe('getPathBreadcrumbs — schema BreadcrumbList = widoczne okruszki', () 
       { name: 'GlamSpace', item: '/portfolio/glamspace/' },
     ]);
     expect(getPathBreadcrumbs('/contact/', 'Inna nazwa')[1].name).toBe('Kontakt');
+    // Tytuły z CMS z nadmiarowymi spacjami (prod: „GlamSpace ”, „Strona i  Zaawansowane”).
+    expect(getPathBreadcrumbs('/portfolio/x/', ' A  B ')[2].name).toBe('A B');
   });
 
   it('widoczne okruszki używają tej samej etykiety co schema', () => {

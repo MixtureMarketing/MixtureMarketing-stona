@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
 import { BREADCRUMBS_NO_PAGE as noPage, breadcrumbLabel } from '../../config/breadcrumbs';
 import Container from './Container';
+import { useCurrentBreadcrumbLabel } from '../../context/BreadcrumbLabelContext';
 
 // Schema BreadcrumbList renderuje Seo.tsx na podstawie prop `breadcrumbs`.
 // Komponent jest wylacznie warstwa wizualna - nie emituje wlasnego JSON-LD,
@@ -16,6 +17,9 @@ interface BreadcrumbsProps {
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light', currentLabel }) => {
   const location = useLocation();
+  // Prop (ArticleShell) ma pierwszeństwo; globalne okruszki dostają etykietę ze strony z CMS.
+  const reportedLabel = useCurrentBreadcrumbLabel();
+  const lastLabel = currentLabel ?? reportedLabel;
   const pathnames = location.pathname.split('/').filter((x) => x);
   const dark = tone === 'dark';
   const linkCls = dark ? 'text-white/70 hover:text-white' : 'text-gray-700 hover:text-secondary';
@@ -40,7 +44,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light', currentLabel 
               const hasPage = !noPage.has(routeTo.slice(0, -1));
               const displayName = breadcrumbLabel(
                 routeTo.slice(0, -1),
-                isLast ? currentLabel : undefined,
+                isLast ? lastLabel : undefined,
               );
               return (
                 <li key={name} className="flex items-center">

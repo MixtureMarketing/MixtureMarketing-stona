@@ -13,6 +13,7 @@ import { leadService } from '@/services/leadService';
 import { installContactLinkTracking } from '@/utils/analytics';
 import { AuthProvider } from '@/context/AuthContext';
 import { NotificationProvider } from '@/context/NotificationContext';
+import { BreadcrumbLabelProvider } from '@/context/BreadcrumbLabelContext';
 import CookieBanner from '@/components/features/CookieBanner';
 import { ContactType } from '@/types';
 import { appRoutes, hasOwnBreadcrumbs } from '@/config/routes';
@@ -140,60 +141,62 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <GlobalSchema />
-        <div className="min-h-screen bg-gray-50">
-          <CursorGlow />
-          <ScrollToTop />
+        <BreadcrumbLabelProvider>
+          <div className="min-h-screen bg-gray-50">
+            <CursorGlow />
+            <ScrollToTop />
 
-          {/* Skip Link for WCAG Accessibility */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[60] bg-secondary text-white px-4 py-2 rounded-md font-bold shadow-lg ring-2 ring-white transition-none"
-          >
-            Przejdź do treści
-          </a>
+            {/* Skip Link for WCAG Accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-[60] bg-secondary text-white px-4 py-2 rounded-md font-bold shadow-lg ring-2 ring-white transition-none"
+            >
+              Przejdź do treści
+            </a>
 
-          <Navbar />
+            <Navbar />
 
-          <main id="main-content">
-            {showBreadcrumbs && (
-              // Okruszki stoją na samej górze dokumentu (y 0–52), a navbar jest `fixed` h-20 —
-              // zasłania je przy KAŻDEJ pozycji scrolla, więc scroll-padding nic tu nie da.
-              // WCAG 2.4.11: gdy fokus z klawiatury trafi w okruszek, pasek zjeżdża tuż pod
-              // navbar (translate, bez zmiany layoutu strony); dla myszy wygląd bez zmian.
-              <div className="relative z-20 has-[:focus-visible]:z-[var(--z-nav)] has-[:focus-visible]:translate-y-20 has-[:focus-visible]:bg-white has-[:focus-visible]:shadow-md">
-                <Breadcrumbs />
-              </div>
+            <main id="main-content">
+              {showBreadcrumbs && (
+                // Okruszki stoją na samej górze dokumentu (y 0–52), a navbar jest `fixed` h-20 —
+                // zasłania je przy KAŻDEJ pozycji scrolla, więc scroll-padding nic tu nie da.
+                // WCAG 2.4.11: gdy fokus z klawiatury trafi w okruszek, pasek zjeżdża tuż pod
+                // navbar (translate, bez zmiany layoutu strony); dla myszy wygląd bez zmian.
+                <div className="relative z-20 has-[:focus-visible]:z-[var(--z-nav)] has-[:focus-visible]:translate-y-20 has-[:focus-visible]:bg-white has-[:focus-visible]:shadow-md">
+                  <Breadcrumbs />
+                </div>
+              )}
+              {/* resetKey: nawigacja (link w Navbarze) zdejmuje fallback błędu poprzedniej trasy. */}
+              <ErrorBoundary resetKey={location.pathname}>
+                <Suspense fallback={<Loading />}>
+                  <Routes>
+                    {appRoutes.map((route) => (
+                      <Route key={route.path} path={route.path} element={route.element} />
+                    ))}
+                  </Routes>
+                </Suspense>
+              </ErrorBoundary>
+            </main>
+
+            <section aria-label="Zarządzanie plikami cookies">
+              <CookieBanner />
+            </section>
+
+            <LazyHydrate minHeight="400px">
+              <Footer />
+            </LazyHydrate>
+
+            {/* Global Modal - Exclude during prerendering to avoid ReCaptcha context errors */}
+            {/* Własna granica: padnięty chunk/render modala nie kładzie całej strony. */}
+            {!isPrerendering && isModalOpen && (
+              <ErrorBoundary fallback={<ContactModalError onClose={closeModal} />}>
+                <Suspense fallback={null}>
+                  <ContactModal isOpen={true} onClose={closeModal} type={modalType} />
+                </Suspense>
+              </ErrorBoundary>
             )}
-            {/* resetKey: nawigacja (link w Navbarze) zdejmuje fallback błędu poprzedniej trasy. */}
-            <ErrorBoundary resetKey={location.pathname}>
-              <Suspense fallback={<Loading />}>
-                <Routes>
-                  {appRoutes.map((route) => (
-                    <Route key={route.path} path={route.path} element={route.element} />
-                  ))}
-                </Routes>
-              </Suspense>
-            </ErrorBoundary>
-          </main>
-
-          <section aria-label="Zarządzanie plikami cookies">
-            <CookieBanner />
-          </section>
-
-          <LazyHydrate minHeight="400px">
-            <Footer />
-          </LazyHydrate>
-
-          {/* Global Modal - Exclude during prerendering to avoid ReCaptcha context errors */}
-          {/* Własna granica: padnięty chunk/render modala nie kładzie całej strony. */}
-          {!isPrerendering && isModalOpen && (
-            <ErrorBoundary fallback={<ContactModalError onClose={closeModal} />}>
-              <Suspense fallback={null}>
-                <ContactModal isOpen={true} onClose={closeModal} type={modalType} />
-              </Suspense>
-            </ErrorBoundary>
-          )}
-        </div>
+          </div>
+        </BreadcrumbLabelProvider>
       </NotificationProvider>
     </AuthProvider>
   );

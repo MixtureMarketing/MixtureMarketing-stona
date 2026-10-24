@@ -9,6 +9,7 @@ import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
 import CmsErrorState from '@/components/common/CmsErrorState';
 import { useCmsDocument } from '@/hooks/useCmsDocument';
+import { useBreadcrumbLabel } from '@/context/BreadcrumbLabelContext';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 
@@ -30,6 +31,7 @@ const CaseStudyTemplate = () => {
   const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage);
   const project = data?.project ?? null;
   const nextProject = data?.nextProject ?? null;
+  useBreadcrumbLabel(project?.title);
   const [activeAsset, setActiveAsset] = useState<{ asset: SanityImage; caption?: string } | null>(
     null,
   );

@@ -5,6 +5,7 @@ import Seo from '../../common/Seo';
 import NotFound from '../../common/NotFound';
 import AmbientBackground from '../../common/AmbientBackground';
 import { useCmsDocument } from '../../../hooks/useCmsDocument';
+import { useBreadcrumbLabel } from '../../../context/BreadcrumbLabelContext';
 import CmsErrorState from '../../common/CmsErrorState';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
@@ -26,6 +27,8 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
 
   // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
   const { status, data, retry } = useCmsDocument<SanityIndustry | SanityLocation>(slug, fetcher);
+  // Okruszek branży: nazwa z CMS zamiast sluga („usugi b2b”). Miasto ma etykietę w mapie.
+  useBreadcrumbLabel(mode === 'industry' ? (data as SanityIndustry | null)?.name : undefined);
 
   if (status === 'loading') {
     return (
