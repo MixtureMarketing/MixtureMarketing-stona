@@ -12,7 +12,7 @@ interface AdminLeadsProps {
 const AdminLeads: React.FC<AdminLeadsProps> = ({ leads, onViewDetails, onConvert, onReply }) => {
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
         <table className="w-full text-sm text-left">
           <thead className="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
             <tr>

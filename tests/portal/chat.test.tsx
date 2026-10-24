@@ -111,7 +111,7 @@ describe('AdminChat: przewijanie i blokada wysyłki', () => {
     const { container, rerender } = render(
       <AdminChat {...adminProps} activeChatId="7" chatMessages={history} />,
     );
-    const el = scroller(container.querySelector('.col-span-8') as HTMLElement);
+    const el = scroller(container.querySelector('[class*="md:col-span-8"]') as HTMLElement);
     expect(el.scrollTop).toBe(2000);
     el.scrollTop = 0;
     fireEvent.scroll(el);

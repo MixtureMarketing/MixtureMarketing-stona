@@ -47,9 +47,10 @@ const AdminChat: React.FC<AdminChatProps> = ({
   );
 
   return (
-    <div className="grid grid-cols-12 gap-6 h-[600px] animate-fade-in">
+    // Poniżej md: lista rozmów nad oknem czatu (jedna kolumna), bez poziomego scrolla.
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:h-[600px] animate-fade-in">
       {/* Conversations List */}
-      <div className="col-span-4 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+      <div className="md:col-span-4 max-h-72 md:max-h-none bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-100 shrink-0">
           <input
             type="text"
@@ -85,7 +86,7 @@ const AdminChat: React.FC<AdminChatProps> = ({
       </div>
 
       {/* Chat Window */}
-      <div className="col-span-8 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+      <div className="md:col-span-8 h-[600px] md:h-auto bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
         {activeChatId ? (
           <>
             <div className="p-4 border-b border-gray-100 font-bold text-dark shrink-0">

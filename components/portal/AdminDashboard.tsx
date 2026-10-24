@@ -167,11 +167,12 @@ const AdminDashboard: React.FC = () => {
 
   return (
     // pt-28 = Navbar strony (fixed, h-20) + dotychczasowy odstęp p-8.
-    <div className="min-h-screen bg-slate-50 p-8 pt-28 font-sans">
+    <div className="min-h-screen bg-slate-50 px-4 pb-8 pt-28 sm:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        {/* flex-wrap: 6 zakładek nie mieściło się na telefonie (strona 756 px przy 390). */}
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
           <h1 className="text-3xl font-black text-dark">Admin Panel</h1>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2 sm:gap-4">
             {ADMIN_TABS.map((tab) => (
               <button
                 key={tab}
