@@ -9,6 +9,7 @@ import { SanityImage } from '../../../types/sanity';
 import { usePseoData } from '../../../hooks/usePseoData';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
+import { withDla } from '../../../utils/seo/title';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
@@ -60,7 +61,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
     <div className="min-h-screen bg-gray-50 text-dark">
       {isIndustry(data) ? (
         <Seo
-          title={`Marketing i Strony WWW dla ${data.forWho}`}
+          title={`Marketing i Strony WWW ${withDla(data.forWho)}`}
           description={`Specjalistyczne usługi IT i marketingu dla branży: ${data.name}. Rozwiązujemy problemy: ${data.painPoints?.slice(0, 2).join(', ')}.`}
           lcpImage={
             data.heroImage?.asset?._ref
@@ -72,7 +73,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
             { name: `Branża: ${data.name}`, item: `/branza/${slug}` },
           ]}
           service={{
-            name: `Usługi IT i Marketingowe dla ${data.forWho}`,
+            name: `Usługi IT i Marketingowe ${withDla(data.forWho)}`,
             description: `Dedykowane rozwiązania technologiczne i strategie wzrostu skrojone pod specyfikę branży ${data.name}.`,
             serviceType: 'IT & Marketing Consulting',
           }}

@@ -33,6 +33,7 @@ import { NEXTJS_ARTICLE_CONTENT } from '../../data/content/articles/nextjs';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const NextJsArticle = () => {
   const articleData = (ARTICLES.find((a) => a.id === 'nextjs-zloty-standard') ||
@@ -43,7 +44,11 @@ const NextJsArticle = () => {
   return (
     <ArticleShell
       id="nextjs-zloty-standard"
-      title={`${content.header.title.line1}: ${content.header.title.line2} ${content.header.title.suffix}`}
+      title={joinTitleLines(
+        content.header.title.line1,
+        content.header.title.line2,
+        content.header.title.suffix,
+      )}
       description={content.header.subtitle}
       category="tech"
       categoryLabel={content.header.badge}

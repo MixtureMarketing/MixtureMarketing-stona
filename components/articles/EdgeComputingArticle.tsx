@@ -30,6 +30,7 @@ import { BenefitCard, EdgeCodeBlock } from './visuals/EdgeVisualsHelper';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import LazyHydrate from '../common/LazyHydrate';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const MarketGrowthChart = React.lazy(() => import('./visuals/charts/MarketGrowthChart'));
 
@@ -40,7 +41,7 @@ const EdgeComputingArticle = () => {
   return (
     <ArticleShell
       id="edge-computing"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

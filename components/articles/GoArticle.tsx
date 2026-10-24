@@ -22,6 +22,7 @@ import {
 } from './visuals/GoVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const GoArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'go-golang-jezyk-chmury');
@@ -29,7 +30,7 @@ const GoArticle = () => {
   return (
     <ArticleShell
       id="go-golang-jezyk-chmury"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.quote}
       category="tech"
       categoryLabel={CONTENT.header.badge}

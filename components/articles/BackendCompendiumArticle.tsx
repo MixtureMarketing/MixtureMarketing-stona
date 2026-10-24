@@ -27,6 +27,7 @@ import {
 } from './visuals/BackendVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const BackendCompendiumArticle = () => {
   const { openModal } = useModal();
@@ -36,7 +37,7 @@ const BackendCompendiumArticle = () => {
   return (
     <ArticleShell
       id="backend-compendium"
-      title={`${content.header.title.line1}: ${content.header.title.line2}`}
+      title={joinTitleLines(content.header.title.line1, content.header.title.line2)}
       description={content.header.subtitle}
       category="tech"
       categoryLabel={content.header.badge}

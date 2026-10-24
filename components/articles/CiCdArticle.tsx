@@ -8,6 +8,7 @@ import { CICD_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/cic
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import { CiCdHeroVisual, PipelineVisual } from './visuals/CiCdVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const CiCdArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'ci-cd-automatyzacja');
@@ -15,7 +16,7 @@ const CiCdArticle = () => {
   return (
     <ArticleShell
       id="ci-cd-automatyzacja"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

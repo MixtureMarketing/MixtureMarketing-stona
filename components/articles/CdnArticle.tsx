@@ -36,6 +36,7 @@ import {
   EdgeComputingVisual,
   CdnQuiz,
 } from './visuals/CdnVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const ServerLoadChart = React.lazy(() => import('./visuals/charts/ServerLoadChart'));
 
@@ -46,7 +47,7 @@ const CdnArticle = () => {
   return (
     <ArticleShell
       id="cdn-globalna-wydajnosc"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

@@ -32,6 +32,7 @@ import {
   LegoVsPlaymobil,
   BootstrapVsTailwindPreview,
 } from './visuals/TailwindVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const TailwindArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'tailwind-css-przyszlosc-ui');
@@ -40,7 +41,7 @@ const TailwindArticle = () => {
   return (
     <ArticleShell
       id="tailwind-css-przyszlosc-ui"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

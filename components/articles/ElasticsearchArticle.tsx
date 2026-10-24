@@ -16,6 +16,7 @@ import ArticleShell from './ArticleShell';
 import ArticleContextBox from './shared/ArticleContextBox';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const ElasticsearchArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'elasticsearch-inteligentna-wyszukiwarka');
@@ -23,7 +24,7 @@ const ElasticsearchArticle = () => {
   return (
     <ArticleShell
       id="elasticsearch-inteligentna-wyszukiwarka"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

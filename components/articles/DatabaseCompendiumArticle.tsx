@@ -24,6 +24,7 @@ import { LEGACY_ARTICLES as ARTICLES } from '../../services/cms/legacyArticles';
 import { DATABASE_COMPENDIUM_CONTENT } from '../../data/content/articles/database-compendium';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import { DatabaseHeroVisual, DatabaseArchitectureVisual } from './visuals/DatabaseVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 interface DatabasePlayer {
   name: string;
@@ -48,7 +49,7 @@ const DatabaseCompendiumArticle = () => {
   return (
     <ArticleShell
       id="databases-compendium"
-      title={`${content.header.title.line1}: ${content.header.title.line2}`}
+      title={joinTitleLines(content.header.title.line1, content.header.title.line2)}
       description={content.header.subtitle}
       category="tech"
       categoryLabel={content.header.badge}

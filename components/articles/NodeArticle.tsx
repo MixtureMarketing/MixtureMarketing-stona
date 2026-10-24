@@ -20,6 +20,7 @@ import { NodeHeroVisual, RestaurantAnalogyVisual, NodeWarningTable } from './vis
 import { NODE_ARTICLE_CONTENT } from '../../data/content/articles/node';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const NodeArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'nodejs-jeden-jezyk');
@@ -28,7 +29,7 @@ const NodeArticle = () => {
   return (
     <ArticleShell
       id="nodejs-jeden-jezyk"
-      title={`${content.header.title.line1}: ${content.header.title.line2}`}
+      title={joinTitleLines(content.header.title.line1, content.header.title.line2)}
       description={content.header.quote}
       category="tech"
       categoryLabel={content.header.badge}

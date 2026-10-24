@@ -23,6 +23,7 @@ import {
   ArchitectureDiagram,
   OmnichannelVisual,
 } from './visuals/HeadlessVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const HeadlessArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'headless-wordpress');
@@ -31,7 +32,7 @@ const HeadlessArticle = () => {
   return (
     <ArticleShell
       id="headless-wordpress"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}
