@@ -9,7 +9,6 @@ import {
   Search,
   ArrowRight,
   Calculator,
-  Users,
   Network,
   GraduationCap,
   Car,
@@ -68,9 +67,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               Piłsudskiego 17/4), działająca w Podkarpaciu. Realizujemy projekty web development
               (strony WWW, sklepy e-commerce, aplikacje Next.js), kampanie Google Ads i Meta Ads,
               pozycjonowanie SEO oraz branding dla firm z Rzeszowa, Mielca, Stalowej Woli, Krosna i
-              Przemyśla. W 2025 roku agencja obsłużyła klientów m.in. z branży produkcyjnej (SSE
-              Mielec), e-commerce i usług B2B, osiągając +127% wzrostu ruchu organicznego dla
-              producenta z Mielca i −47% redukcji CPA dla e-commerce z Rzeszowa.
+              Przemyśla.
             </p>
           ) : (
             <p className="text-xl text-gray-600 mb-8">
@@ -135,7 +132,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
           </h2>
           <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
             Mixture Marketing to agencja założona w sercu Podkarpacia. Codziennie pracujemy z
-            lokalnym biznesem i społecznością technologiczną Rzeszowa — i to nas wyróżnia.
+            lokalnym biznesem z Rzeszowa i Podkarpacia.
           </p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -145,34 +142,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Ekosystem IT Podkarpacia</h3>
               <p className="text-gray-600">
-                Działamy w środowisku rzeszowskich firm technologicznych. Wspólnie z lokalną
-                społecznością tworzymy klimat sprzyjający cyfryzacji MŚP z całego regionu — od
-                Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
-                <GraduationCap size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Politechnika Rzeszowska</h3>
-              <p className="text-gray-600">
-                Rzeszów jako centrum techniczno-inżynierskie Podkarpacia daje dostęp do high-skill
-                developerów i projektantów kształconych m.in. na Wydziale Elektrotechniki i
-                Informatyki PRz. Bliska współpraca z uczelnią to dla nas stały dopływ świeżych
-                kompetencji.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
-                <Users size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Lokalna społeczność tech</h3>
-              <p className="text-gray-600">
-                Spotykamy się z lokalnym środowiskiem na meetupach takich jak RzeszowJS, Tech
-                Tuesdays Rzeszów i Podkarpackim Forum Technologii. Jeśli chcesz porozmawiać o
-                projekcie twarzą w twarz — znajdziesz nas tam.
+                Działamy w środowisku rzeszowskich firm technologicznych i pracujemy dla MŚP z
+                całego regionu — od Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
               </p>
             </div>
 
@@ -201,9 +172,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 <strong>Klaster IT Podkarpacie</strong> — inicjatywa skupiająca lokalnych
                 przedsiębiorców, software house&apos;y i agencje cyfrowe z całego województwa.
                 Klaster wspiera wymianę doświadczeń, wspólne projekty B2B i reprezentuje branżę
-                wobec samorządu oraz instytucji unijnych. Mixture Marketing uczestniczy w
-                działaniach rzeszowskiej społeczności IT i aktywnie śledzi kierunki, w których
-                zmierza cyfryzacja podkarpackich przedsiębiorstw.
+                wobec samorządu oraz instytucji unijnych. Mixture Marketing aktywnie śledzi
+                kierunki, w których zmierza cyfryzacja podkarpackich przedsiębiorstw.
               </p>
               <p>
                 Zaplecze akademickie tworzy przede wszystkim{' '}
@@ -214,16 +184,6 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 Rzeszowie, jak i rosnącą falę lokalnych startupów i software house&apos;ów. To
                 bezpośrednio przekłada się na dostępność wysokiej klasy specjalistów na lokalnym
                 rynku pracy.
-              </p>
-              <p>
-                Codzienny puls rzeszowskiej społeczności tech bije na regularnych spotkaniach:{' '}
-                <strong>RzeszowJS</strong> (cykliczne meetupy frontend developerów), Tech Tuesdays
-                Rzeszów oraz inicjatywach organizowanych przez RARR (Rzeszowską Agencję Rozwoju
-                Regionalnego). To właśnie podczas tych wydarzeń nawiązujemy relacje z lokalnymi
-                programistami, projektantami i przedsiębiorcami — i właśnie stąd wynika nasza
-                orientacja w specyfice cyfrowej transformacji podkarpackich MŚP: od producentów z
-                Mieleckiej Specjalnej Strefy Ekonomicznej, przez e-commerce z Rzeszowa, po gabinety
-                specjalistyczne szukające pierwszej strony z Local SEO.
               </p>
               <p>
                 Nie bez znaczenia jest też bliskość <strong>Aviation Valley</strong> — klastra
@@ -448,63 +408,25 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             </div>
           </div>
 
-          {/* Realizacje w Rzeszowie — anonimowe case studies (do nadpisania w Sanity) */}
+          {/* Realizacje w Rzeszowie. Trzy anonimowe karty z metrykami (+127% / −47% / 3.2×,
+              „sklep na Shoper") usunięte — liczby bez pomiaru i bez klienta (PRODUCT.md:
+              brak twardych KPI; Shoper odrzucony). Dowód = podpisane case studies w portfolio. */}
           <div className="mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
               Nasze realizacje w Rzeszowie i na Podkarpaciu
             </h2>
-            <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
-              Wybrane wyniki — anonimowe ze względu na NDA. Pełne case studies prezentujemy podczas
-              spotkania.
-            </p>
-            <div className="grid md:grid-cols-3 gap-6">
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
-                  <Factory size={24} />
-                </div>
-                <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider mb-2">
-                  Producent z SSE Mielec
-                </p>
-                <h3 className="text-lg font-bold mb-2">
-                  Strona korporacyjna B2B + kampania rekrutacyjna
-                </h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Branża: przemysł motoryzacyjny, 80 pracowników. Redesign strony korporacyjnej +
-                  landing page rekrutacyjny.
-                </p>
-                <p className="text-2xl font-extrabold text-orange-700">+127%</p>
-                <p className="text-xs text-gray-500">wzrost ruchu organicznego w 6 miesięcy</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
-                  <ShoppingBag size={24} />
-                </div>
-                <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-2">
-                  E-commerce z Rzeszowa
-                </p>
-                <h3 className="text-lg font-bold mb-2">Sklep internetowy + kampanie Google Ads</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Branża: wyposażenie biurowe B2B. Nowy sklep na Shoper + kampania Performance Max.
-                </p>
-                <p className="text-2xl font-extrabold text-emerald-700">−47%</p>
-                <p className="text-xs text-gray-500">redukcja kosztu pozyskania klienta (CPA)</p>
-              </article>
-
-              <article className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="w-12 h-12 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center mb-4">
-                  <Code2 size={24} />
-                </div>
-                <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wider mb-2">
-                  Software House z Podkarpacia
-                </p>
-                <h3 className="text-lg font-bold mb-2">Rebranding + nowa strona firmowa</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  Branża: usługi IT, 25 pracowników. Pełny redesign identyfikacji + strona Next.js.
-                </p>
-                <p className="text-2xl font-extrabold text-indigo-700">3.2×</p>
-                <p className="text-xs text-gray-500">wzrost liczby leadów z formularza WWW</p>
-              </article>
+            <div className="text-center bg-white rounded-3xl p-10 border border-gray-100 shadow-sm max-w-3xl mx-auto">
+              <p className="text-lg text-gray-700 mb-6">
+                Nie pokazujemy tu anonimowych procentów. Podpisane realizacje — KorepetytorAI,
+                Impackt Edu, Fundacja Niepodzielni, Driftmark Marine i kolejne — znajdziesz w
+                portfolio z opisem zakresu prac.
+              </p>
+              <Link
+                to="/portfolio/"
+                className="text-secondary hover:underline font-semibold inline-flex items-center gap-2"
+              >
+                Zobacz pełne portfolio realizacji <ArrowRight size={16} aria-hidden="true" />
+              </Link>
             </div>
           </div>
 

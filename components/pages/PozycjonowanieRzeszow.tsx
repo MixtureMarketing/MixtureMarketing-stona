@@ -23,6 +23,7 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 const PozycjonowanieRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -78,10 +79,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
       '@type': 'Service',
       name: 'Pozycjonowanie stron internetowych Rzeszów',
       serviceType: 'SEO / Search Engine Optimization',
-      provider: {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_CONFIG.domain}/#organization`,
-      },
+      provider: ORG_REF,
       areaServed: [
         { '@type': 'City', name: 'Rzeszów' },
         { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
@@ -151,7 +149,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Pozycjonowanie Stron Rzeszów — Proces, Cennik, Efekty"
-        description="Pozycjonowanie stron internetowych w Rzeszowie — jak działa, ile kosztuje, kiedy zobaczysz efekty. Lokalne i ogólnopolskie SEO dla firm z Rzeszowa i Podkarpacia. Proces krok po kroku + transparentny cennik."
+        description="Pozycjonowanie stron w Rzeszowie: jak działa, ile kosztuje i kiedy widać efekty. Lokalne i ogólnopolskie SEO dla firm z Podkarpacia — proces i cennik."
         canonical="/pozycjonowanie-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
@@ -198,12 +196,12 @@ const PozycjonowanieRzeszow: React.FC = () => {
         <AmbientBackground />
         <Container className="relative z-10">
           {/* Stats strip */}
-          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {/* „200+ fraz w TOP 30" usunięte (niezmierzone — decyzja właściciela);
+                licznik projektów usunięty (bez potwierdzenia — PRODUCT.md: brak KPI);
                 staż jako „od 2020" (doświadczenie zespołu), spółka od 2023. */}
             {[
               { value: 2020, prefix: 'od ', label: 'doświadczenie zespołu', decimals: 0 },
-              { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
               { value: 8, suffix: ' tyg', label: 'pierwsze sygnały efektów', decimals: 0 },
               {
                 value: 1200,
@@ -351,7 +349,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
                   price: 'od 3 500',
                   suffix: 'zł/mies',
                   desc: 'Sklepy 500+ SKU, kategorie, produkty, blog, technical SEO.',
-                  bestFor: 'WooCommerce, Shoper, dedykowane',
+                  bestFor: 'WooCommerce, PrestaShop, dedykowane',
                 },
                 {
                   name: 'Audyt SEO',

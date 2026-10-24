@@ -16,6 +16,7 @@ import BaseCta from '../common/BaseCta';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import RelatedArticles from '../articles/RelatedArticles';
 import { useModal } from '@/context/ModalContext';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 /**
  * Hub /marketing/ — przebudowa 2026-07-16 (krytyka 12/40, pełna ścieżka;
@@ -51,12 +52,7 @@ const Marketing: React.FC = () => {
             '@context': 'https://schema.org',
             '@type': 'Service',
             serviceType: 'Digital Marketing',
-            provider: {
-              '@type': 'Organization',
-              name: 'Mixture Marketing',
-              url: 'https://mixturemarketing.pl',
-              logo: 'https://mixturemarketing.pl/assets/images/sygnet.png',
-            },
+            provider: ORG_REF,
             areaServed: 'PL',
             hasOfferCatalog: {
               '@type': 'OfferCatalog',

@@ -14,7 +14,7 @@ export const ECOMMERCE_CONTENT = {
   seo: {
     title: 'Sklepy internetowe — WooCommerce, PrestaShop | Mixture Marketing',
     description:
-      'Budujemy sklepy na otwartym oprogramowaniu: WooCommerce, PrestaShop, a przy nietypowej sprzedaży Medusa.js albo Sylius. Płatności (BLIK, Przelewy24), kurierzy (InPost, DPD), Allegro przez BaseLinker. Kod i dane należą do Ciebie.',
+      'Sklepy na WooCommerce i PrestaShop, przy nietypowej sprzedaży Medusa.js lub Sylius. BLIK, Przelewy24, InPost, Allegro przez BaseLinker. Kod i dane są Twoje.',
     image: '/assets/images/realizacje/driftmark-sklep-home.webp',
   },
   hero: {

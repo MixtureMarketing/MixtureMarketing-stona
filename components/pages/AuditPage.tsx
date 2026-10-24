@@ -14,7 +14,7 @@ const AuditPage: React.FC = () => {
           wolniejsze); raport PDF od dziś realnie wysyłany użytkownikowi. */}
       <Seo
         title="Darmowy audyt SEO + UX strony — Mixture Audit 360™"
-        description="Wpisz adres strony — w około minutę dostaniesz wynik online i raport PDF na maila: błędy SEO, Core Web Vitals, analityka. Bez rejestracji, bez kontaktu handlowca."
+        description="Wpisz adres strony — w około minutę dostaniesz wynik online i raport PDF na maila: błędy SEO, Core Web Vitals, analityka. Bez rejestracji i handlowca."
         canonical="/audyt-360/"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },

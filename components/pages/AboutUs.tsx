@@ -11,6 +11,8 @@ import { client } from '../../services/cms/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityTeamMember } from '../../types/sanity';
 import { SITE_CONFIG } from '../../config/site';
+import { normalizeTeamMember } from '../../utils/teamMember';
+import { FOUNDER_ID, FOUNDER_NAME, ORG_REF } from '../../utils/seo/organizationSchema';
 
 const builder = imageUrlBuilder(client);
 const urlFor = (img: SanityTeamMember['image']) =>
@@ -23,17 +25,19 @@ const AboutUs: React.FC = () => {
   useEffect(() => {
     caseStudyService
       .getTeamMembers()
-      .then(setTeam)
+      .then((members) => setTeam(members.map(normalizeTeamMember)))
       .catch(() => setTeam([]));
   }, []);
 
   // Person schema dla kazdego pracownika - silny sygnal E-E-A-T (Experience+Expertise).
+  // Założyciel dostaje to samo @id co karta na /abonament/ — jedna osoba w grafie, nie dwie.
   const personSchemas = team.map((m) => ({
     '@context': 'https://schema.org',
     '@type': 'Person',
+    ...(m.name === FOUNDER_NAME && { '@id': FOUNDER_ID }),
     name: m.name,
-    jobTitle: m.role,
-    worksFor: { '@id': `${SITE_CONFIG.domain}/#organization` },
+    jobTitle: m.role || undefined,
+    worksFor: ORG_REF,
     image: m.image ? urlFor(m.image) : undefined,
     email: m.email,
     sameAs: m.linkedin ? [m.linkedin] : undefined,
@@ -43,7 +47,7 @@ const AboutUs: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="O nas — Zespół Mixture Marketing"
-        description="Poznaj zespół Mixture Marketing — agencji marketingowej 360° i software house z Rzeszowa. Łączymy inżynierską precyzję z kreatywnością. Działamy lokalnie na Podkarpaciu i ogólnopolsko."
+        description="Poznaj zespół Mixture Marketing — agencji marketingowej i software house'u z Rzeszowa. Inżynierska precyzja i kreatywność, na Podkarpaciu i w całej Polsce."
         canonical="/o-nas/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

@@ -26,9 +26,13 @@ const sanityClient = createClient({
 });
 
 // Zwraca date w formacie YYYY-MM-DD (W3C Date subset wymagany przez <lastmod>).
+// Brak daty = brak <lastmod> (null), NIGDY „dzisiaj": data builda to falszywy sygnal
+// swiezosci — Google przestaje ufac lastmod calej domeny, gdy ten zmienia sie przy
+// kazdym deployu bez zmiany tresci.
 function formatLastmod(value) {
-  if (!value) return new Date().toISOString().split('T')[0];
-  return new Date(value).toISOString().split('T')[0];
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
 }
 
 // Wymusza trailing slash poza root i URL-ami z query/hash. Kanoniczna forma.
@@ -42,16 +46,16 @@ function withTrailingSlash(route) {
 async function generateSitemap() {
   console.log('Generating sitemap.xml...');
 
-  const todayIso = new Date().toISOString().split('T')[0];
-
-  // Statyczne sciezki - lastmod = data buildu.
+  // Statyczne sciezki - BEZ lastmod. Wczesniej lastmod = data buildu (kazdy push
+  // „odswiezal" ~60 stron bez zmiany tresci). Docelowo: realna data zmiany per trasa
+  // (np. w routes.js albo z git log w CI z pelna historia).
   // Dla kluczowych stron lokalnych dodajemy image:image z geo_location -
   // sygnal dla Google Image Search ze obrazy sa powiazane z Rzeszowem.
   const LOCAL_IMAGE_OVERRIDES = {
     '/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
       title: 'Mixture Marketing — Agencja Marketingowa Rzeszów',
-      caption: 'Biuro Mixture Marketing przy Al. Józefa Piłsudskiego 17/4 w Rzeszowie',
+      caption: 'Mixture Marketing — Al. Józefa Piłsudskiego 17/4, Rzeszów (adres rejestrowy)',
       geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/miasto/rzeszow/': {
@@ -87,7 +91,7 @@ async function generateSitemap() {
     '/o-nas/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
       title: 'Zespół Mixture Marketing — Rzeszów',
-      caption: 'Eksperci web development, SEO i marketingu z biura w Rzeszowie',
+      caption: 'Eksperci web development, SEO i marketingu z Rzeszowa',
       geo: 'Rzeszów, Podkarpacie, Polska',
     },
   };
@@ -97,7 +101,7 @@ async function generateSitemap() {
     const override = LOCAL_IMAGE_OVERRIDES[withTrailingSlash(route)];
     return {
       url,
-      lastmod: todayIso,
+      lastmod: null,
       image: override || null,
     };
   });
@@ -200,7 +204,8 @@ async function generateSitemap() {
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${allEntries
   .map((entry) => {
-    let inner = `    <loc>${xmlEscape(entry.url)}</loc>\n    <lastmod>${entry.lastmod}</lastmod>`;
+    let inner = `    <loc>${xmlEscape(entry.url)}</loc>`;
+    if (entry.lastmod) inner += `\n    <lastmod>${entry.lastmod}</lastmod>`;
     if (entry.image && entry.image.loc) {
       inner += `\n    <image:image>\n      <image:loc>${xmlEscape(entry.image.loc)}</image:loc>`;
       if (entry.image.title)

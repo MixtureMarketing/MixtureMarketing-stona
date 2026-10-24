@@ -16,6 +16,7 @@ import CaseStudyHero from './case-study/CaseStudyHero';
 import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
+import { ORG_PUBLISHER } from '../../utils/seo/organizationSchema';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
@@ -87,15 +88,8 @@ const CaseStudyTemplate = () => {
           headline: project.title,
           image: project.mainImage ? [urlFor(project.mainImage).width(1200).url()] : [],
           datePublished: project.date,
-          author: { '@type': 'Organization', name: 'Mixture Marketing' },
-          publisher: {
-            '@type': 'Organization',
-            name: 'Mixture Marketing',
-            logo: {
-              '@type': 'ImageObject',
-              url: 'https://mixturemarketing.pl/assets/images/sygnet.png',
-            },
-          },
+          author: ORG_PUBLISHER,
+          publisher: ORG_PUBLISHER,
           description: project.excerpt,
         }}
       />

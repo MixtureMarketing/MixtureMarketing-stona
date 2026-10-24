@@ -6,6 +6,8 @@ export const GO_ARTICLE_CONTENT = {
       line2: 'Uber i Twitch już tam są.',
     },
     quote: '"Gdy Python jest za wolny, a Java za ciężka."',
+    seoDescription:
+      'Go (Golang) — język chmury: goroutines, wydajność bez kompromisów i czemu Docker oraz Kubernetes są napisane w Go. Gdy Python jest za wolny, a Java za ciężka.',
   },
   contextBox: {
     text: 'Ten artykuł jest częścią serii <strong>Backend Architecture</strong>.',

@@ -24,6 +24,7 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import { CountUp } from './abonament/shared';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 const AgencjaInteraktywnaRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -49,7 +50,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       question: 'Jak długo trwa realizacja projektu strony WWW w Rzeszowie?',
       answer:
-        'Landing page (1 sekcja, formularz) — 5–10 dni roboczych. Strona firmowa (5–10 podstron, CMS) — 4–8 tygodni. Sklep e-commerce (WooCommerce/Shoper) — 6–12 tygodni. Aplikacja webowa dedykowana (z bazą danych, panel admina) — od 12 tygodni wzwyż. Branding (logo + identyfikacja) — równolegle 3–5 tygodni. Harmonogram dostajesz z dnia 0, statusy 1×/tydz na call lub Slack.',
+        'Landing page (1 sekcja, formularz) — 5–10 dni roboczych. Strona firmowa (5–10 podstron, CMS) — 4–8 tygodni. Sklep e-commerce (WooCommerce/PrestaShop) — 6–12 tygodni. Aplikacja webowa dedykowana (z bazą danych, panel admina) — od 12 tygodni wzwyż. Branding (logo + identyfikacja) — równolegle 3–5 tygodni. Harmonogram dostajesz z dnia 0, statusy 1×/tydz na call lub Slack.',
     },
     {
       question: 'Jakie branże obsługujecie najczęściej w Rzeszowie i na Podkarpaciu?',
@@ -69,7 +70,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       question: 'Jakie technologie stosujecie?',
       answer:
-        'Frontend: React, Next.js, Astro. CMS: WordPress, Sanity, Shoper, WooCommerce. Backend: Node.js, PHP (Laravel), Go. Design: Figma, Adobe CC. Analityka: GA4, GSC, Hotjar, Clarity. Stack dobieramy do projektu, nie odwrotnie.',
+        'Frontend: React, Next.js, Astro. CMS: WordPress, Sanity, WooCommerce. Backend: Node.js, PHP (Laravel). Design: Figma, Adobe CC. Analityka: GA4, GSC, Hotjar, Clarity. Stack dobieramy do projektu, nie odwrotnie.',
     },
     {
       question: 'Czy mogę zobaczyć Wasze realizacje z Rzeszowa i Podkarpacia?',
@@ -84,10 +85,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
       '@type': 'Service',
       name: 'Agencja interaktywna Rzeszów',
       serviceType: 'Interactive Agency / Digital Agency',
-      provider: {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_CONFIG.domain}/#organization`,
-      },
+      provider: ORG_REF,
       areaServed: [
         { '@type': 'City', name: 'Rzeszów' },
         { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
@@ -192,7 +190,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Agencja Interaktywna Rzeszów — Web, Branding, Marketing"
-        description="Mixture Marketing — agencja interaktywna Rzeszów. Strony WWW, aplikacje webowe, branding cyfrowy, kampanie Google/Meta Ads, narzędzia interaktywne. Spotkania u klienta na terenie Rzeszowa i Podkarpacia, online lub w centrum miasta."
+        description="Agencja interaktywna Rzeszów: strony WWW, aplikacje webowe, branding, kampanie Google i Meta Ads. Spotkania u klienta na Podkarpaciu lub online."
         canonical="/agencja-interaktywna-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[
@@ -237,12 +235,11 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
       <div className="py-20 relative z-10">
         <AmbientBackground />
         <Container className="relative z-10">
-          {/* Stats strip — trust signals dla lokalnego B2B */}
-          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          {/* Stats strip — trust signals dla lokalnego B2B. Liczniki projektów i branż
+              usunięte (bez potwierdzenia — PRODUCT.md: brak twardych KPI). */}
+          <div className="max-w-2xl mx-auto mb-20 grid grid-cols-2 gap-4 md:gap-6">
             {[
               { value: 2020, prefix: 'od ', label: 'doświadczenie zespołu', decimals: 0 },
-              { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
-              { value: 15, suffix: '+', label: 'branż', decimals: 0 },
               { value: 24, suffix: 'h', label: 'czas odpowiedzi', decimals: 0 },
             ].map((s) => (
               <div
@@ -422,7 +419,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
                     <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />
-                    <span>E-commerce: sklepy Shoper, WooCommerce, dedykowane</span>
+                    <span>E-commerce: sklepy WooCommerce, PrestaShop, dedykowane</span>
                   </li>
                   <li className="flex gap-2">
                     <CheckCircle2 size={18} className="text-success flex-shrink-0 mt-0.5" />

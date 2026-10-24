@@ -33,7 +33,7 @@ const ALL_SPOKES: {
   {
     type: 'google-ads',
     title: 'Google Ads',
-    desc: 'Search, Performance Max, Shopping, Display. ROAS średni 4.2× w kampaniach lokalnych.',
+    desc: 'Search, Performance Max, Shopping, Display. Integracja z GA4, konto reklamowe zostaje Twoje.',
     path: '/marketing/google-ads/',
     icon: ShieldCheck,
     accent: 'bg-blue-100 text-blue-700',

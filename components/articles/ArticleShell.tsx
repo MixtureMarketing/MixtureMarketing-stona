@@ -16,6 +16,7 @@ import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
 import { useNotification } from '../../context/NotificationContext';
 import { withTrailingSlash } from '../../utils/url';
+import { ORG_PUBLISHER, ORG_REF } from '../../utils/seo/organizationSchema';
 
 interface ArticleShellProps {
   id: string;
@@ -89,17 +90,9 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
       name: author.name,
       ...(author.role && { jobTitle: author.role }),
       url: `${baseUrl}${author.url || '/o-nas/'}`,
-      worksFor: {
-        '@type': 'Organization',
-        name: 'Mixture Marketing',
-        url: baseUrl,
-      },
+      worksFor: ORG_REF,
     },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Mixture Marketing',
-      logo: { '@type': 'ImageObject', url: `${baseUrl}/assets/images/sygnet.png` },
-    },
+    publisher: ORG_PUBLISHER,
     datePublished: isoPublished,
     dateModified: isoUpdated,
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${canonicalPath}` },

@@ -24,6 +24,7 @@ import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 const SeoRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -69,10 +70,7 @@ const SeoRzeszow: React.FC = () => {
       '@type': 'Service',
       name: 'Pozycjonowanie stron internetowych Rzeszów (SEO)',
       serviceType: 'SEO / Search Engine Optimization',
-      provider: {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_CONFIG.domain}/#organization`,
-      },
+      provider: ORG_REF,
       areaServed: [
         { '@type': 'City', name: 'Rzeszów' },
         { '@type': 'AdministrativeArea', name: 'Podkarpackie' },
@@ -142,7 +140,7 @@ const SeoRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Agencja SEO Rzeszów — Pozycjonowanie Stron Internetowych"
-        description="Agencja SEO Rzeszów — Mixture Marketing. Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content marketing. Cennik widełkowy. Bezpłatny audyt."
+        description="Agencja SEO Rzeszów: pozycjonowanie stron dla firm z Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content. Cennik widełkowy."
         canonical="/agencja-seo-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

@@ -28,6 +28,16 @@
 /pozycjonowanie-stron-internetowych-rzeszow   /pozycjonowanie-rzeszow/  301
 /pozycjonowanie-stron-internetowych-rzeszow/  /pozycjonowanie-rzeszow/  301
 
+# Polskie aliasy URL (uzytkownicy i asystenci AI zgaduja polskie sciezki; dotad 404).
+# Cele istnieja w config/routes.tsx + routes.js (prerendered). Zadna trasa ani plik
+# w public/ nie uzywa tych sciezek (/assets/images/realizacje/ to inny prefiks).
+/kontakt        /contact/     301
+/kontakt/       /contact/     301
+/oferta         /offers/      301
+/oferta/        /offers/      301
+/realizacje     /portfolio/   301
+/realizacje/    /portfolio/   301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje

@@ -93,8 +93,6 @@ export const OFFERS_CONTENT = {
     'TypeScript',
     'Laravel',
     'Node.js',
-    'Go',
-    'AWS',
     'WordPress',
     'WooCommerce',
     'Figma',

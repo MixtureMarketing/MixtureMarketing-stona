@@ -17,6 +17,7 @@ import Container from '../common/Container';
 import PlotterTimeline from '../common/PlotterTimeline';
 import DesignProof from '../features/design/DesignProof';
 import { SITE_CONFIG } from '../../config/site';
+import { ORG_REF } from '../../utils/seo/organizationSchema';
 
 /**
  * Hub /design/ — przebudowa 2026-07-16 (krytyka 14/40, pełna ścieżka
@@ -56,12 +57,7 @@ const DesignBranding: React.FC = () => {
           '@context': 'https://schema.org',
           '@type': 'Service',
           serviceType: 'Design & Branding',
-          provider: {
-            '@type': 'Organization',
-            name: 'Mixture Marketing',
-            url: 'https://mixturemarketing.pl',
-            logo: 'https://mixturemarketing.pl/assets/images/sygnet.png',
-          },
+          provider: ORG_REF,
           areaServed: 'PL',
           hasOfferCatalog: {
             '@type': 'OfferCatalog',

@@ -6,6 +6,8 @@ export const LARAVEL_ARTICLE_CONTENT = {
       line2: 'ono dojrzało.',
     },
     quote: '"Gdy konkurencja jeszcze konfiguruje serwery, Ty już sprzedajesz."',
+    seoDescription:
+      'Laravel: PHP nie umarło, ono dojrzało. Nowoczesna architektura i narzędzia, by szybko wdrożyć produkt — gdy konkurencja jeszcze konfiguruje serwery.',
   },
   contextBox: {
     text: 'Ten artykuł jest częścią serii <strong>Backend Architecture</strong>.',

@@ -31,7 +31,7 @@ const GoArticle = () => {
     <ArticleShell
       id="go-golang-jezyk-chmury"
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
-      description={CONTENT.header.quote}
+      description={CONTENT.header.seoDescription}
       category="tech"
       categoryLabel={CONTENT.header.badge}
       image={articleData?.image || '/assets/images/go.png'}
