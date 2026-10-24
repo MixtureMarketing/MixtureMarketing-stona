@@ -13,10 +13,17 @@ import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
 const PublicCalculator: React.FC = () => {
   const turnstileRef = useRef<TurnstileWidgetHandle>(null);
   const c = usePublicCalculator(turnstileRef);
+  // Turnstile (api.js ~85 kB) dopiero przy pierwszej interakcji z kalkulatorem, nie przy
+  // wejściu na stronę; submit i tak poczeka na skrypt (getToken w trybie defer).
+  const prepareCaptcha = () => turnstileRef.current?.prepare?.();
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl">
-      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
+    <div
+      className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl"
+      onFocusCapture={prepareCaptcha}
+      onPointerDownCapture={prepareCaptcha}
+    >
+      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
 
       {c.phase === 'loading' && <CalculatorLoading />}
 
