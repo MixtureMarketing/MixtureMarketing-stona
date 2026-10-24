@@ -855,8 +855,12 @@ const Abonament: React.FC = () => {
             </div>
 
             {/* Hero price card */}
-            <div className="relative bg-gradient-to-br from-slate-950 to-indigo-950 text-white p-8 rounded-3xl border border-indigo-500/30 shadow-2xl shadow-indigo-900/30 overflow-hidden">
-              {techGrid}
+            {/* Bez overflow-hidden na karcie: odznaka -top-3 wystaje ponad krawędź i była ucinana
+                (audyt renderowania). Przycinamy tylko siatkę tła do zaokrąglenia karty. */}
+            <div className="relative bg-gradient-to-br from-slate-950 to-indigo-950 text-white p-8 rounded-3xl border border-indigo-500/30 shadow-2xl shadow-indigo-900/30">
+              <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+                {techGrid}
+              </div>
               <span className="absolute -top-3 right-6 inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-[10px] font-black uppercase tracking-wider shadow-lg">
                 Najtańszy pakiet
               </span>
