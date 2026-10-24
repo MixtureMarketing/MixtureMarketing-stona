@@ -9,3 +9,13 @@ updates:
       dependencies:
         patterns:
           - '*'
+  # Sanity Studio — osobny projekt z własnym package-lock.json (nie budowany w CI).
+  - package-ecosystem: 'npm'
+    directory: '/studio-mixture-marketing'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    groups:
+      studio-dependencies:
+        patterns:
+          - '*'
