@@ -68,6 +68,7 @@ const AdminDashboard: React.FC = () => {
     isUploadingDoc,
     isSavingMilestone,
     isSendingChat,
+    isReplying,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,
@@ -273,6 +274,7 @@ const AdminDashboard: React.FC = () => {
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
             onReply={onReply}
+            isSending={isReplying}
           />
         )}
         {isMilestoneModalOpen && (

@@ -11,6 +11,8 @@ interface ReplyModalProps {
   replyMessage: string;
   setReplyMessage: (msg: string) => void;
   onReply: (e: React.FormEvent) => void;
+  /** Wysyłka w toku — blokuje ponowne „Wyślij Odpowiedź” (każde = mail do leada). */
+  isSending?: boolean;
 }
 
 export const ReplyModal: React.FC<ReplyModalProps> = ({
@@ -19,6 +21,7 @@ export const ReplyModal: React.FC<ReplyModalProps> = ({
   replyMessage,
   setReplyMessage,
   onReply,
+  isSending = false,
 }) => (
   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
     <div className="bg-white p-8 rounded-2xl w-full max-w-2xl shadow-2xl">
@@ -43,12 +46,15 @@ export const ReplyModal: React.FC<ReplyModalProps> = ({
           value={replyMessage}
           onChange={(e) => setReplyMessage(e.target.value)}
           required
+          readOnly={isSending}
         />
         <div className="flex justify-end gap-4">
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSending}>
             Anuluj
           </Button>
-          <Button icon={<Save size={18} />}>Wyślij Odpowiedź</Button>
+          <Button icon={<Save size={18} />} isLoading={isSending} disabled={isSending}>
+            {isSending ? 'Wysyłanie…' : 'Wyślij Odpowiedź'}
+          </Button>
         </div>
       </form>
     </div>

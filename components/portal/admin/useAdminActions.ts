@@ -34,6 +34,9 @@ export const useAdminActions = ({
   // przed re-renderem; stan steruje UI (przycisk disabled, pole readOnly).
   const [isSendingChat, setIsSendingChat] = useState(false);
   const sendingChatRef = useRef(false);
+  // Odpowiedź leadowi = mail do potencjalnego klienta; podwójny klik wysyłał 2 maile.
+  const [isReplying, setIsReplying] = useState(false);
+  const replyingRef = useRef(false);
 
   const sendAdminMessage = async (userId: string, content: string) => {
     if (!userId || !content.trim() || !sessionToken || sendingChatRef.current) return false;
@@ -153,7 +156,9 @@ export const useAdminActions = ({
   };
 
   const handleReply = async (lead: Lead, message: string) => {
-    if (!lead || !message.trim() || !sessionToken) return false;
+    if (!lead || !message.trim() || !sessionToken || replyingRef.current) return false;
+    replyingRef.current = true;
+    setIsReplying(true);
     try {
       await MixtureApiClient.post(
         '/api/admin/reply_lead',
@@ -172,6 +177,9 @@ export const useAdminActions = ({
       // 502 email_failed niesie czytelny komunikat („status leada bez zmian”).
       showNotification(serverMessage(error, 'Błąd wysyłania odpowiedzi.'), 'error');
       return false;
+    } finally {
+      replyingRef.current = false;
+      setIsReplying(false);
     }
   };
 
@@ -194,6 +202,7 @@ export const useAdminActions = ({
     isUploadingDoc,
     isSavingMilestone,
     isSendingChat,
+    isReplying,
     sendAdminMessage,
     handleDownload,
     handleDeleteDoc,
