@@ -23,7 +23,8 @@ export const FrontendHeroVisual: React.FC = () => {
     <div className="relative w-full bg-[#0F172A] rounded-[3rem] p-12 overflow-hidden border border-white/10 shadow-2xl min-h-[500px] flex flex-col md:flex-row items-center justify-center group">
       {/* Background with abstract grid/lines */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]"></div>
-      <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/circuit-board.png')]"></div>
+      {/* Tekstura circuit-board.png z transparenttextures.com usunięta: zwraca 404 (HTML →
+          ERR_BLOCKED_BY_ORB), więc i tak się nie rysowała — tylko nieudany request. */}
 
       {/* Central Visual: Transformation */}
       <div className="relative z-10 flex items-center justify-center w-full max-w-3xl">
