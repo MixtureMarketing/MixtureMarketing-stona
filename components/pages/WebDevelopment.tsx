@@ -25,6 +25,7 @@ import WebDevInfrastructure from '../features/web-development/WebDevInfrastructu
 import WebDevComparison from '../features/web-development/WebDevComparison';
 import FaqSection from '../sections/FaqSection';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const WebDevelopment: React.FC = () => {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ const WebDevelopment: React.FC = () => {
         title={WEB_DEV_CONTENT.seo.title}
         description={WEB_DEV_CONTENT.seo.description}
         image={WEB_DEV_CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/web-development/')}
         jsonLd={[
           {
             '@context': 'https://schema.org',

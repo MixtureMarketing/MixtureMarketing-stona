@@ -18,6 +18,7 @@ import PlotterTimeline from '../common/PlotterTimeline';
 import DesignProof from '../features/design/DesignProof';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 /**
  * Hub /design/ — przebudowa 2026-07-16 (krytyka 14/40, pełna ścieżka
@@ -49,6 +50,7 @@ const DesignBranding: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/design/')}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Service',

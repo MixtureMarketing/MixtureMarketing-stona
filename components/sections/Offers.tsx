@@ -8,6 +8,7 @@ import OffersBackground from '../visuals/OffersBackground';
 import FaqSection from './FaqSection';
 import OfferFeatureSection from './OfferFeatureSection';
 import { BrowserMockup, SalesFunnelVisual } from '../visuals/offers/OfferVisuals';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 type BusinessScale = 'startup' | 'enterprise';
 
@@ -33,6 +34,7 @@ const Offers: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/offers/')}
       />
 
       <OffersBackground />

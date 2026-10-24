@@ -1,10 +1,7 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
-import {
-  BREADCRUMBS_PATH_MAP as pathMap,
-  BREADCRUMBS_NO_PAGE as noPage,
-} from '../../config/breadcrumbs';
+import { BREADCRUMBS_NO_PAGE as noPage, breadcrumbLabel } from '../../config/breadcrumbs';
 import Container from './Container';
 
 // Schema BreadcrumbList renderuje Seo.tsx na podstawie prop `breadcrumbs`.
@@ -13,9 +10,11 @@ import Container from './Container';
 interface BreadcrumbsProps {
   /** `dark` — biel na granatowych hero (domyślne szarości znikają na deep-dark). */
   tone?: 'light' | 'dark';
+  /** Etykieta bieżącej strony (ostatni okruszek), gdy ścieżki nie ma w BREADCRUMBS_PATH_MAP. */
+  currentLabel?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light', currentLabel }) => {
   const location = useLocation();
   const pathnames = location.pathname.split('/').filter((x) => x);
   const dark = tone === 'dark';
@@ -39,7 +38,10 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join('/')}/`;
               const isLast = index === pathnames.length - 1;
               const hasPage = !noPage.has(routeTo.slice(0, -1));
-              const displayName = pathMap[routeTo.slice(0, -1)] || name.replace(/-/g, ' ');
+              const displayName = breadcrumbLabel(
+                routeTo.slice(0, -1),
+                isLast ? currentLabel : undefined,
+              );
               return (
                 <li key={name} className="flex items-center">
                   <ChevronRight

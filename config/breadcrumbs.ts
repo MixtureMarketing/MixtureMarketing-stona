@@ -28,6 +28,13 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/design/visual-audit': 'Audyt Wizualny',
   '/contact': 'Kontakt',
   '/offers': 'Oferta',
+  // Etykiety z istniejących nazw (stopka / <title> / schema strony) — wcześniej okruszek
+  // pokazywał surowy slug („privacy policy”, „terms”, „wycena”, „audyt 360”, „portfolio”).
+  '/wycena': 'Kalkulator wyceny',
+  '/privacy-policy': 'Polityka prywatności',
+  '/terms': 'Regulamin',
+  '/portfolio': 'Realizacje',
+  '/audyt-360': 'Darmowy audyt SEO + UX',
   '/o-nas': 'O nas',
   '/baza-wiedzy': 'Baza Wiedzy',
   '/baza-wiedzy/redis-optymalizacja': 'Redis - Optymalizacja',
@@ -47,3 +54,35 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
  * strony miast poza Rzeszowem są noindex.
  */
 export const BREADCRUMBS_NO_PAGE: ReadonlySet<string> = new Set(['/miasto']);
+
+const HOME_CRUMB = { name: 'Strona Główna', item: '/' };
+
+/**
+ * Etykieta okruszka dla ścieżki (bez końcowego slasha). Kolejność: mapa → etykieta strony
+ * (`currentLabel`, tylko ostatni segment — np. tytuł case study z CMS) → slug ze spacjami.
+ */
+export const breadcrumbLabel = (path: string, currentLabel?: string): string =>
+  BREADCRUMBS_PATH_MAP[path] || currentLabel || path.split('/').pop()!.replace(/-/g, ' ');
+
+/**
+ * Okruszki dla schemy BreadcrumbList (Seo `breadcrumbs`) — te same etykiety co widoczne
+ * <Breadcrumbs/>. Segmenty bez własnej strony (BREADCRUMBS_NO_PAGE) są pomijane: ListItem
+ * w schemie musi wskazywać istniejący URL.
+ */
+export const getPathBreadcrumbs = (
+  pathname: string,
+  currentLabel?: string,
+): { name: string; item: string }[] => {
+  const segments = pathname.split('/').filter(Boolean);
+  const crumbs = segments.map((_, i) => {
+    const path = `/${segments.slice(0, i + 1).join('/')}`;
+    const isLast = i === segments.length - 1;
+    return { path, name: breadcrumbLabel(path, isLast ? currentLabel : undefined) };
+  });
+  return [
+    HOME_CRUMB,
+    ...crumbs
+      .filter(({ path }) => !BREADCRUMBS_NO_PAGE.has(path))
+      .map(({ path, name }) => ({ name, item: `${path}/` })),
+  ];
+};

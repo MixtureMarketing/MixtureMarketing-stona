@@ -15,6 +15,7 @@ import Container from '../common/Container';
 import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const ContactPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -60,6 +61,7 @@ const ContactPage: React.FC = () => {
         title={CONTENT.seo.title}
         description={CONTENT.seo.description}
         image={CONTENT.seo.image}
+        breadcrumbs={getPathBreadcrumbs('/contact/')}
       />
 
       {/* Hero words-only (lift 2026-07-17) — badge „Start A Project" z pulsującą

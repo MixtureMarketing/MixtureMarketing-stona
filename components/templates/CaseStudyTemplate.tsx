@@ -18,6 +18,7 @@ import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
 import { ORG_PUBLISHER } from '../../utils/seo/organizationSchema';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
@@ -49,6 +50,7 @@ const CaseStudyTemplate = () => {
       <Seo
         title={`${project.title} - Case Study Mixture Marketing`}
         description={project.excerpt || `Zobacz realizację dla klienta ${project.client}`}
+        breadcrumbs={getPathBreadcrumbs(`/portfolio/${slug}/`, project.title)}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Article',

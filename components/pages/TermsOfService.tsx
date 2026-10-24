@@ -17,13 +17,19 @@ import AnimateOnScroll from '../common/AnimateOnScroll';
 import SectionHeader from '../common/SectionHeader';
 import Seo from '../common/Seo';
 import { TERMS_CONTENT } from '../../data/content';
+import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const TermsOfService: React.FC = () => {
   const { seo, header, sections, footer } = TERMS_CONTENT;
 
   return (
     <div className="pt-20 min-h-screen bg-gray-50">
-      <Seo title={seo.title} description={seo.description} image={seo.image} />
+      <Seo
+        title={seo.title}
+        description={seo.description}
+        image={seo.image}
+        breadcrumbs={getPathBreadcrumbs('/terms/')}
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <SectionHeader title={header.title} subtitle={header.subtitle} center level="h1" />
 
