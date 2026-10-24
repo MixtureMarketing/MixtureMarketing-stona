@@ -6,6 +6,7 @@
 
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, escapeHtml, sha256Hex } from '../_shared/security';
+import { sendEmail, emailFailedResponse } from '../_shared/email';
 
 interface Env {
   DB: D1Database;
@@ -65,33 +66,35 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(email, token, expiresAt)
       .run();
 
-    // 4. Send Email via Resend
-    if (env.RESEND_API_KEY) {
-      const loginUrl = `https://mixturemarketing.pl/portal/verify?token=${token}`;
-
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Mixture Marketing <portal@mixturemarketing.pl>',
-          to: [email],
-          subject: 'Twój magiczny link do Portalu Klienta',
-          html: `
+    // 4. Send Email via Resend — logowanie w całości zależy od tego maila, więc
+    // porażka (także brak klucza) = 502, a nie „sprawdź skrzynkę” bez linku.
+    const loginUrl = `https://mixturemarketing.pl/portal/verify?token=${token}`;
+    const mail = await sendEmail(
+      env,
+      {
+        from: 'Mixture Marketing <portal@mixturemarketing.pl>',
+        to: [email],
+        subject: 'Twój magiczny link do Portalu Klienta',
+        html: `
             <h3>Witaj ${escapeHtml(user.name)}!</h3>
             <p>Kliknij w poniższy przycisk, aby zalogować się do swojego panelu klienta:</p>
             <a href="${loginUrl}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Zaloguj się</a>
             <p>Link jest ważny przez 1 godzinę.</p>
             <p>Jeśli to nie Ty prosiłeś o ten link, zignoruj tę wiadomość.</p>
           `,
-        }),
-      });
+      },
+      'send_magic_link',
+    );
+    if (!mail.ok) {
+      return emailFailedResponse(
+        'Nie udało się wysłać linku logowania — spróbuj ponownie za chwilę.',
+        mail,
+      );
     }
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
   } catch (err: any) {
+    console.error('[send_magic_link]', err?.message);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };

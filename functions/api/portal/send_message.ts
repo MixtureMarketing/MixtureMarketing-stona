@@ -5,6 +5,7 @@
  */
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+import { sendEmail } from '../_shared/email';
 
 interface Env {
   DB: D1Database;
@@ -43,27 +44,25 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const cacheKey = `chat_history_${user.id}`;
     await env.CACHE.delete(cacheKey);
 
-    // 3. Notify Admin via Resend
-    if (env.RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Mixture Marketing <portal@mixturemarketing.pl>',
-          to: [env.NOTIFY_EMAIL],
-          subject: `Nowa wiadomość od ${String(user.name ?? '').replace(/[\r\n]+/g, ' ')}`,
-          html: `<p>Użytkownik <strong>${escapeHtml(user.name)}</strong> wysłał nową wiadomość:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote>`,
-        }),
-      });
-    }
+    // 3. Powiadomienie agencji. Wiadomość JEST już zapisana i widoczna w panelu,
+    // więc porażka maila nie jest błędem dla klienta (ponowienie zdublowałoby
+    // wiadomość) — ale ląduje w Workers Logs (sendEmail → console.error).
+    await sendEmail(
+      env,
+      {
+        from: 'Mixture Marketing <portal@mixturemarketing.pl>',
+        to: [env.NOTIFY_EMAIL],
+        subject: `Nowa wiadomość od ${String(user.name ?? '').replace(/[\r\n]+/g, ' ')}`,
+        html: `<p>Użytkownik <strong>${escapeHtml(user.name)}</strong> wysłał nową wiadomość:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote>`,
+      },
+      'portal_send_message',
+    );
 
     return new Response(JSON.stringify({ status: 'success' }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
+    console.error('[portal_send_message]', err?.message);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };

@@ -5,6 +5,7 @@
  */
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+import { sendEmail } from '../_shared/email';
 
 interface Env {
   DB: D1Database;
@@ -44,24 +45,37 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(user_id)
       .first();
 
-    if (client && env.RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
-          to: [client.email],
-          subject: 'Nowa wiadomość w Twoim panelu klienta',
-          html: `<p>Witaj ${escapeHtml(client.name)}!</p><p>Otrzymałeś nową wiadomość w panelu klienta:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote><a href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a>`,
-        }),
-      });
-    }
+    // Wiadomość JEST już zapisana — mail to tylko powiadomienie. Przy porażce nie
+    // zwracamy błędu (ponowienie zdublowałoby wiadomość), tylko email_sent:false
+    // + ostrzeżenie, które panel pokazuje adminowi.
+    const mail = client
+      ? await sendEmail(
+          env,
+          {
+            from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
+            to: [client.email],
+            subject: 'Nowa wiadomość w Twoim panelu klienta',
+            html: `<p>Witaj ${escapeHtml(client.name)}!</p><p>Otrzymałeś nową wiadomość w panelu klienta:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote><a href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a>`,
+          },
+          'admin_reply_chat',
+        )
+      : null;
 
-    return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
+    return new Response(
+      JSON.stringify({
+        status: 'success',
+        email_sent: mail?.ok === true,
+        ...(mail && !mail.ok
+          ? {
+              warning:
+                'Wiadomość zapisana, ale powiadomienie e-mail do klienta NIE zostało wysłane.',
+            }
+          : {}),
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    console.error('[admin_reply_chat]', err?.message);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };
