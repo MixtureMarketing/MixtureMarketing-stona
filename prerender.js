@@ -8,6 +8,11 @@ import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
+import {
+  fetchDynamicLists,
+  toRoutes,
+  DYNAMIC_COLLECTIONS,
+} from './scripts/sanity-dynamic-routes.js';
 
 // Konwencja repo to `.env.local` (jak w Vite), nie `.env`. Bez argumentu `loadEnvFile`
 // czytał nieistniejący `.env`, więc `npm run prerender`/`build:full` padał lokalnie na
@@ -199,6 +204,32 @@ async function processRoute(browser, critters, route, attempt = 1) {
 async function prerender() {
   console.log('🚀 Starting optimized prerendering...');
 
+  // 0. Trasy dynamiczne z Sanity — PRZED startem preview/przeglądarki, fail-loud.
+  // Dawniej błąd pobrania kończył się ostrzeżeniem i `dynamicRoutes = []`: build był
+  // zielony, a deploy wypuszczał stronę bez /branza/*, /miasto/*, /portfolio/* (404).
+  console.log('🔄 Fetching dynamic routes from Sanity...');
+  let dynamicRoutes;
+  try {
+    const lists = await fetchDynamicLists(
+      sanityClient,
+      Object.fromEntries(
+        DYNAMIC_COLLECTIONS.map(({ type }) => [
+          type,
+          `*[_type == "${type}" && defined(slug.current)]{ "slug": slug.current }`,
+        ]),
+      ),
+    );
+    dynamicRoutes = toRoutes(lists);
+    for (const { type } of DYNAMIC_COLLECTIONS) {
+      console.log(`✅ Found ${lists[type].length} × ${type}.`);
+    }
+    console.log(`🚀 Total dynamic routes: ${dynamicRoutes.length}`);
+  } catch (err) {
+    console.error(`❌ ${err instanceof Error ? err.message : err}`);
+    process.exitCode = 1;
+    return; // nic jeszcze nie wystartowało — nie ma czego sprzątać
+  }
+
   // 1. Start Server
   console.log('📦 Starting preview server...');
   const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
@@ -206,6 +237,7 @@ async function prerender() {
     shell: true,
     detached: true, // Allow killing process group
   });
+  let browser = null;
 
   try {
     // 2. Wait for server
@@ -214,7 +246,7 @@ async function prerender() {
     console.log('🟢 Server is ready!');
 
     // 3. Launch Browser
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
       args: [
         '--no-sandbox',
@@ -243,32 +275,7 @@ async function prerender() {
       reduceInlineStyles: true,
     });
 
-    // 5. Process Routes in Batches (Parallel)
-    console.log('🔄 Fetching dynamic routes from Sanity...');
-    let dynamicRoutes = [];
-    try {
-      const [articles, industries, locations, projects] = await Promise.all([
-        sanityClient.fetch('*[_type == "article"]{ "slug": slug.current }'),
-        sanityClient.fetch('*[_type == "industry"]{ "slug": slug.current }'),
-        sanityClient.fetch('*[_type == "location"]{ "slug": slug.current }'),
-        sanityClient.fetch('*[_type == "caseStudy"]{ "slug": slug.current }'),
-      ]);
-
-      dynamicRoutes = [
-        ...articles.map((a) => `/baza-wiedzy/${a.slug}`),
-        ...industries.map((i) => `/branza/${i.slug}`),
-        ...locations.map((l) => `/miasto/${l.slug}`),
-        ...projects.map((p) => `/portfolio/${p.slug}`),
-      ];
-
-      console.log(`✅ Found ${articles.length} articles.`);
-      console.log(`✅ Found ${industries.length} industries.`);
-      console.log(`✅ Found ${locations.length} locations.`);
-      console.log(`✅ Found ${projects.length} projects.`);
-      console.log(`🚀 Total dynamic routes: ${dynamicRoutes.length}`);
-    } catch (err) {
-      console.warn('⚠️ Failed to fetch dynamic routes:', err.message);
-    }
+    // 5. Process Routes in Batches (Parallel) — dynamicRoutes pobrane wyżej (krok 0).
 
     // Rozgrzewka: jedna wizyta na home ZANIM ruszy kolejka — zimny Chromium +
     // preview + Beasties powodowaly, ze pierwsza partia workerow przekraczala
@@ -369,10 +376,14 @@ async function prerender() {
 
     console.log('🛑 Closing browser...');
     await browser.close();
+    browser = null;
   } catch (err) {
     console.error('❌ Critical Error during prerendering:', err);
-    process.exit(1);
+    // exitCode zamiast process.exit(1): exit() w catch ucinał `finally`, więc przy błędzie
+    // preview (port 4173) zostawał żywy — dokładnie ta pułapka z CLAUDE.md.
+    process.exitCode = 1;
   } finally {
+    if (browser) await browser.close().catch(() => {});
     if (server.pid) {
       try {
         // Kill the entire process group on Unix-like systems
@@ -381,8 +392,11 @@ async function prerender() {
         server.kill();
       }
     }
-    setTimeout(() => process.exit(0), 1000);
+    setTimeout(() => process.exit(process.exitCode ?? 0), 1000);
   }
 }
 
-prerender();
+prerender().catch((err) => {
+  console.error('❌ Prerender crashed:', err);
+  process.exit(1);
+});

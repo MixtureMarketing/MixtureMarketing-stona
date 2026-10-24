@@ -38,6 +38,9 @@ jobs:
   ci:
     name: 🚀 CI (quality + build + deploy)
     runs-on: ubuntu-latest
+    # Typowy run to 5-7 min. Bez limitu zawieszony prerender (Puppeteer / preview na 4173)
+    # mielił do domyślnych 6 h minut runnera i blokował kolejne deploye (concurrency).
+    timeout-minutes: 30
     permissions:
       contents: read
       deployments: write
