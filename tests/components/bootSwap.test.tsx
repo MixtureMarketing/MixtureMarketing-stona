@@ -106,4 +106,35 @@ describe('ScrollToTop', () => {
     expect(scrollTo).toHaveBeenCalledWith(0, 0);
     expect(isPrerenderBoot()).toBe(false);
   });
+
+  it('nawigacja SPA z #kotwicą przewija do elementu, gdy ten się wyrenderuje (np. /abonament/#pricing)', () => {
+    vi.useFakeTimers();
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const scrollIntoView = vi
+      .spyOn(window.HTMLElement.prototype, 'scrollIntoView')
+      .mockImplementation(() => undefined);
+    const Nav = () => {
+      const navigate = useNavigate();
+      return <button onClick={() => navigate('/abonament/#pricing')}>pakiety</button>;
+    };
+    render(
+      <MemoryRouter initialEntries={['/abonament/vs-wix/']}>
+        <ScrollToTop />
+        <Nav />
+      </MemoryRouter>,
+    );
+
+    act(() => screen.getByText('pakiety').click());
+    expect(scrollIntoView).not.toHaveBeenCalled(); // trasa (lazy) jeszcze nie wyrenderowała sekcji
+
+    const section = document.createElement('section');
+    section.id = 'pricing';
+    document.body.appendChild(section);
+    act(() => vi.advanceTimersByTime(200));
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView.mock.contexts[0]).toBe(section);
+
+    section.remove();
+    vi.useRealTimers();
+  });
 });
