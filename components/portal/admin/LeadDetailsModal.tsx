@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { Lead } from '../types';
 import { toExternalHref, toTelHref } from '../../../utils/url';
 import { leadDetailsEntries } from './leadDetails';
+import { useDialogA11y } from '../useDialogA11y';
 
 interface LeadDetailsModalProps {
   lead: Lead;
@@ -16,12 +17,20 @@ const LeadDetailsModal: React.FC<LeadDetailsModalProps> = ({ lead, onClose }) =>
   const websiteHref = toExternalHref(lead.website);
   // Bezpieczny parse (zły JSON nie wywraca panelu) + odpowiedzi kalkulatora.
   const details = leadDetailsEntries(lead.details);
+  const dialogRef = useDialogA11y<HTMLDivElement>(onClose);
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div
+        className="bg-white p-8 rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto outline-none"
+        ref={dialogRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Szczegóły zgłoszenia"
+      >
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-dark">Szczegóły Zgłoszenia</h2>
-          <button onClick={onClose} aria-label="Zamknij">
+          <button type="button" onClick={onClose} aria-label="Zamknij">
             <X className="text-gray-400" />
           </button>
         </div>

@@ -6,6 +6,7 @@ import { Project } from '../types';
 import { getStatusColor, getStatusLabel } from '../../../utils/portalHelpers';
 import ProjectTimeline from './ProjectTimeline';
 import { useProjectActions } from './useProjectActions';
+import { useDialogA11y } from '../useDialogA11y';
 
 interface PortalProjectDetailsProps {
   project: Project;
@@ -19,11 +20,19 @@ const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
   refreshProjects,
 }) => {
   const { updateMilestone, downloadFile, isUpdating } = useProjectActions(refreshProjects);
+  const dialogRef = useDialogA11y<HTMLDivElement>(onClose);
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 backdrop-blur-md p-4 overflow-y-auto">
       <AnimateOnScroll className="w-full max-w-4xl my-auto">
-        <div className="bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div
+          className="bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] outline-none"
+          ref={dialogRef}
+          tabIndex={-1}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Projekt: ${project.name}`}
+        >
           {/* Modal Header */}
           <div className="p-8 border-b border-gray-100 flex justify-between items-start bg-gradient-to-r from-gray-50 to-white">
             <div>
@@ -38,7 +47,9 @@ const PortalProjectDetails: React.FC<PortalProjectDetailsProps> = ({
               <h2 className="text-3xl font-black text-dark">{project.name}</h2>
             </div>
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Zamknij"
               className="p-3 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-all"
             >
               <X size={24} />
