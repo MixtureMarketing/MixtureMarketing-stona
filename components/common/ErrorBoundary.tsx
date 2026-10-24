@@ -27,7 +27,10 @@ class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
-        <div className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-700 p-8">
+        <div
+          data-error-boundary=""
+          className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-700 p-8"
+        >
           <h1 className="text-4xl font-bold mb-4">Coś poszło nie tak.</h1>
           <p className="text-lg mb-8">Przepraszamy, wystąpił nieoczekiwany błąd.</p>
           <button

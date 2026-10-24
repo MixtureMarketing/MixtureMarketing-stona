@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -8,6 +8,8 @@ import { SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
+import CmsErrorState from '@/components/common/CmsErrorState';
+import { useCmsDocument } from '@/hooks/useCmsDocument';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 
@@ -23,50 +25,37 @@ function urlFor(source: SanityImage) {
   return builder.image(source);
 }
 
+// Obecny projekt + „następny projekt”. `null` = brak dokumentu (NotFound);
+// wyjątek z getCaseStudyBySlug = Sanity niedostępne (CmsErrorState, bez noindex).
+// Lista do „następnego” przy błędzie zwraca [] — nawigacja po prostu znika.
+async function fetchCaseStudy(
+  slug: string,
+): Promise<{ project: SanityCaseStudy; nextProject: SanityCaseStudy | null } | null> {
+  const [current, all] = await Promise.all([
+    cmsService.getCaseStudyBySlug(slug),
+    cmsService.getCaseStudies(),
+  ]);
+  if (!current) return null;
+  const currentIndex = all.findIndex((p) => p.slug.current === slug);
+  let nextProject: SanityCaseStudy | null = null;
+  if (currentIndex !== -1 && currentIndex < all.length - 1) {
+    nextProject = all[currentIndex + 1];
+  } else if (all.length > 0 && all[0].slug.current !== slug) {
+    nextProject = all[0];
+  }
+  return { project: current, nextProject };
+}
+
 const CaseStudyTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [project, setProject] = useState<SanityCaseStudy | null>(null);
-  const [nextProject, setNextProject] = useState<SanityCaseStudy | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { status, data, retry } = useCmsDocument(slug, fetchCaseStudy);
+  const project = data?.project ?? null;
+  const nextProject = data?.nextProject ?? null;
   const [activeAsset, setActiveAsset] = useState<{ asset: SanityImage; caption?: string } | null>(
     null,
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!slug) return;
-      try {
-        setLoading(true);
-        const [current, all] = await Promise.all([
-          cmsService.getCaseStudyBySlug(slug),
-          cmsService.getCaseStudies(),
-        ]);
-
-        if (current) {
-          setProject(current);
-          const currentIndex = all.findIndex((p) => p.slug.current === slug);
-          if (currentIndex !== -1 && currentIndex < all.length - 1) {
-            setNextProject(all[currentIndex + 1]);
-          } else if (all.length > 0 && all[0].slug.current !== slug) {
-            setNextProject(all[0]);
-          } else {
-            setNextProject(null);
-          }
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error(err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [slug]);
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-dark"></div>
@@ -74,7 +63,8 @@ const CaseStudyTemplate = () => {
     );
   }
 
-  if (error || !project) return <NotFound />;
+  if (status === 'error') return <CmsErrorState onRetry={retry} />;
+  if (!project) return <NotFound />;
 
   return (
     <div className="min-h-screen bg-gray-50 text-dark selection:bg-primary selection:text-white">

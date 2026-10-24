@@ -1,6 +1,6 @@
 import { SanityImage, SanityBody } from '@/types/sanity';
 import { Article } from '@/types/article';
-import { fetchWithCache, urlFor } from './client';
+import { fetchWithCache, urlFor, CmsUnavailableError } from './client';
 import { LEGACY_ARTICLES } from './legacyArticles';
 
 export interface SanityArticle {
@@ -87,7 +87,8 @@ export const articleService = {
       return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getArticleBySlug: ${slug}):`, error);
-      return null;
+      // Błąd pobrania ≠ brak dokumentu — patrz CmsUnavailableError.
+      throw new CmsUnavailableError(`getArticleBySlug: ${slug}`, error);
     }
   },
 

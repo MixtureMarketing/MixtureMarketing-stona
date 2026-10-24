@@ -1,6 +1,6 @@
 import { SanityTeamMember, SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
-import { fetchWithCache } from './client';
+import { fetchWithCache, CmsUnavailableError } from './client';
 
 export const caseStudyService = {
   async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
@@ -46,7 +46,8 @@ export const caseStudyService = {
       return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getCaseStudyBySlug: ${slug}):`, error);
-      return null;
+      // Błąd pobrania ≠ brak dokumentu — patrz CmsUnavailableError.
+      throw new CmsUnavailableError(`getCaseStudyBySlug: ${slug}`, error);
     }
   },
 

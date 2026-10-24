@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { useParams } from 'react-router-dom';
 import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
 import Seo from '@/components/common/Seo';
@@ -6,41 +6,22 @@ import Seo from '@/components/common/Seo';
 // tylko na stronach artykulow.
 const ArticleSchemaSeo = lazy(() => import('@/components/common/ArticleSchemaSeo'));
 import NotFound from '@/components/common/NotFound';
+import CmsErrorState from '@/components/common/CmsErrorState';
+import { useCmsDocument } from '@/hooks/useCmsDocument';
 import AmbientBackground from '@/components/common/AmbientBackground';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import { Calendar, Clock, Tag } from 'lucide-react';
 import RelatedArticles from '../articles/RelatedArticles';
 import PortableTextRenderer from '../common/PortableTextRenderer';
 
+const fetchArticle = (slug: string) => cmsService.getArticleBySlug(slug);
+
 const ArticleTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [article, setArticle] = useState<SanityArticle | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
+  const { status, data: article, retry } = useCmsDocument<SanityArticle>(slug, fetchArticle);
 
-  useEffect(() => {
-    const fetchArticle = async () => {
-      if (!slug) return;
-      try {
-        setLoading(true);
-        const data = await cmsService.getArticleBySlug(slug);
-        if (data) {
-          setArticle(data);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        console.error('Failed to fetch article:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticle();
-  }, [slug]);
-
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-light-gray flex items-center justify-center">
         <div className="animate-pulse space-y-4 text-center">
@@ -53,7 +34,11 @@ const ArticleTemplate = () => {
     );
   }
 
-  if (error || !article) {
+  if (status === 'error') {
+    return <CmsErrorState onRetry={retry} />;
+  }
+
+  if (!article) {
     return <NotFound />;
   }
 

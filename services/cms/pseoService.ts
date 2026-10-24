@@ -1,5 +1,5 @@
 import { SanityImage } from '@/types/sanity';
-import { fetchWithCache } from './client';
+import { fetchWithCache, CmsUnavailableError } from './client';
 
 export interface SanityLocation {
   _id: string;
@@ -56,7 +56,8 @@ export const pseoService = {
       return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getLocationBySlug: ${slug}):`, error);
-      return null;
+      // Błąd pobrania ≠ brak dokumentu — patrz CmsUnavailableError.
+      throw new CmsUnavailableError(`getLocationBySlug: ${slug}`, error);
     }
   },
 
@@ -96,7 +97,8 @@ export const pseoService = {
       return await fetchWithCache(query, { slug });
     } catch (error) {
       console.warn(`Sanity fetch error (getIndustryBySlug: ${slug}):`, error);
-      return null;
+      // Błąd pobrania ≠ brak dokumentu — patrz CmsUnavailableError.
+      throw new CmsUnavailableError(`getIndustryBySlug: ${slug}`, error);
     }
   },
 };

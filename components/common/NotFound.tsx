@@ -9,7 +9,10 @@ const NotFound: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
+    <div
+      data-not-found=""
+      className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center"
+    >
       <Seo
         title="404 - Nie znaleziono strony"
         description="Przepraszamy, ale strona której szukasz nie istnieje lub została przeniesiona."

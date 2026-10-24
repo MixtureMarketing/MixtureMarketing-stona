@@ -6,7 +6,8 @@ import NotFound from '../../common/NotFound';
 import AmbientBackground from '../../common/AmbientBackground';
 import imageUrlBuilder from '@sanity/image-url';
 import { SanityImage } from '../../../types/sanity';
-import { usePseoData } from '../../../hooks/usePseoData';
+import { useCmsDocument } from '../../../hooks/useCmsDocument';
+import CmsErrorState from '../../common/CmsErrorState';
 import PseoIndustryContent from './PseoIndustryContent';
 import PseoLocationContent from './PseoLocationContent';
 import { withDla } from '../../../utils/seo/title';
@@ -25,9 +26,10 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
 
   const fetcher = mode === 'industry' ? cmsService.getIndustryBySlug : cmsService.getLocationBySlug;
 
-  const { data, loading, error } = usePseoData<SanityIndustry | SanityLocation>(slug, fetcher);
+  // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
+  const { status, data, retry } = useCmsDocument<SanityIndustry | SanityLocation>(slug, fetcher);
 
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="pt-32 pb-20 container mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,7 +52,11 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
     );
   }
 
-  if (error || !data) {
+  if (status === 'error') {
+    return <CmsErrorState onRetry={retry} />;
+  }
+
+  if (!data) {
     return <NotFound />;
   }
 
