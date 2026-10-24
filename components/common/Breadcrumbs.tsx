@@ -1,7 +1,10 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ChevronRight, Home as HomeIcon } from 'lucide-react';
-import { BREADCRUMBS_PATH_MAP as pathMap } from '../../config/breadcrumbs';
+import {
+  BREADCRUMBS_PATH_MAP as pathMap,
+  BREADCRUMBS_NO_PAGE as noPage,
+} from '../../config/breadcrumbs';
 import Container from './Container';
 
 // Schema BreadcrumbList renderuje Seo.tsx na podstawie prop `breadcrumbs`.
@@ -35,6 +38,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
             {pathnames.map((name, index) => {
               const routeTo = `/${pathnames.slice(0, index + 1).join('/')}/`;
               const isLast = index === pathnames.length - 1;
+              const hasPage = !noPage.has(routeTo.slice(0, -1));
               const displayName = pathMap[routeTo.slice(0, -1)] || name.replace(/-/g, ' ');
               return (
                 <li key={name} className="flex items-center">
@@ -50,10 +54,12 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ tone = 'light' }) => {
                     >
                       {displayName}
                     </span>
-                  ) : (
+                  ) : hasPage ? (
                     <Link to={routeTo} className={`transition-colors ${crumbCls}`}>
                       {displayName}
                     </Link>
+                  ) : (
+                    <span className={dark ? 'text-white/80' : 'text-gray-800'}>{displayName}</span>
                   )}
                 </li>
               );

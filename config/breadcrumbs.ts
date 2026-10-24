@@ -1,4 +1,6 @@
 export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
+  '/branza': 'Branże',
+  '/miasto': 'Miasta',
   '/web-development': 'Web Development',
   '/web-development/ecommerce': 'E-commerce',
   '/web-development/landing-page': 'Landing Page',
@@ -37,3 +39,9 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/baza-wiedzy/google-ads-skalowanie-budzetu': 'Google Ads - Skalowanie',
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026': 'Ile kosztuje strona Rzeszów 2026',
 };
+
+/**
+ * Segmenty ścieżki, które nie mają własnej strony (brak trasy → 404).
+ * Okruszek renderuje się jako tekst, bez linku.
+ */
+export const BREADCRUMBS_NO_PAGE: ReadonlySet<string> = new Set(['/branza', '/miasto']);
