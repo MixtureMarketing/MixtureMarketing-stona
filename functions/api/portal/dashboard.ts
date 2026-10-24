@@ -4,6 +4,8 @@
  * Path: /api/portal/dashboard
  */
 
+import { attachChildren } from '../_shared/projects';
+
 interface Env {
   DB: D1Database;
 }
@@ -13,38 +15,26 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const user = data.user as { id: number };
 
   try {
-    // 1. Get Projects
-    const projects: any = await env.DB.prepare(
-      `
-      SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC
-    `,
-    )
-      .bind(user.id)
-      .all();
+    // Stała liczba zapytań (3, jeden batch) zamiast 2 na projekt — limit D1 to
+    // 50 zapytań na wywołanie (Free). Dokumenty i etapy tylko z projektów klienta.
+    const [projects, documents, milestones] = (await env.DB.batch([
+      env.DB.prepare(`SELECT * FROM projects WHERE user_id = ? ORDER BY created_at DESC`).bind(
+        user.id,
+      ),
+      env.DB.prepare(
+        `SELECT d.id, d.project_id, d.name, d.file_path, d.type, d.subtype, d.created_at
+         FROM documents d JOIN projects p ON d.project_id = p.id
+         WHERE p.user_id = ?
+         ORDER BY d.created_at DESC, d.id DESC`,
+      ).bind(user.id),
+      env.DB.prepare(
+        `SELECT m.* FROM milestones m JOIN projects p ON m.project_id = p.id
+         WHERE p.user_id = ?
+         ORDER BY m.due_date ASC, m.id ASC`,
+      ).bind(user.id),
+    ])) as D1Result<any>[];
 
-    const results = projects.results;
-
-    // 2. Hydrate each project with documents and milestones
-    for (const project of results) {
-      const documents: any = await env.DB.prepare(
-        `
-        SELECT id, name, file_path, type, subtype, created_at 
-        FROM documents WHERE project_id = ? ORDER BY created_at DESC
-      `,
-      )
-        .bind(project.id)
-        .all();
-      project.documents = documents.results;
-
-      const milestones: any = await env.DB.prepare(
-        `
-        SELECT * FROM milestones WHERE project_id = ? ORDER BY due_date ASC, id ASC
-      `,
-      )
-        .bind(project.id)
-        .all();
-      project.milestones = milestones.results;
-    }
+    const results = attachChildren(projects.results, documents.results, milestones.results);
 
     return new Response(JSON.stringify({ projects: results }), {
       headers: { 'Content-Type': 'application/json' },
