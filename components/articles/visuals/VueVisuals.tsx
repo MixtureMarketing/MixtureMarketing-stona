@@ -112,13 +112,13 @@ export const ProgressiveScalingVisual = () => {
     <div className="bg-[#1e293b] p-8 rounded-[2.5rem] shadow-2xl border border-gray-700 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-[#42B883] rounded-full blur-[100px] opacity-10"></div>
 
-      <div className="flex flex-col items-center justify-center gap-6 relative z-10">
+      <div className="flex flex-col items-center justify-center gap-6 relative z-10 pt-24 md:pt-36">
         <div className="w-32 h-32 bg-[#42B883] rounded-full flex flex-col items-center justify-center shadow-[0_0_40px_rgba(66,184,131,0.4)] z-30 border-4 border-[#1e293b]">
           <span className="text-[#1B2430] font-black text-lg">Vue Core</span>
           <span className="text-[#1e293b] text-xxs font-bold uppercase mt-1">The Library</span>
         </div>
 
-        <div className="absolute w-64 h-64 border-2 border-dashed border-[#42B883]/30 rounded-full flex items-center justify-center z-20 animate-spin-slow">
+        <div className="absolute w-48 h-48 md:w-64 md:h-64 border-2 border-dashed border-[#42B883]/30 rounded-full flex items-center justify-center z-20 animate-spin-slow">
           <div className="absolute top-4 bg-[#1e293b] px-2 text-[#42B883] text-xs font-mono">
             Components
           </div>
@@ -127,7 +127,7 @@ export const ProgressiveScalingVisual = () => {
           </div>
         </div>
 
-        <div className="absolute w-96 h-96 border border-[#42B883]/20 rounded-full flex items-center justify-center z-10">
+        <div className="absolute w-72 h-72 md:w-96 md:h-96 border border-[#42B883]/20 rounded-full flex items-center justify-center z-10">
           <div className="absolute -top-3 bg-[#35495E] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-2">
             <Settings size={12} /> Vue Router
           </div>

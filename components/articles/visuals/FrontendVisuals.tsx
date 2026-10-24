@@ -241,7 +241,9 @@ export const DecisionTreeVisual: React.FC = () => {
             <ArrowRight className="rotate-90 text-red-400" />
             <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 w-full">
               <p className="font-bold mb-2">Budżet / Czas?</p>
-              <div className="grid grid-cols-2 gap-2 mt-4">
+              {/* 1 kolumna na telefonie: w 2 kolumnach kafelki miały 49 px i „React.js"
+                  wychodził 39 px poza ramkę (audyt renderowania). */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4">
                 <div className="bg-emerald-900/50 p-3 rounded-lg border border-emerald-500/30">
                   <span className="block font-bold text-emerald-400 mb-1">Mały / Szybko</span>
                   <span className="font-black text-lg">Vue.js</span>

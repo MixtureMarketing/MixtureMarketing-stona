@@ -155,7 +155,9 @@ export const DjangoAdminPreview = () => {
           </div>
         </div>
 
-        <div className="flex-1 bg-[#0f172a] p-6">
+        {/* min-w-0 + skrócenie e-maila / bez kwoty na telefonie: wiersze (16+e-mail+24+24 rem)
+            rozpychały panel poza kartę, stopka i statusy były ucinane (audyt renderowania). */}
+        <div className="flex-1 min-w-0 bg-[#0f172a] p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-white text-lg font-bold">Ostatnie Zamówienia</h3>
             <button className="bg-[#00684A] text-white px-3 py-1 rounded text-xs hover:bg-[#00503a]">
@@ -192,9 +194,9 @@ export const DjangoAdminPreview = () => {
                 className="flex items-center justify-between bg-[#1e293b] p-3 rounded border border-gray-700 hover:border-gray-500 transition-colors cursor-pointer"
               >
                 <div className="w-16 text-slate-400">{row.id}</div>
-                <div className="flex-1 text-white font-medium">{row.user}</div>
+                <div className="flex-1 min-w-0 truncate text-white font-medium">{row.user}</div>
                 <div className={`w-24 ${row.color} text-xs uppercase font-bold`}>{row.status}</div>
-                <div className="w-24 text-right text-gray-300">{row.amount}</div>
+                <div className="hidden sm:block w-24 text-right text-gray-300">{row.amount}</div>
               </div>
             ))}
           </div>

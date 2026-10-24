@@ -159,14 +159,16 @@ export const CarGarageAnalogy: React.FC = () => {
 
         <div className="space-y-6 relative z-10">
           <div className="flex flex-col items-center">
+            {/* min-w zamiast stałego w-10: „DRZWI"/„SILNIK" wychodziły poza kafelki 40 px
+                i nachodziły na siebie („KOŁADRZWISILNIK") — audyt renderowania. */}
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="w-10 h-10 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
+              <div className="min-w-10 h-10 px-1.5 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
                 KOŁA
               </div>
-              <div className="w-10 h-10 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
+              <div className="min-w-10 h-10 px-1.5 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
                 DRZWI
               </div>
-              <div className="w-10 h-10 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
+              <div className="min-w-10 h-10 px-1.5 bg-gray-100 rounded border border-gray-200 flex items-center justify-center text-xxxs font-bold text-gray-400">
                 SILNIK
               </div>
             </div>
