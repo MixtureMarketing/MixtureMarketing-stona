@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { joinTitleLines, withBrandSuffix, withDla } from '../../utils/seo/title';
+import { industryAudience, joinTitleLines, withBrandSuffix, withDla } from '../../utils/seo/title';
 import { MARKETING_CONTENT } from '../../data/content/services/marketing/main';
 
 const BRAND = 'Mixture Marketing';
@@ -103,5 +103,27 @@ describe('dane statyczne', () => {
       /title:\s*['"`][^'"`]*\|\s*Mixture['"`]/.test(fs.readFileSync(f, 'utf8')),
     );
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('industryAudience (dane branż z Sanity)', () => {
+  it('krótka fraza „dla …” zostaje', () => {
+    expect(industryAudience('dla Psychologów i Terapeutów', 'Gabinety')).toBe(
+      'dla Psychologów i Terapeutów',
+    );
+  });
+  it('„Dla branży …” bez zdublowanego przyimka', () => {
+    expect(industryAudience('Dla branży E-commerce', 'E-commerce')).toBe('dla branży E-commerce');
+  });
+  it('opisowa lista z przecinkami → nazwa branży', () => {
+    expect(
+      industryAudience(
+        'Kliniki estetyczne, stomatolodzy, przychodnie specjalistyczne, fizjoterapeuci.',
+        'Medycyna i Stomatologia',
+      ),
+    ).toBe('dla branży Medycyna i Stomatologia');
+  });
+  it('brak forWho → nazwa branży', () => {
+    expect(industryAudience(undefined, 'Deweloperzy')).toBe('dla branży Deweloperzy');
   });
 });
