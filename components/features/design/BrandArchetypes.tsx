@@ -43,7 +43,6 @@ const BrandArchetypes: React.FC = () => {
               <button
                 key={key}
                 onClick={() => setActiveArchetype(key)}
-                aria-label={`Wybierz archetyp: ${arch.label}`}
                 aria-pressed={isActive}
                 className={`w-full text-left p-6 rounded-2xl border transition-all duration-300 relative overflow-hidden group
                                 ${isActive ? 'border-transparent bg-white/10 shadow-xl scale-105 z-10' : 'border-white/10 hover:bg-white/5'}

@@ -24,6 +24,7 @@ import {
   OmnichannelVisual,
 } from './visuals/HeadlessVisuals';
 import { joinTitleLines } from '../../utils/seo/title';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const HeadlessArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'headless-wordpress');
@@ -148,7 +149,11 @@ const HeadlessArticle = () => {
             className={`transition-all duration-500 overflow-hidden ${showCode ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
             <div className="bg-black/40 rounded-xl p-6 font-mono text-xs text-[#A6ACCD] border border-white/5">
-              <pre className="overflow-x-auto">
+              <ScrollRegion
+                as="pre"
+                label="Przykład kodu: zapytanie GraphQL"
+                className="overflow-x-auto"
+              >
                 <code>{`query GetPosts {
   posts {
     nodes {
@@ -162,7 +167,7 @@ const HeadlessArticle = () => {
     }
   }
 }`}</code>
-              </pre>
+              </ScrollRegion>
             </div>
           </div>
         </div>

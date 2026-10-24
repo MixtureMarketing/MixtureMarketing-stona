@@ -241,7 +241,12 @@ export const CodeDuel: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 p-8 font-mono text-xs md:text-sm overflow-x-auto">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Przykład kodu: JavaScript kontra TypeScript"
+        className="flex-1 p-8 font-mono text-xs md:text-sm overflow-x-auto"
+      >
         {view === 'js' ? (
           <div className="space-y-4 animate-fade-in">
             <pre className="text-gray-400">

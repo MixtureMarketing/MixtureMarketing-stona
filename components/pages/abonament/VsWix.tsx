@@ -6,6 +6,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CompareFaq, faqPageJsonLd } from './shared';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const COMPARE_ROWS = [
   {
@@ -209,7 +210,7 @@ const VsWix: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <ScrollRegion label="Tabela porównawcza: Mixture vs Wix">
               <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
                 <caption className="sr-only">
                   Porównanie 14 cech: Mixture (abonament managed, od 179 zł/mc) vs Wix (DIY, 60–165
@@ -240,7 +241,7 @@ const VsWix: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
           </div>
         </Container>
       </section>

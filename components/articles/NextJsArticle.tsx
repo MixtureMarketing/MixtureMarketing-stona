@@ -34,6 +34,7 @@ import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import { joinTitleLines } from '../../utils/seo/title';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const NextJsArticle = () => {
   const articleData = (ARTICLES.find((a) => a.id === 'nextjs-zloty-standard') ||
@@ -263,7 +264,11 @@ const NextJsArticle = () => {
                 <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
               </div>
-              <pre className="overflow-x-auto">
+              <ScrollRegion
+                as="pre"
+                label="Przykład kodu: Server Component w Next.js"
+                className="overflow-x-auto"
+              >
                 <code>{`// app/products/page.tsx - To jest Server Component!
 import { db } from '@/lib/db';
 
@@ -287,7 +292,7 @@ export default async function Page() {
     </main>
   );
 }`}</code>
-              </pre>
+              </ScrollRegion>
             </div>
           </div>
         </div>

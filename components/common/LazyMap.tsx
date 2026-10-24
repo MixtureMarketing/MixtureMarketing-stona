@@ -64,7 +64,6 @@ const LazyMap: React.FC<LazyMapProps> = ({
         <button
           type="button"
           onClick={() => setLoaded(true)}
-          aria-label={`Wczytaj mapę: ${title}`}
           className="group w-full h-full bg-gradient-to-br from-indigo-50 via-white to-rose-50 hover:from-indigo-100 hover:to-rose-100 flex flex-col items-center justify-center gap-3 transition-colors cursor-pointer"
         >
           <div className="absolute inset-0 bg-line-grid opacity-20"></div>
@@ -79,6 +78,9 @@ const LazyMap: React.FC<LazyMapProps> = ({
             <p className="text-xs text-gray-500 max-w-xs text-center px-4">
               Klik aktywuje Google Maps (wymaga akceptacji cookies third-party)
             </p>
+            {/* Nazwa przycisku = widoczny tekst + to, KTÓRA mapa (WCAG 2.5.3: aria-label
+                bez widocznego „Załaduj mapę" łamał label-content-name-mismatch). */}
+            <span className="sr-only">{title}</span>
           </div>
         </button>
       )}

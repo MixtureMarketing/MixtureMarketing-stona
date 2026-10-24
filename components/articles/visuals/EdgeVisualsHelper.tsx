@@ -34,7 +34,12 @@ export const EdgeCodeBlock = () => {
           cloudflare-worker.js
         </span>
       </div>
-      <div className="p-6 font-mono text-sm overflow-x-auto">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label="Przykład kodu: Cloudflare Worker"
+        className="p-6 font-mono text-sm overflow-x-auto"
+      >
         <pre>
           <code className="text-gray-300">
             {`export default {

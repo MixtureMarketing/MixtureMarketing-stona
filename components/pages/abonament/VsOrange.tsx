@@ -6,6 +6,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CompareFaq, faqPageJsonLd } from './shared';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const COMPARE_ROWS = [
   {
@@ -203,7 +204,7 @@ const VsOrange: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <ScrollRegion label="Tabela porównawcza: Mixture vs Orange KlikAI">
               <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
                 <caption className="sr-only">
                   Porównanie 12 cech: Mixture (abonament managed, od 179 zł/mc) vs Orange KlikAI
@@ -234,7 +235,7 @@ const VsOrange: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
 
             <p className="text-xs text-gray-500 text-center mt-4 italic">
               KlikAI to przyzwoita oferta startowa. Mixture pozycjonuje się jako "managed service" —

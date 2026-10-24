@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- zestaw wizualizacji jednego artykułu (formaty obrazów) */
 import React, { useState } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip } from 'recharts';
 import {
@@ -192,7 +193,12 @@ export const CodeBlockImplementation = () => {
         {isOpen ? <ChevronUp /> : <ChevronDown />}
       </button>
       {isOpen && (
-        <div className="bg-[#1e1e1e] p-6 rounded-b-xl border-x border-b border-gray-800 font-mono text-sm animate-fade-in-down overflow-x-auto">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Przykład kodu: element picture z AVIF i WebP"
+          className="bg-[#1e1e1e] p-6 rounded-b-xl border-x border-b border-gray-800 font-mono text-sm animate-fade-in-down overflow-x-auto"
+        >
           <pre className="text-emerald-400">
             {`<picture>
   <!-- Najlepszy format dla nowoczesnych przeglądarek -->
@@ -253,7 +259,7 @@ export const LoadingSimulator = () => {
         <Button
           onClick={startLoading}
           disabled={loading && jpgProgress < 100}
-          aria-label="Uruchom symulację ładowania obrazu w różnych formatach na łączu 3G"
+          aria-label="Uruchom Test: symulacja ładowania obrazu w różnych formatach na łączu 3G"
           className="shadow-[0_0_20px_rgba(97,182,222,0.3)]"
         >
           {loading && jpgProgress < 100 ? (

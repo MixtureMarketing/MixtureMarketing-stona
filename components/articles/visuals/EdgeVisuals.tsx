@@ -22,7 +22,7 @@ export const LatencySwitcher = () => {
       <div className="bg-white p-1.5 rounded-2xl border border-gray-200 flex shadow-sm">
         <button
           onClick={() => setMode('cloud')}
-          aria-label="Pokaż opóźnienia dla standardowej chmury centralnej"
+          aria-label="Standard Cloud: opóźnienia chmury centralnej"
           aria-pressed={mode === 'cloud'}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'cloud' ? 'bg-secondary text-white shadow-md' : 'text-gray-600 hover:text-gray-600'}`}
         >
@@ -30,7 +30,7 @@ export const LatencySwitcher = () => {
         </button>
         <button
           onClick={() => setMode('edge')}
-          aria-label="Pokaż opóźnienia dla przetwarzania brzegowego (Edge)"
+          aria-label="Edge Przetwarzanie: opóźnienia przetwarzania brzegowego"
           aria-pressed={mode === 'edge'}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-primary text-white shadow-md' : 'text-gray-600 hover:text-gray-600'}`}
         >
@@ -249,7 +249,7 @@ export const SafetySimulator = () => {
                 setMode('cloud');
                 reset();
               }}
-              aria-label="Ustaw tryb symulacji na Chmurę"
+              aria-label="Chmura: tryb symulacji"
               aria-pressed={mode === 'cloud'}
               className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'cloud' ? 'bg-rose-500 text-white shadow-lg' : 'text-gray-600 hover:text-white'}`}
             >
@@ -260,7 +260,7 @@ export const SafetySimulator = () => {
                 setMode('edge');
                 reset();
               }}
-              aria-label="Ustaw tryb symulacji na Edge"
+              aria-label="Edge: tryb symulacji"
               aria-pressed={mode === 'edge'}
               className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-emerald-500 text-white shadow-lg' : 'text-gray-600 hover:text-white'}`}
             >

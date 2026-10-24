@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Database,
 } from 'lucide-react';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 // --- HERO: GOPHER VS ELEPHANT ---
 export const GoHeroVisual: React.FC = () => {
@@ -146,7 +147,11 @@ export const GoCodeBlock: React.FC = () => {
         <div className="w-3 h-3 rounded-full bg-green-500" />
       </div>
       <div className="mb-4 text-gray-500 text-xs font-bold uppercase tracking-widest">main.go</div>
-      <pre className="text-gray-300 leading-relaxed overflow-x-auto">
+      <ScrollRegion
+        as="pre"
+        label="Przykład kodu: goroutines w Go"
+        className="text-gray-300 leading-relaxed overflow-x-auto"
+      >
         <code>
           <span className="text-gray-500">
             {'//'} Uruchomienie 100 000 współbieżnych zadań w Go
@@ -170,7 +175,7 @@ export const GoCodeBlock: React.FC = () => {
           {'  '}time.<span className="text-blue-400">Sleep</span>(time.Second){'\n'}
           {'}'}
         </code>
-      </pre>
+      </ScrollRegion>
       <div className="mt-4 pt-4 border-t border-gray-800 text-green-400 text-xs flex items-center gap-2">
         <CheckCircle2 size={14} /> Ten kod nie "zabije" Twojego laptopa. W Javie by to zrobił.
       </div>
