@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { reportError } from '../utils/errorReporter';
 
 /**
  * Stan pobrania pojedynczego dokumentu CMS po slugu.
@@ -39,6 +40,7 @@ export function useCmsDocument<T>(
       },
       (err: unknown) => {
         console.warn(`CMS fetch failed (${slug}):`, err);
+        reportError('cms', err); // sygnał o awariach Sanity w runtime
         if (!cancelled) setSettled({ key, status: 'error', data: null });
       },
     );

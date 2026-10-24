@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { reportError } from '@/utils/errorReporter';
 
 interface Props {
   children: ReactNode;
@@ -36,7 +37,8 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error('Uncaught error:', error, errorInfo); // wycinane w prod → raport niżej
+    reportError('react-boundary', error);
   }
 
   private retry = () => {
