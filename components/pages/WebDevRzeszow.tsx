@@ -175,7 +175,7 @@ const WebDevRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Strony Internetowe Rzeszów — Tworzenie i Projektowanie WWW"
-        description="Tworzenie stron internetowych dla firm z Rzeszowa i Podkarpacia. Landing page, strony korporacyjne, sklepy e-commerce, aplikacje webowe. WordPress, Next.js, custom CMS. Cennik widełkowy. Bezpłatna wycena projektu."
+        description="Tworzenie stron internetowych dla firm z Rzeszowa i Podkarpacia: landing page, strony firmowe, sklepy, aplikacje webowe. Cennik widełkowy, bezpłatna wycena."
         canonical="/web-development/rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

@@ -11,6 +11,8 @@ import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
 import { getBreadcrumbsSchema, getFaqSchema } from '../../utils/seo/commonSchemas';
 import { getServiceSchema } from '../../utils/seo/serviceSchema';
 import { withBrandSuffix } from '../../utils/seo/title';
+import { SITE_CONFIG } from '../../config/site';
+import { toMetaDescription } from '../../utils/seo/metaDescription';
 
 interface SeoProps {
   title: string;
@@ -52,6 +54,8 @@ const Seo: React.FC<SeoProps> = ({
   // Idempotentny sufiks marki — tytuły kończące się już „Mixture Marketing”
   // nie dostają drugiego „| Mixture Marketing”.
   const fullTitle = withBrandSuffix(title, name);
+  // ≤160 znaków, bez HTML — bezpiecznik dla opisów z CMS (case studies, branże, artykuły).
+  const metaDescription = toMetaDescription(description);
   const baseUrl = 'https://mixturemarketing.pl';
   const canonicalUrl = useCanonicalUrl(canonical);
   const ogImage = getOgImage(image);
@@ -71,7 +75,7 @@ const Seo: React.FC<SeoProps> = ({
   return (
     <Helmet>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      <meta name="description" content={metaDescription} />
       <link rel="canonical" href={canonicalUrl} />
       {/* hreflang — sygnal dla Google ze strona jest po polsku (pl-PL) i jest defaultem */}
       <link rel="alternate" hrefLang="pl-PL" href={canonicalUrl} />
@@ -105,14 +109,16 @@ const Seo: React.FC<SeoProps> = ({
 
       <meta property="og:type" content={type} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      <meta property="og:description" content={metaDescription} />
       <meta property="og:image" content={ogImage} />
       <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:site_name" content={SITE_CONFIG.name} />
+      <meta property="og:locale" content="pl_PL" />
 
-      <meta name="twitter:creator" content={name} />
+      {/* twitter:creator usunięty — wartością była nazwa marki, a nie handle @konta X. */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={ogImage} />
     </Helmet>
   );

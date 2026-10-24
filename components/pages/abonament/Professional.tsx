@@ -231,7 +231,7 @@ const Professional: React.FC = () => {
     <div className="min-h-screen bg-white text-dark">
       <Seo
         title="Strona dla kancelarii / gabinetu — zgodna z RODO i tajemnicą zawodową"
-        description="Strona internetowa w abonamencie dla adwokatów, lekarzy, dentystów, fizjoterapeutów, księgowych. Pakiet RODO+ (DPA jako procesor, lista subprocesorów, SCC). SLA 99.9% z RTO 4h. 549 zł/mc."
+        description="Strona w abonamencie dla adwokatów, lekarzy, fizjoterapeutów i księgowych. Pakiet RODO+ (DPA, lista subprocesorów, SCC), SLA 99.9%, RTO 4h. 549 zł/mc."
         canonical="/abonament/professional/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

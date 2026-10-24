@@ -15,7 +15,7 @@ export const CUSTOM_WEB_APP_CONTENT = {
   seo: {
     title: 'Aplikacje webowe i systemy dedykowane | Mixture Marketing',
     description:
-      'Budujemy systemy, których nie ma w pudełku: portale B2B, systemy rezerwacji, CRM/ERP i SaaS. Node.js, Python, Laravel, React, PostgreSQL. Repozytorium od pierwszego dnia i pełne prawa autorskie.',
+      'Systemy, których nie ma w pudełku: portale B2B, rezerwacje, CRM/ERP, SaaS. Node.js, Python, Laravel, React. Repozytorium od 1. dnia i pełne prawa autorskie.',
     image: '/assets/images/backend.png',
   },
   hero: {

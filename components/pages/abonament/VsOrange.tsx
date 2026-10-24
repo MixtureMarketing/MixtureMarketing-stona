@@ -124,7 +124,7 @@ const VsOrange: React.FC = () => {
     <div className="min-h-screen bg-white text-dark">
       <Seo
         title="Mixture vs Orange KlikAI — strona w abonamencie dla firmy"
-        description="Strona w abonamencie: Mixture 179 zł/mc (managed Local SEO + GBP + leady SMS) vs Orange KlikAI 39 zł/mc (DIY AI builder). Porównanie 12 cech. Decyzja w 3 minuty."
+        description="Strona w abonamencie: Mixture 179 zł/mc (Local SEO + GBP + leady SMS) vs Orange KlikAI 39 zł/mc (DIY AI builder). Porównanie 12 cech."
         canonical="/abonament/vs-orange-klikai/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

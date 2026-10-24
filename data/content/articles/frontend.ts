@@ -6,6 +6,8 @@ export const FRONTEND_ARTICLE_CONTENT = {
       line2: 'Kompendium CTO na 2025 rok.',
     },
     quote: '"Masz tylko 0.05 sekundy na pierwsze wrażenie."',
+    seoDescription:
+      'Frontend bez tajemnic — kompendium CTO: biblioteka czy framework, porównanie technologii i jak wybór frameworka wpływa na SEO, wydajność i koszty utrzymania.',
   },
   lead: {
     text1:

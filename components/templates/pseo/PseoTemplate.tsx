@@ -87,7 +87,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           }
           description={
             slug === 'rzeszow'
-              ? 'Agencja marketingowa Rzeszów — Mixture Marketing. Strony WWW, sklepy e-commerce, pozycjonowanie SEO, Google Ads, branding. Spotkania u klienta na terenie Rzeszowa i Podkarpacia, online lub w centrum miasta. Wycena 24h.'
+              ? 'Agencja marketingowa Rzeszów: strony WWW, sklepy, SEO, Google Ads, branding. Spotkania u klienta w Rzeszowie i na Podkarpaciu lub online. Wycena w 24h.'
               : data.seoDescription ||
                 `Profesjonalne usługi IT, strony www i marketing internetowy dla firm z ${data.genitive}. Lokalne wsparcie, globalna jakość.`
           }

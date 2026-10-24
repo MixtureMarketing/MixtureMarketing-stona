@@ -47,7 +47,7 @@ const AboutUs: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="O nas — Zespół Mixture Marketing"
-        description="Poznaj zespół Mixture Marketing — agencji marketingowej 360° i software house z Rzeszowa. Łączymy inżynierską precyzję z kreatywnością. Działamy lokalnie na Podkarpaciu i ogólnopolsko."
+        description="Poznaj zespół Mixture Marketing — agencji marketingowej i software house'u z Rzeszowa. Inżynierska precyzja i kreatywność, na Podkarpaciu i w całej Polsce."
         canonical="/o-nas/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

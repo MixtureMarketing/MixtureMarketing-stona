@@ -140,7 +140,7 @@ const SeoRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Agencja SEO Rzeszów — Pozycjonowanie Stron Internetowych"
-        description="Agencja SEO Rzeszów — Mixture Marketing. Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content marketing. Cennik widełkowy. Bezpłatny audyt."
+        description="Agencja SEO Rzeszów: pozycjonowanie stron dla firm z Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content. Cennik widełkowy."
         canonical="/agencja-seo-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

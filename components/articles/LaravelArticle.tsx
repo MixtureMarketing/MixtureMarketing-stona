@@ -34,7 +34,7 @@ const LaravelArticle = () => {
     <ArticleShell
       id="laravel-php-framework-szybkie-wdrozenie"
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
-      description={CONTENT.header.quote}
+      description={CONTENT.header.seoDescription}
       category="tech"
       categoryLabel={CONTENT.header.badge}
       image={articleData?.image || '/assets/images/laravel.png'}

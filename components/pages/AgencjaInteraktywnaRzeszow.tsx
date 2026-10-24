@@ -190,7 +190,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Agencja Interaktywna Rzeszów — Web, Branding, Marketing"
-        description="Mixture Marketing — agencja interaktywna Rzeszów. Strony WWW, aplikacje webowe, branding cyfrowy, kampanie Google/Meta Ads, narzędzia interaktywne. Spotkania u klienta na terenie Rzeszowa i Podkarpacia, online lub w centrum miasta."
+        description="Agencja interaktywna Rzeszów: strony WWW, aplikacje webowe, branding, kampanie Google i Meta Ads. Spotkania u klienta na Podkarpaciu lub online."
         canonical="/agencja-interaktywna-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

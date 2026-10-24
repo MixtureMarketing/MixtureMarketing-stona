@@ -149,7 +149,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Pozycjonowanie Stron Rzeszów — Proces, Cennik, Efekty"
-        description="Pozycjonowanie stron internetowych w Rzeszowie — jak działa, ile kosztuje, kiedy zobaczysz efekty. Lokalne i ogólnopolskie SEO dla firm z Rzeszowa i Podkarpacia. Proces krok po kroku + transparentny cennik."
+        description="Pozycjonowanie stron w Rzeszowie: jak działa, ile kosztuje i kiedy widać efekty. Lokalne i ogólnopolskie SEO dla firm z Podkarpacia — proces i cennik."
         canonical="/pozycjonowanie-rzeszow/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

@@ -190,7 +190,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
     <ArticleShell
       id="ile-kosztuje-strona-rzeszow-2026"
       title="Ile kosztuje strona internetowa w Rzeszowie w 2026 roku: pełny cennik"
-      description="Realne widełki cenowe stron WWW w Rzeszowie w 2026: landing page, strony firmowe, sklepy, aplikacje. Co wpływa na koszt, jak czytać oferty, gdzie ukryte są dopłaty. Praktyczny przewodnik dla zamawiającego."
+      description="Widełki cenowe stron WWW w Rzeszowie w 2026: landing page, strona firmowa, sklep, aplikacja. Co wpływa na koszt, jak czytać oferty i gdzie kryją się dopłaty."
       category="business"
       categoryLabel="Cennik · Rzeszów · 2026"
       image="/assets/images/sygnet.png"

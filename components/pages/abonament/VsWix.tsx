@@ -134,7 +134,7 @@ const VsWix: React.FC = () => {
     <div className="min-h-screen bg-white text-dark">
       <Seo
         title="Mixture vs Wix — porównanie strony w abonamencie dla firmy"
-        description="Strona w abonamencie: Mixture 179 zł/mc (managed) vs Wix 60-165 zł/mc (DIY). Porównanie 14 cech: Local SEO, GBP, czas ładowania, support PL, faktury VAT. Decyzja w 3 minuty."
+        description="Strona w abonamencie: Mixture 179 zł/mc (managed) vs Wix 60-165 zł/mc (DIY). Porównanie 14 cech: Local SEO, GBP, czas ładowania, support PL, faktura VAT."
         canonical="/abonament/vs-wix/"
         lcpImage="/assets/images/sygnet.png"
         breadcrumbs={[

@@ -29,7 +29,7 @@ const Home = () => {
     <>
       <Seo
         title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
-        description="Agencja marketingowa Rzeszów. Strony WWW, SEO, Google Ads, Meta Ads, branding. Pracujemy mobilnie — dojeżdżamy do klientów w Rzeszowie i na Podkarpaciu. Realizacje dla firm z całej Polski. Wycena widełkowa."
+        description="Agencja marketingowa z Rzeszowa: strony WWW, SEO, Google Ads, Meta Ads, branding. Dojeżdżamy do klientów na Podkarpaciu, realizujemy projekty w całej Polsce."
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',

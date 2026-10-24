@@ -11,7 +11,7 @@ export const GOOGLE_ADS_CONTENT = {
   seo: {
     title: 'Kampanie Google Ads — agencja Google Partner',
     description:
-      'Prowadzenie kampanii Google Ads: Search, Shopping, Performance Max. Pilnujemy wykluczeń i jakości ruchu, konto reklamowe zostaje Twoje. Dashboard z wynikami 24/7.',
+      'Kampanie Google Ads: Search, Shopping, Performance Max. Pilnujemy wykluczeń i jakości ruchu, konto reklamowe zostaje Twoje. Dashboard z wynikami 24/7.',
     image: '/assets/images/google-ads.png',
   },
   hero: {
