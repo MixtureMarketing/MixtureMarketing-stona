@@ -175,6 +175,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
   // Sync selectedTier gdy prop się zmieni (np. user kliknął inny tier card)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronizacja z propem
     if (tier) setSelectedTier(tier);
   }, [tier]);
 
@@ -289,8 +290,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       });
 
       const preJson = (await preRes.json().catch(() => ({}))) as
-        | OkBody<{ client_id: string; already_exists?: boolean }>
-        | ErrorBody;
+        OkBody<{ client_id: string; already_exists?: boolean }> | ErrorBody;
 
       if (!preRes.ok || preJson.ok !== true) {
         const errCode = (preJson as ErrorBody).error?.code;
@@ -361,8 +361,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       });
 
       const checkoutJson = (await checkoutRes.json().catch(() => ({}))) as
-        | OkBody<{ url: string; session_id?: string }>
-        | ErrorBody;
+        OkBody<{ url: string; session_id?: string }> | ErrorBody;
 
       if (!checkoutRes.ok || checkoutJson.ok !== true) {
         const errMsg = (checkoutJson as ErrorBody).error?.message || '';

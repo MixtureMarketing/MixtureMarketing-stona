@@ -10,13 +10,7 @@
 // (min[L+1] < max[L], np. frontend L2 40–100 vs L3 80–160) jest LEGALNE.
 
 export type LibraryEntity =
-  | 'aspect'
-  | 'level'
-  | 'module'
-  | 'integration'
-  | 'question'
-  | 'param'
-  | 'rule';
+  'aspect' | 'level' | 'module' | 'integration' | 'question' | 'param' | 'rule';
 
 /** Pola edytowalne per encja. Wszystko poza tą listą (w tym code/key/value opcji/answer_type)
  *  odrzucane jako „nieedytowalne". Kolejność bez znaczenia. */

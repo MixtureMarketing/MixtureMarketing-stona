@@ -75,9 +75,7 @@ export function buildRuleContext(raw: {
 const SYNTHETIC_Q = new Set(['archetype']);
 
 type CondNode =
-  | { all: CondNode[] }
-  | { any: CondNode[] }
-  | { q: string; op: string; val?: unknown };
+  { all: CondNode[] } | { any: CondNode[] } | { q: string; op: string; val?: unknown };
 
 function walkCondition(node: unknown, ctx: RuleLibraryContext, errors: string[]): void {
   if (node == null || typeof node !== 'object') {

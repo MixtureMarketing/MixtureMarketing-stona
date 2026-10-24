@@ -26,6 +26,7 @@ export const useKnowledgeSearch = () => {
   // Nawigacja z menu przy już otwartej bazie: param się zmienia bez remountu.
   useEffect(() => {
     const next = urlCategory && CATEGORY_IDS.has(urlCategory) ? urlCategory : 'all';
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronizacja z parametrem URL
     setActiveCategoryState(next);
   }, [urlCategory]);
 
