@@ -12,6 +12,9 @@ import { SITE_CONFIG } from '../../config/site';
  * odwołują się do niej przez `ORG_REF` (`{ '@id': ORG_ID }`).
  */
 export const ORG_ID = `${SITE_CONFIG.domain}/#organization`;
+/** Założyciel — ta sama osoba na /o-nas/ (dane z CMS) i /abonament/ (karta założyciela). */
+export const FOUNDER_ID = `${SITE_CONFIG.domain}/#founder`;
+export const FOUNDER_NAME = 'Jakub Niedziela';
 export const ORG_LOGO_URL = `${SITE_CONFIG.domain}/assets/images/sygnet.png`;
 
 /** Odwołanie do encji firmy (provider / publisher / worksFor). */

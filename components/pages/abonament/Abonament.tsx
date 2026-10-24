@@ -40,7 +40,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
 import { trackEvent } from '../../../utils/analytics';
-import { ORG_REF } from '../../../utils/seo/organizationSchema';
+import { FOUNDER_ID, ORG_REF } from '../../../utils/seo/organizationSchema';
 
 // ============================================================================
 // DATA
@@ -710,12 +710,12 @@ const Abonament: React.FC = () => {
   const founderJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    '@id': 'https://mixturemarketing.pl/#founder',
+    '@id': FOUNDER_ID,
     name: 'Jakub Niedziela',
     givenName: 'Jakub',
     familyName: 'Niedziela',
     jobTitle: 'Założyciel & Fullstack Developer',
-    worksFor: { '@id': 'https://mixturemarketing.pl/#organization' },
+    worksFor: ORG_REF,
     url: 'https://mixturemarketing.pl/o-nas/',
     image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela-400.jpg',
     sameAs: ['https://pl.linkedin.com/in/jakub-niedziela-9251a8254'],
