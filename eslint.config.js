@@ -7,7 +7,7 @@ import prettierConfig from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist', '.vite', '.wrangler', '*.cjs'] },
+  { ignores: ['dist', '.vite', '.wrangler', '*.cjs', '.claude/**'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],

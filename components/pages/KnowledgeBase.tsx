@@ -24,6 +24,7 @@ import Container from '../common/Container';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
 import { useKnowledgeSearch } from '@/hooks/useKnowledgeSearch';
 import { formatDate } from '@/utils/date';
+import { withTrailingSlash } from '@/utils/url';
 
 // Categories Configuration
 const CATEGORIES = [
@@ -56,7 +57,7 @@ const KnowledgeBase = () => {
         image={CONTENT.seo.image}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
-          { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
+          { name: 'Baza Wiedzy', item: '/baza-wiedzy/' },
         ]}
       />
 
@@ -193,7 +194,7 @@ const KnowledgeBase = () => {
                     </div>
 
                     <Link
-                      to={article.slug}
+                      to={withTrailingSlash(article.slug)}
                       className="group-hover:text-secondary transition-colors"
                       aria-label={`Przejdź do artykułu: ${article.title}`}
                     >
@@ -221,7 +222,7 @@ const KnowledgeBase = () => {
 
                       {/* span zamiast button-w-Linku (interactive-in-interactive) */}
                       <Link
-                        to={article.slug}
+                        to={withTrailingSlash(article.slug)}
                         aria-label={`Czytaj więcej: ${article.title}`}
                         className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-secondary hover:bg-secondary hover:text-white transition-all duration-300 group-hover:scale-110"
                       >

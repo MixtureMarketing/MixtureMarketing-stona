@@ -97,7 +97,7 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
           <span className="text-[11px] text-gray-700 leading-relaxed group-hover:text-gray-700 transition-colors font-medium">
             Akceptuję{' '}
             <a
-              href="/privacy-policy"
+              href="/privacy-policy/"
               target="_blank"
               className="text-secondary hover:underline font-bold"
             >

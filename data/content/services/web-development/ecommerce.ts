@@ -47,7 +47,7 @@ export const ECOMMERCE_CONTENT = {
       },
     ],
     linkLabel: 'Zobacz case study: Driftmark Marine',
-    linkTo: '/portfolio/driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
+    linkTo: '/portfolio/driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding/',
   },
   /**
    * Centralny argument strony — „dwa sklepy po roku": ten sam sklep wynajęty

@@ -65,7 +65,12 @@ const WafArticle = () => {
 
       <AnimateOnScroll>
         <div className="mb-16 overflow-hidden rounded-2xl border border-gray-200 shadow-lg bg-white not-prose">
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto"
+            tabIndex={0}
+            role="region"
+            aria-label={`Tabela porównawcza: ${CONTENT.technical.title}`}
+          >
             <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider">
@@ -212,9 +217,9 @@ const WafArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/web-development/custom-app"
+        buttonLink="/web-development/custom-app/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#E1306C"
         variant="dark"
       />

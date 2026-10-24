@@ -8,6 +8,7 @@ import Container from '../common/Container';
 import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { Article } from '../../types';
 import { KNOWLEDGE_BASE_CONTENT as CONTENT } from '../../data/content';
+import { withTrailingSlash } from '../../utils/url';
 
 /**
  * Immersyjny scroll (--p): karty artykułów schodzą się z trzech stron
@@ -85,7 +86,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
               style={{ transform: CARD_DRIFT[index % CARD_DRIFT.length] }}
             >
               <Link
-                to={article.slug}
+                to={withTrailingSlash(article.slug)}
                 className="group block h-full"
                 aria-label={`Czytaj artykuł: ${article.title}`}
               >

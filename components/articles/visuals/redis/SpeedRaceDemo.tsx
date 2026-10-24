@@ -43,7 +43,7 @@ const SpeedRaceDemo = () => {
       <div className="flex justify-between items-end mb-8 relative z-10">
         <div>
           <h3 className="text-xl font-bold text-white mb-1">Symulacja Czasu Odpowiedzi</h3>
-          <p className="text-gray-600 text-sm">Porównanie czasu pobrania 10,000 rekordów</p>
+          <p className="text-slate-400 text-sm">Porównanie czasu pobrania 10,000 rekordów</p>
         </div>
         <Button
           onClick={startRace}
@@ -77,10 +77,10 @@ const SpeedRaceDemo = () => {
         </div>
         <div>
           <div className="flex justify-between text-sm font-bold mb-2">
-            <span className="text-gray-600 flex items-center gap-2">
+            <span className="text-slate-400 flex items-center gap-2">
               <HardDrive size={14} /> Standard SQL (SSD)
             </span>
-            <span className="font-mono text-gray-600">{sqlTime.toFixed(1)} ms</span>
+            <span className="font-mono text-slate-400">{sqlTime.toFixed(1)} ms</span>
           </div>
           <div className="h-4 bg-gray-800 rounded-full overflow-hidden">
             <div className="h-full bg-gray-500" style={{ width: `${sqlProgress}%` }}></div>

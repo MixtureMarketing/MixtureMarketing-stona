@@ -87,7 +87,7 @@ const Ecommerce: React.FC = () => {
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={openConsult}
         ctaSecondaryText="Wyceń sklep"
-        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=ecommerce')}
+        ctaSecondaryOnClick={() => navigate('/wycena/')}
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"
@@ -119,7 +119,7 @@ const Ecommerce: React.FC = () => {
                 Policz widełki dla swojego sklepu w kalkulatorze — zajmuje to około minuty.
               </p>
               <Link
-                to="/offers#calculator?type=ecommerce"
+                to="/wycena/"
                 className="mt-5 inline-flex items-center gap-2 font-bold text-secondary underline-offset-4 hover:underline"
               >
                 Przejdź do kalkulatora wyceny

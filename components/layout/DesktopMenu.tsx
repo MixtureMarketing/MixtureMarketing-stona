@@ -8,6 +8,7 @@ import Button from '@/components/common/Button';
 import Container from '@/components/common/Container';
 import MegaMenu from './MegaMenu';
 import { ContactType } from '@/types';
+import { withTrailingSlash } from '@/utils/url';
 
 interface DesktopMenuProps {
   activeDropdown: string | null;
@@ -184,7 +185,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                     .map((art, i) => (
                       <Link
                         key={i}
-                        to={art.slug}
+                        to={withTrailingSlash(art.slug)}
                         onClick={() => setActiveDropdown(null)}
                         className="group/art flex items-center gap-4 bg-white p-3 rounded-2xl border border-gray-100 hover:border-primary/30 transition-all shadow-sm hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
                         aria-label={`Czytaj artykuł: ${art.title}`}
@@ -211,7 +212,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                     ))}
                 </div>
                 <Link
-                  to="/baza-wiedzy"
+                  to="/baza-wiedzy/"
                   onClick={() => setActiveDropdown(null)}
                   className="inline-flex items-center gap-2 mt-8 text-xs font-black text-secondary uppercase tracking-widest hover:text-accent-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded-lg p-1"
                   aria-label={CONTENT.knowledgeBase.all}
@@ -233,7 +234,7 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
       </Link>
 
       <div className="pl-6 ml-4 border-l border-gray-100 h-8 flex items-center">
-        <Link to="/offers#calculator">
+        <Link to="/wycena/">
           <Button
             variant="primary"
             size="sm"

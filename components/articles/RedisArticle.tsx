@@ -128,13 +128,13 @@ const RedisArticle = () => {
             <h3 className="text-xl font-bold text-dark mb-2">{CONTENT.persistence.rdb.title}</h3>
             <p className="text-sm text-gray-700 mb-4">{CONTENT.persistence.rdb.desc}</p>
             <ul className="text-sm space-y-2">
-              <li className="flex items-center gap-2 text-emerald-600">
+              <li className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 size={14} /> {CONTENT.persistence.rdb.pros[0]}
               </li>
-              <li className="flex items-center gap-2 text-emerald-600">
+              <li className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 size={14} /> {CONTENT.persistence.rdb.pros[1]}
               </li>
-              <li className="flex items-center gap-2 text-red-500">
+              <li className="flex items-center gap-2 text-red-700">
                 <XCircle size={14} /> {CONTENT.persistence.rdb.cons[0]}
               </li>
             </ul>
@@ -147,13 +147,13 @@ const RedisArticle = () => {
             <h3 className="text-xl font-bold text-dark mb-2">{CONTENT.persistence.aof.title}</h3>
             <p className="text-sm text-gray-700 mb-4">{CONTENT.persistence.aof.desc}</p>
             <ul className="text-sm space-y-2">
-              <li className="flex items-center gap-2 text-emerald-600">
+              <li className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 size={14} /> {CONTENT.persistence.aof.pros[0]}
               </li>
-              <li className="flex items-center gap-2 text-emerald-600">
+              <li className="flex items-center gap-2 text-emerald-700">
                 <CheckCircle2 size={14} /> {CONTENT.persistence.aof.pros[1]}
               </li>
-              <li className="flex items-center gap-2 text-red-500">
+              <li className="flex items-center gap-2 text-red-700">
                 <XCircle size={14} /> {CONTENT.persistence.aof.cons[0]}
               </li>
             </ul>
@@ -200,7 +200,7 @@ const RedisArticle = () => {
               {CONTENT.ai.cards.map((card, i) => (
                 <div key={i} className="bg-white/5 border border-white/10 p-4 rounded-xl">
                   <div className="font-bold text-white mb-1">{card.title}</div>
-                  <div className="text-xs text-gray-600">{card.desc}</div>
+                  <div className="text-xs text-slate-400">{card.desc}</div>
                 </div>
               ))}
             </div>
@@ -252,9 +252,9 @@ const RedisArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/web-development"
+        buttonLink="/web-development/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#213261"
         variant="dark"
       />
@@ -277,9 +277,9 @@ const RedisHeroVisual = () => (
       <div className="flex items-center gap-8 md:gap-16 z-10">
         <div className="flex flex-col items-center gap-3">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-[#1E293B] border border-[#334155] rounded-2xl flex items-center justify-center shadow-2xl">
-            <Server className="text-gray-600" size={32} />
+            <Server className="text-slate-400" size={32} />
           </div>
-          <span className="text-xs font-mono text-gray-600 uppercase tracking-widest">
+          <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">
             App Server
           </span>
         </div>

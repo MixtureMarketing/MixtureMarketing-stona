@@ -23,7 +23,7 @@ Nie wykonawca pojedynczych zleceń, lecz partner strategiczny, który łączy rz
 ## Conversion & proof
 
 - Primary CTA: „Darmowy audyt strony w 60s" → `/audyt-360/`. Niskoprogowy lead magnet, wzmacniany przez sticky mobile bar. Zostaje jako główne CTA także po redesignie.
-- Secondary CTA: „Oblicz wycenę projektu" → `/offers#calculator`, dla odwiedzających jeszcze nie gotowych na audyt.
+- Secondary CTA: „Oblicz wycenę projektu" → `/wycena/`, dla odwiedzających jeszcze nie gotowych na audyt.
 - Linia zapamiętywana po 10 sekundach: „Nie szukaj wykonawców. Wybierz Partnera." — inżynierska precyzja spotyka kreatywność.
 - Belief ladder (co odwiedzający musi uwierzyć, po kolei, zanim kliknie audyt): (1) „to nie jest kolejny szablonowy landing agencyjny — to widać w rzemiośle"; (2) „oni naprawdę robią tę robotę — oto realne realizacje, nie atrapy"; (3) „potrafią i technicznie, i marketingowo — jedno miejsce zamiast dwóch dostawców"; (4) „pierwszy krok jest darmowy i bez ryzyka".
 - Proof on hand:

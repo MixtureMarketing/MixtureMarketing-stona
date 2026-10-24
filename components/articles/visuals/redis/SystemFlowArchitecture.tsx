@@ -38,7 +38,7 @@ const SystemFlowArchitecture = () => {
         <button
           onClick={() => playAnimation('hit')}
           disabled={status !== 'idle'}
-          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${mode === 'hit' && status !== 'idle' ? 'bg-emerald-500 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${mode === 'hit' && status !== 'idle' ? 'bg-emerald-700 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
         >
           <div
             className={`w-2 h-2 rounded-full ${mode === 'hit' && status !== 'idle' ? 'bg-white animate-pulse' : 'bg-emerald-500'}`}
@@ -48,7 +48,7 @@ const SystemFlowArchitecture = () => {
         <button
           onClick={() => playAnimation('miss')}
           disabled={status !== 'idle'}
-          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${mode === 'miss' && status !== 'idle' ? 'bg-rose-500 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${mode === 'miss' && status !== 'idle' ? 'bg-rose-700 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
         >
           <div
             className={`w-2 h-2 rounded-full ${mode === 'miss' && status !== 'idle' ? 'bg-white animate-pulse' : 'bg-rose-500'}`}
@@ -132,7 +132,7 @@ const SystemFlowArchitecture = () => {
             <Database size={24} className="text-white" />
           </div>
           <span
-            className={`text-xxs font-black uppercase tracking-widest whitespace-nowrap ${status === 'hit' ? 'text-emerald-500' : 'text-red-600'}`}
+            className={`text-xxs font-black uppercase tracking-widest whitespace-nowrap ${status === 'hit' ? 'text-emerald-700' : 'text-red-700'}`}
           >
             Redis (RAM)
           </span>

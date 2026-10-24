@@ -103,7 +103,7 @@ const DesignProof: React.FC = () => {
           <div className="mt-12 rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-10 text-center">
             <p className="text-white/75">
               Nie udało się załadować realizacji.{' '}
-              <Link to="/portfolio" className="font-bold text-primary hover:underline">
+              <Link to="/portfolio/" className="font-bold text-primary hover:underline">
                 Przejdź do pełnego portfolio
               </Link>
               .
@@ -121,7 +121,7 @@ const DesignProof: React.FC = () => {
               return (
                 <Link
                   key={item._id}
-                  to={`/portfolio/${item.slug}`}
+                  to={`/portfolio/${item.slug}/`}
                   className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] transition-colors hover:border-primary/50"
                 >
                   <div className="relative overflow-hidden">

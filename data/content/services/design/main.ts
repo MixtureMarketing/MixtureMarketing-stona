@@ -137,7 +137,7 @@ export const DESIGN_BRANDING_CONTENT = {
     description:
       'Zamiast procentów z powietrza — realne projekty, przy których robiliśmy branding, interfejsy i materiały: wejdź i oceń sam.',
     linkLabel: 'Zobacz wszystkie realizacje',
-    linkTo: '/portfolio',
+    linkTo: '/portfolio/',
   },
   cta: {
     title: 'Wygląd ma znaczenie.',

@@ -70,7 +70,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           }
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
-            { name: `Branża: ${data.name}`, item: `/branza/${slug}` },
+            { name: `Branża: ${data.name}`, item: `/branza/${slug}/` },
           ]}
           service={{
             name: `Usługi IT i Marketingowe ${withDla(data.forWho)}`,
@@ -100,7 +100,7 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           noindex={slug !== 'rzeszow'}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },
-            { name: `Marketing i Strony WWW ${data.city}`, item: `/miasto/${slug}` },
+            { name: `Marketing i Strony WWW ${data.city}`, item: `/miasto/${slug}/` },
           ]}
           service={{
             name: `Marketing i Software House ${data.city}`,

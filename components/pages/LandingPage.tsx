@@ -123,7 +123,7 @@ const LandingPage: React.FC = () => {
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'landing' })}
         ctaSecondaryText="Wyceń stronę"
-        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=landingPage')}
+        ctaSecondaryOnClick={() => navigate('/wycena/')}
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"

@@ -11,7 +11,7 @@ export const MONGO_ARTICLE_CONTENT = {
   contextBox: {
     text: 'Ten artykuł jest częścią serii <strong>Architektura Danych</strong>.',
     linkText: 'Zobacz pełne porównanie: PostgreSQL vs MongoDB vs Redis vs Elasticsearch',
-    linkUrl: '/baza-wiedzy/bazy-danych-kompendium-architekta',
+    linkUrl: '/baza-wiedzy/bazy-danych-kompendium-architekta/',
   },
   lead: {
     highlight:

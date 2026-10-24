@@ -148,7 +148,7 @@ const WebDevWpCustom: React.FC = () => {
               />
               <ProofTag label="Integracje API" />
               <Link
-                to="/portfolio/fundacja-niepodzielni"
+                to="/portfolio/fundacja-niepodzielni/"
                 className="group relative block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
               >
                 {/* Halftone-wywołanie: szkielet interfejsu z kropek brandu
@@ -183,7 +183,7 @@ const WebDevWpCustom: React.FC = () => {
                 <span className="font-semibold text-white">Bookero</span> — wspólny kalendarz wielu
                 specjalistów w miejsce gotowej wtyczki.{' '}
                 <Link
-                  to="/portfolio/fundacja-niepodzielni"
+                  to="/portfolio/fundacja-niepodzielni/"
                   className="font-bold text-primary underline-offset-4 hover:underline"
                 >
                   Fundacja Niepodzielni
@@ -202,7 +202,7 @@ const WebDevWpCustom: React.FC = () => {
           <figure>
             <ProofTag label="Custom Post Types" />
             <Link
-              to="/portfolio/fundacja-niepodzielni"
+              to="/portfolio/fundacja-niepodzielni/"
               className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
             >
               <img
@@ -224,7 +224,7 @@ const WebDevWpCustom: React.FC = () => {
           <figure>
             <ProofTag label="Integracje API" />
             <Link
-              to="/portfolio/fundacja-niepodzielni"
+              to="/portfolio/fundacja-niepodzielni/"
               className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
             >
               <img

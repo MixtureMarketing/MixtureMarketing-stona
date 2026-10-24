@@ -43,7 +43,7 @@ const PostgresArticle = () => {
             Ten artykuł jest częścią serii <strong>Architektura Danych</strong>.
           </p>
           <a
-            href="/baza-wiedzy/bazy-danych-kompendium-architekta"
+            href="/baza-wiedzy/bazy-danych-kompendium-architekta/"
             className="text-sm text-[#336791] hover:text-dark font-bold mt-1 inline-flex items-center gap-1"
           >
             Zobacz pełne porównanie: PostgreSQL vs MongoDB vs Redis vs Elasticsearch{' '}
@@ -251,9 +251,9 @@ WHERE settings @> '{"newsletter": true}';
         title="Przestań płacić za licencje. Zacznij inwestować w produkt."
         description="Pomożemy Ci zmigrować Twoje dane z drogich, komercyjnych rozwiązań do wydajnego PostgreSQL. Zróbmy analizę oszczędności dla Twojego biznesu."
         buttonText="Oblicz oszczędności z migracji"
-        buttonLink="/web-development/custom-app"
+        buttonLink="/web-development/custom-app/"
         secondaryButtonText="Wróć do Bazy Wiedzy"
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         variant="dark"
       />
     </ArticleShell>

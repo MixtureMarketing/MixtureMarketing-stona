@@ -15,6 +15,7 @@ import AmbientBackground from '../common/AmbientBackground';
 import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
 import { useNotification } from '../../context/NotificationContext';
+import { withTrailingSlash } from '../../utils/url';
 
 interface ArticleShellProps {
   id: string;
@@ -61,13 +62,16 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
 
   const { showNotification } = useNotification();
 
+  // Kanoniczna ścieżka artykułu (ze slashem) — źródło dla breadcrumbs, share i @id.
+  const canonicalPath = withTrailingSlash(slug);
+
   const breadcrumbs = [
     { name: 'Strona Główna', item: '/' },
-    { name: 'Baza Wiedzy', item: '/baza-wiedzy' },
-    { name: titleStr, item: slug || '#' },
+    { name: 'Baza Wiedzy', item: '/baza-wiedzy/' },
+    { name: titleStr, item: canonicalPath || '#' },
   ];
 
-  const shareUrl = `https://mixturemarketing.pl${slug}`;
+  const shareUrl = `https://mixturemarketing.pl${canonicalPath}`;
   const baseUrl = 'https://mixturemarketing.pl';
   const isoPublished = publishedDate
     ? new Date(publishedDate).toISOString()
@@ -98,7 +102,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
     },
     datePublished: isoPublished,
     dateModified: isoUpdated,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${slug}` },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${canonicalPath}` },
     articleSection: categoryLabel,
   };
 

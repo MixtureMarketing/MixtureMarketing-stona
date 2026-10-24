@@ -68,7 +68,7 @@ export const SEO_CONTENT = {
       detail:
         'LCP 1,0 s · CLS 0 · dane polowe Google CrUX dla wdrożenia klienta (niepodzielni.com), pomiar 15.07.2026',
       linkLabel: 'Zobacz case study',
-      linkTo: '/portfolio/fundacja-niepodzielni',
+      linkTo: '/portfolio/fundacja-niepodzielni/',
     },
     stack: [
       'Nowoczesne formaty obrazów (WebP/AVIF)',

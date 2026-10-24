@@ -86,8 +86,8 @@ const MarketingSeo: React.FC = () => {
         }}
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
-          { name: 'Marketing', item: '/marketing' },
-          { name: 'Pozycjonowanie (SEO)', item: '/marketing/seo' },
+          { name: 'Marketing', item: '/marketing/' },
+          { name: 'Pozycjonowanie (SEO)', item: '/marketing/seo/' },
         ]}
       />
 

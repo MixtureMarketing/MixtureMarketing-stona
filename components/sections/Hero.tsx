@@ -108,7 +108,7 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
 
             <button
               type="button"
-              onClick={() => navigate('/offers#calculator')}
+              onClick={() => navigate('/wycena/')}
               className="group inline-flex min-h-11 items-center gap-2 px-2 text-base font-medium text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
             >
               Oblicz wycenę projektu

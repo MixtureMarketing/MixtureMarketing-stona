@@ -11,7 +11,7 @@ export const PYTHON_ARTICLE_CONTENT = {
     title: 'Seria: Architektura Backendowa',
     text: 'Zanim zdecydujesz się na Pythona, sprawdź jak wypada na tle konkurencji w naszym wielkim porównaniu technologii na 2025 rok.',
     linkText: 'Zobacz porównanie: Node vs Python vs Go',
-    linkUrl: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto',
+    linkUrl: '/baza-wiedzy/backend-bez-tajemnic-przewodnik-cto/',
   },
   lead: {
     highlight:

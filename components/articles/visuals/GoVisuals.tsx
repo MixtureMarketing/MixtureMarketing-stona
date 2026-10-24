@@ -181,7 +181,12 @@ export const GoCodeBlock: React.FC = () => {
 // --- PERFORMANCE COMPARISON TABLE ---
 export const GoPerformanceComparison: React.FC = () => {
   return (
-    <div className="my-16 overflow-x-auto rounded-2xl border border-gray-200 shadow-lg">
+    <div
+      className="my-16 overflow-x-auto rounded-2xl border border-gray-200 shadow-lg"
+      tabIndex={0}
+      role="region"
+      aria-label="Tabela porównawcza: Node.js, Java i Go"
+    >
       <table className="w-full text-left bg-white">
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>

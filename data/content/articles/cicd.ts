@@ -12,9 +12,9 @@ export const CICD_ARTICLE_CONTENT = {
     highlight:
       'Pamiętasz czasy, gdy aktualizacja strony wiązała się z modlitwą, by nic się nie zepsuło? Ręczne wgrywanie plików przez FTP to dziś technologiczny odpowiednik wysyłania listu gołębiem pocztowym – romantyczne, ale skrajnie ryzykowne.',
     text1:
-      'W nowoczesnym procesie tworzenia <a href="/web-development/custom-app" class="text-secondary font-bold hover:underline">aplikacji biznesowych</a>, błąd ludzki jest największym zagrożeniem. Rozwiązaniem jest <strong>CI/CD</strong>. To zrobotyzowana linia produkcyjna, która bierze na siebie nudne i ryzykowne zadania, pozwalając Twojemu zespołowi skupić się na generowaniu wartości.',
+      'W nowoczesnym procesie tworzenia <a href="/web-development/custom-app/" class="text-secondary font-bold hover:underline">aplikacji biznesowych</a>, błąd ludzki jest największym zagrożeniem. Rozwiązaniem jest <strong>CI/CD</strong>. To zrobotyzowana linia produkcyjna, która bierze na siebie nudne i ryzykowne zadania, pozwalając Twojemu zespołowi skupić się na generowaniu wartości.',
     text2:
-      'W Mixture Marketing traktujemy CI/CD jako standard – fundament bezpieczeństwa, który łączymy z technologiami takimi jak <a href="/baza-wiedzy/docker-konteneryzacja-przewodnik" class="text-secondary font-bold hover:underline">Docker</a>, aby zapewnić 100% powtarzalności wdrożeń.',
+      'W Mixture Marketing traktujemy CI/CD jako standard – fundament bezpieczeństwa, który łączymy z technologiami takimi jak <a href="/baza-wiedzy/docker-konteneryzacja-przewodnik/" class="text-secondary font-bold hover:underline">Docker</a>, aby zapewnić 100% powtarzalności wdrożeń.',
   },
   definitions: {
     title: 'Czym jest ten tajemniczy rurociąg?',

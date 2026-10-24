@@ -55,7 +55,7 @@ const RedisTerminal = () => {
           <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
           <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
         </div>
-        <span className="text-gray-600 text-xs ml-2">redis-cli</span>
+        <span className="text-slate-400 text-xs ml-2">redis-cli</span>
       </div>
       <div
         ref={containerRef}
@@ -65,7 +65,7 @@ const RedisTerminal = () => {
         {lines.map((line, i) => (
           <div
             key={i}
-            className={`${line.type === 'input' ? 'text-white font-bold' : line.type === 'info' ? 'text-gray-700' : 'text-[#A6E22E]'}`}
+            className={`${line.type === 'input' ? 'text-white font-bold' : line.type === 'info' ? 'text-slate-400' : 'text-[#A6E22E]'}`}
           >
             <pre className="whitespace-pre-wrap font-mono">{line.text}</pre>
           </div>

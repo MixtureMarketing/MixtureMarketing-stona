@@ -156,7 +156,12 @@ const TailwindArticle = () => {
           subtitle={CONTENT.comparison.subtitle}
           align="left"
         />
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mt-8 not-prose">
+        <div
+          className="overflow-x-auto rounded-2xl border border-gray-200 shadow-lg mt-8 not-prose"
+          tabIndex={0}
+          role="region"
+          aria-label={`Tabela porównawcza: ${CONTENT.comparison.title}`}
+        >
           <table className="w-full text-left bg-white">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
@@ -232,9 +237,9 @@ const TailwindArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
-        buttonLink="/web-development"
+        buttonLink="/web-development/"
         secondaryButtonText={CONTENT.cta.secondaryBtn}
-        secondaryButtonLink="/baza-wiedzy"
+        secondaryButtonLink="/baza-wiedzy/"
         accentColor="#38BDF8"
         variant="dark"
       />

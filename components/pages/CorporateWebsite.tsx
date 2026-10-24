@@ -105,7 +105,7 @@ const CorporateWebsite: React.FC = () => {
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'corporate' })}
         ctaSecondaryText="Wyceń stronę firmową"
-        ctaSecondaryOnClick={() => navigate('/offers#calculator?type=corporate')}
+        ctaSecondaryOnClick={() => navigate('/wycena/')}
         ctaSecondaryIcon={Calculator}
         backLinkPath="/web-development/"
         backLinkLabel="Web Development"

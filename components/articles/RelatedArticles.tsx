@@ -82,7 +82,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
               <h2 className="text-3xl md:text-4xl font-bold text-brand-navy">{finalTitle}</h2>
             </div>
             <Link
-              to="/baza-wiedzy"
+              to="/baza-wiedzy/"
               className="group flex items-center gap-2 text-sm font-bold text-brand-indigo hover:text-brand-blue transition-colors"
             >
               Zobacz wszystkie artykuły
@@ -108,8 +108,8 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                     // dist/baza-wiedzy/fundacja-niepodzielni, jest dist/portfolio/…).
                     to={
                       item._type === 'caseStudy'
-                        ? `/portfolio/${item.slug}`
-                        : `/baza-wiedzy/${item.slug}`
+                        ? `/portfolio/${item.slug}/`
+                        : `/baza-wiedzy/${item.slug}/`
                     }
                     className="group block"
                   >
@@ -155,7 +155,7 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">{finalTitle}</h2>
           <Link
-            to="/baza-wiedzy"
+            to="/baza-wiedzy/"
             className="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
           >
             Więcej artykułów <ArrowRight size={16} />
@@ -181,8 +181,8 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
                   key={item.slug}
                   to={
                     item._type === 'caseStudy'
-                      ? `/portfolio/${item.slug}`
-                      : `/baza-wiedzy/${item.slug}`
+                      ? `/portfolio/${item.slug}/`
+                      : `/baza-wiedzy/${item.slug}/`
                   }
                   className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:-translate-y-1"
                 >

@@ -24,7 +24,7 @@ const CaseStudyNavigation: React.FC<CaseStudyNavigationProps> = ({ nextProject }
   return (
     <section
       className="bg-dark py-24 relative overflow-hidden group cursor-pointer"
-      onClick={() => navigate(`/portfolio/${nextProject.slug.current}`)}
+      onClick={() => navigate(`/portfolio/${nextProject.slug.current}/`)}
     >
       {nextProject.mainImage && (
         <div className="absolute inset-0 opacity-20 group-hover:opacity-10 transition-opacity duration-700">

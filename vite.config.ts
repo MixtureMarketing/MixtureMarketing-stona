@@ -98,10 +98,6 @@ export default defineConfig(({ mode }) => {
     esbuild: {
       drop: mode === 'production' ? ['console', 'debugger'] : [],
     },
-    define: {
-      // Pozwala na dostęp do klucza przez process.env (użyteczne dla niektórych bibliotek)
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './'),
@@ -112,6 +108,9 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: './tests/setup.ts',
       include: ['**/*.test.{ts,tsx}'],
+      // .claude/worktrees = kopie robocze agentów (pełne klony repo) — bez tego
+      // vitest zbierał ich testy jako własne.
+      exclude: ['**/node_modules/**', '**/dist/**', '.claude/**', 'studio-mixture-marketing/**'],
     },
   };
 });

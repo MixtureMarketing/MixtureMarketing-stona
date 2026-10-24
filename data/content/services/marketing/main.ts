@@ -37,7 +37,7 @@ export const MARKETING_CONTENT = {
       'Konto reklamowe jest Twoje. Odchodzisz — wszystko zostaje u Ciebie.',
     ],
     linkLabel: 'Zobacz wszystkie realizacje',
-    linkTo: '/portfolio',
+    linkTo: '/portfolio/',
   },
   painPoints: {
     title: 'Dlaczego Twoje reklamy nie działają?',

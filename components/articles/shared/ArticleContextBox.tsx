@@ -27,7 +27,7 @@ const ArticleContextBox: React.FC<ArticleContextBoxProps> = ({
         {linkUrl && linkText && (
           <a
             href={linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
+            className="text-sm text-accent-dark hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
           >
             {linkText} <ArrowRight size={14} />
           </a>
