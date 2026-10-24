@@ -54,3 +54,18 @@ export const withDla = (audience: string): string => {
   const a = (audience || '').trim().replace(/^dla\s+/i, '');
   return a ? `dla ${a}` : '';
 };
+
+/**
+ * Grupa docelowa branży do tytułu/schemy („dla …”).
+ *
+ * Pole Sanity `industry.forWho` bywa krótką frazą („dla Psychologów i Terapeutów”)
+ * albo opisową listą zakończoną kropką („Kliniki estetyczne, stomatolodzy, …”).
+ * Lista w <title> dawała „… dla Kliniki estetyczne, stomatolodzy, …. | Mixture
+ * Marketing” — wtedy używamy nazwy branży: „dla branży Medycyna i Stomatologia”.
+ */
+export const industryAudience = (forWho: string | undefined, name: string): string => {
+  const f = (forWho || '').trim();
+  if (/^dla\s/i.test(f) && !/[,.]/.test(f.replace(/\.$/, ''))) return withDla(f.replace(/\.$/, ''));
+  const n = (name || '').trim();
+  return n ? `dla branży ${n}` : withDla(f);
+};
