@@ -28,6 +28,35 @@ const GlobalSchema = () => (
   </Helmet>
 );
 
+// Fallback, gdy modal kontaktowy nie może się wyrenderować (np. stary chunk po deployu).
+const ContactModalError = ({ onClose }: { onClose: () => void }) => (
+  <div
+    role="alert"
+    data-error-boundary=""
+    className="fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-sm z-[1000] bg-white border border-red-200 shadow-xl rounded-xl p-4 text-sm text-gray-800"
+  >
+    <p className="font-bold mb-1">Nie udało się otworzyć formularza.</p>
+    <p className="mb-3">
+      Odśwież stronę albo zadzwoń:{' '}
+      <a className="underline font-bold" href={`tel:${SITE_CONFIG.contact.phoneFull}`}>
+        {SITE_CONFIG.contact.phone}
+      </a>
+    </p>
+    <div className="flex gap-3">
+      <button
+        type="button"
+        className="font-bold underline"
+        onClick={() => window.location.reload()}
+      >
+        Odśwież
+      </button>
+      <button type="button" className="underline" onClick={onClose}>
+        Zamknij
+      </button>
+    </div>
+  </div>
+);
+
 // Fallback component for Suspense
 const Loading = () => (
   <div className="flex justify-center items-center h-screen">
@@ -121,7 +150,8 @@ function App() {
 
           <main id="main-content">
             {showBreadcrumbs && <Breadcrumbs />}
-            <ErrorBoundary>
+            {/* resetKey: nawigacja (link w Navbarze) zdejmuje fallback błędu poprzedniej trasy. */}
+            <ErrorBoundary resetKey={location.pathname}>
               <Suspense fallback={<Loading />}>
                 <Routes>
                   {appRoutes.map((route) => (
@@ -141,10 +171,13 @@ function App() {
           </LazyHydrate>
 
           {/* Global Modal - Exclude during prerendering to avoid ReCaptcha context errors */}
+          {/* Własna granica: padnięty chunk/render modala nie kładzie całej strony. */}
           {!isPrerendering && isModalOpen && (
-            <Suspense fallback={null}>
-              <ContactModal isOpen={true} onClose={closeModal} type={modalType} />
-            </Suspense>
+            <ErrorBoundary fallback={<ContactModalError onClose={closeModal} />}>
+              <Suspense fallback={null}>
+                <ContactModal isOpen={true} onClose={closeModal} type={modalType} />
+              </Suspense>
+            </ErrorBoundary>
           )}
         </div>
       </NotificationProvider>

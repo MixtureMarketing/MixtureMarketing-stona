@@ -4,6 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { ModalProvider } from './context/ModalContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
 import { trackEvent } from './utils/analytics';
 import { installChunkReloadHandler } from './utils/chunkReload';
@@ -77,12 +78,16 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <HelmetProvider>
-      <Router>
-        <ModalProvider>
-          <App />
-        </ModalProvider>
-      </Router>
-    </HelmetProvider>
+    {/* Granica zewnętrzna: błąd w Navbar/Footer/CookieBanner/providerach (poza
+        granicą w <main>) daje komunikat „odśwież stronę”, a nie białą stronę. */}
+    <ErrorBoundary fallback="minimal">
+      <HelmetProvider>
+        <Router>
+          <ModalProvider>
+            <App />
+          </ModalProvider>
+        </Router>
+      </HelmetProvider>
+    </ErrorBoundary>
   </React.StrictMode>,
 );
