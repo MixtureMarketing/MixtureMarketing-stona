@@ -37,9 +37,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .all();
 
     // 3. Mark admin messages as read — tylko gdy są nieprzeczytane (bez pustych zapisów).
-    const hasUnread = (messages.results as any[]).some(
-      (m) => m.sender_type === 'admin' && !Number(m.is_read),
-    );
+    const results = messages.results as any[];
+    const hasUnread = results.some((m) => m.sender_type === 'admin' && !Number(m.is_read));
     if (hasUnread) {
       await env.DB.prepare(
         `UPDATE messages SET is_read = 1 WHERE user_id = ? AND sender_type = 'admin' AND is_read = 0`,
@@ -48,8 +47,16 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         .run();
     }
 
-    // 4. Save to KV Cache (fail-open — wyczerpany limit zapisów KV nie może dać 500)
-    await kvPut(env.CACHE, cacheKey, JSON.stringify(messages.results), {
+    // 4. Save to KV Cache (fail-open — wyczerpany limit zapisów KV nie może dać 500).
+    // Do cache idzie stan PO oznaczeniu (is_read=1 dla wiadomości admina) — wcześniej
+    // zapisywaliśmy stan sprzed UPDATE i każdy kolejny polling (nawet po przeładowaniu)
+    // przez TTL zwracał „nieprzeczytane”: tytuł „(1) Nowa wiadomość” nie gasł.
+    // Ta odpowiedź celowo niesie jeszcze stan sprzed odczytu — to jest moment, w którym
+    // klient widzi, co jest nowe; następny polling (z cache) już „przeczytane”.
+    const afterRead = hasUnread
+      ? results.map((m) => (m.sender_type === 'admin' ? { ...m, is_read: 1 } : m))
+      : results;
+    await kvPut(env.CACHE, cacheKey, JSON.stringify(afterRead), {
       expirationTtl: CHAT_CACHE_TTL,
     });
 

@@ -37,17 +37,13 @@ export const usePortalData = () => {
       if (!res.ok) return;
       const data = await res.json();
       const serverMessages = asArray<Message>(data?.messages);
-      setMessages((prev) => {
-        if (serverMessages.length !== prev.length) {
-          return serverMessages;
-        }
-        if (serverMessages.length > 0 && prev.length > 0) {
-          const lastServer = serverMessages[serverMessages.length - 1];
-          const lastLocal = prev[prev.length - 1];
-          if (lastServer.id !== lastLocal.id) return serverMessages;
-        }
-        return prev;
-      });
+      // Podmiana przy KAŻDEJ zmianie treści listy — także samego `is_read`
+      // (wcześniej tylko długość/id ostatniej: tytuł „(1) Nowa wiadomość” nie gasł,
+      // a podwójny ptaszek „przeczytane” nie dochodził). Bez zmiany zostaje ta sama
+      // referencja, więc polling co 5 s nie re-renderuje czatu.
+      setMessages((prev) =>
+        JSON.stringify(prev) === JSON.stringify(serverMessages) ? prev : serverMessages,
+      );
     } catch (e) {
       console.error(e);
     }
