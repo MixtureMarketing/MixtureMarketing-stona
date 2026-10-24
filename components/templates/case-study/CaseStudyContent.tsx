@@ -6,14 +6,7 @@ import { SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import CaseStudyStats from './CaseStudyStats';
 import CaseStudyGallery from './CaseStudyGallery';
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from '@/services/cmsService';
-
-const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImage) {
-  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
-  return builder.image(source).auto('format');
-}
+import { urlFor } from '@/services/cmsService';
 
 interface CaseStudyContentProps {
   project: SanityCaseStudy;

@@ -1,6 +1,5 @@
 import { createClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
-import { SanityImage } from '@/types/sanity';
+import imageUrlBuilder, { type SanityImageSource } from '@sanity/image-url';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
@@ -30,7 +29,7 @@ export class CmsUnavailableError extends Error {
 
 const builder = imageUrlBuilder(client);
 
-export function urlFor(source: SanityImage | { asset: { _ref: string } }) {
+export function urlFor(source: SanityImageSource) {
   // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
   return builder.image(source).auto('format');
 }

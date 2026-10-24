@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -18,8 +17,6 @@ import { DESIGN_BRANDING_CONTENT as CONTENT } from '../../../data/content';
  * driftmark) oraz glamspace (ilustracja wektorowa, nie zrzut — wróci,
  * jeśli właściciel potwierdzi, że to nasza praca projektowa).
  */
-
-const builder = imageUrlBuilder(client);
 
 const DESIGN_TAGS: Record<string, string> = {
   branding: 'Branding',
@@ -126,12 +123,7 @@ const DesignProof: React.FC = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={builder
-                        .image(item.mainImage!)
-                        .width(1100)
-                        .fit('max')
-                        .auto('format')
-                        .url()}
+                      src={urlFor(item.mainImage!).width(1100).fit('max').url()}
                       alt={`Zrzut realizacji: ${item.title}`}
                       sizes="(min-width: 640px) 45vw, 100vw"
                       loading="lazy"

@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
 
 /**
@@ -13,7 +12,6 @@ import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
  * synchronicznie — bez fetcha, więc prawa strona nigdy nie stoi pusta
  * (lekcja z WebDevWpCustom). Sekcja CIEMNA — The Ciemnia Rule.
  */
-const builder = imageUrlBuilder(client);
 
 const hideBrokenFigure: React.ReactEventHandler<HTMLImageElement> = (e) => {
   e.currentTarget.closest('figure')?.style.setProperty('display', 'none');
@@ -49,7 +47,7 @@ const CustomAppProof: React.FC = () => {
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
         >
           {CONTENT.proof.figures.map((fig) => {
-            let img = builder.image(fig.ref);
+            let img = urlFor(fig.ref);
             if ('rect' in fig && fig.rect) {
               img = img.rect(fig.rect.x, fig.rect.y, fig.rect.w, fig.rect.h);
             }
@@ -60,7 +58,7 @@ const CustomAppProof: React.FC = () => {
                   className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
                 >
                   <img
-                    src={img.width(1200).fit('max').auto('format').url()}
+                    src={img.width(1200).fit('max').url()}
                     alt={fig.alt}
                     sizes="(min-width: 768px) 50vw, 100vw"
                     loading="lazy"

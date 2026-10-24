@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarCheck, KeyRound, LayoutDashboard, LucideIcon } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -20,8 +19,6 @@ import { MARKETING_CONTENT as CONTENT } from '../../../data/content';
  * mobile). Choreografia ciemni jak na /web-development/: zrzuty wychodzą
  * z granatu na --p, światło wędruje przez sekcję.
  */
-
-const builder = imageUrlBuilder(client);
 
 const MARKETING_TAGS: Record<string, string> = {
   google_ads: 'Google Ads',
@@ -135,12 +132,7 @@ const MarketingProof: React.FC = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={builder
-                        .image(item.mainImage!)
-                        .width(1100)
-                        .fit('max')
-                        .auto('format')
-                        .url()}
+                      src={urlFor(item.mainImage!).width(1100).fit('max').url()}
                       alt={`Zrzut realizacji: ${item.title}`}
                       sizes="(min-width: 640px) 45vw, 100vw"
                       loading="lazy"

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -28,8 +27,6 @@ import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
  * 0.85:1 (BDB, portret) do 2.26:1 (KorepetytorAI). Sztywne aspect-ratio + object-cover
  * przycinałoby je brutalnie, więc każdy zrzut zachowuje własne proporcje.
  */
-
-const builder = imageUrlBuilder(client);
 
 interface Realization {
   _id: string;
@@ -209,7 +206,7 @@ const WebDevRealizations: React.FC = () => {
             >
               <div className="relative overflow-hidden">
                 <img
-                  src={builder.image(lead.mainImage!).width(1400).fit('max').auto('format').url()}
+                  src={urlFor(lead.mainImage!).width(1400).fit('max').url()}
                   alt={`Zrzut realizacji: ${lead.title}`}
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   loading="lazy"
@@ -288,12 +285,7 @@ const WebDevRealizations: React.FC = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={builder
-                        .image(item.mainImage!)
-                        .width(1100)
-                        .fit('max')
-                        .auto('format')
-                        .url()}
+                      src={urlFor(item.mainImage!).width(1100).fit('max').url()}
                       sizes="(min-width: 640px) 45vw, 100vw"
                       alt={`Zrzut realizacji: ${item.title}`}
                       loading="lazy"
