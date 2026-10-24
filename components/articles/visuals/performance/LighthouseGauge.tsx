@@ -28,7 +28,7 @@ const LighthouseGauge = ({ score }: { score: number }) => {
           <span className="text-3xl font-black text-dark">{current}</span>
         </div>
       </div>
-      <span className="text-xxs font-black text-emerald-500 uppercase mt-2 tracking-widest">
+      <span className="text-xxs font-black text-emerald-700 uppercase mt-2 tracking-widest">
         Performance
       </span>
     </div>

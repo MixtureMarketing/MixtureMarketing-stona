@@ -137,7 +137,10 @@ const Navbar: React.FC = () => {
                    z fixed inset-0 — bez wyzszego stacking button (zamykajacy X)
                    byl chowany pod tlem menu. */
                 className="relative z-[var(--z-tooltip)] text-dark focus:outline-none p-2 w-12 h-12 flex flex-col justify-center items-center gap-1.5 group"
-                aria-label={isOpen ? 'Zamknij menu nawigacyjne' : 'Otwórz menu nawigacyjne'}
+                /* Stała nazwa + aria-expanded (wzorzec disclosure). Dynamiczne
+                   „Zamknij menu nawigacyjne" dublowało nazwę przycisku X w MobileMenu
+                   — przy otwartym menu czytnik widział dwa identyczne przyciski. */
+                aria-label="Menu nawigacyjne"
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"
               >

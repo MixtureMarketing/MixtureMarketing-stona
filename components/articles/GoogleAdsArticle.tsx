@@ -85,7 +85,7 @@ const GoogleAdsArticle = () => {
             dangerouslySetInnerHTML={{ __html: CONTENT.trap.text }}
           />
           <div className="bg-white/10 border border-white/20 p-6 rounded-2xl">
-            <div className="text-primary font-black uppercase text-xs tracking-widest mb-2">
+            <div className="text-[#8fcbe8] font-black uppercase text-xs tracking-widest mb-2">
               Złota Zasada
             </div>
             <p className="m-0 text-white font-bold">{CONTENT.trap.rule}</p>

@@ -55,7 +55,7 @@ const TailwindArticle = () => {
         icon={Layout}
         text="Ten artykuł jest częścią serii <strong>Frontend Architecture</strong>."
       >
-        <div className="text-sm text-primary font-bold mt-1 flex flex-wrap items-center gap-1">
+        <div className="text-sm text-accent-dark font-bold mt-1 flex flex-wrap items-center gap-1">
           Zobacz pełne porównanie:
           <Link
             to="/baza-wiedzy/react-js-najbezpieczniejsza-technologia-dla-biznesu/"
@@ -180,8 +180,8 @@ const TailwindArticle = () => {
               {CONTENT.comparison.rows.map((row, i) => (
                 <tr key={i}>
                   <td className="p-4 font-bold">{row.label}</td>
-                  <td className="p-4 text-red-500">{row.v1}</td>
-                  <td className="p-4 text-emerald-600 font-bold">{row.v2}</td>
+                  <td className="p-4 text-red-700">{row.v1}</td>
+                  <td className="p-4 text-emerald-700 font-bold">{row.v2}</td>
                 </tr>
               ))}
             </tbody>
@@ -199,11 +199,11 @@ const TailwindArticle = () => {
             </div>
             <h2 className="text-3xl font-bold text-white mb-6 mt-0">{CONTENT.myth.title}</h2>
             <p
-              className="text-gray-400 text-lg leading-relaxed mb-8"
+              className="text-white/75 text-lg leading-relaxed mb-8"
               dangerouslySetInnerHTML={{ __html: CONTENT.myth.text1 }}
             />
             <p
-              className="text-gray-400 text-lg leading-relaxed m-0"
+              className="text-white/75 text-lg leading-relaxed m-0"
               dangerouslySetInnerHTML={{ __html: CONTENT.myth.text2 }}
             />
           </div>
@@ -216,13 +216,15 @@ const TailwindArticle = () => {
               </div>
               <div className="space-y-4">
                 <div>
-                  <div className="text-gray-600 mb-2">{'//'} Zamiast pisać to wszędzie:</div>
+                  <div className="text-slate-400 mb-2">{'//'} Zamiast pisać to wszędzie:</div>
                   <div className="text-blue-400">{`<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">`}</div>
                   <div className="pl-4 text-white">Kliknij mnie</div>
                   <div className="text-blue-400">{`</button>`}</div>
                 </div>
                 <div className="pt-4 border-t border-white/10">
-                  <div className="text-gray-600 mb-2">{'//'} Tworzymy komponent i używamy tak:</div>
+                  <div className="text-slate-400 mb-2">
+                    {'//'} Tworzymy komponent i używamy tak:
+                  </div>
                   <div className="text-emerald-400">{`<PrimaryButton>Kliknij mnie</PrimaryButton>`}</div>
                 </div>
               </div>

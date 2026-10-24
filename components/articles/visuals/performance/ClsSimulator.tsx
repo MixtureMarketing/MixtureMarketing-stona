@@ -13,7 +13,7 @@ const ClsSimulator = () => {
       </div>
       <div className="max-w-sm mx-auto w-full bg-gray-50 p-6 rounded-2xl border border-gray-100 relative transition-all duration-300">
         {shifted && (
-          <div className="bg-rose-100 border-2 border-rose-200 text-rose-600 p-4 rounded-xl mb-4 animate-fade-in-down flex items-center gap-3">
+          <div className="bg-rose-100 border-2 border-rose-200 text-rose-700 p-4 rounded-xl mb-4 animate-fade-in-down flex items-center gap-3">
             <AlertTriangle className="shrink-0" />
             <span className="text-xs font-bold uppercase">
               Twoja reklama załadowała się za późno!
@@ -28,7 +28,7 @@ const ClsSimulator = () => {
           </div>
         </div>
         {shifted && (
-          <div className="absolute -top-4 -right-4 bg-rose-500 text-white p-2 rounded-full shadow-xl animate-bounce">
+          <div className="absolute -top-4 -right-4 bg-rose-600 text-white p-2 rounded-full shadow-xl animate-bounce">
             <XCircle />
           </div>
         )}

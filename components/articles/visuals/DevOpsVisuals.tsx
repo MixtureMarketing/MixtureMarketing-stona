@@ -80,9 +80,9 @@ export const DevOpsMetropolisVisual = () => {
         </div>
 
         <div className="mt-8 text-center max-w-lg relative z-30">
-          <h3 className="text-2xl font-bold text-white mb-2 italic drop-shadow-lg tracking-tight">
+          <p className="text-2xl font-bold text-white mb-2 italic drop-shadow-lg tracking-tight">
             "Stabilność to owoc automatyzacji."
-          </h3>
+          </p>
           <p className="text-blue-200/70 text-sm leading-relaxed">
             Sama aplikacja to tylko silnik. DevOps to system smarowania i chłodzenia, który pozwala
             mu pracować na najwyższych obrotach 24/7.
@@ -213,7 +213,7 @@ export const DevOpsProcessVisual = () => {
         </div>
 
         {/* Final Status Badge - Relative to container */}
-        <div className="md:absolute md:right-0 md:top-0 bg-emerald-500 text-white text-xxs font-black px-4 py-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-bounce mt-4 md:mt-0 tracking-[0.2em] uppercase">
+        <div className="md:absolute md:right-0 md:top-0 bg-emerald-700 text-white text-xxs font-black px-4 py-2 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-bounce mt-4 md:mt-0 tracking-[0.2em] uppercase">
           System Live 24/7
         </div>
       </div>

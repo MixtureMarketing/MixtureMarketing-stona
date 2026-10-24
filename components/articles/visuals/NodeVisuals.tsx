@@ -142,7 +142,7 @@ export const RestaurantAnalogyVisual: React.FC = () => {
     <div className="my-16 grid grid-cols-1 md:grid-cols-2 gap-8">
       {/* Scenario A: Traditional */}
       <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-colors">
-        <div className="absolute top-4 right-4 bg-red-100 text-red-600 px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-widest">
+        <div className="absolute top-4 right-4 bg-red-100 text-red-700 px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-widest">
           Blocking I/O
         </div>
         <h3 className="font-bold text-slate-700 text-lg mb-6 flex items-center gap-2">
@@ -164,7 +164,7 @@ export const RestaurantAnalogyVisual: React.FC = () => {
               👤
             </div>
             <div className="h-1 flex-1 bg-red-400 rounded-full relative">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xxs px-2 py-0.5 rounded">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-red-600 text-white text-xxs px-2 py-0.5 rounded">
                 WAITING...
               </div>
             </div>
@@ -189,10 +189,10 @@ export const RestaurantAnalogyVisual: React.FC = () => {
 
       {/* Scenario B: Node.js */}
       <div className="bg-[#339933]/5 p-8 rounded-[2rem] border border-[#339933]/20 relative overflow-hidden group hover:border-[#339933]/50 transition-colors">
-        <div className="absolute top-4 right-4 bg-[#339933] text-white px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-widest shadow-md">
+        <div className="absolute top-4 right-4 bg-[#2b7a2b] text-white px-3 py-1 rounded-full text-xxs font-bold uppercase tracking-widest shadow-md">
           Non-blocking I/O
         </div>
-        <h3 className="font-bold text-[#339933] text-lg mb-6 flex items-center gap-2">
+        <h3 className="font-bold text-[#2b7a2b] text-lg mb-6 flex items-center gap-2">
           <Zap size={20} /> Node.js (Event Loop)
         </h3>
 
@@ -212,7 +212,7 @@ export const RestaurantAnalogyVisual: React.FC = () => {
             </div>
           </div>
         </div>
-        <p className="mt-8 text-xs text-[#339933] leading-relaxed italic border-l-2 border-[#339933] pl-3">
+        <p className="mt-8 text-xs text-[#2b7a2b] leading-relaxed italic border-l-2 border-[#339933] pl-3">
           "Kelner rzuca zamówienie do kuchni i biegnie do kolejnego stolika. Jeden wątek obsługuje
           tysiące."
         </p>
@@ -274,7 +274,7 @@ export const NodeWarningTable: React.FC = () => {
           </ul>
         </div>
       </div>
-      <div className="bg-gray-800 p-4 text-center text-gray-400 text-xs italic">
+      <div className="bg-gray-800 p-4 text-center text-slate-400 text-xs italic">
         "Wybierz narzędzie do problemu. Nie wbijaj gwoździa śrubokrętem."
       </div>
     </div>

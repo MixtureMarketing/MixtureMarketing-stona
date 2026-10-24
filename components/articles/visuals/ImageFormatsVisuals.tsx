@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- zestaw wizualizacji jednego artykułu (formaty obrazów) */
 import React, { useState } from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip as RechartsTooltip } from 'recharts';
 import {
@@ -31,7 +32,7 @@ export const ImageFormatsHero = () => (
       <div className="relative bg-white rounded-3xl p-8 overflow-hidden flex flex-col items-center justify-center min-h-[300px] border border-primary/30 shadow-xl shadow-primary/10">
         <div className="absolute inset-0 bg-gradient-to-br from-[#E0EFFF] to-white opacity-50"></div>
         <Tablet size={80} className="text-primary mb-4 relative z-10 animate-float" />
-        <div className="bg-primary text-white px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
+        <div className="bg-primary text-deep-dark px-4 py-1 rounded-md font-mono text-sm mb-4 relative z-10">
           FORMAT: AVIF (2025)
         </div>
         <div className="flex items-center gap-2 text-secondary font-bold relative z-10">
@@ -103,7 +104,7 @@ export const ImageComparisonDuel = () => {
             <div className="text-3xl font-black text-white">{data[selected].size}</div>
           </div>
           {selected !== 'jpg' && (
-            <div className="bg-emerald-500 text-white px-3 py-1 rounded-lg text-sm font-black animate-bounce">
+            <div className="bg-emerald-700 text-white px-3 py-1 rounded-lg text-sm font-black animate-bounce">
               {data[selected].savings}
             </div>
           )}
@@ -192,7 +193,12 @@ export const CodeBlockImplementation = () => {
         {isOpen ? <ChevronUp /> : <ChevronDown />}
       </button>
       {isOpen && (
-        <div className="bg-[#1e1e1e] p-6 rounded-b-xl border-x border-b border-gray-800 font-mono text-sm animate-fade-in-down overflow-x-auto">
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Przykład kodu: element picture z AVIF i WebP"
+          className="bg-[#1e1e1e] p-6 rounded-b-xl border-x border-b border-gray-800 font-mono text-sm animate-fade-in-down overflow-x-auto"
+        >
           <pre className="text-emerald-400">
             {`<picture>
   <!-- Najlepszy format dla nowoczesnych przeglądarek -->
@@ -248,12 +254,12 @@ export const LoadingSimulator = () => {
       <div className="flex justify-between items-center mb-12 relative z-10">
         <div>
           <h3 className="text-white font-bold text-xl mb-1">Symulacja Łącza 3G</h3>
-          <p className="text-gray-600 text-sm">Prędkość: 1.5 Mbps (Słaby zasięg)</p>
+          <p className="text-slate-400 text-sm">Prędkość: 1.5 Mbps (Słaby zasięg)</p>
         </div>
         <Button
           onClick={startLoading}
           disabled={loading && jpgProgress < 100}
-          aria-label="Uruchom symulację ładowania obrazu w różnych formatach na łączu 3G"
+          aria-label="Uruchom Test: symulacja ładowania obrazu w różnych formatach na łączu 3G"
           className="shadow-[0_0_20px_rgba(97,182,222,0.3)]"
         >
           {loading && jpgProgress < 100 ? (
@@ -389,11 +395,11 @@ export const ImageSeoChecklist = () => {
               {checked.includes(item.id) && <CheckCircle2 size={14} />}
             </div>
             <div>
-              <h5
+              <h4
                 className={`font-bold text-sm transition-colors ${checked.includes(item.id) ? 'text-emerald-900' : 'text-dark'}`}
               >
                 {item.title}
-              </h5>
+              </h4>
               <p className="text-xs text-gray-700 mt-1">{item.desc}</p>
             </div>
           </div>
@@ -407,7 +413,7 @@ export const ImageSeoChecklist = () => {
             <div className="w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
               <CheckCircle2 size={28} />
             </div>
-            <h5 className="text-xl font-bold text-dark mb-2">Image SEO ukończone!</h5>
+            <h4 className="text-xl font-bold text-dark mb-2">Image SEO ukończone!</h4>
             <p className="text-gray-700 text-sm max-w-xs mx-auto mb-6 leading-relaxed">
               Twoje grafiki są teraz zoptymalizowane pod kątem wyszukiwarek i szybkości ładowania.
             </p>

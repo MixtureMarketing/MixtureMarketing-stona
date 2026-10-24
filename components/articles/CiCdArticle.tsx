@@ -53,7 +53,7 @@ const CiCdArticle = () => {
               <h3 className="text-xl font-bold text-dark mb-2">
                 {CONTENT.definitions.items[0].title}
               </h3>
-              <div className="text-xs font-bold uppercase text-blue-500 tracking-widest mb-4">
+              <div className="text-xs font-bold uppercase text-blue-700 tracking-widest mb-4">
                 {CONTENT.definitions.items[0].label}
               </div>
               <p className="text-sm text-gray-600 mb-4">{CONTENT.definitions.items[0].desc}</p>
@@ -72,7 +72,7 @@ const CiCdArticle = () => {
               <h3 className="text-xl font-bold text-dark mb-2">
                 {CONTENT.definitions.items[1].title}
               </h3>
-              <div className="text-xs font-bold uppercase text-green-500 tracking-widest mb-4">
+              <div className="text-xs font-bold uppercase text-green-700 tracking-widest mb-4">
                 {CONTENT.definitions.items[1].label}
               </div>
               <p className="text-sm text-gray-600 mb-4">{CONTENT.definitions.items[1].desc}</p>
@@ -124,7 +124,7 @@ const CiCdArticle = () => {
                 )}
               </div>
               <div>
-                <h4 className="font-bold text-dark text-lg mb-2">{reason.title}</h4>
+                <h3 className="font-bold text-dark text-lg mb-2">{reason.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{reason.desc}</p>
               </div>
             </div>
@@ -165,7 +165,7 @@ const CiCdArticle = () => {
                     >
                       {row.v1}
                     </td>
-                    <td className="p-6 text-center text-sm text-emerald-600 font-black bg-emerald-50/30">
+                    <td className="p-6 text-center text-sm text-emerald-700 font-black bg-emerald-50/30">
                       {row.v2}
                     </td>
                   </tr>

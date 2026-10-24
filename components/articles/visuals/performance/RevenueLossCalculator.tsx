@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
 const RevenueLossCalculator = () => {
@@ -62,25 +62,34 @@ interface CalculatorSliderProps {
   unit: string;
 }
 
-const CalculatorSlider = ({ label, val, setVal, min, max, step, unit }: CalculatorSliderProps) => (
-  <div>
-    <div className="flex justify-between mb-3">
-      <label className="text-sm font-bold text-dark">{label}</label>
-      <span className="text-primary font-mono font-bold">
-        {val}
-        {unit}
-      </span>
+// <label htmlFor> + id z useId: wcześniej <label> nie był powiązany z suwakiem
+// (axe: label, critical) — czytnik ogłaszał „suwak" bez nazwy.
+const CalculatorSlider = ({ label, val, setVal, min, max, step, unit }: CalculatorSliderProps) => {
+  const id = useId();
+  return (
+    <div>
+      <div className="flex justify-between mb-3">
+        <label htmlFor={id} className="text-sm font-bold text-dark">
+          {label}
+        </label>
+        <span className="text-accent-dark font-mono font-bold" aria-hidden="true">
+          {val}
+          {unit}
+        </span>
+      </div>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={val}
+        onChange={(e) => setVal(parseFloat(e.target.value))}
+        aria-valuetext={`${val}${unit}`}
+        className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#61B6DE]"
+      />
     </div>
-    <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={val}
-      onChange={(e) => setVal(parseFloat(e.target.value))}
-      className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#61B6DE]"
-    />
-  </div>
-);
+  );
+};
 
 export default RevenueLossCalculator;

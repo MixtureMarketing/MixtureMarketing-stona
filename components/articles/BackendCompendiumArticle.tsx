@@ -99,6 +99,12 @@ const BackendCompendiumArticle = () => {
               <Box key="box" size={24} />,
             ];
             const colors = ['green', 'blue', 'cyan', 'red'];
+            const forPill = [
+              'text-green-700 bg-green-50',
+              'text-blue-700 bg-blue-50',
+              'text-cyan-700 bg-cyan-50',
+              'text-red-700 bg-red-50',
+            ];
             return (
               <div
                 key={i}
@@ -115,7 +121,7 @@ const BackendCompendiumArticle = () => {
                 <h3 className="text-xl font-bold text-dark mb-4">{tech.title}</h3>
                 <p className="text-sm text-gray-600 mb-6">{tech.desc}</p>
                 <div
-                  className={`text-xxs font-bold uppercase tracking-widest text-${colors[i]}-600 bg-${colors[i]}-50 px-3 py-1 rounded-full inline-block mb-6`}
+                  className={`text-xxs font-bold uppercase tracking-widest ${forPill[i]} px-3 py-1 rounded-full inline-block mb-6`}
                 >
                   Dla kogo: {tech.for}
                 </div>
@@ -149,7 +155,7 @@ const BackendCompendiumArticle = () => {
             <div className="bg-white/10 p-4 rounded-xl border border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <ShieldCheck size={14} className="text-primary" />
-                <span className="text-xxs font-black uppercase text-primary">
+                <span className="text-xxs font-black uppercase text-[#8fcbe8]">
                   Werdykt Architekta:
                 </span>
               </div>
@@ -166,7 +172,7 @@ const BackendCompendiumArticle = () => {
             <div className="bg-green-50 p-4 rounded-xl border border-green-100">
               <div className="flex items-center gap-2 mb-1">
                 <Zap size={14} className="text-green-600" />
-                <span className="text-xxs font-black uppercase text-green-600">
+                <span className="text-xxs font-black uppercase text-green-700">
                   Werdykt Architekta:
                 </span>
               </div>

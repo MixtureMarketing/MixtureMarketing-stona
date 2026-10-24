@@ -34,6 +34,7 @@ import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import { joinTitleLines } from '../../utils/seo/title';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const NextJsArticle = () => {
   const articleData = (ARTICLES.find((a) => a.id === 'nextjs-zloty-standard') ||
@@ -66,7 +67,7 @@ const NextJsArticle = () => {
           </p>
           <Link
             to={content.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
+            className="text-sm text-accent-dark hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
           >
             {content.contextBox.linkText} <ArrowRight size={14} />
           </Link>
@@ -136,7 +137,7 @@ const NextJsArticle = () => {
               <Code2 size={14} /> {content.rendering.cards[1].badge}
             </div>
             <p
-              className="text-sm text-gray-400 m-0 leading-relaxed font-mono"
+              className="text-sm text-white/75 m-0 leading-relaxed font-mono"
               dangerouslySetInnerHTML={{ __html: content.rendering.cards[1].text }}
             ></p>
           </div>
@@ -188,7 +189,7 @@ const NextJsArticle = () => {
                 className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="text-secondary mb-4">{icons[i]}</div>
-                <h4 className="font-bold text-dark mb-2">{item.title}</h4>
+                <h3 className="font-bold text-dark mb-2">{item.title}</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">{item.desc}</p>
               </div>
             );
@@ -208,7 +209,7 @@ const NextJsArticle = () => {
           {content.giants.badge}
         </div>
         <h3 className="text-2xl font-bold text-dark mb-12">{content.giants.title}</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-60 grayscale group-hover:grayscale-0 transition-all duration-700">
           <div className="flex justify-center">
             <span className="font-black text-2xl tracking-tighter">NETFLIX</span>
           </div>
@@ -238,7 +239,7 @@ const NextJsArticle = () => {
             lightMode
             align="left"
           />
-          <p className="text-gray-400 mb-8 max-w-2xl">{content.developer.text}</p>
+          <p className="text-white/75 mb-8 max-w-2xl">{content.developer.text}</p>
 
           <button
             onClick={() => setShowCode(!showCode)}
@@ -263,7 +264,11 @@ const NextJsArticle = () => {
                 <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
               </div>
-              <pre className="overflow-x-auto">
+              <ScrollRegion
+                as="pre"
+                label="Przykład kodu: Server Component w Next.js"
+                className="overflow-x-auto"
+              >
                 <code>{`// app/products/page.tsx - To jest Server Component!
 import { db } from '@/lib/db';
 
@@ -287,7 +292,7 @@ export default async function Page() {
     </main>
   );
 }`}</code>
-              </pre>
+              </ScrollRegion>
             </div>
           </div>
         </div>

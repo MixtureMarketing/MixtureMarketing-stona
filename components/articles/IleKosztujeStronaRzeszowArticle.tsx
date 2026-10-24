@@ -108,7 +108,7 @@ const COST_FACTORS = [
     title: 'Liczba integracji',
     impact: '800–4 000 zł / szt',
     desc: 'Każda integracja (płatności, kurierzy, ERP, hurtownie, CRM, mailing, ATS, e-fakturowanie) to dodatkowy koszt zależny od złożoności API. Średni sklep w Rzeszowie ma 4–8 integracji.',
-    color: 'text-emerald-600',
+    color: 'text-emerald-700',
     bg: 'bg-emerald-50',
   },
   {
@@ -124,7 +124,7 @@ const COST_FACTORS = [
     title: 'Opieka pogwarancyjna',
     impact: '290–890 zł / mies',
     desc: 'Aktualizacje bezpieczeństwa, monitoring uptime, kopie zapasowe, drobne zmiany contentowe. Jeśli agencja nie oferuje opieki SLA, prawdopodobnie znika po wdrożeniu.',
-    color: 'text-orange-600',
+    color: 'text-orange-700',
     bg: 'bg-orange-50',
   },
 ];
@@ -493,7 +493,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
                   szybciej, taniej. Next.js wymaga developmentu od podstaw, ale w długim okresie
                   jest tańszy w utrzymaniu (mniej aktualizacji bezpieczeństwa, lepsza wydajność).
                   Wybór zależy od skali. Patrz:{' '}
-                  <Link to="/web-development/rzeszow/" className="text-primary hover:underline">
+                  <Link to="/web-development/rzeszow/" className="text-accent-dark hover:underline">
                     tworzenie stron Rzeszów
                   </Link>
                   .
@@ -514,7 +514,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
                 <>
                   Tylko jeśli zadbasz o widoczność w Google. Sama strona to dopiero początek —
                   kluczowe jest{' '}
-                  <Link to="/agencja-seo-rzeszow/" className="text-primary hover:underline">
+                  <Link to="/agencja-seo-rzeszow/" className="text-accent-dark hover:underline">
                     pozycjonowanie w Rzeszowie
                   </Link>{' '}
                   i kampanie Ads. Bez ruchu strona stoi i nie generuje przychodu.

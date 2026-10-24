@@ -68,7 +68,7 @@ const PubSubDemo = () => {
             <div className="space-y-3">
               {messages.map((msg, i) => (
                 <div key={i} className="flex gap-3 items-start animate-fade-in-up">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-xxs font-bold text-white shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-xxs font-bold text-white shrink-0 mt-1">
                     MSG
                   </div>
                   <div className="bg-white/10 px-4 py-3 rounded-2xl rounded-tl-none border border-white/10 text-sm backdrop-blur-sm">

@@ -107,7 +107,7 @@ const LaravelArticle = () => {
               className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
               <ShieldCheck className="text-[#059669] mb-4" size={32} />
-              <h4 className="font-bold text-dark mb-2">{card.title}</h4>
+              <h3 className="font-bold text-dark mb-2">{card.title}</h3>
               <p className="text-xs text-gray-600">{card.desc}</p>
             </div>
           ))}

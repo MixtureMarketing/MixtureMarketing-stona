@@ -28,6 +28,7 @@ import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CountUp } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 import { ORG_REF } from '../../../utils/seo/organizationSchema';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const PROFESSIONAL_PRICE = 549;
 const PROFESSIONAL_PRICE_GROSS = 675;
@@ -475,7 +476,10 @@ const Professional: React.FC = () => {
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto overflow-x-auto">
+          <ScrollRegion
+            label="Tabela subprocesorów danych osobowych"
+            className="max-w-5xl mx-auto overflow-x-auto"
+          >
             <table className="w-full bg-white rounded-2xl shadow-sm border border-gray-100">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
@@ -504,7 +508,7 @@ const Professional: React.FC = () => {
                         href={`https://${s.dpa}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={`Otwórz DPA dla ${s.name} (nowa karta)`}
+                        aria-label={`Link DPA: ${s.name} (otwiera się w nowej karcie)`}
                         className="inline-block py-1.5 text-amber-700 hover:underline text-xs"
                       >
                         Link DPA →
@@ -514,7 +518,7 @@ const Professional: React.FC = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollRegion>
 
           <p className="text-center text-xs text-gray-500 mt-6 max-w-3xl mx-auto">
             Lista subprocesorów może się zmienić — informujemy z 30-dniowym wyprzedzeniem (zgodnie z

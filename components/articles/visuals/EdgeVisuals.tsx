@@ -22,7 +22,7 @@ export const LatencySwitcher = () => {
       <div className="bg-white p-1.5 rounded-2xl border border-gray-200 flex shadow-sm">
         <button
           onClick={() => setMode('cloud')}
-          aria-label="Pokaż opóźnienia dla standardowej chmury centralnej"
+          aria-label="Standard Cloud: opóźnienia chmury centralnej"
           aria-pressed={mode === 'cloud'}
           className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'cloud' ? 'bg-secondary text-white shadow-md' : 'text-gray-600 hover:text-gray-600'}`}
         >
@@ -30,9 +30,9 @@ export const LatencySwitcher = () => {
         </button>
         <button
           onClick={() => setMode('edge')}
-          aria-label="Pokaż opóźnienia dla przetwarzania brzegowego (Edge)"
+          aria-label="Edge Przetwarzanie: opóźnienia przetwarzania brzegowego"
           aria-pressed={mode === 'edge'}
-          className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-primary text-white shadow-md' : 'text-gray-600 hover:text-gray-600'}`}
+          className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-primary text-deep-dark shadow-md' : 'text-gray-600 hover:text-gray-600'}`}
         >
           Edge Przetwarzanie
         </button>
@@ -56,7 +56,7 @@ export const LatencySwitcher = () => {
             {mode === 'cloud' ? 'USA (Virginia)' : 'Lokalny Węzeł (Twój region)'}
           </div>
           <div
-            className={`text-xxs font-bold uppercase ${mode === 'edge' ? 'text-emerald-500' : 'text-rose-400'}`}
+            className={`text-xxs font-bold uppercase ${mode === 'edge' ? 'text-emerald-700' : 'text-rose-700'}`}
           >
             {mode === 'cloud' ? 'Długa droga przez oceany' : 'Prędkość niemal natychmiastowa'}
           </div>
@@ -88,7 +88,7 @@ export const ArchitectureDiagram = () => {
             </div>
             <div className="text-center md:text-left">
               <h3 className="text-white font-bold text-xl mb-1">Central Cloud (Inteligencja)</h3>
-              <p className="text-gray-600 text-sm m-0">
+              <p className="text-slate-400 text-sm m-0">
                 Analityka Big Data, Trenowanie AI, Magazynowanie długoterminowe.
               </p>
             </div>
@@ -118,7 +118,7 @@ export const ArchitectureDiagram = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-sm">Edge Node 0{i}</h3>
-                  <p className="text-xxs text-gray-700 uppercase font-black m-0 tracking-tighter">
+                  <p className="text-xxs text-slate-400 uppercase font-black m-0 tracking-tighter">
                     Real-time Processing
                   </p>
                 </div>
@@ -148,7 +148,7 @@ export const ArchitectureDiagram = () => {
                 >
                   {dev.icon}
                 </div>
-                <span className="text-xxs font-black text-gray-700 uppercase tracking-widest group-hover/dev:text-white transition-colors">
+                <span className="text-xxs font-black text-slate-400 uppercase tracking-widest group-hover/dev:text-white transition-colors">
                   {dev.label}
                 </span>
               </div>
@@ -190,7 +190,7 @@ export const FlipCard = ({
             {icon}
           </div>
           <h3 className="font-bold text-lg text-dark">{title}</h3>
-          <div className="mt-4 flex items-center gap-2 text-primary text-xs font-black uppercase tracking-widest">
+          <div className="mt-4 flex items-center gap-2 text-accent-dark text-xs font-black uppercase tracking-widest">
             Zobacz detale <ArrowRight size={12} aria-hidden="true" />
           </div>
         </div>
@@ -240,7 +240,7 @@ export const SafetySimulator = () => {
             />
             Symulator Reakcji Systemu AI
           </h3>
-          <p className="text-gray-600 text-sm">Wykrywanie przeszkody i czas decyzyjny sieci</p>
+          <p className="text-slate-400 text-sm">Wykrywanie przeszkody i czas decyzyjny sieci</p>
         </div>
         <div className="flex gap-4">
           <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 backdrop-blur-md">
@@ -249,9 +249,9 @@ export const SafetySimulator = () => {
                 setMode('cloud');
                 reset();
               }}
-              aria-label="Ustaw tryb symulacji na Chmurę"
+              aria-label="Chmura: tryb symulacji"
               aria-pressed={mode === 'cloud'}
-              className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'cloud' ? 'bg-rose-500 text-white shadow-lg' : 'text-gray-600 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'cloud' ? 'bg-rose-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               Chmura
             </button>
@@ -260,9 +260,9 @@ export const SafetySimulator = () => {
                 setMode('edge');
                 reset();
               }}
-              aria-label="Ustaw tryb symulacji na Edge"
+              aria-label="Edge: tryb symulacji"
               aria-pressed={mode === 'edge'}
-              className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-emerald-500 text-white shadow-lg' : 'text-gray-600 hover:text-white'}`}
+              className={`px-4 py-2 rounded-lg text-xxs font-black uppercase tracking-widest transition-all ${mode === 'edge' ? 'bg-emerald-700 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
             >
               Edge
             </button>
@@ -280,13 +280,13 @@ export const SafetySimulator = () => {
       <div className="relative h-80 bg-[#0B1120] rounded-[2rem] border border-white/5 overflow-hidden">
         <div className="absolute inset-0 flex justify-center pointer-events-none">
           <div
-            className={`absolute top-6 transition-all duration-500 flex flex-col items-center ${mode === 'cloud' ? 'opacity-100 scale-100' : 'opacity-20 scale-75 grayscale'}`}
+            className={`absolute top-6 transition-all duration-500 flex flex-col items-center ${mode === 'cloud' ? 'opacity-100 scale-100' : 'opacity-70 scale-75 grayscale'}`}
           >
             <Cloud size={40} className="text-primary" />
             <span className="text-xxxs font-bold text-primary uppercase">Central Cloud (USA)</span>
           </div>
           <div
-            className={`absolute top-24 left-[40%] transition-all duration-500 flex flex-col items-center ${mode === 'edge' ? 'opacity-100 scale-100' : 'opacity-20 scale-75 grayscale'}`}
+            className={`absolute top-24 left-[40%] transition-all duration-500 flex flex-col items-center ${mode === 'edge' ? 'opacity-100 scale-100' : 'opacity-70 scale-75 grayscale'}`}
           >
             <Wifi size={24} className="text-emerald-400" />
             <span className="text-xxxs font-bold text-emerald-400 uppercase">Edge Node</span>
@@ -352,7 +352,7 @@ export const DataFunnel = () => {
         <div className="flex-1 bg-dark p-6 rounded-[2rem] text-white text-center shadow-2xl relative overflow-hidden">
           <Layers size={32} className="mx-auto mb-2 text-primary" aria-hidden="true" />
           <h3 className="font-bold text-sm">Edge Intelligence</h3>
-          <p className="text-xxs text-gray-600 leading-relaxed mt-2">
+          <p className="text-xxs text-white/60 leading-relaxed mt-2">
             Filtrowanie szumu, kompresja i lokalna analityka.
           </p>
           <div className="mt-4 bg-white/10 rounded-full py-1 text-xxs font-black uppercase">
@@ -365,7 +365,7 @@ export const DataFunnel = () => {
         <div className="flex-1 text-center">
           <Cloud size={48} className="text-primary mx-auto" aria-hidden="true" />
           <h3 className="font-bold text-dark mt-4">Analityka Cloud</h3>
-          <p className="text-xs text-emerald-500 uppercase font-black tracking-widest">
+          <p className="text-xs text-emerald-700 uppercase font-black tracking-widest">
             2 GB / Dzień
           </p>
         </div>

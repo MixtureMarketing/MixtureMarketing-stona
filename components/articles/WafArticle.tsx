@@ -180,7 +180,7 @@ const WafArticle = () => {
               </li>
             ))}
           </ul>
-          <div className="text-xxs font-black uppercase text-primary">
+          <div className="text-xxs font-black uppercase text-accent-dark">
             {CONTENT.implementation.cloud.label}
           </div>
         </div>

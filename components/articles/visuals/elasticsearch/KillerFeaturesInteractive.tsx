@@ -45,7 +45,7 @@ const KillerFeaturesInteractive = () => {
           <button
             key={tab.id}
             onClick={() => setActiveFeature(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 px-4 rounded-xl text-xxs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFeature === tab.id ? 'bg-secondary text-white' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-4 px-4 rounded-xl text-xxs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeFeature === tab.id ? 'bg-secondary text-white' : 'text-slate-400 hover:text-gray-300'}`}
           >
             {tab.icon} {tab.label}
           </button>
@@ -63,7 +63,7 @@ const KillerFeaturesInteractive = () => {
               </div>
               <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-emerald-600 font-bold text-xs shadow-sm">
+                  <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-emerald-700 font-bold text-xs shadow-sm">
                     S23
                   </div>
                   <div>
@@ -71,7 +71,7 @@ const KillerFeaturesInteractive = () => {
                     <div className="text-xxs text-gray-500">Elektronika</div>
                   </div>
                 </div>
-                <span className="text-xxs font-bold text-emerald-600 bg-white px-2 py-1 rounded">
+                <span className="text-xxs font-bold text-emerald-700 bg-white px-2 py-1 rounded">
                   Match 92%
                 </span>
               </div>

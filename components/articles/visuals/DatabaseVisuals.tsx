@@ -51,10 +51,10 @@ export const DatabaseHeroVisual = () => {
                 <Rocket size={20} />
               </div>
               <div>
-                <div className="text-xxs font-black text-red-500 uppercase tracking-wide mb-1">
+                <div className="text-xxs font-black text-red-700 uppercase tracking-wide mb-1">
                   1. Hot Data (Cache)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">Redis</h4>
+                <p className="font-bold text-gray-800 text-sm">Redis</p>
                 <p className="text-xs text-gray-500 mt-1">Sesja, Koszyk, Tokeny</p>
               </div>
             </div>
@@ -65,10 +65,10 @@ export const DatabaseHeroVisual = () => {
                 <Search size={20} />
               </div>
               <div>
-                <div className="text-xxs font-black text-yellow-500 uppercase tracking-wide mb-1">
+                <div className="text-xxs font-black text-yellow-800 uppercase tracking-wide mb-1">
                   2. Search Engine
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">Elasticsearch</h4>
+                <p className="font-bold text-gray-800 text-sm">Elasticsearch</p>
                 <p className="text-xs text-gray-500 mt-1">Katalog, Filtry, Autocomplete</p>
               </div>
             </div>
@@ -79,10 +79,10 @@ export const DatabaseHeroVisual = () => {
                 <Database size={20} />
               </div>
               <div>
-                <div className="text-xxs font-black text-blue-500 uppercase tracking-wide mb-1">
+                <div className="text-xxs font-black text-blue-700 uppercase tracking-wide mb-1">
                   3. Core Data (SQL)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">PostgreSQL</h4>
+                <p className="font-bold text-gray-800 text-sm">PostgreSQL</p>
                 <p className="text-xs text-gray-500 mt-1">Zamówienia, Płatności, Faktury</p>
               </div>
             </div>
@@ -93,10 +93,10 @@ export const DatabaseHeroVisual = () => {
                 <FileText size={20} />
               </div>
               <div>
-                <div className="text-xxs font-black text-green-500 uppercase tracking-wide mb-1">
+                <div className="text-xxs font-black text-green-700 uppercase tracking-wide mb-1">
                   4. Big Data (NoSQL)
                 </div>
-                <h4 className="font-bold text-gray-800 text-sm">MongoDB</h4>
+                <p className="font-bold text-gray-800 text-sm">MongoDB</p>
                 <p className="text-xs text-gray-500 mt-1">Logi, Analityka, Rekomendacje</p>
               </div>
             </div>
@@ -155,16 +155,16 @@ export const DatabaseArchitectureVisual = () => {
 
       <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { name: 'Redis', label: 'Cache', color: 'red' },
-          { name: 'Postgres', label: 'SQL', color: 'blue' },
-          { name: 'Mongo', label: 'NoSQL', color: 'green' },
-          { name: 'Elastic', label: 'Search', color: 'yellow' },
+          { name: 'Redis', label: 'Cache', color: 'red', labelCls: 'text-red-700' },
+          { name: 'Postgres', label: 'SQL', color: 'blue', labelCls: 'text-blue-700' },
+          { name: 'Mongo', label: 'NoSQL', color: 'green', labelCls: 'text-green-700' },
+          { name: 'Elastic', label: 'Search', color: 'yellow', labelCls: 'text-yellow-800' },
         ].map((db, i) => (
           <div
             key={i}
             className={`p-4 rounded-xl border border-${db.color}-100 bg-${db.color}-50/30 text-center`}
           >
-            <div className={`text-xxs font-black text-${db.color}-600 uppercase`}>{db.label}</div>
+            <div className={`text-xxs font-black ${db.labelCls} uppercase`}>{db.label}</div>
             <div className="font-bold text-gray-800 text-sm">{db.name}</div>
           </div>
         ))}

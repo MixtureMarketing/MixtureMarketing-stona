@@ -45,7 +45,7 @@ const NodeArticle = () => {
           <p className="text-sm text-secondary m-0 font-medium">{content.contextBox.text}</p>
           <Link
             to={content.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
+            className="text-sm text-accent-dark hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
           >
             {content.contextBox.linkText} <ArrowRight size={14} />
           </Link>
@@ -72,7 +72,7 @@ const NodeArticle = () => {
           <RestaurantAnalogyVisual />
         </div>
 
-        <div className="bg-[#E8F5E9] text-[#2E8B57] p-6 rounded-2xl border border-[#339933]/20 text-center font-bold text-sm not-prose">
+        <div className="bg-[#E8F5E9] text-[#1f6b41] p-6 rounded-2xl border border-[#339933]/20 text-center font-bold text-sm not-prose">
           {content.eventLoop.conclusion}
         </div>
       </div>
@@ -105,7 +105,7 @@ const NodeArticle = () => {
                 >
                   {icons[i]}
                 </div>
-                <h4 className="font-bold text-dark mb-2">{card.title}</h4>
+                <h3 className="font-bold text-dark mb-2">{card.title}</h3>
                 <p className="text-xs text-gray-600">{card.desc}</p>
               </div>
             );
@@ -141,7 +141,7 @@ const NodeArticle = () => {
                   {icons[i]}
                 </div>
                 <div>
-                  <h4 className="font-bold text-lg text-dark">{card.title}</h4>
+                  <h3 className="font-bold text-lg text-dark">{card.title}</h3>
                   <p
                     className="text-sm text-gray-600 mt-2 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: card.desc }}

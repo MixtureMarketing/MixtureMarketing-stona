@@ -6,6 +6,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CompareFaq, faqPageJsonLd } from './shared';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const COMPARE_ROWS = [
   {
@@ -209,7 +210,7 @@ const VsWix: React.FC = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto">
+            <ScrollRegion label="Tabela porównawcza: Mixture vs Wix">
               <table className="w-full bg-white rounded-b-2xl shadow-sm border border-t-0 border-gray-100">
                 <caption className="sr-only">
                   Porównanie 14 cech: Mixture (abonament managed, od 179 zł/mc) vs Wix (DIY, 60–165
@@ -240,7 +241,7 @@ const VsWix: React.FC = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </ScrollRegion>
           </div>
         </Container>
       </section>
@@ -282,7 +283,7 @@ const VsWix: React.FC = () => {
               </ul>
             </div>
             <div className="relative bg-white rounded-2xl p-6 border-2 border-emerald-400 shadow-lg shadow-emerald-500/10 lg:scale-[1.02] lg:-my-1">
-              <div className="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-xxs font-black uppercase tracking-[0.15em]">
+              <div className="absolute -top-2.5 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-700 text-white text-xxs font-black uppercase tracking-[0.15em]">
                 Rekomendowane
               </div>
               <div className="flex items-center gap-3 mb-4">

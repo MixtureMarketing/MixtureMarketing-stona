@@ -87,7 +87,7 @@ const FrontendArticle = () => {
               key={i}
               className="bg-white/60 p-4 rounded-xl backdrop-blur-sm border border-white/20"
             >
-              <h5 className="font-bold text-slate-700 text-sm mb-1">{card.title}</h5>
+              <h4 className="font-bold text-slate-700 text-sm mb-1">{card.title}</h4>
               <p className="text-xs text-slate-500">{card.desc}</p>
             </div>
           ))}
@@ -105,19 +105,19 @@ const FrontendArticle = () => {
             react: (
               <div className="flex flex-col gap-1">
                 <Stars count={2} />
-                <span className="text-xxs text-slate-400">Słabe (CSR)</span>
+                <span className="text-xxs text-slate-600">Słabe (CSR)</span>
               </div>
             ),
             next: (
               <div className="flex flex-col gap-1">
                 <Stars count={5} />
-                <span className="text-xxs text-green-600 font-bold">Idealne (SSR)</span>
+                <span className="text-xxs text-green-700 font-bold">Idealne (SSR)</span>
               </div>
             ),
             vue: (
               <div className="flex flex-col gap-1">
                 <Stars count={3} />
-                <span className="text-xxs text-slate-400">Średnie (chyba że Nuxt)</span>
+                <span className="text-xxs text-slate-600">Średnie (chyba że Nuxt)</span>
               </div>
             ),
           },
@@ -126,19 +126,19 @@ const FrontendArticle = () => {
             react: (
               <div className="flex flex-col gap-1">
                 <Stars count={3} />
-                <span className="text-xxs text-slate-400">Spinner przy starcie</span>
+                <span className="text-xxs text-slate-600">Spinner przy starcie</span>
               </div>
             ),
             next: (
               <div className="flex flex-col gap-1">
                 <Stars count={5} />
-                <span className="text-xxs text-green-600 font-bold">Instant</span>
+                <span className="text-xxs text-green-700 font-bold">Instant</span>
               </div>
             ),
             vue: (
               <div className="flex flex-col gap-1">
                 <Stars count={4} />
-                <span className="text-xxs text-slate-400">Bardzo szybki</span>
+                <span className="text-xxs text-slate-600">Bardzo szybki</span>
               </div>
             ),
           },
@@ -153,13 +153,13 @@ const FrontendArticle = () => {
             next: (
               <div className="flex flex-col gap-1">
                 <Stars count={4} />
-                <span className="text-xxs text-slate-400">Rosnąca</span>
+                <span className="text-xxs text-slate-600">Rosnąca</span>
               </div>
             ),
             vue: (
               <div className="flex flex-col gap-1">
                 <Stars count={3} />
-                <span className="text-xxs text-slate-400">Średnia</span>
+                <span className="text-xxs text-slate-600">Średnia</span>
               </div>
             ),
           },
@@ -188,13 +188,13 @@ const FrontendArticle = () => {
           />
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 bg-white/10 p-6 rounded-2xl border border-white/10">
-              <div className="text-xs font-mono text-gray-400 mb-2">
+              <div className="text-xs font-mono text-slate-400 mb-2">
                 {CONTENT.part6.react.label}
               </div>
               <div className="text-xl font-bold text-[#61DAFB] mb-2">
                 {CONTENT.part6.react.title}
               </div>
-              <p className="text-xs text-gray-400">{CONTENT.part6.react.desc}</p>
+              <p className="text-xs text-slate-400">{CONTENT.part6.react.desc}</p>
             </div>
             <div className="flex items-center text-gray-500">
               <ArrowRight />

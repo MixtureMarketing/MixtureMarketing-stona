@@ -445,7 +445,7 @@ const WebDevRzeszow: React.FC = () => {
                   key={step.n}
                   className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 text-center"
                 >
-                  <div className="w-10 h-10 mx-auto bg-primary text-white rounded-full flex items-center justify-center font-bold mb-3">
+                  <div className="w-10 h-10 mx-auto bg-primary text-deep-dark rounded-full flex items-center justify-center font-bold mb-3">
                     {step.n}
                   </div>
                   <h3 className="font-bold mb-2">{step.title}</h3>

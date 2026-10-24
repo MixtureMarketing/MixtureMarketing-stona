@@ -7,7 +7,7 @@ export const LeakyBucketVisual = () => {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
 
       <div className="text-center mb-12 relative z-10">
-        <h3 className="text-2xl font-bold text-dark">Efekt "Dziurawego Wiadra"</h3>
+        <h2 className="text-2xl font-bold text-dark">Efekt "Dziurawego Wiadra"</h2>
         <p className="text-gray-700 text-sm mt-2">Dlaczego reklamy nie przynoszą zysku?</p>
       </div>
 
@@ -60,7 +60,7 @@ export const LeakyBucketVisual = () => {
             ></div>
           </div>
           <div
-            className="absolute top-[35%] right-full mr-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-500 whitespace-nowrap animate-bounce"
+            className="absolute top-[35%] right-full mr-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap animate-bounce"
             style={{ animationDuration: '3s' }}
           >
             Brak Mobile
@@ -74,7 +74,7 @@ export const LeakyBucketVisual = () => {
               style={{ animation: 'drop-fall 1.2s infinite linear', animationDelay: '0.2s' }}
             ></div>
           </div>
-          <div className="absolute top-[55%] left-full ml-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-500 whitespace-nowrap">
+          <div className="absolute top-[55%] left-full ml-4 bg-white px-3 py-1 rounded-lg shadow-lg border border-red-100 text-xxs font-bold text-red-700 whitespace-nowrap">
             Trudny Checkout
           </div>
         </div>
@@ -84,7 +84,7 @@ export const LeakyBucketVisual = () => {
           <div className="w-3 h-3 bg-green-500 rounded-full shadow-[0_0_10px_#22c55e] animate-bounce"></div>
           <div className="bg-green-50 border border-green-200 px-4 py-2 rounded-xl text-center">
             <div className="text-xs font-bold text-green-700 uppercase tracking-wide">Sprzedaż</div>
-            <div className="text-xxs text-green-600 font-medium opacity-80">Tylko krople...</div>
+            <div className="text-xxs text-green-700 font-medium">Tylko krople...</div>
           </div>
         </div>
       </div>
@@ -120,11 +120,11 @@ export const MobileComparisonVisual = () => {
               <div className="w-full h-2 bg-gray-200 rounded"></div>
             </div>
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-6 backdrop-blur-sm">
-              <div className="bg-white p-4 w-full rounded-xl text-center shadow-2xl relative animate-pulse">
+              <div className="bg-white p-4 w-full rounded-xl text-center shadow-2xl relative">
                 <div className="absolute -top-3 -right-3 w-6 h-6 bg-gray-800 text-white rounded-full flex items-center justify-center text-xs border-2 border-white shadow-md">
                   ✕
                 </div>
-                <h3 className="font-bold text-red-600 text-sm mb-2">KUP TERAZ!</h3>
+                <h3 className="font-bold text-red-700 text-sm mb-2">KUP TERAZ!</h3>
                 <p className="text-xxs text-gray-700 mb-3">
                   Zapisz się do newslettera i odbierz rabat!
                 </p>
@@ -135,7 +135,7 @@ export const MobileComparisonVisual = () => {
             </div>
           </div>
         </div>
-        <div className="mt-6 flex items-center gap-2 text-red-600 font-bold bg-red-50 px-4 py-2 rounded-full border border-red-100">
+        <div className="mt-6 flex items-center gap-2 text-red-700 font-bold bg-red-50 px-4 py-2 rounded-full border border-red-100">
           <XCircle size={20} />
           <span className="text-sm">ŹLE</span>
         </div>
@@ -173,13 +173,13 @@ export const MobileComparisonVisual = () => {
               </div>
             </div>
             <div className="p-4 bg-white/90 backdrop-blur border-t absolute bottom-0 w-full">
-              <button className="w-full bg-[#059669] hover:bg-[#00a844] text-white font-bold py-3 rounded-xl shadow-[0_4px_14px_rgba(0,200,83,0.3)] text-xs flex items-center justify-center gap-2 transition-all active:scale-95">
+              <button className="w-full bg-emerald-700 hover:bg-[#00a844] text-white font-bold py-3 rounded-xl shadow-[0_4px_14px_rgba(0,200,83,0.3)] text-xs flex items-center justify-center gap-2 transition-all active:scale-95">
                 <ShoppingCart size={14} /> DODAJ DO KOSZYKA
               </button>
             </div>
           </div>
         </div>
-        <div className="mt-6 flex items-center gap-2 text-[#059669] font-bold bg-green-50 px-4 py-2 rounded-full border border-green-100">
+        <div className="mt-6 flex items-center gap-2 text-emerald-700 font-bold bg-green-50 px-4 py-2 rounded-full border border-green-100">
           <CheckCircle2 size={20} />
           <span className="text-sm">DOBRZE</span>
         </div>
@@ -228,7 +228,10 @@ export const HeatmapVisual = () => {
             </div>
           </div>
           <div className="w-1/2 h-48 bg-gray-100 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center">
-            <div className="text-gray-300 text-4xl font-black opacity-20">IMG</div>
+            <div
+              className="text-gray-300 text-4xl font-black opacity-20 before:content-['IMG']"
+              aria-hidden="true"
+            />
           </div>
         </div>
         <div

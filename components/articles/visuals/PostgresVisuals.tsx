@@ -53,7 +53,7 @@ export const PostgresHeroVisual: React.FC = () => {
         {/* The Vault / Safe */}
         <div className="w-48 h-48 bg-gradient-to-br from-[#336791] to-dark rounded-[2rem] border-4 border-primary/30 flex flex-col items-center justify-center shadow-[0_0_60px_rgba(97,182,222,0.3)] relative group-hover:scale-105 transition-transform duration-500">
           <Database size={80} className="text-white drop-shadow-[0_0_15px_#61B6DE]" />
-          <div className="mt-2 text-xxs font-black uppercase tracking-widest text-primary">
+          <div className="mt-2 text-xxs font-black uppercase tracking-widest text-white">
             PostgreSQL
           </div>
 
@@ -65,7 +65,7 @@ export const PostgresHeroVisual: React.FC = () => {
 
         {/* Licznik Oszczędności */}
         <div className="mt-12 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-2xl text-center shadow-2xl">
-          <div className="text-gray-400 text-xxs font-black uppercase tracking-widest mb-2">
+          <div className="text-slate-400 text-xxs font-black uppercase tracking-widest mb-2">
             Oszczędność na licencjach
           </div>
           <div className="text-3xl md:text-4xl font-black text-success tabular-nums tracking-tighter">
@@ -198,7 +198,7 @@ export const TcoCostChart: React.FC = () => {
           {/* Stack Container */}
           <div className="w-full flex flex-col justify-end gap-1 h-[80%] relative">
             {/* Top Block: Licenses */}
-            <div className="h-[60%] bg-red-500 rounded-lg group-hover:bg-red-600 transition-all relative flex items-center justify-center shadow-sm">
+            <div className="h-[60%] bg-red-600 rounded-lg group-hover:bg-red-700 transition-all relative flex items-center justify-center shadow-sm">
               <div className="text-white font-black text-xs text-center leading-none">
                 Licencje
                 <br />
@@ -207,11 +207,11 @@ export const TcoCostChart: React.FC = () => {
             </div>
             {/* Mid Block: Support */}
             <div className="h-[25%] bg-red-400 rounded-lg group-hover:bg-red-500 transition-all flex items-center justify-center">
-              <span className="text-xxs font-bold text-white/80">Support</span>
+              <span className="text-xxs font-bold text-red-950">Support</span>
             </div>
             {/* Bot Block: Hardware */}
             <div className="h-[15%] bg-red-300 rounded-lg group-hover:bg-red-400 transition-all flex items-center justify-center">
-              <span className="text-xxs font-bold text-white/80">Infra</span>
+              <span className="text-xxs font-bold text-red-950">Infra</span>
             </div>
 
             {/* Total Label */}
@@ -236,11 +236,11 @@ export const TcoCostChart: React.FC = () => {
             </div>
             {/* Bot Block: Maintenance */}
             <div className="h-[40%] bg-primary rounded-lg group-hover:bg-[#336791] transition-all flex items-center justify-center">
-              <span className="text-xxs font-bold text-white">Utrzymanie</span>
+              <span className="text-xxs font-bold text-deep-dark">Utrzymanie</span>
             </div>
 
             {/* Savings Label */}
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-success text-white text-xxs font-black px-2 py-1 rounded shadow-lg whitespace-nowrap">
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-success text-deep-dark text-xxs font-black px-2 py-1 rounded shadow-lg whitespace-nowrap">
               -70% Kosztów
             </div>
           </div>

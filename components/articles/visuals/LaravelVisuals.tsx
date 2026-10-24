@@ -36,7 +36,7 @@ export const LaravelHeroVisual: React.FC = () => {
           <div className="absolute top-1/2 left-1/2 w-1 h-12 bg-white/50 origin-bottom -translate-x-1/2 -translate-y-full rotate-[180deg]"></div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-bold text-lg">Inne Technologie</h3>
+          <p className="text-white font-bold text-lg">Inne Technologie</p>
           <p className="text-white/60 text-xs uppercase tracking-widest">
             Konfiguracja, Boilerplate...
           </p>
@@ -60,7 +60,7 @@ export const LaravelHeroVisual: React.FC = () => {
           <div className="absolute top-1/2 left-1/2 w-1.5 h-20 bg-white origin-bottom -translate-x-1/2 -translate-y-full animate-[spin_2s_linear_infinite]"></div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-bold text-2xl">Laravel</h3>
+          <p className="text-white font-bold text-2xl">Laravel</p>
           <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-white text-xxs font-black uppercase tracking-widest mt-2 border border-white/20">
             MVP Ready
           </div>
@@ -138,8 +138,8 @@ export const EloquentComparison: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
         {/* SQL Side */}
-        <div className="opacity-50 blur-[0.5px] hover:opacity-100 hover:blur-0 transition-all duration-500">
-          <div className="text-xs text-gray-400 uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+        <div className="opacity-90 blur-[0.5px] hover:opacity-100 hover:blur-0 transition-all duration-500">
+          <div className="text-xs text-slate-300 uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
             <Database size={12} /> Raw SQL (The Hard Way)
           </div>
           <div className="text-gray-300 leading-relaxed">
@@ -157,11 +157,11 @@ export const EloquentComparison: React.FC = () => {
         <div className="relative">
           <div className="absolute -inset-4 bg-[#FF2D20]/10 rounded-xl blur-lg"></div>
           <div className="relative z-10">
-            <div className="text-xs text-[#FF2D20] uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
+            <div className="text-xs text-[#ff6b61] uppercase font-bold tracking-widest mb-4 flex items-center gap-2">
               <Code2 size={12} /> Eloquent ORM (The Laravel Way)
             </div>
             <div className="text-white leading-loose font-bold">
-              <span className="text-[#FF2D20]">$users</span> = User::
+              <span className="text-[#ff6b61]">$users</span> = User::
               <span className="text-yellow-400">where</span>(
               <span className="text-green-400">'active'</span>,{' '}
               <span className="text-blue-400">true</span>)<br />
@@ -179,7 +179,7 @@ export const EloquentComparison: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-8 pt-8 border-t border-white/10 text-center text-gray-500 text-xs italic">
+      <div className="mt-8 pt-8 border-t border-white/10 text-center text-slate-400 text-xs italic">
         "Kod, który czyta się jak zdanie w języku angielskim."
       </div>
     </div>
@@ -192,7 +192,7 @@ export const LaravelPerformanceChart: React.FC = () => {
     <div className="my-16 p-8 bg-white rounded-[2rem] border border-gray-200 shadow-xl overflow-hidden relative">
       <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
         <div className="flex-1">
-          <h4 className="text-2xl font-black text-dark mb-2">Laravel Octane</h4>
+          <h3 className="text-2xl font-black text-dark mb-2">Laravel Octane</h3>
           <p className="text-sm text-gray-600 mb-6">
             Dzięki Octane i serwerowi Swoole/RoadRunner, aplikacja jest ładowana do pamięci RAM
             tylko raz.
@@ -209,7 +209,7 @@ export const LaravelPerformanceChart: React.FC = () => {
               </div>
             </div>
             <div>
-              <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1 text-[#FF2D20]">
+              <div className="flex justify-between text-xs font-bold uppercase tracking-wider mb-1 text-[#c4231b]">
                 <span>Laravel Octane</span>
                 <span>~4000+ req/sec</span>
               </div>

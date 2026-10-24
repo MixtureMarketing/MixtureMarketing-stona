@@ -85,11 +85,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
               className={index === 2 ? 'md:col-span-2 lg:col-span-1' : ''}
               style={{ transform: CARD_DRIFT[index % CARD_DRIFT.length] }}
             >
-              <Link
-                to={withTrailingSlash(article.slug)}
-                className="group block h-full"
-                aria-label={`Czytaj artykuł: ${article.title}`}
-              >
+              <Link to={withTrailingSlash(article.slug)} className="group block h-full">
                 <BaseCard
                   variant="solid"
                   padding="none"
@@ -99,7 +95,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                   <div className="relative h-56 overflow-hidden">
                     <Image
                       src={article.image}
-                      alt={article.title}
+                      alt=""
                       className="h-full w-full transform object-cover object-top transition-transform duration-700 group-hover:scale-110"
                       width={600}
                       height={400}

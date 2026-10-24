@@ -269,6 +269,21 @@ export const appRoutes: RouteObject[] = [
   { path: '*', element: <NotFound /> },
 ];
 
+/**
+ * Trasy renderujące WŁASNE okruszki: statyczne artykuły /baza-wiedzy/* (ArticleShell) i indeks
+ * /baza-wiedzy/ (KnowledgeBase, ciemny wariant w hero). App nie dokłada na nich globalnych
+ * <Breadcrumbs/> — dwa <nav aria-label="Breadcrumb"> to axe landmark-unique, a globalny i tak
+ * leżał pod przyklejonym navbarem. Artykuły z CMS (/baza-wiedzy/:slug) nie mają własnych.
+ */
+const OWN_BREADCRUMBS = new Set(
+  appRoutes
+    .map((r) => r.path)
+    .filter((p): p is string => !!p && p.startsWith('/baza-wiedzy') && !p.includes(':')),
+);
+
+export const hasOwnBreadcrumbs = (pathname: string): boolean =>
+  OWN_BREADCRUMBS.has(pathname.replace(/\/+$/, '') || '/');
+
 /** Moduł trasy może wystawić `routePreload` — pod-chunki potrzebne w 1. renderze. */
 type RouteModule = {
   routePreload?: (params: Params) => unknown;

@@ -26,13 +26,13 @@ const ImageOptimizerComparison = () => {
           </div>
           <div className="h-8 w-px bg-gray-100 hidden md:block"></div>
           <div className="text-center md:text-left">
-            <div className="text-xxs uppercase font-black text-[#10B981] tracking-widest mb-1">
+            <div className="text-xxs uppercase font-black text-emerald-700 tracking-widest mb-1">
               Optymalizacja CDN
             </div>
-            <div className="text-xl font-bold text-emerald-500">180 KB</div>
+            <div className="text-xl font-bold text-emerald-700">180 KB</div>
           </div>
         </div>
-        <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-xl text-xs font-black border border-emerald-100 uppercase tracking-tight">
+        <div className="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-black border border-emerald-100 uppercase tracking-tight">
           Ta sama jakość • 96% mniejszy transfer
         </div>
       </div>
@@ -58,7 +58,7 @@ const ImageOptimizerComparison = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('${imageUrl}')`, clipPath: `inset(0 0 0 ${sliderPos}%)` }}
         >
-          <div className="absolute top-4 right-4 bg-[#10B981] text-white px-4 py-1.5 rounded-full text-xxs font-bold uppercase tracking-widest shadow-lg">
+          <div className="absolute top-4 right-4 bg-emerald-700 text-white px-4 py-1.5 rounded-full text-xxs font-bold uppercase tracking-widest shadow-lg">
             Format WebP / AVIF
           </div>
         </div>

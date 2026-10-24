@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Database,
 } from 'lucide-react';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 // --- HERO: GOPHER VS ELEPHANT ---
 export const GoHeroVisual: React.FC = () => {
@@ -28,7 +29,7 @@ export const GoHeroVisual: React.FC = () => {
       </div>
 
       {/* Traditional Tech (Elephant) */}
-      <div className="relative z-10 flex flex-col items-center gap-4 opacity-60 scale-90 grayscale group-hover:grayscale-0 transition-all duration-500">
+      <div className="relative z-10 flex flex-col items-center gap-4 opacity-90 scale-90 grayscale group-hover:grayscale-0 transition-all duration-500">
         <div className="w-48 h-48 bg-gray-200 rounded-full flex items-center justify-center relative border-4 border-gray-300 shadow-xl">
           <Database size={80} className="text-gray-500" />
           <div className="absolute -bottom-4 bg-gray-600 text-white text-xxs px-3 py-1 rounded-full font-bold uppercase tracking-widest">
@@ -36,13 +37,13 @@ export const GoHeroVisual: React.FC = () => {
           </div>
         </div>
         <div className="text-center">
-          <h3 className="text-white/80 font-bold text-lg">Tradycyjne Tech</h3>
+          <p className="text-white/80 font-bold text-lg">Tradycyjne Tech</p>
           <p className="text-white/60 text-xs uppercase tracking-widest">Wysokie zużycie RAM</p>
         </div>
       </div>
 
       {/* VS Badge */}
-      <div className="relative z-20 bg-white text-[#00ADD8] font-black text-xl w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform -rotate-6">
+      <div className="relative z-20 bg-white text-[#007d9c] font-black text-xl w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform -rotate-6">
         VS
       </div>
 
@@ -59,7 +60,7 @@ export const GoHeroVisual: React.FC = () => {
           </div>
         </div>
         <div className="text-center">
-          <h3 className="text-white font-black text-3xl drop-shadow-md">Go (Golang)</h3>
+          <p className="text-white font-black text-3xl drop-shadow-md">Go (Golang)</p>
           <div className="inline-block bg-white/20 px-3 py-1 rounded-full text-white text-xxs font-black uppercase tracking-widest mt-2 border border-white/20">
             Cloud Native
           </div>
@@ -81,7 +82,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
               <Truck size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-slate-700">Java Threads</h4>
+              <h3 className="font-bold text-slate-700">Java Threads</h3>
               <p className="text-xs text-slate-500">Ciężkie procesy (Ciężarówka)</p>
             </div>
           </div>
@@ -95,7 +96,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
             <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
               <div className="bg-orange-500 h-full w-[80%]"></div>
             </div>
-            <span className="text-xs font-mono text-orange-600 font-bold">
+            <span className="text-xs font-mono text-orange-700 font-bold">
               RAM Usage: ~8GB / 1k Users
             </span>
           </div>
@@ -108,7 +109,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
               <Zap size={20} />
             </div>
             <div>
-              <h4 className="font-bold text-slate-700">Go Goroutines</h4>
+              <h3 className="font-bold text-slate-700">Go Goroutines</h3>
               <p className="text-xs text-slate-500">Lekkie Drony</p>
             </div>
           </div>
@@ -123,7 +124,7 @@ export const ResourceEfficiencyVisual: React.FC = () => {
             <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
               <div className="bg-[#00ADD8] h-full w-[5%]"></div>
             </div>
-            <span className="text-xs font-mono text-[#00ADD8] font-bold">
+            <span className="text-xs font-mono text-[#00718d] font-bold">
               RAM Usage: ~200MB / 1k Users
             </span>
           </div>
@@ -145,10 +146,14 @@ export const GoCodeBlock: React.FC = () => {
         <div className="w-3 h-3 rounded-full bg-yellow-500" />
         <div className="w-3 h-3 rounded-full bg-green-500" />
       </div>
-      <div className="mb-4 text-gray-500 text-xs font-bold uppercase tracking-widest">main.go</div>
-      <pre className="text-gray-300 leading-relaxed overflow-x-auto">
+      <div className="mb-4 text-slate-400 text-xs font-bold uppercase tracking-widest">main.go</div>
+      <ScrollRegion
+        as="pre"
+        label="Przykład kodu: goroutines w Go"
+        className="text-gray-300 leading-relaxed overflow-x-auto"
+      >
         <code>
-          <span className="text-gray-500">
+          <span className="text-slate-400">
             {'//'} Uruchomienie 100 000 współbieżnych zadań w Go
           </span>
           {'\n'}
@@ -162,7 +167,7 @@ export const GoCodeBlock: React.FC = () => {
           {'\n'}
           {'    '}
           <span className="text-purple-400">go</span> <span className="text-blue-400">doWork</span>
-          (i) <span className="text-gray-500">{'//'} "go" uruchamia Goroutine</span>
+          (i) <span className="text-slate-400">{'//'} "go" uruchamia Goroutine</span>
           {'\n'}
           {'  '}
           {'}'}
@@ -170,7 +175,7 @@ export const GoCodeBlock: React.FC = () => {
           {'  '}time.<span className="text-blue-400">Sleep</span>(time.Second){'\n'}
           {'}'}
         </code>
-      </pre>
+      </ScrollRegion>
       <div className="mt-4 pt-4 border-t border-gray-800 text-green-400 text-xs flex items-center gap-2">
         <CheckCircle2 size={14} /> Ten kod nie "zabije" Twojego laptopa. W Javie by to zrobił.
       </div>
@@ -191,9 +196,9 @@ export const GoPerformanceComparison: React.FC = () => {
         <thead className="bg-gray-50 border-b border-gray-200">
           <tr>
             <th className="p-4 text-xs font-black uppercase text-gray-500">Cecha</th>
-            <th className="p-4 text-xs font-black uppercase text-[#68A063]">Node.js</th>
-            <th className="p-4 text-xs font-black uppercase text-[#EA2D2E]">Java</th>
-            <th className="p-4 text-xs font-black uppercase text-[#00ADD8]">Go (Golang)</th>
+            <th className="p-4 text-xs font-black uppercase text-[#3d7a39]">Node.js</th>
+            <th className="p-4 text-xs font-black uppercase text-[#c81e1f]">Java</th>
+            <th className="p-4 text-xs font-black uppercase text-[#00718d]">Go (Golang)</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 text-sm">
@@ -201,25 +206,25 @@ export const GoPerformanceComparison: React.FC = () => {
             <td className="p-4 font-bold text-slate-700">Wydajność CPU</td>
             <td className="p-4 text-gray-600">Średnia (jeden wątek)</td>
             <td className="p-4 text-gray-600">Wysoka (ale "ciężka")</td>
-            <td className="p-4 text-[#00ADD8] font-bold">Bardzo Wysoka</td>
+            <td className="p-4 text-[#00718d] font-bold">Bardzo Wysoka</td>
           </tr>
           <tr>
             <td className="p-4 font-bold text-slate-700">Zużycie Pamięci</td>
             <td className="p-4 text-gray-600">Średnie</td>
-            <td className="p-4 text-red-500">Wysokie</td>
-            <td className="p-4 text-[#00ADD8] font-bold">Bardzo Niskie</td>
+            <td className="p-4 text-red-700">Wysokie</td>
+            <td className="p-4 text-[#00718d] font-bold">Bardzo Niskie</td>
           </tr>
           <tr>
             <td className="p-4 font-bold text-slate-700">Start Aplikacji</td>
-            <td className="p-4 text-[#00ADD8] font-bold">Szybki</td>
-            <td className="p-4 text-red-500">Wolny (JVM warmup)</td>
-            <td className="p-4 text-[#00ADD8] font-bold">Błyskawiczny</td>
+            <td className="p-4 text-[#00718d] font-bold">Szybki</td>
+            <td className="p-4 text-red-700">Wolny (JVM warmup)</td>
+            <td className="p-4 text-[#00718d] font-bold">Błyskawiczny</td>
           </tr>
           <tr>
             <td className="p-4 font-bold text-slate-700">Współbieżność</td>
             <td className="p-4 text-gray-600">Event Loop (I/O)</td>
             <td className="p-4 text-gray-600">Threads (skomplikowane)</td>
-            <td className="p-4 text-[#00ADD8] font-bold">Goroutines (Rewolucyjne)</td>
+            <td className="p-4 text-[#00718d] font-bold">Goroutines (Rewolucyjne)</td>
           </tr>
         </tbody>
       </table>

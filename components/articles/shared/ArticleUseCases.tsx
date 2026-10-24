@@ -15,9 +15,12 @@ const ArticleUseCases: React.FC<ArticleUseCasesProps> = ({
   items,
   accentColor = '#3F3D91',
 }) => {
+  // Bez tytułu nie renderujemy pustego <h3> (axe: empty-heading), a punkty wchodzą poziom
+  // wyżej — inaczej <h4> szedłby bezpośrednio po <h2> sekcji (heading-order).
+  const ItemHeading = title ? 'h4' : 'h3';
   return (
     <div className="my-24 bg-gray-50 p-8 md:p-12 rounded-[2rem] not-prose">
-      <h3 className="text-2xl font-bold text-dark mb-8">{title}</h3>
+      {title && <h3 className="text-2xl font-bold text-dark mb-8">{title}</h3>}
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {items.map((item, i) => (
           <li key={i} className="flex gap-4">
@@ -28,7 +31,7 @@ const ArticleUseCases: React.FC<ArticleUseCasesProps> = ({
               {item.icon}
             </div>
             <div>
-              <h4 className="font-bold text-dark">{item.title}</h4>
+              <ItemHeading className="font-bold text-dark">{item.title}</ItemHeading>
               <p className="text-xs text-gray-600 mt-1">{item.desc}</p>
             </div>
           </li>

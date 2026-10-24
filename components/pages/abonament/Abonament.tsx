@@ -794,7 +794,7 @@ const Abonament: React.FC = () => {
 
         <Container className="relative z-10">
           {/* Meta row */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 mb-12">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 mb-12">
             <span className="text-indigo-600">● NOWOŚĆ · 2026 · 4 pakiety od 179 zł/mc</span>
             <span className="hidden md:inline">Mixture Marketing · Rzeszów · od 2020</span>
             <span>Pilotaż · Podkarpacie · 10 miejsc</span>
@@ -970,7 +970,6 @@ const Abonament: React.FC = () => {
                 href={d.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Otwórz demo stylu ${d.title} (nowa karta)`}
                 className="group relative flex flex-col justify-between p-6 bg-gradient-to-br from-slate-50 to-white rounded-3xl border border-slate-200 hover:border-indigo-300 hover:shadow-xl motion-safe:hover:-translate-y-1 transition-all"
               >
                 <div>
@@ -998,6 +997,7 @@ const Abonament: React.FC = () => {
                 </div>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-indigo-600">
                   Otwórz live <ExternalLink size={12} aria-hidden="true" />
+                  <span className="sr-only">(otwiera się w nowej karcie)</span>
                 </span>
               </a>
             ))}

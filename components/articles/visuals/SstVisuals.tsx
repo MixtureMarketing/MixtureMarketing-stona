@@ -67,13 +67,13 @@ export const TrackingComparisonVisual = () => {
       <div className="flex justify-center gap-4 mb-12 relative z-20">
         <button
           onClick={() => setMode('client')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${mode === 'client' ? 'bg-rose-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${mode === 'client' ? 'bg-rose-600 text-white shadow-lg' : 'bg-gray-100 text-gray-600'}`}
         >
           Model Klasyczny (Client)
         </button>
         <button
           onClick={() => setMode('server')}
-          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${mode === 'server' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-gray-100 text-gray-600'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${mode === 'server' ? 'bg-emerald-700 text-white shadow-lg' : 'bg-gray-100 text-gray-600'}`}
         >
           Model Nowoczesny (SST)
         </button>
@@ -89,7 +89,7 @@ export const TrackingComparisonVisual = () => {
 
         {mode === 'client' && (
           <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-rose-200 z-20">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white px-3 py-1 rounded text-[10px] font-black whitespace-nowrap">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-600 text-white px-3 py-1 rounded text-[10px] font-black whitespace-nowrap">
               ADBLOCK / IOS BLOKADA
             </div>
           </div>
@@ -100,7 +100,7 @@ export const TrackingComparisonVisual = () => {
             <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl animate-pulse">
               <Server size={40} />
             </div>
-            <span className="text-xxs font-black uppercase text-primary tracking-widest">
+            <span className="text-xxs font-black uppercase text-accent-dark tracking-widest">
               Twoja Chmura (GCP)
             </span>
           </div>
@@ -152,13 +152,13 @@ export const CapiVisual = () => {
 
       <div className="relative z-10 flex flex-col lg:flex-row items-center gap-16">
         <div className="lg:w-1/2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#E1306C] text-xs font-bold uppercase tracking-wider mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#ffa3c4] text-xs font-bold uppercase tracking-wider mb-6">
             <Zap size={14} fill="currentColor" /> Meta Conversions API (CAPI)
           </div>
           <h3 className="text-3xl md:text-4xl font-bold mb-6 mt-0">
             Domykanie sprzedaży na Facebooku.
           </h3>
-          <p className="text-gray-400 text-lg leading-relaxed mb-8">
+          <p className="text-white/75 text-lg leading-relaxed mb-8">
             Pixel FB już nie wystarcza. CAPI to bezpośrednie połączenie serwer-serwer, które
             informuje Facebooka o zakupie, nawet gdy użytkownik ma włączone wszystkie możliwe
             blokady.

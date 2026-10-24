@@ -102,14 +102,14 @@ export const AirportSecuritySimulator = () => {
         <button
           onClick={() => runScan(false)}
           disabled={status === 'scanning'}
-          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${status === 'passed' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${status === 'passed' ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-500/30' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
         >
           <User size={18} /> Wyślij Klienta
         </button>
         <button
           onClick={() => runScan(true)}
           disabled={status === 'scanning'}
-          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${status === 'blocked' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+          className={`px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all ${status === 'blocked' ? 'bg-rose-600 text-white shadow-lg shadow-rose-500/30' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
         >
           <Bot size={18} /> Wyślij Hakera
         </button>
@@ -194,13 +194,13 @@ export const SqliDemo = () => {
         <div className="flex items-center gap-3 bg-white/5 p-1 rounded-xl border border-white/10">
           <button
             onClick={() => setProtected(true)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${protected_mode ? 'bg-emerald-500' : 'text-gray-600'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${protected_mode ? 'bg-emerald-700' : 'text-slate-400'}`}
           >
             WAF ON
           </button>
           <button
             onClick={() => setProtected(false)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!protected_mode ? 'bg-rose-500' : 'text-gray-600'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!protected_mode ? 'bg-rose-600' : 'text-slate-400'}`}
           >
             WAF OFF
           </button>
@@ -210,7 +210,7 @@ export const SqliDemo = () => {
         <div className="mb-6">
           <label
             htmlFor="sqli-input"
-            className="text-xxs font-black uppercase text-gray-700 tracking-widest mb-2 block"
+            className="text-xxs font-black uppercase text-slate-400 tracking-widest mb-2 block"
           >
             Szukaj użytkownika:
           </label>
@@ -232,7 +232,7 @@ export const SqliDemo = () => {
           </div>
         </div>
         <div className="bg-[#0B1120] rounded-xl p-4 font-mono text-xs border border-white/5">
-          <div className="flex items-center gap-2 mb-2 text-gray-700 border-b border-white/5 pb-2">
+          <div className="flex items-center gap-2 mb-2 text-slate-400 border-b border-white/5 pb-2">
             <Terminal size={14} /> System Response
           </div>
           <div
@@ -259,7 +259,7 @@ export const AttackTypeCard = ({
     <h3 className="text-xl font-bold text-dark mb-2">{title}</h3>
     <p className="text-sm text-gray-700 leading-relaxed mb-4">{desc}</p>
     <div className="bg-rose-50 p-3 rounded-xl">
-      <span className="text-xxs font-black uppercase text-rose-600 block mb-1">
+      <span className="text-xxs font-black uppercase text-rose-700 block mb-1">
         Skutek bez WAF:
       </span>
       <p className="text-xs text-rose-800 font-medium m-0">{impact}</p>
@@ -299,7 +299,7 @@ export const VirtualPatchingTimeline = () => (
           >
             {step.icon}
           </div>
-          <div className="text-xxs font-black uppercase text-primary tracking-widest mb-1">
+          <div className="text-xxs font-black uppercase text-accent-dark tracking-widest mb-1">
             {step.time}
           </div>
           <h3 className="font-bold text-dark text-sm mb-1">{step.title}</h3>
@@ -330,13 +330,13 @@ export const GdprPenaltyCalculator = () => {
         />
         <div className="mt-8 grid grid-cols-2 gap-6">
           <div className="bg-white/5 p-4 rounded-xl text-center">
-            <div className="text-xxs text-gray-600 uppercase">Max Kara</div>
+            <div className="text-xxs text-slate-400 uppercase">Max Kara</div>
             <div className="text-2xl font-black text-rose-500">
               {(revenue * 0.04).toLocaleString()}
             </div>
           </div>
           <div className="bg-white/5 p-4 rounded-xl text-center">
-            <div className="text-xxs text-gray-600 uppercase">Limit</div>
+            <div className="text-xxs text-slate-400 uppercase">Limit</div>
             <div className="text-2xl font-black">20M EUR</div>
           </div>
         </div>

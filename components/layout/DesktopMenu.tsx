@@ -188,12 +188,11 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
                         to={withTrailingSlash(art.slug)}
                         onClick={() => setActiveDropdown(null)}
                         className="group/art flex items-center gap-4 bg-white p-3 rounded-2xl border border-gray-100 hover:border-primary/30 transition-all shadow-sm hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary"
-                        aria-label={`Czytaj artykuł: ${art.title}`}
                       >
                         <div className="w-20 h-16 rounded-xl overflow-hidden shrink-0">
                           <Image
                             src={art.image}
-                            alt={art.title}
+                            alt=""
                             className="w-full h-full object-cover group-hover/art:scale-110 transition-transform duration-500"
                             width={80}
                             height={64}

@@ -15,7 +15,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import CookieBanner from '@/components/features/CookieBanner';
 import { ContactType } from '@/types';
-import { appRoutes } from '@/config/routes';
+import { appRoutes, hasOwnBreadcrumbs } from '@/config/routes';
 import { getOrganizationSchema } from '@/utils/seo/organizationSchema';
 import { SITE_CONFIG } from '@/config/site';
 
@@ -69,7 +69,8 @@ const Loading = () => (
 function App() {
   const { isModalOpen, modalType, openModal, closeModal } = useModal();
   const location = useLocation();
-  const showBreadcrumbs = location.pathname !== '/'; // Show breadcrumbs on all pages except homepage
+  // Wszędzie poza stroną główną — chyba że trasa renderuje własne okruszki (bez duplikatu landmarku).
+  const showBreadcrumbs = location.pathname !== '/' && !hasOwnBreadcrumbs(location.pathname);
   const resumeProcessed = React.useRef(false);
 
   // Check if we are in a browser environment and NOT during prerendering

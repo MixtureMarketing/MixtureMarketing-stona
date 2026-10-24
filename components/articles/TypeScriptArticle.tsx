@@ -56,9 +56,9 @@ const TypeScriptArticle = () => {
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
               <Code2 size={120} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-4">
+            <h3 className="text-xl font-bold text-dark mb-4">
               {content.definition.cards[0].title}
-            </h4>
+            </h3>
             <p
               className="text-sm text-gray-600 leading-relaxed mb-6"
               dangerouslySetInnerHTML={{ __html: content.definition.cards[0].text }}
@@ -77,16 +77,16 @@ const TypeScriptArticle = () => {
             <div className="absolute top-0 right-0 p-4 opacity-10">
               <ShieldCheck size={120} />
             </div>
-            <h4 className="text-xl font-bold mb-4">{content.definition.cards[1].title}</h4>
+            <h3 className="text-xl font-bold mb-4">{content.definition.cards[1].title}</h3>
             <p
-              className="text-sm text-blue-100 leading-relaxed mb-6"
+              className="text-sm text-white leading-relaxed mb-6"
               dangerouslySetInnerHTML={{ __html: content.definition.cards[1].text }}
             ></p>
-            <div className="p-4 bg-white/10 rounded-xl border border-white/20 flex items-center gap-3">
+            <div className="p-4 bg-black/15 rounded-xl border border-white/20 flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white text-[#3178C6] flex items-center justify-center shrink-0">
                 <CheckCircle2 size={16} />
               </div>
-              <span className="text-xxs font-black uppercase tracking-wider text-blue-100">
+              <span className="text-xxs font-black uppercase tracking-wider text-white">
                 {content.definition.cards[1].badge}
               </span>
             </div>
@@ -140,7 +140,7 @@ const TypeScriptArticle = () => {
                   })}
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-dark mb-2">{reason.title}</h4>
+                  <h3 className="text-lg font-bold text-dark mb-2">{reason.title}</h3>
                   {typeof reason.desc === 'string' ? (
                     <p
                       className="text-sm text-gray-600 leading-relaxed m-0"

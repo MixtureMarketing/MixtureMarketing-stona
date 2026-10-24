@@ -15,7 +15,7 @@ const IcebergDiagram = () => {
         </div>
       </div>
       <div className="relative z-10 flex flex-col items-center">
-        <div className="bg-rose-500 text-white px-6 py-2 rounded-full font-black text-sm shadow-xl flex items-center gap-2">
+        <div className="bg-rose-600 text-white px-6 py-2 rounded-full font-black text-sm shadow-xl flex items-center gap-2">
           <AlertTriangle size={16} /> Field Data: 45/100
         </div>
         <div className="mt-4 text-xxs uppercase font-black tracking-[0.2em] text-blue-100 text-center">

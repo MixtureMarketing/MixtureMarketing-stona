@@ -91,7 +91,7 @@ const UxAuditArticle = () => {
             </div>
             <h3 className="text-xl font-bold text-white mb-2">{CONTENT.definition.ux.title}</h3>
             <p className="text-sm text-gray-300 mb-4">{CONTENT.definition.ux.desc}</p>
-            <div className="inline-block text-xxs font-bold text-[#059669] uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-full">
+            <div className="inline-block text-xxs font-bold text-emerald-300 uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded-full">
               {CONTENT.definition.ux.analogy}
             </div>
           </div>
@@ -204,9 +204,7 @@ const UxAuditArticle = () => {
                 key={i}
                 className="bg-white/60 backdrop-blur-md p-6 rounded-2xl border border-white/50 shadow-lg flex-1"
               >
-                <div className="text-xs font-bold uppercase text-secondary mb-2 opacity-70">
-                  {card.label}
-                </div>
+                <div className="text-xs font-bold uppercase text-secondary mb-2">{card.label}</div>
                 <p
                   className="text-sm font-medium text-dark"
                   dangerouslySetInnerHTML={{ __html: card.text }}

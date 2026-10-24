@@ -200,7 +200,7 @@ export const GoogleVisionDiagram: React.FC = () => {
                   </div>
 
                   <div className="relative z-10 bg-white/80 backdrop-blur-sm p-2 rounded-lg border border-red-200 shadow-sm mt-12">
-                    <p className="text-xxs font-mono text-red-500 font-bold flex items-center gap-1 justify-center">
+                    <p className="text-xxs font-mono text-red-700 font-bold flex items-center gap-1 justify-center">
                       <XCircle size={12} /> Empty HTML
                     </p>
                   </div>
@@ -221,14 +221,14 @@ export const GoogleVisionDiagram: React.FC = () => {
                       <div className="w-full h-2 bg-gray-200 rounded-full"></div>
                       <div className="w-5/6 h-2 bg-gray-200 rounded-full"></div>
                       <div className="w-4/6 h-2 bg-gray-200 rounded-full"></div>
-                      <div className="mt-auto w-24 h-6 bg-emerald-500 rounded-md flex items-center justify-center">
+                      <div className="mt-auto w-24 h-6 bg-emerald-700 rounded-md flex items-center justify-center">
                         <span className="text-xxxs font-bold text-white uppercase">Kup teraz</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-2 bg-emerald-50 border border-emerald-100 p-2 rounded-lg">
-                    <p className="text-xxs font-mono text-emerald-600 font-bold uppercase tracking-widest flex items-center gap-1 justify-center">
+                    <p className="text-xxs font-mono text-emerald-700 font-bold uppercase tracking-widest flex items-center gap-1 justify-center">
                       <CheckCircle2 size={12} /> Content Ready
                     </p>
                   </div>
@@ -241,7 +241,7 @@ export const GoogleVisionDiagram: React.FC = () => {
           <div className="space-y-6 text-left">
             <div>
               <h3 className="text-2xl font-bold text-dark mb-1">{current.title}</h3>
-              <p className="text-xs font-bold text-primary uppercase tracking-widest">
+              <p className="text-xs font-bold text-accent-dark uppercase tracking-widest">
                 {current.subtitle}
               </p>
             </div>
@@ -286,7 +286,7 @@ export const AppWeightVisual: React.FC = () => {
           Cała logika aplikacji (megabajty kodu) trafia do telefonu użytkownika.
         </p>
         <div className="p-4 bg-red-50 rounded-xl border border-red-100 inline-flex flex-col gap-1">
-          <span className="text-xxs font-black text-red-600 uppercase">Obciążenie CPU</span>
+          <span className="text-xxs font-black text-red-700 uppercase">Obciążenie CPU</span>
           <div className="h-1.5 w-32 bg-red-200 rounded-full overflow-hidden">
             <div className="h-full w-[90%] bg-red-600 animate-pulse"></div>
           </div>
@@ -301,7 +301,7 @@ export const AppWeightVisual: React.FC = () => {
           <Wind size={32} />
         </div>
         <h3 className="text-xl font-bold text-white mb-2">Next.js RSC</h3>
-        <p className="text-sm text-gray-400 mb-6">
+        <p className="text-sm text-white/75 mb-6">
           Logika biznesowa zostaje na serwerze. Do telefonu trafia tylko lekki HTML.
         </p>
       </div>
@@ -364,7 +364,7 @@ export const NextJsQuiz: React.FC = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleAnswer(q.id, true)}
-                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${answers[q.id] === true ? 'bg-success text-white shadow-lg' : 'bg-white/10 hover:bg-white/20'}`}
+                    className={`px-6 py-2 rounded-full text-xs font-bold transition-all ${answers[q.id] === true ? 'bg-success text-deep-dark shadow-lg' : 'bg-white/10 hover:bg-white/20'}`}
                   >
                     TAK
                   </button>

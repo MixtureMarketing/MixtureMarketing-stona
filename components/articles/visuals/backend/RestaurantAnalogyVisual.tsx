@@ -13,7 +13,7 @@ const RestaurantAnalogyVisual = () => {
           <div className="text-xxs font-black uppercase text-blue-600 tracking-widest mb-1">
             1. Klient
           </div>
-          <h4 className="font-bold text-dark mb-2">Frontend (UI)</h4>
+          <h3 className="font-bold text-dark mb-2">Frontend (UI)</h3>
           <p className="text-xxs text-gray-500 leading-relaxed">
             Przegląda menu, wybiera produkty i klika "Zamów". Widzi tylko końcowy efekt.
           </p>
@@ -22,10 +22,10 @@ const RestaurantAnalogyVisual = () => {
           <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover/item:scale-110 group-hover/item:-rotate-3 transition-all">
             <UtensilsCrossed size={32} />
           </div>
-          <div className="text-xxs font-black uppercase text-amber-600 tracking-widest mb-1">
+          <div className="text-xxs font-black uppercase text-amber-700 tracking-widest mb-1">
             2. Kelner
           </div>
-          <h4 className="font-bold text-dark mb-2">API</h4>
+          <h3 className="font-bold text-dark mb-2">API</h3>
           <p className="text-xxs text-gray-500 leading-relaxed">
             Przekazuje informacje między klientem a kuchnią. Dba o to, by zamówienie dotarło
             bezpiecznie.
@@ -38,7 +38,7 @@ const RestaurantAnalogyVisual = () => {
           <div className="text-xxs font-black uppercase text-primary tracking-widest mb-1">
             3. Kuchnia
           </div>
-          <h4 className="font-bold mb-2 text-white text-lg">Backend</h4>
+          <h3 className="font-bold mb-2 text-white text-lg">Backend</h3>
           <p className="text-xxs text-gray-300 leading-relaxed font-medium">
             Tu dzieje się magia. Kucharze (Języki Programowania) przygotowują dane, sprawdzają
             reguły i logikę.
@@ -48,10 +48,10 @@ const RestaurantAnalogyVisual = () => {
           <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-4 group-hover/item:scale-110 transition-all">
             <Warehouse size={32} />
           </div>
-          <div className="text-xxs font-black uppercase text-emerald-600 tracking-widest mb-1">
+          <div className="text-xxs font-black uppercase text-emerald-700 tracking-widest mb-1">
             4. Spiżarnia
           </div>
-          <h4 className="font-bold text-dark mb-2">Baza Danych</h4>
+          <h3 className="font-bold text-dark mb-2">Baza Danych</h3>
           <p className="text-xxs text-gray-500 leading-relaxed">
             Bezpieczny magazyn składników. Przechowuje profile użytkowników, ceny i historię
             zamówień.

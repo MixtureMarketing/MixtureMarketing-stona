@@ -73,7 +73,7 @@ export const FrameworkSpectrum = () => {
           <div className="w-16 h-16 mx-auto bg-[#61DAFB]/10 rounded-full flex items-center justify-center mb-4">
             <Box className="text-[#61DAFB]" size={32} />
           </div>
-          <h4 className="font-bold text-dark">React</h4>
+          <h3 className="font-bold text-dark">React</h3>
           <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Totalna Swoboda</p>
           <p className="text-xs text-gray-400 mt-2">Wymaga wielu decyzji</p>
         </div>
@@ -85,8 +85,8 @@ export const FrameworkSpectrum = () => {
               <Heart className="text-[#42B883]" size={40} fill="currentColor" />
             </div>
           </div>
-          <h4 className="text-2xl font-black text-dark">Vue.js</h4>
-          <div className="inline-block bg-[#42B883] text-white text-xxs font-bold px-3 py-1 rounded-full uppercase tracking-widest mt-2 mb-2">
+          <h3 className="text-2xl font-black text-dark">Vue.js</h3>
+          <div className="inline-block bg-[#42B883] text-[#1B2430] text-xxs font-bold px-3 py-1 rounded-full uppercase tracking-widest mt-2 mb-2">
             Harmonijny Kompromis
           </div>
           <p className="text-sm text-gray-600 font-medium">Struktura + Elastyczność</p>
@@ -96,7 +96,7 @@ export const FrameworkSpectrum = () => {
           <div className="w-16 h-16 mx-auto bg-[#DD0031]/10 rounded-full flex items-center justify-center mb-4">
             <Layers className="text-[#DD0031]" size={32} />
           </div>
-          <h4 className="font-bold text-dark">Angular</h4>
+          <h3 className="font-bold text-dark">Angular</h3>
           <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">Pełna Struktura</p>
           <p className="text-xs text-gray-400 mt-2">Sztywne ramy</p>
         </div>
@@ -114,7 +114,7 @@ export const ProgressiveScalingVisual = () => {
 
       <div className="flex flex-col items-center justify-center gap-6 relative z-10">
         <div className="w-32 h-32 bg-[#42B883] rounded-full flex flex-col items-center justify-center shadow-[0_0_40px_rgba(66,184,131,0.4)] z-30 border-4 border-[#1e293b]">
-          <span className="text-white font-black text-lg">Vue Core</span>
+          <span className="text-[#1B2430] font-black text-lg">Vue Core</span>
           <span className="text-[#1e293b] text-xxs font-bold uppercase mt-1">The Library</span>
         </div>
 
@@ -144,7 +144,7 @@ export const ProgressiveScalingVisual = () => {
       </div>
 
       <div className="text-center mt-32 md:mt-40">
-        <p className="text-gray-400 text-sm">
+        <p className="text-slate-400 text-sm">
           Zaczynasz od "Core". Resztę dokładasz tylko wtedy, gdy potrzebujesz.
         </p>
       </div>
@@ -174,7 +174,7 @@ export const VueSfcPreview = () => {
       <div className="p-6 space-y-6">
         <div className="relative group">
           <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-blue-500 opacity-50"></div>
-          <div className="text-blue-400 mb-1 opacity-50 text-xs uppercase tracking-widest font-bold">
+          <div className="text-blue-400 mb-1 text-xs uppercase tracking-widest font-bold">
             1. Struktura (HTML)
           </div>
           <code className="block text-gray-300">
@@ -192,7 +192,7 @@ export const VueSfcPreview = () => {
 
         <div className="relative group">
           <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-yellow-500 opacity-50"></div>
-          <div className="text-yellow-500 mb-1 opacity-50 text-xs uppercase tracking-widest font-bold">
+          <div className="text-yellow-500 mb-1 text-xs uppercase tracking-widest font-bold">
             2. Logika (JS/TS)
           </div>
           <code className="block text-gray-300">
@@ -211,7 +211,7 @@ export const VueSfcPreview = () => {
 
         <div className="relative group">
           <div className="absolute -left-3 top-0 bottom-0 w-0.5 bg-purple-500 opacity-50"></div>
-          <div className="text-purple-400 mb-1 opacity-50 text-xs uppercase tracking-widest font-bold">
+          <div className="text-purple-400 mb-1 text-xs uppercase tracking-widest font-bold">
             3. Wygląd (CSS)
           </div>
           <code className="block text-gray-300">

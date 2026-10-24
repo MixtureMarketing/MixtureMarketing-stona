@@ -46,19 +46,19 @@ const GlobalTrafficSimulation = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setMode('direct')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${mode === 'direct' ? 'bg-rose-500/20 border-rose-500 text-white' : 'border-gray-700 text-gray-600 hover:bg-white/5'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${mode === 'direct' ? 'bg-rose-500/20 border-rose-500 text-white' : 'border-gray-700 text-slate-400 hover:bg-white/5'}`}
           >
             Bez CDN
           </button>
           <button
             onClick={() => setMode('cdn')}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${mode === 'cdn' ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'border-gray-700 text-gray-600 hover:bg-white/5'}`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${mode === 'cdn' ? 'bg-emerald-500/20 border-emerald-500 text-white' : 'border-gray-700 text-slate-400 hover:bg-white/5'}`}
           >
             Z CDN
           </button>
         </div>
         <div>
-          <div className="text-gray-700 text-xxs uppercase font-bold tracking-wider">
+          <div className="text-slate-400 text-xxs uppercase font-bold tracking-wider">
             Avg Latency
           </div>
           <div
@@ -122,7 +122,7 @@ const GlobalTrafficSimulation = () => {
               >
                 <Globe size={12} className="text-white" />
               </div>
-              <span className="text-xxs font-bold mt-2 text-gray-700">{edge.label}</span>
+              <span className="text-xxs font-bold mt-2 text-slate-400">{edge.label}</span>
             </div>
             <div
               className="absolute z-20 flex flex-col items-center"

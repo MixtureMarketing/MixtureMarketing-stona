@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { addScrollTask } from '@/hooks/useSectionProgress';
 import type { MixtureHandle } from './mixtureConfig';
+import { setHeroCovered } from '@/utils/heroCover';
 
 /**
  * Pole „Mixture" — canvas sceny hero. Silnik (mixtureEngine) ładowany
@@ -80,14 +81,13 @@ const MixtureField: React.FC<{ paused?: boolean }> = ({ paused = false }) => {
       return () => {
         handle?.setFront(frontY);
         host?.style.setProperty('--cover', cover.toFixed(3));
-        // Pełne zakrycie → inert na treści hero: fokus nie może wylądować pod
-        // nieprzezroczystym arkuszem (WCAG 2.4.11 focus-obscured).
+        // Pełne zakrycie → inert na elementach fokusowalnych hero: fokus nie może
+        // wylądować pod nieprzezroczystym arkuszem (WCAG 2.4.11 focus-obscured).
+        // h1 i opis zostają w drzewie dostępności (patrz utils/heroCover.ts).
         const covered = cover >= 0.98;
         if (covered !== wasCovered) {
           wasCovered = covered;
-          host
-            ?.querySelectorAll('[data-hero-covers]')
-            .forEach((el) => el.toggleAttribute('inert', covered));
+          if (host) setHeroCovered(host, covered);
         }
       };
     };

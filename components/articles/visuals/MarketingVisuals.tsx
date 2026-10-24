@@ -28,7 +28,7 @@ export const GoogleAdsHero = () => (
           <div className="absolute inset-0 bg-primary opacity-20 blur-xl animate-pulse"></div>
           <Settings size={48} className="text-white relative z-10 animate-spin-slow" />
         </div>
-        <span className="text-xxs font-black uppercase text-gray-700 mt-4 tracking-widest">
+        <span className="text-xxs font-black uppercase text-slate-400 mt-4 tracking-widest">
           Twoja Kampania
         </span>
       </div>
@@ -77,11 +77,11 @@ export const ScalingTypeCard = ({
     <p className="text-sm text-gray-700 mb-6 flex-grow">{desc}</p>
     <div className="space-y-4">
       <div className="bg-rose-50 p-3 rounded-xl border border-rose-100">
-        <div className="text-xxs font-black uppercase text-rose-600 mb-1">Ryzyko</div>
+        <div className="text-xxs font-black uppercase text-rose-700 mb-1">Ryzyko</div>
         <p className="text-xs text-rose-800 m-0 leading-snug">{risk}</p>
       </div>
       <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-        <div className="text-xxs font-black uppercase text-emerald-600 mb-1">Kiedy stosować?</div>
+        <div className="text-xxs font-black uppercase text-emerald-700 mb-1">Kiedy stosować?</div>
         <p className="text-xs text-emerald-800 m-0 leading-snug">{suitability}</p>
       </div>
     </div>
@@ -110,7 +110,7 @@ export const RoasProfitCalculator = () => {
         <div className="mb-12">
           <div className="flex justify-between mb-4">
             <label className="text-sm font-bold text-dark">Miesięczne wydatki na reklamę:</label>
-            <span className="text-primary font-mono font-bold text-lg">
+            <span className="text-accent-dark font-mono font-bold text-lg">
               {spend.toLocaleString()} PLN
             </span>
           </div>
@@ -136,7 +136,7 @@ export const RoasProfitCalculator = () => {
               ROAS (Zwrot)
             </div>
             <div
-              className={`text-3xl font-black ${currentRoas > 8 ? 'text-emerald-500' : 'text-amber-500'}`}
+              className={`text-3xl font-black ${currentRoas > 8 ? 'text-emerald-700' : 'text-amber-700'}`}
             >
               {Math.round(currentRoas * 100)}%
             </div>
@@ -149,7 +149,7 @@ export const RoasProfitCalculator = () => {
             <div className="text-3xl font-black text-white">
               {Math.round(netProfit).toLocaleString()} PLN
             </div>
-            <p className="text-xxs text-gray-600 mt-2">
+            <p className="text-xxs text-white/60 mt-2">
               To co faktycznie zostaje w Twojej kieszeni.
             </p>
           </div>
@@ -198,7 +198,7 @@ export const AiFunnelDiagram = () => {
           <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-md relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
             <div className="text-2xl md:text-3xl font-bold text-white mb-2">"buty sportowe"</div>
-            <p className="text-gray-400 text-sm">Użytkownik wpisuje ogólną frazę</p>
+            <p className="text-slate-400 text-sm">Użytkownik wpisuje ogólną frazę</p>
           </div>
         </div>
 
@@ -248,7 +248,7 @@ export const AiFunnelDiagram = () => {
 
               {/* Right: Scoring */}
               <div className="flex-1 w-full text-center relative">
-                <div className="text-gray-400 text-xs font-bold uppercase mb-2">
+                <div className="text-slate-400 text-xs font-bold uppercase mb-2">
                   Prawdopodobieństwo Konwersji
                 </div>
                 <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-white mb-2 relative z-10">
@@ -379,11 +379,11 @@ export const ScalingChecklist = () => {
               {checked.includes(item.id) && <CheckCircle2 size={14} />}
             </div>
             <div>
-              <h5
+              <h4
                 className={`font-bold text-sm ${checked.includes(item.id) ? 'text-emerald-900' : 'text-dark'}`}
               >
                 {item.title}
-              </h5>
+              </h4>
               <p className="text-xs text-gray-700 mt-1">{item.desc}</p>
             </div>
           </div>

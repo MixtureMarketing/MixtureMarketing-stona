@@ -16,6 +16,7 @@ import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import { PostgresHeroVisual, TcoCostChart, AcidSimulator } from './visuals/PostgresVisuals';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const PostgresArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'postgresql-krol-baz-danych');
@@ -82,7 +83,7 @@ const PostgresArticle = () => {
             <div className="w-12 h-12 bg-blue-50 text-[#336791] rounded-xl flex items-center justify-center mb-6">
               <BarChart3 size={24} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-2">Relacyjny (SQL)</h4>
+            <h3 className="text-xl font-bold text-dark mb-2">Relacyjny (SQL)</h3>
             <p className="text-sm text-gray-600">
               Idealny do tabel, faktur i użytkowników. Porządek jak w Excelu, tylko miliard razy
               szybszy.
@@ -92,7 +93,7 @@ const PostgresArticle = () => {
             <div className="w-12 h-12 bg-emerald-50 text-[#059669] rounded-xl flex items-center justify-center mb-6">
               <Zap size={24} />
             </div>
-            <h4 className="text-xl font-bold text-dark mb-2">Obiektowy / NoSQL</h4>
+            <h3 className="text-xl font-bold text-dark mb-2">Obiektowy / NoSQL</h3>
             <p className="text-sm text-gray-600">
               Idealny do elastycznych danych JSON i złożonych struktur. Elastyczność znana z
               MongoDB.
@@ -179,7 +180,7 @@ const PostgresArticle = () => {
             lightMode
             align="left"
           />
-          <p className="text-gray-400 mb-8 max-w-2xl">
+          <p className="text-white/75 mb-8 max-w-2xl">
             To funkcja, która zmienia zasady gry. Możesz przeszukiwać miliony dokumentów JSON z
             prędkością bazy SQL, bez utrzymywania osobnej bazy NoSQL.
           </p>
@@ -202,14 +203,18 @@ const PostgresArticle = () => {
             className={`transition-all duration-500 overflow-hidden ${showCode ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
             <div className="bg-black/40 rounded-xl p-6 font-mono text-xxs md:text-xs text-[#A6ACCD] border border-white/5">
-              <pre className="overflow-x-auto text-blue-300">
+              <ScrollRegion
+                as="pre"
+                label="Przykład kodu: zapytanie SQL na JSON"
+                className="overflow-x-auto text-blue-300"
+              >
                 <code>{`-- Tak, to jest SQL!
 -- Znajdź użytkowników z newsletterem w polu JSON
 SELECT * FROM users
 WHERE settings @> '{"newsletter": true}';
 
 -- Czas zapytania na 1 mln rekordów: 0.04ms`}</code>
-              </pre>
+              </ScrollRegion>
             </div>
           </div>
         </div>

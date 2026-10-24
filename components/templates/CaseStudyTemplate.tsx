@@ -107,12 +107,14 @@ const CaseStudyTemplate = () => {
 
       <CaseStudyHero project={project} />
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 pb-32 relative z-20 mt-12">
+      {/* div, nie landmark main: szablon renderuje się wewnątrz <main id="main-content"> z App
+          (axe: landmark-no-duplicate-main / landmark-main-is-top-level). */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-32 relative z-20 mt-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           <CaseStudyContent project={project} onAssetClick={setActiveAsset} />
           <CaseStudySidebar project={project} />
         </div>
-      </main>
+      </div>
 
       <LazyHydrate minHeight="400px">
         <RelatedArticles currentSlug={slug || ''} category={project.category} />

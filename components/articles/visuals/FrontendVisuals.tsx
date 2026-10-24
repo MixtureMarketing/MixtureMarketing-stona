@@ -55,7 +55,7 @@ export const FrontendHeroVisual: React.FC = () => {
 
           <div className="flex-1 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl border border-white/10 flex items-center justify-center relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 bg-blue-500 rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center text-white font-bold animate-bounce">
+              <div className="w-16 h-16 bg-blue-600 rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center text-white font-bold animate-bounce">
                 UI
               </div>
             </div>
@@ -143,10 +143,10 @@ export const TechCardsVisual: React.FC = () => {
           <div className="w-10 h-10 rounded-full bg-[#61DAFB] flex items-center justify-center text-white font-bold text-xs">
             R
           </div>
-          <h4 className="font-bold text-slate-800">React.js</h4>
+          <h3 className="font-bold text-slate-800">React.js</h3>
         </div>
         <div className="space-y-2 mb-6">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
+          <div className="text-xs font-bold text-slate-600 uppercase tracking-wider">Status</div>
           <div className="text-sm font-bold text-blue-600">Król Rynku</div>
         </div>
         <ul className="space-y-2 text-xs text-slate-600">
@@ -166,10 +166,10 @@ export const TechCardsVisual: React.FC = () => {
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black font-bold text-xs">
             N
           </div>
-          <h4 className="font-bold">Next.js</h4>
+          <h3 className="font-bold">Next.js</h3>
         </div>
         <div className="space-y-2 mb-6">
-          <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">Status</div>
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
           <div className="text-sm font-bold text-white bg-gradient-to-r from-gray-200 to-white bg-clip-text text-transparent">
             Złoty Standard 2025
           </div>
@@ -188,14 +188,14 @@ export const TechCardsVisual: React.FC = () => {
       <div className="p-6 rounded-3xl bg-white border border-emerald-100 shadow-lg relative overflow-hidden group hover:border-emerald-300 transition-all">
         <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-colors"></div>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#42B883] flex items-center justify-center text-white font-bold text-xs">
+          <div className="w-10 h-10 rounded-full bg-[#42B883] flex items-center justify-center text-[#1B2430] font-bold text-xs">
             V
           </div>
-          <h4 className="font-bold text-slate-800">Vue.js</h4>
+          <h3 className="font-bold text-slate-800">Vue.js</h3>
         </div>
         <div className="space-y-2 mb-6">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Status</div>
-          <div className="text-sm font-bold text-emerald-600">Ulubieniec Devów</div>
+          <div className="text-xs font-bold text-slate-600 uppercase tracking-wider">Status</div>
+          <div className="text-sm font-bold text-emerald-700">Ulubieniec Devów</div>
         </div>
         <ul className="space-y-2 text-xs text-slate-600">
           <li className="flex gap-2">
@@ -230,8 +230,8 @@ export const DecisionTreeVisual: React.FC = () => {
           <div className="flex-1 flex flex-col items-center gap-4">
             <ArrowRight className="rotate-90 text-green-400" />
             <div className="bg-black border border-green-500 p-6 rounded-2xl w-full hover:scale-105 transition-transform shadow-[0_0_20px_rgba(34,197,94,0.3)]">
-              <h4 className="font-black text-xl mb-2">Next.js</h4>
-              <p className="text-gray-400">E-commerce, Portal, Blog</p>
+              <h3 className="font-black text-xl mb-2">Next.js</h3>
+              <p className="text-slate-400">E-commerce, Portal, Blog</p>
             </div>
           </div>
 

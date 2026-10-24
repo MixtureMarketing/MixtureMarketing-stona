@@ -1,6 +1,7 @@
 import React from 'react';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
 import Image from './Image';
+import ScrollRegion from './ScrollRegion';
 import { urlFor } from '../../services/cmsService'; // I need to check if this exists or create it
 
 import { SanityBody } from '../../types/sanity';
@@ -25,10 +26,16 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
+    // Blok kodu przewija się w poziomie — tabIndex/role/aria-label (ScrollRegion), żeby dało
+    // się go przewinąć z klawiatury (axe: scrollable-region-focusable).
     code: ({ value }) => (
-      <pre className="bg-dark text-white p-6 rounded-xl overflow-x-auto my-8 font-mono text-sm shadow-xl border border-white/10 custom-scrollbar">
+      <ScrollRegion
+        as="pre"
+        label={value.language ? `Przykład kodu (${value.language})` : 'Przykład kodu'}
+        className="bg-dark text-white p-6 rounded-xl overflow-x-auto my-8 font-mono text-sm shadow-xl border border-white/10 custom-scrollbar"
+      >
         <code>{value.code}</code>
-      </pre>
+      </ScrollRegion>
     ),
   },
   block: {

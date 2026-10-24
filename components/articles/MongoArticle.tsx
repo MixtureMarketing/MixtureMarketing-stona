@@ -19,6 +19,7 @@ import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import ArticleUseCases from './shared/ArticleUseCases';
 import BaseCta from '../common/BaseCta';
 import { joinTitleLines } from '../../utils/seo/title';
+import ScrollRegion from '@/components/common/ScrollRegion';
 
 const MongoArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'mongodb-przyszlosc-big-data');
@@ -73,7 +74,11 @@ const MongoArticle = () => {
             <FileJson size={16} /> {CONTENT.code.title}
           </div>
           <div className="bg-black/40 rounded-xl p-6 font-mono text-xs md:text-sm text-[#A6ACCD] border border-white/5 shadow-inner">
-            <pre className="overflow-x-auto text-emerald-400">
+            <ScrollRegion
+              as="pre"
+              label="Przykład kodu: dokument MongoDB"
+              className="overflow-x-auto text-emerald-400"
+            >
               <code>{`// MongoDB: Wszystko w jednym miejscu
 {
   "_id": "user_123",
@@ -87,9 +92,9 @@ const MongoArticle = () => {
     { "order_id": "B2", "total": 300 }
   ]
 }`}</code>
-            </pre>
+            </ScrollRegion>
           </div>
-          <p className="mt-6 text-gray-400 text-sm italic">{CONTENT.code.text}</p>
+          <p className="mt-6 text-slate-400 text-sm italic">{CONTENT.code.text}</p>
         </div>
       </div>
 

@@ -40,7 +40,9 @@ const Image: React.FC<ImageProps> = ({
   sizes,
   ...props
 }) => {
-  if (!alt) {
+  // alt="" jest poprawne (obraz dekoracyjny, np. miniatura w linku z tytułem) — ostrzegamy
+  // tylko o braku atrybutu.
+  if (alt == null) {
     console.warn(`Image with src "${src}" is missing an alt attribute.`);
   }
 

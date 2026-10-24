@@ -49,7 +49,7 @@ const GoArticle = () => {
           />
           <a
             href={CONTENT.contextBox.linkUrl}
-            className="text-sm text-primary hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
+            className="text-sm text-accent-dark hover:text-secondary font-bold mt-1 inline-flex items-center gap-1"
           >
             {CONTENT.contextBox.linkText} <ArrowRight size={14} />
           </a>
@@ -103,7 +103,7 @@ const GoArticle = () => {
                   <CheckCircle2 size={24} />
                 )}
               </div>
-              <h4 className="font-bold text-lg text-dark mb-2">{card.title}</h4>
+              <h3 className="font-bold text-lg text-dark mb-2">{card.title}</h3>
               <p className="text-sm text-gray-600 leading-relaxed">{card.desc}</p>
             </div>
           ))}

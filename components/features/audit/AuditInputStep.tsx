@@ -52,7 +52,7 @@ const AuditInputStep: React.FC<AuditInputStepProps> = ({
                     <item.icon size={20} className="text-success" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-[15px] mb-0.5">{item.title}</h4>
+                    <p className="font-semibold text-[15px] mb-0.5">{item.title}</p>
                     <p className="text-[13px] text-blue-200/70">{item.desc}</p>
                   </div>
                 </div>
