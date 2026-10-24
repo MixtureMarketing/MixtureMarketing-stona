@@ -5,14 +5,7 @@ import type { LibraryEntity } from '@/lib/estimation/libraryEdit';
 import type { EstimationLibrary } from '../useEstimationLibrary';
 
 export type FieldKind =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'select'
-  | 'flag'
-  | 'options'
-  | 'visibleif'
-  | 'checkboxes';
+  'text' | 'textarea' | 'number' | 'select' | 'flag' | 'options' | 'visibleif' | 'checkboxes';
 
 export interface FieldDef {
   key: string;

@@ -50,9 +50,7 @@ export type ConditionOp =
 
 /** Drzewo warunków: { all } | { any } | liść { q, op, val }. */
 export type Condition =
-  | { all: Condition[] }
-  | { any: Condition[] }
-  | { q: string; op: ConditionOp; val?: AnswerValue };
+  { all: Condition[] } | { any: Condition[] } | { q: string; op: ConditionOp; val?: AnswerValue };
 
 export type RuleAction =
   | { type: 'min_level'; aspect: string; level: number }

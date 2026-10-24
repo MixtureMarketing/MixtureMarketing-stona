@@ -72,20 +72,25 @@ export default defineConfig(({ mode }) => {
             // Granularny split: router + helmet wydzielone z vendor-react-core,
             // dzieki czemu zmiany w jednym nie invaliduja cache pozostalych
             // (poprzedni "vendor-react" mial 42% unused JS na home wg PSI).
-            if (id.includes('/react-router/') || id.includes('/react-router-dom/')) {
+            if (
+              id.includes('/node_modules/react-router/') ||
+              id.includes('/node_modules/react-router-dom/')
+            ) {
               return 'vendor-router';
             }
             if (
-              id.includes('/react-helmet-async/') ||
-              id.includes('/react-is/') ||
-              id.includes('/use-sync-external-store/')
+              id.includes('/node_modules/react-helmet-async/') ||
+              id.includes('/node_modules/react-is/') ||
+              id.includes('/node_modules/use-sync-external-store/')
             ) {
               return 'vendor-helmet';
             }
             if (
-              id.includes('/react/') ||
-              id.includes('/react-dom/') ||
-              id.includes('/scheduler/')
+              // Pelna sciezka pakietu: samo '/react/' lapalo tez @portabletext/react
+              // (+ toolkit, rxjs, tslib ~11 kB gzip) do chunka ladowanego na kazdej stronie.
+              id.includes('/node_modules/react/') ||
+              id.includes('/node_modules/react-dom/') ||
+              id.includes('/node_modules/scheduler/')
             ) {
               return 'vendor-react';
             }

@@ -83,6 +83,7 @@ export const CountUp: React.FC<CountUpProps> = ({
     if (window.isPrerendering) return;
     const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
     if (prefersReducedMotion) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reduced motion: od razu wartość końcowa
       setValue(to);
       return;
     }

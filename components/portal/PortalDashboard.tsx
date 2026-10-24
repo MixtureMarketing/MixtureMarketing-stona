@@ -37,6 +37,7 @@ const PortalDashboard: React.FC = () => {
   // Initialize profile data
   useEffect(() => {
     if (user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- inicjalizacja formularza z kontekstu auth
       setProfileData({
         name: user.name || '',
         company_name: user.company_name || '',

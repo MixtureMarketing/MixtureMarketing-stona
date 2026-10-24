@@ -70,6 +70,7 @@ const EstimationTab: React.FC<Props> = ({ sessionToken }) => {
   // Wejście z linku: `?quote=ID` otwiera wycenę od razu po wczytaniu zakładki.
   useEffect(() => {
     const id = czytajIdZUrl();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- jednorazowe wejście z linku ?quote=
     if (id && sessionToken) void otworz(id);
     // Świadomie tylko przy montowaniu: później stanem steruje UI, nie URL.
     // eslint-disable-next-line react-hooks/exhaustive-deps

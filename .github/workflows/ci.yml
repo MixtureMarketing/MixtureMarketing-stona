@@ -24,7 +24,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '22'
+  # Konkretna wersja zamiast '22': setup-node bierze wtedy dowolne 22.x z toolcache
+  # runnera, a @sanity/client 8, @portabletext/react 8 i puppeteer 25 wymagają
+  # Node >= 22.12 (ESM-only). Przy podbijaniu trzymać się linii 22 LTS (Jod).
+  NODE_VERSION: '22.23.4'
 
 jobs:
   # ============================================================

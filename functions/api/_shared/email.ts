@@ -7,8 +7,7 @@
 // wynik i loguje porażkę przez console.error (Workers Logs).
 
 export type EmailResult =
-  | { ok: true }
-  | { ok: false; reason: 'no_key' | 'network' | `http_${number}` };
+  { ok: true } | { ok: false; reason: 'no_key' | 'network' | `http_${number}` };
 
 export interface ResendPayload {
   from: string;
