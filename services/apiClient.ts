@@ -11,9 +11,14 @@ class MixtureApiClient {
   private static async request<T>(url: string, options: FetchOptions = {}): Promise<T> {
     const { token, headers, ...rest } = options;
 
-    const defaultHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
+    const defaultHeaders: Record<string, string> = {};
+
+    // Przy FormData NIE ustawiamy Content-Type — przeglądarka sama dopisze
+    // `multipart/form-data; boundary=...`. Wymuszenie `application/json`
+    // sprawia, że serwer nie sparsuje formData (upload dokumentów w panelu).
+    if (!(rest.body instanceof FormData)) {
+      defaultHeaders['Content-Type'] = 'application/json';
+    }
 
     if (token) {
       defaultHeaders['Authorization'] = `Bearer ${token}`;
@@ -49,18 +54,12 @@ class MixtureApiClient {
   }
 
   static post<T>(url: string, body: unknown, token?: string) {
-    const isFormData = body instanceof FormData;
-    const options: FetchOptions = {
+    // Content-Type dobiera request() na podstawie typu body (FormData → brak).
+    return this.request<T>(url, {
       method: 'POST',
-      body: isFormData ? (body as FormData) : JSON.stringify(body),
+      body: body instanceof FormData ? body : JSON.stringify(body),
       token,
-    };
-
-    if (isFormData) {
-      options.headers = {}; // Let browser set Content-Type with boundary
-    }
-
-    return this.request<T>(url, options);
+    });
   }
 }
 

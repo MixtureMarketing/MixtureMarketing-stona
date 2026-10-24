@@ -20,6 +20,7 @@ import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleUseCases from './shared/ArticleUseCases';
 import { LeakyBucketVisual, MobileComparisonVisual, HeatmapVisual } from './visuals/UxAuditVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const UxAuditArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'ux-audit');
@@ -27,7 +28,7 @@ const UxAuditArticle = () => {
   return (
     <ArticleShell
       id="ux-audit"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="design"
       categoryLabel={CONTENT.header.badge}

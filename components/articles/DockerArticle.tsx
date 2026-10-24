@@ -22,6 +22,7 @@ import { DockerHeroVisual, DockerVsVmVisual, KubernetesVisual } from './visuals/
 import ArticleContextBox from './shared/ArticleContextBox';
 import ArticleUseCases from './shared/ArticleUseCases';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const DockerArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'docker-konteneryzacja');
@@ -30,7 +31,7 @@ const DockerArticle = () => {
   return (
     <ArticleShell
       id="docker-konteneryzacja"
-      title={`${content.header.title.line1}: ${content.header.title.line2}`}
+      title={joinTitleLines(content.header.title.line1, content.header.title.line2)}
       description={content.header.subtitle}
       category="tech"
       categoryLabel={content.header.badge}

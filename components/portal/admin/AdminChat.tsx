@@ -15,7 +15,7 @@ interface AdminChatProps {
   handleChatScroll: () => void;
   sendAdminMessage: (e: React.FormEvent | React.KeyboardEvent) => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
-  chatContainerRef: React.RefObject<HTMLDivElement>;
+  chatContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const AdminChat: React.FC<AdminChatProps> = ({

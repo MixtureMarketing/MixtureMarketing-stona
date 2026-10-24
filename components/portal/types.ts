@@ -90,6 +90,8 @@ export interface Milestone {
   feedback: string;
 }
 
+export type MilestoneStatus = Milestone['status'];
+
 export interface Message {
   id: string;
   content: string;

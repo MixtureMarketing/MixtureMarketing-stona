@@ -10,6 +10,7 @@ import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
 // (76% unused JS na non-article pages).
 import { getBreadcrumbsSchema, getFaqSchema } from '../../utils/seo/commonSchemas';
 import { getServiceSchema } from '../../utils/seo/serviceSchema';
+import { withBrandSuffix } from '../../utils/seo/title';
 
 interface SeoProps {
   title: string;
@@ -48,7 +49,9 @@ const Seo: React.FC<SeoProps> = ({
   faq,
   service,
 }) => {
-  const fullTitle = `${title} | ${name}`;
+  // Idempotentny sufiks marki — tytuły kończące się już „Mixture Marketing”
+  // nie dostają drugiego „| Mixture Marketing”.
+  const fullTitle = withBrandSuffix(title, name);
   const baseUrl = 'https://mixturemarketing.pl';
   const canonicalUrl = useCanonicalUrl(canonical);
   const ogImage = getOgImage(image);

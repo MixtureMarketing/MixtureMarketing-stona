@@ -13,6 +13,7 @@ import {
 } from './visuals/MarketingVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const GoogleAdsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'google-ads-skalowanie-budzetu');
@@ -20,7 +21,7 @@ const GoogleAdsArticle = () => {
   return (
     <ArticleShell
       id="google-ads-skalowanie-budzetu"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="marketing"
       categoryLabel={CONTENT.header.badge}

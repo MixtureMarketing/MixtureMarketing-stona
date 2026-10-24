@@ -25,6 +25,7 @@ import ArticleContextBox from './shared/ArticleContextBox';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
 import ArticleUseCases from './shared/ArticleUseCases';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const LaravelArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'laravel-php-framework-szybkie-wdrozenie');
@@ -32,7 +33,7 @@ const LaravelArticle = () => {
   return (
     <ArticleShell
       id="laravel-php-framework-szybkie-wdrozenie"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.quote}
       category="tech"
       categoryLabel={CONTENT.header.badge}

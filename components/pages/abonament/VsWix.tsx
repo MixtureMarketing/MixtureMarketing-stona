@@ -80,7 +80,7 @@ const COMPARE_ROWS = [
     mixture: { status: 'ok', text: 'Tak (Fakturownia.pl)' },
     wix: { status: 'mid', text: 'Tak, ale wystawiana z IE' },
   },
-];
+] as const;
 
 const STATUS_LABEL: Record<'ok' | 'mid' | 'no', string> = {
   ok: 'Tak',

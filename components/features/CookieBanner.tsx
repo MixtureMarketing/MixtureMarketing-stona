@@ -5,6 +5,14 @@ import Button from '../common/Button';
 import { ConsentState, applyConsent } from '../../utils/analytics';
 import CookiePreferences from './CookiePreferences';
 import CookieFloatingButton from './CookieFloatingButton';
+import { safeGetJSON, safeSetItem } from '../../utils/safeStorage';
+
+const CONSENT_KEY = 'cookie-consent-v2';
+
+// Ten sam wzorzec co w App.tsx (UA Headless lub flaga ustawiana przez prerender.js).
+const isPrerenderingEnv = () =>
+  typeof window !== 'undefined' &&
+  (window.navigator.userAgent.includes('Headless') || window.isPrerendering === true);
 
 const CookieBanner: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,11 +24,16 @@ const CookieBanner: React.FC = () => {
   const bannerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const storedConsent = localStorage.getItem('cookie-consent-v2');
-    if (!storedConsent) {
+    // Prerender (Puppeteer): banera nie otwieramy — inaczej otwarty baner
+    // zostałby wypalony w każdym dist/**/index.html. Zostaje FloatingButton,
+    // a decyzję o otwarciu podejmuje dopiero przeglądarka użytkownika.
+    if (isPrerenderingEnv()) return;
+
+    // safeGetJSON: zablokowany storage / uszkodzony wpis → traktujemy jak brak zgody.
+    const parsedConsent = safeGetJSON<ConsentState>(CONSENT_KEY);
+    if (!parsedConsent || typeof parsedConsent !== 'object') {
       setTimeout(() => setIsOpen(true), 0);
     } else {
-      const parsedConsent = JSON.parse(storedConsent);
       setTimeout(() => {
         setPreferences(parsedConsent);
         applyConsent(parsedConsent);
@@ -74,7 +87,7 @@ const CookieBanner: React.FC = () => {
   const handleAcceptAll = () => {
     const fullConsent = { analytics: true, marketing: true };
     setPreferences(fullConsent);
-    localStorage.setItem('cookie-consent-v2', JSON.stringify(fullConsent));
+    safeSetItem(CONSENT_KEY, JSON.stringify(fullConsent));
     applyConsent(fullConsent);
     setIsOpen(false);
   };
@@ -82,13 +95,13 @@ const CookieBanner: React.FC = () => {
   const handleRejectAll = () => {
     const noConsent = { analytics: false, marketing: false };
     setPreferences(noConsent);
-    localStorage.setItem('cookie-consent-v2', JSON.stringify(noConsent));
+    safeSetItem(CONSENT_KEY, JSON.stringify(noConsent));
     applyConsent(noConsent);
     setIsOpen(false);
   };
 
   const handleSavePreferences = () => {
-    localStorage.setItem('cookie-consent-v2', JSON.stringify(preferences));
+    safeSetItem(CONSENT_KEY, JSON.stringify(preferences));
     applyConsent(preferences);
     setIsOpen(false);
   };

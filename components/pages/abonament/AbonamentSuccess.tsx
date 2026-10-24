@@ -13,12 +13,17 @@ const AbonamentSuccess: React.FC = () => {
   const sessionId = searchParams.get('sid');
   const tracked = useRef(false);
 
-  // GA4 purchase event — odpalany raz po wejściu na success page
+  // GA4 purchase event — odpalany raz po wejściu na success page.
+  // Strona jest prerenderowana (routes.js → prerenderOnlyRoutes), więc Puppeteer
+  // też ją odwiedza — bez guardu build wysyłałby fałszywy `purchase`. Bez `sid`
+  // (wejście bezpośrednie, nie powrót ze Stripe) to nie jest zakup → nie mierzymy.
   useEffect(() => {
     if (tracked.current) return;
+    if (typeof window === 'undefined' || window.isPrerendering) return;
+    if (!sessionId) return;
     tracked.current = true;
     trackEvent('purchase', {
-      transaction_id: sessionId || 'unknown',
+      transaction_id: sessionId,
       currency: 'PLN',
       // UTM params zachowane w sessionStorage z modalu
       utm_source: searchParams.get('utm_source') || undefined,

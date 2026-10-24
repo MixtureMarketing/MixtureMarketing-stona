@@ -9,6 +9,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
+import { safeGetItem, safeGetJSON, safeRemoveItem, safeSetItem } from '../utils/safeStorage';
 
 interface User {
   id: string;
@@ -31,22 +32,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem('portal_user');
-    if (storedUser) {
-      try {
-        return JSON.parse(storedUser);
-      } catch (e) {
-        console.error('Failed to parse stored user', e);
-        return null;
-      }
-    }
-    return null;
-  });
+  // safeStorage: przy zablokowanym storage (SecurityError) AuthProvider —
+  // owijający całą aplikację poza ErrorBoundary — nie może rzucić.
+  const [user, setUser] = useState<User | null>(() => safeGetJSON<User>('portal_user'));
 
-  const [sessionToken, setSessionToken] = useState<string | null>(() => {
-    return localStorage.getItem('portal_token');
-  });
+  const [sessionToken, setSessionToken] = useState<string | null>(() =>
+    safeGetItem('portal_token'),
+  );
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -76,8 +68,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const data = await res.json();
         setUser(data.user);
         setSessionToken(data.session_token);
-        localStorage.setItem('portal_user', JSON.stringify(data.user));
-        localStorage.setItem('portal_token', data.session_token);
+        safeSetItem('portal_user', JSON.stringify(data.user));
+        safeSetItem('portal_token', data.session_token);
         return true;
       }
       return false;
@@ -89,14 +81,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateUser = useCallback((userData: User) => {
     setUser(userData);
-    localStorage.setItem('portal_user', JSON.stringify(userData));
+    safeSetItem('portal_user', JSON.stringify(userData));
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
     setSessionToken(null);
-    localStorage.removeItem('portal_user');
-    localStorage.removeItem('portal_token');
+    safeRemoveItem('portal_user');
+    safeRemoveItem('portal_token');
   }, []);
 
   const value = useMemo(

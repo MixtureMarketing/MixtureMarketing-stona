@@ -286,10 +286,10 @@ export const TERMS_CONTENT = {
     },
     disputes: {
       title: '7. Pozasądowe Rozwiązywanie Sporów',
-      text: 'Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń. Szczegółowe informacje dostępne są w siedzibach oraz na stronach internetowych powiatowych rzeczników konsumentów. Możesz także skorzystać z unijnej platformy ODR dostępnej pod adresem:',
+      text: 'Konsument ma możliwość skorzystania z pozasądowych sposobów rozpatrywania reklamacji i dochodzenia roszczeń. Szczegółowe informacje dostępne są w siedzibach oraz na stronach internetowych powiatowych rzeczników konsumentów. Informacje o pozasądowym dochodzeniu roszczeń konsumenckich w UE (unijna platforma ODR została wygaszona w lipcu 2025 r.) publikuje Komisja Europejska pod adresem:',
       link: {
-        href: 'http://ec.europa.eu/consumers/odr/',
-        label: 'http://ec.europa.eu/consumers/odr/',
+        href: 'https://consumer-redress.ec.europa.eu/index_pl',
+        label: 'consumer-redress.ec.europa.eu',
       },
     },
   },

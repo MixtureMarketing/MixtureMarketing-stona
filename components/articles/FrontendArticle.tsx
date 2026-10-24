@@ -14,6 +14,7 @@ import {
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import ArticleComparisonTable from './shared/ArticleComparisonTable';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const Stars = ({ count }: { count: number }) => (
   <div className="flex text-yellow-400">
@@ -34,7 +35,7 @@ const FrontendArticle = () => {
   return (
     <ArticleShell
       id="frontend-kompendium-2025"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.quote}
       category="tech"
       categoryLabel={CONTENT.header.badge}

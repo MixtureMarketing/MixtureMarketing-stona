@@ -10,7 +10,7 @@
  */
 export const MARKETING_CONTENT = {
   seo: {
-    title: 'Marketing internetowy — Google Ads, Meta Ads, SEO | Mixture',
+    title: 'Marketing internetowy — Google Ads, Meta Ads, SEO',
     description:
       'Kampanie Google Ads i Meta Ads oraz SEO dla firm, które chcą wiedzieć, za co płacą. Dashboard z wynikami 24/7, spotkanie co miesiąc, budżety od 1 200 zł/mc.',
     image: '/assets/images/google-ads.png',

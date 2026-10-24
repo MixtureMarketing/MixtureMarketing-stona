@@ -11,7 +11,7 @@
  */
 export const ANALYTICS_CONTENT = {
   seo: {
-    title: 'Analityka webowa — GA4, Server-Side, Consent Mode v2 | Mixture',
+    title: 'Analityka webowa — GA4, Server-Side, Consent Mode v2',
     description:
       'Wdrożenia Google Analytics 4, Google Tag Manager, śledzenie Server-Side i Consent Mode v2. Dane, którym można ufać — zgodnie z RODO.',
     image: '/assets/images/server-side-tracking.png',

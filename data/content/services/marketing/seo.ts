@@ -9,7 +9,7 @@
  */
 export const SEO_CONTENT = {
   seo: {
-    title: 'Pozycjonowanie stron (SEO) — Rzeszów i cała Polska | Mixture',
+    title: 'Pozycjonowanie stron (SEO) — Rzeszów i cała Polska',
     description:
       'SEO bez gwarancji „1. miejsca" i bez raportów-wydmuszek: technika, treści eksperckie i linki, z pomiarem widoczności w GSC. Pakiety od 1 200 zł/mc.',
     image: '/assets/images/core-web-vitals.png',

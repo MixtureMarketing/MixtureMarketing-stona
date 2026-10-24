@@ -10,7 +10,7 @@
  */
 export const DESIGN_BRANDING_CONTENT = {
   seo: {
-    title: 'Projektowanie graficzne i branding — logo, UI/UX, druk | Mixture',
+    title: 'Projektowanie graficzne i branding — logo, UI/UX, druk',
     description:
       'Branding, projektowanie logo i ksiąg znaku, UI/UX oraz materiały do druku. Projektujemy jak inżynierowie: na siatkach, z zasadami i plikami produkcyjnymi.',
     image: '/assets/images/audyt-ux.png',

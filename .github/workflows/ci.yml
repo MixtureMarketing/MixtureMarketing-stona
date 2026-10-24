@@ -76,10 +76,9 @@ jobs:
       - name: 🎨 Linting & Formatting
         run: npm run lint
 
-      # TypeScript typecheck — non-blocking (baseline pre-existing errorow w legacy).
-      - name: 🔷 TypeScript Typecheck (non-blocking)
+      # TypeScript typecheck — blokujacy od 2026-10-24 (baseline zszedl do 0 bledow).
+      - name: 🔷 TypeScript Typecheck
         run: npx tsc --noEmit -p tsconfig.json
-        continue-on-error: true
 
       - name: 🧪 Unit Tests
         run: npm run test -- --run

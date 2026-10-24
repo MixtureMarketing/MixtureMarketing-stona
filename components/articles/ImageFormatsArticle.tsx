@@ -17,6 +17,7 @@ import {
 } from './visuals/ImageFormatsVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const ImageFormatsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'optymalizacja-obrazow-webp-avif');
@@ -24,7 +25,9 @@ const ImageFormatsArticle = () => {
   return (
     <ArticleShell
       id="optymalizacja-obrazow-webp-avif"
-      title={articleData?.title || `${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={
+        articleData?.title || joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)
+      }
       description={
         articleData?.description ||
         'Poznaj WebP i AVIF – nowoczesne formaty graficzne, które zmniejszą wagę Twojej strony o 80% bez utraty jakości.'

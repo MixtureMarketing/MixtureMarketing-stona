@@ -18,6 +18,7 @@ import {
 } from './visuals/PerformanceVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const CoreWebVitalsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'core-web-vitals-2025');
@@ -25,7 +26,7 @@ const CoreWebVitalsArticle = () => {
   return (
     <ArticleShell
       id="core-web-vitals-2025"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="analytics"
       categoryLabel={CONTENT.header.badge}

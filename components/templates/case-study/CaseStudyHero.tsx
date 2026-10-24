@@ -8,7 +8,8 @@ import { client } from '@/services/cmsService';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
-  return builder.image(source);
+  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
+  return builder.image(source).auto('format');
 }
 
 interface CaseStudyHeroProps {

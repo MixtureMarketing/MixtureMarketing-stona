@@ -11,7 +11,8 @@ import { client } from '@/services/cmsService';
 
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
-  return builder.image(source);
+  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
+  return builder.image(source).auto('format');
 }
 
 interface CaseStudyContentProps {
@@ -129,6 +130,8 @@ const CaseStudyContent: React.FC<CaseStudyContentProps> = ({ project, onAssetCli
                   <img
                     src={urlFor(item.asset).width(1000).url()}
                     alt={item.caption || 'Design Asset'}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-top transition-transform duration-[2s] ease-in-out group-hover:scale-105"
                   />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />

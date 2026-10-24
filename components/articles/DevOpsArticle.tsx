@@ -16,6 +16,7 @@ import { DEVOPS_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles/d
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
 import { DevOpsMetropolisVisual, DevOpsProcessVisual } from './visuals/DevOpsVisuals';
+import { joinTitleLines } from '../../utils/seo/title';
 
 const DevOpsArticle = () => {
   const articleData = ARTICLES.find((a) => a.id === 'devops-fundament-biznesu');
@@ -23,7 +24,7 @@ const DevOpsArticle = () => {
   return (
     <ArticleShell
       id="devops-fundament-biznesu"
-      title={`${CONTENT.header.title.line1}: ${CONTENT.header.title.line2}`}
+      title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"
       categoryLabel={CONTENT.header.badge}

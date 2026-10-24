@@ -10,7 +10,7 @@ interface PortalChatProps {
   setNewMessage: (m: string) => void;
   onSendMessage: (e: React.FormEvent | React.KeyboardEvent) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
-  chatContainerRef: React.RefObject<HTMLDivElement>;
+  chatContainerRef: React.RefObject<HTMLDivElement | null>;
   handleChatScroll: () => void;
 }
 
