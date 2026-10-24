@@ -18,8 +18,16 @@
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, safeHttpUrl, sha256Hex } from '../_shared/security';
 import { serverError } from '../_shared/errors';
+import { kvGetJson, kvPut } from '../_shared/kv';
 
 const LIVE_AUDITS_PER_HOUR = 10;
+
+// Timeouty zewnętrznych źródeł. Bez nich zawieszony serwer audytowanej strony albo
+// Google trzymał żądanie bez końca. PSI (mobile, 4 kategorie) bywa wolne — to
+// jedyne źródło obowiązkowe, więc dostaje najdłużej; 20 s ucinało część pomiarów.
+const TIMEOUTS_MS = { psi: 30_000, scrape: 8_000, places: 8_000 } as const;
+
+type Source = 'scrape' | 'reputation';
 
 interface Env {
   GOOGLE_BACKEND_KEY: string; // sekret CF Pages (PageSpeed Insights API + Places API)
@@ -104,7 +112,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const cacheKey = `v8_live_${await sha256Hex(normalizedUrl)}`;
 
     if (!force) {
-      const cached = (await env.CACHE.get(cacheKey, 'json')) as any;
+      // fail-open: błąd KV = liczymy na żywo
+      const cached = await kvGetJson<any>(env.CACHE, cacheKey);
       if (cached) {
         return json({ status: 'success', source: 'cache', data: cached });
       }
@@ -124,12 +133,30 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
-    // Silnik rownolegly: scrape + PSI + Places.
-    const [pageContent, psiData, placesData] = await Promise.all([
+    // Silnik rownolegly: scrape + PSI + Places. allSettled: awaria jednego źródła
+    // (DNS/TLS/403 od WAF przy scrape, timeout Places) nie zabija całego audytu —
+    // wcześniej Promise.all odrzucał wynik, choć kosztowny pomiar PSI się udał.
+    const [scrapeRes, psiRes, placesRes] = await Promise.allSettled([
       scrapePage(normalizedUrl),
       fetchPSI(normalizedUrl, env.GOOGLE_BACKEND_KEY),
       fetchPlaces(placeId, companyName, env.GOOGLE_BACKEND_KEY),
     ]);
+
+    const unavailable: Source[] = [];
+    let pageContent: ScrapeResult | null = null;
+    if (scrapeRes.status === 'fulfilled') pageContent = scrapeRes.value;
+    else {
+      unavailable.push('scrape');
+      console.error('[run_audit] scrape:', errText(scrapeRes.reason));
+    }
+    let placesData: any = null;
+    if (placesRes.status === 'fulfilled') placesData = placesRes.value;
+    else {
+      unavailable.push('reputation');
+      console.error('[run_audit] places:', errText(placesRes.reason));
+    }
+    const psiData = psiRes.status === 'fulfilled' ? psiRes.value : null;
+    if (psiRes.status === 'rejected') console.error('[run_audit] psi:', errText(psiRes.reason));
 
     // Bez pomiaru PSI nie ma uczciwego wyniku — fallbacki (LCP 2.5s, score 0)
     // pokazywaly uzytkownikowi zmyslone liczby jako JEGO pomiar.
@@ -146,14 +173,25 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const auditResult = calculateScore({
       url: normalizedUrl,
-      scrape: pageContent,
+      scrape: pageContent ?? emptyScrape(normalizedUrl),
+      scrapeOk: pageContent !== null,
       performance: psiData,
       reputation: placesData,
     });
+    const partial = unavailable.length > 0;
+    if (partial) Object.assign(auditResult.client, { partial: true, unavailable });
 
-    await env.CACHE.put(cacheKey, JSON.stringify(auditResult), { expirationTtl: 86400 }); // 24h
+    // Cache 24h tylko pełnego wyniku — chwilowa awaria źródła nie może utknąć na dobę.
+    // fail-open + waitUntil: błąd/limit KV nie zamienia gotowego wyniku w 500.
+    if (!partial) {
+      const put = kvPut(env.CACHE, cacheKey, JSON.stringify(auditResult), {
+        expirationTtl: 86400,
+      });
+      if (typeof context.waitUntil === 'function') context.waitUntil(put);
+      else await put;
+    }
 
-    return json({ status: 'success', data: auditResult });
+    return json({ status: 'success', data: auditResult, ...(partial ? { partial } : {}) });
   } catch (err: unknown) {
     return serverError(err, 'audit/run_audit', {
       message: 'Nie udało się przeprowadzić audytu. Spróbuj ponownie za chwilę.',
@@ -167,6 +205,27 @@ function json(body: unknown, status = 200): Response {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+const errText = (e: unknown) => (e instanceof Error ? `${e.name}: ${e.message}` : String(e));
+
+/** Pusty wynik scrape'a, gdy strona była niedostępna (wynik częściowy). */
+function emptyScrape(url: string): ScrapeResult {
+  return {
+    seo: { title: '', h1: '', description: '', og_tags: false },
+    tech: { gtm: false, pixel: false, analytics: false, ssl: url.startsWith('https'), cms: [] },
+    social: {},
+    content: {
+      images_count: 0,
+      images_no_alt: 0,
+      h1_count: 0,
+      h2_count: 0,
+      h3_count: 0,
+      word_count: 0,
+      text_ratio: 0,
+      details: { images_missing_alt: [], headings: [] },
+    },
+  };
 }
 
 interface ScrapeResult {
@@ -196,7 +255,11 @@ async function scrapePage(url: string): Promise<ScrapeResult> {
     headers: {
       'User-Agent': 'Mozilla/5.0 (compatible; MixtureBot/1.0; +https://mixturemarketing.pl)',
     },
+    signal: AbortSignal.timeout(TIMEOUTS_MS.scrape),
   });
+  // Strona błędu (403 od WAF, 404, 5xx) to nie treść klienta — analiza takiego HTML-a
+  // dawała zmyślone braki (H1, analityka). Traktujemy jako niedostępne źródło.
+  if (!response.ok) throw new Error(`scrape HTTP ${response.status}`);
 
   const cmsSet = new Set<string>();
   const social: Record<string, boolean> = { og_tags: false };
@@ -390,7 +453,7 @@ async function fetchPSI(url: string, key: string): Promise<any> {
   const psiUrl =
     `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}` +
     `&key=${key}&strategy=mobile&category=PERFORMANCE&category=SEO&category=ACCESSIBILITY&category=BEST_PRACTICES`;
-  const res = await fetch(psiUrl);
+  const res = await fetch(psiUrl, { signal: AbortSignal.timeout(TIMEOUTS_MS.psi) });
   // Bez res.ok cicha awaria PSI fabrykowała wynik (fallback „LCP 2.50 s"
   // pokazywany użytkownikowi jako JEGO pomiar). Teraz brak pomiaru = błąd.
   if (!res.ok) return null;
@@ -406,38 +469,40 @@ async function fetchPlaces(
   companyName: string | undefined,
   key: string,
 ): Promise<any> {
+  // Brak klucza albo brak danych do wyszukania = brak reputacji (null), a nie awaria.
+  // Błąd sieci/timeout/HTTP rzuca — run_audit oznacza wtedy wynik jako częściowy.
   if (!key) return null;
-  try {
-    if (placeId) {
-      const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
-        headers: {
-          'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask': 'rating,userRatingCount,addressComponents,displayName',
-        },
-      });
-      return res.ok ? await res.json() : null;
-    }
-    if (companyName && companyName.trim()) {
-      const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': key,
-          'X-Goog-FieldMask':
-            'places.rating,places.userRatingCount,places.addressComponents,places.displayName,places.id',
-        },
-        body: JSON.stringify({
-          textQuery: companyName.trim(),
-          languageCode: 'pl',
-          regionCode: 'PL',
-        }),
-      });
-      if (!res.ok) return null;
-      const data = (await res.json()) as any;
-      return data.places?.[0] || null;
-    }
-  } catch {
-    /* ignore — reputacja opcjonalna */
+  const signal = AbortSignal.timeout(TIMEOUTS_MS.places);
+  if (placeId) {
+    const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
+      headers: {
+        'X-Goog-Api-Key': key,
+        'X-Goog-FieldMask': 'rating,userRatingCount,addressComponents,displayName',
+      },
+      signal,
+    });
+    if (!res.ok) throw new Error(`places HTTP ${res.status}`);
+    return await res.json();
+  }
+  if (companyName && companyName.trim()) {
+    const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': key,
+        'X-Goog-FieldMask':
+          'places.rating,places.userRatingCount,places.addressComponents,places.displayName,places.id',
+      },
+      body: JSON.stringify({
+        textQuery: companyName.trim(),
+        languageCode: 'pl',
+        regionCode: 'PL',
+      }),
+      signal,
+    });
+    if (!res.ok) throw new Error(`places HTTP ${res.status}`);
+    const data = (await res.json()) as any;
+    return data.places?.[0] || null;
   }
   return null;
 }
@@ -505,7 +570,10 @@ function calculateScore(data: any) {
     totalScore -= 10;
     errors.NO_SSL = true;
   }
-  if (!scrape.tech.pixel) {
+  // Bez treści strony nie wiemy nic o pikselu/H1/ALT/analityce — nie karzemy
+  // za braki, których nie zmierzyliśmy (wynik oznaczony jako częściowy).
+  const scrapeOk = data.scrapeOk !== false;
+  if (scrapeOk && !scrape.tech.pixel) {
     totalScore -= 10;
     errors.NO_PIXEL = true;
   }
@@ -513,15 +581,15 @@ function calculateScore(data: any) {
     totalScore -= 10;
     errors.SLOW_LCP = true;
   }
-  if (scrape.content.h1_count !== 1) {
+  if (scrapeOk && scrape.content.h1_count !== 1) {
     totalScore -= 5;
     errors.BAD_H1 = true;
   }
-  if (scrape.content.images_no_alt > 0) {
+  if (scrapeOk && scrape.content.images_no_alt > 0) {
     totalScore -= 5;
     errors.NO_ALTS = true;
   }
-  if (!scrape.tech.analytics) {
+  if (scrapeOk && !scrape.tech.analytics) {
     totalScore -= 5;
     errors.NO_ANALYTICS = true;
   }

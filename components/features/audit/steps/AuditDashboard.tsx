@@ -50,6 +50,20 @@ const AuditDashboard: React.FC<AuditDashboardProps> = ({ data, onReset }) => {
       >
         <AuditHeader url={client.url} onReset={onReset} />
 
+        {client.partial && (
+          <p
+            role="status"
+            className="mx-5 md:mx-8 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          >
+            Wynik częściowy:{' '}
+            {client.unavailable?.includes('scrape')
+              ? 'nie udało się pobrać treści strony (SEO, analityka, nagłówki nie zostały ocenione)'
+              : 'nie udało się pobrać opinii z Google'}
+            {client.unavailable?.length === 2 ? ' ani opinii z Google' : ''}. Pomiar szybkości jest
+            kompletny — możesz uruchomić audyt ponownie za chwilę.
+          </p>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12">
           <AuditScoreSidebar score={score} screenshot={client.screenshot} />
 

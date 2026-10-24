@@ -172,5 +172,7 @@ export function fnContext(opts: {
     next: async () => new Response('next'),
     waitUntil: (p: Promise<unknown>) => waitUntil.push(p),
     passThroughOnException: () => {},
+    /** Obietnice przekazane do waitUntil — test może na nie poczekać. */
+    _waitUntil: waitUntil,
   };
 }

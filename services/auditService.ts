@@ -69,6 +69,13 @@ export interface AuditResult {
     };
     audit_results: Record<string, boolean>;
     screenshot: string | null;
+    /**
+     * Wynik częściowy: któreś źródło było niedostępne (timeout, błąd sieci, strona
+     * błędu) — `scrape` = treść strony, `reputation` = Google Places. Kary za
+     * niezmierzone elementy nie są wtedy naliczane.
+     */
+    partial?: boolean;
+    unavailable?: Array<'scrape' | 'reputation'>;
   };
   competitor?: {
     url: string;
