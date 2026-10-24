@@ -337,9 +337,13 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
           return '';
         }
       })();
+      // Ścieżki success/cancel CELOWO bez trailing slasha — w tym kształcie hub
+      // płatności (zewnętrzny, VITE_MM_HUB_URL) był sprawdzony na produkcji; jego
+      // walidacji ścieżek nie znamy. Pages i tak przekierowuje 301 na wersję ze
+      // slashem z zachowaniem ?sid (strona /abonament/dziekujemy/ jest prerenderowana).
       const successPath = utmStored
-        ? `/abonament/dziekujemy/?sid={CHECKOUT_SESSION_ID}&${utmStored}`
-        : '/abonament/dziekujemy/?sid={CHECKOUT_SESSION_ID}';
+        ? `/abonament/dziekujemy?sid={CHECKOUT_SESSION_ID}&${utmStored}`
+        : '/abonament/dziekujemy?sid={CHECKOUT_SESSION_ID}';
 
       const checkoutRes = await fetch(`${HUB}/api/admin/stripe/checkout`, {
         method: 'POST',
