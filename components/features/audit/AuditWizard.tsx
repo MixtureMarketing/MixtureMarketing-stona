@@ -1,10 +1,13 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Zap } from 'lucide-react';
 import { auditService, AuditResult } from '../../../services/auditService';
 import AuditInputStep from './AuditInputStep';
 import AuditEmailGateStep from './AuditEmailGateStep';
 import Container from '../../common/Container';
+import TurnstileWidget from '../contact/TurnstileWidget';
+import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
+import { SITE_CONFIG } from '../../../config/site';
 
 // --- COMPONENTS (Lazy Loaded) ---
 const AuditProgress = lazy(() => import('./steps/AuditProgress'));
@@ -26,6 +29,8 @@ const AuditWizard: React.FC = () => {
   const [email, setEmail] = useState('');
   const [result, setResult] = useState<AuditResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Niewidoczny Turnstile — serwer wymaga tokenu przed wysłaniem raportu mailem.
+  const turnstileRef = useRef<TurnstileWidgetHandle | null>(null);
 
   const startScanning = React.useCallback(
     async (targetUrl: string) => {
@@ -74,7 +79,14 @@ const AuditWizard: React.FC = () => {
         } catch (err) {
           console.error('audit pdf generation failed:', err);
         }
+        let captchaToken: string | undefined;
+        try {
+          captchaToken = await turnstileRef.current?.getToken();
+        } catch (err) {
+          console.error('audit turnstile failed:', err);
+        }
         await auditService.captureLead({
+          captchaToken,
           email,
           url: result.client.url || url,
           companyName: companyName || undefined,
@@ -92,6 +104,7 @@ const AuditWizard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col relative overflow-hidden">
+      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} />
       <div className="absolute top-0 left-0 w-full h-[500px] bg-dark skew-y-3 origin-top-left z-0"></div>
       <Container className="relative z-10 py-12 flex-1 flex flex-col justify-center">
         <AnimatePresence mode="wait">

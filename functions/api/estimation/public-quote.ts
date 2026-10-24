@@ -7,6 +7,7 @@
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
+import { escapeHtml } from '../_shared/security';
 import {
   parsePublicConfig,
   computePublicQuote,
@@ -196,7 +197,7 @@ async function sendEmails(env: Env, email: string, result: PublicQuoteResult): P
       await send(
         env.NOTIFY_EMAIL,
         `🧮 Nowa wycena z kalkulatora — ${email}`,
-        `<p>Klient <strong>${email}</strong> policzył wycenę: ${range}. Draft czeka w panelu „Wyceny".</p>`,
+        `<p>Klient <strong>${escapeHtml(email)}</strong> policzył wycenę: ${escapeHtml(range)}. Draft czeka w panelu „Wyceny".</p>`,
       );
   } catch (e) {
     console.error('public-quote email failed:', e);

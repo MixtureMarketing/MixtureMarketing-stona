@@ -24,8 +24,10 @@ export async function checkRateLimit(
   ip: string,
   limit: number,
   windowSec: number,
+  keyPrefix = 'pubcalc:rl:',
 ): Promise<RateLimitResult> {
-  const key = `pubcalc:rl:${ip}`;
+  // keyPrefix rozdziela liczniki endpointów (domyślny = publiczny kalkulator, bez zmian).
+  const key = `${keyPrefix}${ip}`;
   try {
     const raw = await kv.get(key);
     const count = raw ? parseInt(raw, 10) || 0 : 0;

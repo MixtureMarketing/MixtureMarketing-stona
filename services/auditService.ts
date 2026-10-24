@@ -104,6 +104,7 @@ export const auditService = {
     companyName?: string;
     score?: number;
     pdf?: Blob;
+    captchaToken?: string;
   }): Promise<void> {
     try {
       const form = new FormData();
@@ -112,6 +113,7 @@ export const auditService = {
       if (payload.companyName) form.append('companyName', payload.companyName);
       if (typeof payload.score === 'number') form.append('score', String(payload.score));
       if (payload.pdf) form.append('pdf', payload.pdf, 'audyt_mixture.pdf');
+      if (payload.captchaToken) form.append('captcha_token', payload.captchaToken);
       await fetch(CAPTURE_URL, { method: 'POST', body: form });
     } catch {
       /* nie przerywamy flow raportu, jesli zapis leada sie nie uda */

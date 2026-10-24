@@ -18,11 +18,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
     }
 
-    // 1. Find and validate token
+    // 1. Atomowo zużyj token: tylko nieużyty i niewygasły. expires_at jest w ISO
+    // ("…T…Z"), więc porównanie musi iść przez julianday() — tekstowe porównanie
+    // z datetime('now') uznawało token za ważny do północy UTC.
     const authRecord: any = await env.DB.prepare(
       `
-      SELECT email FROM auth_tokens 
-      WHERE token = ? AND used = 0 AND expires_at > datetime('now')
+      UPDATE auth_tokens SET used = 1
+      WHERE token = ? AND used = 0 AND julianday(expires_at) > julianday('now')
+      RETURNING email
     `,
     )
       .bind(token)
@@ -42,9 +45,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!user) {
       return new Response(JSON.stringify({ error: 'User not found or inactive' }), { status: 404 });
     }
-
-    // 3. Mark token as used
-    await env.DB.prepare('UPDATE auth_tokens SET used = 1 WHERE token = ?').bind(token).run();
 
     // 4. Generate Session Token (Simple UUID for now)
     const sessionToken = crypto.randomUUID().replace(/-/g, '');

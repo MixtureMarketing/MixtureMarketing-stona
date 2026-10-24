@@ -4,9 +4,13 @@
  * Path: /api/auth/send_magic_link
  */
 
+import { checkRateLimit } from '../estimation/_rateLimit';
+import { clientIp, escapeHtml, sha256Hex } from '../_shared/security';
+
 interface Env {
   DB: D1Database;
   RESEND_API_KEY: string;
+  CACHE?: KVNamespace;
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -17,6 +21,24 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email is required' }), { status: 400 });
+    }
+
+    // Limit: per IP (10/h) i per adres (3/15 min) — bez tego endpoint pozwalał zasypywać
+    // skrzynki klientów linkami i zużywać limit Resend. KV fail-open.
+    if (env.CACHE) {
+      const byIp = await checkRateLimit(env.CACHE, clientIp(request), 10, 3600, 'auth:ml:ip:');
+      const byEmail = byIp.allowed
+        ? await checkRateLimit(
+            env.CACHE,
+            await sha256Hex(String(email).trim().toLowerCase()),
+            3,
+            900,
+            'auth:ml:to:',
+          )
+        : byIp;
+      if (!byEmail.allowed) {
+        return new Response(JSON.stringify({ error: 'Too many requests' }), { status: 429 });
+      }
     }
 
     // 1. Check if user exists
@@ -58,7 +80,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           to: [email],
           subject: 'Twój magiczny link do Portalu Klienta',
           html: `
-            <h3>Witaj ${user.name}!</h3>
+            <h3>Witaj ${escapeHtml(user.name)}!</h3>
             <p>Kliknij w poniższy przycisk, aby zalogować się do swojego panelu klienta:</p>
             <a href="${loginUrl}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Zaloguj się</a>
             <p>Link jest ważny przez 1 godzinę.</p>
