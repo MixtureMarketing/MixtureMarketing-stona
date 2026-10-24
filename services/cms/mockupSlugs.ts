@@ -24,3 +24,11 @@ export const MOCKUP_SLUGS: ReadonlySet<string> = new Set([
 
 /** Czy dana realizacja ma nadający się do ekspozycji zrzut (nie makietę). */
 export const hasRealScreenshot = (slug?: string): boolean => !!slug && !MOCKUP_SLUGS.has(slug);
+
+/**
+ * Wykluczenia WYŁĄCZNIE z dowodu projektowego (/design/ → DesignProof), z innego
+ * powodu niż makiety: `mainImage` to ilustracja wektorowa, nie zrzut pracy
+ * projektowej (zweryfikowane okiem). Wróci, jeśli właściciel potwierdzi, że to
+ * nasza praca projektowa — wtedy skreśl slug stąd. Inne powierzchnie jej nie filtrują.
+ */
+export const NOT_DESIGN_WORK: ReadonlySet<string> = new Set(['glamspace']);

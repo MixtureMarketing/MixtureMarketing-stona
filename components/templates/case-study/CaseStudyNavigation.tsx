@@ -2,15 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { SanityCaseStudy } from '@/types';
-import { SanityImage } from '@/types/sanity';
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from '@/services/cmsService';
-
-const builder = imageUrlBuilder(client);
-function urlFor(source: SanityImage) {
-  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
-  return builder.image(source).auto('format');
-}
+import { urlFor } from '@/services/cmsService';
 
 interface CaseStudyNavigationProps {
   nextProject: SanityCaseStudy | null;

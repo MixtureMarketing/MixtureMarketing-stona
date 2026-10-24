@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarCheck, KeyRound, LayoutDashboard, LucideIcon } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
+import { hasRealScreenshot } from '../../../services/cms/mockupSlugs';
 import { SanityImage } from '../../../types/sanity';
 import WanderingGlow from '../../visuals/WanderingGlow';
 import FlipDotHeading from '../../visuals/flipdot/FlipDotHeading';
@@ -21,21 +21,12 @@ import { MARKETING_CONTENT as CONTENT } from '../../../data/content';
  * z granatu na --p, światło wędruje przez sekcję.
  */
 
-const builder = imageUrlBuilder(client);
-
 const MARKETING_TAGS: Record<string, string> = {
   google_ads: 'Google Ads',
   meta_ads: 'Meta Ads',
   seo: 'SEO',
   analytics: 'Analityka',
 };
-
-/** Makiety z Figmy zamiast zrzutów wdrożeń — nie są dowodem (patrz
- *  WebDevRealizations.MOCKUP_SLUGS; ta sama weryfikacja wizualna 2026-07-15). */
-const MOCKUP_SLUGS = new Set([
-  'impackt-edu',
-  'driftmark-marine-e-commerce-z-konfiguratorem-lodzi-i-rebranding',
-]);
 
 const METHOD_ICONS: LucideIcon[] = [LayoutDashboard, CalendarCheck, KeyRound];
 
@@ -64,7 +55,8 @@ const MarketingProof: React.FC = () => {
         const today = new Date().toISOString().slice(0, 10);
         const usable = (data as unknown as Realization[])
           .filter((c) => c.mainImage)
-          .filter((c) => !MOCKUP_SLUGS.has(c.slug))
+          // Makiety z Figmy zamiast zrzutów wdrożeń nie są dowodem (mockupSlugs.ts).
+          .filter((c) => hasRealScreenshot(c.slug))
           .filter((c) => !c.date || c.date <= today)
           // Dowód marketingowy = realizacja z tagiem reklamowym albo SEO.
           .filter((c) =>
@@ -135,12 +127,7 @@ const MarketingProof: React.FC = () => {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={builder
-                        .image(item.mainImage!)
-                        .width(1100)
-                        .fit('max')
-                        .auto('format')
-                        .url()}
+                      src={urlFor(item.mainImage!).width(1100).fit('max').url()}
                       alt={`Zrzut realizacji: ${item.title}`}
                       sizes="(min-width: 640px) 45vw, 100vw"
                       loading="lazy"

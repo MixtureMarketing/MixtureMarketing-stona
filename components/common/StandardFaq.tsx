@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Accordion from './Accordion';
+import { buildFaqSchema } from '../../utils/seo/commonSchemas';
 
 export interface FaqItem {
   q: string;
@@ -24,19 +25,10 @@ const StandardFaq: React.FC<StandardFaqProps> = ({
 }) => {
   if (!items || items.length === 0) return null;
 
-  // Generate FAQPage Schema
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: items.map((item) => ({
-      '@type': 'Question',
-      name: item.q,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.a,
-      },
-    })),
-  };
+  const faqSchema = buildFaqSchema(
+    items.map((item) => ({ question: item.q, answer: item.a })),
+    { speakable: null },
+  );
 
   return (
     <div className={`space-y-4 ${className}`}>

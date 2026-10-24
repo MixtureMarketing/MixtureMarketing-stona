@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calculator, CreditCard, Database, PlugZap, LucideIcon } from 'lucide-react';
-import imageUrlBuilder from '@sanity/image-url';
 import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
-import { client } from '../../../services/cms/client';
+import { urlFor } from '../../../services/cms/client';
 import { WEB_DEV_CONTENT } from '../../../data/content';
 import WanderingGlow from '../../visuals/WanderingGlow';
 
@@ -28,8 +27,6 @@ import WanderingGlow from '../../visuals/WanderingGlow';
  * nie trafi pod cudzy obraz; gdyby asset zniknął z CDN, onError chowa całą
  * figurę zamiast zostawić złamaną ramkę.
  */
-
-const builder = imageUrlBuilder(client);
 
 const PROOF = {
   engine: 'image-4d93a928a4bb0fdf9e3a7367c8a9a5933096ad59-1900x895-png',
@@ -206,7 +203,7 @@ const WebDevWpCustom: React.FC = () => {
               className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
             >
               <img
-                src={builder.image(PROOF.map).width(900).fit('max').auto('format').url()}
+                src={urlFor(PROOF.map).width(900).fit('max').url()}
                 alt="Psychomapa Fundacji Niepodzielni: interaktywna mapa Polski z ośrodkami pomocy psychologicznej pogrupowanymi w regiony"
                 sizes="(min-width: 768px) 50vw, 100vw"
                 loading="lazy"
@@ -228,7 +225,7 @@ const WebDevWpCustom: React.FC = () => {
               className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
             >
               <img
-                src={builder.image(PROOF.menu).width(900).fit('max').auto('format').url()}
+                src={urlFor(PROOF.menu).width(900).fit('max').url()}
                 alt="Rozwinięte menu strony Fundacji Niepodzielni: rodzaje konsultacji oraz najbliższe wolne terminy psychologów"
                 sizes="(min-width: 768px) 50vw, 100vw"
                 loading="lazy"

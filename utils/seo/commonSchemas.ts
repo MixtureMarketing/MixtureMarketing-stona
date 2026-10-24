@@ -22,28 +22,40 @@ export const getBreadcrumbsSchema = (
   };
 };
 
-export const getFaqSchema = (faq: { question: string; answer: string }[] | undefined) => {
-  if (!faq || faq.length === 0) return null;
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    // SpeakableSpecification - sygnal dla Google Assistant + AI search (ChatGPT,
-    // Perplexity, AI Overviews) ze odpowiedzi FAQ sa cytowalne glosowo.
-    // CSS selectors targetuja schema.org Question/Answer w DOM.
-    speakable: {
-      '@type': 'SpeakableSpecification',
-      cssSelector: ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'],
+export interface FaqSchemaItem {
+  question: string;
+  answer: string;
+}
+
+// SpeakableSpecification - sygnal dla Google Assistant + AI search (ChatGPT,
+// Perplexity, AI Overviews) ze odpowiedzi FAQ sa cytowalne glosowo.
+// CSS selectors targetuja schema.org Question/Answer w DOM.
+const DEFAULT_FAQ_SPEAKABLE = ['[itemprop="name"]', '[itemprop="acceptedAnswer"]'];
+
+/** Schema FAQPage dla niepustej listy pytań. `speakable: null` — bez SpeakableSpecification. */
+export const buildFaqSchema = (
+  faq: readonly FaqSchemaItem[],
+  { speakable = DEFAULT_FAQ_SPEAKABLE }: { speakable?: readonly string[] | null } = {},
+) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  ...(speakable && {
+    speakable: { '@type': 'SpeakableSpecification', cssSelector: [...speakable] },
+  }),
+  mainEntity: faq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
     },
-    mainEntity: faq.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
-  };
-};
+  })),
+});
+
+export const getFaqSchema = (
+  faq: readonly FaqSchemaItem[] | undefined,
+  options?: { speakable?: readonly string[] | null },
+) => (!faq || faq.length === 0 ? null : buildFaqSchema(faq, options));
 
 export const getLocalBusinessSchema = (baseUrl: string) => {
   const { address, phoneFull, email } = SITE_CONFIG.contact;

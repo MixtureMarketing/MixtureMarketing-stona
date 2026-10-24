@@ -3,16 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { SanityCaseStudy } from '../../../types';
-import { SanityImage } from '../../../types/sanity';
 import BaseCard from '../../common/BaseCard';
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from '../../../services/cmsService';
-
-const builder = imageUrlBuilder(client);
-function urlForImage(source: SanityImage) {
-  // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
-  return builder.image(source).auto('format');
-}
+import { urlFor } from '../../../services/cmsService';
 
 interface PortfolioGridProps {
   projects: SanityCaseStudy[];
@@ -77,7 +69,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               <div className="relative h-72 overflow-hidden bg-gray-100">
                 {project.mainImage ? (
                   <img
-                    src={urlForImage(project.mainImage).width(800).height(600).url()}
+                    src={urlFor(project.mainImage).width(800).height(600).url()}
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"

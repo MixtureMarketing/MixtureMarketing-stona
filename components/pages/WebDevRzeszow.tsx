@@ -25,6 +25,7 @@ import StickyMobileBar from '../common/StickyMobileBar';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
+import { buildFaqSchema } from '../../utils/seo/commonSchemas';
 
 const WebDevRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -117,16 +118,8 @@ const WebDevRzeszow: React.FC = () => {
         ],
       },
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      // speakable usunięte — selektory itemprop wskazywały w próżnię (brak microdata w DOM)
-      mainEntity: faq.map((f) => ({
-        '@type': 'Question',
-        name: f.question,
-        acceptedAnswer: { '@type': 'Answer', text: f.answer },
-      })),
-    },
+    // speakable usunięte — selektory itemprop wskazywały w próżnię (brak microdata w DOM)
+    buildFaqSchema(faq, { speakable: null }),
     // HowTo schema — proces 5-fazowy. Cytowalne przez AI Overviews dla zapytan
     // "jak zamowic strone www w Rzeszowie" i podobnych long-tail informational.
     {
