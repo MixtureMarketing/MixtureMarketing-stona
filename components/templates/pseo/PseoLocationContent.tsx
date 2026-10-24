@@ -9,7 +9,6 @@ import {
   Search,
   ArrowRight,
   Calculator,
-  Users,
   Network,
   GraduationCap,
   Car,
@@ -133,7 +132,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
           </h2>
           <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
             Mixture Marketing to agencja założona w sercu Podkarpacia. Codziennie pracujemy z
-            lokalnym biznesem i społecznością technologiczną Rzeszowa — i to nas wyróżnia.
+            lokalnym biznesem z Rzeszowa i Podkarpacia.
           </p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-12">
@@ -143,34 +142,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
               </div>
               <h3 className="text-xl font-bold mb-3">Ekosystem IT Podkarpacia</h3>
               <p className="text-gray-600">
-                Działamy w środowisku rzeszowskich firm technologicznych. Wspólnie z lokalną
-                społecznością tworzymy klimat sprzyjający cyfryzacji MŚP z całego regionu — od
-                Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center mb-4">
-                <GraduationCap size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Politechnika Rzeszowska</h3>
-              <p className="text-gray-600">
-                Rzeszów jako centrum techniczno-inżynierskie Podkarpacia daje dostęp do high-skill
-                developerów i projektantów kształconych m.in. na Wydziale Elektrotechniki i
-                Informatyki PRz. Bliska współpraca z uczelnią to dla nas stały dopływ świeżych
-                kompetencji.
-              </p>
-            </div>
-
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <div className="w-12 h-12 bg-orange-100 text-orange-700 rounded-xl flex items-center justify-center mb-4">
-                <Users size={24} />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Lokalna społeczność tech</h3>
-              <p className="text-gray-600">
-                Spotykamy się z lokalnym środowiskiem na meetupach takich jak RzeszowJS, Tech
-                Tuesdays Rzeszów i Podkarpackim Forum Technologii. Jeśli chcesz porozmawiać o
-                projekcie twarzą w twarz — znajdziesz nas tam.
+                Działamy w środowisku rzeszowskich firm technologicznych i pracujemy dla MŚP z
+                całego regionu — od Mielca i Stalowej Woli, przez Krosno, po Przemyśl.
               </p>
             </div>
 
@@ -199,9 +172,8 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 <strong>Klaster IT Podkarpacie</strong> — inicjatywa skupiająca lokalnych
                 przedsiębiorców, software house&apos;y i agencje cyfrowe z całego województwa.
                 Klaster wspiera wymianę doświadczeń, wspólne projekty B2B i reprezentuje branżę
-                wobec samorządu oraz instytucji unijnych. Mixture Marketing uczestniczy w
-                działaniach rzeszowskiej społeczności IT i aktywnie śledzi kierunki, w których
-                zmierza cyfryzacja podkarpackich przedsiębiorstw.
+                wobec samorządu oraz instytucji unijnych. Mixture Marketing aktywnie śledzi
+                kierunki, w których zmierza cyfryzacja podkarpackich przedsiębiorstw.
               </p>
               <p>
                 Zaplecze akademickie tworzy przede wszystkim{' '}
@@ -212,16 +184,6 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
                 Rzeszowie, jak i rosnącą falę lokalnych startupów i software house&apos;ów. To
                 bezpośrednio przekłada się na dostępność wysokiej klasy specjalistów na lokalnym
                 rynku pracy.
-              </p>
-              <p>
-                Codzienny puls rzeszowskiej społeczności tech bije na regularnych spotkaniach:{' '}
-                <strong>RzeszowJS</strong> (cykliczne meetupy frontend developerów), Tech Tuesdays
-                Rzeszów oraz inicjatywach organizowanych przez RARR (Rzeszowską Agencję Rozwoju
-                Regionalnego). To właśnie podczas tych wydarzeń nawiązujemy relacje z lokalnymi
-                programistami, projektantami i przedsiębiorcami — i właśnie stąd wynika nasza
-                orientacja w specyfice cyfrowej transformacji podkarpackich MŚP: od producentów z
-                Mieleckiej Specjalnej Strefy Ekonomicznej, przez e-commerce z Rzeszowa, po gabinety
-                specjalistyczne szukające pierwszej strony z Local SEO.
               </p>
               <p>
                 Nie bez znaczenia jest też bliskość <strong>Aviation Valley</strong> — klastra
