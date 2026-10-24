@@ -61,7 +61,9 @@ const PortfolioPage = () => {
               transition={{ duration: 0.6 }}
               className="max-w-4xl"
             >
-              <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight text-white">
+              {/* text-4xl na telefonach: „doświadczenia." w 48 px nie mieści się w 358 px i było
+                  ucinane przez overflow-hidden sekcji (390 px: 7 px, 360 px: ~37 px). */}
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-8 leading-tight text-white">
                 Tworzymy cyfrowe <br />
                 <span className="text-primary">doświadczenia.</span>
               </h1>
