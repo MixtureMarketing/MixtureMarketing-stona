@@ -97,6 +97,9 @@ const PortalDashboard: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
+      if (!(e instanceof SessionExpiredError)) {
+        showNotification('Brak połączenia — profil nie został zapisany.', 'error');
+      }
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -148,9 +151,20 @@ const PortalDashboard: React.FC = () => {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+      } else {
+        // Wcześniej 404 (brak pliku w R2) kończył się ciszą — kliknięcie „nic nie robiło”.
+        showNotification(
+          res.status === 404
+            ? 'Nie znaleziono pliku. Daj nam znać na czacie — podeślemy go ponownie.'
+            : 'Nie udało się pobrać pliku. Spróbuj ponownie za chwilę.',
+          'error',
+        );
       }
     } catch (e) {
       console.error(e);
+      if (!(e instanceof SessionExpiredError)) {
+        showNotification('Brak połączenia — nie udało się pobrać pliku.', 'error');
+      }
     }
   };
 
@@ -197,6 +211,7 @@ const PortalDashboard: React.FC = () => {
         <PortalProjectList
           projects={projects}
           loading={loadingProjects}
+          error={error}
           onSelectProject={setSelectedProjectId}
           getStatusColor={getStatusColor}
           getStatusLabel={getStatusLabel}
