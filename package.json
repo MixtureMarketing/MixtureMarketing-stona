@@ -6,7 +6,7 @@
   "sideEffects": false,
   "scripts": {
     "dev": "vite",
-    "mcp:sanity": "cross-env MCP_USER_ROLE=developer npx -y @sanity/mcp-server@latest --projectId azuef2ua --dataset production",
+    "mcp:sanity": "cross-env MCP_USER_ROLE=developer npx -y @sanity/mcp-server@0.12.2 --projectId azuef2ua --dataset production",
     "images": "node scripts/convert-images.js",
     "sitemap": "node scripts/generate-sitemap.js",
     "indexnow": "node scripts/indexnow-ping.js",
