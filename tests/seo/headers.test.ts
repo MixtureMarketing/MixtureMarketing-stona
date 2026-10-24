@@ -114,6 +114,18 @@ describe('public/_headers — panel /portal chroniony przed clickjackingiem', ()
     }
   });
 
+  // /portal/* to rewrite 200 na prerender strony głównej — w surowym HTML nie ma noindex
+  // (audyt SEO 2026-10-24), więc noindex musi przyjść nagłówkiem.
+  it.each(['/portal', '/portal/*'])('%s: X-Robots-Tag noindex', (p) => {
+    expect(rule(p).headers['x-robots-tag']).toMatch(/\bnoindex\b/);
+  });
+
+  it('X-Robots-Tag noindex wyłącznie na panelu (treść publiczna zostaje indeksowalna)', () => {
+    for (const r of rules.filter((x) => !x.pattern.startsWith('/portal'))) {
+      expect(r.headers['x-robots-tag'], r.pattern).toBeUndefined();
+    }
+  });
+
   it('żadna inna reguła nie wymusza CSP (cała reszta strony: tylko Report-Only)', () => {
     for (const r of rules.filter((x) => !x.pattern.startsWith('/portal'))) {
       expect(r.headers['content-security-policy'], r.pattern).toBeUndefined();
