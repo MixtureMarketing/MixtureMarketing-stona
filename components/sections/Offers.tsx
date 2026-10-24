@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, BarChart3, CheckCircle2, TrendingUp, Server, Rocket } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Seo from '../common/Seo';
 import LazyHydrate from '../common/LazyHydrate';
 import { OFFERS_CONTENT as CONTENT } from '../../data/content';
@@ -72,7 +72,7 @@ const Offers: React.FC = () => {
             </p>
 
             {/* Floor cenowy zgodny ze stawkami kalkulatora z Sanity */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-white text-sm font-bold">
                 Strony WWW od 2 500 zł netto
               </span>
@@ -80,6 +80,14 @@ const Offers: React.FC = () => {
                 Wycena widełkowa w 24h
               </span>
             </div>
+            <p className="mb-12 text-sm">
+              <Link
+                to={CONTENT.hero.costGuide.path}
+                className="font-bold text-white underline underline-offset-4 hover:no-underline"
+              >
+                {CONTENT.hero.costGuide.label}
+              </Link>
+            </p>
 
             {/* Scale Switcher */}
             <div className="relative inline-flex bg-white p-2 rounded-full shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-100">

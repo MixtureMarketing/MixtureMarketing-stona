@@ -84,6 +84,11 @@ export const OFFERS_CONTENT = {
         subtitle: 'Skala & Bezpieczeństwo',
       },
     },
+    // Link do artykułu BOFU o kosztach (wcześniej bez żadnego linku wewnętrznego).
+    costGuide: {
+      label: 'Ile kosztuje strona internetowa? Przewodnik po kosztach 2026',
+      path: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
+    },
   },
   button: 'Szczegóły Techniczne',
   techStack: [

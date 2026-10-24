@@ -3,6 +3,21 @@ import { Article } from '../../types';
 
 export const LEGACY_ARTICLES: Article[] = [
   {
+    // Artykuł BOFU — wcześniej poza listą bazy wiedzy (strona bez linku wewnętrznego).
+    // Dane jak w components/articles/IleKosztujeStronaRzeszowArticle.tsx (ArticleShell).
+    id: 'ile-kosztuje-strona-rzeszow-2026',
+    title: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku: pełny cennik',
+    description:
+      'Widełki cenowe stron WWW w Rzeszowie w 2026: landing page, strona firmowa, sklep, aplikacja. Co wpływa na koszt, jak czytać oferty i gdzie kryją się dopłaty.',
+    category: 'business',
+    categoryLabel: 'Cennik · Rzeszów · 2026',
+    image: '/assets/images/sygnet.png',
+    date: '2026-05-19',
+    readTime: '6 min',
+    slug: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026',
+    tags: ['Cennik', 'Strony WWW', 'Rzeszów'],
+  },
+  {
     id: 'server-side-tracking',
     title: 'Server-Side Tracking: Ratunek dla Twoich danych',
     description:
