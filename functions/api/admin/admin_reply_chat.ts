@@ -6,6 +6,14 @@
 
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
+import {
+  ValidationError,
+  badRequest,
+  optId,
+  readJsonObject,
+  reqId,
+  reqText,
+} from '../_shared/input';
 
 interface Env {
   DB: D1Database;
@@ -15,17 +23,14 @@ interface Env {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  // Autor odpowiedzi = zalogowany admin (admin/_middleware), nie „id 1” na sztywno.
+  const adminId = (context.data?.user as { id?: number } | undefined)?.id ?? null;
 
   try {
-    const { user_id, content, project_id } = (await request.json()) as {
-      user_id: number;
-      content: string;
-      project_id?: number;
-    };
-
-    if (!user_id || !content) {
-      return new Response('Missing user_id or content', { status: 400 });
-    }
+    const body = await readJsonObject(request);
+    const user_id = reqId(body.user_id, 'user_id');
+    const content = reqText(body.content, 'Treść wiadomości', 10_000);
+    const project_id = optId(body.project_id, 'project_id');
 
     // 1. Save to D1
     await env.DB.prepare(
@@ -34,7 +39,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       VALUES (?, ?, ?, ?, ?, ?)
     `,
     )
-      .bind(user_id, 1, project_id || null, content, 'admin', 0)
+      .bind(user_id, adminId, project_id, content, 'admin', 0)
       .run();
 
     // 2. Invalidate KV Cache for this user
@@ -75,6 +80,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       { status: 200, headers: { 'Content-Type': 'application/json' } },
     );
   } catch (err: any) {
+    if (err instanceof ValidationError) return badRequest(err.message);
     console.error('[admin_reply_chat]', err?.message);
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }

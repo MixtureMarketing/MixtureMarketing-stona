@@ -87,6 +87,9 @@ const PortalDashboard: React.FC = () => {
         updateUser(data.user);
         showNotification('Profil zaktualizowany!', 'success');
         setIsProfileModalOpen(false);
+      } else {
+        const err = await res.json().catch(() => null);
+        showNotification(err?.message || 'Nie udało się zapisać profilu.', 'error');
       }
     } catch (e) {
       console.error(e);

@@ -4,6 +4,15 @@ import { useNotification } from '../../../context/NotificationContext';
 import { useAuth } from '../../../context/AuthContext';
 import { Lead, Milestone, Client, Project } from '../types';
 
+/**
+ * Komunikat z serwera (400/404/409 niosą czytelne `message`, np. „Pole „Nazwa
+ * projektu” jest wymagane.”) albo fallback, gdy błąd jest techniczny.
+ */
+const serverMessage = (error: unknown, fallback: string) => {
+  const raw = error instanceof Error ? error.message : '';
+  return raw && !/^(Server responded|Unknown error|Failed to fetch)/.test(raw) ? raw : fallback;
+};
+
 interface UseAdminActionsProps {
   sessionToken: string | null;
   refreshData: () => void;
@@ -108,7 +117,7 @@ export const useAdminActions = ({
       return true;
     } catch (e) {
       console.error(e);
-      showNotification('Błąd zapisu kamienia milowego.', 'error');
+      showNotification(serverMessage(e, 'Błąd zapisu kamienia milowego.'), 'error');
       return false;
     } finally {
       setIsSavingMilestone(false);
@@ -151,9 +160,7 @@ export const useAdminActions = ({
     } catch (error) {
       console.error(error);
       // 502 email_failed niesie czytelny komunikat („status leada bez zmian”).
-      const raw = error instanceof Error ? error.message : '';
-      const msg = /^(Server responded|Unknown error)/.test(raw) ? '' : raw;
-      showNotification(msg || 'Błąd wysyłania odpowiedzi.', 'error');
+      showNotification(serverMessage(error, 'Błąd wysyłania odpowiedzi.'), 'error');
       return false;
     }
   };
@@ -168,7 +175,7 @@ export const useAdminActions = ({
       return true;
     } catch (error) {
       console.error(error);
-      showNotification('Błąd zapisu zmian.', 'error');
+      showNotification(serverMessage(error, 'Błąd zapisu zmian.'), 'error');
       return false;
     }
   };

@@ -14,7 +14,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { token } = (await request.json()) as { token: string };
 
-    if (!token) {
+    if (!token || typeof token !== 'string') {
       return new Response(JSON.stringify({ error: 'Token is required' }), { status: 400 });
     }
 

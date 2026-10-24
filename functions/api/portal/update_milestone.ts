@@ -4,6 +4,15 @@
  * Path: /api/portal/update_milestone
  */
 
+import {
+  ValidationError,
+  badRequest,
+  optText,
+  readJsonObject,
+  reqId,
+  reqText,
+} from '../_shared/input';
+
 interface Env {
   DB: D1Database;
 }
@@ -13,11 +22,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const user = data.user as { id: number };
 
   try {
-    const { id, status, feedback } = (await request.json()) as {
-      id: number;
-      status: string;
-      feedback?: string;
-    };
+    const body = await readJsonObject(request);
+    const id = reqId(body.id, 'id');
+    const status = reqText(body.status, 'Status', 50);
+    const feedback = optText(body.feedback, 'Uwagi');
 
     // Security: Check if milestone belongs to user's project
     const milestone: any = await env.DB.prepare(
@@ -42,6 +50,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
   } catch (err: any) {
+    if (err instanceof ValidationError) return badRequest(err.message);
     return new Response(err.message, { status: 500 });
   }
 };

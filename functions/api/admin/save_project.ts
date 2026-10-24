@@ -1,78 +1,100 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Cloudflare Pages Function: admin/save_project
  * Path: /api/admin/save_project
+ *
+ * Bez `id` → INSERT (nowy projekt), z `id` → UPDATE tylko pól obecnych w body.
+ * Pola nieruszone w formularzu (JSON gubi undefined) nie mogą trafić do .bind()
+ * jako undefined — D1 rzuca wtedy D1_TYPE_ERROR i zapis kończył się 500.
  */
+
+import {
+  ValidationError,
+  badRequest,
+  buildUpdate,
+  intInRange,
+  optId,
+  optText,
+  readJsonObject,
+  reqId,
+  reqText,
+} from '../_shared/input';
 
 interface Env {
   DB: D1Database;
 }
 
+const text =
+  (label: string, max = 500) =>
+  (v: unknown) =>
+    optText(v, label, max);
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
   try {
-    const data: any = await request.json();
-    const {
-      id,
-      user_id,
-      name,
-      type,
-      status,
-      progress,
-      drive_link,
-      next_milestone,
-      next_milestone_date,
-      budget,
-    } = data;
+    const data = await readJsonObject(request);
+    const id = optId(data.id, 'id');
+
+    // Typ i status: formularz pokazuje domyślnie „web”/„pending”, ale nie wysyła
+    // ich, jeśli admin ich nie zmienił — stąd fallbacki (a nie odrzucenie).
+    // Nieznana wartość (np. dawny typ z bazy) jest przepuszczana jako tekst.
+    const typeOf = (v: unknown) => reqText(v, 'Typ projektu', 50);
+    const statusOf = (v: unknown) => reqText(v, 'Status', 50);
 
     if (id) {
-      // UPDATE
-      await env.DB.prepare(
-        `
-        UPDATE projects SET 
-          name = ?, type = ?, status = ?, progress = ?, 
-          drive_link = ?, next_milestone = ?, next_milestone_date = ?, 
-          budget = ?, updated_at = datetime('now')
-        WHERE id = ?
-      `,
+      const { sets, values } = buildUpdate(data, {
+        user_id: (v) => reqId(v, 'Klient'),
+        name: (v) => reqText(v, 'Nazwa projektu', 200),
+        type: typeOf,
+        status: statusOf,
+        progress: (v) => intInRange(v, 'Postęp', 0, 100, 0),
+        drive_link: text('Link do Drive', 1000),
+        next_milestone: text('Następny krok', 500),
+        next_milestone_date: text('Data następnego kroku', 50),
+        budget: text('Budżet', 100),
+      });
+      if (sets.length === 0) return badRequest('Brak pól do zapisania.');
+
+      const res = await env.DB.prepare(
+        `UPDATE projects SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`,
       )
-        .bind(
-          name,
-          type,
-          status,
-          progress,
-          drive_link,
-          next_milestone,
-          next_milestone_date,
-          budget,
-          id,
-        )
+        .bind(...values, id)
         .run();
-    } else {
-      // INSERT
-      await env.DB.prepare(
-        `
-        INSERT INTO projects (user_id, name, type, status, progress, drive_link, next_milestone, next_milestone_date, budget)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      )
-        .bind(
-          user_id,
-          name,
-          type,
-          status || 'pending',
-          progress || 0,
-          drive_link,
-          next_milestone,
-          next_milestone_date,
-          budget,
-        )
-        .run();
+      if (!res.meta?.changes) return badRequest('Projekt nie istnieje.', 404);
+      return json({ status: 'success', id });
     }
 
-    return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    // INSERT
+    const res = await env.DB.prepare(
+      `
+      INSERT INTO projects (user_id, name, type, status, progress, drive_link, next_milestone, next_milestone_date, budget)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    )
+      .bind(
+        reqId(data.user_id, 'Klient'),
+        reqText(data.name, 'Nazwa projektu', 200),
+        data.type === undefined || data.type === '' ? 'web' : typeOf(data.type),
+        data.status === undefined || data.status === '' ? 'pending' : statusOf(data.status),
+        intInRange(data.progress, 'Postęp', 0, 100, 0),
+        optText(data.drive_link, 'Link do Drive', 1000),
+        optText(data.next_milestone, 'Następny krok', 500),
+        optText(data.next_milestone_date, 'Data następnego kroku', 50),
+        optText(data.budget, 'Budżet', 100),
+      )
+      .run();
+
+    return json({ status: 'success', id: res.meta?.last_row_id ?? null });
+  } catch (err: unknown) {
+    if (err instanceof ValidationError) return badRequest(err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: message }), { status: 500 });
   }
 };
+
+function json(body: unknown, status = 200): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}

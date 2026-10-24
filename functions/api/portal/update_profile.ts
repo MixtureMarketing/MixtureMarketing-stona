@@ -4,6 +4,8 @@
  * Path: /api/portal/update_profile
  */
 
+import { ValidationError, badRequest, optText, readJsonObject, reqText } from '../_shared/input';
+
 interface Env {
   DB: D1Database;
 }
@@ -13,7 +15,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const user = data.user as { id: number };
 
   try {
-    const { name, company_name } = (await request.json()) as { name: string; company_name: string };
+    const body = await readJsonObject(request);
+    // name jest NOT NULL; company_name opcjonalne (brak pola → NULL, nie undefined w bind).
+    const name = reqText(body.name, 'Imię i nazwisko', 200);
+    const company_name = optText(body.company_name, 'Nazwa firmy', 200);
 
     await env.DB.prepare(
       `
@@ -33,6 +38,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
+    if (err instanceof ValidationError) return badRequest(err.message);
     return new Response(err.message, { status: 500 });
   }
 };

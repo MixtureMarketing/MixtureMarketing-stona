@@ -20,7 +20,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   try {
     const { email } = (await request.json()) as { email: string };
 
-    if (!email) {
+    if (!email || typeof email !== 'string') {
       return new Response(JSON.stringify({ error: 'Email is required' }), { status: 400 });
     }
 
