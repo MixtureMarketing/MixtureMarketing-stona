@@ -31,11 +31,10 @@ const IGNORED_DIRS = ['components/portal/'];
  * Znane naruszenia w plikach, których ta zmiana nie mogła dotknąć (równoległa praca).
  * Usuń wpis po poprawce — test wtedy zacznie pilnować także tego pliku.
  */
-const KNOWN_PENDING = new Set([
-  'components/templates/pseo/PseoLocationContent.tsx', // navigate('/offers#calculator') -> '/wycena/'
-  'components/templates/pseo/PseoTemplate.tsx', // breadcrumbs /branza/${slug}, /miasto/${slug} (JSON-LD normalizuje getBreadcrumbsSchema)
-  'components/templates/case-study/CaseStudyNavigation.tsx', // navigate(`/portfolio/${slug}`)
-  'components/pages/abonament/PreonboardModal.tsx', // /abonament/dziekujemy?sid=…, /abonament?stripe=canceled
+const KNOWN_PENDING = new Set<string>([
+  // success/cancel path dla zewnętrznego huba płatności — kształt bez slasha celowo
+  // zachowany (walidacja po stronie huba nieznana); patrz komentarz w pliku.
+  'components/pages/abonament/PreonboardModal.tsx',
 ]);
 
 /** Ścieżki, które nie są stronami (API, panel, pliki statyczne). */

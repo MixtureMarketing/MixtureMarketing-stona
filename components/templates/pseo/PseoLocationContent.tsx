@@ -734,7 +734,7 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
             <Button
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10"
-              onClick={() => navigate('/offers#calculator')}
+              onClick={() => navigate('/wycena/')}
               icon={<Calculator size={18} />}
             >
               Wyceń projekt
