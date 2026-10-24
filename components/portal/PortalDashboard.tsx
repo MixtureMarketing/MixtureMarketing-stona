@@ -15,7 +15,7 @@ import { AlertCircle } from 'lucide-react';
 import { getStatusColor, getStatusLabel } from '../../utils/portalHelpers';
 
 const PortalDashboard: React.FC = () => {
-  const { user, sessionToken, logout, updateUser, isLoading } = useAuth();
+  const { user, sessionToken, logout, updateUser, isLoading, authFetch } = useAuth();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
@@ -75,13 +75,9 @@ const PortalDashboard: React.FC = () => {
     setIsUpdatingProfile(true);
 
     try {
-      const res = await fetch('/api/portal/update_profile', {
+      const res = await authFetch('/api/portal/update_profile', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken || '',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profileData),
       });
 
@@ -103,13 +99,9 @@ const PortalDashboard: React.FC = () => {
     if (!newMessage.trim() || !sessionToken) return;
 
     try {
-      const res = await fetch('/api/portal/send_message', {
+      const res = await authFetch('/api/portal/send_message', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newMessage, sender_type: 'client' }),
       });
 
@@ -125,12 +117,7 @@ const PortalDashboard: React.FC = () => {
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download?id=${docId}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
+      const res = await authFetch(`/api/portal/download?id=${docId}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);

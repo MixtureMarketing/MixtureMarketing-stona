@@ -13,6 +13,21 @@ export const client = createClient({
   useCdn: false,
 });
 
+/**
+ * Błąd POBRANIA z Sanity (timeout, 429, 5xx, offline) — w odróżnieniu od `null`,
+ * które oznacza „nie ma takiego dokumentu”. Szablony pokazują przy nim stan błędu
+ * z „Spróbuj ponownie”, a NIE `NotFound` z `noindex` (chwilowa awaria Sanity nie
+ * może wyindeksować strony ani wypalić 404 w prerenderze).
+ */
+export class CmsUnavailableError extends Error {
+  constructor(context: string, cause?: unknown) {
+    super(
+      `Sanity niedostępne (${context}): ${cause instanceof Error ? cause.message : String(cause)}`,
+    );
+    this.name = 'CmsUnavailableError';
+  }
+}
+
 const builder = imageUrlBuilder(client);
 
 export function urlFor(source: SanityImage | { asset: { _ref: string } }) {

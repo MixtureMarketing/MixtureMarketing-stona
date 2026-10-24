@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MixtureApiClient from '../../../services/apiClient';
 import { useNotification } from '../../../context/NotificationContext';
+import { useAuth } from '../../../context/AuthContext';
 import { Lead, Milestone, Client, Project } from '../types';
 
 interface UseAdminActionsProps {
@@ -17,17 +18,20 @@ export const useAdminActions = ({
   refreshChat,
 }: UseAdminActionsProps) => {
   const { showNotification } = useNotification();
+  const { authFetch } = useAuth();
   const [isUploadingDoc, setIsUploadingDoc] = useState(false);
   const [isSavingMilestone, setIsSavingMilestone] = useState(false);
 
   const sendAdminMessage = async (userId: string, content: string) => {
     if (!userId || !content.trim() || !sessionToken) return false;
     try {
-      await MixtureApiClient.post(
+      const res = await MixtureApiClient.post<{ warning?: string }>(
         '/api/admin/admin_reply_chat',
         { user_id: userId, content },
         sessionToken,
       );
+      // Wiadomość zapisana, ale mail do klienta nie wyszedł — admin musi o tym wiedzieć.
+      if (res?.warning) showNotification(res.warning, 'warning');
       refreshChat();
       return true;
     } catch (error) {
@@ -39,9 +43,7 @@ export const useAdminActions = ({
   const handleDownload = async (docId: string, fileName: string) => {
     if (!sessionToken) return;
     try {
-      const res = await fetch(`/api/portal/download?id=${docId}`, {
-        headers: { Authorization: `Bearer ${sessionToken}`, 'X-Auth-Token': sessionToken },
-      });
+      const res = await authFetch(`/api/portal/download?id=${docId}`);
       if (res.ok) {
         const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
@@ -116,8 +118,13 @@ export const useAdminActions = ({
   const handleConvertLead = async (leadId: string) => {
     if (!sessionToken || !confirm('Utworzyć konto klienta?')) return;
     try {
-      await MixtureApiClient.post('/api/admin/convert_lead', { lead_id: leadId }, sessionToken);
+      const res = await MixtureApiClient.post<{ warning?: string }>(
+        '/api/admin/convert_lead',
+        { lead_id: leadId },
+        sessionToken,
+      );
       showNotification('Lead skonwertowany!', 'success');
+      if (res?.warning) showNotification(res.warning, 'warning');
       refreshLeads();
       refreshData();
     } catch (error) {
@@ -143,7 +150,10 @@ export const useAdminActions = ({
       return true;
     } catch (error) {
       console.error(error);
-      showNotification('Błąd wysyłania odpowiedzi.', 'error');
+      // 502 email_failed niesie czytelny komunikat („status leada bez zmian”).
+      const raw = error instanceof Error ? error.message : '';
+      const msg = /^(Server responded|Unknown error)/.test(raw) ? '' : raw;
+      showNotification(msg || 'Błąd wysyłania odpowiedzi.', 'error');
       return false;
     }
   };

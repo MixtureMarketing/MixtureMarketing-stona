@@ -3,6 +3,8 @@
  * Handles authentication headers, error logging, and JSON parsing.
  */
 
+import { assertSessionValid } from '@/utils/sessionExpiry';
+
 interface FetchOptions extends RequestInit {
   token?: string;
 }
@@ -31,12 +33,11 @@ class MixtureApiClient {
         ...rest,
       });
 
-      if (!response.ok) {
-        // Handle specific status codes
-        if (response.status === 401 || response.status === 403) {
-          console.warn('API Authentication Error: Session might be expired.');
-        }
+      // 401/403 z /api/admin|/api/portal → wylogowanie + przekierowanie do logowania
+      // (AuthProvider słucha onSessionExpired). Rzuca SessionExpiredError.
+      assertSessionValid(url, response);
 
+      if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         throw new Error(errorData.message || `Server responded with ${response.status}`);
       }

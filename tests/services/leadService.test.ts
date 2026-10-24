@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
-import { leadService } from '../../services/leadService';
+import { leadService, LeadSubmitError } from '../../services/leadService';
 
 // Mock global fetch
 global.fetch = vi.fn();
@@ -69,6 +69,37 @@ describe('leadService', () => {
       await expect(leadService.createLead({ email: '', name: '' })).rejects.toThrow(
         'Email and Name are required',
       );
+    });
+
+    it('błąd serwera → LeadSubmitError ze statusem i kodem (także przy HTML zamiast JSON)', async () => {
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        json: async () => ({ message: 'Nie udało się zapisać', code: 'LEAD_NOT_SAVED' }),
+      });
+      const err = await leadService
+        .createLead({ name: 'T', email: 't@example.com' })
+        .catch((e) => e);
+      expect(err).toBeInstanceOf(LeadSubmitError);
+      expect(err).toMatchObject({ status: 500, code: 'LEAD_NOT_SAVED' });
+
+      (global.fetch as Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        json: async () => {
+          throw new SyntaxError('Unexpected token <');
+        },
+      });
+      await expect(
+        leadService.createLead({ name: 'T', email: 't@example.com' }),
+      ).rejects.toMatchObject({ status: 502 });
+    });
+
+    it('brak sieci → LeadSubmitError ze statusem 0', async () => {
+      (global.fetch as Mock).mockRejectedValueOnce(new TypeError('Failed to fetch'));
+      await expect(
+        leadService.createLead({ name: 'T', email: 't@example.com' }),
+      ).rejects.toMatchObject({ status: 0 });
     });
   });
 });

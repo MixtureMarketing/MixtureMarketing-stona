@@ -8,7 +8,7 @@ import MixtureApiClient from '../../../services/apiClient';
  * Handles milestone updates and file downloads.
  */
 export const useProjectActions = (refreshProjects: () => void) => {
-  const { sessionToken } = useAuth();
+  const { sessionToken, authFetch } = useAuth();
   const { showNotification } = useNotification();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -46,12 +46,7 @@ export const useProjectActions = (refreshProjects: () => void) => {
     if (!sessionToken) return;
 
     try {
-      const response = await fetch(`/api/portal/download?id=${docId}`, {
-        headers: {
-          Authorization: `Bearer ${sessionToken}`,
-          'X-Auth-Token': sessionToken,
-        },
-      });
+      const response = await authFetch(`/api/portal/download?id=${docId}`);
 
       if (!response.ok) throw new Error('Download failed');
 

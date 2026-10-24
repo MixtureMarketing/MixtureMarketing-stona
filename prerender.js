@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 import { spawn } from 'node:child_process';
 import { routes, prerenderOnlyRoutes } from './routes.js';
+import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
 import http from 'node:http';
 import { createClient } from '@sanity/client';
@@ -124,10 +125,28 @@ async function processRoute(browser, critters, route, attempt = 1) {
     // (waitForFunction na title+canonical+meta), to tylko margines na JSON-LD.
     await new Promise((r) => setTimeout(r, 400));
 
-    // Error detection
-    const bodyText = await page.evaluate(() => document.body.innerText);
-    if (bodyText.toLowerCase().includes('coś poszło nie tak') && bodyText.length < 500) {
-      throw new Error(`React Error Boundary triggered on ${route}`);
+    // Bramka fail-loud (scripts/prerender-gate.js): 404 / noindex / stan błędu CMS /
+    // fallback ErrorBoundary NIE mogą trafić do dist/ (CF Pages oddałby je z HTTP 200).
+    // Dawny detektor (`innerText` zawiera „coś poszło nie tak” && < 500 znaków) był
+    // martwy — sama stopka ma ~900 znaków — więc teraz czytamy markery z DOM.
+    const signals = await page.evaluate(() => ({
+      noindex: Array.from(document.querySelectorAll('meta[name="robots"]')).some((m) =>
+        /noindex/i.test(m.getAttribute('content') || ''),
+      ),
+      title: document.title,
+      notFound: !!document.querySelector('[data-not-found]'),
+      cmsError: !!document.querySelector('[data-cms-error]'),
+      errorBoundary: !!document.querySelector('[data-error-boundary]'),
+    }));
+    const gateProblem = checkPrerenderedPage(route, signals, { prerenderOnlyRoutes });
+    if (gateProblem) {
+      if (attempt === 1) {
+        // Chwilowy błąd Sanity/429 przy concurrency — druga szansa w sekwencyjnej
+        // rundzie naprawczej. Jeśli i tam się nie uda, build pada (niżej).
+        console.warn(`♻️ ${gateProblem} — ponowię w rundzie naprawczej`);
+        throw new Error('__HELMET_RETRY__');
+      }
+      throw new Error(`Bramka prerenderu: ${gateProblem} — nie zapisuję, build przerwany`);
     }
 
     let html = await page.content();

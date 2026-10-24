@@ -6,6 +6,7 @@
  */
 
 import { escapeHtml } from '../_shared/security';
+import { sendEmail } from '../_shared/email';
 
 interface Env {
   DB: D1Database;
@@ -52,30 +53,40 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind('converted', user.id, lead_id)
       .run();
 
-    // 4. Send Welcome Email via Resend
-    if (env.RESEND_API_KEY) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
-          to: [lead.email],
-          subject: 'Twoje konto w portalu Mixture Marketing jest gotowe!',
-          html: `
+    // 4. Mail powitalny. Konto JUŻ istnieje — przy porażce maila nie zwracamy błędu
+    // (konwersja się udała), tylko email_sent:false + ostrzeżenie dla admina.
+    const mail = await sendEmail(
+      env,
+      {
+        from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
+        to: [lead.email],
+        subject: 'Twoje konto w portalu Mixture Marketing jest gotowe!',
+        html: `
             <h3>Witaj ${escapeHtml(lead.name)}!</h3>
             <p>Z radością informujemy, że utworzyliśmy dla Ciebie konto w naszym portalu klienta.</p>
             <p>Możesz się tam zalogować w każdej chwili, używając swojego adresu email, aby sprawdzić postępy prac lub pobrać dokumenty.</p>
             <a href="https://mixturemarketing.pl/portal" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Przejdź do Portalu</a>
           `,
-        }),
-      });
-    }
+      },
+      'convert_lead',
+    );
 
-    return new Response(JSON.stringify({ status: 'success', user_id: user.id }), { status: 200 });
+    return new Response(
+      JSON.stringify({
+        status: 'success',
+        user_id: user.id,
+        email_sent: mail.ok,
+        ...(mail.ok
+          ? {}
+          : {
+              warning:
+                'Konto utworzone, ale mail powitalny NIE został wysłany — poinformuj klienta ręcznie.',
+            }),
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    console.error('[convert_lead]', err?.message);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 };
