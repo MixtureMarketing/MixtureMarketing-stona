@@ -155,7 +155,15 @@ function App() {
           <Navbar />
 
           <main id="main-content">
-            {showBreadcrumbs && <Breadcrumbs />}
+            {showBreadcrumbs && (
+              // Okruszki stoją na samej górze dokumentu (y 0–52), a navbar jest `fixed` h-20 —
+              // zasłania je przy KAŻDEJ pozycji scrolla, więc scroll-padding nic tu nie da.
+              // WCAG 2.4.11: gdy fokus z klawiatury trafi w okruszek, pasek zjeżdża tuż pod
+              // navbar (translate, bez zmiany layoutu strony); dla myszy wygląd bez zmian.
+              <div className="relative z-20 has-[:focus-visible]:z-[var(--z-nav)] has-[:focus-visible]:translate-y-20 has-[:focus-visible]:bg-white has-[:focus-visible]:shadow-md">
+                <Breadcrumbs />
+              </div>
+            )}
             {/* resetKey: nawigacja (link w Navbarze) zdejmuje fallback błędu poprzedniej trasy. */}
             <ErrorBoundary resetKey={location.pathname}>
               <Suspense fallback={<Loading />}>
