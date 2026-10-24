@@ -45,17 +45,44 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     };
   }, []);
 
-  const setAnswer = useCallback((code: string, value: unknown) => {
-    setAnswers((prev) => ({ ...prev, [code]: value as Answers[string] }));
+  // Zmiana pola gasi JEGO błąd — inaczej komunikat (i podsumowanie nad przyciskiem)
+  // wisiałby do następnej próby wysłania, choć użytkownik już poprawił odpowiedź.
+  const clearError = useCallback((code: string) => {
+    setErrors((prev) => {
+      if (!(code in prev)) return prev;
+      const next = { ...prev };
+      delete next[code];
+      return next;
+    });
   }, []);
+
+  const setAnswer = useCallback(
+    (code: string, value: unknown) => {
+      setAnswers((prev) => ({ ...prev, [code]: value as Answers[string] }));
+      clearError(code);
+    },
+    [clearError],
+  );
+
+  const setEmailAndClear = useCallback(
+    (v: string) => {
+      setEmail(v);
+      clearError('email');
+    },
+    [clearError],
+  );
 
   const visible = visibleQuestions(questions, answers);
 
-  const submit = useCallback(async () => {
+  /**
+   * Zwraca błędy walidacji (gdy formularz nie przeszedł), żeby UI mógł przejść do kroku
+   * z pierwszym błędem i ustawić na nim fokus; `null`, gdy walidacja przeszła.
+   */
+  const submit = useCallback(async (): Promise<Record<string, string> | null> => {
     setSubmitError(null);
     const v = validate(questions, answers, email);
     setErrors(v.errors);
-    if (!v.valid) return;
+    if (!v.valid) return v.errors;
 
     setPhase('submitting');
     let token: string;
@@ -66,7 +93,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     } catch {
       setSubmitError(humanError(403));
       setPhase('ready');
-      return;
+      return null;
     }
 
     const res = await submitPublicQuote({
@@ -83,6 +110,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
       setPhase('ready');
       turnstileRef.current?.reset();
     }
+    return null;
   }, [questions, answers, email, websiteVerify, turnstileRef]);
 
   const reset = useCallback(() => {
@@ -99,7 +127,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     answers,
     setAnswer,
     email,
-    setEmail,
+    setEmail: setEmailAndClear,
     websiteVerify,
     setWebsiteVerify,
     errors,

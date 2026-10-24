@@ -1,7 +1,8 @@
 // Wielokrokowy formularz kalkulatora — kroki wg GRUP pytań z API (data-driven), ostatni krok
 // = kontakt (e-mail + honeypot + submit). Widoczność pytań (visible_if) liczy hook; tu render.
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import QuestionField from './QuestionField';
+import { CONTACT_STEP, firstErrorTarget } from './formLogic';
 import type { PublicQuestion } from '../../../services/calculatorService';
 import type { Answers } from '../../../lib/estimation/types';
 
@@ -26,10 +27,9 @@ interface CalculatorFormProps {
   setWebsiteVerify: (v: string) => void;
   submitError: string | null;
   submitting: boolean;
-  onSubmit: () => void;
+  /** Zwraca błędy walidacji (gdy nie przeszła) — wtedy przechodzimy do kroku z pierwszym błędem. */
+  onSubmit: () => Promise<Record<string, string> | null> | void;
 }
-
-const CONTACT_STEP = '__contact__';
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({
   visible,
@@ -64,6 +64,39 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
 
   const next = () => setStepIdx((i) => Math.min(i + 1, steps.length - 1));
   const prev = () => setStepIdx((i) => Math.max(i - 1, 0));
+
+  // Fokus na polu z błędem PO renderze kroku, na którym to pole istnieje.
+  const pendingFocus = useRef<string | null>(null);
+  const [focusRequest, setFocusRequest] = useState(0);
+  useEffect(() => {
+    const id = pendingFocus.current;
+    if (!id) return;
+    pendingFocus.current = null;
+    const el = document.getElementById(id);
+    if (!el) return;
+    // Grupa opcji (radiogroup / group) → fokus na zaznaczonej albo pierwszej opcji.
+    const target =
+      el instanceof HTMLInputElement
+        ? el
+        : (el.querySelector<HTMLElement>('[aria-checked="true"], [aria-pressed="true"]') ??
+          el.querySelector<HTMLElement>('button'));
+    target?.focus();
+  }, [focusRequest, idx]);
+
+  const handleSubmit = async () => {
+    const errs = await onSubmit();
+    if (!errs) return;
+    const t = firstErrorTarget(steps, visible, errs);
+    if (!t) return;
+    pendingFocus.current = t.fieldId;
+    setStepIdx(t.stepIdx);
+    setFocusRequest((n) => n + 1);
+  };
+
+  // Podsumowanie brakujących odpowiedzi — widoczne na każdym kroku, dopóki są błędy
+  // (błąd pola gaśnie przy jego zmianie, więc lista jest aktualna).
+  const errorLabels = visible.filter((q) => errors[q.code]).map((q) => q.text);
+  if (errors.email) errorLabels.push('adres e-mail');
 
   return (
     <div className="space-y-8">
@@ -109,10 +142,16 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={errors.email ? true : undefined}
+              aria-describedby={errors.email ? 'calc-email-err' : undefined}
               placeholder="np. jan@firma.pl"
               className="w-full rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/60"
             />
-            {errors.email && <p className="text-sm text-red-400">{errors.email}</p>}
+            {errors.email && (
+              <p id="calc-email-err" className="text-sm text-red-400">
+                {errors.email}
+              </p>
+            )}
             <p className="text-xs text-gray-500">
               Użyjemy go tylko do kontaktu w sprawie tej wyceny.
             </p>
@@ -138,6 +177,15 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
         </div>
       )}
 
+      {errorLabels.length > 0 && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+        >
+          Uzupełnij, żeby poznać widełki: {errorLabels.join('; ')}
+        </div>
+      )}
+
       <div className="flex items-center justify-between pt-2">
         <button
           type="button"
@@ -159,7 +207,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
         ) : (
           <button
             type="button"
-            onClick={onSubmit}
+            onClick={handleSubmit}
             disabled={submitting}
             className="px-6 py-2.5 rounded-xl bg-primary text-dark font-semibold hover:brightness-110 disabled:opacity-60 transition"
           >
