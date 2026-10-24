@@ -29,8 +29,8 @@ describe('warianty szerokości obrazów (convert-images.js ↔ Image.tsx)', () =
     for (const file of SCAN_DIRS.flatMap((d) => walk(path.join(root, d)))) {
       const src = fs.readFileSync(file, 'utf8');
       for (const m of src.matchAll(/\/assets\/images\/([A-Za-z0-9_.-]+)\.(png|jpe?g)/gi)) {
-        // Odwołanie do nieistniejącego źródła (np. typescript.png — tylko og:image
-        // artykułu) to osobny problem treści; tu pilnujemy wariantów istniejących plików.
+        // Odwołanie do nieistniejącego źródła łapie tests/assets.test.ts;
+        // tu pilnujemy wariantów istniejących plików.
         if (fs.existsSync(path.join(root, 'public/assets/images', `${m[1]}.${m[2]}`)))
           refs.add(m[1]);
       }
