@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { isPrerenderBoot } from '@/utils/bootState';
 
 interface LazyHydrateProps {
   children: React.ReactNode;
@@ -12,6 +13,14 @@ interface LazyHydrateProps {
  * LazyHydrate component
  * Prevents React from hydrating its children until they enter the viewport.
  * Vital for performance in heavy visual components.
+ *
+ * Wyjątek: start z prerenderowanego HTML (isPrerenderBoot). Treść sekcji JEST już
+ * w DOM — zwinięcie jej do placeholdera kolapsowałoby wysokość dokumentu (utrata
+ * pozycji przewijania) i zmuszało do ponownego renderu przy wejściu w viewport.
+ * Wtedy LazyHydrate przepuszcza dzieci od razu (bez IntersectionObservera). Koszt:
+ * efekty sekcji poniżej linii zgięcia startują od razu — tak jak dziś w pierwszym
+ * renderze (dzieci i tak się montowały, a potem były odmontowywane). Po pierwszej
+ * nawigacji SPA wraca zwykły, leniwy tryb.
  */
 const LazyHydrate: React.FC<LazyHydrateProps> = ({
   children,
@@ -20,7 +29,7 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
   minHeight = '100px',
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(isPrerenderBoot);
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Check for Prerendering (Puppeteer/Headless)
@@ -30,9 +39,10 @@ const LazyHydrate: React.FC<LazyHydrateProps> = ({
     (navigator.userAgent.includes('Headless') || window.isPrerendering);
 
   useEffect(() => {
+    // Już renderujemy dzieci (prerender albo pass-through) — bez zbędnego re-renderu.
+    if (isPrerendering || hydrated) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    if (isPrerendering || hydrated) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {

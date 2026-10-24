@@ -1,5 +1,7 @@
-import { lazy } from 'react';
-import { RouteObject } from 'react-router-dom';
+import type { ReactElement } from 'react';
+import { matchRoutes, type Params, type RouteObject } from 'react-router-dom';
+// lazy() z jawnym preload() — patrz preloadRoute() niżej i index.tsx.
+import { lazyWithPreload as lazy } from '@/components/common/lazyWithPreload';
 
 // --- Page Components (Lazy Loaded) ---
 const PortalLogin = lazy(() => import('@/components/portal/PortalLogin'));
@@ -262,3 +264,50 @@ export const appRoutes: RouteObject[] = [
   // 404 Not Found
   { path: '*', element: <NotFound /> },
 ];
+
+/** Moduł trasy może wystawić `routePreload` — pod-chunki potrzebne w 1. renderze. */
+type RouteModule = {
+  routePreload?: (params: Params) => unknown;
+};
+type RouteElement = ReactElement & { type: { preload?: () => Promise<unknown> } };
+type CmsService = typeof import('@/services/cmsService').cmsService;
+
+/**
+ * Dane CMS tras dynamicznych — pobierane RÓWNOLEGLE z chunkiem szablonu (sam serwis
+ * CMS to wspólny, mniejszy chunk), żeby szablon nie startował w stanie `loading`.
+ * Fetcher musi być TĄ SAMĄ referencją, której szablon używa w useCmsDocument.
+ */
+const CMS_DOCUMENT: Record<string, (cms: CmsService) => (slug: string) => Promise<unknown>> = {
+  '/baza-wiedzy/:slug': (cms) => cms.getArticleBySlug,
+  '/branza/:slug': (cms) => cms.getIndustryBySlug,
+  '/miasto/:slug': (cms) => cms.getLocationBySlug,
+  '/portfolio/:slug': (cms) => cms.getCaseStudyPage,
+};
+
+const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {
+  const pick = path ? CMS_DOCUMENT[path] : undefined;
+  if (!pick || !slug) return;
+  const [{ cmsService }, { primeCmsDocument }] = await Promise.all([
+    import('@/services/cmsService'),
+    import('@/hooks/useCmsDocument'),
+  ]);
+  await primeCmsDocument(pick(cmsService), slug);
+};
+
+/**
+ * Ładuje chunk trasy pasującej do `pathname` (+ jej pod-chunki i dane CMS) ZANIM React
+ * wyrenderuje cokolwiek. Pierwszy render trafia wtedy w gotowy komponent zamiast
+ * w fallback `<Suspense>`/szkielet — podmiana prerenderowanego HTML jest niewidoczna.
+ */
+export async function preloadRoute(pathname: string): Promise<void> {
+  const match = matchRoutes(appRoutes, pathname)?.at(-1);
+  const element = match?.route.element as RouteElement | undefined;
+  const params = match?.params ?? {};
+  await Promise.all([
+    preloadCmsDocument(match?.route.path, params.slug),
+    (async () => {
+      const mod = (await element?.type?.preload?.()) as RouteModule | undefined;
+      await mod?.routePreload?.(params);
+    })(),
+  ]);
+}

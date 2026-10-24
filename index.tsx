@@ -9,6 +9,8 @@ import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
 import { trackEvent } from './utils/analytics';
 import { installChunkReloadHandler } from './utils/chunkReload';
 import { installGlobalErrorHandlers } from './utils/errorReporter';
+import { preloadRoute } from './config/routes';
+import { markPrerenderBoot } from './utils/bootState';
 import './index.css';
 
 // Nieaktualne chunki po deployu → jednorazowy reload (z ochroną przed pętlą).
@@ -79,19 +81,40 @@ if (!rootElement) {
   throw new Error('Could not find root element to mount to');
 }
 
+// Start z prerenderowanego HTML (Cloudflare serwuje zrzut z Puppeteera): createRoot
+// podmienia całą zawartość #root. Żeby podmiana była niewidoczna (bez spinnera
+// Suspense, bez zwijania sekcji i utraty pozycji przewijania), najpierw dociągamy
+// chunk bieżącej trasy (+ jej pod-chunki i dane CMS), a dopiero potem renderujemy
+// — pierwszy commit daje wtedy tę samą treść, co prerender. Do tego czasu widać
+// statyczny HTML. Limit czasu: po PRELOAD_TIMEOUT_MS renderujemy i tak (dalej jak
+// dawniej: Suspense/szkielety). Prerender (window.isPrerendering) i dev (pusty
+// #root) idą starą ścieżką — render od razu.
+const PRELOAD_TIMEOUT_MS = 3000;
+const fromPrerender = !window.isPrerendering && rootElement.hasChildNodes();
+let ready: Promise<unknown> = Promise.resolve();
+if (fromPrerender) {
+  markPrerenderBoot();
+  ready = Promise.race([
+    preloadRoute(window.location.pathname).catch(() => undefined),
+    new Promise((resolve) => setTimeout(resolve, PRELOAD_TIMEOUT_MS)),
+  ]);
+}
+
 const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    {/* Granica zewnętrzna: błąd w Navbar/Footer/CookieBanner/providerach (poza
+void ready.then(() =>
+  root.render(
+    <React.StrictMode>
+      {/* Granica zewnętrzna: błąd w Navbar/Footer/CookieBanner/providerach (poza
         granicą w <main>) daje komunikat „odśwież stronę”, a nie białą stronę. */}
-    <ErrorBoundary fallback="minimal">
-      <HelmetProvider>
-        <Router>
-          <ModalProvider>
-            <App />
-          </ModalProvider>
-        </Router>
-      </HelmetProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
+      <ErrorBoundary fallback="minimal">
+        <HelmetProvider>
+          <Router>
+            <ModalProvider>
+              <App />
+            </ModalProvider>
+          </Router>
+        </HelmetProvider>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  ),
 );

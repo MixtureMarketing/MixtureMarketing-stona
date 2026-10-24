@@ -1,12 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import AuditWizard from '../features/audit/AuditWizard';
 import Seo from '../common/Seo';
 
 const AuditPage: React.FC = () => {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
     <>
       {/* SEO 2026-07-17: „porównanie z konkurencją" usunięte (niedostarczane —

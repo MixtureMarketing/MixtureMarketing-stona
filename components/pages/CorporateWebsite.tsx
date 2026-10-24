@@ -37,7 +37,6 @@ const CorporateWebsite: React.FC = () => {
   const [pricingData, setPricingData] = useState<PricingSectionData | null>(null);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     cmsService.getPricingSection('corporate-website').then((data) => {
       if (data) {
         const tiersWithActions = data.tiers.map((tier: PricingTier) => ({

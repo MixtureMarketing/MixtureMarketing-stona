@@ -15,6 +15,29 @@ interface Settled<T> {
   data: T | null;
 }
 
+type Fetcher<T> = (slug: string) => Promise<T | null>;
+type Primed = { status: 'ok' | 'notfound'; data: unknown };
+
+// Dane pobrane PRZED pierwszym renderem (preloadRoute w index.tsx przy starcie z
+// prerenderowanego HTML). Klucz: referencja fetchera → slug.
+const primed = new WeakMap<Fetcher<unknown>, Map<string, Primed>>();
+
+/**
+ * Pobiera dokument z wyprzedzeniem, żeby pierwszy render szablonu miał dane od razu
+ * (bez stanu `loading`, który zwija prerenderowaną treść do szkieletu). Błąd jest
+ * połykany — hook spróbuje sam i pokaże stan błędu jak zwykle.
+ */
+export async function primeCmsDocument<T>(fetcher: Fetcher<T>, slug: string): Promise<void> {
+  try {
+    const data = await fetcher(slug);
+    const bySlug = primed.get(fetcher) ?? new Map<string, Primed>();
+    bySlug.set(slug, { status: data ? 'ok' : 'notfound', data: data ?? null });
+    primed.set(fetcher, bySlug);
+  } catch {
+    /* hook pobierze ponownie i obsłuży błąd (CmsErrorState) */
+  }
+}
+
 /**
  * Wynik jest kluczowany slugiem i numerem próby, więc zmiana sluga (nawigacja
  * artykuł → artykuł bez remountu trasy) albo „Spróbuj ponownie” natychmiast wraca
@@ -28,11 +51,16 @@ export function useCmsDocument<T>(
   fetcher: (slug: string) => Promise<T | null>,
 ) {
   const [attempt, setAttempt] = useState(0);
-  const [settled, setSettled] = useState<Settled<T> | null>(null);
+  const [settled, setSettled] = useState<Settled<T> | null>(() => {
+    const hit = slug ? primed.get(fetcher)?.get(slug) : undefined;
+    return hit ? { key: `${slug}#0`, status: hit.status, data: hit.data as T | null } : null;
+  });
   const key = `${slug ?? ''}#${attempt}`;
 
   useEffect(() => {
     if (!slug) return;
+    // Dane z preloadu są już w stanie początkowym — zużyj je raz, bez drugiego żądania.
+    if (attempt === 0 && primed.get(fetcher)?.delete(slug)) return;
     let cancelled = false;
     fetcher(slug).then(
       (data) => {
@@ -47,7 +75,7 @@ export function useCmsDocument<T>(
     return () => {
       cancelled = true;
     };
-  }, [slug, fetcher, key]);
+  }, [slug, fetcher, key, attempt]);
 
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
 

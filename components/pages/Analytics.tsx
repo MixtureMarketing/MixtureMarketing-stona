@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   Activity,
   BarChart3,
@@ -55,10 +55,6 @@ const Analytics: React.FC = () => {
   const complianceRef = useSectionProgress<HTMLElement>(0.85);
   const solutionsRef = useSectionProgress<HTMLElement>(0.85);
   const warehouseRef = useSectionProgress<HTMLElement>(0.85);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const openConsult = () => openModal('marketing', { specificType: 'analytics' });
 

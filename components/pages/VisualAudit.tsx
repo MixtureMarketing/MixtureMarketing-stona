@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Fingerprint } from 'lucide-react';
 import Seo from '../common/Seo';
 import StandardHero from '../common/StandardHero';
@@ -18,10 +18,6 @@ const VisualAudit: React.FC = () => {
   const { openModal } = useModal();
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <div className="bg-white animate-fade-in font-sans selection:bg-primary/30">

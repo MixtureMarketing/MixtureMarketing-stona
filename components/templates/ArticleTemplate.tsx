@@ -1,20 +1,25 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { useParams } from 'react-router-dom';
 import { cmsService, SanityArticle, urlFor } from '@/services/cmsService';
 import Seo from '@/components/common/Seo';
 // Lazy — articleSchema (urlFor) trzymane poza glownym Seo chunk, ladowane
 // tylko na stronach artykulow.
-const ArticleSchemaSeo = lazy(() => import('@/components/common/ArticleSchemaSeo'));
+const ArticleSchemaSeo = lazyWithPreload(() => import('@/components/common/ArticleSchemaSeo'));
 import NotFound from '@/components/common/NotFound';
 import CmsErrorState from '@/components/common/CmsErrorState';
 import { useCmsDocument } from '@/hooks/useCmsDocument';
+import { lazyWithPreload } from '@/components/common/lazyWithPreload';
 import AmbientBackground from '@/components/common/AmbientBackground';
 import LazyHydrate from '@/components/common/LazyHydrate';
 import { Calendar, Clock, Tag } from 'lucide-react';
 import RelatedArticles from '../articles/RelatedArticles';
 import PortableTextRenderer from '../common/PortableTextRenderer';
 
-const fetchArticle = (slug: string) => cmsService.getArticleBySlug(slug);
+// Stabilna referencja (metoda serwisu) — ta sama, którą preloaduje trasa (config/routes).
+const fetchArticle = cmsService.getArticleBySlug;
+
+/** Start z prerenderu (preloadRoute): chunk schematu przed pierwszym renderem. */
+export const routePreload = () => ArticleSchemaSeo.preload();
 
 const ArticleTemplate = () => {
   const { slug } = useParams<{ slug: string }>();

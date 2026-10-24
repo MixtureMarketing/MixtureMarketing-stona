@@ -22,9 +22,7 @@ const Offers: React.FC = () => {
     // fragmentu #, więc przekierowanie musi żyć po stronie klienta.
     if (window.location.hash.startsWith('#calculator')) {
       navigate('/wycena/', { replace: true });
-      return;
     }
-    window.scrollTo(0, 0);
   }, [navigate]);
 
   const { web, marketing, techStack, faqs } = CONTENT;

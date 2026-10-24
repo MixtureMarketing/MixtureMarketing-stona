@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Wand2 } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
@@ -40,10 +40,6 @@ const DesignBranding: React.FC = () => {
   const ecosystemRef = useSectionProgress<HTMLElement>(0.8);
   const sectorsRef = useSectionProgress<HTMLElement>(0.85);
   const toolkitRef = useSectionProgress<HTMLElement>(0.85);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const openConsult = () => openModal('design');
 

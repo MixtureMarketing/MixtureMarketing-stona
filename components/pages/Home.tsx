@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useRef } from 'react';
+import React, { Suspense, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from '@/context/ModalContext';
 import Seo from '@/components/common/Seo';
@@ -6,14 +6,23 @@ import Hero from '@/components/sections/Hero';
 import StickyMobileBar from '@/components/common/StickyMobileBar';
 import { usePagePulse } from '@/hooks/useSectionProgress';
 import { SITE_CONFIG } from '@/config/site';
+import { lazyWithPreload } from '@/components/common/lazyWithPreload';
 
-// These components were defined inline in App.tsx, moving them here to separate file
-// to allow proper lazy loading in routes.tsx
-const WhyUs = lazy(() => import('@/components/sections/WhyUs'));
-const Services = lazy(() => import('@/components/sections/Services'));
-const LeadMagnet = lazy(() => import('@/components/sections/LeadMagnet'));
-const KnowledgeBaseTeaser = lazy(() => import('@/components/sections/KnowledgeBaseTeaser'));
-const FinalBand = lazy(() => import('@/components/sections/FinalBand'));
+// Sekcje pod hero — osobne chunki (lazy). Przy starcie z prerenderu preloadRoute()
+// woła routePreload() i dociąga je PRZED pierwszym renderem, więc Suspense niżej
+// nie pokazuje fallbacku (prerenderowana treść nie zwija się do „arkusza").
+const WhyUs = lazyWithPreload(() => import('@/components/sections/WhyUs'));
+const Services = lazyWithPreload(() => import('@/components/sections/Services'));
+const LeadMagnet = lazyWithPreload(() => import('@/components/sections/LeadMagnet'));
+const KnowledgeBaseTeaser = lazyWithPreload(
+  () => import('@/components/sections/KnowledgeBaseTeaser'),
+);
+const FinalBand = lazyWithPreload(() => import('@/components/sections/FinalBand'));
+
+export const routePreload = () =>
+  Promise.all(
+    [WhyUs, Services, LeadMagnet, KnowledgeBaseTeaser, FinalBand].map((c) => c.preload()),
+  );
 
 const Home = () => {
   const { openModal: _openModal } = useModal();

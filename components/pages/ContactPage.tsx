@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Mail,
   Phone,
@@ -18,10 +18,6 @@ import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
 
 const ContactPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   const handleCopyNip = () => {
     navigator.clipboard.writeText(CONTENT.invoiceData.nip);

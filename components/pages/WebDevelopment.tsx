@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import { Calculator, Activity } from 'lucide-react';
@@ -31,10 +31,6 @@ const WebDevelopment: React.FC = () => {
   const { openModal } = useModal();
   const heroRef = useRef<HTMLDivElement>(null);
   const finalCtaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     // Bez `pt-20`: ciemny hero jest min-h-screen i sam czyści przybity navbar

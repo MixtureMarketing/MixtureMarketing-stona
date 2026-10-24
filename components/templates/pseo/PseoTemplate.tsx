@@ -21,10 +21,13 @@ interface PseoTemplateProps {
   mode: 'industry' | 'location';
 }
 
+const fetcherFor = (mode: PseoTemplateProps['mode']) =>
+  mode === 'industry' ? cmsService.getIndustryBySlug : cmsService.getLocationBySlug;
+
 const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
   const { slug } = useParams<{ slug: string }>();
 
-  const fetcher = mode === 'industry' ? cmsService.getIndustryBySlug : cmsService.getLocationBySlug;
+  const fetcher = fetcherFor(mode);
 
   // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
   const { status, data, retry } = useCmsDocument<SanityIndustry | SanityLocation>(slug, fetcher);
