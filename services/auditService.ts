@@ -83,6 +83,12 @@ export interface AuditResult {
   };
 }
 
+export interface CaptureLeadResult {
+  ok: boolean;
+  /** Status HTTP; 0 = błąd sieci (fetch odrzucony). */
+  status: number;
+}
+
 export const auditService = {
   async runAudit(
     url: string,
@@ -104,7 +110,10 @@ export const auditService = {
   },
 
   // Zapis leada po przejsciu bramki e-mail (source='audit') + wysyłka raportu
-  // PDF do użytkownika (multipart — wzorzec kalkulatora). Best-effort — nie blokuje UI.
+  // PDF do użytkownika (multipart — wzorzec kalkulatora). Nie blokuje raportu online,
+  // ale WYNIK wraca do UI: przy 403 (captcha), 429 czy 5xx PDF nie wychodzi, a użytkownik
+  // musi się o tym dowiedzieć (wcześniej odpowiedź była ignorowana i lead ginął po cichu).
+  // Nigdy nie rzuca; status 0 = błąd sieci.
   async captureLead(payload: {
     email: string;
     url: string;
@@ -112,7 +121,7 @@ export const auditService = {
     score?: number;
     pdf?: Blob;
     captchaToken?: string;
-  }): Promise<void> {
+  }): Promise<CaptureLeadResult> {
     try {
       const form = new FormData();
       form.append('email', payload.email);
@@ -121,9 +130,10 @@ export const auditService = {
       if (typeof payload.score === 'number') form.append('score', String(payload.score));
       if (payload.pdf) form.append('pdf', payload.pdf, 'audyt_mixture.pdf');
       if (payload.captchaToken) form.append('captcha_token', payload.captchaToken);
-      await fetch(CAPTURE_URL, { method: 'POST', body: form });
+      const res = await fetch(CAPTURE_URL, { method: 'POST', body: form });
+      return { ok: res.ok, status: res.status };
     } catch {
-      /* nie przerywamy flow raportu, jesli zapis leada sie nie uda */
+      return { ok: false, status: 0 };
     }
   },
 };
