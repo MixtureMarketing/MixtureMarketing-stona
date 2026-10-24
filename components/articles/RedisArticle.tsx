@@ -223,7 +223,7 @@ const RedisArticle = () => {
             <React.Suspense
               fallback={<div className="w-full h-full bg-gray-50 animate-pulse rounded-xl" />}
             >
-              <LazyHydrate minHeight="300px">
+              <LazyHydrate minHeight="300px" fill>
                 <RedisUsageChart />
               </LazyHydrate>
             </React.Suspense>
