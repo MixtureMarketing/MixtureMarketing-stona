@@ -17,6 +17,7 @@ import {
   reqEmail,
   reqText,
 } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -69,8 +70,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (isUniqueEmailError(err)) {
       return badRequest('Konto z tym adresem e-mail już istnieje.', 409);
     }
-    const message = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: message }), { status: 500 });
+    return serverError(err, 'admin/save_client');
   }
 };
 

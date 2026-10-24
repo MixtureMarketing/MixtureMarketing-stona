@@ -6,6 +6,7 @@
 
 import { escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail, emailFailedResponse } from '../_shared/email';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -54,7 +55,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
   } catch (err: any) {
-    console.error('[reply_lead]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'admin/reply_lead');
   }
 };

@@ -15,6 +15,7 @@ import {
   reqId,
   reqText,
 } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -87,7 +88,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   } catch (err: any) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    console.error('[admin_reply_chat]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'admin/admin_reply_chat');
   }
 };

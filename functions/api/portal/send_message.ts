@@ -7,6 +7,7 @@
 import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
 import { chatCacheKey, kvDelete } from '../_shared/kv';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -63,7 +64,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    console.error('[portal_send_message]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'portal/send_message');
   }
 };

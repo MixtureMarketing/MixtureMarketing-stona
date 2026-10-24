@@ -4,6 +4,8 @@
  * Path: /api/admin/get_leads
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
 }
@@ -22,6 +24,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'admin/get_leads');
   }
 };

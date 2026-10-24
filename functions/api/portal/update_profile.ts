@@ -5,6 +5,7 @@
  */
 
 import { ValidationError, badRequest, optText, readJsonObject, reqText } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -39,6 +40,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     });
   } catch (err: any) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    return new Response(err.message, { status: 500 });
+    return serverError(err, 'portal/update_profile');
   }
 };

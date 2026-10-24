@@ -18,6 +18,7 @@ import {
   reqId,
   reqText,
 } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -69,7 +70,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return json({ status: 'success', id: res.meta?.last_row_id ?? null });
   } catch (err: unknown) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    return new Response(err instanceof Error ? err.message : String(err), { status: 500 });
+    return serverError(err, 'admin/save_milestone');
   }
 };
 

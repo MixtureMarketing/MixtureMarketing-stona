@@ -5,6 +5,7 @@
  */
 
 import { ValidationError, badRequest, readJsonObject, reqId } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -32,6 +33,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return new Response(JSON.stringify({ status: 'success' }), { status: 200 });
   } catch (err: any) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    return new Response(err.message, { status: 500 });
+    return serverError(err, 'admin/delete_document');
   }
 };

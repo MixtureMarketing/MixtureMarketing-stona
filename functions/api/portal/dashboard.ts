@@ -5,6 +5,7 @@
  */
 
 import { attachChildren } from '../_shared/projects';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -40,6 +41,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'portal/dashboard');
   }
 };

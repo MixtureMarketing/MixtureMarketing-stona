@@ -17,6 +17,7 @@
 
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, safeHttpUrl, sha256Hex } from '../_shared/security';
+import { serverError } from '../_shared/errors';
 
 const LIVE_AUDITS_PER_HOUR = 10;
 
@@ -154,8 +155,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     return json({ status: 'success', data: auditResult });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return json({ status: 'error', message }, 500);
+    return serverError(err, 'audit/run_audit', {
+      message: 'Nie udało się przeprowadzić audytu. Spróbuj ponownie za chwilę.',
+      extra: { status: 'error' },
+    });
   }
 };
 

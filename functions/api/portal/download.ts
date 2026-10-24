@@ -4,6 +4,8 @@
  * Path: /api/portal/download?id=123
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
   FILES: R2Bucket;
@@ -56,6 +58,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     return new Response(object.body, { headers });
   } catch (err: any) {
-    return new Response(err.message, { status: 500 });
+    return serverError(err, 'portal/download');
   }
 };

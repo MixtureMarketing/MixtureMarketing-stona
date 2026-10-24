@@ -4,6 +4,8 @@
  * Path: /api/auth/verify_token
  */
 
+import { serverError } from '../_shared/errors';
+
 interface Env {
   DB: D1Database;
 }
@@ -73,6 +75,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       },
     );
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'auth/verify_token');
   }
 };

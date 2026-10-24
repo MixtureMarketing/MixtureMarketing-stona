@@ -18,6 +18,7 @@ import {
   reqId,
   reqText,
 } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -87,8 +88,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return json({ status: 'success', id: res.meta?.last_row_id ?? null });
   } catch (err: unknown) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    const message = err instanceof Error ? err.message : String(err);
-    return new Response(JSON.stringify({ error: message }), { status: 500 });
+    return serverError(err, 'admin/save_project');
   }
 };
 

@@ -8,6 +8,7 @@
 import { escapeHtml } from '../_shared/security';
 import { sendEmail } from '../_shared/email';
 import { ValidationError, badRequest, readJsonObject, reqText } from '../_shared/input';
+import { serverError } from '../_shared/errors';
 
 interface Env {
   DB: D1Database;
@@ -97,7 +98,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     );
   } catch (err: any) {
     if (err instanceof ValidationError) return badRequest(err.message);
-    console.error('[convert_lead]', err?.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return serverError(err, 'admin/convert_lead');
   }
 };
