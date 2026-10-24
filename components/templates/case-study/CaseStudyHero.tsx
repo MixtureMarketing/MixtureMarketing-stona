@@ -39,30 +39,37 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
             {project.excerpt}
           </p>
 
-          <div className="inline-flex flex-wrap justify-center gap-6 bg-white p-2 pr-6 rounded-full shadow-lg border border-gray-100">
-            {project.client && (
-              <div className="flex items-center gap-3 pl-2">
-                {project.clientLogo ? (
-                  <div className="w-10 h-10 rounded-full bg-white p-1 shadow-sm overflow-hidden border border-gray-100">
-                    <img
-                      src={urlFor(project.clientLogo).width(64).url()}
-                      alt={project.client}
-                      className="w-full h-full object-contain"
-                    />
+          {(project.client || project.date) && (
+            <div className="inline-flex flex-wrap justify-center gap-6 bg-white p-2 pr-6 rounded-full shadow-lg border border-gray-100">
+              {project.client && (
+                <div className="flex items-center gap-3 pl-2">
+                  {project.clientLogo ? (
+                    <div className="w-10 h-10 rounded-full bg-white p-1 shadow-sm overflow-hidden border border-gray-100">
+                      <img
+                        src={urlFor(project.clientLogo).width(64).url()}
+                        alt={project.client}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-dark text-white flex items-center justify-center">
+                      <User size={18} />
+                    </div>
+                  )}
+                  <span className="font-bold text-dark">{project.client}</span>
+                </div>
+              )}
+              {/* Bez fallbacku daty: brak `date` w CMS = brak daty, nie zmyślony rok. */}
+              {project.date && (
+                <>
+                  {project.client && <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>}
+                  <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
+                    <Calendar size={16} /> {project.date}
                   </div>
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-dark text-white flex items-center justify-center">
-                    <User size={18} />
-                  </div>
-                )}
-                <span className="font-bold text-dark">{project.client}</span>
-              </div>
-            )}
-            <div className="w-px h-10 bg-gray-200 hidden sm:block"></div>
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
-              <Calendar size={16} /> {project.date || '2024'}
+                </>
+              )}
             </div>
-          </div>
+          )}
         </motion.div>
 
         {project.mainImage && (

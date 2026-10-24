@@ -198,12 +198,12 @@ const PozycjonowanieRzeszow: React.FC = () => {
         <AmbientBackground />
         <Container className="relative z-10">
           {/* Stats strip */}
-          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="max-w-4xl mx-auto mb-20 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {/* „200+ fraz w TOP 30" usunięte (niezmierzone — decyzja właściciela);
+                licznik projektów usunięty (bez potwierdzenia — PRODUCT.md: brak KPI);
                 staż jako „od 2020" (doświadczenie zespołu), spółka od 2023. */}
             {[
               { value: 2020, prefix: 'od ', label: 'doświadczenie zespołu', decimals: 0 },
-              { value: 120, suffix: '+', label: 'projektów', decimals: 0 },
               { value: 8, suffix: ' tyg', label: 'pierwsze sygnały efektów', decimals: 0 },
               {
                 value: 1200,
@@ -351,7 +351,7 @@ const PozycjonowanieRzeszow: React.FC = () => {
                   price: 'od 3 500',
                   suffix: 'zł/mies',
                   desc: 'Sklepy 500+ SKU, kategorie, produkty, blog, technical SEO.',
-                  bestFor: 'WooCommerce, Shoper, dedykowane',
+                  bestFor: 'WooCommerce, PrestaShop, dedykowane',
                 },
                 {
                   name: 'Audyt SEO',

@@ -34,7 +34,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku?',
       answer:
-        'Widełki cenowe w Mixture Marketing: prosty landing page od 2 500 zł, strona korporacyjna z CMS od 4 500 zł, sklep internetowy (Shoper/WooCommerce/dedykowany) od 6 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
+        'Widełki cenowe w Mixture Marketing: prosty landing page od 2 500 zł, strona korporacyjna z CMS od 4 500 zł, sklep internetowy (WooCommerce/PrestaShop/dedykowany) od 6 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
     },
     {
       question: 'Jak długo trwa realizacja strony internetowej?',
@@ -44,7 +44,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Czy tworzycie strony na WordPressie czy na Next.js?',
       answer:
-        'Obie technologie — wybór zależy od potrzeb. WordPress polecamy dla stron firmowych z CMS dla nietechnicznego zespołu i niższym budżetem. Next.js (React) dla projektów wymagających wysokiej wydajności, integracji z headless CMS (Sanity, Strapi), zaawansowanej animacji lub jako PWA. Sklepy budujemy na Shoper, WooCommerce lub dedykowanym Next.js+Sanity.',
+        'Obie technologie — wybór zależy od potrzeb. WordPress polecamy dla stron firmowych z CMS dla nietechnicznego zespołu i niższym budżetem. Next.js (React) dla projektów wymagających wysokiej wydajności, integracji z headless CMS (Sanity, Strapi), zaawansowanej animacji lub jako PWA. Sklepy budujemy na WooCommerce, PrestaShop lub dedykowanym Next.js+Sanity.',
     },
     {
       question: 'Czy strona będzie zoptymalizowana pod SEO i Core Web Vitals?',
@@ -280,14 +280,14 @@ const WebDevRzeszow: React.FC = () => {
             </h2>
             <p className="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-12">
               Dobieramy stack do potrzeb biznesowych, nie odwrotnie. Pracujemy z obiema głównymi
-              ścieżkami: szybki time-to-market (WordPress / Shoper) lub maksymalna wydajność i
+              ścieżkami: szybki time-to-market (WordPress / WooCommerce) lub maksymalna wydajność i
               kontrola (Next.js + headless CMS).
             </p>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 <h3 className="text-xl font-bold mb-3 flex items-center gap-2">
                   <Layers className="text-secondary" size={22} />
-                  Kiedy WordPress / Shoper?
+                  Kiedy WordPress / WooCommerce?
                 </h3>
                 <ul className="text-gray-600 space-y-2 text-sm">
                   <li className="flex gap-2">
@@ -356,7 +356,7 @@ const WebDevRzeszow: React.FC = () => {
                 {
                   icon: ShoppingCart,
                   title: 'Sklep internetowy',
-                  desc: 'Shoper, WooCommerce lub dedykowany Next.js + Sanity. Integracje kurier+płatności.',
+                  desc: 'WooCommerce, PrestaShop lub dedykowany Next.js + Sanity. Integracje kurier+płatności.',
                   link: '/web-development/ecommerce/',
                 },
                 {
@@ -492,7 +492,7 @@ const WebDevRzeszow: React.FC = () => {
                 </p>
                 <p className="text-3xl font-extrabold mb-2">od 6 000 zł</p>
                 <p className="text-sm text-gray-600">
-                  Shoper / WooCommerce / dedykowany. Integracje kurier+płatności. 6–12 tyg.
+                  WooCommerce / PrestaShop / dedykowany. Integracje kurier+płatności. 6–12 tyg.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
