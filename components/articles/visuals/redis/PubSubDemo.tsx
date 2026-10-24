@@ -55,12 +55,12 @@ const PubSubDemo = () => {
           </div>
           <div>
             <h3 className="font-bold text-lg">Subscriber</h3>
-            <p className="text-xs text-gray-600">Odbiorca (Real-time)</p>
+            <p className="text-xs text-slate-400">Odbiorca (Real-time)</p>
           </div>
         </div>
         <div className="flex-grow bg-[#0F172A]/50 rounded-xl p-4 border border-white/5 relative overflow-y-auto h-64 shadow-inner">
           {messages.length === 0 ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-700 gap-2 opacity-50">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
               <Activity size={32} />
               Nasłuchiwanie kanału 'news'...
             </div>

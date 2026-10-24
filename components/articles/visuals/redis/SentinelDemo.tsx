@@ -20,7 +20,7 @@ const SentinelNode = ({
     />
     <span className="text-xs font-bold mt-2 text-gray-600">{label}</span>
     {isMaster && !isDown && (
-      <div className="absolute -top-3 bg-emerald-500 text-white text-xxs px-2 py-0.5 rounded-full font-bold uppercase">
+      <div className="absolute -top-3 bg-emerald-700 text-white text-xxs px-2 py-0.5 rounded-full font-bold uppercase">
         Master
       </div>
     )}
