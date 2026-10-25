@@ -59,9 +59,11 @@ function call(env: unknown, fd: FormData, ip = '1.2.3.4') {
 
 let fetchMock: ReturnType<typeof vi.fn>;
 let emails: Array<{ to: string[]; html: string; attachments?: unknown }>;
+let crm: Array<Record<string, unknown>>;
 
 beforeEach(() => {
   emails = [];
+  crm = [];
   fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
     if (String(url).includes('turnstile')) {
       const token = new URLSearchParams(String(init?.body)).get('response');
@@ -70,6 +72,10 @@ beforeEach(() => {
     if (String(url).includes('resend')) {
       emails.push(JSON.parse(String(init?.body)));
       return new Response('{}');
+    }
+    if (String(url).includes('ingest/lead')) {
+      crm.push(JSON.parse(String(init?.body)));
+      return new Response('{}', { status: 201 });
     }
     return new Response('{}', { status: 404 });
   });
@@ -173,5 +179,37 @@ describe('audit/capture-lead', () => {
       statuses.push(res.status);
     }
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
+  });
+
+  it('po udanym zapisie kopia leada idzie do CRM (source=audit, ten sam id)', async () => {
+    const { env } = makeEnv();
+    const czekaj: Promise<unknown>[] = [];
+    const request = new Request('https://x/api/audit/capture-lead', {
+      method: 'POST',
+      body: form({
+        email: 'klient@example.com',
+        url: 'https://firma.pl',
+        companyName: 'Firma',
+        captcha_token: 'good',
+        score: '87',
+      }),
+      headers: { 'cf-connecting-ip': '7.7.7.7' },
+    });
+    const res = (await onRequestPost({
+      request,
+      env: { ...env, CRM_INGEST_SECRET: 'x'.repeat(64) },
+      waitUntil: (p: Promise<unknown>) => czekaj.push(p),
+    } as unknown as Ctx)) as Response;
+    await Promise.all(czekaj);
+    const { id } = (await res.json()) as { id: string };
+    expect(crm).toEqual([
+      expect.objectContaining({
+        external_id: id,
+        source: 'audit',
+        email: 'klient@example.com',
+        company: 'Firma',
+        source_url: 'https://firma.pl/',
+      }),
+    ]);
   });
 });

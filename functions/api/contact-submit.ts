@@ -28,8 +28,9 @@ import { checkRateLimit } from './estimation/_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
+import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
 
-interface Env {
+interface Env extends CrmEnv {
   TURNSTILE_SECRET: string;
   LEAD_TOKEN_SECRET?: string;
   RESEND_API_KEY: string;
@@ -213,7 +214,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS_HEADERS });
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   let body: RequestBody;
   try {
     body = (await request.json()) as RequestBody;
@@ -277,6 +278,22 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         // Zapis nie może blokować powiadomienia — logujemy i lecimy dalej.
         stored = false;
         console.error('D1 insert lead failed:', e);
+      }
+
+      // Kopia do CRM tylko po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
+      if (stored) {
+        wyslijDoCrmWTle(waitUntil, env, {
+          external_id: lead.id,
+          source: 'website',
+          received_at: new Date().toISOString(),
+          source_url: body.source_url,
+          name: lead.name,
+          email: lead.email,
+          phone: lead.phone,
+          service: lead.service_interest,
+          form_step: 1,
+          form_steps: 3,
+        });
       }
 
       // Powiadomienie do agencji.
@@ -345,6 +362,28 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
           updated = (res.meta?.changes ?? 0) > 0;
         } catch (e) {
           console.error('D1 update lead failed:', e);
+        }
+        // Kolejny krok formularza do CRM (uzupełnia ten sam lead po external_id).
+        if (updated) {
+          const str = (v: unknown) => (typeof v === 'string' ? v : null);
+          const extra = splitLeadFields(d);
+          wyslijDoCrmWTle(waitUntil, env, {
+            external_id: body.id,
+            source: 'website',
+            name: str(d.name),
+            email: str(d.email),
+            phone: str(d.phone),
+            company: str(d.company),
+            budget_text: str(d.budget),
+            message: str(d.message),
+            details: {
+              ...extra,
+              ...(str(d.website) ? { website: d.website } : {}),
+              ...(str(d.package_name) ? { package_name: d.package_name } : {}),
+            },
+            form_step: body.step ?? null,
+            form_steps: 3,
+          });
         }
       }
       // Email do agencji przy finalnym kroku (step=3).
