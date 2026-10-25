@@ -137,7 +137,9 @@ const LandingPagePsychology: React.FC = () => {
                   aria-pressed={activeStep === i}
                   onMouseEnter={() => setActiveStep(i)}
                   onMouseLeave={() => setActiveStep(null)}
-                  onClick={() => setActiveStep(activeStep === i ? null : i)}
+                  // Mysz/dotyk: hover już podświetlił krok, więc klik go NIE gasi (wcześniej toggle
+                  // wyłączał podświetlenie — klik wyglądał na martwy). Klawiatura (detail 0) przełącza.
+                  onClick={(e) => setActiveStep(e.detail === 0 && activeStep === i ? null : i)}
                   className={`w-full text-left flex items-start gap-4 p-4 rounded-xl border transition-all duration-300 group cursor-pointer ${
                     activeStep === i
                       ? 'bg-white/10 border-white/30 translate-x-2'
