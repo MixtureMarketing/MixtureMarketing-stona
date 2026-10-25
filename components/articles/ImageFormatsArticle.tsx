@@ -17,9 +17,11 @@ import {
 } from './visuals/ImageFormatsVisuals';
 import ArticleShell from './ArticleShell';
 import BaseCta from '../common/BaseCta';
+import { useModal } from '../../context/ModalContext';
 import { joinTitleLines } from '../../utils/seo/title';
 
 const ImageFormatsArticle = () => {
+  const { openModal } = useModal();
   const articleData = ARTICLES.find((a) => a.id === 'optymalizacja-obrazow-webp-avif');
 
   return (
@@ -162,6 +164,8 @@ const ImageFormatsArticle = () => {
         title={CONTENT.cta.title}
         description={CONTENT.cta.text}
         buttonText={CONTENT.cta.primaryBtn}
+        // Bez onClick/buttonLink główny przycisk CTA nie robił nic (E2E prod 2026-10-25).
+        onClick={() => openModal('consultation')}
         secondaryButtonText={CONTENT.cta.secondaryBtn}
         secondaryButtonLink="/baza-wiedzy/"
         variant="dark"

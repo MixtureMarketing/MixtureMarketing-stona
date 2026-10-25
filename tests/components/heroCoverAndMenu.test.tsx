@@ -83,3 +83,22 @@ describe('Navbar — bez nagłówków przed <h1> strony', () => {
     expect(container.querySelectorAll('h1, h2, h3, h4, h5, h6')).toHaveLength(0);
   });
 });
+
+describe('Navbar — CTA „Wycena Projektu” to jeden link, bez <button> w środku', () => {
+  // Regresja (E2E prod 2026-10-25): <Link><Button/></Link> — zagnieżdżone elementy interaktywne
+  // (niepoprawny HTML, dwa przystanki Tab i dwa „Wycena Projektu” dla czytnika).
+  it('jeden element interaktywny prowadzący do /wycena/', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <ModalProvider>
+          <Navbar />
+        </ModalProvider>
+      </MemoryRouter>,
+    );
+    const cta = screen.getByRole('link', { name: 'Wycena Projektu' });
+    expect(cta).toHaveAttribute('href', '/wycena/');
+    expect(cta.querySelector('button, a, [role="button"]')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Wycena Projektu' })).toBeNull();
+    expect(container.querySelectorAll('a button, a a, button a, button button')).toHaveLength(0);
+  });
+});

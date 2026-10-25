@@ -563,15 +563,19 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
           .getByText(`Od ${TIERS.starter.price} zł / mc`)
           .closest('div.fixed') as HTMLElement;
         expect(bar).toHaveAttribute('aria-hidden', 'true');
+        // Schowany pasek (poza ekranem) nie może być osiągalny z klawiatury (axe: aria-hidden-focus).
+        expect(bar).toHaveAttribute('inert');
         expect(document.body.dataset.stickyMobileBar).toBeUndefined();
         expect(callsOf('view_pricing')).toEqual([]);
 
         fire(hero, false);
         expect(bar).toHaveAttribute('aria-hidden', 'false');
+        expect(bar).not.toHaveAttribute('inert');
         expect(document.body.dataset.stickyMobileBar).toBe('true');
 
         fire(pricing, true);
         expect(bar).toHaveAttribute('aria-hidden', 'true');
+        expect(bar).toHaveAttribute('inert');
         expect(document.body.dataset.stickyMobileBar).toBeUndefined();
         expect(callsOf('view_pricing')).toEqual([{ source: '/abonament/' }]);
 

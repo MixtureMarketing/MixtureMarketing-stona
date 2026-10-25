@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { X, Loader2, AlertTriangle, ShieldCheck, ArrowRight, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../../../utils/analytics';
+import { useDialogFocusReturn } from '../../../hooks/useDialogFocusReturn';
 import {
   normalizePhone,
   isValidPhoneE164,
@@ -125,6 +126,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     nip?: string;
   }>({});
   const dialogRef = useRef<HTMLDialogElement>(null);
+  useDialogFocusReturn(!!tier, dialogRef);
   const firstInputRef = useRef<HTMLInputElement>(null);
   // Wysyłka w locie — zamknięcie modala ją przerywa (i NIE przekierowuje do Stripe).
   const inFlightRef = useRef<AbortController | null>(null);

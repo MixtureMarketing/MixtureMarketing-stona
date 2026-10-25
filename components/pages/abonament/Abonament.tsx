@@ -2294,6 +2294,8 @@ const Abonament: React.FC = () => {
       {/* Sticky mobile bar */}
       <div
         aria-hidden={!showStickyMobileBar || pricingInView}
+        // inert: schowany (translate-y-full) pasek nie może łapać fokusu z Tab — jak StickyMobileBar
+        inert={!showStickyMobileBar || pricingInView}
         className={`md:hidden fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)] transition-transform duration-300 ${
           showStickyMobileBar && !pricingInView ? 'translate-y-0' : 'translate-y-full'
         }`}
