@@ -5,6 +5,7 @@
  */
 
 import { serverError } from '../_shared/errors';
+import { ADMIN_DOZWOLONE, przeniesione } from '../_shared/panel';
 
 interface Env {
   DB: D1Database;
@@ -39,6 +40,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   if (!user || user.role !== 'admin') {
     return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403 });
+  }
+
+  // Panel przeniesiony do Mixture CRM: z admina zostaje tylko podgląd leadów (_shared/panel.ts).
+  if (!ADMIN_DOZWOLONE.has(`${request.method} ${new URL(request.url).pathname}`)) {
+    return przeniesione();
   }
 
   // Attach user to context
