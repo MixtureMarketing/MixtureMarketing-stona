@@ -6,6 +6,12 @@ import { HelmetProvider } from 'react-helmet-async';
 import Abonament from '../../components/pages/abonament/Abonament';
 import { TIERS } from '../../components/pages/abonament/PreonboardModal';
 
+// Każdy test renderuje w jsdom całą stronę /abonament/ (~2,3 tys. linii JSX): pojedynczo
+// 0,3–0,8 s, ale przy pełnym `vitest --run` obok innych procesów (np. przeglądarek E2E)
+// lokalnie trzy testy przekroczyły domyślne 5 s. Zapas, żeby obciążenie maszyny nie dawało
+// fałszywie czerwonych wyników.
+vi.setConfig({ testTimeout: 20_000 });
+
 // Testy charakteryzacyjne lejka /abonament/ (raport 9 §5.2) — opisują OBECNE zachowanie
 // strony, żeby cięcie Abonament.tsx na sekcje/hooki (§2.1) dało się zweryfikować bez zmian.
 // Ceny sprawdzamy względem TIERS (źródło używane przy płatności), nie wpisanych liczb —
