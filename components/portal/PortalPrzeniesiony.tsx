@@ -7,8 +7,8 @@ import GlassCard from '../common/GlassCard';
 /**
  * Portal klienta przeniesiony do Mixture CRM (decyzja Karola z 25.10.2026). Dawny /portal/dashboard:
  * admin trafia do podglądu leadów, klient widzi informację. Nowy portal ma osobny adres dla każdej firmy,
- * więc nie ma jednego celu przekierowania; link przychodzi e-mailem. Po podpięciu domeny
- * klient.mixturemarketing.pl można tu dodać 301 w public/_redirects.
+ * (https://mixture-crm.pages.dev/klient/<adres-firmy>), więc nie ma jednego celu przekierowania;
+ * link przychodzi e-mailem z CRM.
  */
 const PortalPrzeniesiony: React.FC = () => {
   const { user, isLoading } = useAuth();

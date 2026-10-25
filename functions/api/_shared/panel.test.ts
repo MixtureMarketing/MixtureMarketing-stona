@@ -4,7 +4,7 @@ import { onRequest as portalMiddleware } from '../portal/_middleware';
 import { onRequestPost as sendMagicLink } from '../auth/send_magic_link';
 import { onRequestPost as verifyToken } from '../auth/verify_token';
 import { createFakeD1, fnContext, type FakeD1 } from '../../../tests/helpers/fakeD1';
-import { PANEL_PRZENIESIONY } from './panel';
+import { BIBLIOTEKA_ZAMROZONA, PANEL_PRZENIESIONY } from './panel';
 
 // Wyłączenie starego panelu (decyzja Karola z 25.10.2026): portal klienta, Klienci, Projekty, Czat,
 // Metryki i Wyceny są w Mixture CRM. Na stronie zostaje podgląd leadów dla admina.
@@ -60,6 +60,27 @@ describe('wyłączony stary panel', () => {
       expect((await admin(m, s)).status, `${m} ${s}`).toBe(410);
     }
     expect((await admin('GET', '/api/admin/get_leads', KLIENT)).status).toBe(403);
+  });
+
+  it('biblioteka wycen zamrożona: zmiana i import to 403, odczyt jak reszta panelu (410)', async () => {
+    for (const [m, s] of [
+      ['PATCH', '/api/admin/estimation/library'],
+      ['POST', '/api/admin/estimation/library'],
+      ['POST', '/api/admin/estimation/library-import'],
+      ['DELETE', '/api/admin/estimation/library'],
+    ]) {
+      const odp = await admin(m, s);
+      expect(odp.status, `${m} ${s}`).toBe(403);
+      expect(await odp.json()).toEqual({ error: BIBLIOTEKA_ZAMROZONA });
+    }
+    expect((await admin('GET', '/api/admin/estimation/library')).status).toBe(410);
+    expect((await admin('GET', '/api/admin/estimation/library-export')).status).toBe(410);
+    expect((await admin('POST', '/api/admin/estimation/quote')).status).toBe(410);
+    // Bez sesji admina nadal najpierw 401/403, bez zdradzania, co jest za nimi.
+    expect((await admin('PATCH', '/api/admin/estimation/library', KLIENT)).status).toBe(403);
+    expect(await (await admin('PATCH', '/api/admin/estimation/library', KLIENT)).json()).toEqual({
+      error: 'Admin access required',
+    });
   });
 
   it('magic link: wysyłany tylko adminowi; klient dostaje tę samą neutralną odpowiedź bez tokenu', async () => {
