@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { onRequestPost } from './contact-submit';
+import { podpiszLead } from './_leadToken';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -39,6 +40,10 @@ function call(env: unknown, body: unknown) {
   return onRequestPost({ request, env } as unknown as Ctx) as Promise<Response>;
 }
 
+// Ważny token edycji (klucz awaryjny = TURNSTILE_SECRET z makeEnv). Testy poniżej sprawdzają
+// logikę za bramką tokenu, więc wołają akcje tak, jak robi to prawdziwy formularz.
+const tok = (id: string) => podpiszLead({ TURNSTILE_SECRET: 's' }, id);
+
 let emails: number;
 beforeEach(() => {
   emails = 0;
@@ -57,6 +62,7 @@ describe('contact-submit — akcje bez captchy', () => {
     const res = await call(makeEnv(), {
       action: 'send_notification',
       id: 'zmyslone',
+      edit_token: await tok('zmyslone'),
       type: 'success',
     });
     expect(res.status).toBe(200);
@@ -65,8 +71,9 @@ describe('contact-submit — akcje bez captchy', () => {
 
   it('send_notification dla istniejącego leada wysyła maila tylko raz na typ', async () => {
     const env = makeEnv();
-    await call(env, { action: 'send_notification', id: EXISTING, type: 'success' });
-    await call(env, { action: 'send_notification', id: EXISTING, type: 'success' });
+    const edit_token = await tok(EXISTING);
+    await call(env, { action: 'send_notification', id: EXISTING, edit_token, type: 'success' });
+    await call(env, { action: 'send_notification', id: EXISTING, edit_token, type: 'success' });
     expect(emails).toBe(1);
   });
 
@@ -74,6 +81,7 @@ describe('contact-submit — akcje bez captchy', () => {
     const res = await call(makeEnv(), {
       action: 'update',
       id: 'zmyslone',
+      edit_token: await tok('zmyslone'),
       step: 3,
       details: { message: 'pilne: zadzwoń' },
     });
@@ -82,7 +90,13 @@ describe('contact-submit — akcje bez captchy', () => {
   });
 
   it('update step=3 dla istniejącego leada wysyła maila', async () => {
-    await call(makeEnv(), { action: 'update', id: EXISTING, step: 3, details: { message: 'ok' } });
+    await call(makeEnv(), {
+      action: 'update',
+      id: EXISTING,
+      edit_token: await tok(EXISTING),
+      step: 3,
+      details: { message: 'ok' },
+    });
     expect(emails).toBe(1);
   });
 

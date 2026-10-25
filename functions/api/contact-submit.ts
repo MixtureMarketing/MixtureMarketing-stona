@@ -7,12 +7,18 @@
  *   1) Klient (leadService.ts) wysyła JSON {action, lead, details, ...}
  *   2) Funkcja weryfikuje Turnstile token (Cloudflare) — odrzuca boty
  *   3) Wysyła e-mail powiadomienia do NOTIFY_EMAIL przez Resend API
- *   4) Zwraca {success, id} — kod 200/400/403
+ *   4) Zwraca {success, id, edit_token} — kod 200/400/403
+ *
+ * Autoryzacja kroków 2–3: id leada generuje serwer, a `create` zwraca `edit_token`
+ * (podpis HMAC id, patrz _leadToken.ts). `update`, `get_lead` i `send_notification`
+ * bez poprawnego tokenu dostają 403 — samo id nie daje już dostępu do danych osobowych.
  *
  * Env vars wymagane w CF Pages (Production):
  *   - TURNSTILE_SECRET    — secret key widgetu Turnstile (encrypted)
  *   - RESEND_API_KEY      — klucz API Resend.com (encrypted)
  *   - NOTIFY_EMAIL        — adres docelowy powiadomień (plain text)
+ *   - LEAD_TOKEN_SECRET   — klucz podpisu tokenów edycji leada (encrypted; zalecany,
+ *                           bez niego awaryjnie używany jest TURNSTILE_SECRET)
  *
  * Compat: zachowujemy strukturę API zgodną z poprzednim /api/contact_submit.php,
  * żeby leadService.ts nie wymagał zmian (action: 'create'|'update'|'send_notification'|'get_lead').
@@ -21,9 +27,11 @@
 import { checkRateLimit } from './estimation/_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
+import { podpiszLead, sprawdzLead } from './_leadToken';
 
 interface Env {
   TURNSTILE_SECRET: string;
+  LEAD_TOKEN_SECRET?: string;
   RESEND_API_KEY: string;
   NOTIFY_EMAIL: string;
   DB: D1Database;
@@ -71,6 +79,7 @@ interface RequestBody {
   action: 'create' | 'update' | 'send_notification' | 'get_lead';
   lead?: LeadPayload;
   id?: string;
+  edit_token?: string;
   details?: Record<string, unknown>;
   step?: number;
   type?: 'abandoned_step_1' | 'abandoned_step_2' | 'success';
@@ -167,7 +176,19 @@ function rowToLead(row: Record<string, unknown>) {
   };
 }
 
-// GET /api/contact-submit?action=get_lead&id=... — wznowienie formularza z maila.
+const BRAK_TOKENU = { message: 'Brak lub niepoprawny token leada' };
+
+async function pobierzLead(env: Env, id: string) {
+  try {
+    const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
+    return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
+  } catch {
+    return json({ lead: null });
+  }
+}
+
+// GET /api/contact-submit?action=get_lead&id=...&token=... — wznowienie formularza z maila.
+// Frontend używa wariantu POST (token nie trafia do logów URL); GET zostaje dla linków.
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const url = new URL(request.url);
   if (url.searchParams.get('action') !== 'get_lead') {
@@ -185,12 +206,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     );
     if (!rl.allowed) return json({ message: 'Zbyt wiele żądań' }, 429);
   }
-  try {
-    const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
-    return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
-  } catch {
-    return json({ lead: null });
-  }
+  if (!(await sprawdzLead(env, id, url.searchParams.get('token')))) return json(BRAK_TOKENU, 403);
+  return pobierzLead(env, id);
 };
 
 export const onRequestOptions: PagesFunction = async () =>
@@ -230,20 +247,29 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       const ok = await verifyTurnstile(body.lead.captcha_token || '', env.TURNSTILE_SECRET, ip);
       if (!ok) return json({ message: 'Weryfikacja captcha nieudana' }, 403);
 
-      // Zapis do D1 (źródło prawdy). INSERT OR IGNORE — idempotentny przy wznowieniu
-      // (ten sam lead.id może przyjść ponownie).
+      // Id generuje serwer — id od klienta jest ignorowane. Inaczej dałoby się „utworzyć"
+      // lead o cudzym id i dostać ważny token do cudzych danych.
+      const lead: LeadPayload = { ...body.lead, id: crypto.randomUUID() };
+      const editToken = await podpiszLead(env, lead.id);
+      if (!editToken) {
+        console.error('Brak LEAD_TOKEN_SECRET i TURNSTILE_SECRET — nie można wydać tokenu leada');
+        return json({ message: 'Błąd konfiguracji serwera' }, 503);
+      }
+
+      // Zapis do D1 (źródło prawdy). Ponowienie po LEAD_NOT_SAVED tworzy nowe id —
+      // poprzednia próba nie zostawiła ani rekordu, ani maila.
       let stored = true;
       try {
         await env.DB.prepare(
-          `INSERT OR IGNORE INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
+          `INSERT INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
            VALUES (?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
         )
           .bind(
-            body.lead.id,
-            body.lead.name,
-            body.lead.email,
-            body.lead.phone || null,
-            body.lead.service_interest || null,
+            lead.id,
+            lead.name,
+            lead.email,
+            lead.phone || null,
+            lead.service_interest || null,
             body.source_url || null,
           )
           .run();
@@ -254,13 +280,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       }
 
       // Powiadomienie do agencji.
-      const subject = `🆕 Nowy lead — ${body.lead.name} (${body.lead.service_interest || 'general'})`;
-      const mailed = await sendEmail(env, subject, leadEmailHtml(body.lead), body.lead.email);
+      const subject = `🆕 Nowy lead — ${lead.name} (${lead.service_interest || 'general'})`;
+      const mailed = await sendEmail(env, subject, leadEmailHtml(lead), lead.email);
 
       // Ani rekordu w D1, ani maila → lead przepadłby bez śladu. Użytkownik MUSI
-      // dostać błąd, żeby spróbować ponownie (INSERT OR IGNORE → retry jest bezpieczny).
+      // dostać błąd, żeby spróbować ponownie.
       if (!stored && !mailed) {
-        console.error('[contact-submit] LEAD_NOT_SAVED — D1 i Resend zawiodły', body.lead.id);
+        console.error('[contact-submit] LEAD_NOT_SAVED — D1 i Resend zawiodły', lead.id);
         return json(
           {
             message:
@@ -271,13 +297,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
         );
       }
 
-      return json({ success: true, id: body.lead.id, degraded: !stored || !mailed });
+      return json({
+        success: true,
+        id: lead.id,
+        edit_token: editToken,
+        degraded: !stored || !mailed,
+      });
     }
 
     case 'update': {
       // Update nie wymaga captcha (lead już utworzony i zweryfikowany w kroku 1).
       // Mail do agencji tylko, gdy lead faktycznie istnieje (UPDATE trafił w wiersz) —
       // inaczej dowolne `id` pozwalało wysyłać maile z treścią atakującego.
+      // Token wydany przy create — bez niego każdy znający id mógłby nadpisać dane.
+      if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       let updated = false;
       if (body.id) {
         const d = (body.details || {}) as Record<string, unknown>;
@@ -325,6 +358,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     case 'send_notification': {
       // Tylko dla istniejącego leada i raz na (lead, typ) — bez tego endpoint był
       // publiczną pompą maili do skrzynki agencji.
+      if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       if (!body.id || !(await leadExists(env, body.id))) return json({ success: true });
       const type = body.type || 'success';
       if (env.CACHE) {
@@ -348,12 +382,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
     case 'get_lead': {
       if (!body.id) return json({ lead: null });
-      try {
-        const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(body.id).first();
-        return json({ lead: row ? rowToLead(row as Record<string, unknown>) : null });
-      } catch {
-        return json({ lead: null });
-      }
+      if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
+      return pobierzLead(env, body.id);
     }
 
     default:
