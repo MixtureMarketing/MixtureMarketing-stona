@@ -75,7 +75,7 @@ beforeEach(() => {
     }
     if (String(url).includes('ingest/lead')) {
       crm.push(JSON.parse(String(init?.body)));
-      return new Response('{}', { status: 201 });
+      return new Response('{}', { status: 201, headers: { 'Content-Type': 'application/json' } });
     }
     return new Response('{}', { status: 404 });
   });

@@ -35,10 +35,12 @@ interface Wywolanie {
 }
 let wywolania: Wywolanie[] = [];
 let odpowiedzi: number[] = [];
+let html = false;
 
 beforeEach(() => {
   wywolania = [];
   odpowiedzi = [];
+  html = false;
   vi.spyOn(console, 'error').mockImplementation(() => {});
   vi.stubGlobal(
     'fetch',
@@ -53,7 +55,10 @@ beforeEach(() => {
         podpis: h.get('X-Mixture-Signature') ?? '',
         tresc: String(init?.body ?? ''),
       });
-      return new Response('{}', { status: odpowiedzi.shift() ?? 201 });
+      return new Response('{}', {
+        status: odpowiedzi.shift() ?? 201,
+        headers: { 'Content-Type': html ? 'text/html' : 'application/json' },
+      });
     }),
   );
 });
@@ -100,6 +105,14 @@ describe('_crm — wysyłka leada do CRM', () => {
       'odrzucony',
     );
     expect(wywolania).toHaveLength(1);
+  });
+
+  it('strona logowania Cloudflare Access (200 + HTML) to nie sukces', async () => {
+    html = true;
+    odpowiedzi = [200];
+    expect(await wyslijDoCrm({ CRM_INGEST_SECRET: SEKRET }, LEAD, { przerwaMs: 0 })).toBe(
+      'odrzucony',
+    );
   });
 
   it('CRM nie odpowiada → po dwóch próbach poddaje się bez wyjątku', async () => {

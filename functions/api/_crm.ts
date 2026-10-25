@@ -88,7 +88,14 @@ export async function wyslijDoCrm(
         },
         body: tresc,
       });
-      if (odp.ok) return 'wyslany';
+      // 200 z HTML-em to strona logowania Cloudflare Access (brak reguły Bypass dla
+      // /api/ingest/*) albo przekierowanie — CRM zawsze odpowiada JSON-em.
+      const jsonOk = (odp.headers.get('Content-Type') ?? '').includes('application/json');
+      if (odp.ok && jsonOk && !odp.redirected) return 'wyslany';
+      if (odp.ok) {
+        console.error(`[crm] lead ${lead.external_id}: odpowiedź nie z CRM (Access?)`);
+        return 'odrzucony';
+      }
       if (odp.status !== 409 && odp.status < 500) {
         console.error(`[crm] lead ${lead.external_id} odrzucony: HTTP ${odp.status}`);
         return 'odrzucony';
