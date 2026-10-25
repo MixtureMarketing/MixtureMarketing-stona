@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useDialogFocusReturn } from '@/hooks/useDialogFocusReturn';
 
 interface ModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ const Modal: React.FC<ModalProps> = ({
   maxWidth = 'max-w-2xl',
 }) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  useDialogFocusReturn(isOpen, dialogRef);
 
   useEffect(() => {
     const dlg = dialogRef.current;
