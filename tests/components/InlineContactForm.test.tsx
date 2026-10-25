@@ -67,4 +67,26 @@ describe('InlineContactForm (/contact/) — Turnstile na żądanie', () => {
     expect(renderInvisibleTurnstile).toHaveBeenCalledTimes(1);
     await waitFor(() => expect(screen.getByText(/Ostatni krok|Szczegóły/i)).toBeInTheDocument());
   });
+
+  // Regresja (E2E prod 2026-10-25): po nieudanej walidacji komunikat gasł dopiero przy blur —
+  // a blur pola następuje na mousedown przycisku „Zapisz i przejdź dalej”. Układ skakał o
+  // wysokość komunikatu, mouseup lądował obok przycisku i pierwszy klik przepadał.
+  it('po nieudanej próbie komunikaty gasną przy zmianie pola, bez czekania na blur', async () => {
+    renderForm();
+    fireEvent.click(screen.getByText(/Zapisz i przejdź dalej/i));
+    expect(await screen.findByText(/Zgoda na przetwarzanie danych jest wymagana/i)).toBeVisible();
+    expect(screen.getByText(/co najmniej 2 znaki/i)).toBeVisible();
+
+    // Same zdarzenia change/click — bez blur (jak w chwili mousedown na przycisku).
+    fireEvent.change(screen.getByLabelText(/Imię i Nazwisko/i), {
+      target: { value: 'Jan Kowalski' },
+    });
+    fireEvent.click(screen.getByRole('checkbox'));
+
+    await waitFor(() =>
+      expect(screen.queryByText(/Zgoda na przetwarzanie danych jest wymagana/i)).toBeNull(),
+    );
+    expect(screen.queryByText(/co najmniej 2 znaki/i)).toBeNull();
+    expect(leadService.createLead).not.toHaveBeenCalled();
+  });
 });

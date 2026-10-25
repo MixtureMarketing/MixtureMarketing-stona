@@ -39,7 +39,7 @@ export const useContactForm = (
     mode: 'onTouched',
   });
 
-  const { getValues, reset, trigger } = formMethods;
+  const { getValues, reset, trigger, setValue } = formMethods;
 
   useEffect(() => {
     if (additionalData?.resumedLead && !isInitialized.current) {
@@ -65,7 +65,14 @@ export const useContactForm = (
     if (step === 2) fieldsToValidate = ['projectType', 'budget', 'website'];
 
     const isValid = await trigger(fieldsToValidate);
-    if (!isValid) return;
+    if (!isValid) {
+      // Po nieudanej próbie pola walidują się przy KAŻDEJ zmianie. Tryb onTouched waliduje na
+      // zmianę tylko pole „dotknięte”, więc komunikat (np. zgody) znikał dopiero przy blur —
+      // a blur następuje na mousedown przycisku: układ skakał o wysokość komunikatu, mouseup
+      // lądował obok przycisku i klik „Zapisz i przejdź dalej” przepadał.
+      for (const f of fieldsToValidate) setValue(f, getValues(f), { shouldTouch: true });
+      return;
+    }
 
     setIsLoading(true);
     setSubmitError(null);
