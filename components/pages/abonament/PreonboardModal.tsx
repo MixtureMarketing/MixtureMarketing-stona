@@ -178,8 +178,13 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     }
   }, [tier]);
 
-  if (!tier || !selectedTier) return null;
-  const tierCfg = TIERS[selectedTier];
+  if (!tier) return null;
+  // Pakiet do wyświetlenia: wybór z selecta/draftu, a do czasu synchronizacji — prop.
+  // Wcześniej przy `selectedTier === null` (świeża sesja, bez draftu) render zwracał null:
+  // efekt showModal() wykonywał się bez <dialog> w DOM i nie wracał po dorenderowaniu —
+  // pierwszy klik „Wybierz …" zostawiał niewidoczny, zamknięty dialog (lejek zablokowany).
+  const activeTier: AbonamentTier = selectedTier ?? tier;
+  const tierCfg = TIERS[activeTier];
 
   // Zamknięcie (X, Esc, backdrop) w trakcie wysyłki anuluje ją — użytkownik zrezygnował,
   // więc nie wolno go potem przerzucić do Stripe.
@@ -187,7 +192,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     if (inFlightRef.current) {
       inFlightRef.current.abort();
       inFlightRef.current = null;
-      trackEvent('preonboard_error', { tier: selectedTier, error_code: 'USER_CLOSED' });
+      trackEvent('preonboard_error', { tier: activeTier, error_code: 'USER_CLOSED' });
     }
     setSubmitting(false);
     onClose();
@@ -209,7 +214,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
     e.preventDefault();
     setError(null);
     setErrorCta(null);
-    const tier = selectedTier as AbonamentTier;
+    const tier = activeTier;
     trackEvent('submit_preonboard_attempt', { tier });
 
     // H2: walidacja wszystkich pól na raz przy submit, błędy widoczne inline pod każdym
@@ -494,7 +499,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
               <select
                 id="pb-tier"
                 required
-                value={selectedTier || ''}
+                value={activeTier}
                 onChange={(e) => setSelectedTier(e.target.value as AbonamentTier)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark bg-white"
               >

@@ -1,10 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   normalizePhone,
   isValidPhoneE164,
   isValidNipChecksum,
   validateNip,
   isNipTakenError,
+  DRAFT_KEY,
+  readDraft,
+  writeDraft,
+  clearDraft,
+  redirectToCheckout,
 } from '@/components/pages/abonament/preonboardLogic';
 
 describe('normalizePhone → E.164', () => {
@@ -74,5 +79,95 @@ describe('isNipTakenError — tylko faktyczny duplikat', () => {
 
   it('409 bez związku z NIP-em → nie', () => {
     expect(isNipTakenError(undefined, 409, 'Email already exists')).toBe(false);
+  });
+});
+
+// --- Testy charakteryzacyjne (raport 9 §5.2) ---
+
+describe('normalizePhone — przypadki brzegowe (obecne zachowanie)', () => {
+  it.each([
+    ['600 100 20', '+4860010020'], // za krótki → +48, walidacja odrzuca
+    ['+1 202 555 0143', '+12025550143'],
+    ['0044 20 7946 0958', '+442079460958'],
+    ['44 20 7946 0958', '+442079460958'], // >9 cyfr bez plusa → zagraniczny
+    ['abc', ''],
+  ])('%s → %s', (raw, expected) => {
+    expect(normalizePhone(raw)).toBe(expected);
+  });
+
+  it('za krótki numer PL nie przechodzi E.164, zagraniczny 8–15 cyfr przechodzi', () => {
+    expect(isValidPhoneE164('+4860010020')).toBe(false);
+    expect(isValidPhoneE164('+12025550143')).toBe(true);
+    expect(isValidPhoneE164('+1234567')).toBe(false); // 7 cyfr — za mało
+  });
+});
+
+describe('validateNip — komunikaty', () => {
+  it.each([
+    ['', 'Wpisz NIP firmy — potrzebny do faktury VAT.'],
+    ['123', '3/10 cyfr — w PL NIP ma 10 cyfr.'],
+    ['12345678AB', 'NIP to 10 cyfr (bez myślników).'],
+    ['123-456-32-18', 'NIP to 10 cyfr (bez myślników).'],
+    ['1234563219', 'Ten NIP jest nieprawidłowy — sprawdź, czy nie ma literówki.'],
+  ])('%j → %s', (v, msg) => {
+    expect(validateNip(v)).toBe(msg);
+  });
+});
+
+describe('draft w sessionStorage', () => {
+  beforeEach(() => sessionStorage.clear());
+
+  it('klucz to mm_preonboard_draft (czyści go też AbonamentSuccess)', () => {
+    expect(DRAFT_KEY).toBe('mm_preonboard_draft');
+  });
+
+  it('writeDraft scala z istniejącym draftem, readDraft zwraca całość', () => {
+    writeDraft({ businessName: 'A', selectedTier: 'starter' });
+    writeDraft({ email: 'a@b.pl' });
+    expect(readDraft()).toEqual({ businessName: 'A', selectedTier: 'starter', email: 'a@b.pl' });
+    expect(JSON.parse(sessionStorage.getItem(DRAFT_KEY) || '{}')).toEqual(readDraft());
+  });
+
+  it('brak / uszkodzony draft → {}', () => {
+    expect(readDraft()).toEqual({});
+    sessionStorage.setItem(DRAFT_KEY, '{nie-json');
+    expect(readDraft()).toEqual({});
+  });
+
+  it('clearDraft usuwa wpis', () => {
+    writeDraft({ nip: '1234563218' });
+    clearDraft();
+    expect(sessionStorage.getItem(DRAFT_KEY)).toBeNull();
+  });
+
+  it('niedostępny storage (tryb prywatny / quota) nie rzuca', () => {
+    const spies = [
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      }),
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('QuotaExceededError');
+      }),
+      vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('SecurityError');
+      }),
+    ];
+    try {
+      expect(readDraft()).toEqual({});
+      expect(() => writeDraft({ email: 'a@b.pl' })).not.toThrow();
+      expect(() => clearDraft()).not.toThrow();
+    } finally {
+      spies.forEach((s) => s.mockRestore());
+    }
+  });
+});
+
+describe('redirectToCheckout', () => {
+  it('ustawia window.location.href', () => {
+    // jsdom nie nawiguje między dokumentami — nawigacja w obrębie hasha jest obsługiwana.
+    const target = `${window.location.href.split('#')[0]}#stripe-checkout`;
+    redirectToCheckout(target);
+    expect(window.location.href).toBe(target);
+    window.location.hash = '';
   });
 });
