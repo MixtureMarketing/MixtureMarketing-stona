@@ -21,6 +21,7 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
+  const [blad, setBlad] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -37,9 +38,14 @@ const AdminDashboard: React.FC = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status} (get_leads)`);
       const next = asArray<Lead>((await res.json())?.leads);
       setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(next) ? next : prev));
+      setBlad(false);
     } catch (e) {
+      // Wygasła sesja: authFetch już wylogował, efekt wyżej przeniesie na logowanie.
       console.error(e);
+      setBlad(true);
     }
+    // authFetch jest stabilny (useCallback po sessionToken w AuthContext), więc interwał niżej
+    // nie startuje od nowa przy każdym renderze.
   }, [sessionToken, authFetch]);
 
   useEffect(() => {
@@ -71,6 +77,16 @@ const AdminDashboard: React.FC = () => {
           Klienci, projekty, czat, metryki i wyceny są teraz w Mixture CRM. Tu zostaje podgląd
           leadów, tylko do odczytu; odpowiedź do leada i zamiana na klienta są w CRM.
         </p>
+
+        {blad && (
+          <p
+            role="alert"
+            className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3 mb-4"
+          >
+            Nie udało się pobrać leadów. Odświeżymy listę za 30 sekund; jeśli błąd zostaje, sprawdź
+            leady w Mixture CRM.
+          </p>
+        )}
 
         <AdminLeads leads={leads} onViewDetails={setViewingLead} />
 

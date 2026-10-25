@@ -73,6 +73,32 @@ describe('panel po przeniesieniu do Mixture CRM', () => {
     expect(adresy.every((a) => a.startsWith('/api/admin/get_leads'))).toBe(true);
   });
 
+  it('admin: błąd pobierania leadów pokazuje komunikat, kolejne udane pobranie go chowa', async () => {
+    zaloguj('admin');
+    let odpowiedz = 500;
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: odpowiedz === 200,
+        status: odpowiedz,
+        json: async () => (odpowiedz === 200 ? { leads: [lead] } : { error: 'boom' }),
+      }),
+    ) as unknown as typeof fetch;
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      pokaz('/portal/admin');
+      expect(await screen.findByRole('alert')).toHaveTextContent(/Nie udało się pobrać leadów/);
+      expect(localStorage.getItem('portal_token')).toBe('token'); // 500 to nie wylogowanie
+      odpowiedz = 200;
+      await vi.advanceTimersByTimeAsync(30_000);
+      expect(await screen.findByText('Ola')).toBeInTheDocument();
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      // Jeden interwał: start i jedno odświeżenie po 30 s, bez resetów przy renderach.
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('klient pod /portal/dashboard: informacja o nowym portalu i kontakt', async () => {
     zaloguj('client');
     pokaz('/portal/dashboard');
