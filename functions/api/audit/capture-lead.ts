@@ -16,8 +16,9 @@
 
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, escapeHtml, safeHttpUrl, sha256Hex, verifyTurnstile } from '../_shared/security';
+import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 
-interface Env {
+interface Env extends CrmEnv {
   DB: D1Database;
   FILES?: R2Bucket;
   CACHE?: KVNamespace;
@@ -80,7 +81,7 @@ async function sendEmail(env: Env, to: string, subject: string, html: string, pd
   }
 }
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   let formData: FormData;
   try {
     formData = await request.formData();
@@ -183,6 +184,18 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     console.error('D1 insert audit lead failed:', e);
     return json({ status: 'error', message: 'DB error' }, 500);
   }
+
+  // Kopia do CRM po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
+  wyslijDoCrmWTle(waitUntil, env, {
+    external_id: id,
+    source: 'audit',
+    received_at: new Date().toISOString(),
+    email,
+    name: companyName || 'Lead z audytu',
+    company: companyName || null,
+    source_url: url,
+    details: { score, pdf_key: r2Key, website: url },
+  });
 
   const safeUrl = escapeHtml(url);
   const safeEmail = escapeHtml(email);

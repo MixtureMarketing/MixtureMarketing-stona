@@ -8,6 +8,7 @@
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
 import { escapeHtml } from '../_shared/security';
+import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import {
   parsePublicConfig,
   computePublicQuote,
@@ -19,7 +20,7 @@ import { withRetry } from '../../../lib/estimation/retry';
 import { ENGINE_VERSION } from '../../../lib/estimation/engine';
 import type { Answers } from '../../../lib/estimation/types';
 
-interface Env {
+interface Env extends CrmEnv {
   DB: D1Database;
   CACHE: KVNamespace;
   TURNSTILE_SECRET: string;
@@ -68,7 +69,7 @@ async function verifyTurnstile(token: string, secret: string, ip: string): Promi
 export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS });
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   let body: Body;
   try {
     body = (await request.json()) as Body;
@@ -103,7 +104,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const result = computePublicQuote(rawLib, answers, config);
 
   // 7. Zapis (best-effort, retry) — nie blokuje zwrotu ceny.
-  await persist(env, rawLib, email, answers, result);
+  await persist(env, rawLib, email, answers, result, waitUntil);
 
   // 8. E-mail (best-effort, degradacja łagodna).
   await sendEmails(env, email, result);
@@ -118,6 +119,7 @@ async function persist(
   email: string,
   answers: Answers,
   result: PublicQuoteResult,
+  waitUntil?: (p: Promise<unknown>) => void,
 ): Promise<void> {
   try {
     const leadId = crypto.randomUUID();
@@ -163,6 +165,19 @@ async function persist(
       ).bind(quoteId, code, JSON.stringify(value)),
     );
     if (stmts.length > 0) await withRetry(() => env.DB.batch(stmts));
+
+    // Kopia do CRM po pełnym zapisie (lead + wycena). Efekt uboczny — silnik bez zmian.
+    wyslijDoCrmWTle(waitUntil, env, {
+      external_id: leadId,
+      source: 'calculator',
+      received_at: new Date().toISOString(),
+      email,
+      name: 'Klient z kalkulatora',
+      service: 'Kalkulator wyceny',
+      budget_text: budget,
+      quote_ref: String(quoteId),
+      details: { answers, priceRange: result.priceRange },
+    });
   } catch (e) {
     console.error('public-quote persist failed:', e);
   }

@@ -91,14 +91,16 @@ function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const resumeLeadId = params.get('resume_lead');
+    const resumeToken = params.get('token');
     const resumeStep = params.get('step');
 
-    if (resumeLeadId && !resumeProcessed.current) {
+    // Bez tokenu edycji serwer i tak odmówi (403) — nie ma po co pytać.
+    if (resumeLeadId && resumeToken && !resumeProcessed.current) {
       resumeProcessed.current = true; // Block further executions
 
       const fetchAndOpen = async () => {
         try {
-          const lead = await leadService.getLead(resumeLeadId);
+          const lead = await leadService.getLead(resumeLeadId, resumeToken);
           if (lead) {
             // Map specific interest to main modal category
             const typeMap: Record<string, string> = {

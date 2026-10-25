@@ -59,21 +59,15 @@ async function postLeadApi(body: unknown): Promise<Response> {
   return response;
 }
 
-// Simple UUID generator (Client-side)
-function generateUUID() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
 // Nowy CF Pages Function (zastapil legacy PHP backend).
 // Implementacja: functions/api/contact-submit.ts
 const API_URL = '/api/contact-submit';
+
+// Tokeny edycji leadów (id → edit_token). Id i token wydaje serwer przy `create`;
+// `update`, `send_notification` i `get_lead` bez tokenu dostają 403. Trzymane w pamięci
+// modułu, żeby wywołujący (useContactForm) operowali wyłącznie na id — token nie trafia
+// do stanu formularza, localStorage ani URL-a.
+const editTokens = new Map<string, string>();
 
 export const leadService = {
   /**
@@ -100,20 +94,18 @@ export const leadService = {
       }
     }
 
-    const id = generateUUID();
-
     try {
-      await postLeadApi({
+      const response = await postLeadApi({
         action: 'create',
         source_url: window.location.href,
         website_verify: data.website_verify || '', // Honeypot
-        lead: {
-          id: id,
-          ...data,
-        },
+        lead: data,
       });
 
-      // Return the lead object with ID
+      // Id i token edycji wydaje serwer (id od klienta jest ignorowane).
+      const { id, edit_token } = (await response.json()) as { id?: string; edit_token?: string };
+      if (!id || !edit_token) throw new LeadSubmitError('Server error', response.status);
+      editTokens.set(id, edit_token);
       const result = { id, ...data };
 
       // Track lead creation in Cloudflare Zaraz
@@ -138,6 +130,7 @@ export const leadService = {
       await postLeadApi({
         action: 'update',
         id: id,
+        edit_token: editTokens.get(id),
         details: details,
         step: step,
       });
@@ -163,6 +156,7 @@ export const leadService = {
         body: JSON.stringify({
           action: 'send_notification',
           id: id,
+          edit_token: editTokens.get(id),
           type: type,
         }),
       });
@@ -187,14 +181,22 @@ export const leadService = {
 
   /**
    * Fetches an existing lead by ID to resume the form.
+   * Wymaga tokenu edycji (link `?resume_lead=<id>&token=<edit_token>`).
+   * POST, a nie GET — token nie ląduje w logach URL-i.
    */
-  async getLead(id: string) {
+  async getLead(id: string, editToken: string) {
     try {
-      // Use GET request with query params
-      const response = await fetch(`${API_URL}?action=get_lead&id=${id}`);
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'get_lead', id, edit_token: editToken }),
+      });
       if (!response.ok) return null;
 
       const data = await response.json();
+      if (data.lead) editTokens.set(id, editToken);
       return data.lead || null;
     } catch (error) {
       console.error('Error fetching lead:', error);
