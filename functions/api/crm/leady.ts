@@ -1,16 +1,15 @@
 /**
  * GET /api/crm/leady?od=<czas zmiany>&po_id=<id>&limit=<1-200>: leady zmienione od `od` (updated_at,
  * migracja 0009; przed nią created_at), do dociągnięcia przez Mixture CRM, gdy wysyłka w tle (_crm.ts) nie
- * przeszła. Kolejność po (czas zmiany, id); następna strona zaczyna się od `nastepna` z odpowiedzi.
+ * przeszła. Kolejność po (czas zmiany, id); następna strona zaczyna się od `kursor` z odpowiedzi
+ * (`wiecej: true`, gdy są dalsze strony).
  * CRM sam decyduje, co dopisać (brakujący lead) albo uzupełnić (dalszy krok formularza).
  * Tylko odczyt, podpis jak w _podpis.ts. Format leada jak w wysyłce do CRM (LeadDoCrm).
  */
 import type { LeadDoCrm } from '../_crm';
 import { bladPodpisu, blad, json, type CrmZapytanieEnv } from './_podpis';
 
-interface Env extends CrmZapytanieEnv {
-  DB: D1Database;
-}
+type Env = CrmZapytanieEnv;
 
 export const MAKS_LIMIT = 200;
 const ZRODLA = ['website', 'calculator', 'audit', 'subscription'] as const;
@@ -107,6 +106,8 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   const ostatni = strona.at(-1);
   return json({
     leady: strona.map(leadDoCrm),
-    nastepna: results.length > limit && ostatni ? { od: ostatni.zmiana, po_id: ostatni.id } : null,
+    // Kursor ostatniego leada strony: CRM zapisuje go i od niego zaczyna następne zapytanie (tie-break po id).
+    kursor: ostatni ? { od: ostatni.zmiana, po_id: ostatni.id } : null,
+    wiecej: results.length > limit,
   });
 };

@@ -17,3 +17,11 @@ WHEN NEW.updated_at IS OLD.updated_at
 BEGIN
   UPDATE leads SET updated_at = datetime('now') WHERE id = NEW.id;
 END;
+
+-- Rejestr zapytań Mixture CRM (functions/api/crm/_podpis.ts): skrót (czas, nonce) podpisanego zapytania,
+-- żeby powtórzone zapytanie w oknie 300 s dostało 409. Wpisy starsze niż 10 minut usuwa każde zapytanie.
+CREATE TABLE IF NOT EXISTS crm_zapytania (
+  skrot TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_crm_zapytania_czas ON crm_zapytania(created_at);
