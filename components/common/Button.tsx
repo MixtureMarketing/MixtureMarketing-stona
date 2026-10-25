@@ -19,6 +19,14 @@ const variantStyles = {
     'bg-white text-secondary hover:bg-gray-50 shadow-lg hover:shadow-xl motion-safe:hover:-translate-y-1',
 };
 
+/** Klasy przycisku dla elementu, który sam jest linkiem (np. <Link> z routera) — bez zagnieżdżania
+ *  <button> w <a> (nested-interactive: dwa przystanki Tab i niepoprawny HTML). */
+export const buttonClassName = (
+  variant: keyof typeof variantStyles = 'primary',
+  size: keyof typeof sizeStyles = 'md',
+  className = '',
+) => `${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className} group`;
+
 type BaseProps = {
   variant?: keyof typeof variantStyles;
   size?: keyof typeof sizeStyles;

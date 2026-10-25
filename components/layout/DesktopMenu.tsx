@@ -4,7 +4,7 @@ import { ChevronDown, Database, Megaphone, Palette, BarChart3, ArrowRight } from
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { LEGACY_ARTICLES } from '@/services/cms/legacyArticles';
 import Image from '@/components/common/Image';
-import Button from '@/components/common/Button';
+import { buttonClassName } from '@/components/common/Button';
 import Container from '@/components/common/Container';
 import MegaMenu from './MegaMenu';
 import { ContactType } from '@/types';
@@ -234,14 +234,16 @@ const DesktopMenu: React.FC<DesktopMenuProps> = ({
       </Link>
 
       <div className="pl-6 ml-4 border-l border-gray-100 h-8 flex items-center">
-        <Link to="/wycena/">
-          <Button
-            variant="primary"
-            size="sm"
-            className="shadow-lg shadow-secondary/10 hover:shadow-xl hover:shadow-secondary/20 rounded-xl"
-          >
-            {CONTENT.pricing}
-          </Button>
+        {/* Link stylizowany jak przycisk — wcześniej <button> w <a>: dwa przystanki Tab na jednym CTA. */}
+        <Link
+          to="/wycena/"
+          className={buttonClassName(
+            'primary',
+            'sm',
+            'shadow-lg shadow-secondary/10 hover:shadow-xl hover:shadow-secondary/20 rounded-xl',
+          )}
+        >
+          {CONTENT.pricing}
         </Link>
       </div>
     </div>
