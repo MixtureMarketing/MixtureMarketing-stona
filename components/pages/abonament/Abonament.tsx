@@ -577,18 +577,22 @@ const Abonament: React.FC = () => {
   const [showStickyMobileBar, setShowStickyMobileBar] = useState(false);
   const [pricingInView, setPricingInView] = useState(false);
 
-  // Deep-link tracking
+  // Deep-link tracking — tylko wejście z ?tier= (stan początkowy). Kliknięcie pakietu ma
+  // własny open_modal; wcześniej efekt na [openTier] dokładał przy pierwszym kliknięciu
+  // drugi open_modal z source:'deep_link' (podwójne liczenie, zła atrybucja w GA4).
+  const deepLinkTierRef = useRef(openTier);
   const deepLinkTrackedRef = useRef(false);
   useEffect(() => {
-    if (openTier && !deepLinkTrackedRef.current) {
+    const tier = deepLinkTierRef.current;
+    if (tier && !deepLinkTrackedRef.current) {
       deepLinkTrackedRef.current = true;
       trackEvent('open_modal', {
-        tier: openTier,
-        price_pln: TIERS[openTier].price,
+        tier,
+        price_pln: TIERS[tier].price,
         source: 'deep_link',
       });
     }
-  }, [openTier]);
+  }, []);
 
   // UTM persistence
   useEffect(() => {

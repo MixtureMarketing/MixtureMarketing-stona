@@ -303,9 +303,8 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
       ],
     ];
 
-    // Modal otwiera się widocznie tylko, gdy w momencie zmiany propa `tier` ma już
-    // `selectedTier` (z draftu albo z poprzedniego otwarcia) — patrz test BUG? niżej.
-    // Dlatego tu startujemy z draftem zawierającym pakiet (np. powrót po anulowaniu).
+    // Wariant z draftem zawierającym inny pakiet (np. powrót po anulowaniu) — modal musi
+    // pokazać kliknięty pakiet, nie ten z draftu. Świeża sesja bez draftu: test niżej.
     const seedDraftTier = () =>
       sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ selectedTier: 'starter' }));
 
@@ -322,12 +321,9 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
       expect(within(dlg).getByLabelText(/Wybrany pakiet/)).toHaveValue(tier);
       expect(funnelCalls()).toEqual([
         ['click_tier_button', { tier, price_pln: TIERS[tier].price, source }],
-        // open_modal z kliknięcia NIE ma pola source…
+        // open_modal z kliknięcia NIE ma pola source i jest wysyłany dokładnie raz
+        // (wcześniej efekt deep-link dokładał drugi z source:'deep_link').
         ['open_modal', { tier, price_pln: TIERS[tier].price }],
-        // BUG? …ale efekt „deep-link tracking" reaguje na KAŻDE pierwsze ustawienie openTier,
-        // więc pierwsze otwarcie z kliknięcia wysyła DRUGI open_modal z source:'deep_link'
-        // (podwójne liczenie + błędna atrybucja w GA4).
-        ['open_modal', { tier, price_pln: TIERS[tier].price, source: 'deep_link' }],
       ]);
     });
 
@@ -359,30 +355,22 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
       expect(within(dlg).getByLabelText(/Wybrany pakiet/)).toHaveValue('premium');
     });
 
-    it('świeża sesja (bez draftu): pierwszy klik renderuje <dialog> BEZ open — modal niewidoczny', () => {
-      // BUG? (krytyczny dla lejka) PreonboardModal jest zamontowany od początku z tier=null,
-      // a selectedTier startuje jako null. Po kliku render z tier=X i selectedTier=null zwraca
-      // null; efekt [tier] ustawia selectedTier, ale efekt showModal (też [tier]) już się
-      // wykonał przy dialogRef=null i po dorenderowaniu <dialog> nie odpala ponownie.
-      // W przeglądarce <dialog> bez `open` ma display:none — pierwszy klik „nic nie robi".
-      // Ponowny klik tego samego pakietu też nic nie zmienia (ten sam stan); dopiero klik
-      // INNEGO pakietu zmienia `tier` i otwiera dialog. Deep-link ?tier= działa poprawnie.
+    it('świeża sesja (bez draftu): pierwszy klik otwiera modal z klikniętym pakietem', () => {
+      // Regresja (od lipca 2026 do 25.10.2026 na produkcji): PreonboardModal jest zamontowany
+      // z tier=null, a selectedTier startuje jako null. Render po kliknięciu zwracał null, efekt
+      // showModal() wykonywał się bez <dialog> w DOM i nie wracał — pierwszy klik „Wybierz …"
+      // nie otwierał modala, drugi klik tego samego pakietu też nie.
       renderPage();
       fireEvent.click(screen.getByRole('button', { name: /^Wybierz Standard/ }));
       const dlg = dialog() as HTMLDialogElement;
-      expect(dlg).not.toBeNull();
-      expect(dlg).not.toHaveAttribute('open');
-      // Eventy i tak lecą — GA4 widzi open_modal, choć użytkownik nic nie zobaczył.
-      expect(callsOf('open_modal')).toHaveLength(2);
-
-      fireEvent.click(screen.getByRole('button', { name: /^Wybierz Standard/ }));
-      expect(dialog()).not.toHaveAttribute('open');
-
-      fireEvent.click(screen.getByRole('button', { name: /^Wybierz Premium/ }));
-      expect(dialog()).toHaveAttribute('open');
-      expect(within(dialog() as HTMLElement).getByLabelText(/Wybrany pakiet/)).toHaveValue(
-        'premium',
+      expect(dlg).toHaveAttribute('open');
+      expect(within(dlg).getByLabelText(/Wybrany pakiet/)).toHaveValue('standard');
+      expect(within(dlg).getByRole('heading', { level: 2 })).toHaveTextContent(
+        `${TIERS.standard.price} zł / mc netto`,
       );
+      expect(callsOf('open_modal')).toEqual([
+        { tier: 'standard', price_pln: TIERS.standard.price },
+      ]);
     });
   });
 
@@ -460,8 +448,6 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
           { tier: 'standard', price_pln: TIERS.standard.price, source: 'retry_after_cancel' },
         ],
         ['open_modal', { tier: 'standard', price_pln: TIERS.standard.price }],
-        // BUG? jak w sekcji CTA — pierwsze otwarcie dokłada open_modal z source:'deep_link'.
-        ['open_modal', { tier: 'standard', price_pln: TIERS.standard.price, source: 'deep_link' }],
       ]);
       expect(dialog()).toHaveAttribute('open');
       const dlg = dialog() as HTMLDialogElement;
@@ -501,8 +487,8 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
       expect(sessionStorage.getItem('mm_utm')).toBe('utm_source=newsletter');
     });
 
-    // Wejście przez deep-link (np. kampania) — klik karty w świeżej sesji nie otwiera
-    // widocznego modala (BUG? w sekcji CTA), więc pełny lejek startuje od ?tier=.
+    // Wejście przez deep-link (np. kampania z ?tier=). Wejście kliknięciem karty pokrywa
+    // test „świeża sesja" w sekcji CTA.
     it('cały lejek: deep-link z UTM → formularz → success_path z UTM → redirect do Stripe', async () => {
       fetchMock.mockImplementation((url: string) =>
         url.includes('/preonboard')
