@@ -47,7 +47,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "beasties": "^0.5.5",
     "dompurify": "^3.4.17",
-    "framer-motion": "^13.5.1",
+    "framer-motion": "^14.6.0",
     "jspdf": "^4.0.0",
     "lucide-react": "^0.563.0",
     "react": "^19.3.1",
