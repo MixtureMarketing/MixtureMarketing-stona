@@ -138,7 +138,7 @@ afterEach(() => {
 // Pomocnicze
 // ---------------------------------------------------------------------------------------------
 
-const KLUCZ_API = 'lin_api_TAJNY_KLUCZ_0123456789abcdef';
+const KLUCZ_API = ['lin_api', 'TAJNY', 'KLUCZ', 'TESTOWY'].join('_');
 const MIGRACJE = [
   '0001_init.sql',
   '0002_leads_add_source_company.sql',
@@ -762,7 +762,7 @@ describe('zglosLead — awarie i kolejka', () => {
     for (const [spec, blad] of przypadki) {
       const { env, db } = srodowisko();
       const lead = dodajLead(db);
-      kolejki.KlientUpsert = [spec];
+      kolejki.Etykiety = [spec];
       await zglosLead(env, lead.id);
       expect(wiersz(db, lead.id), blad).toMatchObject({
         stan: 'kolejka',
@@ -1044,13 +1044,196 @@ describe('drenujKolejke', () => {
     expect(wiersz(db, stary.id)!.stan).toBe('wyslany');
   });
 
-  it('(−) KlientUpsert pada → zadanie nie powstaje (kolejka), a lead nie ginie', async () => {
+  it('(−) KlientUpsert pada (502): zadanie powstaje bez Customer Request, lead czeka w wyslany/0', async () => {
     const { env, db } = srodowisko();
     const lead = dodajLead(db);
     kolejki.KlientUpsert = [{ status: 502, json: {} }];
     await zglosLead(env, lead.id);
+    expect(opy()).toEqual(['Etykiety', 'KlientUpsert', 'ZadanieUtworz']);
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'wyslany',
+      customer_request: 0,
+      identifier: 'LEA-1',
+      proby: 1,
+      ostatni_blad: 'HTTP 502',
+    });
+  });
+
+  it.each([
+    ['HTTP 403 (brak uprawnień Customers)', { status: 403, json: {} }, 'HTTP 403'],
+    ['HTTP 401', { status: 401, json: {} }, 'HTTP 401'],
+    [
+      'errors:FORBIDDEN w odpowiedzi 200',
+      { json: { errors: [{ message: 'x', extensions: { code: 'FORBIDDEN' } }] } },
+      'errors:FORBIDDEN',
+    ],
+    ['wyjątek sieci', 'siec', 'siec'],
+    ['timeout', 'timeout', 'timeout'],
+  ] as [string, Spec, string][])(
+    '(−) brak Customers: %s → zadanie jest, Customer Request dokończą ponowienia (bez drugiego issueCreate)',
+    async (_nazwa, spec, blad) => {
+      const { env, db } = srodowisko();
+      const lead = dodajLead(db);
+      kolejki.KlientUpsert = [spec];
+      await zglosLead(env, lead.id);
+      expect(opy().filter((o) => o === 'ZadanieUtworz')).toHaveLength(1);
+      expect(opy()).not.toContain('ProsbaKlienta');
+      let w = wiersz(db, lead.id)!;
+      expect(w).toMatchObject({
+        stan: 'wyslany',
+        customer_request: 0,
+        issue_id: lead.id,
+        proby: 1,
+        ostatni_blad: blad,
+      });
+      // Następny drenaż po upływie odstępu: KlientUpsert + ProsbaKlienta, bez nowego zadania.
+      wyw = [];
+      vi.setSystemTime(utc(w.nastepna_proba) + 1000);
+      await drenujKolejke(env);
+      expect(opy()).toEqual(['KlientUpsert', 'ProsbaKlienta']);
+      w = wiersz(db, lead.id)!;
+      expect(w).toMatchObject({
+        stan: 'wyslany',
+        customer_request: 1,
+        proby: 0,
+        ostatni_blad: null,
+      });
+    },
+  );
+
+  it('(−) Customers stale odmawia: zadanie jest jedno, ponowienia nie tworzą nowych, po 8 próbach zablokowany', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.KlientUpsert = Array.from({ length: 20 }, () => ({ status: 403, json: {} }));
+    await zglosLead(env, lead.id);
+    for (let i = 0; i < 10; i++) {
+      vi.setSystemTime(utc(wiersz(db, lead.id)!.nastepna_proba) + 1000);
+      await drenujKolejke(env);
+    }
+    expect(opy().filter((o) => o === 'ZadanieUtworz')).toHaveLength(1);
+    expect(opy()).not.toContain('ProsbaKlienta');
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'zablokowany',
+      issue_id: lead.id,
+      customer_request: 0,
+      proby: 8,
+    });
+  });
+
+  it('(−) KlientUpsert dostaje 429: zadanie nie powstaje (kolejka), +Retry-After', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.KlientUpsert = [{ status: 429, headers: { 'Retry-After': '120' }, json: {} }];
+    await zglosLead(env, lead.id);
     expect(opy()).not.toContain('ZadanieUtworz');
-    expect(wiersz(db, lead.id)).toMatchObject({ stan: 'kolejka', ostatni_blad: 'HTTP 502' });
+    expect(wiersz(db, lead.id)).toMatchObject({ stan: 'kolejka', ostatni_blad: 'HTTP 429' });
+  });
+
+  it('(−) poczta prywatna przy awarii Customers nie jest dotknięta: brak KlientUpsert, customer_request=2', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db, { email: 'jan@gmail.com' });
+    kolejki.KlientUpsert = [{ status: 403, json: {} }];
+    await zglosLead(env, lead.id);
+    expect(opy()).not.toContain('KlientUpsert');
+    expect(wiersz(db, lead.id)).toMatchObject({ stan: 'wyslany', customer_request: 2 });
+  });
+
+  it('(−) dedup: komentarz do zadania z cache’u dostaje 500 → kolejka, bez nowego zadania (brak duplikatu)', async () => {
+    const { env, db } = srodowisko();
+    await zglosLead(env, dodajLead(db, { email: 'a@firma.pl' }).id);
+    wyw = [];
+    kolejki.Komentarz = [{ status: 500, json: {} }];
+    const lead = dodajLead(db, { email: 'a@firma.pl' });
+    await zglosLead(env, lead.id);
+    expect(opy()).toEqual(['Komentarz']);
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'kolejka',
+      issue_id: null,
+      duplikat_of: null,
+      ostatni_blad: 'HTTP 500',
+      proby: 1,
+    });
+  });
+
+  it('(−) RATELIMITED w odpowiedzi HTTP 400 liczy się jak 429 (+5 min, ostatni_blad HTTP 429)', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.Etykiety = [
+      { status: 400, json: { errors: [{ message: 'x', extensions: { code: 'RATELIMITED' } }] } },
+    ];
+    await zglosLead(env, lead.id);
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'kolejka',
+      ostatni_blad: 'HTTP 429',
+      proby: 1,
+    });
+    expect(
+      Math.abs(utc(wiersz(db, lead.id)!.nastepna_proba) - (teraz() + minuty(5))),
+    ).toBeLessThanOrEqual(2000);
+  });
+
+  it('(−) 400 z innym kodem to zwykły HTTP 400 (odstęp 1 min, nie 5)', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.Etykiety = [
+      { status: 400, json: { errors: [{ message: 'x', extensions: { code: 'INVALID_INPUT' } }] } },
+    ];
+    await zglosLead(env, lead.id);
+    expect(wiersz(db, lead.id)).toMatchObject({ ostatni_blad: 'HTTP 400' });
+    expect(
+      Math.abs(utc(wiersz(db, lead.id)!.nastepna_proba) - (teraz() + minuty(1))),
+    ).toBeLessThanOrEqual(2000);
+  });
+
+  it('(−) Retry-After ponad 6 h jest obcięty do 6 h', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.Etykiety = [{ status: 429, headers: { 'Retry-After': '999999' }, json: {} }];
+    await zglosLead(env, lead.id);
+    expect(
+      Math.abs(utc(wiersz(db, lead.id)!.nastepna_proba) - (teraz() + 6 * 3600_000)),
+    ).toBeLessThanOrEqual(2000);
+  });
+
+  it.each([
+    ['429', { status: 429, json: {} }],
+    ['401', { status: 401, json: {} }],
+    ['403', { status: 403, json: {} }],
+  ] as [string, Spec][])(
+    '(−) issueCreate dostaje %s: bez ZadaniePoId (odpytanie nic nie da, a przy 429 pogarsza limit)',
+    async (_k, spec) => {
+      const { env, db } = srodowisko();
+      const lead = dodajLead(db);
+      kolejki.ZadanieUtworz = [spec];
+      await zglosLead(env, lead.id);
+      expect(opy()).not.toContain('ZadaniePoId');
+      expect(wiersz(db, lead.id)).toMatchObject({ stan: 'kolejka', issue_id: null });
+    },
+  );
+
+  it('(−) issueCreate dostaje 500: ZadaniePoId sprawdza, czy zadanie nie powstało (kontrola dla poprzedniego testu)', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    kolejki.ZadanieUtworz = [{ status: 500, json: {} }];
+    await zglosLead(env, lead.id);
+    expect(opy()).toContain('ZadaniePoId');
+  });
+
+  it('(−) zgłoszenie dociąga najwyżej 5 zaległych wierszy (3 zostają w kolejce)', async () => {
+    const { env, db } = srodowisko();
+    const stare = Array.from({ length: 8 }, (_, i) => {
+      const l = dodajLead(db, { email: `s${i}@inna${i}.pl` });
+      db.prepare(
+        `INSERT INTO linear_leady (lead_id, stan, nastepna_proba) VALUES (?, 'kolejka', ?)`,
+      ).run(l.id, `2000-01-01 00:00:0${i}`);
+      return l;
+    });
+    await zglosLead(env, dodajLead(db).id);
+    const stany = stare.map((l) => wiersz(db, l.id)!.stan);
+    expect(stany.filter((x) => x === 'wyslany')).toHaveLength(5);
+    expect(stany.filter((x) => x === 'kolejka')).toHaveLength(3);
+    // najstarsze pierwsze
+    expect(stany.slice(0, 5).every((x) => x === 'wyslany')).toBe(true);
   });
 });
 

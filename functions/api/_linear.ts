@@ -678,11 +678,16 @@ async function pelnaWysylka(
   }
 
   // 3) Customer (tylko poczta firmowa).
+  // Awaria Customers (np. 403 przy braku uprawnień) nie wstrzymuje leada: zadanie powstaje bez
+  // Customer Request, a ten dokończy ścieżka ponowień (`tylkoProsba`). Wyjątek: limit zapytań
+  // i brak budżetu czasu, bo samo tworzenie zadania też by się wtedy nie udało.
   let customerId: string | null = null;
+  let bezKlienta: Porazka | null = null;
   if (domena) {
     const k = await klientUpsert(env, budzet, domena);
-    if (!k.ok) return { blad: k, maZadanie: false };
-    customerId = k.id;
+    if (k.ok) customerId = k.id;
+    else if (k.blad === 'HTTP 429' || k.bezKary) return { blad: k, maZadanie: false };
+    else bezKlienta = k;
   }
 
   // 4) Zadanie: id = id leada (idempotencja).
@@ -724,6 +729,10 @@ async function pelnaWysylka(
 
   // 5) Customer Request: jego awaria nie cofa zadania.
   if (!customerId) {
+    if (bezKlienta) {
+      await zapisz(env, lead.id, { stan: 'wyslany', customer_request: 0 });
+      return { blad: bezKlienta, maZadanie: true };
+    }
     await zapisz(env, lead.id, { stan: 'wyslany', customer_request: 2, ostatni_blad: null });
     return null;
   }
