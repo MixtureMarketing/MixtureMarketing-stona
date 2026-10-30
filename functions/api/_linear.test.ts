@@ -436,6 +436,11 @@ describe('opisZadania', () => {
     expect(gigant.startsWith('**Źródło:**')).toBe(true);
   });
 
+  it('(−) wiadomość z tysiącami krótkich linii też jest ucięta do 4 000 znaków', () => {
+    const o = opisZadania(baza({ message: Array.from({ length: 6000 }, () => 'x').join('\n') }));
+    expect((o.match(/^> x$/gm) ?? []).length).toBe(2000);
+  });
+
   it('etykiety budżetu', () => {
     expect(opisZadania(baza({ budget: 'mid' }))).toContain('| Budżet | 5 000–15 000 PLN |');
     expect(opisZadania(baza({ budget: 'low' }))).toContain('do 5 000 PLN');
