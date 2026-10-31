@@ -58,6 +58,18 @@
 /audyt          /audyt-360/   301
 /audyt/         /audyt-360/   301
 
+# Błędne slugi (audyt MIX-897 P9). Branże „usugi-b2b” i „saas--startups” (dokumenty z seeda
+# w Sanity) mają poprawne adresy publiczne (config/slugAliases.js), a stare dostają 301.
+# Literówka z zewnątrz /baze-wiedzy/... (link z cudzej strony, GSC) -> /baza-wiedzy/...
+/branza/usugi-b2b         /branza/uslugi-b2b/     301
+/branza/usugi-b2b/        /branza/uslugi-b2b/     301
+/branza/saas--startups    /branza/saas-startups/  301
+/branza/saas--startups/   /branza/saas-startups/  301
+/baze-wiedzy              /baza-wiedzy/           301
+/baze-wiedzy/             /baza-wiedzy/           301
+/baze-wiedzy/:slug        /baza-wiedzy/:slug/     301
+/baze-wiedzy/:slug/       /baza-wiedzy/:slug/     301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje

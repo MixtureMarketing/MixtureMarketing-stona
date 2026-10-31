@@ -1,5 +1,10 @@
 import { SanityImage } from '@/types/sanity';
 import { fetchWithCache, CmsUnavailableError } from './client';
+import {
+  cmsIndustrySlug,
+  isLegacyIndustrySlug,
+  publicIndustrySlug,
+} from '../../config/slugAliases.js';
 
 export interface SanityLocation {
   _id: string;
@@ -46,6 +51,12 @@ export const dedupeIndustriesBySlug = (rows: SanityIndustrySummary[]): SanityInd
   }
   return [...bySlug.values()].sort((a, b) => a.name.localeCompare(b.name, 'pl'));
 };
+
+/** Wiersz huba z publicznym slugiem (błędne slugi z CMS → poprawne, patrz config/slugAliases.js). */
+const withPublicSlug = <T extends { slug: string }>(row: T): T => ({
+  ...row,
+  slug: publicIndustrySlug(row.slug),
+});
 
 export const pseoService = {
   async getLocations(): Promise<SanityLocation[]> {
@@ -102,7 +113,7 @@ export const pseoService = {
         "painPointCount": count(painPoints)
       }`;
       const rows = await fetchWithCache<SanityIndustrySummary[] | null>(query);
-      return dedupeIndustriesBySlug(rows ?? []);
+      return dedupeIndustriesBySlug((rows ?? []).map(withPublicSlug));
     } catch (error) {
       console.warn('Sanity fetch error (getIndustryList):', error);
       throw new CmsUnavailableError('getIndustryList', error);
@@ -110,6 +121,8 @@ export const pseoService = {
   },
 
   async getIndustryBySlug(slug: string): Promise<SanityIndustry | null> {
+    // Stary błędny slug nie renderuje strony (to przekierowanie 301 → nowy adres).
+    if (isLegacyIndustrySlug(slug)) return null;
     try {
       const query = `*[_type == "industry" && slug.current == $slug][0] {
         _id,
@@ -122,7 +135,7 @@ export const pseoService = {
         compliance,
         heroImage
       }`;
-      return await fetchWithCache(query, { slug });
+      return await fetchWithCache(query, { slug: cmsIndustrySlug(slug) });
     } catch (error) {
       console.warn(`Sanity fetch error (getIndustryBySlug: ${slug}):`, error);
       // Błąd pobrania ≠ brak dokumentu — patrz CmsUnavailableError.
