@@ -20,6 +20,10 @@ const CONTENT_DIRS = [
   'components/sections/',
 ];
 
+// Wspólne powłoki stron w katalogach treści: zmiana powłoki (np. nowy prop) nie zmienia
+// treści każdego artykułu, więc nie liczy się do daty zmiany strony.
+const SHARED_SHELLS = ['components/articles/ArticleShell.tsx'];
+
 const EXTS = ['.tsx', '.ts', '.jsx', '.js', '/index.tsx', '/index.ts'];
 
 /**
@@ -71,7 +75,7 @@ export function contentFiles(root, componentRel) {
       const file = resolveFile(root, rel);
       if (!file || seen.has(file)) continue;
       const posix = file.split(path.sep).join('/');
-      if (!CONTENT_DIRS.some((d) => posix.startsWith(d))) continue;
+      if (!CONTENT_DIRS.some((d) => posix.startsWith(d)) || SHARED_SHELLS.includes(posix)) continue;
       seen.add(file);
       queue.push(file);
     }

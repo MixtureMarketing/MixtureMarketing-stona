@@ -43,6 +43,13 @@ describe('data/seo/lastmod.json — daty tras statycznych', () => {
     }
   });
 
+  it('wspólna powłoka artykułów (ArticleShell) nie jest źródłem dat artykułów', () => {
+    const comps = routeComponents(ROOT);
+    const files = contentFiles(ROOT, comps['/baza-wiedzy/redis-optymalizacja/']);
+    expect(files).toContain('components/articles/RedisArticle.tsx');
+    expect(files).not.toContain('components/articles/ArticleShell.tsx');
+  });
+
   it('pliki wspólne (layout/common/utils) nie są źródłem dat stron', () => {
     const comps = routeComponents(ROOT);
     const files = contentFiles(ROOT, comps['/offers/']);
