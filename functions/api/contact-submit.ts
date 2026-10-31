@@ -19,6 +19,7 @@
  *   - NOTIFY_EMAIL        — adres docelowy powiadomień (plain text)
  *   - LEAD_TOKEN_SECRET   — klucz podpisu tokenów edycji leada (encrypted; zalecany,
  *                           bez niego awaryjnie używany jest TURNSTILE_SECRET)
+ *   - LINEAR_*            — zgłoszenie leada do Lineara (patrz _linear.ts; brak = wyłączone)
  *
  * Compat: zachowujemy strukturę API zgodną z poprzednim /api/contact_submit.php,
  * żeby leadService.ts nie wymagał zmian (action: 'create'|'update'|'send_notification'|'get_lead').
@@ -29,8 +30,9 @@ import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
+import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
 
-interface Env extends CrmEnv {
+interface Env extends CrmEnv, LinearEnv {
   TURNSTILE_SECRET: string;
   LEAD_TOKEN_SECRET?: string;
   RESEND_API_KEY: string;
@@ -296,6 +298,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         });
       }
 
+      // Zadanie w Linearze tylko po udanym zapisie (źródło prawdy: D1). W tle, nie zmienia odpowiedzi.
+      if (stored) zglosLeadWTle(waitUntil, env, lead.id);
+
       // Powiadomienie do agencji.
       const subject = `🆕 Nowy lead — ${lead.name} (${lead.service_interest || 'general'})`;
       const mailed = await sendEmail(env, subject, leadEmailHtml(lead), lead.email);
@@ -386,6 +391,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
           });
         }
       }
+      // Komentarz w zadaniu Lineara: kroki 2 i 3 (krok 1 to wznowienie formularza, bez szumu).
+      // Raz na krok (blokada KV w module), tylko gdy UPDATE trafił w istniejący lead.
+      if (updated && (body.step === 2 || body.step === 3)) {
+        const pola = Object.fromEntries(
+          Object.entries((body.details || {}) as Record<string, unknown>).filter(
+            ([k]) => !LEAD_SKIP.has(k),
+          ),
+        );
+        komentarzKrokuWTle(waitUntil, env, body.id as string, `krok${body.step}`, pola);
+      }
       // Email do agencji przy finalnym kroku (step=3).
       if (body.step === 3 && body.id && updated) {
         const subject = `📝 Aktualizacja leada ${body.id} (step ${body.step})`;
@@ -408,6 +423,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         } catch {
           /* KV niedostępne — fail-open, lead i tak istnieje */
         }
+      }
+      // Porzucony formularz: komentarz w zadaniu Lineara (mail do agencji idzie jak dotąd).
+      if (type === 'abandoned_step_1' || type === 'abandoned_step_2') {
+        const n = type === 'abandoned_step_1' ? 1 : 2;
+        komentarzKrokuWTle(waitUntil, env, body.id, `porzucenie${n}`, {
+          status: `porzucony po kroku ${n}`,
+        });
       }
       const subjectMap: Record<string, string> = {
         success: '✅ Lead skonwertowany',

@@ -17,8 +17,9 @@
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, escapeHtml, safeHttpUrl, sha256Hex, verifyTurnstile } from '../_shared/security';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
+import { zglosLeadWTle, type LinearEnv } from '../_linear';
 
-interface Env extends CrmEnv {
+interface Env extends CrmEnv, LinearEnv {
   DB: D1Database;
   FILES?: R2Bucket;
   CACHE?: KVNamespace;
@@ -196,6 +197,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     source_url: url,
     details: { score, pdf_key: r2Key, website: url },
   });
+
+  // Zadanie w Linearze po udanym zapisie (błąd D1 wyżej kończy żądanie bez zgłoszenia).
+  zglosLeadWTle(waitUntil, env, id);
 
   const safeUrl = escapeHtml(url);
   const safeEmail = escapeHtml(email);

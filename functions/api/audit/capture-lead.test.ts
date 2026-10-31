@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { onRequestPost } from './capture-lead';
+import {
+  ileOp,
+  srodowiskoWejsc,
+  stubSieci,
+  wierszeLinear,
+  zbieracz,
+  type Siec,
+} from '../../../tests/helpers/wejsciaLinear';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -211,5 +219,160 @@ describe('audit/capture-lead', () => {
         source_url: 'https://firma.pl/',
       }),
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Wejście → Linear (MIX-490, zadanie 3): prawdziwy SQLite z migracją 0010, atrapa sieci.
+// ---------------------------------------------------------------------------------------------
+
+describe('audit/capture-lead — zgłoszenie do Lineara', () => {
+  let siec: Siec;
+  let zb: ReturnType<typeof zbieracz>;
+
+  beforeEach(() => {
+    siec = stubSieci({ captchaOk: (t) => t === 'good' });
+    zb = zbieracz();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  const pola = {
+    email: 'klient@firma.pl',
+    url: 'https://firma.pl',
+    companyName: 'Firma',
+    captcha_token: 'good',
+    score: '87',
+  };
+
+  const srodowisko = (dodatkowe: Record<string, unknown> = {}) =>
+    srodowiskoWejsc(siec, {
+      RESEND_API_KEY: 're_test',
+      NOTIFY_EMAIL: 'agencja@example.com',
+      TURNSTILE_SECRET: 'secret',
+      ...dodatkowe,
+    });
+
+  const wywolaj = async (srv: unknown, fd: FormData, ip = '1.2.3.4') => {
+    const request = new Request('https://x/api/audit/capture-lead', {
+      method: 'POST',
+      body: fd,
+      headers: { 'cf-connecting-ip': ip },
+    });
+    const res = (await onRequestPost({
+      request,
+      env: srv,
+      waitUntil: zb.waitUntil,
+    } as unknown as Ctx)) as Response;
+    await zb.czekaj();
+    return { status: res.status, body: (await res.json()) as Record<string, unknown> };
+  };
+
+  it('udany zapis → jedno zgłoszenie w tle po INSERT leads, zadanie z etykietą „audyt”, odpowiedź bez zmian', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, form(pola));
+    const id = r.body.id as string;
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ status: 'success', id });
+    expect(zb.liczba()).toBe(2); // kopia do CRM + zgłoszenie do Lineara
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+    expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
+      input: { id, teamId: 'team-1', labelIds: ['lab-audyt'] },
+    });
+    expect(siec.os.indexOf('fetch:api.linear.app')).toBeGreaterThan(
+      siec.os.indexOf('sql:INSERT leads'),
+    );
+    expect(db.prepare('SELECT stan FROM linear_leady WHERE lead_id = ?').get(id)).toEqual({
+      stan: 'wyslany',
+    });
+  });
+
+  it('maile (5A) wychodzą jak dotąd: do klienta z PDF-em i do agencji', async () => {
+    const { env: srv } = srodowisko();
+    await wywolaj(srv, form({ ...pola, pdf: new Blob([PDF]) }));
+    expect(siec.resend).toBe(2);
+  });
+
+  it('(−) honeypot → 403, zero wywołań Lineara, zero wierszy', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, form({ ...pola, website_verify: 'bot' }));
+    expect(r.status).toBe(403);
+    expect(r.body).toEqual({ status: 'error', message: 'Spam detected' });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) zła captcha → 403 z komunikatem, zero wywołań Lineara, zero wierszy', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, form({ ...pola, captcha_token: 'zly' }));
+    expect(r.status).toBe(403);
+    expect(r.body.message).toBe('Weryfikacja captcha nieudana');
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) przekroczony limit IP → 429, zero nowych zadań i wierszy ponad dozwolone', async () => {
+    const { env: srv, db } = srodowisko();
+    const kody: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      kody.push((await wywolaj(srv, form({ ...pola, email: `u${i}@firma${i}.pl` }))).status);
+    }
+    expect(kody).toEqual([200, 200, 200, 200, 200, 429]);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(5);
+    expect(wierszeLinear(db)).toHaveLength(5);
+    expect(zb.liczba()).toBe(10); // 5 zapisów × (CRM + Linear)
+  });
+
+  it('(−) limit na adres odbiorcy → 429 i brak zadania dla odrzuconego zgłoszenia', async () => {
+    const { env: srv } = srodowisko();
+    for (let i = 0; i < 3; i++) {
+      await wywolaj(srv, form({ ...pola, email: 'Cel@Firma.pl' }), `10.0.0.${i}`);
+    }
+    const przed = ileOp(siec, 'ZadanieUtworz');
+    const r = await wywolaj(srv, form({ ...pola, email: 'cel@firma.pl' }), '10.0.0.9');
+    expect(r.status).toBe(429);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(przed);
+  });
+
+  it('(−) błąd D1 przy zapisie → 500 „DB error”, zero wywołań Lineara', async () => {
+    const zepsuta = {
+      prepare: () => ({
+        bind: () => ({
+          run: async () => {
+            throw new Error('D1_ERROR: overloaded');
+          },
+        }),
+      }),
+    };
+    const { env: srv } = srodowisko();
+    const r = await wywolaj({ ...srv, DB: zepsuta }, form(pola));
+    expect(r.status).toBe(500);
+    expect(r.body).toEqual({ status: 'error', message: 'DB error' });
+    expect(siec.linear).toHaveLength(0);
+    expect(siec.hosty).not.toContain('api.linear.app');
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do mixture-crm', async () => {
+    const { env: srv } = srodowisko();
+    await wywolaj(srv, form(pola));
+    expect(siec.crm).toBe(0);
+    expect(siec.hosty.some((h) => h.includes('mixture-crm'))).toBe(false);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+  });
+
+  it('(−) wyjątek w module Lineara (brak tabeli) nie zmienia kodu ani treści odpowiedzi', async () => {
+    const { env: srv, DB } = srodowisko();
+    const bezTabeli = {
+      prepare: (sql: string) => {
+        if (/linear_leady/.test(sql)) throw new Error('D1_ERROR: no such table: linear_leady');
+        return DB.prepare(sql);
+      },
+    };
+    const r = await wywolaj({ ...srv, DB: bezTabeli }, form(pola));
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ status: 'success', id: expect.any(String) });
   });
 });

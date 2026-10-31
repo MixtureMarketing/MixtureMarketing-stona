@@ -7,8 +7,9 @@
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
-import { escapeHtml } from '../_shared/security';
+import { clientIp, escapeHtml, verifyTurnstile } from '../_shared/security';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
+import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import {
   parsePublicConfig,
   computePublicQuote,
@@ -20,7 +21,7 @@ import { withRetry } from '../../../lib/estimation/retry';
 import { ENGINE_VERSION } from '../../../lib/estimation/engine';
 import type { Answers } from '../../../lib/estimation/types';
 
-interface Env extends CrmEnv {
+interface Env extends CrmEnv, LinearEnv {
   DB: D1Database;
   CACHE: KVNamespace;
   TURNSTILE_SECRET: string;
@@ -50,22 +51,6 @@ const json = (data: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', ...CORS },
   });
 
-/** Weryfikacja Turnstile (wzorzec contact-submit) — bez pseudo-tokenów obejścia. */
-async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
-  if (!token || !secret) return false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-    });
-    const data = (await res.json()) as { success: boolean };
-    return data.success === true;
-  } catch {
-    return false;
-  }
-}
-
 export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS });
 
@@ -85,7 +70,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   if (!EMAIL_RE.test(email)) return json({ error: 'Podaj poprawny adres e-mail.' }, 400);
 
   // 3. Turnstile.
-  const ip = request.headers.get('cf-connecting-ip') || '';
+  const ip = clientIp(request);
   if (!(await verifyTurnstile(body.captcha_token ?? '', env.TURNSTILE_SECRET, ip)))
     return json({ error: 'Weryfikacja antybotowa nieudana.' }, 403);
 
@@ -133,6 +118,8 @@ async function persist(
         .bind(leadId, email, 'Klient z kalkulatora', 'Kalkulator wyceny', budget, details)
         .run(),
     );
+    // Zadanie w Linearze zaraz po zapisie leada (nie czeka na wycenę; wyjątek tu nic nie zmienia).
+    zglosLeadWTle(waitUntil, env, leadId);
 
     const paramsObj: Record<string, string> = {};
     for (const p of rawLib.params) paramsObj[p.key] = p.value;
