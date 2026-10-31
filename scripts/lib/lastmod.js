@@ -22,7 +22,11 @@ const CONTENT_DIRS = [
 
 const EXTS = ['.tsx', '.ts', '.jsx', '.js', '/index.tsx', '/index.ts'];
 
-/** Mapa: trasa (ze slashem na końcu) → ścieżka pliku komponentu strony (względem roota). */
+/**
+ * Mapa: trasa (ze slashem na końcu) → ścieżka pliku komponentu strony (względem roota).
+ * @param {string} root
+ * @returns {Record<string, string>}
+ */
 export function routeComponents(root) {
   const src = fs.readFileSync(path.join(root, 'config/routes.tsx'), 'utf8');
   const imports = new Map();
@@ -31,6 +35,7 @@ export function routeComponents(root) {
   )) {
     imports.set(m[1], m[2]);
   }
+  /** @type {Record<string, string>} */
   const map = {};
   for (const m of src.matchAll(/path:\s*'([^']+)'\s*,\s*element:\s*<(\w+)\s*\/>/g)) {
     const file = imports.get(m[2]);
@@ -90,6 +95,7 @@ export function gitLastDate(root, files) {
  */
 export function computeLastmods(root, routes) {
   const comps = routeComponents(root);
+  /** @type {Record<string, string | null>} */
   const result = {};
   for (const route of routes) {
     const comp = comps[route];
@@ -102,7 +108,11 @@ export function computeLastmods(root, routes) {
 export function hasFullGitHistory(root) {
   try {
     const out = (args) =>
-      execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+      execFileSync('git', args, {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
     return out(['rev-parse', '--is-shallow-repository']) === 'false';
   } catch {
     return false;
@@ -117,6 +127,7 @@ export function hasFullGitHistory(root) {
 export function resolveLastmods(root, routes, manifest) {
   if (!hasFullGitHistory(root)) return { ...manifest };
   const live = computeLastmods(root, routes);
+  /** @type {Record<string, string | null>} */
   const merged = {};
   for (const r of routes) merged[r] = live[r] ?? manifest[r] ?? null;
   return merged;

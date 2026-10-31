@@ -87,11 +87,7 @@ const MIN_SEGMENT = 12;
  * `null`, gdy żaden prefiks (domyślnie >= 12 znaków, `minLen`) się nie mieści. Znak końca zdania
  * zostaje w wyniku, separator myślnikowy/dwukropek — nie.
  */
-export const cutAtSegment = (
-  title: string,
-  limit: number,
-  minLen = MIN_SEGMENT,
-): string | null => {
+export const cutAtSegment = (title: string, limit: number, minLen = MIN_SEGMENT): string | null => {
   const t = (title || '').trim();
   if (t.length <= limit) return t;
   let best: string | null = null;
@@ -158,11 +154,8 @@ export const caseStudyTitle = (projectTitle: string, brand: string, max = TITLE_
   const p = (projectTitle || '').replace(/\s+/g, ' ').trim();
   const tail = ` - Case Study ${brand}`;
   const head = cutAtSegment(p, max - tail.length, 2);
-  const variants = [
-    `${p}${tail}`,
-    `${p} | ${brand}`,
-    p,
-    head ? `${head}${tail}` : '',
-  ].filter(Boolean);
+  const variants = [`${p}${tail}`, `${p} | ${brand}`, p, head ? `${head}${tail}` : ''].filter(
+    Boolean,
+  );
   return variants.find((v) => v.length <= max) ?? truncateAtWord(p, max);
 };

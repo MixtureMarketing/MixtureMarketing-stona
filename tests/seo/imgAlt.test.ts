@@ -31,8 +31,7 @@ export function scanImages(source: string, fileName = 'x.tsx'): Finding[] {
       if (tag === 'img' || tag === 'Image') {
         const attrs = node.attributes.properties;
         const alt = attrs.find((a) => ts.isJsxAttribute(a) && a.name.getText(sf) === 'alt') as
-          | ts.JsxAttribute
-          | undefined;
+          ts.JsxAttribute | undefined;
         const spread = attrs.some((a) => ts.isJsxSpreadAttribute(a));
         let state: Finding['alt'] = 'brak';
         if (alt) {
@@ -96,7 +95,7 @@ describe('obrazy: atrybut alt', () => {
     const found: Record<string, number> = {};
     for (const f of files) {
       const empties = scanImages(fs.readFileSync(f, 'utf8'), f).filter((i) => i.alt === 'pusty');
-      if (empties.length) found[path.relative(ROOT, f)] = empties.length;
+      if (empties.length) found[path.relative(ROOT, f).split(path.sep).join('/')] = empties.length;
     }
     const expected = Object.fromEntries(
       Object.entries(DECORATIVE_ALLOWLIST).map(([k, v]) => [k, v.count]),

@@ -30,8 +30,12 @@ describe('fitTitle — limit 60 znaków', () => {
 
   it.each(prodTitles)('%s mieści się w 60 znakach', (route, title) => {
     const out = composed(route, title);
-    expect(out.length).toBeLessThanOrEqual(TITLE_MAX);
+    expect(out.length).toBeLessThanOrEqual(60);
     expect(out.length).toBeGreaterThan(0);
+  });
+
+  it('limit to 60 znaków', () => {
+    expect(TITLE_MAX).toBe(60);
   });
 
   it('tytuł mieszczący się w limicie dostaje markę (bez zmiany zachowania)', () => {
@@ -63,15 +67,15 @@ describe('fitTitle — limit 60 znaków', () => {
       'Bardzo długi tytuł strony bez żadnych separatorów który nie mieści się w limicie znaków',
       BRAND,
     );
-    expect(out.length).toBeLessThanOrEqual(TITLE_MAX);
+    expect(out.length).toBeLessThanOrEqual(60);
     expect(out.endsWith('…')).toBe(true);
     expect(out).not.toMatch(/\s…$/);
   });
 
   it('warianty: bierze pierwszy mieszczący się (z marką), potem bez marki', () => {
-    expect(fitTitle(['Marketing i Strony WWW dla branży E-commerce', 'Marketing i WWW'], BRAND)).toBe(
-      'Marketing i WWW | Mixture Marketing',
-    );
+    expect(
+      fitTitle(['Marketing i Strony WWW dla branży E-commerce', 'Marketing i WWW'], BRAND),
+    ).toBe('Marketing i WWW | Mixture Marketing');
     expect(
       fitTitle(
         [
@@ -98,10 +102,7 @@ describe('cutAtSegment / caseStudyTitle', () => {
 
   it('studium przypadku: długa nazwa projektu → człon przed myślnikiem + końcówka', () => {
     expect(
-      caseStudyTitle(
-        'Driftmark Marine – E-commerce z Konfiguratorem Łodzi i Rebranding',
-        BRAND,
-      ),
+      caseStudyTitle('Driftmark Marine – E-commerce z Konfiguratorem Łodzi i Rebranding', BRAND),
     ).toBe('Driftmark Marine - Case Study Mixture Marketing');
     expect(caseStudyTitle('GlamSpace  ', BRAND)).toBe('GlamSpace - Case Study Mixture Marketing');
   });
