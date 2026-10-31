@@ -179,33 +179,60 @@ describe('POST /api/estimation/public-quote', () => {
     expect(inserts.some((s) => s.includes('INSERT INTO est_quote_answers'))).toBe(true);
   });
 
-  it('po zapisie leada i wyceny kopia idzie do CRM z quote_ref', async () => {
-    const crm: Array<Record<string, unknown>> = [];
+  it('przy ustawionych CRM_INGEST_URL/SECRET lead i wycena zapisane, a do CRM nie idzie żaden fetch (MIX-625)', async () => {
+    const wywolane: string[] = [];
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (url: string, init?: RequestInit) => {
+      vi.fn(async (url: string) => {
+        wywolane.push(String(url));
         if (String(url).includes('siteverify')) return new Response('{"success":true}');
-        if (String(url).includes('ingest/lead')) crm.push(JSON.parse(String(init?.body)));
         return new Response('{}', { status: 201 });
       }),
     );
-    const { env } = makeEnv();
+    const { env, inserts } = makeEnv();
     const czekaj: Promise<unknown>[] = [];
-    const ctx = post({ ...env, CRM_INGEST_SECRET: 'x'.repeat(64) }, VALID) as unknown as Record<
-      string,
-      unknown
-    >;
+    const ctx = post(
+      {
+        ...env,
+        CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+        CRM_INGEST_SECRET: 'x'.repeat(64),
+      },
+      VALID,
+    ) as unknown as Record<string, unknown>;
     ctx.waitUntil = (p: Promise<unknown>) => czekaj.push(p);
     expect((await onRequestPost(ctx as unknown as Ctx)).status).toBe(200);
     await Promise.all(czekaj);
-    expect(crm).toHaveLength(1);
-    expect(crm[0]).toMatchObject({
-      source: 'calculator',
-      email: 'jan@x.pl',
-      budget_text: '500 - 1500',
-    });
-    expect(typeof crm[0].external_id).toBe('string');
-    expect(crm[0].quote_ref).toBeDefined();
+    expect(czekaj).toHaveLength(0);
+    expect(wywolane.filter((u) => /mixture-crm|ingest\/lead/.test(u))).toEqual([]);
+    expect(inserts.some((s) => s.includes('INSERT INTO leads'))).toBe(true);
+    expect(inserts.some((s) => s.includes('INSERT INTO est_quotes'))).toBe(true);
+  });
+
+  it('z kluczem Resend maile do klienta i agencji nadal wychodzą, bez fetchu do CRM (MIX-625)', async () => {
+    const wywolane: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        wywolane.push(String(url));
+        if (String(url).includes('siteverify')) return new Response('{"success":true}');
+        return new Response('{}', { status: 200 });
+      }),
+    );
+    const { env } = makeEnv();
+    const res = await onRequestPost(
+      post(
+        {
+          ...env,
+          RESEND_API_KEY: 're_test',
+          NOTIFY_EMAIL: 'agencja@example.com',
+          CRM_INGEST_SECRET: 'x'.repeat(64),
+        },
+        VALID,
+      ),
+    );
+    expect(res.status).toBe(200);
+    expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(2);
+    expect(wywolane.filter((u) => /mixture-crm|ingest\/lead/.test(u))).toEqual([]);
   });
 });
 

@@ -16,11 +16,10 @@
 
 import { checkRateLimit } from '../estimation/_rateLimit';
 import { clientIp, escapeHtml, safeHttpUrl, sha256Hex, verifyTurnstile } from '../_shared/security';
-import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import { sprawdzTekst } from '../_shared/limity';
 
-interface Env extends CrmEnv, LinearEnv {
+interface Env extends LinearEnv {
   DB: D1Database;
   FILES?: R2Bucket;
   CACHE?: KVNamespace;
@@ -191,18 +190,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     console.error('D1 insert audit lead failed:', e);
     return json({ status: 'error', message: 'DB error' }, 500);
   }
-
-  // Kopia do CRM po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
-  wyslijDoCrmWTle(waitUntil, env, {
-    external_id: id,
-    source: 'audit',
-    received_at: new Date().toISOString(),
-    email,
-    name: companyName || 'Lead z audytu',
-    company: companyName || null,
-    source_url: url,
-    details: { score, pdf_key: r2Key, website: url },
-  });
 
   // Zadanie w Linearze po udanym zapisie (błąd D1 wyżej kończy żądanie bez zgłoszenia).
   zglosLeadWTle(waitUntil, env, id);

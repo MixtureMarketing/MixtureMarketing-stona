@@ -629,3 +629,74 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     expect(r.body).toEqual({ message: 'Brak lub niepoprawny token leada' });
   });
 });
+
+describe('contact-submit — bez wysyłki do Mixture CRM (MIX-625)', () => {
+  const CRM_ENV = {
+    CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+    CRM_INGEST_SECRET: 'x'.repeat(64),
+  };
+  const jestCrm = (u: string) => /mixture-crm|ingest\/lead/.test(u);
+  let wywolane: string[];
+  let czekaj: Promise<unknown>[];
+
+  beforeEach(() => {
+    wywolane = [];
+    czekaj = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        wywolane.push(String(url));
+        if (String(url).includes('turnstile')) return new Response('{"success":true}');
+        return new Response('{}', { status: 200 });
+      }),
+    );
+  });
+
+  function zWaitUntil(env: unknown, body: unknown) {
+    const request = new Request('https://x/api/contact-submit', {
+      method: 'POST',
+      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json', 'cf-connecting-ip': '2.2.2.2' },
+    });
+    return onRequestPost({
+      request,
+      env,
+      waitUntil: (p: Promise<unknown>) => czekaj.push(p),
+    } as unknown as Ctx) as Promise<Response>;
+  }
+
+  it('create przy ustawionych CRM_INGEST_URL/SECRET: 0 fetch do CRM, mail do agencji wychodzi', async () => {
+    const res = await zWaitUntil(
+      { ...makeEnv(), ...CRM_ENV },
+      {
+        action: 'create',
+        lead: { id: 'nowy', name: 'A', email: 'a@example.com', captcha_token: 'ok' },
+      },
+    );
+    await Promise.all(czekaj);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ success: true, degraded: false });
+    expect(czekaj).toHaveLength(0);
+    expect(wywolane.filter(jestCrm)).toEqual([]);
+    expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(1);
+  });
+
+  it('update (krok 1 i 3) przy ustawionych CRM_INGEST_*: 0 fetch do CRM, mail dopiero w kroku 3', async () => {
+    const env = { ...makeEnv(), ...CRM_ENV };
+    const edit_token = await tok(EXISTING);
+    for (const step of [1, 3]) {
+      const res = await zWaitUntil(env, {
+        action: 'update',
+        id: EXISTING,
+        edit_token,
+        step,
+        details: { name: 'A', email: 'a@example.com', message: 'ok' },
+      });
+      expect(res.status).toBe(200);
+    }
+    await Promise.all(czekaj);
+    expect(czekaj).toHaveLength(0);
+    expect(wywolane.filter(jestCrm)).toEqual([]);
+    expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(1);
+  });
+});

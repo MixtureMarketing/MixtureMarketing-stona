@@ -67,7 +67,7 @@ function call(env: unknown, fd: FormData, ip = '1.2.3.4') {
 
 let fetchMock: ReturnType<typeof vi.fn>;
 let emails: Array<{ to: string[]; html: string; attachments?: unknown }>;
-let crm: Array<Record<string, unknown>>;
+let crm: string[];
 
 beforeEach(() => {
   emails = [];
@@ -81,9 +81,9 @@ beforeEach(() => {
       emails.push(JSON.parse(String(init?.body)));
       return new Response('{}');
     }
-    if (String(url).includes('ingest/lead')) {
-      crm.push(JSON.parse(String(init?.body)));
-      return new Response('{}', { status: 201, headers: { 'Content-Type': 'application/json' } });
+    if (/mixture-crm|ingest\/lead/.test(String(url))) {
+      crm.push(String(url));
+      return new Response('{}', { status: 201 });
     }
     return new Response('{}', { status: 404 });
   });
@@ -189,8 +189,8 @@ describe('audit/capture-lead', () => {
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
   });
 
-  it('po udanym zapisie kopia leada idzie do CRM (source=audit, ten sam id)', async () => {
-    const { env } = makeEnv();
+  it('przy ustawionych CRM_INGEST_URL/SECRET lead zapisany, maile wychodzą, a do CRM nie idzie żaden fetch (MIX-625)', async () => {
+    const { env, inserts } = makeEnv();
     const czekaj: Promise<unknown>[] = [];
     const request = new Request('https://x/api/audit/capture-lead', {
       method: 'POST',
@@ -200,25 +200,25 @@ describe('audit/capture-lead', () => {
         companyName: 'Firma',
         captcha_token: 'good',
         score: '87',
+        pdf: new Blob([PDF]),
       }),
       headers: { 'cf-connecting-ip': '7.7.7.7' },
     });
     const res = (await onRequestPost({
       request,
-      env: { ...env, CRM_INGEST_SECRET: 'x'.repeat(64) },
+      env: {
+        ...env,
+        CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+        CRM_INGEST_SECRET: 'x'.repeat(64),
+      },
       waitUntil: (p: Promise<unknown>) => czekaj.push(p),
     } as unknown as Ctx)) as Response;
     await Promise.all(czekaj);
-    const { id } = (await res.json()) as { id: string };
-    expect(crm).toEqual([
-      expect.objectContaining({
-        external_id: id,
-        source: 'audit',
-        email: 'klient@example.com',
-        company: 'Firma',
-        source_url: 'https://firma.pl/',
-      }),
-    ]);
+    expect(res.status).toBe(200);
+    expect(czekaj).toHaveLength(0);
+    expect(crm).toEqual([]);
+    expect(inserts).toHaveLength(1);
+    expect(emails.map((e) => e.to[0])).toEqual(['klient@example.com', 'agencja@example.com']);
   });
 });
 

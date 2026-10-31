@@ -9,7 +9,6 @@ import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from '../_shared/security';
 import { sprawdzWymaganyTekst } from '../_shared/limity';
-import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import {
   parsePublicConfig,
@@ -22,7 +21,7 @@ import { withRetry } from '../../../lib/estimation/retry';
 import { ENGINE_VERSION } from '../../../lib/estimation/engine';
 import type { Answers } from '../../../lib/estimation/types';
 
-interface Env extends CrmEnv, LinearEnv {
+interface Env extends LinearEnv {
   DB: D1Database;
   CACHE: KVNamespace;
   TURNSTILE_SECRET: string;
@@ -158,19 +157,6 @@ async function persist(
       ).bind(quoteId, code, JSON.stringify(value)),
     );
     if (stmts.length > 0) await withRetry(() => env.DB.batch(stmts));
-
-    // Kopia do CRM po pełnym zapisie (lead + wycena). Efekt uboczny — silnik bez zmian.
-    wyslijDoCrmWTle(waitUntil, env, {
-      external_id: leadId,
-      source: 'calculator',
-      received_at: new Date().toISOString(),
-      email,
-      name: 'Klient z kalkulatora',
-      service: 'Kalkulator wyceny',
-      budget_text: budget,
-      quote_ref: String(quoteId),
-      details: { answers, priceRange: result.priceRange },
-    });
   } catch (e) {
     console.error('public-quote persist failed:', e);
   }

@@ -29,11 +29,10 @@ import { checkRateLimit } from './estimation/_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
-import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
 import { sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
 
-interface Env extends CrmEnv, LinearEnv {
+interface Env extends LinearEnv {
   TURNSTILE_SECRET: string;
   LEAD_TOKEN_SECRET?: string;
   RESEND_API_KEY: string;
@@ -310,22 +309,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         console.error('D1 insert lead failed:', e);
       }
 
-      // Kopia do CRM tylko po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
-      if (stored) {
-        wyslijDoCrmWTle(waitUntil, env, {
-          external_id: lead.id,
-          source: 'website',
-          received_at: new Date().toISOString(),
-          source_url: body.source_url,
-          name: lead.name,
-          email: lead.email,
-          phone: lead.phone,
-          service: lead.service_interest,
-          form_step: 1,
-          form_steps: 3,
-        });
-      }
-
       // Zadanie w Linearze tylko po udanym zapisie (źródło prawdy: D1). W tle, nie zmienia odpowiedzi.
       if (stored) zglosLeadWTle(waitUntil, env, lead.id);
 
@@ -399,28 +382,6 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
           updated = (res.meta?.changes ?? 0) > 0;
         } catch (e) {
           console.error('D1 update lead failed:', e);
-        }
-        // Kolejny krok formularza do CRM (uzupełnia ten sam lead po external_id).
-        if (updated) {
-          const str = (v: unknown) => (typeof v === 'string' ? v : null);
-          const extra = splitLeadFields(d);
-          wyslijDoCrmWTle(waitUntil, env, {
-            external_id: body.id,
-            source: 'website',
-            name: str(d.name),
-            email: str(d.email),
-            phone: str(d.phone),
-            company: str(d.company),
-            budget_text: str(d.budget),
-            message: str(d.message),
-            details: {
-              ...extra,
-              ...(str(d.website) ? { website: d.website } : {}),
-              ...(str(d.package_name) ? { package_name: d.package_name } : {}),
-            },
-            form_step: body.step ?? null,
-            form_steps: 3,
-          });
         }
       }
       // Komentarz w zadaniu Lineara: kroki 2 i 3 (krok 1 to wznowienie formularza, bez szumu).
