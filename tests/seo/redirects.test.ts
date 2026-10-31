@@ -18,6 +18,11 @@ const ALIASES: Record<string, string> = {
   '/kontakt': '/contact/',
   '/oferta': '/offers/',
   '/realizacje': '/portfolio/',
+  // MIX-781 (S7): zgadywane adresy, które wcześniej dawały 404.
+  '/cennik': '/offers/', // tymczasowo — brak osobnej strony z cennikiem
+  '/opinie': '/wycena/',
+  '/kalkulator': '/wycena/',
+  '/audyt': '/audyt-360/',
 };
 
 describe('public/_redirects — polskie aliasy URL', () => {

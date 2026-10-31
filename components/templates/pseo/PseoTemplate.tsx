@@ -72,7 +72,12 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
     <div className="min-h-screen bg-gray-50 text-dark">
       {isIndustry(data) ? (
         <Seo
-          title={`Marketing i Strony WWW ${industryAudience(data.forWho, data.name)}`}
+          // Warianty od pełnego do krótszego: nazwy branż z CMS bywają długie
+          // („… Edukacja i Szkolenia (EdTech)”) — fitTitle (Seo) bierze pierwszy ≤ 60 znaków.
+          title={[
+            `Marketing i Strony WWW ${industryAudience(data.forWho, data.name)}`,
+            `Marketing i WWW ${industryAudience(data.forWho, data.name)}`,
+          ]}
           description={industryDescription(data.name, data.painPoints)}
           breadcrumbs={[
             { name: 'Strona Główna', item: '/' },

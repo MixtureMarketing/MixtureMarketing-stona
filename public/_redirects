@@ -46,6 +46,18 @@
 /home           /             301
 /home/          /             301
 
+# Kolejne zgadywane adresy (audyt MIX-489, S7; dotad 404). Cele sa realnymi, prerenderowanymi
+# trasami. /cennik -> /offers/ TYMCZASOWO: osobnej strony z cennikiem nie ma; po jej
+# powstaniu zmienic cel (i test w tests/seo/redirects.test.ts).
+/cennik         /offers/      301
+/cennik/        /offers/      301
+/opinie         /wycena/      301
+/opinie/        /wycena/      301
+/kalkulator     /wycena/      301
+/kalkulator/    /wycena/      301
+/audyt          /audyt-360/   301
+/audyt/         /audyt-360/   301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje

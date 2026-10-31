@@ -95,7 +95,7 @@ const KnowledgeBaseTeaser: React.FC = () => {
                   <div className="relative h-56 overflow-hidden">
                     <Image
                       src={article.image}
-                      alt=""
+                      alt={`Okładka artykułu: ${article.title}`}
                       className="h-full w-full transform object-cover object-top transition-transform duration-700 group-hover:scale-110"
                       width={600}
                       height={400}
