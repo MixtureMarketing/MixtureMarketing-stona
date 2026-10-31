@@ -10,6 +10,8 @@ import {
   zglosLeadWTle,
   komentarzKroku,
   drenujKolejke,
+  utnij,
+  MAX_PROB,
   DOMENY_PRYWATNE,
   ODSTEPY_MIN,
   type LeadRow,
@@ -1385,5 +1387,238 @@ describe('logi i migracja', () => {
     db.prepare(`INSERT INTO linear_leady (lead_id) VALUES (?)`).run(l.id);
     db.prepare('DELETE FROM leads WHERE id = ?').run(l.id);
     expect(liczWierszy(db)).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Długie i dziwne dane, wyjątki w module
+// ---------------------------------------------------------------------------------------------
+
+const OSIEROCONA_POLOWKA = /[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+/** Litera spoza BMP (para zastępcza UTF-16), przechodzi przez filtr `\p{L}` w temacie. */
+const ASTRALNA = '\u{10400}';
+
+describe('utnij (ucięcie po znakach)', () => {
+  it('krótki tekst bez zmian, granica dokładnie na limicie bez zmian', () => {
+    expect(utnij('abc', 5)).toBe('abc');
+    expect(utnij('abc', 3)).toBe('abc');
+  });
+
+  it('(−) tekst dłuższy niż limit jest ucinany do limitu', () => {
+    expect(utnij('abcdef', 3)).toBe('abc');
+  });
+
+  it('(−) nie zostawia połowy pary zastępczej na końcu', () => {
+    const t = `ab${ASTRALNA}`; // 4 jednostki UTF-16
+    expect(utnij(t, 4)).toBe(t);
+    expect(utnij(t, 3)).toBe('ab');
+    expect(OSIEROCONA_POLOWKA.test(utnij(t, 3))).toBe(false);
+  });
+});
+
+describe('temat, tytuł i opis przy długich i dziwnych danych', () => {
+  const imieDlugie = 'Anna'.repeat(5000); // 20 000 znaków
+
+  it('(−) imię 20 000 znaków: tytuł i opis powstają bez wyjątku, tytuł ≤ 120 znaków', () => {
+    const lead = {
+      id: 'x',
+      email: 'anna@firma.pl',
+      name: imieDlugie,
+      service_type: 'projekt strony dla firmy',
+      source: 'website',
+    } as LeadRow;
+    const tytul = tytulZadania(lead);
+    expect(tytul.length).toBeLessThanOrEqual(120);
+    expect(tytul).toContain('firma.pl');
+    expect(() => opisZadania(lead)).not.toThrow();
+    expect(() => trescProsby(lead)).not.toThrow();
+  });
+
+  it('(−) część adresu e-mail 20 000 znaków oraz 5 000 krótkich członów imienia też nie rzucają', () => {
+    const lead = {
+      id: 'x',
+      email: `${'a.'.repeat(10_000)}@firma.pl`,
+      name: Array.from({ length: 5000 }, (_, i) => `Imie${i}`).join(' '),
+      service_type: 'sklep internetowy',
+      source: 'website',
+    } as LeadRow;
+    expect(() => tytulZadania(lead)).not.toThrow();
+  });
+
+  it('(−) znaki specjalne wyrażeń regularnych w imieniu i usłudze nie psują tematu', () => {
+    const lead = {
+      id: 'x',
+      email: 'x@firma.pl',
+      name: '(((Jan[[ *+?^$|\\',
+      service_type: '((([[[ strona www ***',
+      source: 'website',
+    } as LeadRow;
+    expect(() => tytulZadania(lead)).not.toThrow();
+    expect(tytulZadania(lead)).toContain('strona www');
+  });
+
+  it('(−) pola o złym typie (liczba, obiekt) nie rzucają', () => {
+    const lead = {
+      id: 'x',
+      email: 'x@firma.pl',
+      name: 12345,
+      service_type: { a: 1 },
+      package_name: 7,
+      source: 'website',
+    } as unknown as LeadRow;
+    expect(() => tytulZadania(lead)).not.toThrow();
+    expect(() => opisZadania(lead)).not.toThrow();
+  });
+
+  it('temat ucięty do 40 znaków po znakach: litery spoza BMP nie zostawiają osieroconej połówki', () => {
+    const lead = {
+      id: 'x',
+      email: 'x@firma.pl',
+      service_type: `${'a'.repeat(39)}${ASTRALNA}${ASTRALNA}`,
+      source: 'website',
+    } as LeadRow;
+    const tytul = tytulZadania(lead);
+    expect(OSIEROCONA_POLOWKA.test(tytul)).toBe(false);
+    expect(tytul.endsWith('a'.repeat(39))).toBe(true);
+  });
+
+  it('(−) cytat wiadomości i tytuł ucięte w środku pary zastępczej zostają poprawnym tekstem', () => {
+    const lead = {
+      id: 'x',
+      email: 'x@firma.pl',
+      name: 'Jan',
+      message: `a${ASTRALNA.repeat(300)}`,
+      source: 'website',
+    } as LeadRow;
+    expect(OSIEROCONA_POLOWKA.test(trescProsby(lead))).toBe(false);
+    expect(OSIEROCONA_POLOWKA.test(opisZadania(lead))).toBe(false);
+    const dlugi = {
+      id: 'x',
+      email: 'x@firma.pl',
+      package_name: `${'b'.repeat(30)} ${ASTRALNA.repeat(30)}`,
+      source: 'website',
+    } as LeadRow;
+    expect(OSIEROCONA_POLOWKA.test(tytulZadania(dlugi, { preview: true }))).toBe(false);
+  });
+});
+
+describe('zglosLead — długie dane i wyjątki przy tworzeniu zadania', () => {
+  it('imię 20 000 znaków: zadanie w Linearze powstaje, wiersz „wyslany”, bez wyjątku w logu', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db, { name: 'Anna'.repeat(5000), email: 'anna@firma.pl' });
+    await zglosLead(env, lead.id);
+    expect(wiersz(db, lead.id)).toMatchObject({ stan: 'wyslany', issue_id: lead.id, proby: 0 });
+    expect(opy().filter((o) => o === 'ZadanieUtworz')).toHaveLength(1);
+    expect(logi.join('\n')).not.toContain('blad-wewnetrzny');
+    expect((input('ZadanieUtworz').title as string).length).toBeLessThanOrEqual(120);
+  });
+
+  /** Adres e-mail zapisany jako BLOB: `lead.email.trim` rzuca TypeError w środku wysyłki. */
+  const leadZWyjatkiem = (db: Db) => {
+    const lead = dodajLead(db);
+    db.prepare("UPDATE leads SET email = x'0102' WHERE id = ?").run(lead.id);
+    return lead;
+  };
+
+  it('(−) wyjątek przy tworzeniu zadania: wiersz zostaje w kolejce z licznikiem 1 i kodem błędu', async () => {
+    const { env, db } = srodowisko();
+    const lead = leadZWyjatkiem(db);
+    await expect(zglosLead(env, lead.id)).resolves.toBeUndefined();
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'kolejka',
+      proby: 1,
+      ostatni_blad: 'wyjatek:TypeError',
+    });
+    expect(
+      Math.abs(utc(wiersz(db, lead.id)!.nastepna_proba) - (teraz() + minuty(ODSTEPY_MIN[0]))),
+    ).toBeLessThanOrEqual(2000);
+    expect(logi.join('\n')).toContain(
+      `[linear] lead ${lead.id}: wyjatek:TypeError (próba 1, kolejka)`,
+    );
+  });
+
+  it('(−) stały wyjątek: po MAX_PROB próbach stan „zablokowany”, potem zero wywołań i zero prób', async () => {
+    const { env, db } = srodowisko();
+    const lead = leadZWyjatkiem(db);
+    await zglosLead(env, lead.id);
+    for (let proba = 2; proba <= MAX_PROB; proba++) {
+      expect(wiersz(db, lead.id)).toMatchObject({ stan: 'kolejka', proby: proba - 1 });
+      vi.setSystemTime(utc(wiersz(db, lead.id)!.nastepna_proba) + 1000);
+      await drenujKolejke(env, { limit: 5 });
+    }
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'zablokowany',
+      proby: MAX_PROB,
+      ostatni_blad: 'wyjatek:TypeError',
+    });
+    const probyPrzed = wiersz(db, lead.id)!.proby;
+    wyw = [];
+    for (let i = 0; i < 5; i++) {
+      vi.setSystemTime(teraz() + 24 * 3600_000);
+      await drenujKolejke(env);
+    }
+    expect(wyw).toHaveLength(0);
+    expect(wiersz(db, lead.id)!.proby).toBe(probyPrzed);
+  });
+
+  it('(−) wyjątek w jednym wierszu nie przerywa drenażu pozostałych', async () => {
+    const { env, db } = srodowisko();
+    const zly = leadZWyjatkiem(db);
+    const dobry = dodajLead(db);
+    for (const l of [zly, dobry]) {
+      db.prepare(
+        `INSERT INTO linear_leady (lead_id, stan, nastepna_proba) VALUES (?, 'kolejka', '2000-01-01 00:00:00')`,
+      ).run(l.id);
+    }
+    const ok = await drenujKolejke(env, { limit: 5 });
+    expect(ok.ponowione).toBe(1);
+    expect(wiersz(db, zly.id)).toMatchObject({ stan: 'kolejka', proby: 1 });
+    expect(wiersz(db, dobry.id)).toMatchObject({ stan: 'wyslany', issue_id: dobry.id });
+  });
+
+  it('(−) wyjątek po utworzeniu zadania w Linearze: stan „wyslany”, licznik 1, bez ponownego tworzenia zadania', async () => {
+    const { env, db } = srodowisko();
+    const lead = dodajLead(db);
+    db.prepare(
+      `INSERT INTO linear_leady (lead_id, stan, issue_id, customer_request, nastepna_proba)
+       VALUES (?, 'wyslany', ?, 0, '2000-01-01 00:00:00')`,
+    ).run(lead.id, lead.id);
+    const prawdziwa = env.DB;
+    let rzucono = false;
+    (env as unknown as { DB: unknown }).DB = {
+      prepare: (sql: string) => {
+        // Zapis wyniku Customer Request (po udanych wywołaniach API) rzuca raz.
+        if (!rzucono && /SET stan = \?, customer_request = \?/.test(sql)) {
+          rzucono = true;
+          throw new Error('D1_ERROR: overloaded');
+        }
+        return prawdziwa.prepare(sql);
+      },
+    };
+    await drenujKolejke(env, { limit: 5 });
+    expect(rzucono).toBe(true);
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'wyslany',
+      issue_id: lead.id,
+      proby: 1,
+      ostatni_blad: 'wyjatek:Error',
+    });
+    expect(opy()).not.toContain('ZadanieUtworz');
+  });
+
+  it('(−) wyjątek i awaria bazy przy zapisie porażki: zglosLead nadal nie rzuca', async () => {
+    const { env, db } = srodowisko();
+    const lead = leadZWyjatkiem(db);
+    const prawdziwa = env.DB;
+    let blokada = false;
+    (env as unknown as { DB: unknown }).DB = {
+      prepare: (sql: string) => {
+        if (blokada && /linear_leady/.test(sql)) throw new Error('D1_ERROR: overloaded');
+        if (/SELECT \* FROM leads/.test(sql)) blokada = true; // po odczycie leada baza „pada”
+        return prawdziwa.prepare(sql);
+      },
+    };
+    await expect(zglosLead(env, lead.id)).resolves.toBeUndefined();
+    expect(wiersz(db, lead.id)).toMatchObject({ stan: 'w_toku' });
   });
 });

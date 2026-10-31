@@ -210,7 +210,7 @@ describe('POST /api/estimation/public-quote', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// Wejście → Linear (MIX-490, zadanie 3): biblioteka wyceny z atrap, lead/linear_leady w prawdziwym SQLite.
+// Wejście → Linear: biblioteka wyceny z atrap, lead/linear_leady w prawdziwym SQLite.
 // ---------------------------------------------------------------------------------------------
 
 describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
@@ -225,13 +225,29 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
   });
 
   /** Tabele est_* z atrap biblioteki, `leads` i `linear_leady` w SQLite z migracjami. */
-  function srodowisko(wlasne: { psujLeads?: boolean; psujLinear?: boolean } = {}) {
+  function srodowisko(
+    wlasne: {
+      psujLeads?: boolean;
+      psujLinear?: boolean;
+      psujWycene?: boolean;
+      psujOdpowiedzi?: boolean;
+    } = {},
+  ) {
     const wejscia = srodowiskoWejsc(siec, { TURNSTILE_SECRET: 'sekret' });
     const biblioteka = makeDB();
     const DB = {
       prepare: (sql: string) => {
         if (/linear_leady/.test(sql) && wlasne.psujLinear) {
           throw new Error('D1_ERROR: no such table: linear_leady');
+        }
+        if (/INSERT INTO est_quotes/.test(sql) && wlasne.psujWycene) {
+          return {
+            bind: () => ({
+              run: async () => {
+                throw new Error('D1_ERROR: est_quotes overloaded');
+              },
+            }),
+          };
         }
         if (/INSERT INTO leads/.test(sql) && wlasne.psujLeads) {
           return {
@@ -246,7 +262,11 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
           ? wejscia.DB.prepare(sql)
           : biblioteka.DB.prepare(sql);
       },
-      batch: biblioteka.DB.batch,
+      batch: wlasne.psujOdpowiedzi
+        ? async () => {
+            throw new Error('D1_ERROR: batch overloaded');
+          }
+        : biblioteka.DB.batch,
     };
     return { env: { ...wejscia.env, DB }, db: wejscia.db, CACHE: wejscia.CACHE };
   }
@@ -371,6 +391,105 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
     const r = await wywolaj(srv);
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
+    expect(siec.linear).toHaveLength(0);
+  });
+
+  // ── Kolejność zapisu: lead jest zgłaszany do Lineara, zanim zapis wyceny może się nie udać ──
+
+  it.each(['psujWycene', 'psujOdpowiedzi'] as const)(
+    'zapis wyceny pada (%s) po zapisie leada → zadanie w Linearze i tak powstaje, odpowiedź bez zmian',
+    async (psuje) => {
+      const { env: srv, db } = srodowisko({ [psuje]: true });
+      const r = await wywolaj(srv);
+      expect(r.status).toBe(200);
+      expect(r.body).toEqual({
+        priceRange: { min: 500, max: 1500 },
+        currency: 'PLN',
+        status: 'ok',
+      });
+      const lead = db.prepare('SELECT id FROM leads').get() as { id: string };
+      expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+      expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
+        input: { id: lead.id, labelIds: ['lab-kalkulator'] },
+      });
+      expect(db.prepare('SELECT stan FROM linear_leady WHERE lead_id = ?').get(lead.id)).toEqual({
+        stan: 'wyslany',
+      });
+      // Kopia do CRM idzie dopiero po pełnym zapisie, więc przy awarii wyceny jej nie ma.
+      expect(zb.liczba()).toBe(1);
+    },
+  );
+
+  // ── Limity długości (400 po polsku, po stronie serwera) ────────────────────────────────────
+
+  const bezSiteverify = () =>
+    expect(
+      vi.mocked(fetch).mock.calls.filter(([u]) => String(u).includes('siteverify')),
+    ).toHaveLength(0);
+
+  it('(−) e-mail 255 znaków → 400 z komunikatem, bez Turnstile, bez zapisu i Lineara', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, email: `${'a'.repeat(255 - 5)}@x.pl` });
+    expect([r.status, r.body]).toEqual([
+      400,
+      { error: 'Pole „E-mail” może mieć maks. 254 znaków.' },
+    ]);
+    bezSiteverify();
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM leads').get()).toEqual({ n: 0 });
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('e-mail dokładnie 254 znaki przechodzi (200)', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, email: `${'a'.repeat(254 - 5)}@x.pl` });
+    expect(r.status).toBe(200);
+  });
+
+  it('(−) token captcha 2049 znaków → 400, bez zapytania do Turnstile', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, captcha_token: 't'.repeat(2049) });
+    expect([r.status, r.body]).toEqual([
+      400,
+      { error: 'Pole „Token captcha” może mieć maks. 2048 znaków.' },
+    ]);
+    bezSiteverify();
+  });
+
+  it('(−) e-mail i token o złym typie (liczba, obiekt) → 400, nie 500', async () => {
+    const { env: srv } = srodowisko();
+    const a = await wywolaj(srv, { ...VALID, email: 12345 });
+    expect([a.status, a.body]).toEqual([400, { error: 'Pole „E-mail” ma nieprawidłowy format.' }]);
+    const b = await wywolaj(srv, { ...VALID, captcha_token: { x: 1 } });
+    expect([b.status, b.body]).toEqual([
+      400,
+      { error: 'Pole „Token captcha” ma nieprawidłowy format.' },
+    ]);
+  });
+
+  it('(−) odpowiedź 2001 znaków → 400 z błędem po polsku, zero zapisu i Lineara; 2000 znaków → 200', async () => {
+    const { env: srv, db } = srodowisko();
+    const za = await wywolaj(srv, { ...VALID, answers: { project_goal: 'x'.repeat(2001) } });
+    expect(za.status).toBe(400);
+    expect(za.body).toEqual({
+      errors: [
+        'Pole „project_goal" może mieć maks. 2000 znaków.',
+        'Pole „project_goal" jest wymagane.',
+      ],
+    });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    const ok = await wywolaj(srv, { ...VALID, answers: { project_goal: 'x'.repeat(2000) } });
+    expect(ok.status).toBe(200);
+  });
+
+  it('(−) ponad 100 odpowiedzi → 400 z komunikatem po polsku', async () => {
+    const { env: srv, db } = srodowisko();
+    const wiele = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`k${i}`, 'x']));
+    const r = await wywolaj(srv, { ...VALID, answers: { project_goal: 'x', ...wiele } });
+    expect([r.status, r.body]).toEqual([400, { errors: ['Za dużo odpowiedzi (maks. 100).'] }]);
+    expect(wierszeLinear(db)).toHaveLength(0);
     expect(siec.linear).toHaveLength(0);
   });
 });

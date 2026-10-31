@@ -31,6 +31,7 @@ import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
+import { sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
 
 interface Env extends CrmEnv, LinearEnv {
   TURNSTILE_SECRET: string;
@@ -181,6 +182,31 @@ function rowToLead(row: Record<string, unknown>) {
 
 const BRAK_TOKENU = { message: 'Brak lub niepoprawny token leada' };
 
+/** Pierwszy błąd z listy sprawdzeń (komunikat po polsku) albo null. */
+const pierwszyBlad = (...bledy: Array<string | null>): string | null =>
+  bledy.find((b) => b !== null) ?? null;
+
+/** Limity pól akcji `create`: lead, adres źródłowy. Pola zapisywane do kolumn muszą być tekstem. */
+function bladCreate(body: RequestBody): string | null {
+  const lead = (body.lead ?? {}) as Record<string, unknown>;
+  return pierwszyBlad(
+    ...['name', 'email', 'phone', 'service_interest', 'captcha_token'].map((k) =>
+      sprawdzWymaganyTekst(lead[k], k),
+    ),
+    sprawdzWymaganyTekst(body.source_url, 'source_url'),
+    sprawdzObiekt(body.lead, 'lead'),
+  );
+}
+
+/** Limity wspólne dla akcji z tokenem: id, token, typ powiadomienia. */
+function bladIdentyfikatorow(body: RequestBody): string | null {
+  return pierwszyBlad(
+    sprawdzWymaganyTekst(body.id, 'id'),
+    sprawdzWymaganyTekst(body.edit_token, 'edit_token'),
+    sprawdzWymaganyTekst(body.type, 'type'),
+  );
+}
+
 async function pobierzLead(env: Env, id: string) {
   try {
     const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
@@ -247,6 +273,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       if (!body.lead?.name || !body.lead?.email) {
         return json({ message: 'Brak wymaganych pól (name, email)' }, 400);
       }
+      const bladLimitu = bladCreate(body);
+      if (bladLimitu) return json({ message: bladLimitu }, 400);
       const ok = await verifyTurnstile(body.lead.captcha_token || '', env.TURNSTILE_SECRET, ip);
       if (!ok) return json({ message: 'Weryfikacja captcha nieudana' }, 403);
 
@@ -332,7 +360,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       // Mail do agencji tylko, gdy lead faktycznie istnieje (UPDATE trafił w wiersz) —
       // inaczej dowolne `id` pozwalało wysyłać maile z treścią atakującego.
       // Token wydany przy create — bez niego każdy znający id mógłby nadpisać dane.
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
+      const bladDetails = sprawdzObiekt(body.details, 'details');
+      if (bladDetails) return json({ message: bladDetails }, 400);
       let updated = false;
       if (body.id) {
         const d = (body.details || {}) as Record<string, unknown>;
@@ -412,6 +444,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     case 'send_notification': {
       // Tylko dla istniejącego leada i raz na (lead, typ) — bez tego endpoint był
       // publiczną pompą maili do skrzynki agencji.
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       if (!body.id || !(await leadExists(env, body.id))) return json({ success: true });
       const type = body.type || 'success';
@@ -442,6 +476,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     }
 
     case 'get_lead': {
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!body.id) return json({ lead: null });
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       return pobierzLead(env, body.id);

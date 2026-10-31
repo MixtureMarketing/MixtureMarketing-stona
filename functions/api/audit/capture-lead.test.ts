@@ -223,7 +223,7 @@ describe('audit/capture-lead', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// Wejście → Linear (MIX-490, zadanie 3): prawdziwy SQLite z migracją 0010, atrapa sieci.
+// Wejście → Linear: prawdziwy SQLite z migracją 0010, atrapa sieci.
 // ---------------------------------------------------------------------------------------------
 
 describe('audit/capture-lead — zgłoszenie do Lineara', () => {
@@ -374,5 +374,56 @@ describe('audit/capture-lead — zgłoszenie do Lineara', () => {
     const r = await wywolaj({ ...srv, DB: bezTabeli }, form(pola));
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ status: 'success', id: expect.any(String) });
+  });
+
+  // ── Limity długości pól (400 po polsku, po stronie serwera) ────────────────────────────────
+
+  const tekst = (n: number) => 'a'.repeat(n);
+
+  it.each([
+    ['companyName', 'Nazwa firmy', 200],
+    ['email', 'E-mail', 254],
+    ['url', 'Adres strony', 2048],
+    ['score', 'Wynik', 20],
+    ['captcha_token', 'Token captcha', 2048],
+  ])(
+    '(−) pole „%s” ponad %i znaków → 400 z komunikatem, nic nie zapisane ani wysłane',
+    async (pole, etykieta, max) => {
+      const { env: srv, db } = srodowisko();
+      const r = await wywolaj(srv, form({ ...pola, [pole]: tekst(Number(max) + 1) }));
+      expect(r.status).toBe(400);
+      expect(r.body).toEqual({
+        status: 'error',
+        message: `Pole „${etykieta}” może mieć maks. ${max} znaków.`,
+      });
+      expect(siec.linear).toHaveLength(0);
+      expect(siec.resend).toBe(0);
+      expect(siec.hosty).not.toContain('challenges.cloudflare.com');
+      expect(wierszeLinear(db)).toHaveLength(0);
+      expect(db.prepare('SELECT COUNT(*) AS n FROM leads').get()).toEqual({ n: 0 });
+      expect(zb.liczba()).toBe(0);
+    },
+  );
+
+  it('(−) nazwa firmy 20 000 znaków → 400 (wcześniej cichy skrót, a imię rzucało w module Lineara)', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, form({ ...pola, companyName: tekst(20_000) }));
+    expect(r.status).toBe(400);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM leads').get()).toEqual({ n: 0 });
+  });
+
+  it('pola dokładnie na limicie przechodzą: 200 i zadanie w Linearze powstaje', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(
+      srv,
+      form({
+        ...pola,
+        companyName: tekst(200),
+        email: `${tekst(254 - '@firma.pl'.length)}@firma.pl`,
+        score: '1'.repeat(20),
+      }),
+    );
+    expect(r.status).toBe(200);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
   });
 });

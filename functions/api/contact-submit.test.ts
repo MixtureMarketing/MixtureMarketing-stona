@@ -191,7 +191,7 @@ describe('contact-submit — create nie gubi leada po cichu', () => {
 });
 
 // ---------------------------------------------------------------------------------------------
-// Wejście → Linear (MIX-490, zadanie 3): atrapy sieci, prawdziwy SQLite z migracją 0010.
+// Wejście → Linear: atrapy sieci, prawdziwy SQLite z migracją 0010.
 // ---------------------------------------------------------------------------------------------
 
 describe('contact-submit — zgłoszenie do Lineara', () => {
@@ -449,5 +449,183 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     });
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ success: true });
+  });
+
+  // ── Pola techniczne nie trafiają do komentarza w Linearze ──────────────────────────────────
+
+  it.each(['captcha_token', 'website_verify', 'privacy', 'id'])(
+    'update step=2: pole techniczne „%s” nie trafia do komentarza, zwykłe pole tak',
+    async (techniczne) => {
+      const { env: srv } = srodowisko();
+      const { id, edit_token } = await utworz(srv);
+      const r = await wywolaj(srv, {
+        action: 'update',
+        id,
+        edit_token,
+        step: 2,
+        details: { company: 'Firma Testowa', [techniczne]: 'wartosc-techniczna-777' },
+      });
+      expect(r.status).toBe(200);
+      const kom = siec.linear.filter((w) => w.op === 'Komentarz').map((w) => w.vars.input);
+      expect(kom).toHaveLength(1);
+      const tresc = String((kom[0] as { body: string }).body);
+      expect(tresc).toContain('Firma Testowa');
+      expect(tresc).not.toContain('wartosc-techniczna-777');
+    },
+  );
+
+  // ── Limity długości pól (400 po polsku, po stronie serwera) ────────────────────────────────
+
+  /** Odmowa za długie pole: 400, komunikat, zero zapisu, zero Lineara, zero maili, zero Turnstile. */
+  const oczekujOdmowy = async (
+    srv: ReturnType<typeof srodowisko>['env'],
+    db: ReturnType<typeof srodowisko>['db'],
+    body: unknown,
+    komunikat: string,
+  ) => {
+    const r = await wywolaj(srv, body);
+    expect(r.status).toBe(400);
+    expect(r.body).toEqual({ message: komunikat });
+    expect(siec.linear).toHaveLength(0);
+    expect(siec.resend).toBe(0);
+    expect(siec.hosty).not.toContain('challenges.cloudflare.com');
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM leads').get()).toEqual({ n: 0 });
+    expect(zb.liczba()).toBe(0);
+  };
+
+  const tekst = (n: number) => 'a'.repeat(n);
+
+  it('(−) create: imię 20 000 znaków → 400 z komunikatem po polsku, nic nie jest zapisane ani wysłane', async () => {
+    const { env: srv, db } = srodowisko();
+    await oczekujOdmowy(
+      srv,
+      db,
+      { action: 'create', lead: { ...lead, name: tekst(20_000) } },
+      'Pole „Imię i nazwisko” może mieć maks. 200 znaków.',
+    );
+  });
+
+  it.each([
+    ['name', 'Imię i nazwisko', 200],
+    ['email', 'E-mail', 254],
+    ['phone', 'Telefon', 40],
+    ['service_interest', 'Usługa', 100],
+    ['captcha_token', 'Token captcha', 2048],
+    ['pole_dodatkowe', 'pole_dodatkowe', 1000],
+  ])(
+    'create: pole „%s” – limit %i znaków: powyżej 400, dokładnie na limicie przechodzi dalej',
+    async (pole, etykieta, max) => {
+      const { env: srv, db } = srodowisko();
+      await oczekujOdmowy(
+        srv,
+        db,
+        { action: 'create', lead: { ...lead, [pole]: tekst(Number(max) + 1) } },
+        `Pole „${etykieta}” może mieć maks. ${max} znaków.`,
+      );
+      const ok = await wywolaj(srv, {
+        action: 'create',
+        lead: { ...lead, [pole]: tekst(Number(max)) },
+      });
+      // captcha_token na limicie jest już „zły” dla atrapy Turnstile (403), pozostałe przechodzą.
+      expect(ok.status).toBe(pole === 'captcha_token' ? 403 : 200);
+    },
+  );
+
+  it('(−) create: adres źródłowy powyżej 2048 znaków → 400', async () => {
+    const { env: srv, db } = srodowisko();
+    await oczekujOdmowy(
+      srv,
+      db,
+      { action: 'create', lead, source_url: `https://x.pl/${tekst(2048)}` },
+      'Pole „Adres źródłowy” może mieć maks. 2048 znaków.',
+    );
+  });
+
+  it('(−) create: pole o złym typie (obiekt w imieniu) → 400, liczba pól ponad 40 → 400', async () => {
+    const { env: srv, db } = srodowisko();
+    await oczekujOdmowy(
+      srv,
+      db,
+      { action: 'create', lead: { ...lead, name: { a: 1 } } },
+      'Pole „Imię i nazwisko” ma nieprawidłowy format.',
+    );
+    const wiele = Object.fromEntries(Array.from({ length: 41 }, (_, i) => [`p${i}`, 'x']));
+    await oczekujOdmowy(
+      srv,
+      db,
+      { action: 'create', lead: { ...lead, ...wiele } },
+      'Za dużo pól w zgłoszeniu (maks. 40).',
+    );
+  });
+
+  it('create na granicach limitów → 200, zadanie w Linearze powstaje (imię 200 znaków)', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, {
+      action: 'create',
+      lead: { ...lead, name: tekst(200), phone: tekst(40), service_interest: tekst(100) },
+    });
+    expect(r.status).toBe(200);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+  });
+
+  it('(−) update: wiadomość 5001 znaków → 400, zero komentarzy; 5000 znaków → 200 i komentarz', async () => {
+    const { env: srv } = srodowisko();
+    const { id, edit_token } = await utworz(srv);
+    const krok = (message: string) =>
+      wywolaj(srv, { action: 'update', id, edit_token, step: 2, details: { message } });
+    const za = await krok(tekst(5001));
+    expect(za.status).toBe(400);
+    expect(za.body).toEqual({ message: 'Pole „Wiadomość” może mieć maks. 5000 znaków.' });
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+    const ok = await krok(tekst(5000));
+    expect(ok.status).toBe(200);
+    expect(ileOp(siec, 'Komentarz')).toBe(1);
+  });
+
+  it('(−) update: details za duże (łącznie), nie-obiekt, id, token i typ ponad limit → 400', async () => {
+    const { env: srv } = srodowisko();
+    const { id, edit_token } = await utworz(srv);
+    const duze = Object.fromEntries(Array.from({ length: 30 }, (_, i) => [`p${i}`, tekst(900)]));
+    const r1 = await wywolaj(srv, { action: 'update', id, edit_token, step: 2, details: duze });
+    expect([r1.status, r1.body]).toEqual([
+      400,
+      { message: 'Zgłoszenie jest za duże (maks. 20000 znaków).' },
+    ]);
+    const r2 = await wywolaj(srv, { action: 'update', id, edit_token, step: 2, details: 'tekst' });
+    expect([r2.status, r2.body]).toEqual([
+      400,
+      { message: 'Pole „details” ma nieprawidłowy format.' },
+    ]);
+    const r3 = await wywolaj(srv, { action: 'update', id: tekst(101), edit_token, step: 1 });
+    expect([r3.status, r3.body]).toEqual([
+      400,
+      { message: 'Pole „Identyfikator” może mieć maks. 100 znaków.' },
+    ]);
+    const r4 = await wywolaj(srv, { action: 'get_lead', id, edit_token: tekst(501) });
+    expect([r4.status, r4.body]).toEqual([
+      400,
+      { message: 'Pole „Token leada” może mieć maks. 500 znaków.' },
+    ]);
+    const r5 = await wywolaj(srv, { action: 'send_notification', id, edit_token, type: tekst(41) });
+    expect([r5.status, r5.body]).toEqual([
+      400,
+      { message: 'Pole „Typ” może mieć maks. 40 znaków.' },
+    ]);
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+  });
+
+  it('(−) update ze złym tokenem i za długim polem: nadal 403 dla złego tokenu (limit nie ujawnia więcej)', async () => {
+    const { env: srv } = srodowisko();
+    const { id } = await utworz(srv);
+    const r = await wywolaj(srv, {
+      action: 'update',
+      id,
+      edit_token: 'zly',
+      step: 2,
+      details: { message: tekst(9000) },
+    });
+    expect(r.status).toBe(403);
+    expect(r.body).toEqual({ message: 'Brak lub niepoprawny token leada' });
   });
 });

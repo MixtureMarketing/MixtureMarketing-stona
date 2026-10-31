@@ -131,3 +131,45 @@ describe('sanitizePublicAnswers — filtr do kodów publicznych + kontrola typó
     expect(errors.some((e) => e.includes('languages'))).toBe(true);
   });
 });
+
+describe('sanitizePublicAnswers — limity długości', () => {
+  it('(−) odpowiedź tekstowa ponad 2000 znaków → błąd po polsku, odpowiedź odrzucona', () => {
+    const { answers, errors } = sanitizePublicAnswers({ project_goal: 'x'.repeat(2001) }, DEFS);
+    expect(errors).toContain('Pole „project_goal" może mieć maks. 2000 znaków.');
+    expect(answers).not.toHaveProperty('project_goal');
+  });
+
+  it('odpowiedź tekstowa dokładnie 2000 znaków przechodzi', () => {
+    const { answers, errors } = sanitizePublicAnswers({ project_goal: 'x'.repeat(2000) }, DEFS);
+    expect(errors).toEqual([]);
+    expect(answers.project_goal).toHaveLength(2000);
+  });
+
+  it('(−) lista ponad 50 pozycji → błąd; 50 pozycji przechodzi', () => {
+    const lista = (n: number) => Array.from({ length: n }, () => 'a');
+    const za = sanitizePublicAnswers({ project_goal: 'sklep', users_type: lista(51) }, DEFS);
+    expect(za.errors).toEqual(['Pole „users_type" może mieć maks. 50 pozycji.']);
+    const ok = sanitizePublicAnswers({ project_goal: 'sklep', users_type: lista(50) }, DEFS);
+    expect(ok.errors).toEqual([]);
+    expect(ok.answers.users_type).toHaveLength(50);
+  });
+
+  it('(−) pozycja listy ponad 200 znaków → błąd; 200 znaków przechodzi', () => {
+    const za = sanitizePublicAnswers(
+      { project_goal: 'sklep', users_type: ['a'.repeat(201)] },
+      DEFS,
+    );
+    expect(za.errors).toEqual(['Pozycja w polu „users_type" może mieć maks. 200 znaków.']);
+    const ok = sanitizePublicAnswers(
+      { project_goal: 'sklep', users_type: ['a'.repeat(200)] },
+      DEFS,
+    );
+    expect(ok.errors).toEqual([]);
+  });
+
+  it('(−) ponad 100 odpowiedzi → jeden błąd, nic nie przetworzone', () => {
+    const wiele = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`k${i}`, 'x']));
+    const r = sanitizePublicAnswers({ project_goal: 'sklep', ...wiele }, DEFS);
+    expect(r).toEqual({ answers: {}, errors: ['Za dużo odpowiedzi (maks. 100).'] });
+  });
+});

@@ -63,6 +63,11 @@ const ETYKIETY_TTL = 3600;
 const KROK_TTL = 86_400;
 const MAX_WIADOMOSC = 4000;
 const MAX_OPIS = 10_000;
+/** Ile znaków wejścia temat swobodny w ogóle czyta (reszta i tak zostanie ucięta do 40). */
+const MAX_WEJSCIE_TEMATU = 200;
+/** Ile znaków imienia i części adresu bierze pod uwagę przy usuwaniu danych osobowych z tematu. */
+const MAX_CZLON_OSOBY = 200;
+const MAX_CZLONOW = 20;
 
 /** Domeny poczty prywatnej (porównanie po `lower`). `example.com` liczy się jak firmowa. */
 export const DOMENY_PRYWATNE: readonly string[] = [
@@ -168,18 +173,29 @@ function parsujDetails(raw: string | null | undefined): Json {
   }
 }
 
+/**
+ * Ucięcie po znakach, nie po bajtach: nie zostawia osieroconej połówki pary zastępczej UTF-16
+ * (emoji i litery spoza BMP), która po zserializowaniu dawałaby nieprawidłowy tekst.
+ */
+export function utnij(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const t = s.slice(0, max);
+  const ostatni = t.charCodeAt(t.length - 1);
+  return ostatni >= 0xd800 && ostatni <= 0xdbff ? t.slice(0, -1) : t;
+}
+
 /** Tekst bez znaków sterujących, w jednej linii, bez HTML (nawiasy ostre → encje) i z ucieczką `|`. */
 function czysc(s: unknown, max: number): string {
   let t = typeof s === 'string' ? s : s === null || s === undefined ? '' : String(s);
   // eslint-disable-next-line no-control-regex
   t = t.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
-  if (t.length > max) t = t.slice(0, max);
+  t = utnij(t, max);
   return t.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\|/g, '\\|');
 }
 
 /** Wiele linii (cytat wiadomości): zachowuje podział linii, resztę czyści jak `czysc`. */
 function czyscWiele(s: unknown, max: number): string[] {
-  const t = typeof s === 'string' ? s.slice(0, max) : '';
+  const t = typeof s === 'string' ? utnij(s, max) : '';
   return t
     .split(/\r?\n/)
     .map((l) => czysc(l, max))
@@ -208,12 +224,21 @@ function wynikAudytu(d: Json): number | null {
 
 /** Temat swobodny (service_type, package_name spoza słownika): litery, cyfry, spacje, myślnik, ≤ 40 zn., bez PII. */
 function temat40(wartosc: string, lead: LeadRow): string {
-  let t = wartosc.normalize('NFKC').replace(/[^\p{L}\p{N} -]+/gu, ' ');
+  let t = utnij(String(wartosc), MAX_WEJSCIE_TEMATU)
+    .normalize('NFKC')
+    .replace(/[^\p{L}\p{N} -]+/gu, ' ');
   if ((t.match(/\d/g) ?? []).length >= 7) t = t.replace(/\d+/g, ' ');
-  const czlony = `${lead.name ?? ''} ${(lead.email ?? '').split('@')[0]}`
-    .toLowerCase()
-    .split(/[^\p{L}]+/u)
-    .filter((x) => x.length >= 2);
+  // Wejście ograniczone z góry: wzorzec z imienia nie może urosnąć ponad limit silnika wyrażeń (SyntaxError).
+  const osoba = utnij(typeof lead.name === 'string' ? lead.name : '', MAX_CZLON_OSOBY);
+  const adres = utnij(typeof lead.email === 'string' ? lead.email : '', MAX_CZLON_OSOBY);
+  const czlony = [
+    ...new Set(
+      `${osoba} ${adres.split('@')[0]}`
+        .toLowerCase()
+        .split(/[^\p{L}]+/u)
+        .filter((x) => x.length >= 2),
+    ),
+  ].slice(0, MAX_CZLONOW);
   // Imię (albo część adresu) usuwamy z tematu wszędzie: krótkie tylko jako całe słowo, od 3 liter także w środku słowa.
   const dlugie = czlony
     .filter((x) => x.length >= 3)
@@ -224,7 +249,7 @@ function temat40(wartosc: string, lead: LeadRow): string {
     .split(/\s+/)
     .filter((slowo) => slowo !== '' && !krotkie.has(slowo.toLowerCase()))
     .join(' ');
-  return t.slice(0, 40).trim();
+  return utnij(t, 40).trim();
 }
 
 /** Temat leada (bez domeny): do tytułu i do treści Customer Request. */
@@ -249,7 +274,7 @@ export function tematLeada(lead: LeadRow): string {
 export function tytulZadania(lead: LeadRow, opcje: { preview?: boolean } = {}): string {
   const przedrostek = opcje.preview ? '[Preview] ' : '';
   const domena = domenaFirmowa(lead.email) ?? 'osoba prywatna';
-  return `${przedrostek}Lead: ${domena} — ${tematLeada(lead)}`.slice(0, 120);
+  return utnij(`${przedrostek}Lead: ${domena} — ${tematLeada(lead)}`, 120);
 }
 
 const KLUCZE_POMIJANE = /token|secret|captcha|passw|haslo|hasło|^ip$|agent/i;
@@ -277,7 +302,7 @@ function listaPol(src: Json, pomin: (k: string) => boolean, max: number): string
   for (const [k, v] of Object.entries(src)) {
     if (out.length >= max) break;
     if (pomin(k) || v === null || v === undefined || v === '') continue;
-    const klucz = k.replace(/[^\p{L}\p{N}_ -]+/gu, '').slice(0, 40);
+    const klucz = utnij(k.replace(/[^\p{L}\p{N}_ -]+/gu, ''), 40);
     if (!klucz) continue;
     out.push(`- ${klucz}: ${czysc(wartoscTekst(v), 300)}`);
   }
@@ -333,7 +358,7 @@ export function opisZadania(lead: LeadRow): string {
   if (reszta.length) linie.push('', '**Pozostałe pola:**', ...reszta);
 
   const opis = linie.join('\n');
-  return opis.length > MAX_OPIS ? `${opis.slice(0, MAX_OPIS - 1)}…` : opis;
+  return opis.length > MAX_OPIS ? `${utnij(opis, MAX_OPIS - 1)}…` : opis;
 }
 
 /** Treść Customer Request: temat, budżet (formularz), do 200 zn. wiadomości. */
@@ -353,7 +378,7 @@ function trescKroku(krok: string, pola: Json): string {
   const linie = [`**Krok formularza: ${czysc(krok, 40)}**`, ''];
   for (const [k, v] of Object.entries(pola)) {
     if (KLUCZE_POMIJANE.test(k) || v === null || v === undefined || v === '') continue;
-    const klucz = k.replace(/[^\p{L}\p{N}_ -]+/gu, '').slice(0, 40);
+    const klucz = utnij(k.replace(/[^\p{L}\p{N}_ -]+/gu, ''), 40);
     if (!klucz) continue;
     if (klucz === 'message') {
       linie.push(
@@ -365,7 +390,7 @@ function trescKroku(krok: string, pola: Json): string {
     }
   }
   const t = linie.join('\n');
-  return t.length > MAX_OPIS ? `${t.slice(0, MAX_OPIS - 1)}…` : t;
+  return t.length > MAX_OPIS ? `${utnij(t, MAX_OPIS - 1)}…` : t;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -742,8 +767,38 @@ async function pelnaWysylka(
   return null;
 }
 
-/** Przetwarza wiersz już zablokowany (`w_toku`). Zwraca true, gdy skończył się sukcesem. */
+/**
+ * Przetwarza wiersz już zablokowany (`w_toku`). Zwraca true, gdy skończył się sukcesem.
+ * Wyjątek przy tworzeniu zadania nie wychodzi na zewnątrz: liczy się jak każda inna porażka
+ * (licznik prób rośnie, po `MAX_PROB` próbach wiersz dostaje stan `zablokowany`), więc wiersz nie wraca
+ * w nieskończoność i nie wywołuje API w kółko.
+ */
 async function przetworz(env: LinearEnv, leadId: string, budzet: Budzet): Promise<boolean> {
+  try {
+    return await przetworzWiersz(env, leadId, budzet);
+  } catch (e) {
+    logBledu(e);
+    try {
+      const w = await env.DB.prepare('SELECT * FROM linear_leady WHERE lead_id = ?')
+        .bind(leadId)
+        .first<WierszLinear>();
+      if (w) {
+        const nazwa = e instanceof Error ? e.name.replace(/[^A-Za-z0-9_]/g, '').slice(0, 40) : '';
+        await porazka(
+          env,
+          w,
+          { ok: false, blad: `wyjatek:${nazwa || 'nieznany'}` },
+          Boolean(w.issue_id) && !w.duplikat_of,
+        );
+      }
+    } catch {
+      /* baza też padła: wiersz wróci z `w_toku` do kolejki po W_TOKU_MAX_S, nic więcej nie robimy */
+    }
+    return false;
+  }
+}
+
+async function przetworzWiersz(env: LinearEnv, leadId: string, budzet: Budzet): Promise<boolean> {
   const w = await env.DB.prepare('SELECT * FROM linear_leady WHERE lead_id = ?')
     .bind(leadId)
     .first<WierszLinear>();

@@ -47,6 +47,12 @@ export interface PublicQuestionDef {
   answer_type: string;
 }
 
+/** Limity wejścia kalkulatora (odpowiedzi trafiają do D1, CRM i zadania w Linearze). */
+export const MAX_ODPOWIEDZI = 100;
+export const MAX_ODPOWIEDZ_ZNAKOW = 2000;
+export const MAX_POZYCJI_LISTY = 50;
+export const MAX_POZYCJA_ZNAKOW = 200;
+
 /**
  * Filtruje i waliduje odpowiedzi publiczne (kontrakt §3): przepuszcza WYŁĄCZNIE kody ze zbioru
  * publicznego (ochrona przed wstrzyknięciem pytań internal, np. `sla_value`), kontroluje typy
@@ -59,7 +65,11 @@ export function sanitizePublicAnswers(
   const byCode = new Map(defs.map((d) => [d.code, d]));
   const answers: Answers = {};
   const errors: string[] = [];
-  for (const [code, val] of Object.entries(raw ?? {})) {
+  const wpisy = Object.entries(raw ?? {});
+  if (wpisy.length > MAX_ODPOWIEDZI) {
+    return { answers, errors: [`Za dużo odpowiedzi (maks. ${MAX_ODPOWIEDZI}).`] };
+  }
+  for (const [code, val] of wpisy) {
     const def = byCode.get(code);
     if (!def || val === null || val === undefined) continue; // spoza public / puste → pomiń
     switch (def.answer_type) {
@@ -76,11 +86,20 @@ export function sanitizePublicAnswers(
       }
       case 'multiselect': {
         if (!Array.isArray(val)) errors.push(`Pole „${code}" musi być listą.`);
+        else if (val.length > MAX_POZYCJI_LISTY)
+          errors.push(`Pole „${code}" może mieć maks. ${MAX_POZYCJI_LISTY} pozycji.`);
+        else if (val.some((x) => typeof x === 'string' && x.length > MAX_POZYCJA_ZNAKOW))
+          errors.push(`Pozycja w polu „${code}" może mieć maks. ${MAX_POZYCJA_ZNAKOW} znaków.`);
         else answers[code] = val.filter((x): x is string => typeof x === 'string');
         break;
       }
-      default: // select / text
-        answers[code] = typeof val === 'string' ? val : String(val);
+      default: {
+        // select / text
+        const tekst = typeof val === 'string' ? val : String(val);
+        if (tekst.length > MAX_ODPOWIEDZ_ZNAKOW)
+          errors.push(`Pole „${code}" może mieć maks. ${MAX_ODPOWIEDZ_ZNAKOW} znaków.`);
+        else answers[code] = tekst;
+      }
     }
   }
   if (typeof answers.project_goal !== 'string' || answers.project_goal === '')

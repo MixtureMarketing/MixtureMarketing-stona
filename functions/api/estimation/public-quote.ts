@@ -8,6 +8,7 @@
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from '../_shared/security';
+import { sprawdzWymaganyTekst } from '../_shared/limity';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import {
@@ -66,6 +67,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   if (body.website_verify) return json({ error: 'Spam detected' }, 403);
 
   // 2. Email wymagany (kontrakt §3) — tania walidacja przed zewnętrznym fetchem.
+  // Limity długości (400 po polsku) przed Turnstile i zapisem; e-mail i token muszą być tekstem.
+  const bladLimitu =
+    sprawdzWymaganyTekst(body.email, 'email') ??
+    sprawdzWymaganyTekst(body.captcha_token, 'captcha_token');
+  if (bladLimitu) return json({ error: bladLimitu }, 400);
   const email = (body.email ?? '').trim();
   if (!EMAIL_RE.test(email)) return json({ error: 'Podaj poprawny adres e-mail.' }, 400);
 
