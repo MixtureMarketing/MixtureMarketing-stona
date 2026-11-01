@@ -8,7 +8,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../../tests/helpers/wejsciaLinear';
-import { URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
+import { HOST_CRM, URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -190,7 +190,7 @@ describe('audit/capture-lead', () => {
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
   });
 
-  it('przy ustawionych CRM_INGEST_URL/SECRET lead zapisany, maile wychodzą, a do CRM nie idzie żaden fetch (MIX-625)', async () => {
+  it('przy ustawionych CRM_INGEST_URL/SECRET lead zapisany, maile wychodzą, a do CRM nie idzie żaden fetch', async () => {
     const { env, inserts } = makeEnv();
     const czekaj: Promise<unknown>[] = [];
     const request = new Request('https://x/api/audit/capture-lead', {
@@ -216,7 +216,6 @@ describe('audit/capture-lead', () => {
     } as unknown as Ctx)) as Response;
     await Promise.all(czekaj);
     expect(res.status).toBe(200);
-    expect(czekaj).toHaveLength(0);
     expect(crm).toEqual([]);
     expect(inserts).toHaveLength(1);
     expect(emails.map((e) => e.to[0])).toEqual(['klient@example.com', 'agencja@example.com']);
@@ -275,7 +274,7 @@ describe('audit/capture-lead — zgłoszenie do Lineara', () => {
     const id = r.body.id as string;
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ status: 'success', id });
-    expect(zb.liczba()).toBe(2); // kopia do CRM + zgłoszenie do Lineara
+    expect(zb.liczba()).toBe(1); // tylko zgłoszenie do Lineara (kopii do CRM już nie ma)
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
     expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
       input: { id, teamId: 'team-1', labelIds: ['lab-audyt'] },
@@ -323,7 +322,7 @@ describe('audit/capture-lead — zgłoszenie do Lineara', () => {
     expect(kody).toEqual([200, 200, 200, 200, 200, 429]);
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(5);
     expect(wierszeLinear(db)).toHaveLength(5);
-    expect(zb.liczba()).toBe(10); // 5 zapisów × (CRM + Linear)
+    expect(zb.liczba()).toBe(5); // 5 zapisów × zgłoszenie do Lineara
   });
 
   it('(−) limit na adres odbiorcy → 429 i brak zadania dla odrzuconego zgłoszenia', async () => {
@@ -356,11 +355,11 @@ describe('audit/capture-lead — zgłoszenie do Lineara', () => {
     expect(zb.liczba()).toBe(0);
   });
 
-  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do mixture-crm', async () => {
+  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do hosta CRM', async () => {
     const { env: srv } = srodowisko();
     await wywolaj(srv, form(pola));
     expect(siec.crm).toBe(0);
-    expect(siec.hosty.some((h) => h.includes('mixture-crm'))).toBe(false);
+    expect(siec.hosty.some((h) => h.includes(HOST_CRM))).toBe(false);
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
   });
 

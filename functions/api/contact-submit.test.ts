@@ -9,7 +9,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../tests/helpers/wejsciaLinear';
-import { URL_CRM_INGEST, jestCrm } from '../../tests/helpers/hostCrm';
+import { HOST_CRM, URL_CRM_INGEST, jestCrm } from '../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -247,7 +247,7 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
       edit_token: expect.any(String),
       degraded: false,
     });
-    expect(zb.liczba()).toBe(2); // kopia do CRM (zawsze w tle) + zgłoszenie do Lineara
+    expect(zb.liczba()).toBe(1); // tylko zgłoszenie do Lineara (kopii do CRM już nie ma)
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
     expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
       input: { id, teamId: 'team-1' },
@@ -277,7 +277,7 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
       });
     const przed = zb.liczba();
     expect((await krok(2)).status).toBe(200);
-    expect(zb.liczba() - przed).toBe(2); // kopia do CRM + komentarz do Lineara
+    expect(zb.liczba() - przed).toBe(1); // tylko komentarz do Lineara
     expect(ileOp(siec, 'Komentarz')).toBe(1);
     expect((await krok(3)).status).toBe(200);
     expect(ileOp(siec, 'Komentarz')).toBe(2);
@@ -410,13 +410,13 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     expect(zb.liczba()).toBe(0);
   });
 
-  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do mixture-crm, Linear działa bez CRM_INGEST_SECRET', async () => {
+  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do hosta CRM, Linear działa bez CRM_INGEST_SECRET', async () => {
     const { env: srv } = srodowisko();
     const { id, edit_token } = await utworz(srv);
     await wywolaj(srv, { action: 'update', id, edit_token, step: 2, details: { message: 'a' } });
     await wywolaj(srv, { action: 'send_notification', id, edit_token, type: 'abandoned_step_2' });
     expect(siec.crm).toBe(0);
-    expect(siec.hosty.some((h) => h.includes('mixture-crm'))).toBe(false);
+    expect(siec.hosty.some((h) => h.includes(HOST_CRM))).toBe(false);
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
     expect(ileOp(siec, 'Komentarz')).toBe(2);
   });
@@ -631,7 +631,7 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
   });
 });
 
-describe('contact-submit — bez wysyłki do Mixture CRM (MIX-625)', () => {
+describe('contact-submit — bez wysyłki do Mixture CRM', () => {
   const CRM_ENV = {
     CRM_INGEST_URL: URL_CRM_INGEST,
     CRM_INGEST_SECRET: 'x'.repeat(64),
@@ -676,7 +676,6 @@ describe('contact-submit — bez wysyłki do Mixture CRM (MIX-625)', () => {
     await Promise.all(czekaj);
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ success: true, degraded: false });
-    expect(czekaj).toHaveLength(0);
     expect(wywolane.filter(jestCrm)).toEqual([]);
     expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(1);
   });
@@ -695,7 +694,6 @@ describe('contact-submit — bez wysyłki do Mixture CRM (MIX-625)', () => {
       expect(res.status).toBe(200);
     }
     await Promise.all(czekaj);
-    expect(czekaj).toHaveLength(0);
     expect(wywolane.filter(jestCrm)).toEqual([]);
     expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(1);
   });

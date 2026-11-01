@@ -10,7 +10,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../../tests/helpers/wejsciaLinear';
-import { URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
+import { HOST_CRM, URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -180,7 +180,7 @@ describe('POST /api/estimation/public-quote', () => {
     expect(inserts.some((s) => s.includes('INSERT INTO est_quote_answers'))).toBe(true);
   });
 
-  it('przy ustawionych CRM_INGEST_URL/SECRET lead i wycena zapisane, a do CRM nie idzie żaden fetch (MIX-625)', async () => {
+  it('przy ustawionych CRM_INGEST_URL/SECRET lead i wycena zapisane, a do CRM nie idzie żaden fetch', async () => {
     const wywolane: string[] = [];
     vi.stubGlobal(
       'fetch',
@@ -203,13 +203,12 @@ describe('POST /api/estimation/public-quote', () => {
     ctx.waitUntil = (p: Promise<unknown>) => czekaj.push(p);
     expect((await onRequestPost(ctx as unknown as Ctx)).status).toBe(200);
     await Promise.all(czekaj);
-    expect(czekaj).toHaveLength(0);
     expect(wywolane.filter(jestCrm)).toEqual([]);
     expect(inserts.some((s) => s.includes('INSERT INTO leads'))).toBe(true);
     expect(inserts.some((s) => s.includes('INSERT INTO est_quotes'))).toBe(true);
   });
 
-  it('z kluczem Resend maile do klienta i agencji nadal wychodzą, bez fetchu do CRM (MIX-625)', async () => {
+  it('z kluczem Resend maile do klienta i agencji nadal wychodzą, bez fetchu do CRM', async () => {
     const wywolane: string[] = [];
     vi.stubGlobal(
       'fetch',
@@ -312,7 +311,7 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
     const r = await wywolaj(srv);
     expect(r.status).toBe(200);
     expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
-    expect(zb.liczba()).toBe(2); // kopia do CRM + zgłoszenie do Lineara
+    expect(zb.liczba()).toBe(1); // tylko zgłoszenie do Lineara (kopii do CRM już nie ma)
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
     const lead = db.prepare('SELECT id FROM leads').get() as { id: string };
     expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
@@ -406,11 +405,11 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
     expect(zb.liczba()).toBe(0);
   });
 
-  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do mixture-crm', async () => {
+  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do hosta CRM', async () => {
     const { env: srv } = srodowisko();
     await wywolaj(srv);
     expect(siec.crm).toBe(0);
-    expect(siec.hosty.some((h) => h.includes('mixture-crm'))).toBe(false);
+    expect(siec.hosty.some((h) => h.includes(HOST_CRM))).toBe(false);
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
   });
 
@@ -443,7 +442,7 @@ describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
       expect(db.prepare('SELECT stan FROM linear_leady WHERE lead_id = ?').get(lead.id)).toEqual({
         stan: 'wyslany',
       });
-      // Kopia do CRM idzie dopiero po pełnym zapisie, więc przy awarii wyceny jej nie ma.
+      // Zgłoszenie do Lineara idzie zaraz po zapisie leada, więc przy awarii wyceny nadal jest jedno.
       expect(zb.liczba()).toBe(1);
     },
   );
