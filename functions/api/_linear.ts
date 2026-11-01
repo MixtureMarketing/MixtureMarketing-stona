@@ -1,7 +1,8 @@
 /**
  * Leady → Linear (zespół LEA): zadanie z Customer Request, kolejka ponowień, komentarze kroków.
  *
- * Zasada jak w `_crm.ts`: strona najpierw zapisuje lead w D1, dopiero potem woła ten moduł w `waitUntil`.
+ * Zasada: strona najpierw zapisuje lead w D1, dopiero potem woła ten moduł w `waitUntil`
+ * (tak działał też dawny moduł wysyłki do CRM, dziś w `functions/_archiwum/_crm.ts.txt`).
  * Moduł nigdy nie rzuca i nigdy nie opóźnia odpowiedzi HTTP. Lead nie ginie przy awarii Lineara:
  * stan synchronizacji to jeden wiersz `linear_leady` (migracja 0010), a identyfikator zadania w Linearze
  * jest identyfikatorem leada, więc powtórzona próba nie tworzy duplikatu (`IssueCreateInput.id`).

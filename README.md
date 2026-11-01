@@ -72,9 +72,9 @@ npm run audit:health     # Custom health audit (a11y/seo/perf)
 
 ## 📬 Leady → Linear
 
-Źródłem prawdy dla leadów jest D1 (`leads`). Zgłoszenia z formularza kontaktowego, audytu i kalkulatora zapisują się w D1, a agencja dostaje maila przez Resend (`NOTIFY_EMAIL`, `RESEND_API_KEY`). Zadanie w Linearze (zespół LEA) tworzy moduł `functions/api/_linear.ts` (podpięcie formularzy: zadanie 3, MIX-798), a niewysłane zgłoszenia ponawia `POST /api/leady/ponow` (osobny sekret i prefiks podpisu).
+Źródłem prawdy dla leadów jest D1 (`leads`). Zgłoszenia z formularza kontaktowego, audytu i kalkulatora zapisują się w D1, a agencja dostaje maila przez Resend (`NOTIFY_EMAIL`, `RESEND_API_KEY`). Zadanie w Linearze (zespół LEA) tworzy moduł `functions/api/_linear.ts` po udanym zapisie w D1 (w tle: formularz, audyt, kalkulator), a niewysłane zgłoszenia ponawia `POST /api/leady/ponow` (osobny sekret i prefiks podpisu).
 
-**Mixture CRM — wysyłka wyłączona.** Strona nie wysyła już leadów do `mixture-crm.pages.dev` (MIX-625, gałąź `mix490/z5-bez-crm`, w kodzie od 2026-10-31; na produkcji od wdrożenia tej gałęzi). Zostaje tylko odczyt: `GET /api/crm/leady` (podpisany, od `updated_at`), którym CRM sam dociąga leady. Dawny moduł wysyłki leży w `functions/_archiwum/_crm.ts.txt` (test: `_crm.test.ts.txt`); rozszerzenie `.txt` sprawia, że Pages nie tworzy trasy, a `tsc` i `vitest` plików nie czytają. Zmienne `CRM_INGEST_URL` i `CRM_INGEST_SECRET` są już nieużywane; usunięcie ich z panelu Cloudflare robi Jakub po wdrożeniu na produkcję.
+**Mixture CRM — wysyłka wyłączona.** Strona nie wysyła już leadów do `mixture-crm.pages.dev` (w kodzie od 2026-10-31; na produkcji od wdrożenia tej gałęzi). Zostaje tylko odczyt: `GET /api/crm/leady` (podpisany, od `updated_at`), którym CRM sam dociąga leady. Dawny moduł wysyłki leży w `functions/_archiwum/_crm.ts.txt` (test: `_crm.test.ts.txt`); rozszerzenie `.txt` sprawia, że Pages nie tworzy trasy, a `tsc` i `vitest` plików nie czytają. Zmienne `CRM_INGEST_URL` i `CRM_INGEST_SECRET` są już nieużywane; usunięcie ich z panelu Cloudflare robi Jakub po wdrożeniu na produkcję.
 
 ## 🚀 Deploy
 

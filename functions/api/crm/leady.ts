@@ -1,17 +1,17 @@
 /**
  * GET /api/crm/leady?od=<czas zmiany>&po_id=<id>&limit=<1-200>: leady zmienione od `od` (updated_at,
- * migracja 0009; przed nią created_at), do dociągnięcia przez Mixture CRM, gdy wysyłka w tle (_crm.ts) nie
- * przeszła. Kolejność po (czas zmiany, id); następna strona zaczyna się od `kursor` z odpowiedzi
- * (`wiecej: true`, gdy są dalsze strony).
+ * migracja 0009; przed nią created_at), do dociągnięcia przez Mixture CRM. Strona nie wysyła już leadów do CRM
+ * sama, więc to jedyna droga leada do CRM. Kolejność po (czas zmiany, id); następna strona zaczyna się
+ * od `kursor` z odpowiedzi (`wiecej: true`, gdy są dalsze strony).
  * CRM sam decyduje, co dopisać (brakujący lead) albo uzupełnić (dalszy krok formularza).
  * Tylko odczyt, podpis jak w _podpis.ts. Format leada jak dawna wysyłka do CRM (LeadDoCrm).
  *
  * Wysyłka leadów do Mixture CRM w czasie rzeczywistym (mixture-crm.pages.dev/api/ingest/lead) jest wyłączona
- * (MIX-625): moduł leży w `functions/_archiwum/_crm.ts.txt`. Ten endpoint zostaje jedynym kanałem do CRM.
+ * (od 2026-10-31): moduł leży w `functions/_archiwum/_crm.ts.txt`. Ten endpoint zostaje jedynym kanałem do CRM.
  */
 import { bladPodpisu, blad, json, type CrmZapytanieEnv } from './_podpis';
 
-/** Pola kontraktu leada dla CRM (dawny `/api/ingest/lead`). Pola bez wartości są pomijane przy wysyłce. */
+/** Pola kontraktu leada dla CRM (dawny `/api/ingest/lead`). Pola bez wartości są pomijane w odpowiedzi. */
 export interface LeadDoCrm {
   external_id: string;
   source: 'website' | 'calculator' | 'audit' | 'subscription';
