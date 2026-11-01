@@ -167,6 +167,16 @@ describe('GET /api/crm/leady', () => {
     });
   });
 
+  it('nieznane źródło w D1 wychodzi jako website (3 kroki formularza), znane (audit) zostaje', async () => {
+    const { lead, env } = baza();
+    lead('n1', { source: 'newsletter', current_step: 1, created_at: '2026-10-20 10:00:00' });
+    lead('u1', { source: 'audit', current_step: 1, created_at: '2026-10-21 10:00:00' });
+    const odp = await wywolaj(leady, await zapytanie('/api/crm/leady?od=2026-10-01'), env);
+    const r = (await odp.json()) as Odpowiedz;
+    expect(r.leady[0]).toMatchObject({ external_id: 'n1', source: 'website', form_steps: 3 });
+    expect(r.leady[1]).toMatchObject({ external_id: 'u1', source: 'audit', form_steps: null });
+  });
+
   it('stronicuje po (czas zmiany, id) z kursora, bez gubienia leadów z tym samym czasem', async () => {
     const { lead, env } = baza();
     for (const id of ['b', 'a', 'c']) lead(id, { created_at: '2026-10-20 10:00:00' });
