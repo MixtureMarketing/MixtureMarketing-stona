@@ -8,6 +8,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../../tests/helpers/wejsciaLinear';
+import { URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -81,7 +82,7 @@ beforeEach(() => {
       emails.push(JSON.parse(String(init?.body)));
       return new Response('{}');
     }
-    if (/mixture-crm|ingest\/lead/.test(String(url))) {
+    if (jestCrm(String(url))) {
       crm.push(String(url));
       return new Response('{}', { status: 201 });
     }
@@ -208,7 +209,7 @@ describe('audit/capture-lead', () => {
       request,
       env: {
         ...env,
-        CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+        CRM_INGEST_URL: URL_CRM_INGEST,
         CRM_INGEST_SECRET: 'x'.repeat(64),
       },
       waitUntil: (p: Promise<unknown>) => czekaj.push(p),

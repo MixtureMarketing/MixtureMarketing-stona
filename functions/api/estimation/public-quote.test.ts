@@ -10,6 +10,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../../tests/helpers/wejsciaLinear';
+import { URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -194,7 +195,7 @@ describe('POST /api/estimation/public-quote', () => {
     const ctx = post(
       {
         ...env,
-        CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+        CRM_INGEST_URL: URL_CRM_INGEST,
         CRM_INGEST_SECRET: 'x'.repeat(64),
       },
       VALID,
@@ -203,7 +204,7 @@ describe('POST /api/estimation/public-quote', () => {
     expect((await onRequestPost(ctx as unknown as Ctx)).status).toBe(200);
     await Promise.all(czekaj);
     expect(czekaj).toHaveLength(0);
-    expect(wywolane.filter((u) => /mixture-crm|ingest\/lead/.test(u))).toEqual([]);
+    expect(wywolane.filter(jestCrm)).toEqual([]);
     expect(inserts.some((s) => s.includes('INSERT INTO leads'))).toBe(true);
     expect(inserts.some((s) => s.includes('INSERT INTO est_quotes'))).toBe(true);
   });
@@ -232,7 +233,7 @@ describe('POST /api/estimation/public-quote', () => {
     );
     expect(res.status).toBe(200);
     expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(2);
-    expect(wywolane.filter((u) => /mixture-crm|ingest\/lead/.test(u))).toEqual([]);
+    expect(wywolane.filter(jestCrm)).toEqual([]);
   });
 });
 

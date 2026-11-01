@@ -9,6 +9,7 @@ import {
   zbieracz,
   type Siec,
 } from '../../tests/helpers/wejsciaLinear';
+import { URL_CRM_INGEST, jestCrm } from '../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -632,10 +633,9 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
 
 describe('contact-submit — bez wysyłki do Mixture CRM (MIX-625)', () => {
   const CRM_ENV = {
-    CRM_INGEST_URL: 'https://mixture-crm.pages.dev/api/ingest/lead',
+    CRM_INGEST_URL: URL_CRM_INGEST,
     CRM_INGEST_SECRET: 'x'.repeat(64),
   };
-  const jestCrm = (u: string) => /mixture-crm|ingest\/lead/.test(u);
   let wywolane: string[];
   let czekaj: Promise<unknown>[];
 
