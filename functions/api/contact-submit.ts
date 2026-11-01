@@ -31,7 +31,7 @@ import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
-import { sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
+import { sprawdzKrok, sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
 
 interface Env extends CrmEnv, LinearEnv {
   TURNSTILE_SECRET: string;
@@ -363,7 +363,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       const bladId = bladIdentyfikatorow(body);
       if (bladId) return json({ message: bladId }, 400);
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
-      const bladDetails = sprawdzObiekt(body.details, 'details');
+      const bladDetails = pierwszyBlad(
+        sprawdzKrok(body.step),
+        sprawdzObiekt(body.details, 'details'),
+      );
       if (bladDetails) return json({ message: bladDetails }, 400);
       let updated = false;
       if (body.id) {
