@@ -681,6 +681,17 @@ export function wynikF(stan, ctx) {
   return { status: 'pass', zadanie: stan.zadanie, powod: 'f1 i f2' };
 }
 
+/** Powód pominięcia id ze stanu f albo null (wolno sprzątać). Fail-closed: cokolwiek poza dokładnym przedrostkiem = pominięte. */
+export function powodOdrzuceniaIdStanuF(id, lista, blad) {
+  if (blad || !Array.isArray(lista)) return 'nie udało się odczytać bieżącego tytułu zadania';
+  const z = lista.find((x) => x && x.id === id);
+  if (!z) return 'zadania nie ma na liście';
+  if (typeof z.tytul !== 'string' || z.tytul === '') return 'brak tytułu zadania';
+  if (!z.tytul.startsWith(PRZEDROSTEK_TYTULU))
+    return `tytuł nie zaczyna się od "${PRZEDROSTEK_TYTULU}" (to nie zadanie testowe)`;
+  return null;
+}
+
 /** (g): wszystkie zadania z biegu → Canceled z etykietą `test`; potem kontrola stanu. */
 export async function sprzatanie(ctx, ids) {
   const lista = [...ids];
@@ -794,6 +805,8 @@ export async function przebieg(ctx, { faza = null } = {}) {
   const stanF = ctx.wczytajStan();
   wyniki.f = wynikF(stanF, ctx);
   const doSprzatania = new Set(ctx.utworzone);
+  // Id z pliku stanu f trafiają do sprzątania dopiero po sprawdzeniu bieżącego tytułu (patrz (g) niżej).
+  const kandydaciF = new Set();
   // Id z pliku stanu f tylko gdy stan jest związany z tym SHA i świeży (fail-closed: inaczej ignorowane z linią powodu).
   const powodStanu = sprawdzWiazanieStanu(stanF, ctx);
   if (powodStanu) {
@@ -804,14 +817,30 @@ export async function przebieg(ctx, { faza = null } = {}) {
       ...(stanF.zadanie !== undefined && stanF.zadanie !== null ? [stanF.zadanie] : []),
     ];
     for (const id of kandydaci) {
-      if (typeof id === 'string' && ID_ZADANIA.test(id)) doSprzatania.add(id);
+      if (typeof id === 'string' && ID_ZADANIA.test(id)) kandydaciF.add(id);
       else ctx.log(`(g) niepoprawne id w pliku stanu f pominięte (typ ${typeof id})`);
     }
   }
   wyniki.g = await bezpiecznie(ctx, 'g', async () => {
+    let lista = null;
+    let blad = null;
+    try {
+      lista = await pobierzZadania(ctx.lin);
+    } catch (e) {
+      blad = e;
+    }
+    // Id ze stanu f: tylko gdy BIEŻĄCY tytuł zaczyna się od przedrostka (allowlista, fail-closed:
+    // błąd odczytu, brak zadania, brak albo pusty tytuł = pominięte z linią powodu).
+    for (const id of kandydaciF) {
+      const powod = powodOdrzuceniaIdStanuF(id, lista, blad);
+      if (powod) ctx.log(`(g) id ${id} ze stanu f pominięte: ${powod}`);
+      else doSprzatania.add(id);
+    }
     // Każde nowe zadanie z przedrostkiem [Preview] Lead: powstałe w trakcie biegu też jest z tego biegu.
+    // Nieczytelna lista = (g) nie może orzec o czystości (porażka), nawet gdy nie ma czego sprzątać.
+    if (!lista) throw blad;
     if (migawka) {
-      for (const z of await pobierzZadania(ctx.lin))
+      for (const z of lista)
         if (!migawka.has(z.id) && z.tytul.startsWith(PRZEDROSTEK_TYTULU)) doSprzatania.add(z.id);
     }
     return sprzatanie(ctx, doSprzatania);

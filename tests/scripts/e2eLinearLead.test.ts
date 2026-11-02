@@ -16,6 +16,7 @@ import {
   pobierzZadania,
   podpisPonow,
   podsumuj,
+  powodOdrzuceniaIdStanuF,
   przebieg,
   sprawdzAdresPreview,
   sprawdzOchrone,
@@ -1138,6 +1139,102 @@ describe('przebieg: kolejność i kod wyjścia', () => {
       expect(dobry.dotkniete('LEA-11')).toBe(true);
     });
   });
+  describe('(g) stan f: id sprzątane tylko gdy BIEŻĄCY tytuł zaczyna się od "[Preview] Lead: " (fail-closed)', () => {
+    const ID_F = 'LEA-11'; // atrapa zakłada je przed biegiem (kontekst)
+    const sprawdz = async (
+      zmien: (z: { tytul?: unknown }) => void,
+      opcje: { bladOdczytuPoE?: boolean; usunZListy?: boolean } = {},
+    ) => {
+      const { ctx, a, logi } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
+      const zad = a.zadania.find((z) => z.id === ID_F)!;
+      zmien(zad as { tytul?: unknown });
+      if (opcje.usunZListy) a.zadania.splice(a.zadania.indexOf(zad), 1);
+      const wywolania: string[][] = [];
+      const lin = ctx.lin;
+      ctx.lin = async (args: string[]) => {
+        wywolania.push(args);
+        if (opcje.bladOdczytuPoE && args[0] === 'lista' && logi.some((l) => /^\(e\)/.test(l)))
+          throw new Error('lin lista: błąd odczytu');
+        return lin(args);
+      };
+      const w = await biegnij(ctx);
+      const dotkniete = wywolania.some(
+        (x) => x[1] === ID_F && (x[0] === 'stan' || x[0] === 'etykieta'),
+      );
+      return { w, zad, logi, dotkniete };
+    };
+    const POMINIETE = /\(g\) id LEA-11 ze stanu f pominięte: /;
+
+    it('bliźniak dozwolony: tytuł "[Preview] Lead: x" → Canceled z etykietą test, bez linii pominięcia', async () => {
+      const r = await sprawdz((z) => {
+        z.tytul = '[Preview] Lead: x';
+      });
+      expect(r.dotkniete).toBe(true);
+      expect(r.zad).toMatchObject({ stan: 'Canceled' });
+      expect((r.zad as { etykiety: string[] }).etykiety).toContain('test');
+      expect(r.logi.join('\n')).not.toMatch(POMINIETE);
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('prawdziwy lead bez przedrostka (id w ważnym stanie f) zostaje nietknięty, z linią powodu', async () => {
+      const r = await sprawdz((z) => {
+        z.tytul = 'Lead: prawdziwy.pl — kontakt';
+      });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(r.logi.join('\n')).toMatch(/pominięte: tytuł nie zaczyna się od "\[Preview\] Lead: "/);
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it.each([
+      ['przedrostek wewnątrz tytułu', 'Lead: [Preview] Lead: x'],
+      ['spacja na początku', ' [Preview] Lead: x'],
+      ['małe litery', '[preview] lead: x'],
+      ['bez spacji po dwukropku', '[Preview] Lead:x'],
+      ['przedrostek bez końcowej spacji', '[Preview] Lead:'],
+      ['inny zespół/przedrostek', '[Preview] Lid: x'],
+      ['pusty tytuł', ''],
+    ])('tytuł: %s → pominięte, zadanie nietknięte', async (_nazwa, tytul) => {
+      const r = await sprawdz((z) => {
+        z.tytul = tytul;
+      });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog' });
+      expect(r.logi.join('\n')).toMatch(POMINIETE);
+    });
+    it.each([
+      ['brak pola tytul', (z: { tytul?: unknown }) => delete z.tytul],
+      ['tytul = null', (z: { tytul?: unknown }) => (z.tytul = null)],
+      ['tytul = liczba', (z: { tytul?: unknown }) => (z.tytul = 5)],
+      [
+        'tytul = tablica z przedrostkiem',
+        (z: { tytul?: unknown }) => (z.tytul = ['[Preview] Lead: x']),
+      ],
+    ])(
+      '%s → pominięte (odczyt listy odrzuca zadanie bez tytułu), zadanie nietknięte',
+      async (_n, zmien) => {
+        const r = await sprawdz(zmien);
+        expect(r.dotkniete).toBe(false);
+        expect(r.zad).toMatchObject({ stan: 'Backlog' });
+        expect(r.logi.join('\n')).toMatch(POMINIETE);
+      },
+    );
+    it('id ze stanu f nie ma na liście → pominięte z linią powodu', async () => {
+      const r = await sprawdz(() => undefined, { usunZListy: true });
+      expect(r.dotkniete).toBe(false);
+      expect(r.logi.join('\n')).toMatch(/pominięte: zadania nie ma na liście/);
+    });
+    it('błąd odczytu listy w (g) → id ze stanu f pominięte (nietknięte), (g) kończy się porażką', async () => {
+      const r = await sprawdz(
+        (z) => {
+          z.tytul = '[Preview] Lead: x'; // tytuł poprawny: bez błędu zostałoby sprzątnięte
+        },
+        { bladOdczytuPoE: true },
+      );
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog' });
+      expect(r.logi.join('\n')).toMatch(/pominięte: nie udało się odczytać bieżącego tytułu/);
+      expect(r.w.wyniki.g.status).toBe('fail');
+    });
+  });
   it('(e): prawdziwy lead bez przedrostka w trakcie drugiego POST nie psuje (e) i zostaje nietknięty', async () => {
     const { ctx, a } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
     const fetchBazowy = ctx.fetch;
@@ -1220,6 +1317,34 @@ describe('przebieg: kolejność i kod wyjścia', () => {
     await biegnij(ctx);
     const calosc = [...logi, ...raporty].join('\n');
     for (const s of [ID, SEKRET, PONOW]) expect(calosc).not.toContain(s);
+  });
+});
+
+describe('powodOdrzuceniaIdStanuF (allowlista bieżącego tytułu, fail-closed)', () => {
+  const lista = (tytul: unknown) => [{ id: 'LEA-11', tytul, etykiety: [] }];
+  it('dozwolone: dokładny przedrostek → null', () => {
+    expect(powodOdrzuceniaIdStanuF('LEA-11', lista('[Preview] Lead: x'), null)).toBeNull();
+  });
+  it.each([
+    [
+      'błąd odczytu',
+      'LEA-11',
+      lista('[Preview] Lead: x'),
+      new Error('x'),
+      /nie udało się odczytać/,
+    ],
+    ['lista null', 'LEA-11', null, null, /nie udało się odczytać/],
+    ['lista nie-tablica', 'LEA-11', { zadania: [] }, null, /nie udało się odczytać/],
+    ['brak id na liście', 'LEA-12', lista('[Preview] Lead: x'), null, /nie ma na liście/],
+    ['pusty tytuł', 'LEA-11', lista(''), null, /brak tytułu/],
+    ['tytuł undefined', 'LEA-11', lista(undefined), null, /brak tytułu/],
+    ['tytuł null', 'LEA-11', lista(null), null, /brak tytułu/],
+    ['tytuł liczba', 'LEA-11', lista(5), null, /brak tytułu/],
+    ['tytuł tablica', 'LEA-11', lista(['[Preview] Lead: x']), null, /brak tytułu/],
+    ['inny przedrostek', 'LEA-11', lista('Lead: x'), null, /nie zaczyna się od/],
+    ['wpis listy null', 'LEA-11', [null], null, /nie ma na liście/],
+  ])('%s → odmowa z powodem', (_n, id, l, blad, re) => {
+    expect(powodOdrzuceniaIdStanuF(id as string, l, blad)).toMatch(re as RegExp);
   });
 });
 
