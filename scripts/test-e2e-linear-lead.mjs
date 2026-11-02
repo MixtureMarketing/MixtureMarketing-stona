@@ -327,7 +327,9 @@ export async function pobierzZadania(lin) {
   return obj.zadania.map((z) => ({ ...z, etykiety: Array.isArray(z.etykiety) ? z.etykiety : [] }));
 }
 
-async function komentarzeZadania(lin, id) {
+/** Odczyt komentarzy zadania (tylko odczyt): id przechodzi tę samą bramkę `idDozwolone` co zapisy, fail-closed. */
+export async function komentarzeZadania(lin, id) {
+  if (!idDozwolone(id)) throw new Error(opisOdmowyBramki(id));
   const out = await lin(['komentarze', id, '--json']);
   let arr;
   try {
@@ -547,6 +549,9 @@ export async function przypadekE(ctx) {
   const adres = ctx.adres('e');
   const pierwszy = await przypadekZZadaniem(ctx, 'e', () => wyslijFormularz(ctx, adres));
   if (pierwszy.status !== 'pass') return pierwszy;
+  // Odczyt `lin komentarze` tylko dla id z allowlisty (bramka też w komentarzeZadania): inaczej (e) = fail, 0 wywołań.
+  if (!idDozwolone(pierwszy.zadanie))
+    return { ...pierwszy, status: 'fail', powod: `komentarze: ${opisOdmowyBramki(pierwszy.zadanie)}` };
   const przedIds = new Set((await pobierzZadania(ctx.lin)).map((z) => z.id));
   const start = ctx.now();
   const odp = await wyslijFormularz(ctx, adres);
@@ -710,10 +715,14 @@ function opiszId(id) {
   return `"${id.replace(/[^\x21-\x7e]/g, (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`)}"`;
 }
 
+/** Linia odmowy bramki (jedno brzmienie dla zapisów i odczytu komentarzy). */
+function opisOdmowyBramki(id) {
+  return `id ${opiszId(id)} odrzucone przez bramkę (niezgodne z ^LEA-[1-9][0-9]{0,6}$), 0 wywołań lin`;
+}
+
 /** Jedyne miejsce wywołania `lin` zmieniającego dane (etykieta, stan): bramka tuż przed wywołaniem, fail-closed. */
 export async function zmienLin(ctx, args) {
-  if (!idDozwolone(args[1]))
-    throw new Error(`id ${opiszId(args[1])} odrzucone przez bramkę (niezgodne z ^LEA-[1-9][0-9]{0,6}$), 0 wywołań lin`);
+  if (!idDozwolone(args[1])) throw new Error(opisOdmowyBramki(args[1]));
   return ctx.lin(args);
 }
 

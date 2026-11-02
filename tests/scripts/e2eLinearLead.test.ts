@@ -3,6 +3,8 @@ import { describe, it, expect } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import {
   idDozwolone,
+  komentarzeZadania,
+  przypadekE,
   adresE2E,
   czekaj,
   czyUruchomicB,
@@ -3001,5 +3003,247 @@ describe('MIX-626J2: idDozwolone (allowlista ^LEA-[1-9][0-9]{0,6}$)', () => {
   });
   it.each([12, null, undefined, {}, ['LEA-12'], true])('odmawia nie-napisu %j', (id) => {
     expect(idDozwolone(id)).toBe(false);
+  });
+});
+
+describe('MIX-626K: bramki sprawdzane osobno (ujście zmienLin, pętla sprzatanie) i odczyt lin komentarze', () => {
+  const NBSP = String.fromCharCode(0xa0);
+  // [nazwa, wariant, opis w błędzie, bliźniak dozwolony]
+  const WARIANTY: Array<[string, string, string, string]> = [
+    ['W1: spacja na końcu', 'LEA-12 ', '"LEA-12\\u0020"', 'LEA-12'],
+    ['W12: zero wiodące', 'LEA-09001', '"LEA-09001"', 'LEA-9001'],
+    ['--help', '--help', '"--help"', 'LEA-12'],
+    ['-h', '-h', '"-h"', 'LEA-1'],
+    ['nowa linia', 'LEA-12\n', '"LEA-12\\u000a"', 'LEA-12'],
+    ['cyfry pełnej szerokości', 'LEA-１２', '"LEA-\\uff11\\uff12"', 'LEA-12'],
+    ['ZWSP w środku', 'LEA-1​2', '"LEA-1\\u200b2"', 'LEA-12'],
+    ['małe litery', 'lea-12', '"lea-12"', 'LEA-12'],
+    ['8 cyfr', 'LEA-12345678', '"LEA-12345678"', 'LEA-1234567'],
+    ['NBSP', `LEA-12${NBSP}`, '"LEA-12\\u00a0"', 'LEA-12'],
+  ];
+  const NIE_NAPISY: Array<[string, unknown, string]> = [
+    ['liczba 12', 12, '(typ number)'],
+    ['null', null, '(typ object)'],
+    ['obiekt {}', {}, '(typ object)'],
+  ];
+  const BRAMKA = '(niezgodne z ^LEA-[1-9][0-9]{0,6}$), 0 wywołań lin';
+
+  describe('ujście zmienLin: ctx.utworzone z wariantem, bramka sprzatanie nie uczestniczy', () => {
+    it.each(WARIANTY)(
+      '%s: etykieta i stan → odmowa z id, 0 wywołań lin; bliźniak przechodzi',
+      async (_n, wariant, opis, blizniak) => {
+        const { ctx } = kontekst();
+        const wywolania: string[][] = [];
+        ctx.lin = async (args: string[]) => {
+          wywolania.push(args);
+          return '';
+        };
+        ctx.utworzone.add(wariant);
+        for (const polecenie of [
+          ['etykieta', wariant, '+test'],
+          ['stan', wariant, 'Canceled'],
+        ]) {
+          await expect(zmienLin(ctx, polecenie)).rejects.toThrow(
+            `id ${opis} odrzucone przez bramkę ${BRAMKA}`,
+          );
+        }
+        expect(wywolania).toEqual([]);
+        ctx.utworzone.add(blizniak);
+        await zmienLin(ctx, ['etykieta', blizniak, '+test']);
+        await zmienLin(ctx, ['stan', blizniak, 'Canceled']);
+        expect(wywolania).toEqual([
+          ['etykieta', blizniak, '+test'],
+          ['stan', blizniak, 'Canceled'],
+        ]);
+      },
+    );
+    it.each(NIE_NAPISY)(
+      '%s w ctx.utworzone: odmowa z typem, 0 wywołań; bliźniak: napis',
+      async (_n, zle, typ) => {
+        const { ctx } = kontekst();
+        const wywolania: string[][] = [];
+        ctx.lin = async (args: string[]) => {
+          wywolania.push(args);
+          return '';
+        };
+        ctx.utworzone.add(zle as string);
+        await expect(zmienLin(ctx, ['stan', zle as string, 'Canceled'])).rejects.toThrow(
+          `id ${typ} odrzucone przez bramkę ${BRAMKA}`,
+        );
+        expect(wywolania).toEqual([]);
+        await zmienLin(ctx, ['stan', 'LEA-12', 'Canceled']);
+        expect(wywolania).toEqual([['stan', 'LEA-12', 'Canceled']]);
+      },
+    );
+  });
+
+  describe('pętla sprzatanie: id dozwolone i wariant razem, dokładny powód i dokładna lista wywołań lin', () => {
+    const LISTA = ['lista', '--zespol', 'LEA', '--json', '--limit', '500'];
+    it.each(WARIANTY)(
+      '%s razem z LEA-12: wariant poza wywołaniami, powód dokładnie jeden wpis',
+      async (_n, wariant, opis) => {
+        const { ctx, logi } = kontekst();
+        const wpisy = [
+          {
+            id: 'LEA-12',
+            stan: 'Backlog',
+            etykiety: [] as string[],
+            tytul: '[Preview] Lead: x',
+            kto: 'jakub',
+            delegat: null,
+          },
+          {
+            id: wariant,
+            stan: 'Backlog',
+            etykiety: [] as string[],
+            tytul: '[Preview] Lead: x',
+            kto: 'jakub',
+            delegat: null,
+          },
+        ];
+        const wywolania: string[][] = [];
+        ctx.lin = async (args: string[]) => {
+          wywolania.push(args);
+          if (args[0] === 'lista') return JSON.stringify({ zadania: wpisy });
+          const z = wpisy.find((w) => w.id === args[1]);
+          if (z && args[0] === 'etykieta') z.etykiety.push('test');
+          if (z && args[0] === 'stan') z.stan = 'Canceled';
+          return '';
+        };
+        const w = await sprzatanie(ctx, new Set(['LEA-12', wariant]));
+        expect(wywolania).toEqual([
+          LISTA,
+          ['etykieta', 'LEA-12', '+test'],
+          ['stan', 'LEA-12', 'Canceled'],
+          LISTA,
+        ]);
+        expect(w.status).toBe('fail');
+        expect(w.powod).toBe(
+          `${opis}: id niezgodne z ^LEA-[1-9][0-9]{0,6}$, nie sprzątnięte (0 wywołań lin)`,
+        );
+        expect(logi.filter((l) => l.includes('odrzucone przez bramkę'))).toEqual([
+          `(g) id ${opis} odrzucone przez bramkę, nie sprzątnięte`,
+        ]);
+      },
+    );
+    it('bliźniak: samo dokładne id → pass, te same wywołania', async () => {
+      const { ctx } = kontekst();
+      const wpisy = [
+        {
+          id: 'LEA-12',
+          stan: 'Backlog',
+          etykiety: [] as string[],
+          tytul: 'x',
+          kto: 'jakub',
+          delegat: null,
+        },
+      ];
+      const wywolania: string[][] = [];
+      ctx.lin = async (args: string[]) => {
+        wywolania.push(args);
+        if (args[0] === 'lista') return JSON.stringify({ zadania: wpisy });
+        if (args[0] === 'etykieta') wpisy[0].etykiety.push('test');
+        if (args[0] === 'stan') wpisy[0].stan = 'Canceled';
+        return '';
+      };
+      const w = await sprzatanie(ctx, new Set(['LEA-12']));
+      expect(w.status).toBe('pass');
+      expect(wywolania).toEqual([
+        LISTA,
+        ['etykieta', 'LEA-12', '+test'],
+        ['stan', 'LEA-12', 'Canceled'],
+        LISTA,
+      ]);
+    });
+  });
+
+  describe('lin komentarze (odczyt): ujście komentarzeZadania, tylko id z idDozwolone', () => {
+    it.each(WARIANTY)(
+      '%s: 0 wywołań lin, błąd z id; bliźniak odczytany jak dotąd',
+      async (_n, wariant, opis, blizniak) => {
+        const wywolania: string[][] = [];
+        const lin = async (args: string[]) => {
+          wywolania.push(args);
+          return '[]';
+        };
+        await expect(komentarzeZadania(lin, wariant)).rejects.toThrow(
+          `id ${opis} odrzucone przez bramkę ${BRAMKA}`,
+        );
+        expect(wywolania).toEqual([]);
+        expect(await komentarzeZadania(lin, blizniak)).toEqual([]);
+        expect(wywolania).toEqual([['komentarze', blizniak, '--json']]);
+      },
+    );
+    it.each(NIE_NAPISY)('%s: 0 wywołań, błąd z typem', async (_n, zle, typ) => {
+      const wywolania: string[][] = [];
+      const lin = async (args: string[]) => {
+        wywolania.push(args);
+        return '[]';
+      };
+      await expect(komentarzeZadania(lin, zle as string)).rejects.toThrow(
+        `id ${typ} odrzucone przez bramkę`,
+      );
+      expect(wywolania).toEqual([]);
+    });
+    it('brak id (undefined) → odmowa', async () => {
+      const wywolania: string[][] = [];
+      await expect(
+        komentarzeZadania(
+          async (a: string[]) => (wywolania.push(a), '[]'),
+          undefined as unknown as string,
+        ),
+      ).rejects.toThrow('odrzucone przez bramkę');
+      expect(wywolania).toEqual([]);
+    });
+  });
+
+  describe('przypadek (e): id zadania z listy spoza allowlisty → fail z id, 0 wywołań komentarze, bez drugiego POST', () => {
+    // Atrapa `lin` pokazuje w liście wariant zamiast prawdziwego id; komentarze z wariantem są liczone (i przekazywane dalej).
+    const biegE = async (wariant: string | null) => {
+      const k = kontekst({}, { E2E_BEZ_RESEND: '1' });
+      const baza = k.ctx.lin;
+      const komentarzeZ: Array<string> = [];
+      const wszystkie: string[][] = [];
+      let prawdziwe: string | null = null;
+      k.ctx.lin = async (args: string[]) => {
+        wszystkie.push(args);
+        if (args[0] === 'komentarze') {
+          komentarzeZ.push(args[1]);
+          return baza([
+            'komentarze',
+            args[1] === wariant && prawdziwe ? prawdziwe : args[1],
+            '--json',
+          ]);
+        }
+        const out = await baza(args);
+        if (args[0] !== 'lista' || wariant === null) return out;
+        const obj = JSON.parse(out);
+        for (const z of obj.zadania) {
+          prawdziwe = z.id;
+          z.id = wariant;
+        }
+        return JSON.stringify(obj);
+      };
+      const w = await przypadekE(k.ctx);
+      const posty = k.a.posty.filter((p) => p === '/api/contact-submit').length;
+      return { w, komentarzeZ, wszystkie, posty };
+    };
+    it.each(WARIANTY)(
+      '%s: (e) fail, powód z id, 0 wywołań komentarze',
+      async (_n, wariant, opis) => {
+        const r = await biegE(wariant);
+        expect(r.w.status).toBe('fail');
+        expect(r.w.powod).toBe(`komentarze: id ${opis} odrzucone przez bramkę ${BRAMKA}`);
+        expect(r.komentarzeZ).toEqual([]);
+        expect(r.posty).toBe(1);
+      },
+    );
+    it('bliźniak: dokładne id z listy → komentarze czytane jak dotąd, (e) pass, 2 POST', async () => {
+      const r = await biegE(null);
+      expect(r.w.status).toBe('pass');
+      expect(r.komentarzeZ.length).toBeGreaterThan(0);
+      expect(r.komentarzeZ.every((id) => /^LEA-[1-9][0-9]{0,6}$/.test(id))).toBe(true);
+      expect(r.posty).toBe(2);
+    });
   });
 });
