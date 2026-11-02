@@ -694,6 +694,12 @@ export function powodOdrzuceniaIdStanuF(id, lista, blad) {
   return null;
 }
 
+/** Id do linii błędu: spacje i znaki spoza ASCII jako \\uXXXX (NBSP, cyrylica, spacje widać w logu). */
+function opiszId(id) {
+  if (typeof id !== 'string') return `(typ ${typeof id})`;
+  return `"${id.replace(/[^\x21-\x7e]/g, (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`)}"`;
+}
+
 /**
  * (g): wszystkie zadania z biegu → Canceled z etykietą `test`; potem kontrola stanu.
  * `idStanuF` = id wzięte z pliku stanu f: tuż po świeżym odczycie listy (`teraz`), przed wywołaniami
@@ -704,12 +710,32 @@ export function powodOdrzuceniaIdStanuF(id, lista, blad) {
  */
 export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = []) {
   const wszystkie = [...ids];
-  const bledy = [...bledyWstepne];
+  // Fail-closed: `bledyWstepne` musi być tablicą (null, liczba, obiekt, napis, Set = błąd, nie ciche pominięcie).
+  const bledy = Array.isArray(bledyWstepne)
+    ? [...bledyWstepne]
+    : [`bledyWstepne: oczekiwano tablicy, jest ${bledyWstepne === null ? 'null' : typeof bledyWstepne}`];
+  // Odczyt listy: gdy są już błędy (id odrzucone wcześniej), błąd odczytu ich nie zgubi (id i powód zostają w powodzie).
+  const odczytaj = async (kiedy) => {
+    try {
+      return await pobierzZadania(ctx.lin);
+    } catch (e) {
+      if (bledy.length === 0) throw e;
+      const blad = new Error([...bledy, `${kiedy}: ${maskuj(e.message, ctx.sekrety)}`].join('; '));
+      blad.zBledami = true;
+      throw blad;
+    }
+  };
   if (wszystkie.length === 0)
     return bledy.length === 0
       ? { status: 'pass', powod: 'brak zadań do sprzątnięcia' }
       : { status: 'fail', powod: bledy.join('; ') };
-  const teraz = await pobierzZadania(ctx.lin);
+  let teraz;
+  try {
+    teraz = await odczytaj('ponowny odczyt listy');
+  } catch (e) {
+    if (e.zBledami) return { status: 'fail', powod: e.message };
+    throw e;
+  }
   const lista = [];
   for (const id of wszystkie) {
     const fid = idStanuF.has(id);
@@ -745,7 +771,13 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = 
     }
   }
   if (lista.length > 0) {
-    const po = await pobierzZadania(ctx.lin);
+    let po;
+    try {
+      po = await odczytaj('odczyt po sprzątaniu');
+    } catch (e) {
+      if (e.zBledami) return { status: 'fail', powod: e.message };
+      throw e;
+    }
     for (const id of lista) {
       const wpisy = po.filter((x) => x.id === id);
       const z = wpisy[0];
@@ -887,8 +919,16 @@ export async function przebieg(ctx, { faza = null } = {}) {
     // Nieczytelna lista = (g) nie może orzec o czystości (porażka), nawet gdy nie ma czego sprzątać.
     if (!lista) throw blad;
     if (migawka) {
-      for (const z of lista)
-        if (!migawka.has(z.id) && z.tytul.startsWith(PRZEDROSTEK_TYTULU)) doSprzatania.add(z.id);
+      for (const z of lista) {
+        if (migawka.has(z.id) || !z.tytul.startsWith(PRZEDROSTEK_TYTULU)) continue;
+        // Dokładny format id (allowlista, fail-closed): wariant (spacja, wielkość liter, NBSP, cyrylica, puste)
+        // nie trafia do `lin etykieta`/`lin stan`, tylko dodaje błąd z id.
+        if (typeof z.id === 'string' && ID_ZADANIA.test(z.id)) doSprzatania.add(z.id);
+        else {
+          ctx.log(`(g) id z listy pominięte: niepoprawny format id ${opiszId(z.id)}`);
+          bledyF.push(`${opiszId(z.id)}: id z listy ma niepoprawny format, nie sprzątnięte`);
+        }
+      }
     }
     for (const id of odrzuconeF) doSprzatania.delete(id);
     return sprzatanie(ctx, doSprzatania, kandydaciF, bledyF);
