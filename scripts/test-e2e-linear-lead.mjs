@@ -699,6 +699,7 @@ export function powodOdrzuceniaIdStanuF(id, lista, blad) {
  * `idStanuF` = id wzięte z pliku stanu f: tuż po świeżym odczycie listy (`teraz`), przed wywołaniami
  * `etykieta`/`stan`, sprawdzany jest ich BIEŻĄCY tytuł (okno TOCTOU zawężone do tych wywołań).
  * Id występujące na liście więcej niż raz (w którymkolwiek odczycie) są odrzucane z linią powodu.
+ * Każde odrzucone id (także ze stanu f) jest nietknięte i dodaje błąd, więc (g) = fail z linią z id i powodem.
  */
 export async function sprzatanie(ctx, ids, idStanuF = new Set()) {
   const wszystkie = [...ids];
@@ -707,16 +708,24 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set()) {
   const teraz = await pobierzZadania(ctx.lin);
   const lista = [];
   for (const id of wszystkie) {
+    const fid = idStanuF.has(id);
     const wpisy = teraz.filter((x) => x.id === id);
     if (wpisy.length > 1) {
       ctx.log(`(g) id ${id} pominięte: id występuje na liście ${wpisy.length} razy (niejednoznaczne)`);
-      if (!idStanuF.has(id)) bledy.push(`${id}: niejednoznaczne id na liście, nie sprzątnięte`);
+      bledy.push(
+        fid
+          ? `${id}: id ze stanu f nie sprzątnięte przy ponownym odczycie (id występuje na liście ${wpisy.length} razy)`
+          : `${id}: niejednoznaczne id na liście, nie sprzątnięte`,
+      );
       continue;
     }
-    if (idStanuF.has(id)) {
+    if (fid) {
+      // Id ze stanu f odrzucone przy ponownym odczycie (brak, tytuł bez przedrostka, cokolwiek innego):
+      // nietknięte, ale zadanie zostaje otwarte, więc (g) nie może przejść (fail-closed).
       const powod = powodOdrzuceniaIdStanuF(id, teraz, null);
       if (powod) {
         ctx.log(`(g) id ${id} ze stanu f pominięte: ${powod}`);
+        bledy.push(`${id}: id ze stanu f nie sprzątnięte przy ponownym odczycie (${powod})`);
         continue;
       }
     }
