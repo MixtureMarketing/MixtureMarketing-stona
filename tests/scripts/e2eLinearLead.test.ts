@@ -1667,6 +1667,233 @@ describe('MIX-626F: (g) ponowny odczyt, duplikaty id, wersje id (fail-closed)', 
   });
 });
 
+describe('MIX-626G: duplikaty id przy identycznym tytule i przy mieszanych tytułach (M1, M4)', () => {
+  const ID_F = 'LEA-11';
+  const PRZED = '[Preview] Lead: x';
+  type Wpis = { id?: string; tytul: string; stan?: string; przed?: boolean };
+  type Obj = { zadania: Array<Record<string, unknown>> };
+  type Haki = {
+    // n-ty odczyt listy PO (e): 1 = odczyt (g), 2 = `teraz` w sprzątaniu, 3 = kontrola po sprzątaniu
+    duplikaty?: Record<number, Wpis[]>;
+    przerob?: Record<number, (o: Obj) => void>;
+    // dla duplikatów bez id: 'f' = LEA-11 (stan f), 'bieg' = pierwsze zadanie utworzone w biegu
+    cel?: 'f' | 'bieg';
+  };
+  const bieg = async (h: Haki = {}) => {
+    const k = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
+    const { ctx, a, logi } = k;
+    a.zadania.find((z) => z.id === ID_F)!.tytul = PRZED;
+    const wywolania: string[][] = [];
+    let n = 0;
+    let celId = ID_F;
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      if (args[0] === 'lista' && logi.some((l) => /^\(e\)/.test(l))) {
+        n += 1;
+        if (h.cel === 'bieg') celId = a.zadania.find((z) => z.id !== ID_F)!.id;
+        const obj = JSON.parse(await lin(args)) as Obj;
+        h.przerob?.[n]?.(obj);
+        for (const d of h.duplikaty?.[n] ?? []) {
+          const wpis = {
+            id: d.id ?? celId,
+            stan: d.stan ?? 'Backlog',
+            kto: 'jakub',
+            delegat: null,
+            tytul: d.tytul,
+            etykiety: [],
+          };
+          if (d.przed) obj.zadania.unshift(wpis);
+          else obj.zadania.push(wpis);
+        }
+        return JSON.stringify(obj);
+      }
+      return lin(args);
+    };
+    const w = await biegnij(ctx);
+    const wywolaniaId = (id: string) =>
+      wywolania.filter((x) => x[1] === id && (x[0] === 'stan' || x[0] === 'etykieta'));
+    return { w, a, logi, wywolania, celId, wywolaniaId, tekst: logi.join('\n') };
+  };
+  const zad = (r: Awaited<ReturnType<typeof bieg>>, id: string) =>
+    r.a.zadania.find((z) => z.id === id)!;
+  const NIEJ = (id: string) =>
+    new RegExp(
+      `\\(g\\) id ${id} (ze stanu f )?pominięte: id występuje na liście \\d razy \\(niejednoznaczne\\)`,
+    );
+
+  const bliznak = async (nazwa: string) => {
+    const r = await bieg();
+    expect(r.wywolaniaId(ID_F)).toEqual([
+      ['etykieta', ID_F, '+test'],
+      ['stan', ID_F, 'Canceled'],
+    ]);
+    expect(zad(r, ID_F)).toMatchObject({ stan: 'Canceled' });
+    expect(zad(r, ID_F).etykiety).toContain('test');
+    expect(r.w.wyniki.g.status, nazwa).toBe('pass');
+  };
+
+  describe('M1: identyczne duplikaty (to samo id, ten sam tytuł Preview) przy odczycie (g)', () => {
+    it('forma 1: dwa identyczne wpisy → odmowa z linią powodu, zero wywołań etykieta/stan dla id', async () => {
+      const r = await bieg({ duplikaty: { 1: [{ tytul: PRZED }] } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(zad(r, ID_F)).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(r.tekst).toMatch(NIEJ(ID_F));
+      expect(r.tekst).toMatch(
+        /\(g\) id LEA-11 ze stanu f pominięte: id występuje na liście 2 razy/,
+      );
+    });
+    it('forma 1 (bliźniak): pojedynczy wpis → anulowane', async () => {
+      await bliznak('f1');
+    });
+    it('forma 2: trzy identyczne wpisy → odmowa, w linii liczba 3, zero wywołań', async () => {
+      const r = await bieg({ duplikaty: { 1: [{ tytul: PRZED }, { tytul: PRZED, przed: true }] } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(r.tekst).toMatch(
+        /\(g\) id LEA-11 ze stanu f pominięte: id występuje na liście 3 razy \(niejednoznaczne\)/,
+      );
+      expect(zad(r, ID_F)).toMatchObject({ stan: 'Backlog' });
+    });
+    it('forma 2 (bliźniak): pojedynczy wpis → anulowane', async () => {
+      await bliznak('f2');
+    });
+    it('forma 5: duplikat z tytułem różniącym się spacją na końcu → odmowa, zero wywołań', async () => {
+      const r = await bieg({ duplikaty: { 1: [{ tytul: `${PRZED} ` }] } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(r.tekst).toMatch(NIEJ(ID_F));
+    });
+    it('forma 5 (bliźniak): pojedynczy wpis → anulowane', async () => {
+      await bliznak('f5');
+    });
+    it('forma 6: drugi wpis już w stanie Canceled (identyczny tytuł) → i tak odmowa, zero wywołań', async () => {
+      const r = await bieg({ duplikaty: { 1: [{ tytul: PRZED, stan: 'Canceled' }] } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(r.tekst).toMatch(NIEJ(ID_F));
+      expect(zad(r, ID_F)).toMatchObject({ stan: 'Backlog' });
+    });
+    it('forma 6 (bliźniak): pojedynczy wpis → anulowane', async () => {
+      await bliznak('f6');
+    });
+    it('powodOdrzuceniaIdStanuF bezpośrednio: dwa identyczne wpisy → powód z liczbą 2; jeden → null', () => {
+      const wpis = { id: ID_F, tytul: PRZED, etykiety: [] };
+      expect(powodOdrzuceniaIdStanuF(ID_F, [wpis, { ...wpis }], null)).toBe(
+        'id występuje na liście 2 razy (niejednoznaczne)',
+      );
+      expect(powodOdrzuceniaIdStanuF(ID_F, [wpis], null)).toBeNull();
+    });
+  });
+
+  describe('M4: zadanie z biegu, drugi odczyt: wpis Preview + wpis z prawdziwym tytułem', () => {
+    const PRAWDZIWY = 'Lead: prawdziwy.pl — kontakt';
+    const sprawdzOdmowe = (r: Awaited<ReturnType<typeof bieg>>) => {
+      const id = r.celId;
+      expect(id).not.toBe(ID_F);
+      expect(r.wywolaniaId(id)).toEqual([]); // zero wywołań dla tego id, nie tylko status (g)
+      expect(r.tekst).toMatch(
+        new RegExp(
+          `\\(g\\) id ${id} pominięte: id występuje na liście 2 razy \\(niejednoznaczne\\)`,
+        ),
+      );
+      expect(zad(r, id)).toMatchObject({ stan: 'Backlog' });
+      expect(zad(r, id).stan).not.toBe('Canceled');
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toContain(`${id}: niejednoznaczne id na liście, nie sprzątnięte`);
+    };
+    it('forma 3: wpis Preview jest pierwszy, drugi z prawdziwym tytułem → odmowa, zero wywołań dla id, (g) fail', async () => {
+      const r = await bieg({ cel: 'bieg', duplikaty: { 2: [{ tytul: PRAWDZIWY }] } });
+      sprawdzOdmowe(r);
+    });
+    it('forma 4: wpis z prawdziwym tytułem jest pierwszy → odmowa, zero wywołań dla id, (g) fail', async () => {
+      const r = await bieg({ cel: 'bieg', duplikaty: { 2: [{ tytul: PRAWDZIWY, przed: true }] } });
+      sprawdzOdmowe(r);
+    });
+    it('formy 3/4 (bliźniak): jeden wpis Preview → zadanie z biegu anulowane (stan), (g) pass', async () => {
+      const r = await bieg({ cel: 'bieg' });
+      const id = r.celId;
+      expect(id).not.toBe(ID_F);
+      expect(r.wywolaniaId(id)).toEqual([['stan', id, 'Canceled']]);
+      expect(zad(r, id)).toMatchObject({ stan: 'Canceled' });
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('sprzatanie bezpośrednio: Preview + wpis z prawdziwym tytułem → nie anulowane, zero wywołań dla id, fail z powodem; inne id sprzątnięte', async () => {
+      const { ctx, a, logi } = kontekst();
+      a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-11
+      a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-12
+      a.zadania.push({ ...a.zadania[0], tytul: PRAWDZIWY, etykiety: [] }); // drugi wpis LEA-11
+      const wywolania: string[][] = [];
+      const lin = ctx.lin;
+      ctx.lin = async (args: string[]) => {
+        wywolania.push(args);
+        return lin(args);
+      };
+      const w = await sprzatanie(ctx, new Set(['LEA-11', 'LEA-12']));
+      expect(w.status).toBe('fail');
+      expect(w.powod).toBe('LEA-11: niejednoznaczne id na liście, nie sprzątnięte');
+      expect(wywolania.filter((x) => x[1] === 'LEA-11')).toEqual([]);
+      expect(wywolania.filter((x) => x[1] === 'LEA-12')).toEqual([
+        ['etykieta', 'LEA-12', '+test'],
+        ['stan', 'LEA-12', 'Canceled'],
+      ]);
+      expect(a.zadania[0]).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(logi.join('\n')).toMatch(/\(g\) id LEA-11 pominięte: id występuje na liście 2 razy/);
+    });
+    it('sprzatanie bezpośrednio (bliźniak): jeden wpis → anulowane, pass', async () => {
+      const { ctx, a } = kontekst();
+      a.dodaj('example.com', 'kontakt', ['formularz']);
+      const w = await sprzatanie(ctx, new Set(['LEA-11']));
+      expect(w.status).toBe('pass');
+      expect(a.zadania[0]).toMatchObject({ stan: 'Canceled' });
+    });
+  });
+
+  describe('formy 7-10: wersje id, odczyty 2 i 3, pusta lista', () => {
+    it('forma 7: wpis "lea-11" obok "LEA-11" to inne id, nie duplikat → LEA-11 anulowane, wariant nietknięty', async () => {
+      const r = await bieg({
+        duplikaty: { 2: [{ id: 'lea-11', tytul: PRZED }] },
+      });
+      expect(r.wywolaniaId(ID_F)).toEqual([
+        ['etykieta', ID_F, '+test'],
+        ['stan', ID_F, 'Canceled'],
+      ]);
+      expect(r.wywolaniaId('lea-11')).toEqual([]);
+      expect(r.tekst).not.toMatch(/niejednoznaczne/);
+      expect(zad(r, ID_F)).toMatchObject({ stan: 'Canceled' });
+    });
+    it('forma 7 (bliźniak): dokładne id, pojedynczy wpis → anulowane', async () => {
+      await bliznak('f7');
+    });
+    it('forma 8: duplikat dopiero w drugim odczycie, id ze stanu f (identyczny tytuł) → odmowa, zero wywołań, brak błędu (g)', async () => {
+      const r = await bieg({ duplikaty: { 2: [{ tytul: PRZED }] } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(r.tekst).toMatch(
+        /\(g\) id LEA-11 pominięte: id występuje na liście 2 razy \(niejednoznaczne\)/,
+      );
+      expect(zad(r, ID_F)).toMatchObject({ stan: 'Backlog' });
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('forma 8 (bliźniak): pojedynczy wpis → anulowane', async () => {
+      await bliznak('f8');
+    });
+    it('forma 9: duplikat dopiero po sprzątaniu (trzeci odczyt), identyczny tytuł → (g) fail z liczbą wpisów', async () => {
+      const r = await bieg({ duplikaty: { 3: [{ tytul: PRZED }] } });
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toContain('LEA-11: 2 wpisów o tym id po sprzątaniu');
+    });
+    it('forma 9 (bliźniak): pojedynczy wpis po sprzątaniu → pass', async () => {
+      await bliznak('f9');
+    });
+    it('forma 10: pusta lista przy drugim odczycie → id ze stanu f nietknięte z linią powodu', async () => {
+      const r = await bieg({ przerob: { 2: (o) => (o.zadania.length = 0) } });
+      expect(r.wywolaniaId(ID_F)).toEqual([]);
+      expect(r.tekst).toMatch(/\(g\) id LEA-11 ze stanu f pominięte: zadania nie ma na liście/);
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('forma 10 (bliźniak): lista niepusta przy drugim odczycie → anulowane', async () => {
+      await bliznak('f10');
+    });
+  });
+});
+
 describe('(f): dwie fazy ręczne', () => {
   it('f1: w_kolejce=1, ponowione=0, zero zadań → pass i zapis stanu', async () => {
     const { ctx, a, stany } = kontekst({
