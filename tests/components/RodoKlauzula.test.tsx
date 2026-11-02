@@ -6,6 +6,7 @@ import type { PublicQuestion } from '../../services/calculatorService';
 import { RODO_KLAUZULA_CONTENT } from '../../data/content';
 import { SITE_CONFIG } from '../../config/site';
 import { isRodoKlauzulaEnabled } from '../../config/flags';
+import RodoKlauzulaKrotka from '../../components/common/RodoKlauzulaKrotka';
 import InlineContactForm from '../../components/features/contact/InlineContactForm';
 import ContactModal from '../../components/features/ContactModal';
 import PublicCalculator from '../../components/features/calculator/PublicCalculator';
@@ -241,5 +242,111 @@ describe('RODO klauzula: flaga włączona', () => {
     const anchor = href.split('#')[1];
     const { container } = renderPolicy();
     await waitFor(() => expect(container.querySelector(`#${anchor}`)).not.toBeNull());
+  });
+});
+
+// MIX-846: przypięcie flagi, brak elementu przy fladze wyłączonej, podstawy w kalkulatorze, adres z konfiguracji.
+describe('RODO klauzula: flaga jest ścisłą allowlistą (tylko dokładnie "1")', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('niezdefiniowana zmienna = wyłączona', () => {
+    vi.stubEnv('VITE_RODO_KLAUZULA', undefined as unknown as string);
+    expect(import.meta.env.VITE_RODO_KLAUZULA).toBeUndefined();
+    expect(isRodoKlauzulaEnabled()).toBe(false);
+  });
+
+  it.each(['', ' 1', '1 ', '1.0', 'yes', 'true', 'TRUE', '01', '0', 'on', '1\n'])(
+    'wartość %j = wyłączona',
+    (value) => {
+      vi.stubEnv('VITE_RODO_KLAUZULA', value);
+      expect(isRodoKlauzulaEnabled()).toBe(false);
+    },
+  );
+
+  it('wartość "1" = włączona', () => {
+    vi.stubEnv('VITE_RODO_KLAUZULA', '1');
+    expect(isRodoKlauzulaEnabled()).toBe(true);
+  });
+});
+
+describe('RODO klauzula: flaga wyłączona = brak elementu w DOM', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it.each(['', ' 1', 'yes', '1.0'])(
+    'RodoKlauzulaKrotka przy fladze %j nie renderuje niczego',
+    (v) => {
+      vi.stubEnv('VITE_RODO_KLAUZULA', v);
+      const contact = render(<RodoKlauzulaKrotka variant="contact" />);
+      expect(contact.container).toBeEmptyDOMElement();
+      expect(contact.container.childElementCount).toBe(0);
+      const calc = render(<RodoKlauzulaKrotka variant="calculator" tone="dark" />);
+      expect(calc.container).toBeEmptyDOMElement();
+    },
+  );
+
+  it('RodoKlauzulaKrotka przy fladze "1" renderuje dokładnie jeden akapit', () => {
+    vi.stubEnv('VITE_RODO_KLAUZULA', '1');
+    const { container } = render(<RodoKlauzulaKrotka variant="contact" />);
+    expect(container.childElementCount).toBe(1);
+    expect(container.firstElementChild?.tagName).toBe('P');
+  });
+
+  it('formularz inline i kalkulator przy fladze wyłączonej nie mają żadnego pustego akapitu na miejscu klauzuli', async () => {
+    vi.stubEnv('VITE_RODO_KLAUZULA', '');
+    const inline = renderInline();
+    expect(inline.container.querySelectorAll('p:empty').length).toBe(0);
+    inline.unmount();
+    await renderCalcOnContactStep();
+    expect(document.body.querySelectorAll('p:empty').length).toBe(0);
+  });
+});
+
+describe('RODO klauzula: treść', () => {
+  it('krótka klauzula kalkulatora podaje podstawy lit. b i lit. f', () => {
+    const text = RODO_KLAUZULA_CONTENT.short.calculator;
+    expect(text).toContain('lit. b');
+    expect(text).toContain('lit. f');
+    expect(text).not.toContain('lit. a');
+    expect(RODO_KLAUZULA_CONTENT.short.contact).toContain('lit. b');
+    expect(RODO_KLAUZULA_CONTENT.short.contact).toContain('lit. f');
+  });
+
+  it('adres w pełnej klauzuli jest identyczny jak dotychczasowy tekst (konfiguracja bez zmian)', () => {
+    const admin = RODO_KLAUZULA_CONTENT.full.items[0].text;
+    expect(admin).toContain('z siedzibą pod adresem Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów.');
+  });
+
+  it('adres w pełnej klauzuli pochodzi z SITE_CONFIG.contact.address, nie jest wpisany ręcznie', async () => {
+    vi.resetModules();
+    vi.doMock('../../config/site', async () => {
+      const real = await vi.importActual<typeof import('../../config/site')>('../../config/site');
+      return {
+        SITE_CONFIG: {
+          ...real.SITE_CONFIG,
+          contact: {
+            ...real.SITE_CONFIG.contact,
+            address: {
+              ...real.SITE_CONFIG.contact.address,
+              street: 'ul. Testowa 5 / 9',
+              postalCode: '00-001',
+              city: 'Testowo',
+            },
+          },
+        },
+      };
+    });
+    try {
+      const mod = await import('../../data/content/common');
+      const admin = mod.RODO_KLAUZULA_CONTENT.full.items[0].text;
+      expect(admin).toContain('z siedzibą pod adresem ul. Testowa 5/9, 00-001 Testowo.');
+      expect(admin).not.toContain('Piłsudskiego');
+    } finally {
+      vi.doUnmock('../../config/site');
+      vi.resetModules();
+    }
   });
 });

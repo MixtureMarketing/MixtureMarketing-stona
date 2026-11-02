@@ -238,6 +238,10 @@ export const TERMS_CONTENT = {
   },
 };
 
+// Adres administratora z konfiguracji (jedno źródło prawdy); spacje wokół ukośnika w numerze lokalu
+// zwijamy ("17 / 4" -> "17/4"), żeby tekst klauzuli pozostał taki sam jak w polityce prywatności.
+const RODO_ADRES = `${SITE_CONFIG.contact.address.street.replace(/\s*\/\s*/g, '/')}, ${SITE_CONFIG.contact.address.postalCode} ${SITE_CONFIG.contact.address.city}`;
+
 // Klauzula informacyjna RODO formularzy (MIX-844). Pokazywana tylko przy włączonej fladze
 // VITE_RODO_KLAUZULA=1 (config/flags.ts). Tekst wg dodatku RODO MIX-627, odpowiedzi właściciela 2.11.
 export const RODO_KLAUZULA_CONTENT = {
@@ -255,7 +259,7 @@ export const RODO_KLAUZULA_CONTENT = {
     items: [
       {
         title: 'Administrator.',
-        text: `Administratorem Twoich danych osobowych jest ${SITE_CONFIG.companyName}, NIP ${SITE_CONFIG.contact.vatID}, z siedzibą pod adresem Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów. Kontakt w sprawach danych osobowych: ${SITE_CONFIG.contact.email}.`,
+        text: `Administratorem Twoich danych osobowych jest ${SITE_CONFIG.companyName}, NIP ${SITE_CONFIG.contact.vatID}, z siedzibą pod adresem ${RODO_ADRES}. Kontakt w sprawach danych osobowych: ${SITE_CONFIG.contact.email}.`,
       },
       {
         title: 'Jakie dane przetwarzamy.',
