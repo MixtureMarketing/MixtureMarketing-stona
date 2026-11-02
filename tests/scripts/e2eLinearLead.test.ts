@@ -1376,6 +1376,280 @@ describe('(g): sprzątanie', () => {
   });
 });
 
+describe('MIX-626F: (g) ponowny odczyt, duplikaty id, wersje id (fail-closed)', () => {
+  const ID_F = 'LEA-11';
+  const PRZED = '[Preview] Lead: x';
+  type Zad = { id: string; tytul: unknown; stan: string; etykiety: string[] };
+  type Atrapa = ReturnType<typeof kontekst>['a'];
+  type Haki = {
+    // n-ty odczyt listy PO (e): 1 = odczyt (g), 2 = `teraz` w sprzątaniu, 3 = kontrola po sprzątaniu
+    przyOdczycie?: Record<number, (a: Atrapa) => void>;
+    blad?: number[];
+    bezStanuF?: boolean;
+    tytulPoczatkowy?: unknown;
+    duplikatWOdczycie?: Record<number, { tytul: string; przed?: boolean }>;
+  };
+  const ustawTytul = (a: Atrapa, tytul: string) => {
+    a.zadania.find((z) => z.id === ID_F)!.tytul = tytul;
+  };
+  const bieg = async (h: Haki = {}) => {
+    const k = kontekst({}, { E2E_BEZ_RESEND: '1' }, h.bezStanuF ? null : STAN_F_OK);
+    const { ctx, a, logi } = k;
+    const zad = a.zadania.find((z) => z.id === ID_F);
+    if (zad) zad.tytul = h.tytulPoczatkowy !== undefined ? (h.tytulPoczatkowy as string) : PRZED;
+    const wywolania: string[][] = [];
+    let n = 0;
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      if (args[0] === 'lista' && logi.some((l) => /^\(e\)/.test(l))) {
+        n += 1;
+        h.przyOdczycie?.[n]?.(a);
+        if (h.blad?.includes(n)) throw new Error('lin lista: błąd odczytu');
+        const dup = h.duplikatWOdczycie?.[n];
+        if (dup) {
+          const obj = JSON.parse(await lin(args));
+          const wpis = {
+            id: ID_F,
+            stan: 'Backlog',
+            kto: 'jakub',
+            delegat: null,
+            tytul: dup.tytul,
+            etykiety: [],
+          };
+          if (dup.przed) obj.zadania.unshift(wpis);
+          else obj.zadania.push(wpis);
+          return JSON.stringify(obj);
+        }
+      }
+      return lin(args);
+    };
+    const w = await biegnij(ctx);
+    const dotkniete = wywolania.some(
+      (x) => x[1] === ID_F && (x[0] === 'stan' || x[0] === 'etykieta'),
+    );
+    return { w, a, zad: zad as unknown as Zad, logi, dotkniete, wywolania };
+  };
+  const POM = /\(g\) id LEA-11 (ze stanu f )?pominięte: /;
+
+  describe('formy 1/11/12: tytuł zmieniony / zadanie znika / błąd między odczytem (g) a anulowaniem', () => {
+    it('bliźniak: tytuł bez zmian → anulowane z etykietą test, bez linii pominięcia', async () => {
+      const r = await bieg();
+      expect(r.dotkniete).toBe(true);
+      expect(r.zad).toMatchObject({ stan: 'Canceled' });
+      expect(r.zad.etykiety).toContain('test');
+      expect(r.logi.join('\n')).not.toMatch(POM);
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('TOCTOU: zmiana tytułu po odczycie (g), przed drugim odczytem → nie anulowane, linia powodu, brak stan/etykieta', async () => {
+      const r = await bieg({
+        przyOdczycie: { 2: (a) => ustawTytul(a, 'Lead: prawdziwy.pl — kontakt') },
+      });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(r.logi.join('\n')).toMatch(
+        /\(g\) id LEA-11 ze stanu f pominięte: tytuł nie zaczyna się od "\[Preview\] Lead: "/,
+      );
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('zły tytuł już przy odczycie (g), poprawny przy drugim → pominięte przez pierwszą kontrolę', async () => {
+      const r = await bieg({
+        tytulPoczatkowy: 'Lead: prawdziwy',
+        przyOdczycie: { 2: (a) => ustawTytul(a, PRZED) },
+      });
+      expect(r.dotkniete).toBe(false);
+      expect(r.logi.join('\n')).toMatch(POM);
+    });
+    it('zadanie znika przy drugim odczycie → pominięte ("nie ma na liście"), nie dotknięte', async () => {
+      const r = await bieg({
+        przyOdczycie: {
+          2: (a) => {
+            a.zadania.splice(
+              a.zadania.findIndex((z) => z.id === ID_F),
+              1,
+            );
+          },
+        },
+      });
+      expect(r.dotkniete).toBe(false);
+      expect(r.logi.join('\n')).toMatch(
+        /\(g\) id LEA-11 ze stanu f pominięte: zadania nie ma na liście/,
+      );
+    });
+    it('drugi odczyt rzuca błąd → nic nie dotknięte, (g) = fail z powodem', async () => {
+      const r = await bieg({ blad: [2] });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog' });
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toMatch(/błąd odczytu/);
+    });
+    it('bliźniak: drugi odczyt ok → anulowane, (g) pass', async () => {
+      const r = await bieg({ blad: [] });
+      expect(r.dotkniete).toBe(true);
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+  });
+
+  describe('formy 2/3: duplikat id na liście (kolejność wpisu dozwolonego bez znaczenia)', () => {
+    it.each([
+      ['odczyt (g), duplikat na końcu', { 1: { tytul: 'Lead: inny', przed: false } }],
+      ['odczyt (g), duplikat na początku', { 1: { tytul: 'Lead: inny', przed: true } }],
+      ['drugi odczyt, duplikat na końcu', { 2: { tytul: 'Lead: inny', przed: false } }],
+      ['drugi odczyt, duplikat na początku', { 2: { tytul: 'Lead: inny', przed: true } }],
+      ['drugi odczyt, duplikat też z przedrostkiem', { 2: { tytul: PRZED, przed: true } }],
+    ])('%s → odmowa z linią powodu, brak stan/etykieta', async (_n, dup) => {
+      const r = await bieg({ duplikatWOdczycie: dup });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(r.logi.join('\n')).toMatch(
+        /\(g\) id LEA-11 (ze stanu f )?pominięte: id występuje na liście 2 razy \(niejednoznaczne\)/,
+      );
+    });
+    it('duplikat dopiero w trzecim odczycie (po sprzątaniu) → (g) fail z powodem', async () => {
+      const r = await bieg({ duplikatWOdczycie: { 3: { tytul: PRZED, przed: false } } });
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toMatch(/LEA-11: 2 wpisów o tym id po sprzątaniu/);
+    });
+    it('bliźniak: pojedynczy wpis → anulowane', async () => {
+      const r = await bieg();
+      expect(r.dotkniete).toBe(true);
+      expect(r.zad).toMatchObject({ stan: 'Canceled' });
+    });
+    it('sprzatanie bezpośrednio: duplikat id spoza stanu f → nie sprzątane, (g) fail z powodem, reszta sprzątnięta', async () => {
+      const { ctx, a, logi } = kontekst();
+      a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-11
+      a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-12
+      a.zadania.push({ ...a.zadania[0], etykiety: ['formularz'] }); // drugi wpis LEA-11
+      const w = await sprzatanie(ctx, new Set(['LEA-11', 'LEA-12']));
+      expect(w.status).toBe('fail');
+      expect(w.powod).toMatch(/LEA-11: niejednoznaczne id na liście/);
+      expect(a.zadania[0]).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(a.zadania[1]).toMatchObject({ stan: 'Canceled' });
+      expect(logi.join('\n')).toMatch(/\(g\) id LEA-11 pominięte: id występuje na liście 2 razy/);
+    });
+  });
+
+  describe('formy 4-8 (E3): tytuły łudząco podobne do przedrostka są odrzucane, zwykły tytuł przechodzi', () => {
+    const PODOBNE: Array<[string, string]> = [
+      ['pełnoszerokie nawiasy', '［Preview］ Lead: x'],
+      ['pełnoszeroki dwukropek', '[Preview] Lead： x'],
+      ['ZWSP wewnątrz Preview', '[Pre​view] Lead: x'],
+      ['ZWSP na początku', '​[Preview] Lead: x'],
+      ['ZWNJ wewnątrz', '[Preview] Le‌ad: x'],
+      ['BOM na początku', '﻿[Preview] Lead: x'],
+      ['NBSP po dwukropku', '[Preview] Lead: x'],
+      ['NBSP między słowami', '[Preview] Lead: x'],
+      ['cyrylickie е w Preview', '[Prеview] Lead: x'],
+      ['cyrylickie а w Lead', '[Preview] Leаd: x'],
+      ['tabulator po dwukropku', '[Preview] Lead:\tx'],
+    ];
+    it.each(PODOBNE)('odczyt (g): %s → pominięte, zadanie nietknięte', async (_n, tytul) => {
+      const r = await bieg({ tytulPoczatkowy: tytul });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      expect(r.logi.join('\n')).toMatch(POM);
+    });
+    it.each(PODOBNE)('drugi odczyt: %s → pominięte, zadanie nietknięte', async (_n, tytul) => {
+      const r = await bieg({ przyOdczycie: { 2: (a) => ustawTytul(a, tytul) } });
+      expect(r.dotkniete).toBe(false);
+      expect(r.zad).toMatchObject({ stan: 'Backlog' });
+      expect(r.logi.join('\n')).toMatch(
+        /\(g\) id LEA-11 ze stanu f pominięte: tytuł nie zaczyna się od/,
+      );
+    });
+    it.each(PODOBNE)('powodOdrzuceniaIdStanuF: %s → odmowa', (_n, tytul) => {
+      expect(
+        powodOdrzuceniaIdStanuF('LEA-11', [{ id: 'LEA-11', tytul, etykiety: [] }], null),
+      ).toMatch(/nie zaczyna się od/);
+    });
+    it('bliźniak: zwykły przedrostek (spacje ASCII) przechodzi w odczycie (g) i w drugim', async () => {
+      const r = await bieg({ tytulPoczatkowy: '[Preview] Lead: example.com — kontakt' });
+      expect(r.dotkniete).toBe(true);
+      expect(r.zad).toMatchObject({ stan: 'Canceled' });
+    });
+  });
+
+  describe('forma 9 (E6): id w wariantach nie pasuje do wpisu na liście (dokładne ===)', () => {
+    const lista = (id: string) => [{ id, tytul: PRZED, etykiety: [] }];
+    it.each([' LEA-11 ', 'lea-11', 'LEA-11 ', ' LEA-11', 'Lea-11'])(
+      'powodOdrzuceniaIdStanuF: id "%s" vs lista "LEA-11" → "nie ma na liście"',
+      (id) => {
+        expect(powodOdrzuceniaIdStanuF(id, lista('LEA-11'), null)).toMatch(/nie ma na liście/);
+      },
+    );
+    it('powodOdrzuceniaIdStanuF: lista z " LEA-11 " vs id "LEA-11" → "nie ma na liście"; bliźniak dokładne id → null', () => {
+      expect(powodOdrzuceniaIdStanuF('LEA-11', lista(' LEA-11 '), null)).toMatch(
+        /nie ma na liście/,
+      );
+      expect(powodOdrzuceniaIdStanuF('LEA-11', lista('LEA-11'), null)).toBeNull();
+    });
+    it.each([' LEA-11 ', 'lea-11'])(
+      'sprzatanie ze stanem f: id "%s" przy liście z "LEA-11" → pominięte, zadanie nietknięte',
+      async (id) => {
+        const { ctx, a, logi } = kontekst();
+        a.dodaj('example.com', 'kontakt', ['formularz']);
+        const w = await sprzatanie(ctx, new Set([id]), new Set([id]));
+        expect(w.status).toBe('pass');
+        expect(a.zadania[0]).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+        expect(logi.join('\n')).toMatch(/ze stanu f pominięte: zadania nie ma na liście/);
+      },
+    );
+    it.each([' LEA-11 ', 'lea-11'])(
+      'sprzatanie bez stanu f: id "%s" nie dopasowuje LEA-11 (fail, zadanie nietknięte)',
+      async (id) => {
+        const { ctx, a } = kontekst();
+        a.dodaj('example.com', 'kontakt', ['formularz']);
+        const w = await sprzatanie(ctx, new Set([id]));
+        expect(w.status).toBe('fail');
+        expect(a.zadania[0]).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+      },
+    );
+    it.each([' LEA-11 ', 'lea-11'])(
+      'przebieg: id "%s" w pliku stanu f → odrzucone kształtem, LEA-11 nietknięte',
+      async (id) => {
+        const k = kontekst(
+          {},
+          { E2E_BEZ_RESEND: '1' },
+          { ...STAN_F_OK, zadanie: id, zadania: [id] },
+        );
+        const w = await biegnij(k.ctx);
+        const zad = k.a.zadania.find((z) => z.id === ID_F)!;
+        expect(zad).toMatchObject({ stan: 'Backlog' });
+        expect(k.logi.join('\n')).toMatch(/niepoprawne id w pliku stanu f pominięte/);
+        expect(w.wyniki.g.status).toBe('pass');
+      },
+    );
+    it('bliźniak: dokładne "LEA-11" → anulowane', async () => {
+      const r = await bieg();
+      expect(r.zad).toMatchObject({ stan: 'Canceled' });
+    });
+  });
+
+  describe('forma 10 (E2): nieczytelna lista bez kandydatów ze stanu f', () => {
+    it('brak stanu f, błąd odczytu listy w (g) → (g) = fail z powodem, nic nie anulowane', async () => {
+      const r = await bieg({ bezStanuF: true, blad: [1] });
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toMatch(/błąd odczytu/);
+      expect(r.wywolania.filter((x) => x[0] === 'stan' || x[0] === 'etykieta')).toEqual([]);
+    });
+    it('bliźniak: brak stanu f, lista czytelna → (g) pass', async () => {
+      const r = await bieg({ bezStanuF: true });
+      expect(r.w.wyniki.g.status).toBe('pass');
+    });
+    it('stan f nieważny (inne SHA), błąd odczytu listy → (g) = fail', async () => {
+      const k = kontekst({}, { E2E_BEZ_RESEND: '1' }, { ...STAN_F_OK, sha: 'inny999' });
+      const lin = k.ctx.lin;
+      k.ctx.lin = async (args: string[]) => {
+        if (args[0] === 'lista' && k.logi.some((l) => /^\(e\)/.test(l)))
+          throw new Error('lin lista: błąd odczytu');
+        return lin(args);
+      };
+      const w = await biegnij(k.ctx);
+      expect(w.wyniki.g.status).toBe('fail');
+    });
+  });
+});
+
 describe('(f): dwie fazy ręczne', () => {
   it('f1: w_kolejce=1, ponowione=0, zero zadań → pass i zapis stanu', async () => {
     const { ctx, a, stany } = kontekst({
