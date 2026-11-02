@@ -1018,6 +1018,126 @@ describe('przebieg: kolejność i kod wyjścia', () => {
     expect(z?.stan).toBe('Canceled');
     expect(z?.etykiety).toContain('test');
   });
+  it('(g) W9: zadanie [Preview] Lead istniejące PRZED biegiem (poza stanem f) zostaje nietknięte; nowe z biegu jest Canceled', async () => {
+    const { ctx, a } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
+    const [staraId] = a.dodaj('stare.example.org', 'sprzed biegu', ['formularz']);
+    expect(a.zadania.find((z) => z.id === staraId)?.tytul).toMatch(/^\[Preview\] Lead: /);
+    const wywolania: string[][] = [];
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      return lin(args);
+    };
+    const w = await biegnij(ctx);
+    expect(w.wyniki.g.status).toBe('pass');
+    expect(a.zadania.find((z) => z.id === staraId)).toMatchObject({
+      stan: 'Backlog',
+      etykiety: ['formularz'],
+    });
+    expect(
+      wywolania.some((x) => x[1] === staraId && (x[0] === 'stan' || x[0] === 'etykieta')),
+    ).toBe(false);
+    // bliźniak dozwolony: zadanie powstałe w biegu (a) i zadanie ze stanu f są sprzątnięte
+    const nowe = a.zadania.filter((z) => z.id !== staraId && z.id !== 'LEA-11');
+    expect(nowe.length).toBeGreaterThan(0);
+    for (const z of nowe) expect(z.stan).toBe('Canceled');
+    expect(a.zadania.find((z) => z.id === 'LEA-11')?.stan).toBe('Canceled');
+  });
+  describe('(g) stan f: id z pliku tylko przy ważnym wiązaniu (fail-closed)', () => {
+    const sprawdz = async (stan: unknown) => {
+      const { ctx, a, logi } = kontekst({}, { E2E_BEZ_RESEND: '1' }, stan);
+      // zadanie "ze stanu f" istnieje przed biegiem (LEA-11) niezależnie od kształtu stanu
+      if (!a.zadania.some((z) => z.id === 'LEA-11'))
+        a.dodaj('example.com', 'kontakt', ['formularz']);
+      const wywolania: string[][] = [];
+      const lin = ctx.lin;
+      ctx.lin = async (args: string[]) => {
+        wywolania.push(args);
+        return lin(args);
+      };
+      const w = await biegnij(ctx);
+      const dotkniete = (id: string) =>
+        wywolania.some((x) => x[1] === id && (x[0] === 'stan' || x[0] === 'etykieta'));
+      return { w, a, logi, dotkniete };
+    };
+    const ZADANIE_ZE_STANU = 'LEA-11'; // atrapa zakłada je przed biegiem (kontekst)
+    it('stan z INNYM SHA: id ignorowane z linią powodu; ten sam SHA i świeży: id użyte', async () => {
+      const zly = await sprawdz({ ...STAN_F_OK, sha: 'fff9999' });
+      expect(zly.dotkniete(ZADANIE_ZE_STANU)).toBe(false);
+      expect(zly.a.zadania.find((z) => z.id === ZADANIE_ZE_STANU)?.stan).toBe('Backlog');
+      expect(zly.w.wyniki.g.status).toBe('pass');
+      expect(zly.logi.join('\n')).toMatch(
+        /id zadań z pliku stanu f pominięte: stan faz f pochodzi z innego SHA/,
+      );
+      const dobry = await sprawdz(STAN_F_OK);
+      expect(dobry.dotkniete(ZADANIE_ZE_STANU)).toBe(true);
+      expect(dobry.a.zadania.find((z) => z.id === ZADANIE_ZE_STANU)?.stan).toBe('Canceled');
+      expect(dobry.logi.join('\n')).not.toMatch(/pominięte/);
+    });
+    it('stan STARY (24 h i 25 h): id ignorowane; świeży (23 h): id użyte', async () => {
+      for (const godz of [24, 25]) {
+        const r = await sprawdz({ ...STAN_F_OK, ts: TS0 - godz * GODZ });
+        expect(r.dotkniete(ZADANIE_ZE_STANU)).toBe(false);
+        expect(r.logi.join('\n')).toMatch(/pominięte: stan faz f starszy niż 24 h/);
+      }
+      const swiezy = await sprawdz({ ...STAN_F_OK, ts: TS0 - 23 * GODZ });
+      expect(swiezy.dotkniete(ZADANIE_ZE_STANU)).toBe(true);
+    });
+    it('stan bez ts, z ts z przyszłości, bez SHA po obu stronach, nieczytelny, brak pliku: id ignorowane', async () => {
+      const { ts: _ts, ...bezTs } = STAN_F_OK;
+      const warianty: Array<[unknown, RegExp]> = [
+        [bezTs, /bez znacznika czasu/],
+        [{ ...STAN_F_OK, ts: TS0 + GODZ }, /z przyszłości/],
+        [{ ...STAN_F_OK, sha: '' }, /innego SHA/],
+        [{ nieczytelny: true }, /nieczytelny/],
+      ];
+      for (const [stan, powod] of warianty) {
+        const r = await sprawdz(stan);
+        expect(r.dotkniete(ZADANIE_ZE_STANU)).toBe(false);
+        expect(r.logi.join('\n')).toMatch(powod);
+        expect(r.w.wyniki.g.status).toBe('pass');
+      }
+      const brak = await sprawdz(null);
+      expect(brak.dotkniete(ZADANIE_ZE_STANU)).toBe(false);
+      expect(brak.logi.join('\n')).toMatch(/pominięte: brak pliku stanu/);
+    });
+    it('id w ważnym stanie o złym kształcie (liczba, null, obiekt, --flaga, inny zespół, spacja) są pomijane, poprawne użyte', async () => {
+      const zle = [
+        5,
+        null,
+        { id: 'LEA-11' },
+        '--help',
+        'ENG-1',
+        'LEA-11 ',
+        'LEA-',
+        'lea-11',
+        'LEA-99999999',
+        'xLEA-11',
+        ['LEA-11'],
+        '',
+      ];
+      const r = await sprawdz({ ...STAN_F_OK, zadania: ['LEA-11', ...zle], zadanie: undefined });
+      expect(r.w.wyniki.g.status).toBe('pass');
+      expect(r.dotkniete('LEA-11')).toBe(true);
+      expect(r.a.zadania.find((z) => z.id === 'LEA-11')?.stan).toBe('Canceled');
+      expect(r.logi.filter((l) => /niepoprawne id w pliku stanu f pominięte/.test(l))).toHaveLength(
+        zle.length,
+      );
+    });
+    it('zadania nie jest tablicą (napis, obiekt, liczba): ignorowane bez wyjątku', async () => {
+      for (const zadania of ['LEA-11', { 0: 'LEA-11' }, 11]) {
+        const r = await sprawdz({ ...STAN_F_OK, zadania, zadanie: undefined });
+        expect(r.w.wyniki.g.status).toBe('pass');
+        expect(r.dotkniete('LEA-11')).toBe(false);
+      }
+    });
+    it('pole zadanie (pojedyncze) w złym stanie ignorowane, w dobrym użyte', async () => {
+      const zly = await sprawdz({ ...STAN_F_OK, zadania: [], sha: 'inny' });
+      expect(zly.dotkniete('LEA-11')).toBe(false);
+      const dobry = await sprawdz({ ...STAN_F_OK, zadania: [] });
+      expect(dobry.dotkniete('LEA-11')).toBe(true);
+    });
+  });
   it('(e): prawdziwy lead bez przedrostka w trakcie drugiego POST nie psuje (e) i zostaje nietknięty', async () => {
     const { ctx, a } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
     const fetchBazowy = ctx.fetch;

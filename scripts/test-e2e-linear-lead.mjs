@@ -46,6 +46,8 @@ export const PRZEDROSTEK_BLEDU = 'e2e: błąd nieobsłużony: ';
 export const PRZYPADKI = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 export const PROWADZACY = 'jakub';
 export const PRZEDROSTEK_TYTULU = '[Preview] Lead: ';
+/** Dozwolony kształt id zadania zespołu LEA (allowlista dla id z pliku stanu f). */
+export const ID_ZADANIA = /^LEA-[0-9]{1,7}$/;
 export const TIMEOUT_PRZYPADKU_MS = 60_000;
 export const KROK_ODPYTYWANIA_MS = 5_000;
 export const KATALOG_WYNIKOW = path.join('.bieg', 'e2e-leady');
@@ -792,8 +794,20 @@ export async function przebieg(ctx, { faza = null } = {}) {
   const stanF = ctx.wczytajStan();
   wyniki.f = wynikF(stanF, ctx);
   const doSprzatania = new Set(ctx.utworzone);
-  for (const id of [...(stanF?.zadania ?? []), ...(stanF?.zadanie ? [stanF.zadanie] : [])])
-    doSprzatania.add(id);
+  // Id z pliku stanu f tylko gdy stan jest związany z tym SHA i świeży (fail-closed: inaczej ignorowane z linią powodu).
+  const powodStanu = sprawdzWiazanieStanu(stanF, ctx);
+  if (powodStanu) {
+    ctx.log(`(g) id zadań z pliku stanu f pominięte: ${powodStanu}`);
+  } else {
+    const kandydaci = [
+      ...(Array.isArray(stanF.zadania) ? stanF.zadania : []),
+      ...(stanF.zadanie !== undefined && stanF.zadanie !== null ? [stanF.zadanie] : []),
+    ];
+    for (const id of kandydaci) {
+      if (typeof id === 'string' && ID_ZADANIA.test(id)) doSprzatania.add(id);
+      else ctx.log(`(g) niepoprawne id w pliku stanu f pominięte (typ ${typeof id})`);
+    }
+  }
   wyniki.g = await bezpiecznie(ctx, 'g', async () => {
     // Każde nowe zadanie z przedrostkiem [Preview] Lead: powstałe w trakcie biegu też jest z tego biegu.
     if (migawka) {
