@@ -88,8 +88,7 @@ export function znacznikMinuty(teraz) {
 
 /** Adres testowy `e2e+<RRRRMMDDGGMM><litera>@<domena>` (domyślnie example.com). */
 export function adresE2E(teraz, litera, domena = 'example.com') {
-  if (!(teraz instanceof Date) || Number.isNaN(teraz.getTime()))
-    throw new Error('adresE2E: zła data');
+  if (!(teraz instanceof Date) || Number.isNaN(teraz.getTime())) throw new Error('adresE2E: zła data');
   if (!/^[a-z]$/.test(String(litera))) throw new Error('adresE2E: litera a-z');
   if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(String(domena))) throw new Error('adresE2E: zła domena');
   return `e2e+${znacznikMinuty(teraz)}${litera}@${domena}`;
@@ -103,10 +102,8 @@ export function adresE2E(teraz, litera, domena = 'example.com') {
  * Zwraca {ok, origin, host} albo {ok:false, powod}. Pusty, zły adres albo nieznana rola = odmowa.
  */
 export function sprawdzAdresPreview(adres, nazwa = 'adres', rola = '') {
-  if (rola !== 'alias' && rola !== 'hash')
-    return { ok: false, powod: `${nazwa}: nieznana rola adresu` };
-  if (typeof adres !== 'string' || adres.trim() === '')
-    return { ok: false, powod: `${nazwa}: pusty adres` };
+  if (rola !== 'alias' && rola !== 'hash') return { ok: false, powod: `${nazwa}: nieznana rola adresu` };
+  if (typeof adres !== 'string' || adres.trim() === '') return { ok: false, powod: `${nazwa}: pusty adres` };
   if (/[\s\\%\u0000-\u001f\u007f-\uffff]/.test(adres))
     return { ok: false, powod: `${nazwa}: niedozwolone znaki w adresie` };
   let u;
@@ -116,8 +113,7 @@ export function sprawdzAdresPreview(adres, nazwa = 'adres', rola = '') {
     return { ok: false, powod: `${nazwa}: niepoprawny adres` };
   }
   if (u.protocol !== 'https:') return { ok: false, powod: `${nazwa}: wymagany https` };
-  if (u.username !== '' || u.password !== '')
-    return { ok: false, powod: `${nazwa}: dane logowania w adresie` };
+  if (u.username !== '' || u.password !== '') return { ok: false, powod: `${nazwa}: dane logowania w adresie` };
   if (u.port !== '') return { ok: false, powod: `${nazwa}: nietypowy port` };
   const host = u.hostname;
   if (HOSTY_PRODUKCJI.includes(host) || host.endsWith('.mixturemarketing.pl'))
@@ -127,10 +123,7 @@ export function sprawdzAdresPreview(adres, nazwa = 'adres', rola = '') {
   if (rola === 'hash' && !WZORZEC_HASHA.test(host))
     return { ok: false, powod: `${nazwa}: host inny niż <8 hex>.mixturemarketing-stona.pages.dev` };
   if (adres !== u.origin && adres !== `${u.origin}/`)
-    return {
-      ok: false,
-      powod: `${nazwa}: adres nie jest czystym originem (ścieżka, zapytanie, port, wielkość liter)`,
-    };
+    return { ok: false, powod: `${nazwa}: adres nie jest czystym originem (ścieżka, zapytanie, port, wielkość liter)` };
   return { ok: true, origin: u.origin, host };
 }
 
@@ -170,8 +163,7 @@ export function decyzjaOchrony(o) {
 export function decyzjaDostepu(o) {
   if (!o || typeof o !== 'object') return { dostep: false, powod: 'brak odpowiedzi' };
   if (o.blad) return { dostep: false, powod: `błąd żądania: ${String(o.blad).slice(0, 120)}` };
-  if (o.status !== 200)
-    return { dostep: false, powod: `kod ${o.status} zamiast 200 (Access nie przepuścił tokenu?)` };
+  if (o.status !== 200) return { dostep: false, powod: `kod ${o.status} zamiast 200 (Access nie przepuścił tokenu?)` };
   const json = o.json;
   if (!json || typeof json !== 'object' || typeof json.contractVersion !== 'number')
     return { dostep: false, powod: 'odpowiedź 200 bez JSON-a aplikacji (strona Access?)' };
@@ -230,14 +222,9 @@ export function podsumuj(wyniki) {
   const zle = stany.filter(([, s]) => s !== 'pass' && s !== 'skip' && s !== 'brak');
   const niepelne = stany.filter(([, s]) => s === 'skip' || s === 'brak');
   const opis = stany.map(([p, s]) => `${p}=${s}`).join(' ');
-  if (zle.length > 0)
-    return { kod: 1, ok, linia: `${ok}/7, PORAŻKA: ${zle.map(([p]) => p).join(',')} (${opis})` };
+  if (zle.length > 0) return { kod: 1, ok, linia: `${ok}/7, PORAŻKA: ${zle.map(([p]) => p).join(',')} (${opis})` };
   if (niepelne.length > 0)
-    return {
-      kod: 3,
-      ok,
-      linia: `${ok}/7, niepełny: ${niepelne.map(([p]) => p).join(',')} (${opis})`,
-    };
+    return { kod: 3, ok, linia: `${ok}/7, niepełny: ${niepelne.map(([p]) => p).join(',')} (${opis})` };
   return { kod: 0, ok, linia: `${ok}/7 (${opis})` };
 }
 
@@ -395,8 +382,7 @@ export async function sprawdzOchrone(ctx) {
   const hash = sprawdzAdresPreview(ctx.hashUrl, 'link z hashem (E2E_HASH_URL)', 'hash');
   if (!baza.ok) powody.push(baza.powod);
   if (!hash.ok) powody.push(hash.powod);
-  if (!ctx.accessId || !ctx.accessSecret)
-    powody.push('brak CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET w env');
+  if (!ctx.accessId || !ctx.accessSecret) powody.push('brak CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET w env');
   if (powody.length > 0) return { ok: false, powody };
 
   for (const [nazwa, adres] of [
@@ -496,8 +482,7 @@ const opisBledu = (ctx, o) => maskuj(o?.blad ?? `HTTP ${o?.status}`, ctx.sekrety
 
 function sprawdzZadanie(przypadek, z) {
   const { wymagane, zakazane } = etykietyPrzypadku(przypadek);
-  if (z.kto !== PROWADZACY)
-    return `zadanie ${z.id} nie jest przypisane do ${PROWADZACY} (kto=${z.kto})`;
+  if (z.kto !== PROWADZACY) return `zadanie ${z.id} nie jest przypisane do ${PROWADZACY} (kto=${z.kto})`;
   const brak = wymagane.filter((e) => !z.etykiety.includes(e));
   if (brak.length) return `zadanie ${z.id}: brak etykiet ${brak.join(',')}`;
   const nadmiar = zakazane.filter((e) => z.etykiety.includes(e));
@@ -527,15 +512,9 @@ async function przypadekZZadaniem(ctx, id, wyslij, wynikAudytu) {
   if (!znalezione) return { status: 'fail', powod: 'brak zadania w limicie czasu' };
   const nowe = znalezione.wynik;
   for (const z of nowe) ctx.utworzone.add(z.id);
-  if (nowe.length !== 1)
-    return {
-      status: 'fail',
-      powod: `oczekiwano 1 zadania, jest ${nowe.length}`,
-      sekundy: znalezione.sekundy,
-    };
+  if (nowe.length !== 1) return { status: 'fail', powod: `oczekiwano 1 zadania, jest ${nowe.length}`, sekundy: znalezione.sekundy };
   const uwaga = sprawdzZadanie(id, nowe[0]);
-  if (uwaga)
-    return { status: 'fail', powod: uwaga, sekundy: znalezione.sekundy, zadanie: nowe[0].id };
+  if (uwaga) return { status: 'fail', powod: uwaga, sekundy: znalezione.sekundy, zadanie: nowe[0].id };
   return { status: 'pass', sekundy: znalezione.sekundy, zadanie: nowe[0].id, powod: '' };
 }
 
@@ -543,8 +522,7 @@ export const przypadekA = (ctx) =>
   przypadekZZadaniem(ctx, 'a', () => wyslijFormularz(ctx, ctx.adres('a')));
 
 export async function przypadekB(ctx) {
-  if (!czyUruchomicB(ctx.env))
-    return { status: 'skip', powod: 'Preview ma Resend (brak E2E_BEZ_RESEND=1)' };
+  if (!czyUruchomicB(ctx.env)) return { status: 'skip', powod: 'Preview ma Resend (brak E2E_BEZ_RESEND=1)' };
   return przypadekZZadaniem(ctx, 'b', () => wyslijFormularz(ctx, ctx.adres('b', 'gmail.com')));
 }
 
@@ -552,12 +530,7 @@ export const przypadekC = (ctx) =>
   przypadekZZadaniem(ctx, 'c', () => wyslijKalkulator(ctx, ctx.adres('c')));
 
 export const przypadekD = (ctx) =>
-  przypadekZZadaniem(
-    ctx,
-    'd',
-    () => wyslijAudyt(ctx, ctx.adres('d'), ctx.wynikAudytu),
-    ctx.wynikAudytu,
-  );
+  przypadekZZadaniem(ctx, 'd', () => wyslijAudyt(ctx, ctx.adres('d'), ctx.wynikAudytu), ctx.wynikAudytu);
 
 /** (e): dwa leady z jednego adresu = 1 zadanie i 1 komentarz „Kolejny lead…”, bez drugiego zadania. */
 export async function przypadekE(ctx) {
@@ -567,8 +540,7 @@ export async function przypadekE(ctx) {
   const przedIds = new Set((await pobierzZadania(ctx.lin)).map((z) => z.id));
   const start = ctx.now();
   const odp = await wyslijFormularz(ctx, adres);
-  if (!odpowiedzOk(odp))
-    return { ...pierwszy, status: 'fail', powod: `drugi POST: ${opisBledu(ctx, odp)}` };
+  if (!odpowiedzOk(odp)) return { ...pierwszy, status: 'fail', powod: `drugi POST: ${opisBledu(ctx, odp)}` };
   const komentarz = await czekaj({
     start,
     now: ctx.now,
@@ -582,29 +554,16 @@ export async function przypadekE(ctx) {
       return k.length > 0 ? k : null;
     },
   });
-  if (!komentarz)
-    return {
-      ...pierwszy,
-      status: 'fail',
-      powod: 'brak komentarza o drugim leadzie w limicie czasu',
-    };
+  if (!komentarz) return { ...pierwszy, status: 'fail', powod: 'brak komentarza o drugim leadzie w limicie czasu' };
   if (komentarz.wynik.length !== 1)
-    return {
-      ...pierwszy,
-      status: 'fail',
-      powod: `oczekiwano 1 komentarza, jest ${komentarz.wynik.length}`,
-    };
+    return { ...pierwszy, status: 'fail', powod: `oczekiwano 1 komentarza, jest ${komentarz.wynik.length}` };
   // Liczą się tylko zadania z przedrostkiem Preview powstałe po drugim POST (lead z produkcji nie jest z tego biegu).
   const nowe = (await pobierzZadania(ctx.lin)).filter(
     (z) => !przedIds.has(z.id) && z.tytul.startsWith(PRZEDROSTEK_TYTULU),
   );
   for (const z of nowe) ctx.utworzone.add(z.id);
   if (nowe.length > 0)
-    return {
-      ...pierwszy,
-      status: 'fail',
-      powod: `drugi lead utworzył zadanie (nowych zadań Preview: ${nowe.length})`,
-    };
+    return { ...pierwszy, status: 'fail', powod: `drugi lead utworzył zadanie (nowych zadań Preview: ${nowe.length})` };
   return pierwszy;
 }
 
@@ -615,11 +574,7 @@ export function sciezkaStanuF(katalog = KATALOG_WYNIKOW) {
 
 /** (f1): po zepsuciu klucza Lineara lead trafia do kolejki: `w_kolejce=1`, `ponowione=0`, zero nowych zadań. */
 export async function fazaF1(ctx) {
-  if (!ctx.sha)
-    return {
-      status: 'fail',
-      powod: 'brak E2E_SHA (--sha): stan faz f jest związany z SHA wdrożenia',
-    };
+  if (!ctx.sha) return { status: 'fail', powod: 'brak E2E_SHA (--sha): stan faz f jest związany z SHA wdrożenia' };
   const przed = (await pobierzZadania(ctx.lin)).map((z) => z.id);
   const odp = await wyslijFormularz(ctx, ctx.adres('f'));
   if (!odpowiedzOk(odp)) return { status: 'fail', powod: `POST: ${opisBledu(ctx, odp)}` };
@@ -688,8 +643,7 @@ export async function fazaF2(ctx) {
     (x) => !przed.has(x.id) && tytulPasuje('f', x.tytul),
   );
   for (const z of koniec) ctx.utworzone.add(z.id);
-  if (koniec.length !== 1)
-    return { status: 'fail', powod: `oczekiwano dokładnie 1 zadania, jest ${koniec.length}` };
+  if (koniec.length !== 1) return { status: 'fail', powod: `oczekiwano dokładnie 1 zadania, jest ${koniec.length}` };
   const uwaga = sprawdzZadanie('f', koniec[0]);
   if (uwaga) return { status: 'fail', powod: uwaga, zadanie: koniec[0].id };
   ctx.zapiszStan({
@@ -698,12 +652,7 @@ export async function fazaF2(ctx) {
     zadanie: koniec[0].id,
     zadania: [...new Set([...(stan.zadania ?? []), ...koniec.map((z) => z.id)])],
   });
-  return {
-    status: 'pass',
-    sekundy: nowe.sekundy,
-    zadanie: koniec[0].id,
-    powod: 'ponowione=1, 1 zadanie',
-  };
+  return { status: 'pass', sekundy: nowe.sekundy, zadanie: koniec[0].id, powod: 'ponowione=1, 1 zadanie' };
 }
 
 /**
@@ -711,14 +660,12 @@ export async function fazaF2(ctx) {
  * obiektem, ma SHA równy ctx.sha (niepusty) i znacznik czasu młodszy niż 24 h (nie z przyszłości).
  */
 export function sprawdzWiazanieStanu(stan, ctx) {
-  if (stan === null || stan === undefined)
-    return 'brak pliku stanu faz f1/f2 (najpierw --faza f1, potem f2)';
+  if (stan === null || stan === undefined) return 'brak pliku stanu faz f1/f2 (najpierw --faza f1, potem f2)';
   if (typeof stan !== 'object' || Array.isArray(stan) || stan.nieczytelny)
     return 'plik stanu faz f jest nieczytelny (nie jest obiektem JSON)';
   if (!ctx?.sha) return 'brak E2E_SHA (--sha): nie da się związać stanu faz f z wdrożeniem';
   if (stan.sha !== ctx.sha) return 'stan faz f pochodzi z innego SHA niż E2E_SHA';
-  if (typeof stan.ts !== 'number' || !Number.isFinite(stan.ts))
-    return 'stan faz f bez znacznika czasu';
+  if (typeof stan.ts !== 'number' || !Number.isFinite(stan.ts)) return 'stan faz f bez znacznika czasu';
   const wiek = ctx.now() - stan.ts;
   if (wiek < 0) return 'stan faz f ma znacznik czasu z przyszłości';
   if (wiek >= WAZNOSC_STANU_F_MS) return 'stan faz f starszy niż 24 h (powtórz f1 i f2)';
@@ -729,8 +676,7 @@ export function sprawdzWiazanieStanu(stan, ctx) {
 export function wynikF(stan, ctx) {
   const powod = sprawdzWiazanieStanu(stan, ctx);
   if (powod) return { status: 'fail', powod };
-  if (stan.f1 !== 'pass')
-    return { status: stan.f1 ? 'fail' : 'brak', powod: 'faza f1 niezaliczona' };
+  if (stan.f1 !== 'pass') return { status: stan.f1 ? 'fail' : 'brak', powod: 'faza f1 niezaliczona' };
   if (stan.f2 !== 'pass') return { status: 'brak', powod: 'faza f2 niewykonana' };
   return { status: 'pass', zadanie: stan.zadanie, powod: 'f1 i f2' };
 }
@@ -763,9 +709,7 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set()) {
   for (const id of wszystkie) {
     const wpisy = teraz.filter((x) => x.id === id);
     if (wpisy.length > 1) {
-      ctx.log(
-        `(g) id ${id} pominięte: id występuje na liście ${wpisy.length} razy (niejednoznaczne)`,
-      );
+      ctx.log(`(g) id ${id} pominięte: id występuje na liście ${wpisy.length} razy (niejednoznaczne)`);
       if (!idStanuF.has(id)) bledy.push(`${id}: niejednoznaczne id na liście, nie sprzątnięte`);
       continue;
     }
@@ -799,10 +743,7 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set()) {
     }
   }
   return bledy.length === 0
-    ? {
-        status: 'pass',
-        powod: `${lista.length} zadań Canceled z etykietą test, pominięte: ${wszystkie.length - lista.length}`,
-      }
+    ? { status: 'pass', powod: `${lista.length} zadań Canceled z etykietą test, pominięte: ${wszystkie.length - lista.length}` }
     : { status: 'fail', powod: bledy.join('; ') };
 }
 
@@ -816,11 +757,7 @@ export function zbudujKontekst({ env = {}, argv = {}, deps = {} }) {
   const baza = sprawdzAdresPreview(baseUrl, 'E2E_BASE_URL', 'alias');
   const teraz = deps.teraz ?? (() => new Date());
   const start = teraz();
-  const sekrety = [
-    env.CF_ACCESS_CLIENT_ID,
-    env.CF_ACCESS_CLIENT_SECRET,
-    env.E2E_PONOW_SECRET,
-  ].filter(Boolean);
+  const sekrety = [env.CF_ACCESS_CLIENT_ID, env.CF_ACCESS_CLIENT_SECRET, env.E2E_PONOW_SECRET].filter(Boolean);
   return {
     env,
     baseUrl,
@@ -853,10 +790,7 @@ async function bezpiecznie(ctx, nazwa, fn) {
   try {
     return await fn();
   } catch (e) {
-    return {
-      status: 'fail',
-      powod: `${nazwa}: ${maskuj(e instanceof Error ? e.message : String(e), ctx.sekrety)}`,
-    };
+    return { status: 'fail', powod: `${nazwa}: ${maskuj(e instanceof Error ? e.message : String(e), ctx.sekrety)}` };
   }
 }
 
@@ -894,9 +828,7 @@ export async function przebieg(ctx, { faza = null } = {}) {
   ];
   for (const [p, fn] of kroki) {
     wyniki[p] = await bezpiecznie(ctx, p, () => fn(ctx));
-    ctx.log(
-      `(${p}) ${wyniki[p].status}${wyniki[p].sekundy !== undefined ? ` ${wyniki[p].sekundy} s` : ''} ${wyniki[p].powod ?? ''}`,
-    );
+    ctx.log(`(${p}) ${wyniki[p].status}${wyniki[p].sekundy !== undefined ? ` ${wyniki[p].sekundy} s` : ''} ${wyniki[p].powod ?? ''}`);
   }
   const stanF = ctx.wczytajStan();
   wyniki.f = wynikF(stanF, ctx);
@@ -972,16 +904,13 @@ export function czytajArgumenty(argv) {
     else if (a === '--hash-url') out.hashUrl = argv[++i];
     else out.blad = `nieznany argument: ${a}`;
   }
-  if (out.faza !== null && !['f1', 'f2'].includes(out.faza))
-    out.blad = `--faza: dozwolone f1 albo f2`;
+  if (out.faza !== null && !['f1', 'f2'].includes(out.faza)) out.blad = `--faza: dozwolone f1 albo f2`;
   return out;
 }
 
 /** Komunikat błędu bez wartości sekretów z env (pierwsza linia, zamaskowana). */
 export function komunikatBledu(e, env = {}) {
-  const sek = [env.CF_ACCESS_CLIENT_ID, env.CF_ACCESS_CLIENT_SECRET, env.E2E_PONOW_SECRET].filter(
-    Boolean,
-  );
+  const sek = [env.CF_ACCESS_CLIENT_ID, env.CF_ACCESS_CLIENT_SECRET, env.E2E_PONOW_SECRET].filter(Boolean);
   return `${PRZEDROSTEK_BLEDU}${maskuj(String(e?.message ?? e).split('\n')[0], sek)}`;
 }
 
@@ -1004,13 +933,7 @@ export function wczytajPlikStanu(sciezka, czytaj = (p) => fs.readFileSync(p, 'ut
 async function main() {
   const args = czytajArgumenty(process.argv.slice(2));
   if (args.blad) {
-    console.error(
-      maskuj(args.blad, [
-        process.env.CF_ACCESS_CLIENT_ID,
-        process.env.CF_ACCESS_CLIENT_SECRET,
-        process.env.E2E_PONOW_SECRET,
-      ]),
-    );
+    console.error(maskuj(args.blad, [process.env.CF_ACCESS_CLIENT_ID, process.env.CF_ACCESS_CLIENT_SECRET, process.env.E2E_PONOW_SECRET]));
     process.exit(2);
   }
   const katalog = KATALOG_WYNIKOW;
