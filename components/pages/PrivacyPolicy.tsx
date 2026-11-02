@@ -13,7 +13,11 @@ import {
 } from 'lucide-react';
 import SectionHeader from '../common/SectionHeader';
 import Seo from '../common/Seo';
-import { PRIVACY_POLICY_CONTENT as CONTENT } from '../../data/content';
+import {
+  PRIVACY_POLICY_CONTENT as CONTENT,
+  RODO_KLAUZULA_CONTENT as RODO,
+} from '../../data/content';
+import { isRodoKlauzulaEnabled } from '../../config/flags';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const PrivacyPolicy: React.FC = () => {
@@ -118,6 +122,22 @@ const PrivacyPolicy: React.FC = () => {
             </h2>
             <p>{CONTENT.transfer.text}</p>
           </section>
+
+          {isRodoKlauzulaEnabled() && (
+            <section id={RODO.anchorId} data-testid="rodo-klauzula-pelna">
+              <h2 className="text-xl font-bold text-dark mb-4 flex items-center gap-2">
+                <FileText size={24} className="text-primary" /> {RODO.full.title}
+              </h2>
+              <p className="mb-4">{RODO.full.intro}</p>
+              <ol className="list-decimal pl-5 space-y-3 text-sm">
+                {RODO.full.items.map((item) => (
+                  <li key={item.title}>
+                    <span className="font-bold text-dark">{item.title}</span> {item.text}
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
 
           <div className="pt-8 border-t border-gray-100 text-xs text-gray-900 flex justify-between items-center">
             <span>Ostatnia aktualizacja: {new Date().toLocaleDateString('pl-PL')}</span>

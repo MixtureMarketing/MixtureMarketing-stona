@@ -4,6 +4,7 @@ import { User, Mail, Phone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide
 import { ContactFormData } from './types';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
+import RodoKlauzulaKrotka from '../../common/RodoKlauzulaKrotka';
 
 interface ContactStep1Props {
   register: UseFormRegister<ContactFormData>;
@@ -128,6 +129,7 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
       >
         Zapisz i przejdź dalej
       </Button>
+      <RodoKlauzulaKrotka variant="contact" />
     </div>
   );
 };

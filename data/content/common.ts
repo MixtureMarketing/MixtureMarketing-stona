@@ -238,6 +238,65 @@ export const TERMS_CONTENT = {
   },
 };
 
+// Klauzula informacyjna RODO formularzy (MIX-844). Pokazywana tylko przy włączonej fladze
+// VITE_RODO_KLAUZULA=1 (config/flags.ts). Tekst wg dodatku RODO MIX-627, odpowiedzi właściciela 2.11.
+export const RODO_KLAUZULA_CONTENT = {
+  anchorId: 'klauzula-formularze',
+  linkHref: '/privacy-policy/#klauzula-formularze',
+  linkLabel: 'pełnej informacji o przetwarzaniu danych',
+  short: {
+    contact: `Administratorem Twoich danych jest ${SITE_CONFIG.companyName}. Dane z formularza przetwarzamy, żeby odpowiedzieć na Twoje zapytanie — podstawa: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy) oraz lit. f RODO (nasz prawnie uzasadniony interes: ochrona formularza przed spamem i nadużyciami). Dane trafiają do naszych dostawców (system zgłoszeń Linear, hosting Cloudflare, poczta Resend), część z nich działa poza Europejskim Obszarem Gospodarczym. Podanie danych jest dobrowolne, ale potrzebne, żebyśmy mogli odpowiedzieć. Masz prawo dostępu do danych, ich usunięcia i inne prawa opisane w `,
+    calculator: `Administratorem Twoich danych jest ${SITE_CONFIG.companyName}. Dane z kalkulatora przetwarzamy, żeby odpowiedzieć na Twoje zapytanie i przygotować wycenę — podstawa: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy) oraz lit. f RODO (nasz prawnie uzasadniony interes: ochrona formularza przed spamem i nadużyciami). Dane trafiają do naszych dostawców (system zgłoszeń Linear, hosting Cloudflare, poczta Resend), część z nich działa poza Europejskim Obszarem Gospodarczym. Podanie danych jest dobrowolne, ale potrzebne, żebyśmy mogli odpowiedzieć. Masz prawo dostępu do danych, ich usunięcia i inne prawa opisane w `,
+  },
+  full: {
+    title: '7. Formularz kontaktowy i kalkulator wyceny: informacja o przetwarzaniu danych',
+    intro:
+      'Informacja o przetwarzaniu danych osobowych z formularza kontaktowego i kalkulatora wyceny (art. 13 RODO).',
+    items: [
+      {
+        title: 'Administrator.',
+        text: `Administratorem Twoich danych osobowych jest ${SITE_CONFIG.companyName}, NIP ${SITE_CONFIG.contact.vatID}, z siedzibą pod adresem Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów. Kontakt w sprawach danych osobowych: ${SITE_CONFIG.contact.email}.`,
+      },
+      {
+        title: 'Jakie dane przetwarzamy.',
+        text: 'Dane, które sam wpisujesz: imię, adres e-mail, numer telefonu, nazwa firmy, adres strony WWW, treść wiadomości i inne pola formularza, informacje o projekcie (rodzaj usługi, pakiet, budżet), a w kalkulatorze także Twoje odpowiedzi na pytania i wyliczone widełki ceny. Zapisujemy też adres strony, z której wysłano formularz. Twój adres IP służy wyłącznie do ochrony przed nadużyciami (weryfikacja Turnstile, limity zapytań) i nie trafia do bazy zgłoszeń ani do systemu Linear; klucze liczników z adresem IP wygasają po godzinie.',
+      },
+      {
+        title: 'Cele i podstawy prawne.',
+        text: '(a) Odpowiedź na Twoje zapytanie, przygotowanie wyceny i kontakt przed zawarciem umowy: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy). (b) Ochrona formularzy przed spamem i nadużyciami oraz zapewnienie bezpieczeństwa: art. 6 ust. 1 lit. f RODO (nasz prawnie uzasadniony interes).',
+      },
+      {
+        title: 'Odbiorcy danych.',
+        text: 'Dane przetwarzają na nasze zlecenie (jako podmioty przetwarzające): Linear Orbit Inc. (system, w którym zespół obsługuje zgłoszenia), Cloudflare, Inc. (hosting strony, baza danych, pamięć plików i ochrona Turnstile) oraz Resend (wysyłka wiadomości e-mail). Z każdym z tych dostawców mamy zaakceptowaną umowę powierzenia przetwarzania danych. Dostęp do zgłoszeń ma zespół, który je obsługuje, oraz administratorzy tych systemów.',
+      },
+      {
+        title: 'Przekazywanie danych poza EOG.',
+        text: 'Linear i Cloudflare mogą przetwarzać dane w Stanach Zjednoczonych. Podstawą przekazania są standardowe klauzule umowne (SCC). Kopię zabezpieczeń możesz uzyskać, pisząc pod adres z pkt 1. To samo dotyczy dostawcy poczty, jeśli przetwarza dane poza EOG.',
+      },
+      {
+        title: 'Jak długo przechowujemy dane.',
+        text: 'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy. Raport PDF z audytu strony przechowujemy 90 dni. Techniczne znaczniki ochrony przed nadużyciami (liczniki zapytań, blokady powtórzeń) wygasają same po czasie od jednej godziny do 30 dni.',
+      },
+      {
+        title: 'Twoje prawa.',
+        text: 'Masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych (gdy podstawą jest lit. b) oraz sprzeciwu wobec przetwarzania opartego na naszym uzasadnionym interesie (gdy podstawą jest lit. f). Żądanie wyślij na adres z pkt 1; odpowiemy w ciągu jednego miesiąca.',
+      },
+      {
+        title: 'Skarga.',
+        text: 'Masz prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).',
+      },
+      {
+        title: 'Dobrowolność.',
+        text: 'Podanie danych jest dobrowolne, ale bez danych kontaktowych nie możemy odpowiedzieć na zapytanie ani przygotować wyceny.',
+      },
+      {
+        title: 'Decyzje zautomatyzowane.',
+        text: 'Nie podejmujemy decyzji w sposób zautomatyzowany ani nie profilujemy.',
+      },
+    ],
+  },
+};
+
 export const PRIVACY_POLICY_CONTENT = {
   seo: {
     title: 'Polityka Prywatności | Mixture Marketing',
