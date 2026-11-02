@@ -629,6 +629,112 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     expect(r.status).toBe(403);
     expect(r.body).toEqual({ message: 'Brak lub niepoprawny token leada' });
   });
+
+  // ── Krok formularza (step) i długość nazw pól ──────────────────────────────────────────────
+
+  const KOMUNIKAT_KROKU = 'Pole „Krok formularza” musi być liczbą całkowitą od 1 do 3.';
+  const KOMUNIKAT_NAZWY = 'Nazwa pola może mieć maks. 100 znaków.';
+  const krokWBazie = (db: ReturnType<typeof srodowisko>['db'], id: string) =>
+    db.prepare('SELECT current_step AS k FROM leads WHERE id = ?').get(id);
+
+  it('(−) update: step jako tekst 1 000 000 znaków → 400, current_step bez zmian, zero komentarzy i maili', async () => {
+    const { env: srv, db } = srodowisko();
+    const { id, edit_token } = await utworz(srv);
+    const maile = siec.resend;
+    const r = await wywolaj(srv, {
+      action: 'update',
+      id,
+      edit_token,
+      step: tekst(1_000_000),
+      details: { message: 'a' },
+    });
+    expect([r.status, r.body]).toEqual([400, { message: KOMUNIKAT_KROKU }]);
+    expect(krokWBazie(db, id)).toEqual({ k: 1 });
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+    expect(siec.resend).toBe(maile);
+  });
+
+  it.each([
+    ['0', 0],
+    ['4', 4],
+    ['-1', -1],
+    ['2.5', 2.5],
+    ['1e9', 1e9],
+    ['tekst "2"', '2'],
+    ['tekst "3"', '3'],
+    ['true', true],
+    ['lista [2]', [2]],
+    ['obiekt {}', {}],
+  ])(
+    '(−) update: step = %s → 400, current_step bez zmian, zero komentarzy',
+    async (_opis, step) => {
+      const { env: srv, db } = srodowisko();
+      const { id, edit_token } = await utworz(srv);
+      const r = await wywolaj(srv, { action: 'update', id, edit_token, step, details: {} });
+      expect([r.status, r.body]).toEqual([400, { message: KOMUNIKAT_KROKU }]);
+      expect(krokWBazie(db, id)).toEqual({ k: 1 });
+      expect(ileOp(siec, 'Komentarz')).toBe(0);
+    },
+  );
+
+  it('update: step 1, 2, 3 → 200 i ta liczba w current_step; bez step i step null → 200, krok bez zmian', async () => {
+    const { env: srv, db } = srodowisko();
+    const { id, edit_token } = await utworz(srv);
+    for (const step of [1, 2, 3]) {
+      const r = await wywolaj(srv, { action: 'update', id, edit_token, step, details: {} });
+      expect(r.status).toBe(200);
+      expect(krokWBazie(db, id)).toEqual({ k: step });
+    }
+    expect(ileOp(siec, 'Komentarz')).toBe(2); // kroki 2 i 3
+    const bez = await wywolaj(srv, { action: 'update', id, edit_token, details: {} });
+    expect(bez.status).toBe(200);
+    const pusty = await wywolaj(srv, { action: 'update', id, edit_token, step: null, details: {} });
+    expect(pusty.status).toBe(200);
+    expect(krokWBazie(db, id)).toEqual({ k: 3 });
+  });
+
+  it('(−) update ze złym tokenem i złym step: nadal 403 (kontrola kroku dopiero po tokenie)', async () => {
+    const { env: srv } = srodowisko();
+    const { id } = await utworz(srv);
+    const r = await wywolaj(srv, { action: 'update', id, edit_token: 'zly', step: tekst(500) });
+    expect([r.status, r.body]).toEqual([403, { message: 'Brak lub niepoprawny token leada' }]);
+  });
+
+  it('(−) update: nazwa pola w details 101 znaków → 400 bez komentarza; 100 znaków → 200', async () => {
+    const { env: srv, db } = srodowisko();
+    const { id, edit_token } = await utworz(srv);
+    const za = await wywolaj(srv, {
+      action: 'update',
+      id,
+      edit_token,
+      step: 2,
+      details: { [tekst(101)]: 'x' },
+    });
+    expect([za.status, za.body]).toEqual([400, { message: KOMUNIKAT_NAZWY }]);
+    expect(krokWBazie(db, id)).toEqual({ k: 1 });
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+    const ok = await wywolaj(srv, {
+      action: 'update',
+      id,
+      edit_token,
+      step: 2,
+      details: { [tekst(100)]: 'x' },
+    });
+    expect(ok.status).toBe(200);
+    expect(krokWBazie(db, id)).toEqual({ k: 2 });
+  });
+
+  it('(−) create: nazwa pola w lead 101 znaków → 400, nic nie zapisane; 100 znaków → 200', async () => {
+    const { env: srv, db } = srodowisko();
+    await oczekujOdmowy(
+      srv,
+      db,
+      { action: 'create', lead: { ...lead, [tekst(101)]: 'x' } },
+      KOMUNIKAT_NAZWY,
+    );
+    const ok = await wywolaj(srv, { action: 'create', lead: { ...lead, [tekst(100)]: 'x' } });
+    expect(ok.status).toBe(200);
+  });
 });
 
 describe('contact-submit — bez wysyłki do Mixture CRM', () => {

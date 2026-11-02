@@ -61,6 +61,27 @@ export function sprawdzTekst(wartosc: unknown, klucz: string): string | null {
   return zapis.length > LIMIT_WARTOSCI_ZLOZONEJ ? za(etykieta, LIMIT_WARTOSCI_ZLOZONEJ) : null;
 }
 
+/** Krok formularza w akcji `update`: dozwolone tylko te wartości. */
+export const KROK_MIN = 1;
+export const KROK_MAX = 3;
+
+/**
+ * Krok formularza: liczba całkowita KROK_MIN–KROK_MAX (typ `number`, nie tekst). Brak
+ * (undefined/null) jest dozwolony – wtedy `current_step` w bazie się nie zmienia.
+ */
+export function sprawdzKrok(wartosc: unknown): string | null {
+  if (wartosc === undefined || wartosc === null) return null;
+  if (
+    typeof wartosc !== 'number' ||
+    !Number.isInteger(wartosc) ||
+    wartosc < KROK_MIN ||
+    wartosc > KROK_MAX
+  ) {
+    return `Pole „Krok formularza” musi być liczbą całkowitą od ${KROK_MIN} do ${KROK_MAX}.`;
+  }
+  return null;
+}
+
 /** Wymagane pola tekstowe: musi to być string (nie liczba, nie obiekt). Komunikat albo null. */
 export function sprawdzWymaganyTekst(wartosc: unknown, klucz: string): string | null {
   if (wartosc === undefined || wartosc === null) return null;
