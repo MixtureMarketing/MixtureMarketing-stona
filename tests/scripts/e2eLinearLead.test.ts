@@ -1182,7 +1182,10 @@ describe('przebieg: kolejność i kod wyjścia', () => {
       expect(r.dotkniete).toBe(false);
       expect(r.zad).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
       expect(r.logi.join('\n')).toMatch(/pominięte: tytuł nie zaczyna się od "\[Preview\] Lead: "/);
-      expect(r.w.wyniki.g.status).toBe('pass');
+      expect(r.w.wyniki.g.status).toBe('fail');
+      expect(r.w.wyniki.g.powod).toContain(
+        'LEA-11: id ze stanu f nie sprzątnięte przy pierwszym odczycie (tytuł nie zaczyna się od',
+      );
     });
     it.each([
       ['przedrostek wewnątrz tytułu', 'Lead: [Preview] Lead: x'],
@@ -2116,6 +2119,218 @@ describe('MIX-626H: id ze stanu f odrzucone przy drugim odczycie → (g) fail, i
       ['etykieta', ID_F2, '+test'],
       ['stan', ID_F2, 'Canceled'],
     ]);
+  });
+});
+
+describe('MIX-626I: id ze stanu f odrzucone przy PIERWSZYM odczycie → (g) fail, id nietknięte', () => {
+  const ID_F = 'LEA-11';
+  const ID_F2 = 'LEA-12';
+  const PRZED = '[Preview] Lead: x';
+  const PRAWDZIWY = 'Lead: prawdziwy.pl — kontakt';
+  type Obj = { zadania: Array<Record<string, unknown>> };
+  type Haki = {
+    // n-ty odczyt listy PO (e): 1 = odczyt (g), 2 = `teraz` w sprzątaniu, 3 = kontrola po sprzątaniu
+    przerob?: Record<number, (o: Obj) => void>; // zmiana tylko w odpowiedzi odczytu
+    blad?: number[];
+    dwaF?: boolean;
+  };
+  const bieg = async (h: Haki = {}) => {
+    const stan = h.dwaF ? { ...STAN_F_OK, zadania: [ID_F, ID_F2], zadanie: ID_F } : STAN_F_OK;
+    const k = kontekst({}, { E2E_BEZ_RESEND: '1' }, stan);
+    const { ctx, a, logi } = k;
+    if (h.dwaF) a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-12
+    for (const z of a.zadania) if ([ID_F, ID_F2].includes(z.id)) z.tytul = PRZED;
+    const wywolania: string[][] = [];
+    let n = 0;
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      if (args[0] === 'lista' && logi.some((l) => /^\(e\)/.test(l))) {
+        n += 1;
+        if (h.blad?.includes(n)) throw new Error('lin lista: błąd odczytu');
+        const obj = JSON.parse(await lin(args)) as Obj;
+        h.przerob?.[n]?.(obj);
+        return JSON.stringify(obj);
+      }
+      return lin(args);
+    };
+    const w = await biegnij(ctx);
+    const dotkniete = (id: string) =>
+      wywolania.filter((x) => x[1] === id && (x[0] === 'stan' || x[0] === 'etykieta'));
+    const zad = (id: string) => a.zadania.find((z) => z.id === id)!;
+    const biegowe = a.zadania.filter((z) => ![ID_F, ID_F2].includes(z.id));
+    return { w, a, logi, wywolania, dotkniete, zad, biegowe, g: w.wyniki.g };
+  };
+  type R = Awaited<ReturnType<typeof bieg>>;
+  const usunF = (o: Obj) => {
+    o.zadania = o.zadania.filter((z) => z.id !== ID_F);
+  };
+  const ustawTytul = (tytul: string) => (o: Obj) => {
+    o.zadania.find((z) => z.id === ID_F)!.tytul = tytul;
+  };
+  const wpisF = (tytul: string, id = ID_F) => ({
+    id,
+    stan: 'Backlog',
+    kto: 'jakub',
+    delegat: null,
+    tytul,
+    etykiety: [],
+  });
+  const odmowa = (r: R, powodFrag: string, id = ID_F) => {
+    expect(r.dotkniete(id)).toEqual([]);
+    expect(r.zad(id)).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+    expect(r.g.status).toBe('fail');
+    expect(r.g.powod).toContain(`${id}: id ze stanu f nie sprzątnięte przy pierwszym odczycie`);
+    expect(r.g.powod).toContain(powodFrag);
+    expect(r.logi.join('\n')).toContain(`(g) id ${id} ze stanu f pominięte: `);
+  };
+  const bliznak = async () => {
+    const r = await bieg();
+    expect(r.dotkniete(ID_F)).toEqual([
+      ['etykieta', ID_F, '+test'],
+      ['stan', ID_F, 'Canceled'],
+    ]);
+    expect(r.zad(ID_F)).toMatchObject({ stan: 'Canceled' });
+    expect(r.zad(ID_F).etykiety).toContain('test');
+    expect(r.g.status).toBe('pass');
+  };
+
+  it('bliźniak wspólny: id ze stanu f raz na liście, tytuł Preview → anulowane, (g) pass', async () => {
+    await bliznak();
+  });
+  it('forma 1 (V1): pusty pierwszy odczyt → id nietknięte, (g) fail z id i powodem', async () => {
+    const r = await bieg({ przerob: { 1: (o) => (o.zadania.length = 0) } });
+    odmowa(r, 'zadania nie ma na liście');
+  });
+  it('forma 2 (V2): w pierwszym odczycie brakuje tylko id f → fail, zadania z biegu nadal anulowane', async () => {
+    const r = await bieg({ przerob: { 1: usunF } });
+    odmowa(r, 'zadania nie ma na liście');
+    expect(r.biegowe.length).toBeGreaterThan(0);
+    for (const z of r.biegowe) {
+      expect(z).toMatchObject({ stan: 'Canceled' });
+      expect(z.etykiety).toContain('test');
+    }
+  });
+  it('forma 3 (V5): id f zduplikowane identycznie w pierwszym odczycie → fail, nietknięte', async () => {
+    const r = await bieg({ przerob: { 1: (o) => o.zadania.push(wpisF(PRZED)) } });
+    odmowa(r, 'id występuje na liście 2 razy');
+  });
+  it('forma 4: id f zduplikowane z prawdziwym tytułem (na końcu i na początku) w pierwszym odczycie → fail', async () => {
+    for (const naPoczatku of [false, true]) {
+      const r = await bieg({
+        przerob: {
+          1: (o) => {
+            if (naPoczatku) o.zadania.unshift(wpisF(PRAWDZIWY));
+            else o.zadania.push(wpisF(PRAWDZIWY));
+          },
+        },
+      });
+      odmowa(r, 'id występuje na liście 2 razy');
+    }
+  });
+  it.each([
+    ['forma 5: prawdziwy tytuł', PRAWDZIWY],
+    ['forma 6: nawias pełnej szerokości zamiast "["', '［Preview] Lead: x'],
+    ['forma 6b: nawias pełnej szerokości zamiast "]"', '[Preview］ Lead: x'],
+    ['forma 7: spacja na początku', ` ${PRZED}`],
+    ['forma 7b: mała litera w przedrostku', '[preview] Lead: x'],
+    ['forma 8: ZWSP w przedrostku', '[Pre\u200bview] Lead: x'],
+    ['forma 8b: ZWSP na początku', `\u200b${PRZED}`],
+    ['pusty tytuł', ''],
+  ])('%s przy pierwszym odczycie → fail, nietknięte', async (_n, tytul) => {
+    const r = await bieg({ przerob: { 1: ustawTytul(tytul) } });
+    odmowa(r, tytul === '' ? 'brak tytułu zadania' : 'tytuł nie zaczyna się od');
+  });
+  it('forma 9: w pierwszym odczycie jest tylko wariant id `lea-11` (brak LEA-11) → fail; bliźniak: dodatkowy wpis `lea-11` obok dokładnego id → pass', async () => {
+    const r = await bieg({
+      przerob: {
+        1: (o) => {
+          o.zadania.find((z) => z.id === ID_F)!.id = 'lea-11';
+        },
+      },
+    });
+    odmowa(r, 'zadania nie ma na liście');
+    const ok = await bieg({ przerob: { 1: (o) => o.zadania.push(wpisF(PRAWDZIWY, 'lea-11')) } });
+    expect(ok.g.status).toBe('pass');
+    expect(ok.zad(ID_F)).toMatchObject({ stan: 'Canceled' });
+    expect(ok.dotkniete('lea-11')).toEqual([]);
+  });
+  it('forma 10: pierwszy odczyt rzuca błąd → nic nie dotknięte, (g) fail z powodem odczytu; bliźniak: odczyt się udaje → pass', async () => {
+    const r = await bieg({ blad: [1] });
+    expect(r.dotkniete(ID_F)).toEqual([]);
+    expect(r.zad(ID_F)).toMatchObject({ stan: 'Backlog' });
+    expect(r.g.status).toBe('fail');
+    expect(r.g.powod).toContain('błąd odczytu');
+    expect(r.logi.join('\n')).toContain(
+      `(g) id ${ID_F} ze stanu f pominięte: nie udało się odczytać bieżącego tytułu zadania`,
+    );
+    await bliznak();
+  });
+  it('forma 11: dwa id f, jedno odrzucone przy pierwszym odczycie → (g) fail, drugie nadal anulowane; bliźniak: oba poprawne → pass', async () => {
+    const r = await bieg({ dwaF: true, przerob: { 1: ustawTytul(PRAWDZIWY) } });
+    odmowa(r, 'tytuł nie zaczyna się od');
+    expect(r.g.powod).not.toContain(ID_F2);
+    expect(r.zad(ID_F2)).toMatchObject({ stan: 'Canceled' });
+    expect(r.zad(ID_F2).etykiety).toContain('test');
+    const r2 = await bieg({
+      dwaF: true,
+      przerob: {
+        1: (o) => {
+          o.zadania.find((z) => z.id === ID_F2)!.tytul = PRAWDZIWY;
+        },
+      },
+    });
+    odmowa(r2, 'tytuł nie zaczyna się od', ID_F2);
+    expect(r2.g.powod).not.toContain(`${ID_F}:`);
+    expect(r2.zad(ID_F)).toMatchObject({ stan: 'Canceled' });
+    const ok = await bieg({ dwaF: true });
+    expect(ok.g.status).toBe('pass');
+    expect(ok.zad(ID_F)).toMatchObject({ stan: 'Canceled' });
+    expect(ok.zad(ID_F2)).toMatchObject({ stan: 'Canceled' });
+  });
+  it('forma 12: odrzucone przy pierwszym odczycie, poprawne przy drugim → nadal fail i nietknięte; bliźniak: poprawne w obu → pass', async () => {
+    const r = await bieg({ przerob: { 1: ustawTytul(PRAWDZIWY) } }); // odczyty 2 i 3 bez zmian
+    odmowa(r, 'tytuł nie zaczyna się od');
+    expect(r.biegowe.length).toBeGreaterThan(0);
+    expect(r.biegowe.every((z) => z.stan === 'Canceled')).toBe(true);
+    await bliznak();
+  });
+  it('id ze stanu f jest też zadaniem utworzonym w biegu i odrzucone przy pierwszym odczycie → nietknięte mimo to, (g) fail', async () => {
+    const stan = { ...STAN_F_OK, zadania: ['LEA-12'], zadanie: 'LEA-12' };
+    const { ctx, a, logi } = kontekst({}, { E2E_BEZ_RESEND: '1' }, stan);
+    const wywolania: string[][] = [];
+    let n = 0;
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      if (args[0] === 'lista' && logi.some((l) => /^\(e\)/.test(l))) {
+        n += 1;
+        const obj = JSON.parse(await lin(args)) as Obj;
+        if (n === 1) {
+          const z = obj.zadania.find((x) => x.id === 'LEA-12');
+          if (z) z.tytul = PRAWDZIWY; // odpowiedź odczytu 1: id f bez przedrostka
+        }
+        return JSON.stringify(obj);
+      }
+      return lin(args);
+    };
+    const w = await biegnij(ctx);
+    expect(a.zadania.some((z) => z.id === 'LEA-12')).toBe(true); // utworzone w biegu
+    expect(w.wyniki.g.status).toBe('fail');
+    expect(w.wyniki.g.powod).toContain(
+      'LEA-12: id ze stanu f nie sprzątnięte przy pierwszym odczycie',
+    );
+    expect(
+      wywolania.filter((x) => x[1] === 'LEA-12' && (x[0] === 'stan' || x[0] === 'etykieta')),
+    ).toEqual([]);
+  });
+  it('sprzatanie bezpośrednio: błędy wstępne z pierwszego odczytu przy pustym zbiorze id → fail z powodem; bez błędów → pass', async () => {
+    const { ctx } = kontekst();
+    const blad = `${ID_F}: id ze stanu f nie sprzątnięte przy pierwszym odczycie (x)`;
+    const w = await sprzatanie(ctx, new Set(), new Set(), [blad]);
+    expect(w.status).toBe('fail');
+    expect(w.powod).toBe(blad);
+    expect((await sprzatanie(ctx, new Set(), new Set(), [])).status).toBe('pass');
   });
 });
 

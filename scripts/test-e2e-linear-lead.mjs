@@ -699,12 +699,16 @@ export function powodOdrzuceniaIdStanuF(id, lista, blad) {
  * `idStanuF` = id wzięte z pliku stanu f: tuż po świeżym odczycie listy (`teraz`), przed wywołaniami
  * `etykieta`/`stan`, sprawdzany jest ich BIEŻĄCY tytuł (okno TOCTOU zawężone do tych wywołań).
  * Id występujące na liście więcej niż raz (w którymkolwiek odczycie) są odrzucane z linią powodu.
- * Każde odrzucone id (także ze stanu f) jest nietknięte i dodaje błąd, więc (g) = fail z linią z id i powodem.
+ * Każde odrzucone id (także ze stanu f, także przy pierwszym odczycie: `bledyWstepne`) jest nietknięte
+ * i dodaje błąd, więc (g) = fail z linią z id i powodem.
  */
-export async function sprzatanie(ctx, ids, idStanuF = new Set()) {
+export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = []) {
   const wszystkie = [...ids];
-  if (wszystkie.length === 0) return { status: 'pass', powod: 'brak zadań do sprzątnięcia' };
-  const bledy = [];
+  const bledy = [...bledyWstepne];
+  if (wszystkie.length === 0)
+    return bledy.length === 0
+      ? { status: 'pass', powod: 'brak zadań do sprzątnięcia' }
+      : { status: 'fail', powod: bledy.join('; ') };
   const teraz = await pobierzZadania(ctx.lin);
   const lista = [];
   for (const id of wszystkie) {
@@ -868,10 +872,16 @@ export async function przebieg(ctx, { faza = null } = {}) {
     }
     // Id ze stanu f: tylko gdy BIEŻĄCY tytuł zaczyna się od przedrostka (allowlista, fail-closed:
     // błąd odczytu, brak zadania, brak albo pusty tytuł = pominięte z linią powodu).
+    // Odrzucone przy pierwszym odczycie: nietknięte, ale zadanie zostaje otwarte → błąd, (g) = fail.
+    const odrzuconeF = [];
+    const bledyF = [];
     for (const id of kandydaciF) {
       const powod = powodOdrzuceniaIdStanuF(id, lista, blad);
-      if (powod) ctx.log(`(g) id ${id} ze stanu f pominięte: ${powod}`);
-      else doSprzatania.add(id);
+      if (powod) {
+        ctx.log(`(g) id ${id} ze stanu f pominięte: ${powod}`);
+        odrzuconeF.push(id);
+        bledyF.push(`${id}: id ze stanu f nie sprzątnięte przy pierwszym odczycie (${powod})`);
+      } else doSprzatania.add(id);
     }
     // Każde nowe zadanie z przedrostkiem [Preview] Lead: powstałe w trakcie biegu też jest z tego biegu.
     // Nieczytelna lista = (g) nie może orzec o czystości (porażka), nawet gdy nie ma czego sprzątać.
@@ -880,7 +890,8 @@ export async function przebieg(ctx, { faza = null } = {}) {
       for (const z of lista)
         if (!migawka.has(z.id) && z.tytul.startsWith(PRZEDROSTEK_TYTULU)) doSprzatania.add(z.id);
     }
-    return sprzatanie(ctx, doSprzatania, kandydaciF);
+    for (const id of odrzuconeF) doSprzatania.delete(id);
+    return sprzatanie(ctx, doSprzatania, kandydaciF, bledyF);
   });
   po = await bezpiecznie(ctx, 'lista po', async () => (await pobierzZadania(ctx.lin)).length);
   const pod = podsumuj(wyniki);
