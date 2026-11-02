@@ -1,5 +1,6 @@
 // Testy czystych części skryptu e2e leady → Linear oraz przebiegu na atrapach (bez sieci, bez `lin`).
 import { describe, it, expect } from 'vitest';
+import { spawnSync } from 'node:child_process';
 import {
   adresE2E,
   czekaj,
@@ -10,6 +11,7 @@ import {
   etykietyPrzypadku,
   fazaF1,
   fazaF2,
+  komunikatBledu,
   maskuj,
   pobierzZadania,
   podpisPonow,
@@ -18,7 +20,9 @@ import {
   sprawdzAdresPreview,
   sprawdzOchrone,
   sprzatanie,
+  sprawdzWiazanieStanu,
   tytulPasuje,
+  wczytajPlikStanu,
   wynikF,
   zbudujKontekst,
   zbudujRaport,
@@ -251,7 +255,25 @@ type Wyniki = Record<string, { status: string; powod?: string }>;
 const biegnij = async (ctx: unknown, o?: { faza?: string }) =>
   (await przebieg(ctx, o as { faza?: null })) as { kod: number; linia: string; wyniki: Wyniki };
 
-const STAN_F_OK = { f1: 'pass', f2: 'pass', zadanie: 'LEA-11', zadania: ['LEA-11'] };
+// Zegar atrapy startuje od TS0 (ms); stan sprzed godziny, związany z E2E_SHA z kontekstu testowego.
+const TS0 = 1_760_000_000_000;
+const GODZ = 3_600_000;
+const SHA = 'abc1234';
+const STAN_F_OK = {
+  f1: 'pass',
+  f2: 'pass',
+  zadanie: 'LEA-11',
+  zadania: ['LEA-11'],
+  sha: SHA,
+  ts: TS0 - GODZ,
+};
+const STAN_F1_OK = {
+  f1: 'pass',
+  przed: [] as string[],
+  zadania: [] as string[],
+  sha: SHA,
+  ts: TS0 - GODZ,
+};
 
 // ---------------------------------------------------------------------------------------------
 // Czyste części
@@ -335,12 +357,74 @@ describe('kod wyjścia', () => {
     expect(podsumuj(undefined).kod).toBe(3);
     expect(podsumuj({ ...wszystkie(), b: { status: 'skip' }, c: { status: 'fail' } }).kod).toBe(1);
   });
-  it('wynikF: pass tylko po f1 i f2', () => {
-    expect(wynikF(null).status).toBe('brak');
-    expect(wynikF({ f1: 'pass' }).status).toBe('brak');
-    expect(wynikF({ f1: 'fail' }).status).toBe('fail');
-    expect(wynikF({ f1: 'pass', f2: 'pass', zadanie: 'LEA-3' }).status).toBe('pass');
-    expect(wynikF({ f1: 'pass', f2: 'fail' }).status).toBe('brak');
+  const cx = { sha: SHA, now: () => TS0 };
+  const swiezy = { sha: SHA, ts: TS0 - GODZ };
+  it('wynikF: pass tylko po f1 i f2 (stan świeży i z tego SHA)', () => {
+    expect(wynikF({ ...swiezy, f1: 'pass' }, cx).status).toBe('brak');
+    expect(wynikF({ ...swiezy, f1: 'fail' }, cx).status).toBe('fail');
+    expect(wynikF({ ...swiezy, f1: 'pass', f2: 'pass', zadanie: 'LEA-3' }, cx).status).toBe('pass');
+    expect(wynikF({ ...swiezy, f1: 'pass', f2: 'fail' }, cx).status).toBe('brak');
+  });
+  const zle: Array<[string, unknown, RegExp]> = [
+    ['brak pliku', null, /brak pliku stanu/],
+    ['undefined', undefined, /brak pliku stanu/],
+    ['nieczytelny JSON', { nieczytelny: true }, /nieczytelny/],
+    ['tablica', [], /nieczytelny/],
+    ['tekst', 'f1', /nieczytelny/],
+    ['{}', {}, /innego SHA/],
+    ['inny SHA', { f1: 'pass', f2: 'pass', sha: 'fff9999', ts: TS0 - GODZ }, /innego SHA/],
+    [
+      'SHA o jeden znak krótszy',
+      { f1: 'pass', f2: 'pass', sha: 'abc123', ts: TS0 - GODZ },
+      /innego SHA/,
+    ],
+    ['bez SHA w stanie', { f1: 'pass', f2: 'pass', ts: TS0 - GODZ }, /innego SHA/],
+    ['25 h', { f1: 'pass', f2: 'pass', sha: SHA, ts: TS0 - 25 * GODZ }, /starszy niż 24 h/],
+    [
+      'dokładnie 24 h',
+      { f1: 'pass', f2: 'pass', sha: SHA, ts: TS0 - 24 * GODZ },
+      /starszy niż 24 h/,
+    ],
+    ['ts z przyszłości', { f1: 'pass', f2: 'pass', sha: SHA, ts: TS0 + GODZ }, /przyszłości/],
+    ['bez ts', { f1: 'pass', f2: 'pass', sha: SHA }, /bez znacznika czasu/],
+    ['ts jako tekst', { f1: 'pass', f2: 'pass', sha: SHA, ts: String(TS0) }, /bez znacznika czasu/],
+    ['ts NaN', { f1: 'pass', f2: 'pass', sha: SHA, ts: Number.NaN }, /bez znacznika czasu/],
+  ];
+  for (const [nazwa, stan, powod] of zle) {
+    it(`wynikF odmawia (fail, z powodem): ${nazwa}`, () => {
+      const w = wynikF(stan as never, cx);
+      expect(w.status).toBe('fail');
+      expect(w.powod).toMatch(powod);
+    });
+  }
+  it('wynikF: brak E2E_SHA w kontekście = fail nawet gdy stan ma pusty SHA', () => {
+    for (const sha of ['', undefined]) {
+      const w = wynikF(
+        { f1: 'pass', f2: 'pass', sha: sha ?? '', ts: TS0 - GODZ },
+        { sha, now: () => TS0 },
+      );
+      expect(w.status).toBe('fail');
+      expect(w.powod).toMatch(/brak E2E_SHA/);
+    }
+  });
+  it('wynikF: 1 h i 23 h 59 min przechodzą (bliźniak odmowy 25 h)', () => {
+    for (const wiek of [GODZ, 24 * GODZ - 60_000])
+      expect(wynikF({ f1: 'pass', f2: 'pass', sha: SHA, ts: TS0 - wiek }, cx).status).toBe('pass');
+    expect(sprawdzWiazanieStanu({ sha: SHA, ts: TS0 }, cx)).toBeNull();
+  });
+  it('wczytajPlikStanu: brak pliku = null; zły JSON, {…} nie-obiekt, inny błąd = nieczytelny; poprawny = obiekt', () => {
+    const blad = (code: string) => () => {
+      throw Object.assign(new Error('x'), { code });
+    };
+    expect(wczytajPlikStanu('x', blad('ENOENT'))).toBeNull();
+    expect(wczytajPlikStanu('x', blad('EACCES'))).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => '{nie json')).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => '')).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => '[1]')).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => '5')).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => 'null')).toEqual({ nieczytelny: true });
+    expect(wczytajPlikStanu('x', () => '{"f1":"pass"}')).toEqual({ f1: 'pass' });
+    expect(wczytajPlikStanu('x', () => '{}')).toEqual({});
   });
 });
 
@@ -590,37 +674,125 @@ describe('strażnik ochrony: decyzjaOchrony', () => {
   });
 });
 
-describe('strażnik: adres Preview', () => {
-  it('przepuszcza alias i link z hashem', () => {
-    expect(sprawdzAdresPreview(BAZA)).toMatchObject({
+describe('strażnik: adres Preview (przypięty)', () => {
+  it('przepuszcza alias i link z hashem (każdy tylko w swojej roli)', () => {
+    expect(sprawdzAdresPreview(BAZA, 'a', 'alias')).toMatchObject({
       ok: true,
+      origin: BAZA,
       host: 'dev.mixturemarketing-stona.pages.dev',
     });
-    expect(sprawdzAdresPreview(HASH).ok).toBe(true);
-    expect(sprawdzAdresPreview('https://DEV.Mixturemarketing-Stona.Pages.Dev/x').host).toBe(
-      'dev.mixturemarketing-stona.pages.dev',
-    );
+    expect(sprawdzAdresPreview(`${BAZA}/`, 'a', 'alias').ok).toBe(true);
+    expect(sprawdzAdresPreview(HASH, 'h', 'hash')).toMatchObject({ ok: true, origin: HASH });
+    expect(
+      sprawdzAdresPreview('https://abcd1234.mixturemarketing-stona.pages.dev', 'h', 'hash').ok,
+    ).toBe(true);
+    expect(
+      sprawdzAdresPreview('https://00000000.mixturemarketing-stona.pages.dev/', 'h', 'hash').ok,
+    ).toBe(true);
   });
-  const odmowy: Array<[string, unknown, RegExp]> = [
+  it('rola jest wymagana i rozdzielna: alias nie przejdzie jako hash i odwrotnie; brak roli = odmowa', () => {
+    expect(sprawdzAdresPreview(BAZA, 'x', 'hash').ok).toBe(false);
+    expect(sprawdzAdresPreview(HASH, 'x', 'alias').ok).toBe(false);
+    for (const rola of ['', undefined, 'any', 'ALIAS'])
+      expect(sprawdzAdresPreview(BAZA, 'x', rola as never)).toMatchObject({
+        ok: false,
+        powod: expect.stringMatching(/nieznana rola/),
+      });
+  });
+  const odmowyAlias: Array<[string, unknown, RegExp]> = [
     ['pusty', '', /pusty/],
     ['spacje', '   ', /pusty/],
     ['nie-tekst', undefined, /pusty/],
-    ['http://', 'http://dev.mixturemarketing-stona.pages.dev', /https/],
+    ['liczba', 5, /pusty/],
+    ['1 obcy projekt pages.dev', 'https://evil-project.pages.dev', /host inny/],
+    ['2 main.<projekt>.pages.dev', 'https://main.mixturemarketing-stona.pages.dev', /host inny/],
+    ['3 kropka na końcu', 'https://dev.mixturemarketing-stona.pages.dev.', /host inny/],
+    ['4 port 444', 'https://dev.mixturemarketing-stona.pages.dev:444', /port/],
+    ['4b jawny port 443', 'https://dev.mixturemarketing-stona.pages.dev:443', /czystym originem/],
+    ['5 dane logowania', 'https://user@dev.mixturemarketing-stona.pages.dev', /dane logowania/],
+    ['5b hasło', 'https://u:p@dev.mixturemarketing-stona.pages.dev', /dane logowania/],
+    ['6 http', 'http://dev.mixturemarketing-stona.pages.dev', /https/],
+    ['8 lookalike .evil.com', 'https://dev.mixturemarketing-stona.pages.dev.evil.com', /host inny/],
+    ['9 produkcja pl', 'https://mixturemarketing.pl', /produkcji/],
+    ['9b produkcja www', 'https://www.mixturemarketing.pl', /produkcji/],
+    ['9c produkcja pages.dev', 'https://mixturemarketing-stona.pages.dev', /produkcji/],
+    ['9d subdomena produkcji', 'https://dev.mixturemarketing.pl', /produkcji/],
+    ['9e produkcja z kropką', 'https://mixturemarketing.pl.', /host inny/],
+    ['14a %2e w hoście', 'https://dev%2emixturemarketing-stona.pages.dev', /niedozwolone znaki/],
+    ['14b %2E w hoście', 'https://dev%2Emixturemarketing-stona.pages.dev', /niedozwolone znaki/],
+    [
+      '14c odwrotny ukośnik',
+      'https://evil.com\\@dev.mixturemarketing-stona.pages.dev',
+      /niedozwolone znaki/,
+    ],
+    ['14d nowa linia', 'https://dev.mixturemarketing-stona.pages.dev\n', /niedozwolone znaki/],
+    [
+      '14e nowa linia w środku',
+      'https://dev.mixturemarketing-stona.pages.dev\nevil.com',
+      /niedozwolone znaki/,
+    ],
+    ['14f tabulator', 'https://dev.mixturemarketing-stona.pages.dev\t', /niedozwolone znaki/],
+    [
+      '14g spacja na początku',
+      ' https://dev.mixturemarketing-stona.pages.dev',
+      /niedozwolone znaki/,
+    ],
+    [
+      '14h znak nie-ASCII (cyrylica)',
+      'https://dеv.mixturemarketing-stona.pages.dev',
+      /niedozwolone znaki/,
+    ],
+    ['14i bajt zerowy', 'https://dev.mixturemarketing-stona.pages.dev\u0000', /niedozwolone znaki/],
     ['bez schematu', 'dev.mixturemarketing-stona.pages.dev', /niepoprawny/],
-    ['produkcja pages.dev', 'https://mixturemarketing-stona.pages.dev', /produkcji/],
-    ['produkcja domena', 'https://mixturemarketing.pl', /produkcji/],
-    ['produkcja www', 'https://www.mixturemarketing.pl', /produkcji/],
-    ['subdomena produkcji', 'https://dev.mixturemarketing.pl', /produkcji/],
-    ['obcy host', 'https://evil.tld', /pages\.dev/],
-    ['pages.dev w ścieżce', 'https://evil.tld/x.pages.dev', /pages\.dev/],
-    ['lookalike pages.dev.evil.tld', 'https://dev.pages.dev.evil.tld', /pages\.dev/],
-    ['dane logowania', 'https://x@dev.mixturemarketing-stona.pages.dev', /dane logowania/],
-    ['port', 'https://dev.mixturemarketing-stona.pages.dev:8443', /port/],
-    ['apex pages.dev', 'https://pages.dev', /pages\.dev/],
+    ['protocol-relative', '//dev.mixturemarketing-stona.pages.dev', /niepoprawny/],
+    ['ścieżka', 'https://dev.mixturemarketing-stona.pages.dev/x', /czystym originem/],
+    ['zapytanie', 'https://dev.mixturemarketing-stona.pages.dev?x=1', /czystym originem/],
+    ['fragment', 'https://dev.mixturemarketing-stona.pages.dev/#x', /czystym originem/],
+    ['wielkie litery w hoście', 'https://DEV.mixturemarketing-stona.pages.dev', /czystym originem/],
+    ['apex pages.dev', 'https://pages.dev', /host inny/],
+    ['obcy host', 'https://evil.tld', /host inny/],
+    ['pages.dev w ścieżce', 'https://evil.tld/x.pages.dev', /host inny/],
+    ['IPv6', 'https://[::1]', /host inny/],
   ];
-  for (const [nazwa, wejscie, powod] of odmowy) {
-    it(`odmowa: ${nazwa}`, () => {
-      const r = sprawdzAdresPreview(wejscie as string);
+  for (const [nazwa, wejscie, powod] of odmowyAlias) {
+    it(`alias, odmowa: ${nazwa}`, () => {
+      const r = sprawdzAdresPreview(wejscie as string, 'adres', 'alias');
+      expect(r.ok).toBe(false);
+      expect(r.powod).toMatch(powod);
+    });
+  }
+  const odmowyHash: Array<[string, string, RegExp]> = [
+    [
+      '7a wielkie litery hex',
+      'https://ABCD1234.mixturemarketing-stona.pages.dev',
+      /<8 hex>|czystym/,
+    ],
+    ['7a2 mieszane litery', 'https://abcD1234.mixturemarketing-stona.pages.dev', /<8 hex>|czystym/],
+    ['7b 7 znaków hex', 'https://abcd123.mixturemarketing-stona.pages.dev', /<8 hex>/],
+    ['7c 9 znaków hex', 'https://abcd12345.mixturemarketing-stona.pages.dev', /<8 hex>/],
+    ['7d litera g', 'https://abcd123g.mixturemarketing-stona.pages.dev', /<8 hex>/],
+    ['7e pusty prefiks', 'https://.mixturemarketing-stona.pages.dev', /<8 hex>|niepoprawny/],
+    ['7f dwa prefiksy', 'https://x.abcd1234.mixturemarketing-stona.pages.dev', /<8 hex>/],
+    ['1 obcy projekt', 'https://abcd1234.evil-project.pages.dev', /<8 hex>/],
+    ['2 branch main', 'https://main.mixturemarketing-stona.pages.dev', /<8 hex>/],
+    ['alias jako hash', BAZA, /<8 hex>/],
+    ['3 kropka na końcu', 'https://abcd1234.mixturemarketing-stona.pages.dev.', /<8 hex>/],
+    ['4 port 444', 'https://abcd1234.mixturemarketing-stona.pages.dev:444', /port/],
+    [
+      '5 dane logowania',
+      'https://user@abcd1234.mixturemarketing-stona.pages.dev',
+      /dane logowania/,
+    ],
+    ['6 http', 'http://abcd1234.mixturemarketing-stona.pages.dev', /https/],
+    ['8 lookalike', 'https://abcd1234.mixturemarketing-stona.pages.dev.evil.com', /<8 hex>/],
+    ['9 produkcja', 'https://mixturemarketing.pl', /produkcji/],
+    ['14 %2e', 'https://abcd1234%2emixturemarketing-stona.pages.dev', /niedozwolone znaki/],
+    ['14 nowa linia', 'https://abcd1234.mixturemarketing-stona.pages.dev\n', /niedozwolone znaki/],
+    ['ścieżka', 'https://abcd1234.mixturemarketing-stona.pages.dev/a/b', /czystym originem/],
+  ];
+  for (const [nazwa, wejscie, powod] of odmowyHash) {
+    it(`hash, odmowa: ${nazwa}`, () => {
+      const r = sprawdzAdresPreview(wejscie, 'adres', 'hash');
       expect(r.ok).toBe(false);
       expect(r.powod).toMatch(powod);
     });
@@ -670,11 +842,31 @@ describe('strażnik: sprawdzOchrone na atrapie sieci', () => {
       expect(a.zadaniaFetch).toHaveLength(0); // zero żądań przy złej konfiguracji
     }
   });
-  it('odmowa gdy hash i alias to ten sam host', async () => {
-    const { ctx } = kontekst({}, { E2E_HASH_URL: BAZA });
-    const r = await sprawdzOchrone(ctx);
-    expect(r.ok).toBe(false);
-    expect(r.powody.join(' ')).toMatch(/ten sam host/);
+  it('odmowa gdy „hash” to alias, obcy projekt albo branch (przypięte adresy), zero żądań', async () => {
+    for (const hash of [
+      BAZA,
+      'https://main.mixturemarketing-stona.pages.dev',
+      'https://a1b2c3d4.evil-project.pages.dev',
+      'https://a1b2c3d4.mixturemarketing-stona.pages.dev:444',
+    ]) {
+      const { ctx, a } = kontekst({}, { E2E_HASH_URL: hash });
+      const r = await sprawdzOchrone(ctx);
+      expect(r.ok).toBe(false);
+      expect(r.powody.join(' ')).toMatch(/link z hashem/);
+      expect(a.zadaniaFetch).toHaveLength(0);
+    }
+  });
+  it('odmowa gdy baza to obcy projekt pages.dev albo branch main (zero żądań)', async () => {
+    for (const baza of [
+      'https://evil-project.pages.dev',
+      'https://main.mixturemarketing-stona.pages.dev',
+    ]) {
+      const { ctx, a } = kontekst({}, { E2E_BASE_URL: baza });
+      const r = await sprawdzOchrone(ctx);
+      expect(r.ok).toBe(false);
+      expect(r.powody.join(' ')).toMatch(/E2E_BASE_URL: host inny/);
+      expect(a.zadaniaFetch).toHaveLength(0);
+    }
   });
   it('odmowa gdy brak danych Access (bez żądań)', async () => {
     const { ctx, a } = kontekst({}, { CF_ACCESS_CLIENT_SECRET: '' });
@@ -751,11 +943,109 @@ describe('przebieg: kolejność i kod wyjścia', () => {
     expect(a.zadania.some((z) => z.tytul.includes('osoba prywatna'))).toBe(false);
     expect(logi.join('\n')).toMatch(/\(b\) skip/);
   });
-  it('brak zapisanych faz f: kod 3 i nic w (f)', async () => {
+  it('brak pliku stanu faz f: (f) fail z powodem, kod 1 (nie 0 i nie 3)', async () => {
     const { ctx } = kontekst({}, { E2E_BEZ_RESEND: '1' }, null);
     const w = await biegnij(ctx);
-    expect(w.kod).toBe(3);
-    expect(w.wyniki.f.status).toBe('brak');
+    expect(w.kod).toBe(1);
+    expect(w.wyniki.f.status).toBe('fail');
+    expect(w.wyniki.f.powod).toMatch(/brak pliku stanu/);
+  });
+  it('(f) przy starym stanie (25 h), innym SHA, {} albo zepsutym JSON: kod 1, nigdy 0', async () => {
+    const warianty: Array<[string, unknown, RegExp]> = [
+      ['25 h', { ...STAN_F_OK, ts: TS0 - 25 * GODZ }, /starszy niż 24 h/],
+      ['inny SHA', { ...STAN_F_OK, sha: 'fff9999' }, /innego SHA/],
+      ['{}', {}, /innego SHA/],
+      ['nieczytelny', { nieczytelny: true }, /nieczytelny/],
+    ];
+    for (const [, stan, powod] of warianty) {
+      const { ctx } = kontekst({}, { E2E_BEZ_RESEND: '1' }, stan);
+      const w = await biegnij(ctx);
+      expect(w.kod).toBe(1);
+      expect(w.wyniki.f.status).toBe('fail');
+      expect(w.wyniki.f.powod).toMatch(powod);
+    }
+  });
+  it('(f) bez E2E_SHA: kod 1 z powodem', async () => {
+    const { ctx } = kontekst({}, { E2E_BEZ_RESEND: '1', E2E_SHA: '' }, STAN_F_OK);
+    const w = await biegnij(ctx);
+    expect(w.kod).toBe(1);
+    expect(w.wyniki.f.powod).toMatch(/brak E2E_SHA/);
+  });
+  it('(g) V1: nowe zadanie LEA BEZ przedrostka [Preview] w trakcie biegu zostaje nietknięte; z przedrostkiem jest Canceled', async () => {
+    const { ctx, a } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
+    const wlasne: Issue[] = [
+      {
+        id: 'LEA-90',
+        stan: 'Backlog',
+        kto: 'jakub',
+        delegat: null,
+        tytul: 'Lead: x',
+        etykiety: ['formularz'],
+      },
+      {
+        id: 'LEA-91',
+        stan: 'Backlog',
+        kto: 'jakub',
+        delegat: null,
+        tytul: '[Preview] Lead: x',
+        etykiety: ['formularz'],
+      },
+    ];
+    const wywolania: string[][] = [];
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      wywolania.push(args);
+      return lin(args);
+    };
+    const fetchBazowy = ctx.fetch;
+    let wstrzyknieto = false;
+    ctx.fetch = async (url: string, init: RequestInit) => {
+      if (!wstrzyknieto && String(url).endsWith('/api/estimation/public-quote')) {
+        wstrzyknieto = true; // w trakcie biegu, po migawce
+        a.zadania.push(...wlasne);
+      }
+      return fetchBazowy(url, init);
+    };
+    const w = await biegnij(ctx);
+    expect(wstrzyknieto).toBe(true);
+    expect(w.wyniki.g.status).toBe('pass');
+    const bez = a.zadania.find((z) => z.id === 'LEA-90');
+    expect(bez).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
+    expect(
+      wywolania.some((x) => x[1] === 'LEA-90' && (x[0] === 'stan' || x[0] === 'etykieta')),
+    ).toBe(false);
+    const z = a.zadania.find((x) => x.id === 'LEA-91');
+    expect(z?.stan).toBe('Canceled');
+    expect(z?.etykiety).toContain('test');
+  });
+  it('(e): prawdziwy lead bez przedrostka w trakcie drugiego POST nie psuje (e) i zostaje nietknięty', async () => {
+    const { ctx, a } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
+    const fetchBazowy = ctx.fetch;
+    let wFormularzu = 0;
+    ctx.fetch = async (url: string, init: RequestInit) => {
+      if (String(url).endsWith('/api/contact-submit') && init?.method === 'POST') {
+        wFormularzu += 1;
+        if (wFormularzu === 4)
+          // (a), (b), (e) pierwszy, (e) drugi
+          a.zadania.push({
+            id: 'LEA-95',
+            stan: 'Backlog',
+            kto: 'jakub',
+            delegat: null,
+            tytul: 'Lead: prawdziwy.pl — kontakt',
+            etykiety: ['formularz'],
+          });
+      }
+      return fetchBazowy(url, init);
+    };
+    const w = await biegnij(ctx);
+    expect(wFormularzu).toBe(4);
+    expect(w.wyniki.e.status).toBe('pass');
+    expect(w.kod).toBe(0);
+    expect(a.zadania.find((z) => z.id === 'LEA-95')).toMatchObject({
+      stan: 'Backlog',
+      etykiety: ['formularz'],
+    });
   });
   it('(e): drugi lead tworzy drugie zadanie → porażka, kod 1, sprzątanie nadal działa', async () => {
     const { ctx, a } = kontekst(
@@ -851,7 +1141,54 @@ describe('(f): dwie fazy ręczne', () => {
     expect(w.status).toBe('pass');
     expect(a.ponowWywolania()).toBe(1);
     expect(stany).toHaveLength(1);
-    expect(stany[0]).toMatchObject({ f1: 'pass' });
+    expect(stany[0]).toMatchObject({ f1: 'pass', f2: null, sha: SHA, ts: TS0 });
+  });
+  it('f1: kolejka pojawia się z opóźnieniem (ponow: 0, potem 1) → pass po 2 próbach co 5 s', async () => {
+    const { ctx, a } = kontekst({
+      ponow: [
+        { ponowione: 0, w_kolejce: 0 },
+        { ponowione: 0, w_kolejce: 1 },
+      ],
+      nigdyZadania: true,
+    });
+    const start = ctx.now();
+    const w = await fazaF1(ctx);
+    expect(w.status).toBe('pass');
+    expect(a.ponowWywolania()).toBe(2);
+    expect(ctx.now() - start).toBe(5_000);
+  });
+  it('f1: kolejka dopiero w 3. próbie → pass; zawsze 0 → fail po dokładnie 3 próbach i 10 s', async () => {
+    const trzecia = kontekst({
+      ponow: [
+        { ponowione: 0, w_kolejce: 0 },
+        { ponowione: 0, w_kolejce: 0 },
+        { ponowione: 0, w_kolejce: 1 },
+      ],
+      nigdyZadania: true,
+    });
+    expect((await fazaF1(trzecia.ctx)).status).toBe('pass');
+    expect(trzecia.a.ponowWywolania()).toBe(3);
+    const nigdy = kontekst({ nigdyZadania: true });
+    const start = nigdy.ctx.now();
+    const w = await fazaF1(nigdy.ctx);
+    expect(w.status).toBe('fail');
+    expect(w.powod).toMatch(/w_kolejce=0/);
+    expect(nigdy.a.ponowWywolania()).toBe(3);
+    expect(nigdy.ctx.now() - start).toBe(10_000);
+  });
+  it('f1: ponowione>0 od razu (Linear działa) → fail bez ponawiania prób', async () => {
+    const { ctx, a } = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }], nigdyZadania: true });
+    const w = await fazaF1(ctx);
+    expect(w.status).toBe('fail');
+    expect(w.powod).toMatch(/ponowione=1/);
+    expect(a.ponowWywolania()).toBe(1);
+  });
+  it('f1: brak E2E_SHA → fail z powodem, zero żądań POST i ponow', async () => {
+    const { ctx, a } = kontekst({ nigdyZadania: true }, { E2E_SHA: '' });
+    const w = await fazaF1(ctx);
+    expect(w.status).toBe('fail');
+    expect(w.powod).toMatch(/brak E2E_SHA/);
+    expect(a.posty).toHaveLength(0);
   });
   it('f1: w_kolejce=0 (lead nie trafił do kolejki) → fail', async () => {
     const { ctx } = kontekst({ ponow: [{ ponowione: 0, w_kolejce: 0 }], nigdyZadania: true });
@@ -872,11 +1209,7 @@ describe('(f): dwie fazy ręczne', () => {
     expect(w.powod).toMatch(/E2E_PONOW_SECRET/);
   });
   it('f2: jedno ponow → ponowione=1 i dokładnie 1 zadanie → pass', async () => {
-    const k = kontekst(
-      { ponow: [{ ponowione: 1, w_kolejce: 0 }] },
-      {},
-      { f1: 'pass', przed: [], zadania: [] },
-    );
+    const k = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }] }, {}, STAN_F1_OK);
     // atrapa tworzy zadanie przy ponow przez wcześniejszy POST: dodajemy je ręcznie, jak zrobiłby serwer
     k.a.dodaj('example.com', 'kontakt', ['formularz', 'test']);
     const w = await fazaF2(k.ctx);
@@ -885,38 +1218,98 @@ describe('(f): dwie fazy ręczne', () => {
     expect(k.stanAktualny()).toMatchObject({ f2: 'pass' });
   });
   it('f2: dwa zadania (duplikat po ponowieniu) → fail', async () => {
-    const k = kontekst(
-      { ponow: [{ ponowione: 1, w_kolejce: 0 }] },
-      {},
-      { f1: 'pass', przed: [], zadania: [] },
-    );
+    const k = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }] }, {}, STAN_F1_OK);
     k.a.dodaj('example.com', 'kontakt', ['formularz', 'test'], 2);
     const w = await fazaF2(k.ctx);
     expect(w.status).toBe('fail');
     expect(w.powod).toMatch(/dokładnie 1 zadania, jest 2/);
   });
   it('f2: ponowione=0 (odstęp nie minął) → fail z podpowiedzią', async () => {
-    const k = kontekst(
-      { ponow: [{ ponowione: 0, w_kolejce: 1 }] },
-      {},
-      { f1: 'pass', przed: [], zadania: [] },
-    );
+    const k = kontekst({ ponow: [{ ponowione: 0, w_kolejce: 1 }] }, {}, STAN_F1_OK);
     const w = await fazaF2(k.ctx);
     expect(w.status).toBe('fail');
     expect(w.powod).toMatch(/ponowione=0.*odstęp/);
   });
   it('f2 bez zaliczonej f1 → fail i ani jednego ponow', async () => {
-    for (const stan of [null, { f1: 'fail', przed: [] }, { f1: 'pass' }]) {
+    for (const stan of [
+      null,
+      { ...STAN_F1_OK, f1: 'fail' },
+      { sha: SHA, ts: TS0 - GODZ, f1: 'pass' }, // bez listy przed
+      { f1: 'pass' },
+    ]) {
       const k = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }] }, {}, stan);
       const w = await fazaF2(k.ctx);
       expect(w.status).toBe('fail');
       expect(k.a.ponowWywolania()).toBe(0);
     }
   });
+  it('f2: stan f1 z innego SHA, starszy niż 24 h, nieczytelny albo {} → fail z powodem i zero ponow', async () => {
+    const warianty: Array<[unknown, RegExp]> = [
+      [{ ...STAN_F1_OK, sha: 'fff9999' }, /innego SHA/],
+      [{ ...STAN_F1_OK, ts: TS0 - 25 * GODZ }, /starszy niż 24 h/],
+      [{ nieczytelny: true }, /nieczytelny/],
+      [{}, /innego SHA/],
+    ];
+    for (const [stan, powod] of warianty) {
+      const k = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }] }, {}, stan);
+      const w = await fazaF2(k.ctx);
+      expect(w.status).toBe('fail');
+      expect(w.powod).toMatch(powod);
+      expect(k.a.ponowWywolania()).toBe(0);
+    }
+  });
+  it('f2: czeka przed ostatnim przeliczeniem — duplikat, który pojawia się po chwili, jest wykryty (V10)', async () => {
+    const k = kontekst({ ponow: [{ ponowione: 1, w_kolejce: 0 }] }, {}, STAN_F1_OK);
+    k.a.dodaj('example.com', 'kontakt', ['formularz', 'test']);
+    const sleepBazowy = k.ctx.sleep;
+    let spoznione = false;
+    k.ctx.sleep = async (ms: number) => {
+      if (!spoznione) {
+        spoznione = true; // drugie zadanie pojawia się dopiero po odczekaniu
+        k.a.dodaj('example.com', 'kontakt', ['formularz', 'test']);
+      }
+      return sleepBazowy(ms);
+    };
+    const w = await fazaF2(k.ctx);
+    expect(spoznione).toBe(true);
+    expect(w.status).toBe('fail');
+    expect(w.powod).toMatch(/dokładnie 1 zadania, jest 2/);
+  });
   it('przebieg --faza f1 przechodzi przez strażnika ochrony przed jakimkolwiek POST', async () => {
     const { ctx, a } = kontekst({ bezOchrony: 'alias' }, {}, null);
     const w = await biegnij(ctx, { faza: 'f1' });
     expect(w.kod).toBe(2);
     expect(a.posty).toHaveLength(0);
+  });
+});
+
+describe('błędy nieobsłużone: maskowanie', () => {
+  const env = { CF_ACCESS_CLIENT_ID: ID, CF_ACCESS_CLIENT_SECRET: SEKRET, E2E_PONOW_SECRET: PONOW };
+  it('komunikatBledu maskuje wartości z env i wersje URL, tylko pierwsza linia', () => {
+    for (const sek of [ID, SEKRET, PONOW]) {
+      const t = komunikatBledu(
+        new Error(`boom ${sek} i ${encodeURIComponent(sek)}\nDRUGA-LINIA`),
+        env,
+      );
+      expect(t).toBe('e2e: błąd nieobsłużony: boom *** i ***');
+      expect(t).not.toContain(sek);
+    }
+  });
+  it('komunikatBledu: nie-Error, brak env, pusty env', () => {
+    expect(komunikatBledu('tekst ' + SEKRET, env)).toContain('***');
+    expect(komunikatBledu(undefined)).toBe('e2e: błąd nieobsłużony: undefined');
+    expect(komunikatBledu(new Error('x'), { CF_ACCESS_CLIENT_ID: '' })).toBe(
+      'e2e: błąd nieobsłużony: x',
+    );
+  });
+  it('CLI: nieznany argument z sekretem nie trafia do stderr (kod 2, zero sieci)', () => {
+    const r = spawnSync(process.execPath, ['scripts/test-e2e-linear-lead.mjs', `--${SEKRET}`], {
+      env: { ...process.env, CF_ACCESS_CLIENT_SECRET: SEKRET },
+      encoding: 'utf8',
+      timeout: 20_000,
+    });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain('nieznany argument: --***');
+    expect(r.stderr).not.toContain(SEKRET);
   });
 });
