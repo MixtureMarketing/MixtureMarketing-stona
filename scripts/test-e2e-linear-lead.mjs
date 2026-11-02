@@ -47,7 +47,17 @@ export const PRZYPADKI = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
 export const PROWADZACY = 'jakub';
 export const PRZEDROSTEK_TYTULU = '[Preview] Lead: ';
 /** Dozwolony kształt id zadania zespołu LEA (allowlista dla id z pliku stanu f). */
-export const ID_ZADANIA = /^LEA-[0-9]{1,7}$/;
+export const ID_ZADANIA = /^LEA-[1-9][0-9]{0,6}$/;
+
+/**
+ * JEDNA bramka (allowlista, fail-closed) dla każdego id, które może trafić do wywołania `lin` zmieniającego dane.
+ * Dokładnie: napis, ASCII, bez normalizacji i bez przycinania, bez zer wiodących, najwyżej 7 cyfr.
+ * Źródła id (ctx.utworzone, lista, stan f) mogą mieć własne wcześniejsze kontrole, ale bezpieczeństwo
+ * nie od nich zależy: `sprzatanie` odrzuca id przed odczytem listy, a `zmienLin` odrzuca je tuż przed `lin`.
+ */
+export function idDozwolone(id) {
+  return typeof id === 'string' && ID_ZADANIA.test(id);
+}
 export const TIMEOUT_PRZYPADKU_MS = 60_000;
 export const KROK_ODPYTYWANIA_MS = 5_000;
 export const KATALOG_WYNIKOW = path.join('.bieg', 'e2e-leady');
@@ -700,6 +710,13 @@ function opiszId(id) {
   return `"${id.replace(/[^\x21-\x7e]/g, (c) => `\\u${c.codePointAt(0).toString(16).padStart(4, '0')}`)}"`;
 }
 
+/** Jedyne miejsce wywołania `lin` zmieniającego dane (etykieta, stan): bramka tuż przed wywołaniem, fail-closed. */
+async function zmienLin(ctx, args) {
+  if (!idDozwolone(args[1]))
+    throw new Error(`id ${opiszId(args[1])} odrzucone przez bramkę (niezgodne z ^LEA-[1-9][0-9]{0,6}$), 0 wywołań lin`);
+  return ctx.lin(args);
+}
+
 /**
  * (g): wszystkie zadania z biegu → Canceled z etykietą `test`; potem kontrola stanu.
  * `idStanuF` = id wzięte z pliku stanu f: tuż po świeżym odczycie listy (`teraz`), przed wywołaniami
@@ -710,10 +727,20 @@ function opiszId(id) {
  */
 export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = []) {
   const wszystkie = [...ids];
+  // Bramka (jedna, dla id ze WSZYSTKICH źródeł): id spoza allowlisty = 0 wywołań lin, błąd z id, (g) = fail.
+  const dozwolone = [];
+  const bledyBramki = [];
+  for (const id of wszystkie) {
+    if (idDozwolone(id)) dozwolone.push(id);
+    else {
+      ctx.log(`(g) id ${opiszId(id)} odrzucone przez bramkę, nie sprzątnięte`);
+      bledyBramki.push(`${opiszId(id)}: id niezgodne z ^LEA-[1-9][0-9]{0,6}$, nie sprzątnięte (0 wywołań lin)`);
+    }
+  }
   // Fail-closed: `bledyWstepne` musi być tablicą (null, liczba, obiekt, napis, Set = błąd, nie ciche pominięcie).
   const bledy = Array.isArray(bledyWstepne)
-    ? [...bledyWstepne]
-    : [`bledyWstepne: oczekiwano tablicy, jest ${bledyWstepne === null ? 'null' : typeof bledyWstepne}`];
+    ? [...bledyWstepne, ...bledyBramki]
+    : [...bledyBramki, `bledyWstepne: oczekiwano tablicy, jest ${bledyWstepne === null ? 'null' : typeof bledyWstepne}`];
   // Odczyt listy: gdy są już błędy (id odrzucone wcześniej), błąd odczytu ich nie zgubi (id i powód zostają w powodzie).
   const odczytaj = async (kiedy) => {
     try {
@@ -725,7 +752,7 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = 
       throw blad;
     }
   };
-  if (wszystkie.length === 0)
+  if (dozwolone.length === 0)
     return bledy.length === 0
       ? { status: 'pass', powod: 'brak zadań do sprzątnięcia' }
       : { status: 'fail', powod: bledy.join('; ') };
@@ -737,7 +764,7 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = 
     throw e;
   }
   const lista = [];
-  for (const id of wszystkie) {
+  for (const id of dozwolone) {
     const fid = idStanuF.has(id);
     const wpisy = teraz.filter((x) => x.id === id);
     if (wpisy.length > 1) {
@@ -764,8 +791,8 @@ export async function sprzatanie(ctx, ids, idStanuF = new Set(), bledyWstepne = 
   for (const id of lista) {
     const z = teraz.find((x) => x.id === id);
     try {
-      if (!z || !z.etykiety.includes('test')) await ctx.lin(['etykieta', id, '+test']);
-      if (!z || z.stan !== 'Canceled') await ctx.lin(['stan', id, 'Canceled']);
+      if (!z || !z.etykiety.includes('test')) await zmienLin(ctx, ['etykieta', id, '+test']);
+      if (!z || z.stan !== 'Canceled') await zmienLin(ctx, ['stan', id, 'Canceled']);
     } catch (e) {
       bledy.push(`${id}: ${maskuj(e.message, ctx.sekrety)}`);
     }
@@ -890,7 +917,7 @@ export async function przebieg(ctx, { faza = null } = {}) {
       ...(stanF.zadanie !== undefined && stanF.zadanie !== null ? [stanF.zadanie] : []),
     ];
     for (const id of kandydaci) {
-      if (typeof id === 'string' && ID_ZADANIA.test(id)) kandydaciF.add(id);
+      if (idDozwolone(id)) kandydaciF.add(id);
       else ctx.log(`(g) niepoprawne id w pliku stanu f pominięte (typ ${typeof id})`);
     }
   }
@@ -923,7 +950,7 @@ export async function przebieg(ctx, { faza = null } = {}) {
         if (migawka.has(z.id) || !z.tytul.startsWith(PRZEDROSTEK_TYTULU)) continue;
         // Dokładny format id (allowlista, fail-closed): wariant (spacja, wielkość liter, NBSP, cyrylica, puste)
         // nie trafia do `lin etykieta`/`lin stan`, tylko dodaje błąd z id.
-        if (typeof z.id === 'string' && ID_ZADANIA.test(z.id)) doSprzatania.add(z.id);
+        if (idDozwolone(z.id)) doSprzatania.add(z.id);
         else {
           ctx.log(`(g) id z listy pominięte: niepoprawny format id ${opiszId(z.id)}`);
           bledyF.push(`${opiszId(z.id)}: id z listy ma niepoprawny format, nie sprzątnięte`);

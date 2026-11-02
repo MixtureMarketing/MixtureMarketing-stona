@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import {
+  idDozwolone,
   adresE2E,
   czekaj,
   czyUruchomicB,
@@ -1590,18 +1591,23 @@ describe('MIX-626F: (g) ponowny odczyt, duplikaty id, wersje id (fail-closed)', 
       );
       expect(powodOdrzuceniaIdStanuF('LEA-11', lista('LEA-11'), null)).toBeNull();
     });
-    it.each([' LEA-11 ', 'lea-11'])(
-      'sprzatanie ze stanem f: id "%s" przy liście z "LEA-11" → pominięte, zadanie nietknięte',
-      async (id) => {
+    // MIX-626J2: oczekiwanie zmienione. Było: powód "id ze stanu f nie sprzątnięte przy ponownym odczycie
+    // (zadania nie ma na liście)". Jest: id odrzucone wcześniej przez bramkę idDozwolone (przed odczytem listy).
+    it.each([
+      [' LEA-11 ', '"\\u0020LEA-11\\u0020"'],
+      ['lea-11', '"lea-11"'],
+    ])(
+      'sprzatanie ze stanem f: id "%s" przy liście z "LEA-11" → odrzucone przez bramkę, zadanie nietknięte',
+      async (id, opis) => {
         const { ctx, a, logi } = kontekst();
         a.dodaj('example.com', 'kontakt', ['formularz']);
         const w = await sprzatanie(ctx, new Set([id]), new Set([id]));
         expect(w.status).toBe('fail');
         expect(w.powod).toBe(
-          `${id}: id ze stanu f nie sprzątnięte przy ponownym odczycie (zadania nie ma na liście)`,
+          `${opis}: id niezgodne z ^LEA-[1-9][0-9]{0,6}$, nie sprzątnięte (0 wywołań lin)`,
         );
         expect(a.zadania[0]).toMatchObject({ stan: 'Backlog', etykiety: ['formularz'] });
-        expect(logi.join('\n')).toMatch(/ze stanu f pominięte: zadania nie ma na liście/);
+        expect(logi.join('\n')).toContain(`(g) id ${opis} odrzucone przez bramkę`);
       },
     );
     it.each([' LEA-11 ', 'lea-11'])(
@@ -2770,5 +2776,197 @@ describe('błędy nieobsłużone: maskowanie', () => {
     expect(r.status).toBe(2);
     expect(r.stderr).toContain('nieznany argument: --***');
     expect(r.stderr).not.toContain(SEKRET);
+  });
+});
+
+describe('MIX-626J2: jedna bramka idDozwolone przy ujściu (g): id ze wszystkich źródeł, fail-closed', () => {
+  type Z = { id: unknown; stan: string; etykiety: string[]; tytul: string };
+  const TYTUL = '[Preview] Lead: x';
+  const zad = (id: unknown, o: Partial<Z> = {}): Z => ({
+    id,
+    stan: 'Backlog',
+    etykiety: [],
+    tytul: TYTUL,
+    ...o,
+  });
+  // Atrapa `lin`: lista ZAWSZE pokazuje podane wpisy (także wariant id w każdym odczycie); zapisy trafiają do `zapisy`.
+  const srodowisko = (wpisy: Z[]) => {
+    const { ctx, logi } = kontekst();
+    const zapisy: string[][] = [];
+    const wszystkie: string[][] = [];
+    ctx.lin = async (args: string[]) => {
+      wszystkie.push(args);
+      if (args[0] === 'lista')
+        return JSON.stringify({
+          zadania: wpisy.map((z) => ({ kto: 'jakub', delegat: null, ...z })),
+        });
+      zapisy.push(args);
+      const z = wpisy.find((w) => w.id === args[1]);
+      if (z && args[0] === 'etykieta') z.etykiety.push('test');
+      if (z && args[0] === 'stan') z.stan = 'Canceled';
+      return '';
+    };
+    return { ctx, logi, zapisy, wszystkie, wpisy };
+  };
+  const NBSP = String.fromCharCode(0xa0);
+  const odmowy: Array<[string, unknown, string, string]> = [
+    ['W1: spacja na końcu', 'LEA-12 ', '"LEA-12\\u0020"', 'LEA-12'],
+    ['W12: zero wiodące', 'LEA-09001', '"LEA-09001"', 'LEA-9001'],
+    ['zero', 'LEA-0', '"LEA-0"', 'LEA-1'],
+    ['cyfry pełnej szerokości', 'LEA-\uff11\uff12', '"LEA-\\uff11\\uff12"', 'LEA-12'],
+    ['ZWSP w środku', 'LEA-1\u200b2', '"LEA-1\\u200b2"', 'LEA-12'],
+    ['BOM na początku', '\ufeffLEA-12', '"\\ufeffLEA-12"', 'LEA-12'],
+    ['cyfry arabsko-indyjskie', 'LEA-\u0661\u0662', '"LEA-\\u0661\\u0662"', 'LEA-12'],
+    ['małe litery', 'lea-12', '"lea-12"', 'LEA-12'],
+    ['nowa linia na końcu', 'LEA-12\n', '"LEA-12\\u000a"', 'LEA-12'],
+    ['8 cyfr', 'LEA-12345678', '"LEA-12345678"', 'LEA-1234567'],
+    ['NBSP na końcu', `LEA-12${NBSP}`, '"LEA-12\\u00a0"', 'LEA-12'],
+    ['wariant NFKC (łącznik pełnej szerokości)', 'LEA\uff0d12', '"LEA\\uff0d12"', 'LEA-12'],
+    ['cyrylickie А', 'LE\u0410-12', '"LE\\u0410-12"', 'LEA-12'],
+    ['puste', '', '""', 'LEA-12'],
+  ];
+
+  describe('sprzatanie: 0 wywołań lin z wariantem, błąd z id, (g) fail; bliźniak: dokładne id sprzątnięte', () => {
+    it.each(odmowy)('%s', async (_n, wariant, opis, bliznak) => {
+      const s = srodowisko([zad(wariant)]);
+      const w = await sprzatanie(s.ctx, new Set([wariant as string]));
+      expect(s.zapisy).toEqual([]);
+      expect(s.wszystkie.flat()).not.toContain(wariant);
+      expect(w.status).toBe('fail');
+      expect(w.powod).toContain(`${opis}: id niezgodne z ^LEA-[1-9][0-9]{0,6}$`);
+      expect(s.logi.join('\n')).toContain(`(g) id ${opis} odrzucone przez bramkę`);
+      const t = srodowisko([zad(bliznak)]);
+      const ok = await sprzatanie(t.ctx, new Set([bliznak]));
+      expect(t.zapisy).toEqual([
+        ['etykieta', bliznak, '+test'],
+        ['stan', bliznak, 'Canceled'],
+      ]);
+      expect(ok.status).toBe('pass');
+    });
+    it.each(odmowy)(
+      '%s: wariant już Canceled z etykietą test na liście → nadal fail (bez wywołań)',
+      async (_n, wariant, opis) => {
+        const s = srodowisko([zad(wariant, { stan: 'Canceled', etykiety: ['test'] })]);
+        const w = await sprzatanie(s.ctx, new Set([wariant as string]));
+        expect(s.zapisy).toEqual([]);
+        expect(w.status).toBe('fail');
+        expect(w.powod).toContain(opis);
+      },
+    );
+    it('forma 12: dokładne id i wariant razem → dokładne sprzątnięte, wariant odrzucony, (g) fail; samo dokładne → pass', async () => {
+      const s = srodowisko([zad('LEA-12'), zad('LEA-12 ')]);
+      const w = await sprzatanie(s.ctx, new Set(['LEA-12', 'LEA-12 ']));
+      expect(s.zapisy).toEqual([
+        ['etykieta', 'LEA-12', '+test'],
+        ['stan', 'LEA-12', 'Canceled'],
+      ]);
+      expect(w.status).toBe('fail');
+      expect(w.powod).toContain('"LEA-12\\u0020": id niezgodne');
+      expect(w.powod).not.toContain('LEA-12:');
+      const t = srodowisko([zad('LEA-12')]);
+      expect((await sprzatanie(t.ctx, new Set(['LEA-12']))).status).toBe('pass');
+    });
+    it('forma 11: id niebędące napisem (liczba, null, obiekt) → 0 wywołań, błąd z typem, (g) fail; bliźniak: napis', async () => {
+      for (const zle of [12, null, {}, ['LEA-12'], undefined]) {
+        const s = srodowisko([zad('LEA-12')]);
+        const w = await sprzatanie(s.ctx, new Set([zle as unknown as string]));
+        expect(s.zapisy).toEqual([]);
+        expect(w.status).toBe('fail');
+        expect(w.powod).toContain(`(typ ${typeof zle})`);
+      }
+      const t = srodowisko([zad('LEA-12')]);
+      expect((await sprzatanie(t.ctx, new Set(['LEA-12']))).status).toBe('pass');
+    });
+    it('id ze stanu f (idStanuF) i z błędów wstępnych też przechodzą bramkę', async () => {
+      const s = srodowisko([zad('LEA-12 ')]);
+      const w = await sprzatanie(s.ctx, new Set(['LEA-12 ']), new Set(['LEA-12 ']));
+      expect(s.zapisy).toEqual([]);
+      expect(w.status).toBe('fail');
+      expect(w.powod).toContain('"LEA-12\\u0020"');
+    });
+    it('mieszanka: wiele wariantów + poprawne id → poprawne sprzątnięte, każdy wariant w powodzie, (g) fail', async () => {
+      const warianty = odmowy.map((o) => o[1] as string);
+      const s = srodowisko([zad('LEA-77'), ...warianty.map((v) => zad(v))]);
+      const w = await sprzatanie(s.ctx, new Set(['LEA-77', ...warianty]));
+      expect(s.zapisy).toEqual([
+        ['etykieta', 'LEA-77', '+test'],
+        ['stan', 'LEA-77', 'Canceled'],
+      ]);
+      expect(w.status).toBe('fail');
+      for (const o of odmowy) expect(w.powod).toContain(`${o[2]}: id niezgodne`);
+    });
+    it('zmiana żądania lin w sprzatanie: brak odczytu listy, gdy wszystkie id odrzucone', async () => {
+      const s = srodowisko([zad('LEA-12 ')]);
+      await sprzatanie(s.ctx, new Set(['LEA-12 ']));
+      expect(s.wszystkie).toEqual([]);
+    });
+  });
+
+  describe('całość przez przebieg: id z ctx.utworzone (źródła a/b/d/e) nie omija bramki', () => {
+    it.each([
+      ['W1: LEA-12 + spacja', 'LEA-12 ', '"LEA-12\\u0020"'],
+      ['W12: LEA-09001', 'LEA-09001', '"LEA-09001"'],
+      ['cyfry pełnej szerokości', 'LEA-\uff11\uff12', '"LEA-\\uff11\\uff12"'],
+      ['wariant NFKC', 'LEA\uff0d12', '"LEA\\uff0d12"'],
+    ])(
+      '%s: wariant widoczny w każdym odczycie listy → 0 zapisów z nim, (g) fail',
+      async (_n, wariant, opis) => {
+        const k = kontekst({}, { E2E_BEZ_RESEND: '1' });
+        k.a.zadania.push({
+          id: wariant,
+          stan: 'Backlog',
+          kto: 'jakub',
+          delegat: null,
+          tytul: TYTUL,
+          etykiety: [],
+        });
+        const zapisy: string[][] = [];
+        const lin = k.ctx.lin;
+        k.ctx.lin = async (args: string[]) => {
+          if (args[0] !== 'lista' && args[0] !== 'komentarze') zapisy.push(args);
+          return lin(args);
+        };
+        k.ctx.utworzone.add(wariant);
+        const w = await biegnij(k.ctx);
+        expect(zapisy.filter((x) => x[1] === wariant)).toEqual([]);
+        expect(w.wyniki.g.status).toBe('fail');
+        expect(w.wyniki.g.powod).toContain(`${opis}: id niezgodne`);
+      },
+    );
+    it('bliźniak: dokładne id w ctx.utworzone (zadanie z atrapy) → sprzątnięte, (g) pass', async () => {
+      const k = kontekst({}, { E2E_BEZ_RESEND: '1' });
+      const [id] = k.a.dodaj('example.com', 'kontakt', ['formularz']);
+      k.ctx.utworzone.add(id);
+      const w = await biegnij(k.ctx);
+      expect(w.wyniki.g.status).toBe('pass');
+      expect(k.a.zadania.find((z) => z.id === id)).toMatchObject({ stan: 'Canceled' });
+    });
+  });
+});
+
+describe('MIX-626J2: idDozwolone (allowlista ^LEA-[1-9][0-9]{0,6}$)', () => {
+  it.each(['LEA-1', 'LEA-12', 'LEA-9001', 'LEA-1234567'])('przepuszcza %s', (id) => {
+    expect(idDozwolone(id)).toBe(true);
+  });
+  it.each([
+    'LEA-0',
+    'LEA-01',
+    'LEA-12 ',
+    ' LEA-12',
+    'LEA-12\n',
+    'lea-12',
+    'LEA-12345678',
+    'LEA-',
+    '',
+    'LEA-\uff11\uff12',
+    'LEA-\u0661\u0662',
+    'LEA-1\u200b2',
+    '\ufeffLEA-12',
+    'LEA\uff0d12',
+  ])('odmawia %j', (id) => {
+    expect(idDozwolone(id)).toBe(false);
+  });
+  it.each([12, null, undefined, {}, ['LEA-12'], true])('odmawia nie-napisu %j', (id) => {
+    expect(idDozwolone(id)).toBe(false);
   });
 });
