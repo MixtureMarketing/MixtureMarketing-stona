@@ -4,3 +4,4 @@
 *.diff
 *.tmp
 base/
+*.syn
