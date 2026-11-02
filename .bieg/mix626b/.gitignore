@@ -1,0 +1,6 @@
+*.log
+*.rc
+*.txt
+*.diff
+*.tmp
+base/

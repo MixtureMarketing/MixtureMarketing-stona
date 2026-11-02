@@ -3,7 +3,7 @@ name: CI Pipeline
 on:
   workflow_dispatch: # reczne odpalenie z zakladki Actions (omija problem pustych commitow + paths-ignore)
   push:
-    branches: ['main', 'master']
+    branches: ['main', 'master', 'dev']
     # Pomin build dla zmian tylko w dokumentacji/markdown.
     paths-ignore:
       - '**/*.md'
@@ -31,7 +31,7 @@ env:
 
 jobs:
   # ============================================================
-  # JEDEN JOB: quality + build + deploy.
+  # JEDEN JOB: quality + build + deploy (main = produkcja, dev = Preview).
   # Scalone z 3 osobnych jobow (2026-07-11) — usuwa 2x spin-up runnera,
   # 2x checkout, 1x npm ci oraz caly upload/download artefaktu dist.
   # ============================================================
@@ -141,3 +141,21 @@ jobs:
           wranglerVersion: '4'
           # Bindingi D1/KV/R2 skonfigurowane na projekcie Pages (dashboard).
           command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
+
+      # --- DEPLOY Preview: tylko push na dev (alias dev.mixturemarketing-stona.pages.dev) ---
+      # Pull requesty nigdy nie wdrazaja; produkcja (main) bez zmian.
+      - name: 🧹 Sanitize commit message (dev)
+        id: commit_dev
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          echo "msg=CI deploy $SHORT_SHA (dev)" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Deploy to Cloudflare Pages (Preview dev)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4'
+          command: pages deploy dist --project-name=mixturemarketing-stona --branch=dev --commit-dirty=true --commit-message="${{ steps.commit_dev.outputs.msg }}" --commit-hash=${{ github.sha }}
