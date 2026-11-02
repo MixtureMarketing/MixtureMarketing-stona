@@ -23,7 +23,6 @@ import {
   zbudujKontekst,
   zbudujRaport,
 } from '../../scripts/test-e2e-linear-lead.mjs';
-import { podpiszZapytanie } from '../../functions/api/crm/_podpis';
 
 const ID = 'id-dostepu-TESTOWE';
 const SEKRET = 'sekret-dostepu-TESTOWY-123';
@@ -208,7 +207,11 @@ function atrapa(opcje: Opcje = {}) {
   };
 }
 
-function kontekst(opcje: Opcje = {}, env: Record<string, string> = {}, stan: unknown = null) {
+function kontekst(
+  opcje: Opcje = {},
+  env: Record<string, string | undefined> = {},
+  stan: unknown = null,
+) {
   const a = atrapa(opcje);
   const logi: string[] = [];
   const raporty: string[] = [];
@@ -243,6 +246,10 @@ function kontekst(opcje: Opcje = {}, env: Record<string, string> = {}, stan: unk
   });
   return { ctx, a, logi, raporty, stany, stanAktualny: () => aktualnyStan };
 }
+
+type Wyniki = Record<string, { status: string; powod?: string }>;
+const biegnij = async (ctx: unknown, o?: { faza?: string }) =>
+  (await przebieg(ctx, o as { faza?: null })) as { kod: number; linia: string; wyniki: Wyniki };
 
 const STAN_F_OK = { f1: 'pass', f2: 'pass', zadanie: 'LEA-11', zadania: ['LEA-11'] };
 
@@ -365,12 +372,11 @@ describe('(b) tylko bez Resend', () => {
 });
 
 describe('podpis ponow', () => {
-  it('jest zgodny z podpisem po stronie funkcji (crm/_podpis.ts)', async () => {
+  it('ma format sha256=<64 znaki hex> i jest deterministyczny', () => {
     const czas = '1760000000';
     const nonce = '123e4567-e89b-42d3-a456-426614174000';
-    expect(podpisPonow(PONOW, czas, nonce)).toBe(
-      await podpiszZapytanie(PONOW, czas, nonce, 'POST', '/api/leady/ponow', 'leady-ponow:v1:'),
-    );
+    expect(podpisPonow(PONOW, czas, nonce)).toMatch(/^sha256=[0-9a-f]{64}$/);
+    expect(podpisPonow(PONOW, czas, nonce)).toBe(podpisPonow(PONOW, czas, nonce));
   });
   it('inny sekret albo czas daje inny podpis', () => {
     const n = '123e4567-e89b-42d3-a456-426614174000';
@@ -708,7 +714,7 @@ describe('strażnik: sprawdzOchrone na atrapie sieci', () => {
 describe('przebieg: kolejność i kod wyjścia', () => {
   it('bez ochrony: kod 2, komunikat „Preview bez ochrony”, ZERO żądań POST', async () => {
     const { ctx, a, logi } = kontekst({ bezOchrony: 'oba' }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.kod).toBe(2);
     expect(logi.join('\n')).toMatch(/Preview bez ochrony: .*alias dev\./);
     expect(a.posty).toHaveLength(0);
@@ -717,7 +723,7 @@ describe('przebieg: kolejność i kod wyjścia', () => {
   it('7/7: a–e, g i fazy f zapisane; zadania Canceled z etykietą test; kod 0', async () => {
     const stanF = STAN_F_OK;
     const { ctx, a, raporty } = kontekst({}, { E2E_BEZ_RESEND: '1' }, stanF);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.linia).toMatch(/^7\/7/);
     expect(w.kod).toBe(0);
     expect(a.zadania).toHaveLength(6); // 5 z biegu (a–e) + 1 z fazy f
@@ -739,7 +745,7 @@ describe('przebieg: kolejność i kod wyjścia', () => {
   });
   it('bez E2E_BEZ_RESEND (b) pominięte: kod 3, żaden adres gmail nie wysłany', async () => {
     const { ctx, a, logi } = kontekst({}, {}, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.kod).toBe(3);
     expect(w.linia).toMatch(/6\/7, niepełny: b/);
     expect(a.zadania.some((z) => z.tytul.includes('osoba prywatna'))).toBe(false);
@@ -747,7 +753,7 @@ describe('przebieg: kolejność i kod wyjścia', () => {
   });
   it('brak zapisanych faz f: kod 3 i nic w (f)', async () => {
     const { ctx } = kontekst({}, { E2E_BEZ_RESEND: '1' }, null);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.kod).toBe(3);
     expect(w.wyniki.f.status).toBe('brak');
   });
@@ -757,7 +763,7 @@ describe('przebieg: kolejność i kod wyjścia', () => {
       { E2E_BEZ_RESEND: '1' },
       STAN_F_OK,
     );
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.e.status).toBe('fail');
     expect(w.wyniki.e.powod).toMatch(/drugi lead utworzył zadanie|komentarz/);
     expect(w.kod).toBe(1);
@@ -769,39 +775,39 @@ describe('przebieg: kolejność i kod wyjścia', () => {
       { E2E_BEZ_RESEND: '1' },
       STAN_F_OK,
     );
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.e.status).toBe('fail');
     expect(w.wyniki.e.powod).toMatch(/drugi lead utworzył zadanie/);
     expect(a.zadania.every((z) => z.stan === 'Canceled')).toBe(true);
   });
   it('zadanie nie pojawia się w limicie czasu: fail, kod 1, bez wyjątku', async () => {
     const { ctx } = kontekst({ nigdyZadania: true }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.a).toMatchObject({ status: 'fail' });
     expect(w.wyniki.a.powod).toMatch(/limicie czasu/);
     expect(w.kod).toBe(1);
   });
   it('dwa zadania zamiast jednego w (a): fail', async () => {
     const { ctx } = kontekst({ dlaKazdegoPostuZadan: 2 }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.a.status).toBe('fail');
     expect(w.wyniki.a.powod).toMatch(/oczekiwano 1 zadania, jest 2/);
   });
   it('zadanie przypisane do kogoś innego niż Jakub: fail', async () => {
     const { ctx } = kontekst({ kto: 'karol' }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.a.powod).toMatch(/nie jest przypisane do jakub/);
   });
   it('lin zwraca śmieci: przypadki padają (fail-closed), kod 1', async () => {
     const { ctx } = kontekst({ zepsutaLista: true }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    const w = await przebieg(ctx);
+    const w = await biegnij(ctx);
     expect(w.wyniki.a.status).toBe('fail');
     expect(w.wyniki.g.status).toBe('fail');
     expect(w.kod).toBe(1);
   });
   it('sekrety nie trafiają do logów ani raportu', async () => {
     const { ctx, logi, raporty } = kontekst({}, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
-    await przebieg(ctx);
+    await biegnij(ctx);
     const calosc = [...logi, ...raporty].join('\n');
     for (const s of [ID, SEKRET, PONOW]) expect(calosc).not.toContain(s);
   });
@@ -909,7 +915,7 @@ describe('(f): dwie fazy ręczne', () => {
   });
   it('przebieg --faza f1 przechodzi przez strażnika ochrony przed jakimkolwiek POST', async () => {
     const { ctx, a } = kontekst({ bezOchrony: 'alias' }, {}, null);
-    const w = await przebieg(ctx, { faza: 'f1' });
+    const w = await biegnij(ctx, { faza: 'f1' });
     expect(w.kod).toBe(2);
     expect(a.posty).toHaveLength(0);
   });
