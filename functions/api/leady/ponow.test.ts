@@ -124,6 +124,8 @@ interface Opcje {
   podpis?: string;
   body?: string;
   sciezka?: string;
+  /** Parametry zapytania doklejone do adresu żądania (np. `?x=1`); podpis liczy `sciezka`. */
+  zapytanie?: string;
   naglowki?: boolean;
 }
 async function zadanie(o: Opcje = {}) {
@@ -140,7 +142,7 @@ async function zadanie(o: Opcje = {}) {
       o.sciezka ?? SCIEZKA,
       o.prefiks ?? PREFIKS_PONOW,
     ));
-  return new Request(`https://mixturemarketing.pl${SCIEZKA}`, {
+  return new Request(`https://mixturemarketing.pl${SCIEZKA}${o.zapytanie ?? ''}`, {
     method: metoda,
     headers:
       o.naglowki === false
@@ -213,6 +215,51 @@ describe('POST /api/leady/ponow: przyjęcie', () => {
     for (let i = 0; i < 3; i++) wiersz(db, 'kolejka');
     const odp = await wywolaj(await zadanie({ body: '{"limit":2}' }), env);
     expect(await odp.json()).toMatchObject({ ponowione: 2, w_kolejce: 1 });
+  });
+
+  // Puste body i adres z parametrami zapytania.
+  it('(+) puste body i samo białe znaki: 200, domyślny limit 20 (nie 50), kolejka drenowana', async () => {
+    for (const body of ['', '   \n\t ']) {
+      const { env, db } = srodowisko();
+      for (let i = 0; i < 22; i++) wiersz(db, 'kolejka');
+      const odp = await wywolaj(await zadanie({ body }), env);
+      expect(odp.status, JSON.stringify(body)).toBe(200);
+      expect(await odp.json()).toMatchObject({ ponowione: 20, w_kolejce: 2, zablokowane: 0 });
+    }
+  });
+
+  it('(−) puste body nie odblokowuje: zablokowane zostają zablokowane (domyślne odblokuj = brak)', async () => {
+    for (const body of ['', '  ', '{}']) {
+      const { env, db } = srodowisko();
+      wiersz(db, 'zablokowany', 8);
+      wiersz(db, 'kolejka');
+      const odp = await wywolaj(await zadanie({ body }), env);
+      expect(odp.status, JSON.stringify(body)).toBe(200);
+      expect(await odp.json()).toMatchObject({ ponowione: 1, w_kolejce: 0, zablokowane: 1 });
+      const w = stany(db);
+      expect(w.filter((x) => x.stan === 'zablokowany')).toHaveLength(1);
+      expect(w.find((x) => x.stan === 'zablokowany')?.proby).toBe(8);
+    }
+  });
+
+  it('(+) adres z parametrami zapytania: podpis liczony z ścieżki razem z zapytaniem przechodzi', async () => {
+    const { env } = srodowisko();
+    const q = '?x=1&y=a%20b';
+    const odp = await wywolaj(await zadanie({ zapytanie: q, sciezka: SCIEZKA + q }), env);
+    expect(odp.status).toBe(200);
+    expect(Object.keys((await odp.json()) as object).sort()).toEqual([...KLUCZE_ODP].sort());
+  });
+
+  it('(−) parametry zapytania nie sterują ponowieniem: podpisane ?odblokuj=true&limit=1 nie odblokowuje i nie zmienia limitu', async () => {
+    const { env, db } = srodowisko();
+    wiersz(db, 'zablokowany', 8);
+    wiersz(db, 'kolejka');
+    wiersz(db, 'kolejka');
+    const q = '?odblokuj=true&limit=1';
+    const odp = await wywolaj(await zadanie({ zapytanie: q, sciezka: SCIEZKA + q }), env);
+    expect(odp.status).toBe(200);
+    expect(await odp.json()).toMatchObject({ ponowione: 2, w_kolejce: 0, zablokowane: 1 });
+    expect(stany(db).filter((x) => x.stan === 'zablokowany')).toHaveLength(1);
   });
 
   it('(+) czas na granicy okna (299 s w tył i w przód) przechodzi', async () => {
@@ -332,6 +379,30 @@ describe('POST /api/leady/ponow: odmowy', () => {
     }
     expect(stany(db)[0].stan).toBe('kolejka');
     expect(wywolania).toEqual([]);
+  });
+
+  it('(−) zapytanie doklejone do podpisanej ścieżki, albo zdjęte z niej: 401 „Podpis się nie zgadza.”, kolejka nietknięta', async () => {
+    const { env, db } = srodowisko();
+    wiersz(db, 'zablokowany', 8);
+    const warianty: Opcje[] = [
+      { zapytanie: '?odblokuj=true' }, // podpis bez zapytania, żądanie z zapytaniem
+      { sciezka: `${SCIEZKA}?x=1` }, // podpis z zapytaniem, żądanie bez zapytania
+      { zapytanie: '?x=2', sciezka: `${SCIEZKA}?x=1` }, // inna wartość parametru
+      { zapytanie: '?x=1&y=2', sciezka: `${SCIEZKA}?y=2&x=1` }, // inna kolejność parametrów
+    ];
+    for (const w of warianty) {
+      const odp = await wywolaj(await zadanie(w), env);
+      expect(odp.status, JSON.stringify(w)).toBe(401);
+      expect(((await odp.json()) as { blad: string }).blad).toBe('Podpis się nie zgadza.');
+    }
+    expect(stany(db)[0].stan).toBe('zablokowany');
+    expect(wywolania).toEqual([]);
+  });
+
+  it('(+) zapytanie puste („?” bez parametrów) to ta sama ścieżka co bez zapytania: podpis bez zapytania przechodzi', async () => {
+    const { env } = srodowisko();
+    const odp = await wywolaj(await zadanie({ zapytanie: '?' }), env);
+    expect(odp.status).toBe(200);
   });
 
   it('(−) podpis innej ścieżki (replay podpisu z innego endpointu) nie przechodzi', async () => {
