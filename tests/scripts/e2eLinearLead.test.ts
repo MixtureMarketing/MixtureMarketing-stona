@@ -1619,6 +1619,23 @@ describe('MIX-626F: (g) ponowny odczyt, duplikaty id, wersje id (fail-closed)', 
         expect(w.wyniki.g.status).toBe('pass');
       },
     );
+    it.each([' LEA-11 ', 'lea-11'])(
+      'sprzatanie: wpis "%s" obok "LEA-11" to INNE id, nie duplikat: LEA-11 sprzątnięte, wariant nietknięty',
+      async (wariant) => {
+        const { ctx, a, logi } = kontekst();
+        a.dodaj('example.com', 'kontakt', ['formularz']); // LEA-11
+        a.zadania.push({ ...a.zadania[0], id: wariant, etykiety: ['formularz'] });
+        const w = await sprzatanie(ctx, new Set(['LEA-11']), new Set(['LEA-11']));
+        expect(w.status).toBe('pass');
+        expect(a.zadania[0]).toMatchObject({ id: 'LEA-11', stan: 'Canceled' });
+        expect(a.zadania[1]).toMatchObject({
+          id: wariant,
+          stan: 'Backlog',
+          etykiety: ['formularz'],
+        });
+        expect(logi.join('\n')).not.toMatch(/niejednoznaczne/);
+      },
+    );
     it('bliźniak: dokładne "LEA-11" → anulowane', async () => {
       const r = await bieg();
       expect(r.zad).toMatchObject({ stan: 'Canceled' });
