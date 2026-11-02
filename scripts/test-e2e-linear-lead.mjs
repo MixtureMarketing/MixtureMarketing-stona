@@ -711,7 +711,7 @@ function opiszId(id) {
 }
 
 /** Jedyne miejsce wywołania `lin` zmieniającego dane (etykieta, stan): bramka tuż przed wywołaniem, fail-closed. */
-async function zmienLin(ctx, args) {
+export async function zmienLin(ctx, args) {
   if (!idDozwolone(args[1]))
     throw new Error(`id ${opiszId(args[1])} odrzucone przez bramkę (niezgodne z ^LEA-[1-9][0-9]{0,6}$), 0 wywołań lin`);
   return ctx.lin(args);

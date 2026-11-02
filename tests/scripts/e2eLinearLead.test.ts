@@ -26,6 +26,7 @@ import {
   tytulPasuje,
   wczytajPlikStanu,
   wynikF,
+  zmienLin,
   zbudujKontekst,
   zbudujRaport,
 } from '../../scripts/test-e2e-linear-lead.mjs';
@@ -2898,6 +2899,38 @@ describe('MIX-626J2: jedna bramka idDozwolone przy ujściu (g): id ze wszystkich
     it('zmiana żądania lin w sprzatanie: brak odczytu listy, gdy wszystkie id odrzucone', async () => {
       const s = srodowisko([zad('LEA-12 ')]);
       await sprzatanie(s.ctx, new Set(['LEA-12 ']));
+      expect(s.wszystkie).toEqual([]);
+    });
+  });
+
+  describe('zmienLin (jedyne wywołanie lin zmieniające dane): bramka bezpośrednio, bez pośrednictwa sprzatanie', () => {
+    it.each(odmowy)(
+      '%s: etykieta i stan z wariantem → odmowa z id, 0 wywołań',
+      async (_n, wariant, opis) => {
+        for (const polecenie of [
+          ['etykieta', wariant, '+test'],
+          ['stan', wariant, 'Canceled'],
+        ]) {
+          const s = srodowisko([zad(wariant)]);
+          await expect(zmienLin(s.ctx, polecenie)).rejects.toThrow(
+            `id ${opis} odrzucone przez bramkę`,
+          );
+          expect(s.wszystkie).toEqual([]);
+        }
+      },
+    );
+    it('bliźniak: dokładne id → wywołanie lin przechodzi, z dokładnymi argumentami', async () => {
+      const s = srodowisko([zad('LEA-12')]);
+      await zmienLin(s.ctx, ['etykieta', 'LEA-12', '+test']);
+      await zmienLin(s.ctx, ['stan', 'LEA-12', 'Canceled']);
+      expect(s.zapisy).toEqual([
+        ['etykieta', 'LEA-12', '+test'],
+        ['stan', 'LEA-12', 'Canceled'],
+      ]);
+    });
+    it('brak argumentu id → odmowa (fail-closed)', async () => {
+      const s = srodowisko([]);
+      await expect(zmienLin(s.ctx, ['stan'])).rejects.toThrow('odrzucone przez bramkę');
       expect(s.wszystkie).toEqual([]);
     });
   });
