@@ -77,7 +77,11 @@ const PrivacyPolicy: React.FC = () => {
               ))}
             </ul>
             <p className="font-bold text-dark mb-2">{CONTENT.data.retention.title}</p>
-            <p>{CONTENT.data.retention.text}</p>
+            <p>
+              {isRodoKlauzulaEnabled()
+                ? CONTENT.data.retention.textRodo
+                : CONTENT.data.retention.text}
+            </p>
           </section>
 
           <section>

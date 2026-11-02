@@ -5,6 +5,7 @@ import { ContactFormData } from './types';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
 import RodoKlauzulaKrotka from '../../common/RodoKlauzulaKrotka';
+import { isRodoKlauzulaEnabled } from '../../../config/flags';
 
 interface ContactStep1Props {
   register: UseFormRegister<ContactFormData>;
@@ -80,40 +81,42 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
           icon={<Phone size={18} />}
         />
       </div>
-      <div className="pt-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-        <label className="flex items-start gap-4 cursor-pointer group">
-          <div className="relative flex items-center mt-1">
-            <input
-              type="checkbox"
-              {...register('privacy', {
-                required: 'Musisz wyrazić zgodę przed rozpoczęciem.',
-              })}
-              className="peer h-6 w-6 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 shadow-sm transition-all checked:border-secondary checked:bg-secondary hover:border-primary"
-            />
-            <CheckCircle2
-              size={14}
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity"
-            />
-          </div>
-          <span className="text-[11px] text-gray-700 leading-relaxed group-hover:text-gray-700 transition-colors font-medium">
-            Akceptuję{' '}
-            <a
-              href="/privacy-policy/"
-              target="_blank"
-              className="text-secondary hover:underline font-bold"
-            >
-              Politykę Prywatności
-            </a>{' '}
-            i wyrażam zgodę na przetwarzanie danych.
-          </span>
-        </label>
-        {errors.privacy && (
-          <div className="flex items-center gap-1.5 text-xxs font-bold text-red-500 mt-2 pl-10 animate-shake">
-            <AlertCircle size={12} />
-            <span>{errors.privacy.message}</span>
-          </div>
-        )}
-      </div>
+      {!isRodoKlauzulaEnabled() && (
+        <div className="pt-2 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+          <label className="flex items-start gap-4 cursor-pointer group">
+            <div className="relative flex items-center mt-1">
+              <input
+                type="checkbox"
+                {...register('privacy', {
+                  required: 'Musisz wyrazić zgodę przed rozpoczęciem.',
+                })}
+                className="peer h-6 w-6 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 shadow-sm transition-all checked:border-secondary checked:bg-secondary hover:border-primary"
+              />
+              <CheckCircle2
+                size={14}
+                className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100 transition-opacity"
+              />
+            </div>
+            <span className="text-[11px] text-gray-700 leading-relaxed group-hover:text-gray-700 transition-colors font-medium">
+              Akceptuję{' '}
+              <a
+                href="/privacy-policy/"
+                target="_blank"
+                className="text-secondary hover:underline font-bold"
+              >
+                Politykę Prywatności
+              </a>{' '}
+              i wyrażam zgodę na przetwarzanie danych.
+            </span>
+          </label>
+          {errors.privacy && (
+            <div className="flex items-center gap-1.5 text-xxs font-bold text-red-500 mt-2 pl-10 animate-shake">
+              <AlertCircle size={12} />
+              <span>{errors.privacy.message}</span>
+            </div>
+          )}
+        </div>
+      )}
       {submitError && (
         <div className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600 animate-shake">
           <AlertCircle size={20} className="shrink-0" />

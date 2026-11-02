@@ -290,6 +290,37 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     expect(JSON.stringify(kom)).not.toContain('privacy'); // pola techniczne nie trafiają do komentarza
   });
 
+  // MIX-847: przy fladze RODO front nie ma okienka zgody i nie wysyła pola `privacy`. Backend go nie
+  // wymaga (nigdy nie wymagał: pole jest tylko pomijane w komentarzu); walidacja reszty bez zmian.
+  it('MIX-847: create i update kroków 1-3 bez pola privacy → 200, zwykłe pola w komentarzu', async () => {
+    const { env: srv } = srodowisko();
+    const { id, edit_token, odp } = await utworz(srv);
+    expect(odp.status).toBe(200);
+    for (const step of [1, 2, 3]) {
+      const r = await wywolaj(srv, {
+        action: 'update',
+        id,
+        edit_token,
+        step,
+        details: { company: `Firma krok ${step}` },
+      });
+      expect(r.status).toBe(200);
+    }
+    expect(ileOp(siec, 'Komentarz')).toBe(2);
+    const kom = siec.linear.filter((w) => w.op === 'Komentarz').map((w) => w.vars.input);
+    expect(JSON.stringify(kom)).toContain('Firma krok 3');
+  });
+
+  it('MIX-847 (−): brak wymaganych name/email nadal → 400 z komunikatem (walidacja nie osłabiona)', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, {
+      action: 'create',
+      lead: { name: 'Jan', captcha_token: 'dobry' },
+    });
+    expect(r.status).toBe(400);
+    expect(r.body.message).toBe('Brak wymaganych pól (name, email)');
+  });
+
   it('update step=1 (wznowienie formularza) → żadnego komentarza', async () => {
     const { env: srv } = srodowisko();
     const { id, edit_token } = await utworz(srv);

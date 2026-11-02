@@ -1,6 +1,13 @@
 import { SITE_CONFIG } from '../../config/site';
 import { DICTIONARY } from '../dictionary';
 
+// Adres siedziby z konfiguracji (jedno źródło prawdy). Spacje wokół ukośnika w numerze lokalu
+// zwijamy ("17 / 4" -> "17/4"), żeby tekst był taki sam jak dotychczasowy, wpisany ręcznie.
+const ADRES_ULICA = SITE_CONFIG.contact.address.street.replace(/\s*\/\s*/g, '/');
+const ADRES_KOD = SITE_CONFIG.contact.address.postalCode;
+const ADRES_MIASTO = SITE_CONFIG.contact.address.city;
+// Miejscownik miasta ("w Rzeszowie") nie wynika z konfiguracji, więc zostaje w tekście.
+
 export const HERO_CONTENT = {
   badge: 'Partner Strategiczny dla Biznesu',
   title: {
@@ -165,7 +172,7 @@ export const TERMS_CONTENT = {
     general: {
       title: '1. Postanowienia Ogólne',
       content: [
-        `Właścicielem serwisu dostępnego pod adresem <strong>mixturemarketing.pl</strong> (dalej: "Serwis") jest spółka <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie (35-074), Al. Józefa Piłsudskiego 17/4, wpisana do rejestru przedsiębiorców Krajowego Rejestru Sądowego, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Usługodawca").`,
+        `Właścicielem serwisu dostępnego pod adresem <strong>mixturemarketing.pl</strong> (dalej: "Serwis") jest spółka <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie (${ADRES_KOD}), ${ADRES_ULICA}, wpisana do rejestru przedsiębiorców Krajowego Rejestru Sądowego, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Usługodawca").`,
         `Pytania dotyczące Regulaminu prosimy kierować na adres: <strong>${SITE_CONFIG.contact.email}</strong> lub telefonicznie pod numerem: <strong>${SITE_CONFIG.contact.phone}</strong>.`,
       ],
     },
@@ -238,9 +245,13 @@ export const TERMS_CONTENT = {
   },
 };
 
-// Adres administratora z konfiguracji (jedno źródło prawdy); spacje wokół ukośnika w numerze lokalu
-// zwijamy ("17 / 4" -> "17/4"), żeby tekst klauzuli pozostał taki sam jak w polityce prywatności.
-const RODO_ADRES = `${SITE_CONFIG.contact.address.street.replace(/\s*\/\s*/g, '/')}, ${SITE_CONFIG.contact.address.postalCode} ${SITE_CONFIG.contact.address.city}`;
+const RODO_ADRES = `${ADRES_ULICA}, ${ADRES_KOD} ${ADRES_MIASTO}`;
+
+// Okresy przechowywania (decyzja właściciela MIX-627 A): to samo brzmienie w pkt 6 klauzuli
+// formularzy i w pkt 3 polityki prywatności przy włączonej fladze.
+const RODO_RETENCJA_LEADY =
+  'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy.';
+const RODO_RETENCJA_PDF = 'Raport PDF z audytu strony przechowujemy 90 dni.';
 
 // Klauzula informacyjna RODO formularzy (MIX-844). Pokazywana tylko przy włączonej fladze
 // VITE_RODO_KLAUZULA=1 (config/flags.ts). Tekst wg dodatku RODO MIX-627, odpowiedzi właściciela 2.11.
@@ -279,7 +290,7 @@ export const RODO_KLAUZULA_CONTENT = {
       },
       {
         title: 'Jak długo przechowujemy dane.',
-        text: 'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy. Raport PDF z audytu strony przechowujemy 90 dni. Techniczne znaczniki ochrony przed nadużyciami (liczniki zapytań, blokady powtórzeń) wygasają same po czasie od jednej godziny do 30 dni.',
+        text: `${RODO_RETENCJA_LEADY} ${RODO_RETENCJA_PDF} Techniczne znaczniki ochrony przed nadużyciami (liczniki zapytań, blokady powtórzeń) wygasają same po czasie od jednej godziny do 30 dni.`,
       },
       {
         title: 'Twoje prawa.',
@@ -316,7 +327,7 @@ export const PRIVACY_POLICY_CONTENT = {
   admin: {
     title: '1. Administrator Danych',
     content: [
-      `Administratorem danych osobowych zbieranych za pośrednictwem serwisu jest <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie, przy Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Administrator").`,
+      `Administratorem danych osobowych zbieranych za pośrednictwem serwisu jest <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie, przy ${ADRES_ULICA}, ${ADRES_KOD} ${ADRES_MIASTO}, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Administrator").`,
       `W sprawach dotyczących ochrony danych osobowych możesz skontaktować się z nami pod adresem e-mail: <strong>${SITE_CONFIG.contact.email}</strong>.`,
     ],
   },
@@ -354,6 +365,8 @@ export const PRIVACY_POLICY_CONTENT = {
     retention: {
       title: 'Okres przechowywania:',
       text: 'Dane kontaktowe przechowujemy przez okres trwania korespondencji, a następnie do czasu przedawnienia ewentualnych roszczeń (zazwyczaj 3-6 lat) lub do momentu wycofania przez Ciebie zgody.',
+      // Przy fladze VITE_RODO_KLAUZULA=1 (decyzja MIX-627 A: bez okienka zgody, stałe okresy).
+      textRodo: `${RODO_RETENCJA_LEADY} ${RODO_RETENCJA_PDF}`,
     },
   },
   cookies: {
