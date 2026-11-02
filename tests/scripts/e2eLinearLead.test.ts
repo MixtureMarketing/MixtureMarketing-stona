@@ -17,6 +17,7 @@ import {
   przebieg,
   sprawdzAdresPreview,
   sprawdzOchrone,
+  sprzatanie,
   tytulPasuje,
   wynikF,
   zbudujKontekst,
@@ -51,7 +52,7 @@ interface Opcje {
   bezOchrony?: 'alias' | 'hash' | 'oba';
   bezAccessOdp?: { status: number; location?: string };
   zAccessStatus?: number;
-  drugiLeadTworzyZadanie?: boolean;
+  drugiLeadTworzyZadanie?: boolean | 'oba';
   nigdyZadania?: boolean;
   ponow?: Array<Record<string, number>>;
   dlaKazdegoPostuZadan?: number;
@@ -131,7 +132,7 @@ function atrapa(opcje: Opcje = {}) {
       if (widziane.has(email)) {
         const pierwsze = zadania.find((z) => z.id === widziane.get(email));
         if (opcje.drugiLeadTworzyZadanie) dodaj(firmowa, 'kontakt', ['formularz', 'test']);
-        else if (pierwsze) {
+        if (opcje.drugiLeadTworzyZadanie !== true && pierwsze) {
           komentarze[pierwsze.id] = [
             ...(komentarze[pierwsze.id] ?? []),
             { tresc: '**Kolejny lead z tego adresu e-mail (w ciągu godziny)**' },
@@ -546,6 +547,24 @@ describe('strażnik ochrony: decyzjaOchrony', () => {
       /brak kodu/,
     ),
     forma(
+      'F21 200 z Location na host Access (ciało podobne do Access)',
+      { status: 200, location: 'https://t.cloudflareaccess.com/x' },
+      false,
+      /kod 200/,
+    ),
+    forma(
+      'F22 dane logowania przy prawdziwym hoście Access',
+      { status: 302, location: 'https://x@t.cloudflareaccess.com/x' },
+      false,
+      /danymi logowania/,
+    ),
+    forma(
+      'F23 hasło przy prawdziwym hoście Access',
+      { status: 302, location: 'https://:pw@t.cloudflareaccess.com/x' },
+      false,
+      /danymi logowania/,
+    ),
+    forma(
       'F20 Location z innej domeny wyglądającej na Access',
       { status: 302, location: 'https://t.cloudflareaccess.net/x' },
       false,
@@ -744,6 +763,17 @@ describe('przebieg: kolejność i kod wyjścia', () => {
     expect(w.kod).toBe(1);
     expect(a.zadania.every((z) => z.stan === 'Canceled')).toBe(true);
   });
+  it('(e): komentarz jest, ale drugie zadanie też powstało → porażka z powodem o zadaniu', async () => {
+    const { ctx, a } = kontekst(
+      { drugiLeadTworzyZadanie: 'oba' },
+      { E2E_BEZ_RESEND: '1' },
+      STAN_F_OK,
+    );
+    const w = await przebieg(ctx);
+    expect(w.wyniki.e.status).toBe('fail');
+    expect(w.wyniki.e.powod).toMatch(/drugi lead utworzył zadanie/);
+    expect(a.zadania.every((z) => z.stan === 'Canceled')).toBe(true);
+  });
   it('zadanie nie pojawia się w limicie czasu: fail, kod 1, bez wyjątku', async () => {
     const { ctx } = kontekst({ nigdyZadania: true }, { E2E_BEZ_RESEND: '1' }, STAN_F_OK);
     const w = await przebieg(ctx);
@@ -774,6 +804,34 @@ describe('przebieg: kolejność i kod wyjścia', () => {
     await przebieg(ctx);
     const calosc = [...logi, ...raporty].join('\n');
     for (const s of [ID, SEKRET, PONOW]) expect(calosc).not.toContain(s);
+  });
+});
+
+describe('(g): sprzątanie', () => {
+  it('dodaje etykietę test i ustawia Canceled, gdy zadanie ich nie ma', async () => {
+    const { ctx, a } = kontekst();
+    a.dodaj('example.com', 'kontakt', ['formularz']);
+    const w = await sprzatanie(ctx, new Set(['LEA-11']));
+    expect(w.status).toBe('pass');
+    expect(a.zadania[0]).toMatchObject({ stan: 'Canceled' });
+    expect(a.zadania[0].etykiety).toContain('test');
+  });
+  it('porażka polecenia lin (stan) → fail z id zadania', async () => {
+    const { ctx, a } = kontekst();
+    a.dodaj('example.com', 'kontakt', ['formularz', 'test']);
+    const lin = ctx.lin;
+    ctx.lin = async (args: string[]) => {
+      if (args[0] === 'stan') throw new Error('Linear odmówił');
+      return lin(args);
+    };
+    const w = await sprzatanie(ctx, new Set(['LEA-11']));
+    expect(w.status).toBe('fail');
+    expect(w.powod).toMatch(/LEA-11/);
+  });
+  it('zadanie, które zniknęło z listy → fail; pusty zestaw → pass bez wywołań lin', async () => {
+    const { ctx } = kontekst();
+    expect((await sprzatanie(ctx, new Set(['LEA-99']))).status).toBe('fail');
+    expect((await sprzatanie(ctx, new Set())).status).toBe('pass');
   });
 });
 
