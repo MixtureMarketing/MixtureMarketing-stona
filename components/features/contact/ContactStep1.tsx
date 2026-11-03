@@ -87,9 +87,7 @@ const ContactStep1: React.FC<ContactStep1Props> = ({
             <div className="relative flex items-center mt-1">
               <input
                 type="checkbox"
-                {...register('privacy', {
-                  required: 'Musisz wyrazić zgodę przed rozpoczęciem.',
-                })}
+                {...register('privacy')}
                 className="peer h-6 w-6 cursor-pointer appearance-none rounded-lg border-2 border-gray-200 shadow-sm transition-all checked:border-secondary checked:bg-secondary hover:border-primary"
               />
               <CheckCircle2

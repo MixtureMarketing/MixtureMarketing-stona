@@ -3,7 +3,7 @@ import { RODO_KLAUZULA_CONTENT as CONTENT } from '../../data/content';
 import { isRodoKlauzulaEnabled } from '../../config/flags';
 
 interface RodoKlauzulaKrotkaProps {
-  variant: 'contact' | 'calculator';
+  variant: 'contact' | 'calculator' | 'abonament';
   /** 'dark' dla kalkulatora (ciemne tło), 'light' dla formularza kontaktowego. */
   tone?: 'dark' | 'light';
 }
