@@ -39,6 +39,21 @@ describe('public/_redirects — polskie aliasy URL', () => {
   });
 });
 
+// MIX-921 (audyt MIX-897 P5): stary adres strony głównej z WordPressa dostawał od Google 404.
+describe('public/_redirects — /home ze starego WordPressa', () => {
+  it.each(['/home', '/home/'])('%s → 301 / przed catch-allem 404', (from) => {
+    const idx = rules.findIndex((r) => r.from === from);
+    expect(idx, from).toBeGreaterThanOrEqual(0);
+    expect(rules[idx]).toEqual({ from, to: '/', status: '301' });
+    expect(idx).toBeLessThan(rules.findIndex((r) => r.from === '/*'));
+  });
+
+  it('cel „/” jest trasą, a /home/ nie jest trasą (bez kolizji z prerenderem)', () => {
+    expect(routes).toContain('/');
+    expect(routes).not.toContain('/home/');
+  });
+});
+
 // Cloudflare Pages: pierwsza pasująca reguła wygrywa; splat `/portal/*` NIE łapie `/portal`
 // (bez slasha) — ten adres z maili dostawał HTTP 404 z catch-alla.
 describe('public/_redirects — panel klienta', () => {

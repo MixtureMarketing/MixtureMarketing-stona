@@ -122,26 +122,32 @@ const WebDevHeroTitle: React.FC = () => {
         // co dawało H1 o stopniu 17 px — mniej niż tekst akapitu. Zmierzone, nie
         // przewidziane. Na mobile linia łamie się normalnie i dostaje własny clamp;
         // flush to decyzja dla kadru, który ma szerokość na taką decyzję.
-        <span
-          key={i}
-          className={`block text-[clamp(1.75rem,7vw,2.75rem)] leading-[1.12] md:whitespace-nowrap md:leading-[1.02] ${line.cls}`}
-        >
-          {line.segments.map((s, j) => (
-            <span
-              key={j}
-              style={{
-                fontWeight: s.w,
-                // Spoiwo (400) gaśnie szybciej niż nośne (800), gdy arkusz Realizacji
-                // najeżdża. Spoczynek --cover:0 → opacity 1 → prerender widzi komplet.
-                opacity:
-                  s.w === 400 ? 'calc(1 - var(--cover, 0))' : 'calc(1 - var(--cover, 0) * 0.45)',
-              }}
-              className={s.accent ? 'text-primary' : undefined}
-            >
-              {s.t}
-            </span>
-          ))}
-        </span>
+        // Spacja (węzeł tekstowy) przed każdą kolejną linią: bez niej textContent H1
+        // skleja zdania („webowych.Bez”) — audyt MIX-897 P11, MIX-921.
+        <React.Fragment key={i}>
+          {i > 0 && ' '}
+          <span
+            className={`block text-[clamp(1.75rem,7vw,2.75rem)] leading-[1.12] md:whitespace-nowrap md:leading-[1.02] ${line.cls}`}
+          >
+            {line.segments.map((s, j) => (
+              <span
+                key={j}
+                style={{
+                  fontWeight: s.w,
+                  // Spoiwo (400) gaśnie szybciej niż nośne (800), gdy arkusz Realizacji
+                  // najeżdża. Spoczynek --cover:0 → opacity 1 → prerender widzi komplet.
+                  opacity:
+                    s.w === 400
+                      ? 'calc(1 - var(--cover, 0))'
+                      : 'calc(1 - var(--cover, 0) * 0.45)',
+                }}
+                className={s.accent ? 'text-primary' : undefined}
+              >
+                {s.t}
+              </span>
+            ))}
+          </span>
+        </React.Fragment>
       ))}
     </h1>
   );

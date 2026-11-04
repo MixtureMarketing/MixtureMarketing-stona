@@ -72,19 +72,23 @@ export const HeroTitle: React.FC<HeroTitleProps> = ({ title, tone = 'light' }) =
       <>
         <span className="block text-2xl font-medium text-white/60 sm:text-3xl lg:text-4xl">
           {t.line1}
-        </span>
+        </span>{' '}
         <span className="mt-4 block text-[clamp(2.25rem,4.8vw,4rem)] font-extrabold leading-[1.05]">
           <span className={accent}>{t.line2}</span>
         </span>
+        {t.accent && ' '}
         {t.accent && <span className={`block ${accent}`}>{t.accent}</span>}
       </>
     );
   }
 
+  // Spacje `{' '}` między blokowymi spanami: bez nich textContent H1 (Google, czytnik
+  // ekranu) skleja zdania, np. „gubi klientów.Powiemy” (audyt MIX-897 P11, MIX-921).
   return (
     <>
       {t.line1} <br />
       <span className={accent}>{t.line2}</span>
+      {t.accent && ' '}
       {t.accent && <span className={`block ${accent}`}>{t.accent}</span>}
     </>
   );

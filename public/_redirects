@@ -38,6 +38,11 @@
 /realizacje     /portfolio/   301
 /realizacje/    /portfolio/   301
 
+# Stary adres strony głównej z WordPressa (GSC: 404 przy crawlu 2.11 i 3.11, 49 wyświetleń
+# w 16 mies.; audyt MIX-897 P5, MIX-921). Trasy /home/ nie ma w routes.js.
+/home           /             301
+/home/          /             301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje
