@@ -115,7 +115,6 @@ describe('AuditWizard — deep-link z `%`', () => {
   });
 });
 
-
 describe('auditService.runAudit — komunikat serwera dociera do UI (MIX-893)', () => {
   afterEach(() => vi.unstubAllGlobals());
   const reply = (status: number, body: unknown) =>

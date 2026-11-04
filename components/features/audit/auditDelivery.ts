@@ -63,7 +63,8 @@ export function auditErrorMessage(err: unknown): string {
       ? Number((err as { status: unknown }).status)
       : 0;
   const serverMessage = err instanceof Error ? err.message.trim() : '';
-  if (status === 400) return 'Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.';
+  if (status === 400)
+    return 'Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.';
   if (status > 0) {
     return serverMessage || 'Nie udało się przeprowadzić audytu. Spróbuj ponownie za chwilę.';
   }
