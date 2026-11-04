@@ -1,12 +1,18 @@
 import puppeteer from 'puppeteer';
+import { createProdSafe } from './lib/prod-safe.mjs';
+
+const BASE_URL = 'https://mixturemarketing.pl/';
+const safe = createProdSafe(BASE_URL);
 
 (async () => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  safe.watchBrowser(browser);
   try {
     const page = await browser.newPage();
+    await safe.protect(page);
     await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
     console.log('[1] Open /');
-    await page.goto('https://mixturemarketing.pl/', { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise((r) => setTimeout(r, 1500));
 
     // Dismiss cookie banner
@@ -65,5 +71,6 @@ import puppeteer from 'puppeteer';
     console.error('FAIL:', err.message);
   } finally {
     await browser.close();
+    safe.finish();
   }
 })();
