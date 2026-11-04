@@ -1,17 +1,23 @@
 import puppeteer from 'puppeteer';
+import { createProdSafe } from './lib/prod-safe.mjs';
+
+const BASE_URL = 'https://mixturemarketing.pl/';
+const safe = createProdSafe(BASE_URL);
 
 (async () => {
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  safe.watchBrowser(browser);
   try {
     const page = await browser.newPage();
     // iPhone 13 viewport
     await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
-    await page.setUserAgent(
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-    );
+    await safe.protect(page, {
+      userAgent:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    });
 
     console.log('[1/4] Opening mixturemarketing.pl...');
-    await page.goto('https://mixturemarketing.pl/', { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(BASE_URL, { waitUntil: 'networkidle2', timeout: 30000 });
     await new Promise((r) => setTimeout(r, 1500));
     await page.screenshot({ path: 'D:/tmp/mobile-menu-01-closed.png' });
 
@@ -83,5 +89,6 @@ import puppeteer from 'puppeteer';
     console.error('FAIL:', err.message);
   } finally {
     await browser.close();
+    safe.finish();
   }
 })();

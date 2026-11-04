@@ -13,11 +13,13 @@
 import puppeteer from 'puppeteer';
 import { spawn } from 'node:child_process';
 import http from 'node:http';
+import { createProdSafe } from './lib/prod-safe.mjs';
 
 const PORT = 4174; // inny niż prerender (4173)
 const BASE_URL = (process.env.E2E_BASE_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
 const CONTACT_URL = `${BASE_URL}/contact/`;
 const API_PATH = '/api/contact-submit';
+const safe = createProdSafe(BASE_URL); // analityka (Zaraz też z własnej domeny) zawsze zablokowana
 
 const TURNSTILE_STUB = `window.turnstile = {
   render: function () { return 'e2e-widget'; },
@@ -80,48 +82,50 @@ async function runTest() {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
+    safe.watchBrowser(browser);
     const page = await browser.newPage();
     page.on('pageerror', (e) => console.log('PAGEERROR:', e.message));
-    // UA bez „Headless” — część komponentów traktuje go jak prerender.
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-    );
     await page.setViewport({ width: 1280, height: 800 });
 
-    await page.setRequestInterception(true);
-    page.on('request', (request) => {
-      const url = new URL(request.url());
-      if (url.origin === BASE_URL && url.pathname === API_PATH) {
-        let body = {};
-        try {
-          body = JSON.parse(request.postData() || '{}');
-        } catch {
-          /* GET get_lead */
+    // UA bez „Headless” (część komponentów traktuje go jak prerender) + dopisek MixtureE2E/1 +
+    // blokada analityki (wspólny moduł); reszta żądań: handler poniżej.
+    await safe.protect(page, {
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+      handler: (request) => {
+        const url = new URL(request.url());
+        if (url.origin === BASE_URL && url.pathname === API_PATH) {
+          let body = {};
+          try {
+            body = JSON.parse(request.postData() || '{}');
+          } catch {
+            /* GET get_lead */
+          }
+          const action = body.action || url.searchParams.get('action') || 'unknown';
+          apiCalls.push({ action, body });
+          console.log(`💉 mock ${API_PATH} action=${action}`);
+          const responses = {
+            create: { success: true, id: body.lead?.id },
+            update: { success: true },
+            send_notification: { success: true },
+            get_lead: { lead: null },
+          };
+          return request.respond({
+            status: responses[action] ? 200 : 400,
+            contentType: 'application/json',
+            body: JSON.stringify(responses[action] || { message: `Nieznana akcja ${action}` }),
+          });
         }
-        const action = body.action || url.searchParams.get('action') || 'unknown';
-        apiCalls.push({ action, body });
-        console.log(`💉 mock ${API_PATH} action=${action}`);
-        const responses = {
-          create: { success: true, id: body.lead?.id },
-          update: { success: true },
-          send_notification: { success: true },
-          get_lead: { lead: null },
-        };
-        return request.respond({
-          status: responses[action] ? 200 : 400,
-          contentType: 'application/json',
-          body: JSON.stringify(responses[action] || { message: `Nieznana akcja ${action}` }),
-        });
-      }
-      if (url.hostname === 'challenges.cloudflare.com') {
-        return request.respond({
-          status: 200,
-          contentType: 'text/javascript',
-          body: TURNSTILE_STUB,
-        });
-      }
-      if (url.origin !== BASE_URL) return request.abort(); // analityka, Zaraz, kalendarz itd.
-      return request.continue();
+        if (url.hostname === 'challenges.cloudflare.com') {
+          return request.respond({
+            status: 200,
+            contentType: 'text/javascript',
+            body: TURNSTILE_STUB,
+          });
+        }
+        if (url.origin !== BASE_URL) return request.abort(); // kalendarz itd.
+        return request.continue();
+      },
     });
 
     console.log(`🌐 ${CONTACT_URL}`);
@@ -167,6 +171,7 @@ async function runTest() {
     process.exitCode = 1;
   } finally {
     if (browser) await browser.close().catch(() => {});
+    if (browser) safe.finish();
     if (server?.pid) {
       try {
         process.kill(-server.pid, 'SIGTERM');

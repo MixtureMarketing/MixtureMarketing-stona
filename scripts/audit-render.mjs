@@ -50,6 +50,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
+import { createProdSafe, isAnalyticsUrl } from './lib/prod-safe.mjs';
 
 // ---------------------------------------------------------------- argumenty
 const args = process.argv.slice(2);
@@ -82,9 +83,9 @@ const VIEWPORTS = {
 };
 const viewportNames = flag('viewport') ? [String(flag('viewport'))] : Object.keys(VIEWPORTS);
 
-// Beacony analityki: blokowane i pomijane w raporcie (nie zaśmiecamy GA4 właściciela).
-const BLOCKED =
-  /cdn-cgi\/zaraz\/t|\/rifd\/|google-analytics\.com|googletagmanager\.com|analytics\.google\.com|cdn-cgi\/rum|doubleclick\.net|connect\.facebook\.net|facebook\.com\/tr/;
+// Beacony analityki (Zaraz, GA, GTM, RUM...): blokuje je wspólny moduł scripts/lib/prod-safe.mjs
+// (nie zaśmiecamy GA4 właściciela); tu tylko pomijamy je w raporcie (isAnalyticsUrl).
+const safe = createProdSafe(BASE);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -612,7 +613,7 @@ function attachCollectors(page, sink) {
   );
   page.on('console', (msg) => {
     const loc = msg.location()?.url || '';
-    if (BLOCKED.test(loc)) return;
+    if (isAnalyticsUrl(loc)) return;
     const text = msg.text();
     if (msg.type() === 'error') {
       if (/net::ERR_FAILED|ERR_BLOCKED_BY_CLIENT/.test(text) && sink.blocked.some((u) => u === loc))
@@ -630,7 +631,7 @@ function attachCollectors(page, sink) {
   });
   page.on('response', (res) => {
     const url = res.url();
-    if (res.status() >= 400 && !BLOCKED.test(url)) {
+    if (res.status() >= 400 && !isAnalyticsUrl(url)) {
       sink.push({
         category: 'request-failed',
         detail: `HTTP ${res.status()} ${res.request().method()} ${url}`,
@@ -639,7 +640,7 @@ function attachCollectors(page, sink) {
   });
   page.on('requestfailed', (req) => {
     const url = req.url();
-    if (BLOCKED.test(url) || sink.blocked.includes(url)) return;
+    if (isAnalyticsUrl(url) || sink.blocked.includes(url)) return;
     const err = req.failure()?.errorText || 'failed';
     sink.push({ category: 'request-failed', detail: `${err} ${req.method()} ${url}` });
   });
@@ -648,23 +649,22 @@ function attachCollectors(page, sink) {
 async function preparePage(context, vpName) {
   const page = await context.newPage();
   const vp = VIEWPORTS[vpName];
-  await page.setUserAgent(vp.userAgent);
   await page.setViewport(vp.viewport);
-  await page.setRequestInterception(true);
   const sink = [];
   sink.blocked = [];
-  page.on('request', (req) => {
-    const url = req.url();
-    const mutating = !['GET', 'HEAD', 'OPTIONS'].includes(req.method());
-    if (BLOCKED.test(url) || mutating) {
-      sink.blocked.push(url);
-      if (mutating && !BLOCKED.test(url)) {
+  await safe.protect(page, {
+    userAgent: vp.userAgent,
+    onBlocked: (req) => sink.blocked.push(req.url()),
+    handler: (req) => {
+      const url = req.url();
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method())) {
+        sink.blocked.push(url);
         sink.push({ category: 'info-blocked-mutation', detail: `${req.method()} ${url}` });
+        req.abort('blockedbyclient').catch(() => {});
+        return;
       }
-      req.abort('blockedbyclient').catch(() => {});
-      return;
-    }
-    req.continue().catch(() => {});
+      req.continue().catch(() => {});
+    },
   });
   attachCollectors(page, sink);
   return { page, sink };
@@ -796,6 +796,7 @@ async function main() {
         : []),
     ],
   });
+  safe.watchBrowser(browser);
   const findings = [];
   try {
     if (SPA) {
@@ -817,6 +818,7 @@ async function main() {
     await browser.close();
   }
   process.stdout.write('\n');
+  safe.finish(); // bezpiecznik: przeciek analityki / brak blokady = exit 1
 
   fs.mkdirSync(OUT, { recursive: true });
   const reportPath = path.join(OUT, 'report.json');
@@ -838,7 +840,7 @@ async function main() {
   }
   const real = findings.filter((f) => !f.category.startsWith('info-'));
   console.log(`\nUstaleń: ${real.length}. Raport: ${reportPath}`);
-  process.exitCode = real.length ? 1 : 0;
+  if (real.length) process.exitCode = 1;
 }
 
 main().catch((err) => {
