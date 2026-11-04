@@ -22,10 +22,100 @@ type Fetcher<T> = (slug: string) => Promise<T | null>;
  * preload (config/routes.tsx) co szablony dokumentów, fetcher ignoruje argument.
  */
 export const CMS_LIST_KEY = 'list';
+
+/**
+ * Stałe nazwy rodzajów dokumentu (MIX-922). Klucz zrzutu danych w HTML nie może
+ * zależeć od nazwy funkcji (minifikacja w buildzie ją zmienia).
+ */
+export const CMS_DOC = {
+  article: 'article',
+  industry: 'industry',
+  location: 'location',
+  caseStudy: 'caseStudy',
+  industryList: 'industryList',
+} as const;
+export type CmsDocId = (typeof CMS_DOC)[keyof typeof CMS_DOC];
+
+// ---------------------------------------------------------------------------
+// Zrzut danych CMS w prerenderowanym HTML (MIX-922, audyt MIX-897 P1).
+// Prerender (window.isPrerendering) zapisuje każdy pobrany dokument do
+// <script type="application/json" id="cms-snapshot"> poza #root; page.content()
+// zabiera go do dist/. Po JS hook bierze dane ze zrzutu i NIE pyta Sanity
+// ponownie, więc treść, title i canonical są te same co w prerenderze, także gdy
+// Sanity jest wolne albo niedostępne (wcześniej: szkielet/stan błędu bez canonical).
+// ---------------------------------------------------------------------------
+export const CMS_SNAPSHOT_ID = 'cms-snapshot';
+
+const snapshotKey = (id: CmsDocId, slug: string) => `${id}|${slug}`;
+
+let cachedEl: Element | null = null;
+let cachedText: string | null = null;
+let cachedMap = new Map<string, unknown>();
+
+function snapshotMap(): Map<string, unknown> {
+  if (typeof document === 'undefined') return new Map();
+  // W trakcie prerenderu zrzut dopiero powstaje — nie czytamy go jako źródła.
+  if (typeof window !== 'undefined' && window.isPrerendering) return new Map();
+  const el = document.getElementById(CMS_SNAPSHOT_ID);
+  const text = el?.textContent ?? null;
+  if (el === cachedEl && text === cachedText) return cachedMap;
+  cachedEl = el;
+  cachedText = text;
+  cachedMap = new Map();
+  if (!text) return cachedMap;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+        if (v !== null && v !== undefined) cachedMap.set(k, v);
+      }
+    }
+  } catch {
+    /* uszkodzony zrzut = brak zrzutu: hook pobierze dane jak dawniej */
+  }
+  return cachedMap;
+}
+
+/** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma. */
+export function readCmsSnapshot<T>(id: CmsDocId, slug: string): T | undefined {
+  return snapshotMap().get(snapshotKey(id, slug)) as T | undefined;
+}
+
+/** JSON bezpieczny w treści <script>: bez `<` (`</script>`, `<!--`) i U+2028/2029. */
+export function serializeCmsSnapshot(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/ /g, '\\u2028')
+    .replace(/ /g, '\\u2029');
+}
+
+/** Tylko w prerenderze: dopisuje dokument do zrzutu w DOM (trafi do dist/ z page.content()). */
+export function recordCmsSnapshot(id: CmsDocId, slug: string, data: unknown): void {
+  if (typeof window === 'undefined' || !window.isPrerendering || data == null) return;
+  let el = document.getElementById(CMS_SNAPSHOT_ID);
+  if (!el) {
+    el = document.createElement('script');
+    el.setAttribute('type', 'application/json');
+    el.id = CMS_SNAPSHOT_ID;
+    document.body.appendChild(el);
+  }
+  let current: Record<string, unknown> = {};
+  try {
+    const parsed: unknown = JSON.parse(el.textContent || '{}');
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      current = parsed as Record<string, unknown>;
+    }
+  } catch {
+    current = {};
+  }
+  current[snapshotKey(id, slug)] = data;
+  el.textContent = serializeCmsSnapshot(current);
+}
+
 type Primed = { status: 'ok' | 'notfound'; data: unknown };
 
 // Dane pobrane PRZED pierwszym renderem (preloadRoute w index.tsx przy starcie z
-// prerenderowanego HTML). Klucz: referencja fetchera → slug.
+// prerenderowanego HTML bez zrzutu). Klucz: referencja fetchera → slug.
 const primed = new WeakMap<Fetcher<unknown>, Map<string, Primed>>();
 
 /**
@@ -50,26 +140,42 @@ export async function primeCmsDocument<T>(fetcher: Fetcher<T>, slug: string): Pr
  * do `loading` — stary błąd/stare dane nie „przeciekają” na nowy URL. Odpowiedź
  * spóźnionego żądania (A→B, A odpowiada po B) jest ignorowana.
  *
+ * Kolejność źródeł przy pierwszej próbie: zrzut w HTML (MIX-922) → preload → Sanity.
+ * „Spróbuj ponownie” zawsze pyta Sanity.
+ *
  * `fetcher` musi mieć stabilną referencję (funkcja modułu / metoda serwisu).
  */
 export function useCmsDocument<T>(
   slug: string | undefined,
   fetcher: (slug: string) => Promise<T | null>,
+  cmsId: CmsDocId,
 ) {
   const [attempt, setAttempt] = useState(0);
   const [settled, setSettled] = useState<Settled<T> | null>(() => {
-    const hit = slug ? primed.get(fetcher)?.get(slug) : undefined;
+    if (!slug) return null;
+    const snap = readCmsSnapshot<T>(cmsId, slug);
+    if (snap !== undefined) return { key: `${slug}#0`, status: 'ok', data: snap };
+    const hit = primed.get(fetcher)?.get(slug);
     return hit ? { key: `${slug}#0`, status: hit.status, data: hit.data as T | null } : null;
   });
   const key = `${slug ?? ''}#${attempt}`;
 
   useEffect(() => {
     if (!slug) return;
-    // Dane z preloadu są już w stanie początkowym — zużyj je raz, bez drugiego żądania.
-    if (attempt === 0 && primed.get(fetcher)?.delete(slug)) return;
+    if (attempt === 0) {
+      // Zrzut z prerenderu: bez żądania do Sanity (także po powrocie na ten slug).
+      const snap = readCmsSnapshot<T>(cmsId, slug);
+      if (snap !== undefined) {
+        setSettled((prev) => (prev && prev.key === key ? prev : { key, status: 'ok', data: snap }));
+        return;
+      }
+      // Dane z preloadu są już w stanie początkowym — zużyj je raz, bez drugiego żądania.
+      if (primed.get(fetcher)?.delete(slug)) return;
+    }
     let cancelled = false;
     fetcher(slug).then(
       (data) => {
+        if (data) recordCmsSnapshot(cmsId, slug, data);
         if (!cancelled) setSettled({ key, status: data ? 'ok' : 'notfound', data: data ?? null });
       },
       (err: unknown) => {
@@ -81,7 +187,7 @@ export function useCmsDocument<T>(
     return () => {
       cancelled = true;
     };
-  }, [slug, fetcher, key, attempt]);
+  }, [slug, fetcher, cmsId, key, attempt]);
 
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
 

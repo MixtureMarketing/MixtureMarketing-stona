@@ -7,7 +7,7 @@ import Seo from '@/components/common/Seo';
 const ArticleSchemaSeo = lazyWithPreload(() => import('@/components/common/ArticleSchemaSeo'));
 import NotFound from '@/components/common/NotFound';
 import CmsErrorState from '@/components/common/CmsErrorState';
-import { useCmsDocument } from '@/hooks/useCmsDocument';
+import { useCmsDocument, CMS_DOC } from '@/hooks/useCmsDocument';
 import { lazyWithPreload } from '@/components/common/lazyWithPreload';
 import AmbientBackground from '@/components/common/AmbientBackground';
 import LazyHydrate from '@/components/common/LazyHydrate';
@@ -24,7 +24,11 @@ export const routePreload = () => ArticleSchemaSeo.preload();
 const ArticleTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
   // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
-  const { status, data: article, retry } = useCmsDocument<SanityArticle>(slug, fetchArticle);
+  const { status, data: article, retry } = useCmsDocument<SanityArticle>(
+    slug,
+    fetchArticle,
+    CMS_DOC.article,
+  );
 
   if (status === 'loading') {
     return (

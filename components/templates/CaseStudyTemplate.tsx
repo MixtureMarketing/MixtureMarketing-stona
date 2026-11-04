@@ -8,7 +8,7 @@ import { SanityImage } from '@/types/sanity';
 import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
 import CmsErrorState from '@/components/common/CmsErrorState';
-import { useCmsDocument } from '@/hooks/useCmsDocument';
+import { useCmsDocument, CMS_DOC } from '@/hooks/useCmsDocument';
 import { useBreadcrumbLabel } from '@/context/BreadcrumbLabelContext';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
@@ -28,7 +28,7 @@ function urlFor(source: SanityImage) {
 
 const CaseStudyTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage);
+  const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage, CMS_DOC.caseStudy);
   const project = data?.project ?? null;
   const nextProject = data?.nextProject ?? null;
   useBreadcrumbLabel(project?.title);

@@ -8,7 +8,7 @@ describe('useCmsDocument', () => {
       if (slug === 'brak') return null;
       throw new Error('Sanity 503');
     });
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher), {
+    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
       initialProps: { slug: 'brak' },
     });
     expect(result.current.status).toBe('loading');
@@ -24,7 +24,7 @@ describe('useCmsDocument', () => {
       if (slug === 'a') throw new Error('timeout');
       return { slug };
     });
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher), {
+    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
       initialProps: { slug: 'a' },
     });
     await waitFor(() => expect(result.current.status).toBe('error'));
@@ -38,7 +38,7 @@ describe('useCmsDocument', () => {
       .fn<(slug: string) => Promise<{ ok: boolean } | null>>()
       .mockRejectedValueOnce(new Error('429'))
       .mockResolvedValueOnce({ ok: true });
-    const { result } = renderHook(() => useCmsDocument('x', fetcher));
+    const { result } = renderHook(() => useCmsDocument('x', fetcher, 'industry'));
     await waitFor(() => expect(result.current.status).toBe('error'));
     act(() => result.current.retry());
     expect(result.current.status).toBe('loading');
@@ -55,7 +55,7 @@ describe('useCmsDocument', () => {
           })
         : Promise.resolve({ id: 'b' }),
     );
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher), {
+    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
       initialProps: { slug: 'a' },
     });
     rerender({ slug: 'b' });
@@ -69,13 +69,13 @@ describe('useCmsDocument', () => {
     await primeCmsDocument(fetcher, 'medycyna');
     expect(fetcher).toHaveBeenCalledTimes(1);
 
-    const { result } = renderHook(() => useCmsDocument('medycyna', fetcher));
+    const { result } = renderHook(() => useCmsDocument('medycyna', fetcher, 'industry'));
     expect(result.current.status).toBe('ok');
     expect(result.current.data).toEqual({ slug: 'medycyna' });
     expect(fetcher).toHaveBeenCalledTimes(1);
 
     // Dane z preloadu są jednorazowe — kolejny montaż pobiera normalnie.
-    const second = renderHook(() => useCmsDocument('medycyna', fetcher));
+    const second = renderHook(() => useCmsDocument('medycyna', fetcher, 'industry'));
     expect(second.result.current.status).toBe('loading');
     await waitFor(() => expect(second.result.current.status).toBe('ok'));
     expect(fetcher).toHaveBeenCalledTimes(2);
@@ -86,7 +86,7 @@ describe('useCmsDocument', () => {
       throw new Error('Sanity 503');
     });
     await expect(primeCmsDocument(fetcher, 'x')).resolves.toBeUndefined();
-    const { result } = renderHook(() => useCmsDocument('x', fetcher));
+    const { result } = renderHook(() => useCmsDocument('x', fetcher, 'industry'));
     expect(result.current.status).toBe('loading');
     await waitFor(() => expect(result.current.status).toBe('error'));
   });

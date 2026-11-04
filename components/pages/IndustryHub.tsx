@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { cmsService, SanityIndustrySummary } from '@/services/cmsService';
-import { useCmsDocument, CMS_LIST_KEY } from '@/hooks/useCmsDocument';
+import { useCmsDocument, CMS_LIST_KEY, CMS_DOC } from '@/hooks/useCmsDocument';
 import Seo from '@/components/common/Seo';
 import CmsErrorState from '@/components/common/CmsErrorState';
 import Container from '@/components/common/Container';
@@ -26,6 +26,7 @@ const IndustryHub: React.FC = () => {
   const { status, data, retry } = useCmsDocument<SanityIndustrySummary[]>(
     CMS_LIST_KEY,
     cmsService.getIndustryList,
+    CMS_DOC.industryList,
   );
   const industries = data ?? [];
 
