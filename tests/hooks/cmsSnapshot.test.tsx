@@ -20,9 +20,10 @@ const putSnapshot = (text: string) => {
   return el;
 };
 
-const sanityDown = () => vi.fn(async (_slug: string): Promise<{ name: string } | null> => {
-  throw new Error('Sanity 503');
-});
+const sanityDown = () =>
+  vi.fn(async (_slug: string): Promise<{ name: string } | null> => {
+    throw new Error('Sanity 503');
+  });
 
 afterEach(() => {
   document.getElementById(CMS_SNAPSHOT_ID)?.remove();
@@ -33,7 +34,7 @@ afterEach(() => {
 describe('zrzut CMS: zapis w prerenderze', () => {
   it('prerender: pobrany dokument trafia do <script type="application/json"> poza #root, bez `<`', async () => {
     window.isPrerendering = true;
-    const doc = { name: 'Medycyna', html: '</script><script>alert(1)</script>  ' };
+    const doc = { name: 'Medycyna', html: '</script><script>alert(1)</script> \u2028' };
     const fetcher = vi.fn(async () => doc);
     const { result } = renderHook(() => useCmsDocument('medycyna', fetcher, 'industry'));
     await waitFor(() => expect(result.current.status).toBe('ok'));
@@ -43,7 +44,7 @@ describe('zrzut CMS: zapis w prerenderze', () => {
     expect(el?.parentElement).toBe(document.body);
     expect(el?.getAttribute('type')).toBe('application/json');
     expect(el?.textContent).not.toContain('<');
-    expect(el?.textContent).not.toContain(' ');
+    expect(el?.textContent).not.toContain('\u2028');
     expect(JSON.parse(el?.textContent || '{}')).toEqual({ 'industry|medycyna': doc });
   });
 
@@ -58,7 +59,13 @@ describe('zrzut CMS: zapis w prerenderze', () => {
   it('ujemne: notfound i błąd Sanity w prerenderze NIE trafiają do zrzutu', async () => {
     window.isPrerendering = true;
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const nf = renderHook(() => useCmsDocument('brak', vi.fn(async () => null), 'industry'));
+    const nf = renderHook(() =>
+      useCmsDocument(
+        'brak',
+        vi.fn(async () => null),
+        'industry',
+      ),
+    );
     await waitFor(() => expect(nf.result.current.status).toBe('notfound'));
     const er = renderHook(() => useCmsDocument('awaria', sanityDown(), 'industry'));
     await waitFor(() => expect(er.result.current.status).toBe('error'));
@@ -73,9 +80,9 @@ describe('zrzut CMS: zapis w prerenderze', () => {
   });
 
   it('serializacja: `</script>` i `<!--` nie mogą zamknąć tagu, JSON wraca 1:1', () => {
-    const v = { a: '</script><!-- x -->', b: 'ąę ' };
+    const v = { a: '</script><!-- x -->', b: 'ąę\u2029' };
     const s = serializeCmsSnapshot(v);
-    expect(s).not.toMatch(/[<  ]/);
+    expect(s).not.toMatch(/[<\u2028\u2029]/);
     expect(JSON.parse(s)).toEqual(v);
   });
 });

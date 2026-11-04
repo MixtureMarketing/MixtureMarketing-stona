@@ -24,11 +24,11 @@ export const routePreload = () => ArticleSchemaSeo.preload();
 const ArticleTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
   // notfound (brak dokumentu) → NotFound/noindex; error (Sanity niedostępne) → CmsErrorState.
-  const { status, data: article, retry } = useCmsDocument<SanityArticle>(
-    slug,
-    fetchArticle,
-    CMS_DOC.article,
-  );
+  const {
+    status,
+    data: article,
+    retry,
+  } = useCmsDocument<SanityArticle>(slug, fetchArticle, CMS_DOC.article);
 
   if (status === 'loading') {
     return (

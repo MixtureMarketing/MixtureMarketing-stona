@@ -85,8 +85,8 @@ export function readCmsSnapshot<T>(id: CmsDocId, slug: string): T | undefined {
 export function serializeCmsSnapshot(value: unknown): string {
   return JSON.stringify(value)
     .replace(/</g, '\\u003c')
-    .replace(/ /g, '\\u2028')
-    .replace(/ /g, '\\u2029');
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
 }
 
 /** Tylko w prerenderze: dopisuje dokument do zrzutu w DOM (trafi do dist/ z page.content()). */

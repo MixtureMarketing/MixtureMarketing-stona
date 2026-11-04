@@ -28,7 +28,11 @@ function urlFor(source: SanityImage) {
 
 const CaseStudyTemplate = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { status, data, retry } = useCmsDocument(slug, cmsService.getCaseStudyPage, CMS_DOC.caseStudy);
+  const { status, data, retry } = useCmsDocument(
+    slug,
+    cmsService.getCaseStudyPage,
+    CMS_DOC.caseStudy,
+  );
   const project = data?.project ?? null;
   const nextProject = data?.nextProject ?? null;
   useBreadcrumbLabel(project?.title);

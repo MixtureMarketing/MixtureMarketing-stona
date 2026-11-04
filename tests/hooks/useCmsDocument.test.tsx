@@ -8,9 +8,12 @@ describe('useCmsDocument', () => {
       if (slug === 'brak') return null;
       throw new Error('Sanity 503');
     });
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
-      initialProps: { slug: 'brak' },
-    });
+    const { result, rerender } = renderHook(
+      ({ slug }) => useCmsDocument(slug, fetcher, 'industry'),
+      {
+        initialProps: { slug: 'brak' },
+      },
+    );
     expect(result.current.status).toBe('loading');
     await waitFor(() => expect(result.current.status).toBe('notfound'));
 
@@ -24,9 +27,12 @@ describe('useCmsDocument', () => {
       if (slug === 'a') throw new Error('timeout');
       return { slug };
     });
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
-      initialProps: { slug: 'a' },
-    });
+    const { result, rerender } = renderHook(
+      ({ slug }) => useCmsDocument(slug, fetcher, 'industry'),
+      {
+        initialProps: { slug: 'a' },
+      },
+    );
     await waitFor(() => expect(result.current.status).toBe('error'));
     rerender({ slug: 'b' });
     await waitFor(() => expect(result.current.status).toBe('ok'));
@@ -55,9 +61,12 @@ describe('useCmsDocument', () => {
           })
         : Promise.resolve({ id: 'b' }),
     );
-    const { result, rerender } = renderHook(({ slug }) => useCmsDocument(slug, fetcher, 'industry'), {
-      initialProps: { slug: 'a' },
-    });
+    const { result, rerender } = renderHook(
+      ({ slug }) => useCmsDocument(slug, fetcher, 'industry'),
+      {
+        initialProps: { slug: 'a' },
+      },
+    );
     rerender({ slug: 'b' });
     await waitFor(() => expect(result.current.data).toEqual({ id: 'b' }));
     await act(async () => resolveA({ id: 'a' }));

@@ -318,9 +318,8 @@ const preloadCmsDocument = async (path: string | undefined, slug: string | undef
   const entry = path ? (CMS_DOCUMENT[path] ?? CMS_LIST[path]) : undefined;
   const isList = !!path && path in CMS_LIST;
   if (!entry || (!slug && !isList)) return;
-  const { primeCmsDocument, readCmsSnapshot, CMS_LIST_KEY } = await import(
-    '@/hooks/useCmsDocument'
-  );
+  const { primeCmsDocument, readCmsSnapshot, CMS_LIST_KEY } =
+    await import('@/hooks/useCmsDocument');
   const key = isList ? CMS_LIST_KEY : (slug as string);
   // Dane są w prerenderowanym HTML (zrzut) → bez żądania do Sanity przed renderem.
   if (readCmsSnapshot(entry.id, key) !== undefined) return;
