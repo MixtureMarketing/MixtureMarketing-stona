@@ -16,7 +16,15 @@ import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
 import { useNotification } from '../../context/NotificationContext';
 import { withTrailingSlash } from '../../utils/url';
-import { ORG_PUBLISHER, ORG_REF } from '../../utils/seo/organizationSchema';
+import {
+  FOUNDER_ID,
+  FOUNDER_LINKEDIN,
+  FOUNDER_NAME,
+  FOUNDER_URL_PATH,
+  ORG_PUBLISHER,
+  ORG_REF,
+} from '../../utils/seo/organizationSchema';
+import { LEGACY_ARTICLES } from '../../services/cms/legacyArticles';
 
 interface ArticleShellProps {
   id: string;
@@ -31,15 +39,24 @@ interface ArticleShellProps {
   heroVisual?: React.ReactNode;
   children: React.ReactNode;
   slug: string;
-  author?: { name: string; role?: string; url?: string };
+  author?: { name: string; role?: string; url?: string; sameAs?: string[] };
   publishedDate?: string;
   updatedDate?: string;
 }
 
+/** Autor wszystkich artykułów bazy wiedzy (decyzja Jakuba, MIX-920 / MIX-783). */
 const DEFAULT_AUTHOR = {
-  name: 'Zespół Mixture Marketing',
-  role: 'Eksperci SEO & Web Development',
-  url: '/o-nas/',
+  name: FOUNDER_NAME,
+  role: 'Założyciel Mixture Marketing',
+  url: FOUNDER_URL_PATH,
+  sameAs: [FOUNDER_LINKEDIN],
+};
+
+/** ISO z daty RRRR-MM-DD; zła/brak daty → undefined (nigdy zmyślona data). */
+const toIso = (d?: string): string | undefined => {
+  if (!d) return undefined;
+  const t = new Date(d);
+  return isNaN(t.getTime()) ? undefined : t.toISOString();
 };
 
 const ArticleShell: React.FC<ArticleShellProps> = ({
@@ -74,10 +91,11 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
 
   const shareUrl = `https://mixturemarketing.pl${canonicalPath}`;
   const baseUrl = 'https://mixturemarketing.pl';
-  const isoPublished = publishedDate
-    ? new Date(publishedDate).toISOString()
-    : new Date('2025-01-01').toISOString();
-  const isoUpdated = updatedDate ? new Date(updatedDate).toISOString() : isoPublished;
+  // Daty z rejestru artykułów (services/cms/legacyArticles.ts) po slugu; propsy mają pierwszeństwo.
+  const registryEntry = LEGACY_ARTICLES.find((a) => withTrailingSlash(a.slug) === canonicalPath);
+  const isoPublished = toIso(publishedDate ?? registryEntry?.date);
+  const isoUpdated = toIso(updatedDate ?? registryEntry?.updatedDate) ?? isoPublished;
+  const isFounder = author.name === FOUNDER_NAME;
 
   // Opisy artykułów bywają z inline HTML (<strong>, <a>) — w JSON-LD tylko czysty tekst.
   const plainDescription = description.replace(/<[^>]*>/g, '');
@@ -90,14 +108,17 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
     image: [`${baseUrl}${image}`, `${baseUrl}/assets/images/sygnet.png`],
     author: {
       '@type': 'Person',
+      // Ta sama osoba co na /o-nas/ i /abonament/ (jedno @id w grafie).
+      ...(isFounder && { '@id': FOUNDER_ID }),
       name: author.name,
       ...(author.role && { jobTitle: author.role }),
       url: `${baseUrl}${author.url || '/o-nas/'}`,
+      ...(author.sameAs?.length && { sameAs: author.sameAs }),
       worksFor: ORG_REF,
     },
     publisher: ORG_PUBLISHER,
-    datePublished: isoPublished,
-    dateModified: isoUpdated,
+    ...(isoPublished && { datePublished: isoPublished }),
+    ...(isoUpdated && { dateModified: isoUpdated }),
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${baseUrl}${canonicalPath}` },
     articleSection: categoryLabel,
   };
@@ -211,16 +232,20 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
                 <span className="font-semibold text-dark">{author.name}</span>
                 {author.role && <span className="text-gray-500">· {author.role}</span>}
               </RouterLink>
-              <span className="hidden sm:inline text-gray-300">|</span>
-              <span className="inline-flex items-center gap-2">
-                <Calendar size={14} className="text-gray-400" />
-                <time dateTime={isoPublished}>{formatPL(isoPublished)}</time>
-                {isoUpdated !== isoPublished && (
-                  <span className="text-gray-400">
-                    · aktualizacja: <time dateTime={isoUpdated}>{formatPL(isoUpdated)}</time>
+              {isoPublished && (
+                <>
+                  <span className="hidden sm:inline text-gray-300">|</span>
+                  <span className="inline-flex items-center gap-2">
+                    <Calendar size={14} className="text-gray-400" />
+                    <time dateTime={isoPublished}>{formatPL(isoPublished)}</time>
+                    {isoUpdated && isoUpdated !== isoPublished && (
+                      <span className="text-gray-400">
+                        · aktualizacja: <time dateTime={isoUpdated}>{formatPL(isoUpdated)}</time>
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
+                </>
+              )}
             </div>
           </header>
 
