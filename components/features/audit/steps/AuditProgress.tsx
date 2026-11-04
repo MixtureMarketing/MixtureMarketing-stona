@@ -125,6 +125,9 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
           Skanujemy każdy element strony:{' '}
           <span className="text-secondary font-semibold">{targetUrl}</span>
         </p>
+        <p className="text-[13px] text-gray-400 mt-2">
+          Pomiar może potrwać do minuty — prosimy nie zamykać tej karty.
+        </p>
       </div>
 
       <div className="bg-[#f8f9fb] rounded-xl p-5 mb-10 border border-gray-100 min-h-[92px] flex items-center justify-center">
