@@ -137,9 +137,7 @@ const WebDevHeroTitle: React.FC = () => {
                   // Spoiwo (400) gaśnie szybciej niż nośne (800), gdy arkusz Realizacji
                   // najeżdża. Spoczynek --cover:0 → opacity 1 → prerender widzi komplet.
                   opacity:
-                    s.w === 400
-                      ? 'calc(1 - var(--cover, 0))'
-                      : 'calc(1 - var(--cover, 0) * 0.45)',
+                    s.w === 400 ? 'calc(1 - var(--cover, 0))' : 'calc(1 - var(--cover, 0) * 0.45)',
                 }}
                 className={s.accent ? 'text-primary' : undefined}
               >

@@ -38,7 +38,9 @@ describe('H1 bez sklejonych zdań — 5 stron z audytu MIX-897', () => {
 
   it('/web-development/ (WebDevHeroTitle)', () => {
     const t = h1Text(<WebDevHeroTitle />);
-    expect(t).toBe('Tworzenie stron WWW i systemów webowych. Bez szablonu, bez długu technicznego.');
+    expect(t).toBe(
+      'Tworzenie stron WWW i systemów webowych. Bez szablonu, bez długu technicznego.',
+    );
     expect(t).not.toMatch(SKLEJONE);
   });
 
@@ -49,7 +51,11 @@ describe('H1 bez sklejonych zdań — 5 stron z audytu MIX-897', () => {
       'Korporacyjne serwisy WWW. Skala, bezpieczeństwo, prestiż.',
     ],
     ['/marketing/analytics/', ANALYTICS_CONTENT, 'Przestań zgadywać. Zacznij mierzyć.'],
-    ['/design/visual-audit/', VISUAL_AUDIT_CONTENT, 'Twoja strona gubi klientów. Powiemy Ci gdzie.'],
+    [
+      '/design/visual-audit/',
+      VISUAL_AUDIT_CONTENT,
+      'Twoja strona gubi klientów. Powiemy Ci gdzie.',
+    ],
   ])('%s (StandardHero, rejestr ciemny)', (_url, content, expected) => {
     const t = h1Text(
       <StandardHero
