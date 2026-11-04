@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { onRequestPost } from './run_audit';
+import { onRequestPost, TIMEOUTS_MS } from './run_audit';
+import { safeHttpUrl, sha256Hex } from '../_shared/security';
 import { createFakeKV, fnContext } from '../../../tests/helpers/fakeD1';
 
 type Handler = (ctx: never) => Promise<Response>;
@@ -159,5 +160,129 @@ describe('audit/run_audit — odporność na awarie źródeł', () => {
   it('niedziałający odczyt KV (cache) → liczymy na żywo', async () => {
     const { res } = await run(createFakeKV({ failReads: true }), { force: false });
     expect(res.status).toBe(200);
+  });
+});
+
+const TEST_URL = 'https://firma.pl';
+async function seedCache(kv: ReturnType<typeof createFakeKV>, value: unknown) {
+  const normalized = safeHttpUrl(TEST_URL) as string;
+  kv.store.set(`v8_live_${await sha256Hex(normalized)}`, JSON.stringify(value));
+}
+const CACHED = {
+  client: {
+    url: TEST_URL,
+    generated_at: '2026-11-03T10:15:00.000Z',
+    total_score: 77,
+    metrics: { speed_score: 66 },
+  },
+};
+/** Każdy AbortSignal.timeout od razu przerwany = PSI „nie zdążyło” w limicie. */
+function abortAllTimeouts() {
+  return vi
+    .spyOn(AbortSignal, 'timeout')
+    .mockImplementation(() => AbortSignal.abort(new DOMException('timeout', 'TimeoutError')));
+}
+
+describe('audit/run_audit — limit PSI i wynik z cache (MIX-893)', () => {
+  it('limit PSI wynosi 55 s (30 s ucinało cięższe strony), a Places/scrape zostają krótkie', () => {
+    expect(TIMEOUTS_MS.psi).toBe(55_000);
+    expect(TIMEOUTS_MS.scrape).toBe(8_000);
+    expect(TIMEOUTS_MS.places).toBe(8_000);
+  });
+
+  it('fetch PSI dostaje AbortSignal.timeout z limitem PSI', async () => {
+    const spy = vi.spyOn(AbortSignal, 'timeout');
+    await run();
+    expect(spy).toHaveBeenCalledWith(55_000);
+  });
+
+  it('timeout PSI + wcześniejszy wynik w KV → 200 z oznaczeniem daty i danymi z cache', async () => {
+    behaviour.psi = 'hang';
+    abortAllTimeouts();
+    const kv = createFakeKV();
+    await seedCache(kv, CACHED);
+    const { res, json } = await run(kv);
+    expect(res.status).toBe(200);
+    expect(json.status).toBe('success');
+    expect(json.stale).toBe(true);
+    expect(json.source).toBe('cache_stale');
+    expect(json.notice).toMatch(/^Wynik z 03\.11\.2026.*pomiar na żywo nie zdążył\.$/);
+    expect(json.data.client.total_score).toBe(77);
+  });
+
+  it('błąd HTTP PSI (500) + wynik w KV → też wynik z cache', async () => {
+    behaviour.psi = 'http500';
+    const kv = createFakeKV();
+    await seedCache(kv, CACHED);
+    const { res, json } = await run(kv);
+    expect(res.status).toBe(200);
+    expect(json.stale).toBe(true);
+    expect(json.data.client.url).toBe(TEST_URL);
+  });
+
+  it('wynik z cache bez daty (stary wpis) → oznaczenie bez zmyślonej daty', async () => {
+    behaviour.psi = 'reject';
+    const kv = createFakeKV();
+    await seedCache(kv, { client: { url: TEST_URL, total_score: 50 } });
+    const { res, json } = await run(kv);
+    expect(res.status).toBe(200);
+    expect(json.notice).toBe(
+      'Wynik z wcześniejszego pomiaru (do 24 h temu), pomiar na żywo nie zdążył.',
+    );
+  });
+
+  it('timeout PSI bez wyniku w KV → 503 z komunikatem, bez fabrykowania liczb', async () => {
+    behaviour.psi = 'hang';
+    abortAllTimeouts();
+    const { res, json } = await run();
+    expect(res.status).toBe(503);
+    expect(json.status).toBe('error');
+    expect(json.message).toContain('Pomiar wydajności (PageSpeed Insights) chwilowo niedostępny');
+    expect(json.data).toBeUndefined();
+    expect(json.stale).toBeUndefined();
+  });
+
+  it('wpis KV bez pola client (uszkodzony) → 503, nie zwracamy śmieci', async () => {
+    behaviour.psi = 'http500';
+    const kv = createFakeKV();
+    await seedCache(kv, { foo: 1 });
+    const { res, json } = await run(kv);
+    expect(res.status).toBe(503);
+    expect(json.stale).toBeUndefined();
+  });
+
+  it('PSI padło i KV nie odczytuje się → 503 (fail-closed, bez wyjątku)', async () => {
+    behaviour.psi = 'reject';
+    const { res } = await run(createFakeKV({ failReads: true }));
+    expect(res.status).toBe(503);
+  });
+
+  it('PSI działa, a w KV leży stary wynik → zwracamy pomiar na żywo, nie stary', async () => {
+    const kv = createFakeKV();
+    await seedCache(kv, CACHED);
+    const { res, json } = await run(kv);
+    expect(res.status).toBe(200);
+    expect(json.stale).toBeUndefined();
+    expect(json.notice).toBeUndefined();
+    expect(json.data.client.metrics.speed_score).toBe(91);
+  });
+
+  it('wynik na żywo niesie generated_at (data pomiaru dla późniejszego oznaczenia)', async () => {
+    const { json } = await run();
+    expect(new Date(json.data.client.generated_at).getTime()).toBeGreaterThan(0);
+  });
+
+  it('zły adres → 400 Invalid URL, brak fetchy i brak wyniku z cache', async () => {
+    const kv = createFakeKV();
+    const { res, json } = await run(kv, { url: 'javascript:alert(1)' });
+    expect(res.status).toBe(400);
+    expect(json).toEqual({ status: 'error', message: 'Invalid URL' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('brak url → 400 URL is required', async () => {
+    const { res, json } = await run(createFakeKV(), { url: '' });
+    expect(res.status).toBe(400);
+    expect(json.message).toBe('URL is required');
   });
 });

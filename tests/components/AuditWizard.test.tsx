@@ -1,9 +1,13 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { readDeepLinkUrl, deliveryFailureReason } from '@/components/features/audit/auditDelivery';
+import {
+  readDeepLinkUrl,
+  deliveryFailureReason,
+  auditErrorMessage,
+} from '@/components/features/audit/auditDelivery';
 import AuditPdfNotice from '@/components/features/audit/AuditPdfNotice';
-import { auditService } from '@/services/auditService';
+import { auditService, AuditError } from '@/services/auditService';
 
 describe('readDeepLinkUrl — dekodowanie RAZ, bez wyjątku', () => {
   it.each([
@@ -108,5 +112,72 @@ describe('AuditWizard — deep-link z `%`', () => {
     render(<AuditWizard />);
     await waitFor(() => expect(run).toHaveBeenCalled());
     expect(run.mock.calls[0][0]).toBe('https://sklep.pl/promocja-50%');
+  });
+});
+
+
+describe('auditService.runAudit — komunikat serwera dociera do UI (MIX-893)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const reply = (status: number, body: unknown) =>
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(typeof body === 'string' ? body : JSON.stringify(body), { status }),
+        ),
+    );
+
+  it('503 z message → AuditError ze statusem i komunikatem serwera', async () => {
+    reply(503, { status: 'error', message: 'Pomiar wydajności chwilowo niedostępny' });
+    const err = await auditService.runAudit('https://a.pl').catch((e) => e);
+    expect(err).toBeInstanceOf(AuditError);
+    expect(err.status).toBe(503);
+    expect(err.message).toBe('Pomiar wydajności chwilowo niedostępny');
+  });
+
+  it('odpowiedź błędu nie-JSON → AuditError z pustym komunikatem', async () => {
+    reply(502, '<html>Bad gateway</html>');
+    const err = await auditService.runAudit('https://a.pl').catch((e) => e);
+    expect(err).toBeInstanceOf(AuditError);
+    expect(err.status).toBe(502);
+    expect(err.message).toBe('');
+  });
+
+  it('200 z notice (wynik z cache) → notice przekazane w wyniku', async () => {
+    reply(200, { status: 'success', notice: 'Wynik z 03.11.2026', data: { client: { url: 'x' } } });
+    const r = await auditService.runAudit('https://a.pl');
+    expect(r.notice).toBe('Wynik z 03.11.2026');
+    expect(r.client.url).toBe('x');
+  });
+
+  it('200 bez notice → wynik bez pola notice', async () => {
+    reply(200, { status: 'success', data: { client: { url: 'x' } } });
+    const r = await auditService.runAudit('https://a.pl');
+    expect(r.notice).toBeUndefined();
+  });
+});
+
+describe('auditErrorMessage — „Sprawdź adres URL” tylko przy 400', () => {
+  it('400 → Sprawdź adres URL', () => {
+    expect(auditErrorMessage(new AuditError(400, 'Invalid URL'))).toContain('Sprawdź adres URL');
+  });
+
+  it.each([429, 503, 500])('%i → komunikat serwera, bez „Sprawdź adres URL”', (status) => {
+    const msg = auditErrorMessage(new AuditError(status, 'Komunikat z serwera'));
+    expect(msg).toBe('Komunikat z serwera');
+    expect(msg).not.toContain('Sprawdź adres URL');
+  });
+
+  it('5xx bez komunikatu → ogólny „spróbuj ponownie”, nadal bez „Sprawdź adres URL”', () => {
+    const msg = auditErrorMessage(new AuditError(502, ''));
+    expect(msg).toContain('Spróbuj ponownie');
+    expect(msg).not.toContain('Sprawdź adres URL');
+  });
+
+  it('błąd sieci (TypeError) → komunikat o braku połączenia', () => {
+    const msg = auditErrorMessage(new TypeError('Failed to fetch'));
+    expect(msg).toContain('Brak połączenia');
+    expect(msg).not.toContain('Sprawdź adres URL');
   });
 });

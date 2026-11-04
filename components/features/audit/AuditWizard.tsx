@@ -10,7 +10,12 @@ import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
 import { SITE_CONFIG } from '../../../config/site';
 import { reportError } from '../../../utils/errorReporter';
 import AuditPdfNotice from './AuditPdfNotice';
-import { readDeepLinkUrl, PDF_NOT_GENERATED, type PdfDelivery } from './auditDelivery';
+import {
+  readDeepLinkUrl,
+  auditErrorMessage,
+  PDF_NOT_GENERATED,
+  type PdfDelivery,
+} from './auditDelivery';
 
 // --- COMPONENTS (Lazy Loaded) ---
 const AuditProgress = lazy(() => import('./steps/AuditProgress'));
@@ -39,7 +44,7 @@ const AuditWizard: React.FC = () => {
         setResult(data);
       } catch (err) {
         console.error(err);
-        setError('Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.');
+        setError(auditErrorMessage(err));
         setStep('INPUT');
       }
     },
@@ -133,6 +138,14 @@ const AuditWizard: React.FC = () => {
       <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
       <div className="absolute top-0 left-0 w-full h-[500px] bg-dark skew-y-3 origin-top-left z-0"></div>
       <Container className="relative z-10 py-12 flex-1 flex flex-col justify-center">
+        {step === 'RESULT' && result?.notice && (
+          <div
+            role="status"
+            className="max-w-3xl w-full mx-auto mb-6 rounded-2xl border-2 border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-slate-900"
+          >
+            {result.notice}
+          </div>
+        )}
         {step === 'RESULT' && result && (
           <AuditPdfNotice delivery={pdfDelivery} email={email} onRetry={retryReport} />
         )}

@@ -24,8 +24,11 @@ const LIVE_AUDITS_PER_HOUR = 10;
 
 // Timeouty zewnętrznych źródeł. Bez nich zawieszony serwer audytowanej strony albo
 // Google trzymał żądanie bez końca. PSI (mobile, 4 kategorie) bywa wolne — to
-// jedyne źródło obowiązkowe, więc dostaje najdłużej; 20 s ucinało część pomiarów.
-const TIMEOUTS_MS = { psi: 30_000, scrape: 8_000, places: 8_000 } as const;
+// jedyne źródło obowiązkowe, więc dostaje najdłużej; 20 s ucinało część pomiarów,
+// a 30 s nie wystarczało dla cięższych stron (mixturemarketing.pl → 503, MIX-893).
+// Cloudflare nie limituje czasu zegarowego żądania HTTP, dopóki klient jest połączony
+// (czekanie na fetch nie liczy się do CPU): https://developers.cloudflare.com/workers/platform/limits/
+export const TIMEOUTS_MS = { psi: 55_000, scrape: 8_000, places: 8_000 } as const;
 
 type Source = 'scrape' | 'reputation';
 
@@ -159,8 +162,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (psiRes.status === 'rejected') console.error('[run_audit] psi:', errText(psiRes.reason));
 
     // Bez pomiaru PSI nie ma uczciwego wyniku — fallbacki (LCP 2.5s, score 0)
-    // pokazywaly uzytkownikowi zmyslone liczby jako JEGO pomiar.
+    // pokazywaly uzytkownikowi zmyslone liczby jako JEGO pomiar. Jedyny dopuszczalny
+    // zamiennik to PRAWDZIWY wcześniejszy wynik z cache (z jawnym oznaczeniem daty).
     if (!psiData?.lighthouseResult) {
+      const stale = await kvGetJson<any>(env.CACHE, cacheKey);
+      if (stale?.client) {
+        return json({
+          status: 'success',
+          source: 'cache_stale',
+          stale: true,
+          notice: staleNotice(stale.client.generated_at),
+          data: stale,
+        });
+      }
       return json(
         {
           status: 'error',
@@ -199,6 +213,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     });
   }
 };
+
+/** Oznaczenie wyniku z cache, gdy pomiar na żywo nie zdążył (data tylko, gdy znana). */
+function staleNotice(generatedAt: unknown): string {
+  const d = typeof generatedAt === 'string' ? new Date(generatedAt) : null;
+  if (!d || Number.isNaN(d.getTime())) {
+    return 'Wynik z wcześniejszego pomiaru (do 24 h temu), pomiar na żywo nie zdążył.';
+  }
+  const when = d.toLocaleString('pl-PL', {
+    timeZone: 'Europe/Warsaw',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  return `Wynik z ${when}, pomiar na żywo nie zdążył.`;
+}
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -597,6 +628,7 @@ function calculateScore(data: any) {
   return {
     client: {
       url: data.url,
+      generated_at: new Date().toISOString(),
       total_score: Math.max(0, totalScore),
       metrics: {
         lcp_value: lcp,

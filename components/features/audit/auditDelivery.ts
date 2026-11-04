@@ -50,3 +50,22 @@ export function deliveryFailureReason(status: number): string {
       return 'Wystąpił błąd po naszej stronie.';
   }
 }
+
+/**
+ * Komunikat dla użytkownika po nieudanym audycie. „Sprawdź adres URL” tylko przy
+ * 400 (zły/pusty adres) — przy 429/503/500 pokazujemy komunikat serwera (pole `message`),
+ * bo problem nie leży w adresie (MIX-893: 503 z PSI mówił „Sprawdź adres URL”).
+ * Brak statusu = błąd sieci.
+ */
+export function auditErrorMessage(err: unknown): string {
+  const status =
+    typeof err === 'object' && err !== null && 'status' in err
+      ? Number((err as { status: unknown }).status)
+      : 0;
+  const serverMessage = err instanceof Error ? err.message.trim() : '';
+  if (status === 400) return 'Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.';
+  if (status > 0) {
+    return serverMessage || 'Nie udało się przeprowadzić audytu. Spróbuj ponownie za chwilę.';
+  }
+  return 'Brak połączenia z serwerem audytu. Sprawdź internet i spróbuj ponownie.';
+}
