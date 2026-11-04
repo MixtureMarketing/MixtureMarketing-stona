@@ -91,6 +91,10 @@ export function withE2eUa(ua) {
   return `${base} ${E2E_UA_TAG}`.trim();
 }
 
+/**
+ * @param {string} baseUrl adres, na który skrypt wchodzi
+ * @param {{ log?: { log: (m: string) => void, error: (m: string) => void } }} [opts]
+ */
 export function createProdSafe(baseUrl, { log = console } = {}) {
   const isProd = isProdUrl(baseUrl);
   const stats = {
