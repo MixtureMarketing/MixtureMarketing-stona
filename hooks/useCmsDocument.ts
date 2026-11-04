@@ -153,8 +153,6 @@ export function useCmsDocument<T>(
   const [attempt, setAttempt] = useState(0);
   const [settled, setSettled] = useState<Settled<T> | null>(() => {
     if (!slug) return null;
-    const snap = readCmsSnapshot<T>(cmsId, slug);
-    if (snap !== undefined) return { key: `${slug}#0`, status: 'ok', data: snap };
     const hit = primed.get(fetcher)?.get(slug);
     return hit ? { key: `${slug}#0`, status: hit.status, data: hit.data as T | null } : null;
   });
@@ -163,12 +161,9 @@ export function useCmsDocument<T>(
   useEffect(() => {
     if (!slug) return;
     if (attempt === 0) {
-      // Zrzut z prerenderu: bez żądania do Sanity (także po powrocie na ten slug).
-      const snap = readCmsSnapshot<T>(cmsId, slug);
-      if (snap !== undefined) {
-        setSettled((prev) => (prev && prev.key === key ? prev : { key, status: 'ok', data: snap }));
-        return;
-      }
+      // Zrzut z prerenderu: bez żądania do Sanity (także po powrocie na ten slug);
+      // dane bierze render niżej, bez stanu.
+      if (readCmsSnapshot<T>(cmsId, slug) !== undefined) return;
       // Dane z preloadu są już w stanie początkowym — zużyj je raz, bez drugiego żądania.
       if (primed.get(fetcher)?.delete(slug)) return;
     }
@@ -193,6 +188,10 @@ export function useCmsDocument<T>(
 
   if (!slug) return { status: 'notfound' as CmsDocumentStatus, data: null, retry };
   const current = settled && settled.key === key ? settled : null;
+  if (!current && attempt === 0) {
+    const snap = readCmsSnapshot<T>(cmsId, slug);
+    if (snap !== undefined) return { status: 'ok' as CmsDocumentStatus, data: snap, retry };
+  }
   return {
     status: (current ? current.status : 'loading') as CmsDocumentStatus,
     data: current ? current.data : null,
