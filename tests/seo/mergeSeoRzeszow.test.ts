@@ -60,12 +60,11 @@ describe('MIX-898: 301 /pozycjonowanie-rzeszow/ → /agencja-seo-rzeszow/', () =
     expect(read('scripts/generate-sitemap.js')).not.toContain(`'${OLD}/'`);
   });
 
-  it('trasa SPA starego adresu tylko przekierowuje (Navigate replace na cel)', () => {
+  it('tablica tras SPA nie ma starego adresu ani importu starej strony (jak /marketing/seo/rzeszow)', () => {
     const src = read('config/routes.tsx');
-    const line = src.split('\n').find((l) => l.includes(`path: '${OLD}'`));
-    expect(line).toBeDefined();
-    expect(line).toContain(`<Navigate to="${TARGET}" replace />`);
+    expect(src).not.toMatch(/path: ['"`]\/pozycjonowanie-rzeszow\/?['"`]/);
     expect(src).not.toMatch(/import\('@\/components\/pages\/PozycjonowanieRzeszow'\)/);
+    expect(src).toMatch(/path: '\/agencja-seo-rzeszow', element: <SeoRzeszow \/>/);
   });
 });
 
@@ -79,9 +78,8 @@ describe('MIX-898: brak linków wewnętrznych na stary adres', () => {
       return /\.(tsx?|m?js)$/.test(e.name) && !/\.test\.tsx?$/.test(e.name) ? [rel] : [];
     });
   };
-  // Nieużywany plik dawnej strony (zostaje do decyzji o usunięciu) i tablica tras
-  // (sprawdzana wyżej) — poza skanem.
-  const SKIP = new Set(['components/pages/PozycjonowanieRzeszow.tsx', 'config/routes.tsx']);
+  // Nieużywany plik dawnej strony (zostaje do decyzji o usunięciu) — poza skanem.
+  const SKIP = new Set(['components/pages/PozycjonowanieRzeszow.tsx']);
   const files = [
     ...listFiles('components'),
     ...listFiles('data'),

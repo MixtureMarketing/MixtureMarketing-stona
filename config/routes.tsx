@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { matchRoutes, Navigate, type Params, type RouteObject } from 'react-router-dom';
+import { matchRoutes, type Params, type RouteObject } from 'react-router-dom';
 // lazy() z jawnym preload() — patrz preloadRoute() niżej i index.tsx.
 import { lazyWithPreload as lazy } from '@/components/common/lazyWithPreload';
 
@@ -118,10 +118,8 @@ export const appRoutes: RouteObject[] = [
   // Spoke "agencja SEO Rzeszów" — fraza GSC 2026-05: pos 44, 14 imp/tyg.
   // Intent: agency-pitch ("wynajmij agencje SEO").
   { path: '/agencja-seo-rzeszow', element: <SeoRzeszow /> },
-  // /pozycjonowanie-rzeszow/ scalona z /agencja-seo-rzeszow/ (MIX-898, decyzja MIX-977):
-  // kanibalizacja fraz „pozycjonowanie/SEO Rzeszów”. Serwer: 301 w public/_redirects
-  // (strona nie jest prerenderowana). Tu tylko nawigacja w SPA (stary link w karcie).
-  { path: '/pozycjonowanie-rzeszow', element: <Navigate to="/agencja-seo-rzeszow/" replace /> },
+  // /pozycjonowanie-rzeszow/ scalona z /agencja-seo-rzeszow/ (MIX-898, decyzja MIX-977) —
+  // trasy nie ma: 301 w public/_redirects (jak /marketing/seo/rzeszow).
 
   // SaaS landing — produkt "Strona w abonamencie" (backend: binary-planet)
   // self-serve Stripe Checkout flow. Success page noindex.
