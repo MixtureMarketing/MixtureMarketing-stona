@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import { matchRoutes, type Params, type RouteObject } from 'react-router-dom';
+import type { CmsDocId } from '@/hooks/useCmsDocument';
 // lazy() z jawnym preload() — patrz preloadRoute() niżej i index.tsx.
 import { lazyWithPreload as lazy } from '@/components/common/lazyWithPreload';
 
@@ -296,27 +297,34 @@ type CmsService = typeof import('@/services/cmsService').cmsService;
  * CMS to wspólny, mniejszy chunk), żeby szablon nie startował w stanie `loading`.
  * Fetcher musi być TĄ SAMĄ referencją, której szablon używa w useCmsDocument.
  */
-const CMS_DOCUMENT: Record<string, (cms: CmsService) => (slug: string) => Promise<unknown>> = {
-  '/baza-wiedzy/:slug': (cms) => cms.getArticleBySlug,
-  '/branza/:slug': (cms) => cms.getIndustryBySlug,
-  '/miasto/:slug': (cms) => cms.getLocationBySlug,
-  '/portfolio/:slug': (cms) => cms.getCaseStudyPage,
+type CmsPick = {
+  /** Ten sam rodzaj co w szablonie (CMS_DOC) — klucz zrzutu danych w HTML (MIX-922). */
+  id: CmsDocId;
+  pick: (cms: CmsService) => (slug: string) => Promise<unknown>;
+};
+export const CMS_DOCUMENT: Record<string, CmsPick> = {
+  '/baza-wiedzy/:slug': { id: 'article', pick: (cms) => cms.getArticleBySlug },
+  '/branza/:slug': { id: 'industry', pick: (cms) => cms.getIndustryBySlug },
+  '/miasto/:slug': { id: 'location', pick: (cms) => cms.getLocationBySlug },
+  '/portfolio/:slug': { id: 'caseStudy', pick: (cms) => cms.getCaseStudyPage },
 };
 
 /** Strony-listy (bez :slug) — fetcher wołany ze stałym kluczem CMS_LIST_KEY. */
-const CMS_LIST: Record<string, (cms: CmsService) => (key: string) => Promise<unknown>> = {
-  '/branza': (cms) => cms.getIndustryList,
+export const CMS_LIST: Record<string, CmsPick> = {
+  '/branza': { id: 'industryList', pick: (cms) => cms.getIndustryList },
 };
 
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {
-  const pick = path ? (CMS_DOCUMENT[path] ?? CMS_LIST[path]) : undefined;
+  const entry = path ? (CMS_DOCUMENT[path] ?? CMS_LIST[path]) : undefined;
   const isList = !!path && path in CMS_LIST;
-  if (!pick || (!slug && !isList)) return;
-  const [{ cmsService }, { primeCmsDocument, CMS_LIST_KEY }] = await Promise.all([
-    import('@/services/cmsService'),
-    import('@/hooks/useCmsDocument'),
-  ]);
-  await primeCmsDocument(pick(cmsService), isList ? CMS_LIST_KEY : (slug as string));
+  if (!entry || (!slug && !isList)) return;
+  const { primeCmsDocument, readCmsSnapshot, CMS_LIST_KEY } =
+    await import('@/hooks/useCmsDocument');
+  const key = isList ? CMS_LIST_KEY : (slug as string);
+  // Dane są w prerenderowanym HTML (zrzut) → bez żądania do Sanity przed renderem.
+  if (readCmsSnapshot(entry.id, key) !== undefined) return;
+  const { cmsService } = await import('@/services/cmsService');
+  await primeCmsDocument(entry.pick(cmsService), key);
 };
 
 /**
