@@ -12,7 +12,6 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/marketing/meta-ads': 'Meta Ads',
   '/marketing/seo': 'SEO & Content',
   '/agencja-seo-rzeszow': 'Agencja SEO Rzeszów',
-  '/pozycjonowanie-rzeszow': 'Pozycjonowanie Rzeszów',
   '/miasto/rzeszow': 'Rzeszów — hub lokalny',
   '/marketing/analytics': 'Data & Analityka',
   '/agencja-interaktywna-rzeszow': 'Agencja Interaktywna Rzeszów',

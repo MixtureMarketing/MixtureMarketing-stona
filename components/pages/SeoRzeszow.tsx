@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Search,
   TrendingUp,
   MapPin,
   Target,
@@ -32,7 +33,13 @@ const SeoRzeszow: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
+  // MIX-898: FAQ scalone z dawnym przewodnikiem /pozycjonowanie-rzeszow/ (301 na tę stronę).
   const faq = [
+    {
+      question: 'Czy warto pozycjonować stronę firmową w Rzeszowie?',
+      answer:
+        'Tak, jeżeli klient szuka Twojej usługi w Google — frazy typu „dentysta Rzeszów" czy „kancelaria Rzeszów" mają stały, mierzalny popyt (sprawdzisz go w Google Keyword Planner). Bez pozycjonowania konkurencja zbiera te kliknięcia za darmo. Opłacalność liczysz prosto: koszt SEO na miesiąc podziel przez wartość jednego pozyskanego klienta w Twojej branży.',
+    },
     {
       question: 'Ile kosztuje pozycjonowanie strony w Rzeszowie?',
       answer:
@@ -41,7 +48,7 @@ const SeoRzeszow: React.FC = () => {
     {
       question: 'Po jakim czasie zobaczę efekty SEO w Rzeszowie?',
       answer:
-        'Pierwsze efekty (poprawa indeksacji, wzrost long-tail) — 4–8 tygodni. Wzrost na frazach średnio-konkurencyjnych Rzeszów (np. „dentysta Rzeszów", „kancelaria Rzeszów") — 3–6 miesięcy. Frazy wysoko-konkurencyjne ogólnopolskie — 6–12 miesięcy. Lokalne SEO (Mapy Google + frazy „w Rzeszowie") działa szybciej niż ogólnopolskie ze względu na mniejszą konkurencję w SERP.',
+        'Pierwsze efekty (poprawa indeksacji, wzrost long-tail) — 4–8 tygodni. Wzrost na frazach średnio-konkurencyjnych Rzeszów (np. „dentysta Rzeszów", „kancelaria Rzeszów") — 3–6 miesięcy. Frazy wysoko-konkurencyjne ogólnopolskie — 6–12 miesięcy. Lokalne SEO (Mapy Google + frazy „w Rzeszowie") działa szybciej niż ogólnopolskie ze względu na mniejszą konkurencję w SERP. Pierwsze zapytania ofertowe z Google typowo pojawiają się po 8–16 tygodniach.',
     },
     {
       question: 'Czym różni się SEO lokalne od ogólnopolskiego?',
@@ -52,6 +59,11 @@ const SeoRzeszow: React.FC = () => {
       question: 'Co dostaję w ramach miesięcznej obsługi SEO?',
       answer:
         'Standardowy zakres: 4–8h prac contentowych (nowe artykuły, optymalizacja istniejących), 2–4h prac technicznych (poprawki on-page, schema, Core Web Vitals), monitoring pozycji w Senuto/Ahrefs/GSC, raport miesięczny (top fraz, ruch, konwersje, najważniejsze działania), miesięczny call statusowy (45 min). Większe pakiety dodatkowo: link building (3–8 linków/mies), copywriting eksperckim (2–4 artykuły blog/mies), audyt konkurencji (1×/kwartał).',
+    },
+    {
+      question: 'Czy gwarantujecie pozycje TOP 10 w Google?',
+      answer:
+        'Nie — żadna uczciwa agencja SEO nie da takiej gwarancji. Google ma 200+ czynników rankingowych, część jest poza kontrolą agencji (sygnały konkurencji, zmiany algorytmu, zachowanie użytkowników). Gwarantujemy natomiast: udokumentowane prace zgodne z Google Search Essentials, raporty z konkretnych metryk, transparentność procesu, brak praktyk black-hat. Jeżeli ktoś gwarantuje Ci TOP 10 — uciekaj.',
     },
     {
       question: 'Czy pracujecie na umowę długoterminową?',
@@ -79,7 +91,7 @@ const SeoRzeszow: React.FC = () => {
       ],
       url: `${SITE_CONFIG.domain}/agencja-seo-rzeszow/`,
       description:
-        'Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia. Lokalne SEO, Google Business Profile, audyt techniczny, content marketing, link building.',
+        'Pozycjonowanie stron internetowych dla firm z Rzeszowa i Podkarpacia: proces SEO krok po kroku, cennik, czas efektów. Lokalne SEO, Google Business Profile, audyt techniczny, content marketing, link building.',
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Pakiety SEO Rzeszów',
@@ -133,7 +145,7 @@ const SeoRzeszow: React.FC = () => {
     <div className="min-h-screen bg-gray-50 text-dark">
       <Seo
         title="Agencja SEO Rzeszów — Pozycjonowanie Stron Internetowych"
-        description="Agencja SEO Rzeszów: pozycjonowanie stron dla firm z Podkarpacia. Lokalne SEO, Google Business Profile, audyty techniczne, content. Cennik widełkowy."
+        description="Agencja SEO Rzeszów: pozycjonowanie stron dla firm z Podkarpacia — jak działa, ile kosztuje i kiedy widać efekty. Lokalne SEO, Mapy Google, audyt, cennik."
         canonical="/agencja-seo-rzeszow/"
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
@@ -220,6 +232,46 @@ const SeoRzeszow: React.FC = () => {
                   metryk i &quot;widoczności w TOP100&quot;.
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* H2: Co to jest pozycjonowanie — przeniesione z /pozycjonowanie-rzeszow/ (MIX-898) */}
+          <div className="mb-20 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+              Co to jest pozycjonowanie stron internetowych i jak działa?
+            </h2>
+            <div className="text-gray-600 space-y-4 leading-relaxed">
+              <p>
+                <strong>Pozycjonowanie stron</strong> (SEO — Search Engine Optimization) to zespół
+                działań technicznych i contentowych mających na celu poprawę widoczności strony
+                internetowej w organicznych wynikach wyszukiwarek (Google, Bing). W przeciwieństwie
+                do reklam Google Ads (PPC), za kliknięcie z wyników organicznych nie płacisz —
+                płacisz za pracę agencji nad pozycjonowaniem.
+              </p>
+              <p>
+                Google rankuje strony na podstawie ponad <strong>200 czynników</strong>{' '}
+                rankingowych, podzielonych na trzy główne grupy:
+              </p>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Techniczne</strong> — szybkość ładowania (Core Web Vitals), mobilność,
+                  indeksacja, struktura URL, schema markup, bezpieczeństwo HTTPS.
+                </li>
+                <li>
+                  <strong>On-page</strong> — jakość treści, dopasowanie do intencji wyszukiwania,
+                  struktura nagłówków, internal linking, optymalizacja meta tagów.
+                </li>
+                <li>
+                  <strong>Off-page</strong> — linki przychodzące (backlinki), wzmianki o marce,
+                  autorytet domeny.
+                </li>
+              </ul>
+              <p>
+                Pozycjonowanie jest procesem <strong>długofalowym</strong> — pierwsze realne efekty
+                pojawiają się po 8–16 tygodniach, pełne dojrzewanie strategii to 6–12 miesięcy. Raz
+                wypozycjonowana fraza generuje wizyty bez opłaty za kliknięcie, w przeciwieństwie do
+                Google Ads, gdzie ruch znika z chwilą wyłączenia budżetu.
+              </p>
             </div>
           </div>
 
@@ -393,6 +445,9 @@ const SeoRzeszow: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Do 10 fraz lokalnych. GBP, citations PL, on-page, raport miesięczny.
                 </p>
+                <p className="text-xs text-gray-500 italic mt-3">
+                  <strong>Najlepsze dla:</strong> gabinety, kancelarie, usługi B2C
+                </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-primary/40">
                 <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
@@ -401,6 +456,9 @@ const SeoRzeszow: React.FC = () => {
                 <p className="text-3xl font-extrabold mb-2">od 2 500 zł/mies</p>
                 <p className="text-sm text-gray-600">
                   Do 30 fraz. Content marketing 4–6 art./mies, link building, audyty.
+                </p>
+                <p className="text-xs text-gray-500 italic mt-3">
+                  <strong>Najlepsze dla:</strong> B2B, usługi profesjonalne, SaaS
                 </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -411,6 +469,9 @@ const SeoRzeszow: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Sklepy 500+ SKU. Optymalizacja kategorii, Product schema, indeksacja.
                 </p>
+                <p className="text-xs text-gray-500 italic mt-3">
+                  <strong>Najlepsze dla:</strong> WooCommerce, PrestaShop, sklepy dedykowane
+                </p>
               </div>
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -420,12 +481,72 @@ const SeoRzeszow: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Techniczny + contentowy + backlinkowy. Roadmapa na 6 miesięcy.
                 </p>
+                <p className="text-xs text-gray-500 italic mt-3">
+                  <strong>Najlepsze dla:</strong> punkt startowy, druga opinia
+                </p>
               </div>
             </div>
             <p className="text-sm text-gray-500 text-center mt-6">
               Umowy od 3 miesięcy (polecamy 6 — patrz FAQ). Po pierwszym kwartale otrzymujesz pełen
               raport wpływu i decydujesz, czy kontynuujemy.
             </p>
+          </div>
+
+          {/* H2: Proces 6 krokow — przeniesione z /pozycjonowanie-rzeszow/ (MIX-898) */}
+          <div className="mb-20">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              Proces pozycjonowania krok po kroku
+            </h2>
+            <ol className="max-w-3xl mx-auto space-y-4">
+              {[
+                {
+                  icon: Search,
+                  title: 'Audyt techniczny SEO',
+                  desc: 'Screaming Frog, GSC, Lighthouse, Core Web Vitals, indeksacja, schema, duplikaty.',
+                },
+                {
+                  icon: BarChart3,
+                  title: 'Keyword research i strategia',
+                  desc: 'Senuto/Ahrefs, audyt konkurencji Rzeszów + PL, mapa contentu na 6–12 mies.',
+                },
+                {
+                  icon: Wrench,
+                  title: 'Optymalizacja on-page',
+                  desc: 'Title, meta, H1-H3, URL, internal linking, schema (LocalBusiness, FAQ, Service), CWV.',
+                },
+                {
+                  icon: Layers,
+                  title: 'Content marketing',
+                  desc: 'Artykuły eksperckie, podstrony usługowe i lokalizacyjne (pillar + spokes), E-E-A-T.',
+                },
+                {
+                  icon: MapPin,
+                  title: 'Lokalne SEO i GBP',
+                  desc: 'Google Business Profile, citations PL (panoramafirm, pkt, aleo), backlinki Klaster IT.',
+                },
+                {
+                  icon: TrendingUp,
+                  title: 'Monitoring i raporty',
+                  desc: 'Miesięczny raport (pozycje, ruch, konwersje GSC/GA4), call 45 min, iteracje kwartalne.',
+                },
+              ].map((step, i) => (
+                <li
+                  key={step.title}
+                  className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
+                >
+                  <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <step.icon size={20} className="text-primary" aria-hidden="true" />
+                      <h3 className="font-bold text-lg">{step.title}</h3>
+                    </div>
+                    <p className="text-sm text-gray-600">{step.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
 
           {/* Internal links — cluster */}
@@ -479,24 +600,21 @@ const SeoRzeszow: React.FC = () => {
             </div>
           </div>
 
-          {/* Cross-link do strony service-info */}
-          <div className="mb-20 max-w-3xl mx-auto bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 md:p-8 border border-blue-100">
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">
-              Przed wyborem agencji
-            </p>
-            <h3 className="text-xl md:text-2xl font-bold mb-3">
-              Chcesz najpierw zrozumieć jak działa pozycjonowanie?
-            </h3>
-            <p className="text-gray-600 mb-4 text-sm md:text-base">
-              Przygotowaliśmy przewodnik bez sprzedaży: co to jest pozycjonowanie, ile kosztuje,
-              kiedy zobaczysz efekty, jakie są etapy procesu. Idealny przed pierwszą rozmową z
-              agencją.
-            </p>
+          {/* Dawny cross-link do /pozycjonowanie-rzeszow/ (MIX-898: przewodnik scalony tutaj,
+              301) — zamiast niego darmowy audyt 360 z dawnego przewodnika. */}
+          <div className="mb-20 max-w-3xl mx-auto">
             <Link
-              to="/pozycjonowanie-rzeszow/"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary text-white font-bold rounded-full hover:bg-secondary/90 transition-colors text-sm"
+              to="/audyt-360/"
+              className="block bg-gradient-to-br from-blue-50 to-white rounded-2xl p-6 md:p-8 border border-blue-100 hover:border-primary/40 hover:shadow-md transition-all"
             >
-              Przewodnik: Pozycjonowanie Rzeszów <ArrowRight size={16} />
+              <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">
+                Najpierw sprawdź
+              </p>
+              <h3 className="text-xl md:text-2xl font-bold mb-3">Darmowy audyt SEO + UX 360° →</h3>
+              <p className="text-gray-600 text-sm md:text-base">
+                Wpisz URL strony — w 60 sekund dostaniesz raport: błędy SEO, Core Web Vitals,
+                porównanie z konkurencją.
+              </p>
             </Link>
           </div>
 

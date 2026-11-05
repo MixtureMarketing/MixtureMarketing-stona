@@ -1403,7 +1403,7 @@ const CONTACT_MODAL_PAGES = [
   ['/web-development/', 'web'],
   ['/marketing/google-ads/', 'marketing+ads'],
   ['/design/branding/', 'design+branding'],
-  ['/pozycjonowanie-rzeszow/', 'general+seo_rzeszow'],
+  ['/agencja-seo-rzeszow/', 'general+seo_rzeszow'],
   ['/baza-wiedzy/cdn-globalna-wydajnosc/', 'consultation'],
 ];
 const MODAL_CTA_RE =

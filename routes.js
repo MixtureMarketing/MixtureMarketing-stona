@@ -34,7 +34,6 @@ export const routes = [
   '/marketing/analytics/',
   '/agencja-interaktywna-rzeszow/',
   '/agencja-seo-rzeszow/',
-  '/pozycjonowanie-rzeszow/',
 
   // SaaS landing
   '/abonament/',
