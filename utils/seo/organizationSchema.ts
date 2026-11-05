@@ -15,6 +15,13 @@ export const ORG_ID = `${SITE_CONFIG.domain}/#organization`;
 /** Założyciel — ta sama osoba na /o-nas/ (dane z CMS) i /abonament/ (karta założyciela). */
 export const FOUNDER_ID = `${SITE_CONFIG.domain}/#founder`;
 export const FOUNDER_NAME = 'Jakub Niedziela';
+/**
+ * Profil LinkedIn założyciela — JEDEN adres dla całej strony (karta założyciela, /abonament/,
+ * /o-nas/, autor artykułów w `sameAs`). Dane: MIX-783 / MIX-920 (Jakub, 04.11.2026).
+ */
+export const FOUNDER_LINKEDIN = 'https://pl.linkedin.com/in/jakub-niedziela-9251a8254';
+/** Strona autora (byline artykułów, `author.url`). */
+export const FOUNDER_URL_PATH = '/o-nas/';
 export const ORG_LOGO_URL = `${SITE_CONFIG.domain}/assets/images/sygnet.png`;
 
 /** Odwołanie do encji firmy (provider / publisher / worksFor). */

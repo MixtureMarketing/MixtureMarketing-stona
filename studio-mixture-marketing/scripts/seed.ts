@@ -28,7 +28,8 @@ const MONTHS: {[key: string]: string} = {
 }
 
 function parsePolishDate(dateStr: string): string {
-  // Format: "22 Grudnia 2025"
+  // Rejestr ma daty ISO „2025-12-22" (MIX-783); stary format: "22 Grudnia 2025"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return `${dateStr}T12:00:00.000Z`
   const parts = dateStr.split(' ')
   if (parts.length !== 3) return new Date().toISOString()
 

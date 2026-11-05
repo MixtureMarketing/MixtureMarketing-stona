@@ -185,6 +185,17 @@ describe('/abonament/ — lejek (Abonament.tsx)', () => {
       expect(types.filter((t) => t === 'Service')).toHaveLength(1);
     });
 
+    it('Person założyciela: @id #founder i sameAs = jeden adres LinkedIn (MIX-783)', async () => {
+      renderPage();
+      const person = (await waitForJsonLd('Person')) as { '@id': string; sameAs: string[] };
+      expect(person['@id']).toBe('https://mixturemarketing.pl/#founder');
+      expect(person.sameAs).toEqual(['https://pl.linkedin.com/in/jakub-niedziela-9251a8254']);
+      const link = Array.from(document.querySelectorAll('a')).find((a) =>
+        /linkedin\.com\/in\//.test(a.getAttribute('href') || ''),
+      );
+      expect(link?.getAttribute('href')).toBe(person.sameAs[0]);
+    });
+
     it('Service.offers = 4 pakiety z cenami z TIERS (PLN, miesięcznie)', async () => {
       renderPage();
       const service = (await waitForJsonLd('Service')) as {

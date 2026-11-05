@@ -59,7 +59,11 @@ export const articleService = {
         tags: art.tags || [],
       }));
 
-      return [...LEGACY_ARTICLES, ...mappedSanity].sort(
+      // Dokumenty Sanity dla 28 artykułów to kopia rejestru (seed.ts) — bez deduplikacji lista
+      // miała 57 kafli, a WAF dwie daty (w CMS literówka 2026-12-02). Wygrywa rejestr (MIX-783).
+      const legacySlugs = new Set(LEGACY_ARTICLES.map((a) => a.slug.replace(/\/$/, '')));
+      const cmsOnly = mappedSanity.filter((a) => !legacySlugs.has(a.slug.replace(/\/$/, '')));
+      return [...LEGACY_ARTICLES, ...cmsOnly].sort(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
       );
     } catch (error) {

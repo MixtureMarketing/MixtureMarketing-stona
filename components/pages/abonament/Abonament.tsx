@@ -40,7 +40,7 @@ import Container from '../../common/Container';
 import AmbientBackground from '../../common/AmbientBackground';
 import PreonboardModal, { type AbonamentTier, TIERS } from './PreonboardModal';
 import { trackEvent } from '../../../utils/analytics';
-import { FOUNDER_ID, ORG_REF } from '../../../utils/seo/organizationSchema';
+import { FOUNDER_ID, FOUNDER_LINKEDIN, ORG_REF } from '../../../utils/seo/organizationSchema';
 
 // ============================================================================
 // DATA
@@ -741,7 +741,7 @@ const Abonament: React.FC = () => {
     worksFor: ORG_REF,
     url: 'https://mixturemarketing.pl/o-nas/',
     image: 'https://mixturemarketing.pl/assets/team/jakub-niedziela-400.jpg',
-    sameAs: ['https://pl.linkedin.com/in/jakub-niedziela-9251a8254'],
+    sameAs: [FOUNDER_LINKEDIN],
     knowsAbout: [
       'Web Development',
       'SEO',
@@ -1968,7 +1968,7 @@ const Abonament: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-3">
                 <a
-                  href="https://pl.linkedin.com/in/jakub-niedziela-9251a8254"
+                  href={FOUNDER_LINKEDIN}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-slate-900 font-bold rounded-full text-sm border-2 border-slate-200 hover:border-indigo-300 transition-colors"

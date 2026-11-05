@@ -197,13 +197,7 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
       icon={Calculator}
       accentColor="#3F3D91"
       slug={SLUG}
-      author={{
-        name: 'Zespół Mixture Marketing',
-        role: 'Web Development · Rzeszów',
-        url: '/o-nas/',
-      }}
-      publishedDate="2026-05-19"
-      updatedDate="2026-05-19"
+      // Autor (Jakub Niedziela) i daty z rejestru artykułów: services/cms/legacyArticles.ts (MIX-783).
       heroVisual={
         <AnimateOnScroll>
           <div className="not-prose grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">

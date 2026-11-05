@@ -8,8 +8,9 @@
  */
 import React from 'react';
 import { Linkedin, Mail, MapPin } from 'lucide-react';
+import { FOUNDER_LINKEDIN } from '../../utils/seo/organizationSchema';
 
-const LINKEDIN_URL = 'https://pl.linkedin.com/in/jakub-niedziela-9251a8254';
+const LINKEDIN_URL = FOUNDER_LINKEDIN;
 const EMAIL = 'info@mixturemarketing.pl';
 
 interface FounderCardProps {
