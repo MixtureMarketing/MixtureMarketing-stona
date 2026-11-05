@@ -81,14 +81,14 @@ const CustomWebApp: React.FC = () => {
         }}
       />
 
-      {/* Hero words-only (zasada właściciela). Kotwica 25 000 zł potwierdzona
+      {/* Hero words-only (zasada właściciela). Kotwica = dolna granica kalkulatora (wariant A, MIX-923); pierwotnie
           2026-07-16; „płatność etapami" = obietnica z huba. BEZ SLA. */}
       <div ref={heroRef}>
         <StandardHero
           tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
-          priceHint="od 25 000 zł · od 3 miesięcy · płatność etapami"
+          priceHint="od 23 000 zł · od 3 miesięcy · płatność etapami"
           trustLine={<HeroTrustLine tone="dark" />}
           ctaPrimaryText="Umów darmową rozmowę"
           ctaPrimaryOnClick={openConsult}

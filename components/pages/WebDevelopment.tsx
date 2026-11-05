@@ -84,7 +84,7 @@ const WebDevelopment: React.FC = () => {
             titleNode={<WebDevHeroTitle />}
             title=""
             description={WEB_DEV_CONTENT.hero.description}
-            priceHint="od 3 900 zł · realizacja 4–8 tygodni · płatność etapami"
+            priceHint="od 2 500 zł · realizacja 4–8 tygodni · płatność etapami"
             trustLine={<HeroTrustLine tone="dark" />}
             ctaPrimaryText="Umów się na konsultację"
             ctaPrimaryOnClick={() => openModal('web')}

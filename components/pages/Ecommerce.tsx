@@ -81,7 +81,7 @@ const Ecommerce: React.FC = () => {
         tone="dark"
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
-        priceHint="od 6 000 zł · WooCommerce / PrestaShop / Medusa.js / Sylius · 6–12 tygodni"
+        priceHint="od 9 500 zł · WooCommerce / PrestaShop / Medusa.js / Sylius · 6–12 tygodni"
         trustLine={<HeroTrustLine tone="dark" />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={openConsult}

@@ -92,13 +92,13 @@ const CorporateWebsite: React.FC = () => {
 
       {/* Hero words-only w ciemnym rejestrze (lift 2026-07-16) — wizual-atrapa
           diagramu sieci (ping-nody, useParallax bez reduced-motion) skasowany.
-          Cena wg CMS (od 4 500 zł; hero twierdził 7 500 wbrew tabeli niżej);
+          Cena = dolna granica kalkulatora /wycena/ (od 5 500 zł, wariant A, MIX-923);
           „migracja w 4 tygodnie" potwierdzona przez właściciela. */}
       <StandardHero
         tone="dark"
         title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
         description={CONTENT.hero.description}
-        priceHint="od 4 500 zł · CMS z RODO · migracja w 4 tygodnie"
+        priceHint="od 5 500 zł · CMS z RODO · migracja w 4 tygodnie"
         trustLine={<HeroTrustLine tone="dark" />}
         ctaPrimaryText="Umów się na konsultację"
         ctaPrimaryOnClick={() => openModal('web', { specificType: 'corporate' })}

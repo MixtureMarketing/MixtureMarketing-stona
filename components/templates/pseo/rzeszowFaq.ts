@@ -60,7 +60,7 @@ export const RZESZOW_FAQ: readonly RzeszowFaqItem[] = [
   {
     question: 'Ile kosztuje strona internetowa w Rzeszowie?',
     answer:
-      'Widełki cenowe Mixture: landing page od 3 900 zł, strona korporacyjna z CMS od 7 500 zł, sklep internetowy od 12 000 zł, dedykowana aplikacja webowa od 25 000 zł.',
+      'Widełki cenowe Mixture: landing page od 2 500 zł, strona korporacyjna z CMS od 5 500 zł, sklep internetowy od 9 500 zł, dedykowana aplikacja webowa od 23 000 zł, portal B2B od 19 000 zł. Te same kwoty liczy kalkulator na /wycena/.',
     link: {
       prefix: 'Pełen cennik 2026 na stronie',
       to: '/web-development/rzeszow/',

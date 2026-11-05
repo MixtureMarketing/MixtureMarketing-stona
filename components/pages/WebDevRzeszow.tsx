@@ -36,7 +36,7 @@ const WebDevRzeszow: React.FC = () => {
     {
       question: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku?',
       answer:
-        'Widełki cenowe w Mixture Marketing: prosty landing page od 2 500 zł, strona korporacyjna z CMS od 4 500 zł, sklep internetowy (WooCommerce/PrestaShop/dedykowany) od 6 000 zł, dedykowana aplikacja webowa od 25 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
+        'Widełki cenowe w Mixture Marketing: prosty landing page od 2 500 zł, strona korporacyjna z CMS od 5 500 zł, sklep internetowy (WooCommerce/PrestaShop/dedykowany) od 9 500 zł, dedykowana aplikacja webowa od 23 000 zł, portal B2B od 19 000 zł. Każda wycena jest indywidualna i zależy od liczby podstron, integracji, copywritingu i grafiki. Bezpłatna wycena projektu — wystarczy formularz lub telefon.',
     },
     {
       question: 'Jak długo trwa realizacja strony internetowej?',
@@ -103,7 +103,7 @@ const WebDevRzeszow: React.FC = () => {
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              minPrice: '4500',
+              minPrice: '5500',
             },
           },
           {
@@ -112,7 +112,7 @@ const WebDevRzeszow: React.FC = () => {
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              minPrice: '6000',
+              minPrice: '9500',
             },
           },
         ],
@@ -471,7 +471,7 @@ const WebDevRzeszow: React.FC = () => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Strona firmowa
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 4 500 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 5 500 zł</p>
                 <p className="text-sm text-gray-600">
                   CMS, blog, formularz, integracje analityki. 4–8 tygodni.
                 </p>
@@ -480,7 +480,7 @@ const WebDevRzeszow: React.FC = () => {
                 <p className="text-xs font-semibold text-secondary uppercase tracking-wider mb-2">
                   Sklep internetowy
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 6 000 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 9 500 zł</p>
                 <p className="text-sm text-gray-600">
                   WooCommerce / PrestaShop / dedykowany. Integracje kurier+płatności. 6–12 tyg.
                 </p>
@@ -489,7 +489,7 @@ const WebDevRzeszow: React.FC = () => {
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Aplikacja dedykowana
                 </p>
-                <p className="text-3xl font-extrabold mb-2">od 25 000 zł</p>
+                <p className="text-3xl font-extrabold mb-2">od 23 000 zł</p>
                 <p className="text-sm text-gray-600">
                   SaaS, portal klienta, dedykowany system. Od 3 miesięcy.
                 </p>

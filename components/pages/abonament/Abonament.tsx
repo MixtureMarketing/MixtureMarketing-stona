@@ -493,7 +493,7 @@ const RELATED = [
   {
     tag: 'Web dev',
     title: 'Strony WWW dedykowane',
-    desc: 'Dedykowane strony i sklepy — od 3 900 zł jednorazowo.',
+    desc: 'Dedykowane strony i sklepy — od 2 500 zł jednorazowo.',
     href: '/web-development/',
   },
   {
@@ -1032,7 +1032,7 @@ const Abonament: React.FC = () => {
                 <br />a nie 1500?
               </>
             }
-            lead="Mixture jest agencją marketingową — klasyczne projekty robimy w cenie 4 000 – 30 000 zł. Tam płacisz osobogodziny. Tutaj — większość pracy wykonuje platforma."
+            lead="Mixture jest agencją marketingową — klasyczne projekty robimy w cenie 2 500 – 50 000 zł. Tam płacisz osobogodziny. Tutaj — większość pracy wykonuje platforma."
           />
 
           {/* Stats grid */}
@@ -1749,7 +1749,7 @@ const Abonament: React.FC = () => {
                 <p className="text-xs text-slate-500 uppercase tracking-[0.15em] font-bold mt-1">
                   Klasyczne zlecenie
                 </p>
-                <p className="text-2xl font-black text-slate-950 mt-3">4–30 tys.</p>
+                <p className="text-2xl font-black text-slate-950 mt-3">2,5–50 tys.</p>
                 <p className="text-[10px] text-slate-500 mt-1">jednorazowo</p>
               </div>
               <div className="text-center p-5 rounded-2xl bg-slate-50 border-2 border-slate-200">
@@ -1807,7 +1807,7 @@ const Abonament: React.FC = () => {
 
           <p className="text-center text-sm text-slate-600 mt-8 max-w-3xl mx-auto">
             Mixture jest też klasyczną agencją marketingową — zlecenia{' '}
-            <strong>4 000–30 000 zł</strong> realizujemy w tradycyjnym modelu. Abonament to osobny
+            <strong>2 500–50 000 zł</strong> realizujemy w tradycyjnym modelu. Abonament to osobny
             produkt dla mikrofirm bez budżetu na full custom.
           </p>
 
@@ -1821,7 +1821,7 @@ const Abonament: React.FC = () => {
               <ul className="space-y-2 text-sm text-slate-700 mb-6">
                 <li className="flex gap-2">
                   <Check size={16} className="text-slate-500 mt-0.5 flex-shrink-0" />
-                  <span>masz unikalny projekt z budżetem 5–30 tys. zł</span>
+                  <span>masz unikalny projekt z budżetem 2,5–50 tys. zł</span>
                 </li>
                 <li className="flex gap-2">
                   <Check size={16} className="text-slate-500 mt-0.5 flex-shrink-0" />

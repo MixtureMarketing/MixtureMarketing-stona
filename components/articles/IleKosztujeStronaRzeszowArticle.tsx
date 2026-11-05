@@ -30,7 +30,7 @@ const PRICING_TIERS = [
   {
     icon: Sparkles,
     name: 'Landing Page',
-    price: 'od 3 900 zł',
+    price: 'od 2 500 zł',
     time: '7–14 dni',
     color: 'from-blue-50 to-white',
     border: 'border-blue-100',
@@ -46,7 +46,7 @@ const PRICING_TIERS = [
   {
     icon: Layers,
     name: 'Strona firmowa',
-    price: 'od 7 500 zł',
+    price: 'od 5 500 zł',
     time: '4–8 tygodni',
     color: 'from-violet-50 to-white',
     border: 'border-violet-100',
@@ -63,7 +63,7 @@ const PRICING_TIERS = [
   {
     icon: ShoppingCart,
     name: 'Sklep internetowy',
-    price: 'od 12 000 zł',
+    price: 'od 9 500 zł',
     time: '6–12 tygodni',
     color: 'from-emerald-50 to-white',
     border: 'border-emerald-100',
@@ -79,7 +79,7 @@ const PRICING_TIERS = [
   {
     icon: Cpu,
     name: 'Aplikacja dedykowana',
-    price: 'od 25 000 zł',
+    price: 'od 23 000 zł',
     time: 'od 3 miesięcy',
     color: 'from-orange-50 to-white',
     border: 'border-orange-100',
@@ -132,7 +132,7 @@ const COST_FACTORS = [
 const ECOMMERCE_TIERS = [
   {
     range: 'do 100 SKU',
-    price: 'od 12 000 zł',
+    price: 'od 9 500 zł',
     detail: 'WooCommerce / PrestaShop, gotowe motywy + customization',
   },
   {
@@ -235,10 +235,10 @@ const IleKosztujeStronaRzeszowArticle: React.FC = () => {
     >
       <AnimateOnScroll>
         <p className="lead text-xl md:text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-primary pl-6 py-3 bg-blue-50/30 rounded-r-xl not-prose">
-          W skrócie: <strong className="text-dark">landing page od 3 900 zł</strong>, strona firmowa
-          z CMS <strong className="text-dark">od 7 500 zł</strong>, sklep internetowy{' '}
-          <strong className="text-dark">od 12 000 zł</strong>, dedykowana aplikacja webowa{' '}
-          <strong className="text-dark">od 25 000 zł</strong>. Poniżej — co realnie wpływa na
+          W skrócie: <strong className="text-dark">landing page od 2 500 zł</strong>, strona firmowa
+          z CMS <strong className="text-dark">od 5 500 zł</strong>, sklep internetowy{' '}
+          <strong className="text-dark">od 9 500 zł</strong>, dedykowana aplikacja webowa{' '}
+          <strong className="text-dark">od 23 000 zł</strong>. Poniżej — co realnie wpływa na
           finalną cenę i jak czytać oferty agencji z Rzeszowa, żeby nie zapłacić dwa razy.
         </p>
       </AnimateOnScroll>

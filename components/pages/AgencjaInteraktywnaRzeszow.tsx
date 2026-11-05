@@ -46,7 +46,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       question: 'Ile kosztuje współpraca z agencją interaktywną w Rzeszowie?',
       answer:
-        'Pojedynczy projekt (strona WWW + branding) — od 8 500 zł. Stała opieka (web + marketing + design) — pakiety abonamentowe od 3 200 zł/mies. Realizacja dedykowana z aplikacją webową — od 25 000 zł. Bezpłatna wycena widełkowa — wysłana w 24h od briefu.',
+        'Pojedynczy projekt (strona WWW + branding) — od 8 500 zł. Stała współpraca miesięczna (web + marketing + design) — od 3 200 zł/mies. (to nie jest abonament strony z /abonament/). Realizacja dedykowana z aplikacją webową — od 23 000 zł, portal B2B — od 19 000 zł. Bezpłatna wycena widełkowa — wysłana w 24h od briefu.',
     },
     {
       question: 'Jak długo trwa realizacja projektu strony WWW w Rzeszowie?',
@@ -66,7 +66,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       question: 'Czym Mixture różni się od dużego software house’u?',
       answer:
-        'Duże software house’y specjalizują się w długich projektach enterprise (ERP, banking, telco). Mixture jest agencją interaktywną dla MŚP i scale-upów: projekty 8 000–80 000 zł, terminy 4–12 tygodni, jedna osoba kontaktowa, zwinność w decyzjach. Łączymy też marketing i design, czego klasyczny software house nie robi.',
+        'Duże software house’y specjalizują się w długich projektach enterprise (ERP, banking, telco). Mixture jest agencją interaktywną dla MŚP i scale-upów: projekty 2 500–50 000 zł, terminy 4–12 tygodni, jedna osoba kontaktowa, zwinność w decyzjach. Łączymy też marketing i design, czego klasyczny software house nie robi.',
     },
     {
       question: 'Jakie technologie stosujecie?',
@@ -110,7 +110,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
           },
           {
             '@type': 'Offer',
-            itemOffered: { '@type': 'Service', name: 'Stała opieka 360° (abonament)' },
+            itemOffered: { '@type': 'Service', name: 'Stała współpraca miesięczna 360°' },
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
@@ -124,7 +124,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
             priceSpecification: {
               '@type': 'PriceSpecification',
               priceCurrency: 'PLN',
-              minPrice: '25000',
+              minPrice: '23000',
             },
           },
         ],

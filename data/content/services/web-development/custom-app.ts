@@ -1,7 +1,7 @@
 /**
  * Treść strony /web-development/custom-app/ — przepisana 2026-07-16 po krytyce
  * dual-agent (16/40) i decyzjach właściciela:
- * - kotwica „od 25 000 zł" zostaje; dochodzi „płatność etapami" (obietnica z huba),
+ * - kotwica „od 23 000 zł" (dolna granica kalkulatora, wariant A, MIX-923); portal B2B od 19 000 zł; dochodzi „płatność etapami" (obietnica z huba),
  * - SLA/uptime: WSZYSTKIE procenty usunięte (decyzja właściciela — SLA to osobna
  *   płatna umowa serwisowa; wolno o tym mówić tylko tym zdaniem),
  * - stack tylko potwierdzony: Go i AWS WYCIĘTE (odrzucone wprost),

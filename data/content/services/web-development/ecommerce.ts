@@ -1,7 +1,7 @@
 /**
  * Treść strony /web-development/ecommerce/ — przepisana 2026-07-16 po krytyce
  * dual-agent (20/40) i decyzjach właściciela:
- * - kotwica cenowa: od 6 000 zł (zgodna z najniższym pakietem cennika w CMS),
+ * - kotwica cenowa: od 9 500 zł (dolna granica kalkulatora /wycena/, wariant A, MIX-923),
  * - stack sklepowy = drabinka huba: WooCommerce / PrestaShop / Medusa.js / Sylius
  *   (Shoper ODRZUCONY przez właściciela — wolno go wymieniać wyłącznie jako
  *   alternatywę SaaS w sekcji własności i w ścieżce migracji),

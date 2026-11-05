@@ -6,8 +6,8 @@
  * audiodeskrypcja (nieoferowana), moduł „Relacje Inwestorskie ESPI/EBI"
  * (brak realizacji), statusy Verified/Compliant/Active/Monitored oraz
  * Completed/Processing/Pending (preparowana telemetria), badge/microCopy.
- * Zostaje: „migracja w 4 tygodnie" (potwierdzone). Cena wg CMS: od 4 500 zł
- * (hero twierdził 7 500 wbrew tabeli cen na tej samej stronie).
+ * Zostaje: „migracja w 4 tygodnie" (potwierdzone). Cena: od 5 500 zł (wariant A, MIX-923)
+ * (dolna granica kalkulatora /wycena/ dla strony firmowej).
  * Literówka „wymogymi" poprawiona.
  */
 export const CORPORATE_WEBSITE_CONTENT = {
