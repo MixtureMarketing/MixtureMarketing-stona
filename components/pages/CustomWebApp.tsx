@@ -88,7 +88,7 @@ const CustomWebApp: React.FC = () => {
           tone="dark"
           title={{ line1: CONTENT.hero.title.line1, line2: CONTENT.hero.title.line2 }}
           description={CONTENT.hero.description}
-          priceHint="od 23 000 zł · od 3 miesięcy · płatność etapami"
+          priceHint="od 23 000 zł · portal B2B od 19 000 zł · od 3 miesięcy · płatność etapami"
           trustLine={<HeroTrustLine tone="dark" />}
           ctaPrimaryText="Umów darmową rozmowę"
           ctaPrimaryOnClick={openConsult}

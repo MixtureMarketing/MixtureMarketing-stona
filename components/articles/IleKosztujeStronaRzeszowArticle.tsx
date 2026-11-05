@@ -84,7 +84,7 @@ const PRICING_TIERS = [
     color: 'from-orange-50 to-white',
     border: 'border-orange-100',
     chip: 'bg-orange-100 text-orange-700',
-    desc: 'SaaS, portal klienta, system rezerwacji, panel B2B, dashboard z autoryzacją.',
+    desc: 'SaaS, portal klienta, system rezerwacji, panel B2B (od 19 000 zł), dashboard z autoryzacją.',
     includes: [
       'MVP w 6 tygodni',
       'OAuth/JWT auth',

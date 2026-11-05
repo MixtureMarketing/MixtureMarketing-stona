@@ -85,8 +85,8 @@ const WebDevRzeszow: React.FC = () => {
         '@type': 'OfferCatalog',
         name: 'Pakiety stron internetowych Rzeszów',
         itemListElement: [
-          // Ceny zgodne z CMS (2026-07-17): landing 2 500, korporacyjna 4 500,
-          // sklep 6 000 — poprzednie wartości (3 900/7 500/12 000) właściciel
+          // Ceny = dolne granice kalkulatora /wycena/ (wariant A, MIX-923): landing 2 500,
+          // korporacyjna 5 500, sklep 9 500; wcześniej CMS 4 500/6 000, a 3 900/7 500/12 000 właściciel
           // kazał wyciąć już 16.07 na stronach usługowych.
           {
             '@type': 'Offer',
