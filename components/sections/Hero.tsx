@@ -83,7 +83,8 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
           <h1 className="text-balance tracking-tight text-white">
             <span className="block text-2xl font-medium text-white/60 sm:text-3xl lg:text-4xl">
               {HERO_CONTENT.title.line1} {HERO_CONTENT.title.line2}
-            </span>
+            </span>{' '}
+            {/* Spacja: bez niej textContent H1 = „wykonawców.Wybierz” (MIX-921). */}
             <span className="mt-4 block text-[clamp(3rem,8.5vw,6rem)] font-black leading-[1.04]">
               Wybierz <span className="text-primary">Partnera</span>.
             </span>

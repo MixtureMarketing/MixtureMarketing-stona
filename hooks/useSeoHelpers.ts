@@ -12,7 +12,9 @@ export const useCanonicalUrl = (canonical?: string) => {
   if (canonical) {
     return canonical.startsWith('http') ? canonical : `${baseUrl}${canonical}`;
   }
-  return `${baseUrl}${pathname}${location.search}`;
+  // Domyślny canonical BEZ query (MIX-921, audyt MIX-897 P3): ?kategoria=, ?gclid=, ?utm_*
+  // nie mogą tworzyć osobnych stron w indeksie — wskazują na adres bez parametrów.
+  return `${baseUrl}${pathname}`;
 };
 
 export const getOgImage = (image?: string) => {
