@@ -19,14 +19,17 @@
 /marketing/seo/rzeszow      /agencja-seo-rzeszow/      301
 /marketing/seo/rzeszow/     /agencja-seo-rzeszow/      301
 
-# 301 wariantow frazy "pozycjonowanie stron rzeszow" (16 imp/tyg pos 73 + 8 imp pos 76)
-# na /pozycjonowanie-rzeszow/ — jedna strona obsluguje wszystkie warianty.
-/pozycjonowanie-stron-rzeszow         /pozycjonowanie-rzeszow/  301
-/pozycjonowanie-stron-rzeszow/        /pozycjonowanie-rzeszow/  301
-/pozycjonowanie-stron-www-rzeszow     /pozycjonowanie-rzeszow/  301
-/pozycjonowanie-stron-www-rzeszow/    /pozycjonowanie-rzeszow/  301
-/pozycjonowanie-stron-internetowych-rzeszow   /pozycjonowanie-rzeszow/  301
-/pozycjonowanie-stron-internetowych-rzeszow/  /pozycjonowanie-rzeszow/  301
+# MIX-898 (decyzja MIX-977): /pozycjonowanie-rzeszow/ scalona z /agencja-seo-rzeszow/ —
+# trzy strony dzielily frazy "pozycjonowanie/SEO Rzeszow" (GSC 3 mies.: 5 020 wysw., 0 klik.).
+# Warianty frazy "pozycjonowanie stron rzeszow" ida wprost na cel (bez lancucha 301).
+/pozycjonowanie-rzeszow               /agencja-seo-rzeszow/  301
+/pozycjonowanie-rzeszow/              /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-rzeszow         /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-rzeszow/        /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-www-rzeszow     /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-www-rzeszow/    /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-internetowych-rzeszow   /agencja-seo-rzeszow/  301
+/pozycjonowanie-stron-internetowych-rzeszow/  /agencja-seo-rzeszow/  301
 
 # Polskie aliasy URL (uzytkownicy i asystenci AI zgaduja polskie sciezki; dotad 404).
 # Cele istnieja w config/routes.tsx + routes.js (prerendered). Zadna trasa ani plik

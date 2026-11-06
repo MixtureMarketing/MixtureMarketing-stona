@@ -500,7 +500,7 @@ const RELATED = [
     tag: 'SEO',
     title: 'Pozycjonowanie Rzeszów',
     desc: 'Lokalne i ogólnopolskie SEO — od 1 200 zł/mc.',
-    href: '/pozycjonowanie-rzeszow/',
+    href: '/agencja-seo-rzeszow/',
   },
 ];
 
