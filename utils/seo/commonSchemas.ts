@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- schema helpers (Place + OpeningHours + LocalBusiness w jednym pliku) */
 import { SITE_CONFIG } from '../../config/site';
 import { withTrailingSlash } from '../url';
 
