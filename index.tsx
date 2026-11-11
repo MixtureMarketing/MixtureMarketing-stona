@@ -5,8 +5,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 import { ModalProvider } from './context/ModalContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
-import { onCLS, onINP, onLCP, onFCP, onTTFB, type Metric } from 'web-vitals';
-import { trackEvent } from './utils/analytics';
+import { onCLS, onINP, onLCP, onFCP, onTTFB } from 'web-vitals';
+import { reportWebVitals } from './utils/webVitals';
 import { installChunkReloadHandler } from './utils/chunkReload';
 import { installGlobalErrorHandlers } from './utils/errorReporter';
 import { preloadRoute } from './config/routes';
@@ -19,33 +19,7 @@ installChunkReloadHandler();
 // Nieobsłużone wyjątki/odrzucenia → /api/client-error (console.* jest wycinane w prod).
 installGlobalErrorHandlers();
 
-// Performance Monitoring (Real User Metrics)
-// Wczesniej wysylane do /api/rum-collect.php (Apache PHP backend). Po migracji na
-// CF Pages PHP nie istnieje — endpoint zwracal 405. Teraz: forwardujemy do GA4
-// przez Cloudflare Zaraz wrapper (trackEvent). Naming: 'web_vital_lcp' itp.
-function reportWebVitals(metric: Metric) {
-  const { name, value, id, delta } = metric;
-
-  // Skip podczas prerenderu (Puppeteer/build) — brak window/zaraz wtedy
-  if (window.isPrerendering) return;
-
-  // Local log w DEV
-  if (import.meta.env.DEV) {
-    const color = value > 2500 ? 'color: #ff4d4f' : 'color: #52c41a';
-    console.log(`%c[RUM] ${name}: ${Math.round(value)}ms`, color, { id, delta });
-    return;
-  }
-
-  // Production: forward do GA4 via Zaraz
-  trackEvent(`web_vital_${name.toLowerCase()}`, {
-    metric_name: name,
-    metric_value: Math.round(value),
-    metric_delta: Math.round(delta),
-    metric_id: id,
-    page_path: window.location.pathname,
-  });
-}
-
+// Performance Monitoring (Real User Metrics): zob. utils/webVitals.ts (CLS jako x1000).
 // Initialize vitals
 onFCP(reportWebVitals);
 onLCP(reportWebVitals);
