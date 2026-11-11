@@ -115,13 +115,27 @@ export const caseStudyService = {
       caseStudyService.getCaseStudies(),
     ]);
     if (!current) return null;
-    const currentIndex = all.findIndex((p) => p.slug.current === slug);
-    let nextProject: SanityCaseStudy | null = null;
-    if (currentIndex !== -1 && currentIndex < all.length - 1) {
-      nextProject = all[currentIndex + 1];
-    } else if (all.length > 0 && all[0].slug.current !== slug) {
-      nextProject = all[0];
-    }
-    return { project: current, nextProject };
+    return { project: current, nextProject: pickNextCaseStudy(all, slug) };
   },
 };
+
+/** Slug nadaje się do linku tylko jako niepusty tekst (GROQ: `"slug": slug.current`). */
+const hasUsableSlug = (p: SanityCaseStudy | null | undefined): p is SanityCaseStudy =>
+  typeof p?.slug === 'string' && p.slug.trim() !== '';
+
+/**
+ * „Następny projekt” (MIX-1378): kolejny case study z listy, po ostatnim pierwszy (zawinięcie).
+ * Pozycje bez sluga są pomijane, więc link nigdy nie prowadzi do /portfolio/undefined/.
+ * `null`, gdy nie ma innego projektu niż bieżący.
+ */
+export function pickNextCaseStudy(
+  all: SanityCaseStudy[],
+  currentSlug: string,
+): SanityCaseStudy | null {
+  const candidates = all.filter(hasUsableSlug);
+  if (candidates.length === 0) return null;
+  const currentIndex = candidates.findIndex((p) => p.slug === currentSlug);
+  const next =
+    currentIndex === -1 ? candidates[0] : candidates[(currentIndex + 1) % candidates.length];
+  return next.slug === currentSlug ? null : next;
+}
