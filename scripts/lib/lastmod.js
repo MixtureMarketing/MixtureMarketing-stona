@@ -1,6 +1,7 @@
 // Realne daty zmian stron statycznych dla <lastmod> w sitemap.xml (MIX-781, M11).
 //
-// Skąd data: `git log -1 --format=%cs` po plikach, które tworzą treść strony — komponent
+// Skąd data: `git log -1 --format=%as` (data AUTORA, nie commitu: cherry-pick, rebase i merge nie
+// udają świeżej zmiany treści) po plikach, które tworzą treść strony — komponent
 // strony z routes.tsx plus jego zależności z katalogów TREŚCI (data/content, components/pages,
 // components/articles, components/features, components/sections). Pliki wspólne (layout,
 // common, ui, utils, services) są pomijane: zmiana nagłówka serwisu nie zmienia treści
@@ -86,7 +87,7 @@ export function contentFiles(root, componentRel) {
 /** Najnowsza data commita (YYYY-MM-DD) dla zestawu plików; null, gdy git nie zna żadnego. */
 export function gitLastDate(root, files) {
   if (files.length === 0) return null;
-  const out = execFileSync('git', ['log', '-1', '--format=%cs', '--', ...files], {
+  const out = execFileSync('git', ['log', '-1', '--format=%as', '--', ...files], {
     cwd: root,
     encoding: 'utf8',
   }).trim();

@@ -49,7 +49,11 @@ export const xmlEscape = (s) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
 
-/** @param {{ url: string, lastmod?: string | null, image?: object | null }[]} entries */
+/**
+ * Z rozszerzenia obrazkowego zostaje tylko <image:loc>: Google wycofał <image:caption>,
+ * <image:title> i <image:geo_location> (audyt, P10), więc nawet gdy wpis je niesie, nie trafią do XML.
+ * @param {{ url: string, lastmod?: string | null, image?: { loc?: string } | null }[]} entries
+ */
 export function buildSitemapXml(entries) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -60,12 +64,6 @@ ${entries
     if (entry.lastmod) inner += `\n    <lastmod>${entry.lastmod}</lastmod>`;
     if (entry.image && entry.image.loc) {
       inner += `\n    <image:image>\n      <image:loc>${xmlEscape(entry.image.loc)}</image:loc>`;
-      if (entry.image.title)
-        inner += `\n      <image:title>${xmlEscape(entry.image.title)}</image:title>`;
-      if (entry.image.caption)
-        inner += `\n      <image:caption>${xmlEscape(entry.image.caption)}</image:caption>`;
-      if (entry.image.geo)
-        inner += `\n      <image:geo_location>${xmlEscape(entry.image.geo)}</image:geo_location>`;
       inner += `\n    </image:image>`;
     }
     return `  <url>\n${inner}\n  </url>`;
@@ -81,4 +79,30 @@ export function parseSitemap(xml) {
     url: m[1].match(/<loc>([^<]+)<\/loc>/)?.[1] ?? '',
     lastmod: m[1].match(/<lastmod>([^<]+)<\/lastmod>/)?.[1] ?? null,
   }));
+}
+
+/** Wycofane przez Google pola rozszerzenia obrazkowego (audyt, P10). */
+export const RETIRED_IMAGE_FIELDS = Object.freeze([
+  'image:caption',
+  'image:title',
+  'image:geo_location',
+]);
+
+/** Liczba wystąpień wycofanych pól w XML-u mapy (0 = czysto). */
+export function retiredImageFieldCount(xml) {
+  return RETIRED_IMAGE_FIELDS.reduce(
+    (n, tag) => n + (xml.match(new RegExp(`<${tag}>`, 'g')) || []).length,
+    0,
+  );
+}
+
+/** Liczby do raportu: adresy, adresy z lastmod, wycofane pola, pola image:loc. */
+export function sitemapStats(xml) {
+  const urls = parseSitemap(xml);
+  return {
+    urls: urls.length,
+    withLastmod: urls.filter((u) => u.lastmod).length,
+    retiredImageFields: retiredImageFieldCount(xml),
+    imageLocs: (xml.match(/<image:loc>/g) || []).length,
+  };
 }
