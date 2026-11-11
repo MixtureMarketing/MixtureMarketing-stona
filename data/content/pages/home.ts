@@ -68,7 +68,7 @@ export const LEAD_MAGNET_CONTENT = {
     line2: 'już Cię wyprzedza?',
   },
   description:
-    'Zamów bezpłatny, 15-minutowy audyt techniczny swojej obecnej strony lub kampanii. Znajdziemy "wąskie gardła", przez które tracisz klientów.',
+    'Zamów bezpłatny audyt techniczny swojej obecnej strony lub kampanii — wynik w 60 sekund. Znajdziemy "wąskie gardła", przez które tracisz klientów.',
   items: [
     'Analiza szybkości ładowania',
     'Weryfikacja śledzenia konwersji',

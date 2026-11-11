@@ -97,7 +97,7 @@ const Home = () => {
       <StickyMobileBar
         aboveRef={heroRef}
         belowRef={leadMagnetRef}
-        label="Darmowy audyt w 60s"
+        label="Darmowy audyt w 60 sekund"
         sublabel="Sprawdź błędy na swojej stronie"
         telephone={SITE_CONFIG.contact.phoneFull}
         telephoneDisplay={SITE_CONFIG.contact.phone}

@@ -104,7 +104,7 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
               className="h-14 w-full px-9 text-base shadow-2xl shadow-secondary/30 motion-safe:hover:scale-[1.03] sm:w-auto md:h-16 md:text-lg"
               icon={<ArrowRight size={22} />}
             >
-              Darmowy audyt strony w 60s
+              Darmowy audyt strony w 60 sekund
             </Button>
 
             <button
