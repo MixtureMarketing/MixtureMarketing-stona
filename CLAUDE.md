@@ -57,6 +57,8 @@ When adding a static page: add the component + route in `config/routes.tsx` AND 
 
 **Analytics.** GA4 events go through Cloudflare Zaraz (`window.zaraz.track` / `utils/analytics.ts` `trackEvent`). Web Vitals (`index.tsx`) forward to GA4 as `web_vital_*` events. Key funnel events: `consultation_click`, `audit_request`, `calculator_submit`, `lead_start`, `contact_form_success`.
 
+**Browser scripts must not feed GA4 (MIX-894).** Zaraz is served from the site's own domain (`/cdn-cgi/zaraz/*`), so any Puppeteer script that opens a non-localhost URL counts as a real visitor (24-25.10.2026: ~3 400 fake GA4 users). Every such script uses `scripts/lib/prod-safe.mjs`: `createProdSafe(BASE)` → `watchBrowser(browser)` → `protect(page, {userAgent, handler})` (UA gets `MixtureE2E/1`, all `/cdn-cgi/zaraz/`, `/cdn-cgi/rum` and analytics hosts are aborted) → `finish()` (exit 1 on leak or missing blocker on non-localhost). `tests/scripts/prodSafe.test.ts` fails for any new Puppeteer script that does not import it.
+
 **SaaS abonament** (`components/pages/abonament/`): self-serve Stripe Checkout via an external "binary-planet" hub (`VITE_MM_HUB_URL`), draft persisted in `sessionStorage`, preonboard in a native `<dialog>` modal. `/abonament/dziekujemy` is `noindex` and intentionally excluded from sitemap.
 
 ## Conventions & gotchas
