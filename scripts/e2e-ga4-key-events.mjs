@@ -63,6 +63,10 @@ const DIAG = [];
 async function newPage(browser, log) {
   const page = await browser.newPage();
   PAGES.push(page);
+  // Strony wykrywają prerender po „Headless” w UA (wtedy kalkulator się nie montuje).
+  await page.setUserAgent(
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 MixtureE2E/1',
+  );
   page.on('pageerror', (e) => DIAG.push(`pageerror: ${e.message}`));
   page.on('console', (m) => {
     if (m.type() === 'error') DIAG.push(`console: ${m.text()}`);
@@ -128,7 +132,9 @@ async function main() {
     const pc = await newPage(browser, logC);
     await pc.goto(`${BASE}/wycena/`, { waitUntil: 'networkidle0', timeout: 60000 });
     await pc.waitForSelector('[role="radio"]', { timeout: 30000 });
-    await pc.click('[role="radio"]');
+    await sleep(1000);
+    await pc.evaluate(() => document.querySelector('[role="radio"]').click());
+    await pc.waitForSelector('[role="radio"][aria-checked="true"]', { timeout: 10000 });
     await sleep(300);
     if (!(await pc.$('input[type="email"]'))) await clickButton(pc, /^\s*Dalej\s*$/);
     await pc.waitForSelector('input[type="email"]', { timeout: 10000 });
