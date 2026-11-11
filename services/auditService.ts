@@ -90,19 +90,21 @@ export interface CaptureLeadResult {
 }
 
 export const auditService = {
+  // MIX-1324: serwer wymaga tokenu Turnstile; `force` (pomijanie cache) usunięty.
+  // Błąd niesie status HTTP (429 = limit), żeby UI mógł podać właściwy komunikat.
   async runAudit(
     url: string,
     companyName: string = '',
-    force: boolean = true,
+    captchaToken?: string,
   ): Promise<AuditResult> {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, companyName, force }),
+      body: JSON.stringify({ url, companyName, captcha_token: captchaToken }),
     });
 
     if (!response.ok) {
-      throw new Error('Audit failed');
+      throw Object.assign(new Error('Audit failed'), { status: response.status });
     }
 
     const json = await response.json();

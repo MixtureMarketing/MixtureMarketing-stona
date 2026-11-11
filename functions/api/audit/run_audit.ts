@@ -11,16 +11,28 @@
  * Wynik zwracany jako { status, data: { client, competitor? } } — ksztalt zgodny
  * z services/auditService.ts (AuditResult). Cache KV 24h (klucz = SHA-256 URL).
  *
- * Limit (2026-10-24): każdy audyt na żywo to płatne zapytania Google (PSI + Places),
- * a endpoint jest publiczny — liczymy audyty na żywo per IP (wyniki z cache są darmowe).
+ * Bramka (MIX-1324): każdy audyt na żywo to płatne zapytania Google (PSI + Places),
+ * a endpoint jest publiczny. Kolejność: kształt URL → Turnstile (zawsze) → cache →
+ * DNS (tylko adresy publiczne) → limit IP (/64 dla IPv6) + dzienny budżet (fail-closed)
+ * → audyt. Parametr `force` (pomijał cache) usunięty — ignorowany. Scrape idzie za
+ * przekierowaniami ręcznie, każdy skok sprawdzany allowlistą (_shared/publicUrl).
  */
 
-import { checkRateLimit } from '../estimation/_rateLimit';
-import { clientIp, safeHttpUrl, sha256Hex } from '../_shared/security';
+import { safeHttpUrl, sha256Hex } from '../_shared/security';
 import { serverError } from '../_shared/errors';
 import { kvGetJson, kvPut } from '../_shared/kv';
+import { denialResponse, envInt, gateCaptcha, gateLimits } from '../_shared/publicGate';
+import {
+  UnsafeUrlError,
+  assertPublicUrl,
+  assertUrlShape,
+  safePublicFetch,
+} from '../_shared/publicUrl';
 
 const LIVE_AUDITS_PER_HOUR = 10;
+// Domyślny dzienny budżet audytów na żywo (wszystkie IP). Zmiana bez wdrożenia kodu:
+// zmienna AUDIT_DAILY_BUDGET w ustawieniach Pages.
+const LIVE_AUDITS_PER_DAY = 100;
 
 // Timeouty zewnętrznych źródeł. Bez nich zawieszony serwer audytowanej strony albo
 // Google trzymał żądanie bez końca. PSI (mobile, 4 kategorie) bywa wolne — to
@@ -31,6 +43,8 @@ type Source = 'scrape' | 'reputation';
 
 interface Env {
   GOOGLE_BACKEND_KEY: string; // sekret CF Pages (PageSpeed Insights API + Places API)
+  TURNSTILE_SECRET?: string;
+  AUDIT_DAILY_BUDGET?: string;
   CACHE: KVNamespace;
   DB: D1Database;
 }
@@ -94,9 +108,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       url: string;
       companyName?: string;
       placeId?: string;
-      force?: boolean;
+      captcha_token?: string;
     };
-    const { url, companyName, force } = input;
+    const { url, companyName } = input;
     // placeId trafia do ścieżki URL Places API — tylko bezpieczne znaki.
     const placeId =
       typeof input.placeId === 'string' && /^[A-Za-z0-9_-]{1,300}$/.test(input.placeId)
@@ -107,31 +121,45 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const normalizedUrl = safeHttpUrl(url);
     if (!normalizedUrl) return json({ status: 'error', message: 'Invalid URL' }, 400);
+    try {
+      assertUrlShape(normalizedUrl);
+    } catch (e) {
+      return unsafeUrl(e);
+    }
+
+    const captcha = await gateCaptcha(
+      'audit-run',
+      request,
+      input.captcha_token,
+      env.TURNSTILE_SECRET,
+    );
+    if (!captcha.ok) return denialResponse(captcha);
+
     // v8 — klucz to pełny SHA-256 URL (v7 brał 40 znaków base64, więc różne adresy
     // ze wspólnym początkiem dzieliły wpis cache i dostawały cudzy wynik).
     const cacheKey = `v8_live_${await sha256Hex(normalizedUrl)}`;
 
-    if (!force) {
-      // fail-open: błąd KV = liczymy na żywo
-      const cached = await kvGetJson<any>(env.CACHE, cacheKey);
-      if (cached) {
-        return json({ status: 'success', source: 'cache', data: cached });
-      }
+    // Cache: błąd odczytu = brak trafienia (dalej i tak obowiązują liczniki fail-closed).
+    const cached = await kvGetJson<any>(env.CACHE, cacheKey);
+    if (cached) {
+      return json({ status: 'success', source: 'cache', data: cached });
     }
 
-    const rl = await checkRateLimit(
-      env.CACHE,
-      clientIp(request),
-      LIVE_AUDITS_PER_HOUR,
-      3600,
-      'audit:run:ip:',
-    );
-    if (!rl.allowed) {
-      return json(
-        { status: 'error', message: 'Limit audytów na godzinę wyczerpany. Spróbuj później.' },
-        429,
-      );
+    // DNS przed licznikami: adres prywatny nie zużywa limitu, a PSI nie dostaje
+    // adresu, którego i tak nie wolno nam pobrać.
+    try {
+      await assertPublicUrl(normalizedUrl);
+    } catch (e) {
+      return unsafeUrl(e);
     }
+
+    const limits = await gateLimits(env.CACHE, request, {
+      name: 'audit-run',
+      ipLimit: LIVE_AUDITS_PER_HOUR,
+      ipWindowSec: 3600,
+      dailyBudget: envInt(env.AUDIT_DAILY_BUDGET, LIVE_AUDITS_PER_DAY),
+    });
+    if (!limits.ok) return denialResponse(limits);
 
     // Silnik rownolegly: scrape + PSI + Places. allSettled: awaria jednego źródła
     // (DNS/TLS/403 od WAF przy scrape, timeout Places) nie zabija całego audytu —
@@ -207,6 +235,16 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+/** Odmowa dla adresu spoza allowlisty albo przy awarii DNS (fail-closed). */
+function unsafeUrl(e: unknown): Response {
+  const reason = e instanceof UnsafeUrlError ? e.reason : 'kontrola adresu';
+  console.error(`[gate:audit-run] odmowa 400: adres — ${reason}`);
+  return json(
+    { status: 'error', reason: 'url', message: 'Ten adres nie może być audytowany.' },
+    400,
+  );
+}
+
 const errText = (e: unknown) => (e instanceof Error ? `${e.name}: ${e.message}` : String(e));
 
 /** Pusty wynik scrape'a, gdy strona była niedostępna (wynik częściowy). */
@@ -251,7 +289,8 @@ interface ScrapeResult {
  * Streaming scraper (HTMLRewriter) — jeden przebieg po HTML.
  */
 async function scrapePage(url: string): Promise<ScrapeResult> {
-  const response = await fetch(url, {
+  // Każdy skok (adres i przekierowania) sprawdzany allowlistą; limit przekierowań.
+  const response = await safePublicFetch(url, {
     headers: {
       'User-Agent': 'Mozilla/5.0 (compatible; MixtureBot/1.0; +https://mixturemarketing.pl)',
     },

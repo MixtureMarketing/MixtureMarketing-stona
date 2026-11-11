@@ -213,3 +213,46 @@ describe('audit/capture-lead', () => {
     ]);
   });
 });
+
+// MIX-1324: wspólna bramka — fail-closed, IPv6 /64, dzienny budżet.
+describe('audit/capture-lead — bramka (MIX-1324)', () => {
+  const ok = (i: number) =>
+    form({ email: `p${i}@example.com`, url: 'https://firma.pl', captcha_token: 'good' });
+
+  it('brak magazynu KV → 503 i zero maili (wcześniej limity były pomijane)', async () => {
+    const { env, inserts } = makeEnv();
+    const res = await call({ ...env, CACHE: undefined }, ok(1));
+    expect(res.status).toBe(503);
+    expect(emails).toHaveLength(0);
+    expect(inserts).toHaveLength(0);
+  });
+
+  it('awaria licznika KV → 503 (wcześniej fail-open); bliźniak: działający KV → 200', async () => {
+    const { env } = makeEnv();
+    const broken = {
+      get: async () => {
+        throw new Error('KV GET failed');
+      },
+      put: async () => {},
+    };
+    expect((await call({ ...env, CACHE: broken }, ok(1))).status).toBe(503);
+    expect(emails).toHaveLength(0);
+    expect((await call(env, ok(2))).status).toBe(200);
+  });
+
+  it('rotacja IPv6 w jednej /64 → 6. zgłoszenie 429; inna /64 → 200', async () => {
+    const { env } = makeEnv();
+    const s: number[] = [];
+    for (let i = 0; i < 6; i++) s.push((await call(env, ok(i), `2a01:db9:7:7::${i + 1}`)).status);
+    expect(s).toEqual([200, 200, 200, 200, 200, 429]);
+    expect((await call(env, ok(9), '2a01:db9:7:8::1')).status).toBe(200);
+  });
+
+  it('dzienny budżet globalny (AUDIT_LEAD_DAILY_BUDGET) → 429 z nowych IP', async () => {
+    const { env } = makeEnv();
+    const e = { ...env, AUDIT_LEAD_DAILY_BUDGET: '2' };
+    const s: number[] = [];
+    for (let i = 0; i < 3; i++) s.push((await call(e, ok(i), `6.6.6.${i}`)).status);
+    expect(s).toEqual([200, 200, 429]);
+  });
+});

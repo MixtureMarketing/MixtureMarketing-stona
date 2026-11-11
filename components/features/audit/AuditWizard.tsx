@@ -34,12 +34,24 @@ const AuditWizard: React.FC = () => {
   const startScanning = React.useCallback(
     async (targetUrl: string) => {
       setError(null);
+      // Turnstile jest jednorazowy: osobny token na audyt i osobny (getToken robi reset)
+      // na wysyłkę raportu. Brak tokenu = serwer odmówi (403), UI pokaże błąd.
+      let captchaToken: string | undefined;
       try {
-        const data = await auditService.runAudit(targetUrl, companyName, true);
+        captchaToken = await turnstileRef.current?.getToken();
+      } catch (err) {
+        console.error('audit turnstile failed:', err);
+      }
+      try {
+        const data = await auditService.runAudit(targetUrl, companyName, captchaToken);
         setResult(data);
       } catch (err) {
         console.error(err);
-        setError('Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.');
+        setError(
+          (err as { status?: number })?.status === 429
+            ? 'Limit audytów został chwilowo wyczerpany. Spróbuj ponownie później.'
+            : 'Nie udało się przeprowadzić audytu. Sprawdź adres URL i spróbuj ponownie.',
+        );
         setStep('INPUT');
       }
     },

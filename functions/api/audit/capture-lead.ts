@@ -12,10 +12,12 @@
  * w żądaniu, więc bez bramek był otwartym przekaźnikiem poczty z domeny firmy.
  * Kolejność: honeypot → walidacja (email, url http/https, PDF: typ + rozmiar) →
  * Turnstile → limit per IP → limit per adres odbiorcy → zapis + maile (escapowane).
+ * MIX-1324: Turnstile + limit IP (/64 dla IPv6) + dzienny budżet ze wspólnej bramki
+ * (_shared/publicGate); błąd licznika (też brak KV) = odmowa 503 zamiast przepuszczenia.
  */
 
-import { checkRateLimit } from '../estimation/_rateLimit';
-import { clientIp, escapeHtml, safeHttpUrl, sha256Hex, verifyTurnstile } from '../_shared/security';
+import { escapeHtml, safeHttpUrl, sha256Hex } from '../_shared/security';
+import { denialResponse, envInt, gateCaptcha, gateLimits, strictBump } from '../_shared/publicGate';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 
 interface Env extends CrmEnv {
@@ -25,10 +27,12 @@ interface Env extends CrmEnv {
   RESEND_API_KEY?: string;
   NOTIFY_EMAIL?: string;
   TURNSTILE_SECRET?: string;
+  AUDIT_LEAD_DAILY_BUDGET?: string;
 }
 
 const MAX_PDF_BYTES = 5 * 1024 * 1024;
 const IP_LIMIT_PER_HOUR = 5;
+const LEADS_PER_DAY = 50;
 const RECIPIENT_LIMIT_PER_DAY = 3;
 const EMAIL_RE = /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/;
 
@@ -116,32 +120,31 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ status: 'error', message: 'Plik raportu jest za duży' }, 413);
   }
 
-  const ip = clientIp(request);
-  const captchaOk = await verifyTurnstile(
+  const captcha = await gateCaptcha(
+    'audit-lead',
+    request,
     String(formData.get('captcha_token') ?? ''),
     env.TURNSTILE_SECRET,
-    ip,
   );
-  if (!captchaOk) {
-    return json({ status: 'error', message: 'Weryfikacja captcha nieudana' }, 403);
-  }
+  if (!captcha.ok) return denialResponse(captcha);
 
-  if (env.CACHE) {
-    const byIp = await checkRateLimit(env.CACHE, ip, IP_LIMIT_PER_HOUR, 3600, 'audit:lead:ip:');
-    if (!byIp.allowed) {
-      return json({ status: 'error', message: 'Zbyt wiele zgłoszeń. Spróbuj później.' }, 429);
-    }
+  const limits = await gateLimits(env.CACHE, request, {
+    name: 'audit-lead',
+    ipLimit: IP_LIMIT_PER_HOUR,
+    ipWindowSec: 3600,
+    dailyBudget: envInt(env.AUDIT_LEAD_DAILY_BUDGET, LEADS_PER_DAY),
+  });
+  if (!limits.ok) return denialResponse(limits);
+
+  // Limit per adres odbiorcy (klucz = SHA-256 adresu, bez trzymania e-maila); też fail-closed.
+  try {
     const toKey = await sha256Hex(email.toLowerCase());
-    const byTo = await checkRateLimit(
-      env.CACHE,
-      toKey,
-      RECIPIENT_LIMIT_PER_DAY,
-      86400,
-      'audit:lead:to:',
-    );
-    if (!byTo.allowed) {
+    if (!(await strictBump(env.CACHE!, `audit:lead:to:${toKey}`, RECIPIENT_LIMIT_PER_DAY, 86400))) {
       return json({ status: 'error', message: 'Zbyt wiele zgłoszeń. Spróbuj później.' }, 429);
     }
+  } catch (e) {
+    console.error(`[gate:audit-lead] odmowa 503: licznik odbiorcy: ${(e as Error).message}`);
+    return json({ status: 'error', message: 'Usługa chwilowo niedostępna. Spróbuj później.' }, 503);
   }
 
   let pdfB64: string | undefined;
