@@ -5,6 +5,8 @@ const CAPTURE_URL = '/api/audit/capture-lead';
 export interface AuditResult {
   client: {
     url: string;
+    /** ISO czas pomiaru (od MIX-893; starsze wpisy cache go nie mają). */
+    generated_at?: string;
     total_score: number;
     metrics: {
       lcp_value: number; // Seconds
@@ -81,6 +83,19 @@ export interface AuditResult {
     url: string;
     psi_score: number;
   };
+  /** Ustawione, gdy to wynik z cache, bo pomiar na żywo nie zdążył (np. „Wynik z 04.11.2026, 10:15, …”). */
+  notice?: string;
+}
+
+/** Błąd odpowiedzi serwera audytu: status HTTP + komunikat z pola `message`. */
+export class AuditError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'AuditError';
+  }
 }
 
 export interface CaptureLeadResult {
@@ -102,11 +117,20 @@ export const auditService = {
     });
 
     if (!response.ok) {
-      throw new Error('Audit failed');
+      // Serwer zwraca { status:'error', message } — przekazujemy komunikat do UI
+      // (wcześniej ginął i użytkownik zawsze czytał „Sprawdź adres URL”).
+      let message = '';
+      try {
+        const body = (await response.json()) as { message?: unknown };
+        if (typeof body?.message === 'string') message = body.message;
+      } catch {
+        /* odpowiedź nie-JSON (np. strona błędu brzegu) — bez komunikatu serwera */
+      }
+      throw new AuditError(response.status, message);
     }
 
     const json = await response.json();
-    return json.data;
+    return typeof json.notice === 'string' ? { ...json.data, notice: json.notice } : json.data;
   },
 
   // Zapis leada po przejsciu bramki e-mail (source='audit') + wysyłka raportu
