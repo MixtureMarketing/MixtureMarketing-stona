@@ -99,10 +99,18 @@ async function newPage(browser, log) {
       return req.abort();
     }
     if (u.pathname === '/api/estimation/public-questions') {
-      return req.respond({ status: 200, contentType: 'application/json', body: JSON.stringify(QUESTIONS) });
+      return req.respond({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(QUESTIONS),
+      });
     }
     if (u.pathname === '/api/audit/run_audit') {
-      return req.respond({ status: 200, contentType: 'application/json', body: JSON.stringify(AUDIT) });
+      return req.respond({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(AUDIT),
+      });
     }
     if (req.method() === 'POST' && u.pathname.startsWith('/api/')) {
       log.abortedPosts.push(u.pathname);
@@ -119,9 +127,13 @@ async function newPage(browser, log) {
 const events = (page) => page.evaluate(() => window.__ga4.map(([e, d]) => ({ e, d })));
 
 async function main() {
-  const server = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'], {
-    stdio: 'ignore',
-  });
+  const server = spawn(
+    'npx',
+    ['vite', 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'],
+    {
+      stdio: 'ignore',
+    },
+  );
   let rc = 1;
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   try {
@@ -141,24 +153,36 @@ async function main() {
     await pc.type('input[type="email"]', 'e2e@example.com');
     const beforeC = (await events(pc)).filter((x) => x.e === 'calculator_submit').length;
     await clickButton(pc, /Poznaj widełki/);
-    await pc.waitForFunction(() => window.__ga4.some(([e]) => e === 'calculator_submit'), { timeout: 30000 });
+    await pc.waitForFunction(() => window.__ga4.some(([e]) => e === 'calculator_submit'), {
+      timeout: 30000,
+    });
     await sleep(1500);
     const evC = (await events(pc)).filter((x) => x.e === 'calculator_submit');
-    console.log(`KALKULATOR przed_kliknieciem=${beforeC} calculator_submit=${evC.length} dane=${JSON.stringify(evC[0]?.d)} przerwane_POST=${JSON.stringify(logC.abortedPosts)} turnstile_atrapa=${logC.turnstileStub} zablokowane_zewn=${logC.blocked.length}`);
+    console.log(
+      `KALKULATOR przed_kliknieciem=${beforeC} calculator_submit=${evC.length} dane=${JSON.stringify(evC[0]?.d)} przerwane_POST=${JSON.stringify(logC.abortedPosts)} turnstile_atrapa=${logC.turnstileStub} zablokowane_zewn=${logC.blocked.length}`,
+    );
 
     // --- Audyt ---
     const logA = { blocked: [], abortedPosts: [], turnstileStub: 0 };
     const pa = await newPage(browser, logA);
-    await pa.goto(`${BASE}/audyt-360/?url=https://example.com`, { waitUntil: 'networkidle0', timeout: 60000 });
+    await pa.goto(`${BASE}/audyt-360/?url=https://example.com`, {
+      waitUntil: 'networkidle0',
+      timeout: 60000,
+    });
     await pa.waitForSelector('input[type="email"]', { timeout: 60000 });
     await pa.type('input[type="email"]', 'e2e@example.com');
     const beforeA = (await events(pa)).filter((x) => x.e === 'audit_request').length;
     await clickButton(pa, /Pokaż raport/);
-    await pa.waitForFunction(() => window.__ga4.some(([e]) => e === 'audit_request'), { timeout: 30000 });
+    await pa.waitForFunction(() => window.__ga4.some(([e]) => e === 'audit_request'), {
+      timeout: 30000,
+    });
     // capture-lead idzie po generowaniu PDF i tokenie — czekamy na przerwany POST.
-    for (let i = 0; i < 60 && !logA.abortedPosts.includes('/api/audit/capture-lead'); i++) await sleep(500);
+    for (let i = 0; i < 60 && !logA.abortedPosts.includes('/api/audit/capture-lead'); i++)
+      await sleep(500);
     const evA = (await events(pa)).filter((x) => x.e === 'audit_request');
-    console.log(`AUDYT przed_kliknieciem=${beforeA} audit_request=${evA.length} dane=${JSON.stringify(evA[0]?.d)} przerwane_POST=${JSON.stringify(logA.abortedPosts)} zablokowane_zewn=${logA.blocked.length}`);
+    console.log(
+      `AUDYT przed_kliknieciem=${beforeA} audit_request=${evA.length} dane=${JSON.stringify(evA[0]?.d)} przerwane_POST=${JSON.stringify(logA.abortedPosts)} zablokowane_zewn=${logA.blocked.length}`,
+    );
 
     const emailLeak = JSON.stringify([...evC, ...evA]).includes('e2e@example.com');
     const ok =
@@ -174,9 +198,7 @@ async function main() {
   } catch (e) {
     console.error('BLAD', e?.message || e);
     for (const p of PAGES) {
-      const t = await p
-        .evaluate(() => document.body.innerText.slice(0, 500))
-        .catch(() => '?');
+      const t = await p.evaluate(() => document.body.innerText.slice(0, 500)).catch(() => '?');
       console.error(`DIAG strona ${p.url()}: ${JSON.stringify(t)}`);
     }
     for (const d of DIAG.slice(0, 30)) console.error(`DIAG ${d}`);
