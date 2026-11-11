@@ -90,3 +90,46 @@ describe('prerender.js / generate-sitemap.js używają wersji fail-loud', () => 
     );
   });
 });
+
+// MIX-1266 (audyt P9): błędne slugi branż z CMS → poprawne adresy w prerenderze i sitemapie.
+describe('fetchDynamicLists — aliasy slugów branż', () => {
+  it('zamienia błędne slugi branż na publiczne; toRoutes nie zwraca starych adresów', async () => {
+    const lists = await fetchDynamicLists(
+      clientWith({
+        ...FULL,
+        industry: [{ slug: 'usugi-b2b' }, { slug: 'saas--startups' }, { slug: 'e-commerce' }],
+      }),
+      QUERIES,
+      { allowEmpty: false },
+    );
+    const routes = toRoutes(lists);
+    expect(routes).toContain('/branza/uslugi-b2b');
+    expect(routes).toContain('/branza/saas-startups');
+    expect(routes).toContain('/branza/e-commerce');
+    expect(routes).not.toContain('/branza/usugi-b2b');
+    expect(routes).not.toContain('/branza/saas--startups');
+  });
+
+  it('inne kolekcje i inne pola dokumentu nie są zmieniane (slug artykułu o tej samej nazwie zostaje)', async () => {
+    const lists = await fetchDynamicLists(
+      clientWith({
+        ...FULL,
+        article: [{ slug: 'usugi-b2b' }],
+        industry: [{ slug: 'usugi-b2b', _updatedAt: '2026-01-02T00:00:00Z' }],
+      }),
+      QUERIES,
+      { allowEmpty: false },
+    );
+    expect(lists.article).toEqual([{ slug: 'usugi-b2b' }]);
+    expect(lists.industry).toEqual([{ slug: 'uslugi-b2b', _updatedAt: '2026-01-02T00:00:00Z' }]);
+  });
+
+  it('dokument branży bez sluga przechodzi bez zmian (nie wywraca skryptu)', async () => {
+    const lists = await fetchDynamicLists(
+      clientWith({ ...FULL, industry: [{ slug: null }, { slug: 'e-commerce' }] }),
+      QUERIES,
+      { allowEmpty: false },
+    );
+    expect(toRoutes(lists)).toContain('/branza/e-commerce');
+  });
+});

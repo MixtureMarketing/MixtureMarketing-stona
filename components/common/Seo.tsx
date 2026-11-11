@@ -10,12 +10,13 @@ import { useCanonicalUrl, getOgImage } from '../../hooks/useSeoHelpers';
 // (76% unused JS na non-article pages).
 import { getBreadcrumbsSchema, getFaqSchema } from '../../utils/seo/commonSchemas';
 import { getServiceSchema } from '../../utils/seo/serviceSchema';
-import { withBrandSuffix } from '../../utils/seo/title';
+import { fitTitle } from '../../utils/seo/title';
 import { SITE_CONFIG } from '../../config/site';
 import { toMetaDescription } from '../../utils/seo/metaDescription';
 
 interface SeoProps {
-  title: string;
+  /** Tytuł albo warianty od najpełniejszego (fitTitle dobiera pierwszy mieszczący się w 60 znakach). */
+  title: string | string[];
   description: string;
   type?: string;
   name?: string;
@@ -49,9 +50,9 @@ const Seo: React.FC<SeoProps> = ({
   faq,
   service,
 }) => {
-  // Idempotentny sufiks marki — tytuły kończące się już „Mixture Marketing”
+  // Sufiks marki + limit 60 znaków (fitTitle). Idempotentny — tytuły kończące się już „Mixture Marketing”
   // nie dostają drugiego „| Mixture Marketing”.
-  const fullTitle = withBrandSuffix(title, name);
+  const fullTitle = fitTitle(title, name);
   // ≤160 znaków, bez HTML — bezpiecznik dla opisów z CMS (case studies, branże, artykuły).
   const metaDescription = toMetaDescription(description);
   const baseUrl = 'https://mixturemarketing.pl';
@@ -64,7 +65,7 @@ const Seo: React.FC<SeoProps> = ({
   const schemas = [
     getBreadcrumbsSchema(breadcrumbs || [], baseUrl),
     getFaqSchema(faq || []),
-    getServiceSchema(service, title, description),
+    getServiceSchema(service, Array.isArray(title) ? title[0] : title, description),
     ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : []),
   ].filter(Boolean);
 

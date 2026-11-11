@@ -1,4 +1,3 @@
-/* eslint-disable max-lines -- schema helpers (Place + OpeningHours + LocalBusiness w jednym pliku) */
 import { SITE_CONFIG } from '../../config/site';
 import { withTrailingSlash } from '../url';
 
@@ -58,8 +57,9 @@ export const getFaqSchema = (
 ) => (!faq || faq.length === 0 ? null : buildFaqSchema(faq, options));
 
 export const getLocalBusinessSchema = (baseUrl: string) => {
-  const { address, phoneFull, email } = SITE_CONFIG.contact;
-  const socialLinks = Object.values(SITE_CONFIG.social);
+  const { phoneFull, email } = SITE_CONFIG.contact;
+  // MIX-1020: bez adresu biura wirtualnego — profil Google (kgmid) + areaServed.
+  const socialLinks = [...Object.values(SITE_CONFIG.social), SITE_CONFIG.google.knowledgeGraphUrl];
 
   return {
     '@context': 'https://schema.org',
@@ -70,40 +70,6 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
     url: baseUrl,
     telephone: phoneFull,
     email,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: address.street,
-      addressLocality: address.city,
-      postalCode: address.postalCode,
-      addressCountry: address.countryCode,
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 50.041187,
-      longitude: 21.999116,
-    },
-    // Place reference dla biura — wymagane przez Google Map Pack.
-    // Place ma wlasne @id (#office), do ktorego moga linkowac eventy/oferty.
-    location: {
-      '@type': 'Place',
-      '@id': `${baseUrl}/#office`,
-      name: `${SITE_CONFIG.name} — adres rejestrowy Rzeszów`,
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: address.street,
-        addressLocality: address.city,
-        postalCode: address.postalCode,
-        addressCountry: address.countryCode,
-      },
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: 50.041187,
-        longitude: 21.999116,
-      },
-      hasMap: `https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w`,
-      publicAccess: false,
-      smokingAllowed: false,
-    },
     areaServed: [
       { '@type': 'Country', name: 'Polska' },
       { '@type': 'City', name: 'Rzeszów' },
@@ -115,7 +81,7 @@ export const getLocalBusinessSchema = (baseUrl: string) => {
       { '@type': 'City', name: 'Dębica' },
       { '@type': 'City', name: 'Jasło' },
     ],
-    hasMap: `https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w`,
+    hasMap: SITE_CONFIG.google.knowledgeGraphUrl,
     // OpeningHoursSpecification - per-day pelna granularnosc dla Google
     // (single object z dayOfWeek[] dziala, ale array z osobnymi entry to
     // bardziej kanoniczna forma akceptowana przez Map Pack).

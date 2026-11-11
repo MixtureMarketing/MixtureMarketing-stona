@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { routes } from '../routes.js';
 import { createClient } from '@sanity/client';
 import { fetchDynamicLists } from './sanity-dynamic-routes.js';
+import { formatLastmod, assertLastmod, buildSitemapXml } from './lib/sitemap.js';
+import { resolveLastmods } from './lib/lastmod.js';
 
 // Konwencja repo to `.env.local` (jak w Vite), nie `.env`. Bez argumentu `loadEnvFile`
 // czytał nieistniejący `.env`, więc `npm run build`/`sitemap` padał lokalnie na braku
@@ -18,6 +20,12 @@ try {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SITEMAP_PATH = path.resolve(__dirname, '../public/sitemap.xml');
 const BASE_URL = 'https://mixturemarketing.pl';
+// Realne daty zmian stron statycznych (git log po plikach treści). Z pełną historią gita
+// (CI: fetch-depth 0) liczone na żywo; bez niej (płytki klon) z commitowanego manifestu
+// data/seo/lastmod.json, który odświeża `npm run lastmod`.
+const ROOT = path.resolve(__dirname, '..');
+const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/seo/lastmod.json'), 'utf8'));
+const staticLastmods = resolveLastmods(ROOT, routes, manifest);
 
 const sanityClient = createClient({
   projectId: process.env.VITE_SANITY_PROJECT_ID,
@@ -25,16 +33,6 @@ const sanityClient = createClient({
   apiVersion: '2024-01-21',
   useCdn: false,
 });
-
-// Zwraca date w formacie YYYY-MM-DD (W3C Date subset wymagany przez <lastmod>).
-// Brak daty = brak <lastmod> (null), NIGDY „dzisiaj": data builda to falszywy sygnal
-// swiezosci — Google przestaje ufac lastmod calej domeny, gdy ten zmienia sie przy
-// kazdym deployu bez zmiany tresci.
-function formatLastmod(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
-}
 
 // Wymusza trailing slash poza root i URL-ami z query/hash. Kanoniczna forma.
 function withTrailingSlash(route) {
@@ -47,47 +45,30 @@ function withTrailingSlash(route) {
 async function generateSitemap() {
   console.log('Generating sitemap.xml...');
 
-  // Statyczne sciezki - BEZ lastmod. Wczesniej lastmod = data buildu (kazdy push
-  // „odswiezal" ~60 stron bez zmiany tresci). Docelowo: realna data zmiany per trasa
-  // (np. w routes.js albo z git log w CI z pelna historia).
-  // Dla kluczowych stron lokalnych dodajemy image:image z geo_location -
-  // sygnal dla Google Image Search ze obrazy sa powiazane z Rzeszowem.
+  // Statyczne sciezki: lastmod = realna data zmiany tresci strony z data/seo/lastmod.json
+  // (git log po plikach tresci, scripts/lib/lastmod.js). Wczesniej data buildu (kazdy push
+  // „odswiezal" ~60 stron bez zmiany tresci), potem brak lastmod. Trasa bez daty w manifescie
+  // = blad buildu (assertLastmod nizej), NIGDY „dzisiaj".
+  // Dla kluczowych stron lokalnych dodajemy image:image (tylko image:loc; caption, title
+  // i geo_location Google wycofal, wiec ich nie wypisujemy).
   const LOCAL_IMAGE_OVERRIDES = {
     '/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Mixture Marketing — Agencja Marketingowa Rzeszów',
-      caption: 'Mixture Marketing — Al. Józefa Piłsudskiego 17/4, Rzeszów (adres rejestrowy)',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/miasto/rzeszow/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Agencja Marketingowa Rzeszów',
-      caption: 'Mixture Marketing — agencja marketingowa i software house w Rzeszowie',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/web-development/rzeszow/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Tworzenie stron internetowych Rzeszów',
-      caption: 'Strony WWW, sklepy, aplikacje dla firm z Rzeszowa i Podkarpacia',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/agencja-seo-rzeszow/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Pozycjonowanie stron Rzeszów',
-      caption: 'Agencja SEO Rzeszów — lokalne i ogólnopolskie pozycjonowanie',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/agencja-interaktywna-rzeszow/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Agencja interaktywna Rzeszów',
-      caption: 'Branding, web, marketing pod jednym dachem w Rzeszowie',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
     '/o-nas/': {
       loc: `${BASE_URL}/assets/images/sygnet.png`,
-      title: 'Zespół Mixture Marketing — Rzeszów',
-      caption: 'Eksperci web development, SEO i marketingu z Rzeszowa',
-      geo: 'Rzeszów, Podkarpacie, Polska',
     },
   };
 
@@ -96,13 +77,13 @@ async function generateSitemap() {
     const override = LOCAL_IMAGE_OVERRIDES[withTrailingSlash(route)];
     return {
       url,
-      lastmod: null,
+      lastmod: staticLastmods[withTrailingSlash(route)] ?? null,
       image: override || null,
     };
   });
 
   // Dynamiczne sciezki z Sanity - lastmod = _updatedAt z dokumentu.
-  // Portfolio caseStudy dostaje image (xmlns:image) dla Google Image Search.
+  // Portfolio caseStudy dostaje image:loc (xmlns:image) dla Google Image Search.
   // FAIL-LOUD (scripts/sanity-dynamic-routes.js): błąd pobrania albo pusta lista = wyjątek
   // i exit 1. Dawniej ostrzeżenie + sitemapa bez /branza/*, /miasto/*, /portfolio/*.
   let dynamicEntries = [];
@@ -164,9 +145,6 @@ async function generateSitemap() {
           image: imgUrl
             ? {
                 loc: imgUrl,
-                title: p.title || p.slug,
-                caption: `Realizacja Mixture Marketing — ${p.title || p.slug}`,
-                geo: 'Rzeszów, Podkarpacie, Polska',
               }
             : null,
         };
@@ -186,37 +164,11 @@ async function generateSitemap() {
     allEntries.push(entry);
   }
 
-  // XML escape dla URL i title (Sanity moze zwracac apostrofy, &, itp.).
-  const xmlEscape = (s) =>
-    String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
+  // Fail-loud: kazdy adres mapy musi miec lastmod (MIX-781). Sanity dostarcza _updatedAt,
+  // trasy statyczne — manifest; brak = czerwony build zamiast mapy z dziurami.
+  assertLastmod(allEntries);
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${allEntries
-  .map((entry) => {
-    let inner = `    <loc>${xmlEscape(entry.url)}</loc>`;
-    if (entry.lastmod) inner += `\n    <lastmod>${entry.lastmod}</lastmod>`;
-    if (entry.image && entry.image.loc) {
-      inner += `\n    <image:image>\n      <image:loc>${xmlEscape(entry.image.loc)}</image:loc>`;
-      if (entry.image.title)
-        inner += `\n      <image:title>${xmlEscape(entry.image.title)}</image:title>`;
-      if (entry.image.caption)
-        inner += `\n      <image:caption>${xmlEscape(entry.image.caption)}</image:caption>`;
-      if (entry.image.geo)
-        inner += `\n      <image:geo_location>${xmlEscape(entry.image.geo)}</image:geo_location>`;
-      inner += `\n    </image:image>`;
-    }
-    return `  <url>\n${inner}\n  </url>`;
-  })
-  .join('\n')}
-</urlset>
-`;
+  const xml = buildSitemapXml(allEntries);
 
   fs.writeFileSync(SITEMAP_PATH, xml);
   console.log(`Sitemap generated at: ${SITEMAP_PATH} (${allEntries.length} URLs)`);

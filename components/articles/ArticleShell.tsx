@@ -29,6 +29,8 @@ import { LEGACY_ARTICLES } from '../../services/cms/legacyArticles';
 interface ArticleShellProps {
   id: string;
   title: string;
+  /** Tytuł do <title>/og:title, gdy pełny nagłówek H1 nie mieści się w 60 znakach. */
+  seoTitle?: string;
   description: string;
   category: string;
   categoryLabel: string;
@@ -62,6 +64,7 @@ const toIso = (d?: string): string | undefined => {
 const ArticleShell: React.FC<ArticleShellProps> = ({
   id = 'default-article',
   title = '',
+  seoTitle,
   description,
   category,
   categoryLabel,
@@ -156,7 +159,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   return (
     <div className="bg-white min-h-screen font-sans selection:bg-blue-100">
       <Seo
-        title={titleStr}
+        title={seoTitle || titleStr}
         description={description}
         image={image}
         type="article"

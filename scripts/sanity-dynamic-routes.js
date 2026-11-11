@@ -8,6 +8,8 @@
 //     (świadome wyczyszczenie kolekcji: ALLOW_EMPTY_SANITY_ROUTES=1).
 // Czysta logika (bez sieci) — testy: tests/scripts/sanityDynamicRoutes.test.ts.
 
+import { publicIndustrySlug } from '../config/slugAliases.js';
+
 /** Kolekcje Sanity → prefiks trasy. Kolejność = kolejność w logach. */
 export const DYNAMIC_COLLECTIONS = /** @type {const} */ ([
   { type: 'article', prefix: '/baza-wiedzy/' },
@@ -48,6 +50,11 @@ export async function fetchDynamicLists(client, queries, options = {}) {
     }),
   );
   const lists = Object.fromEntries(entries);
+  // Branże: błędne slugi z CMS → poprawne publiczne (config/slugAliases.js); stąd biorą je
+  // i prerender, i sitemap.xml.
+  lists.industry = lists.industry.map((d) =>
+    typeof d.slug === 'string' ? { ...d, slug: publicIndustrySlug(d.slug) } : d,
+  );
 
   const empty = DYNAMIC_COLLECTIONS.filter(({ type }) => lists[type].length === 0);
   if (empty.length > 0 && !allowEmpty) {

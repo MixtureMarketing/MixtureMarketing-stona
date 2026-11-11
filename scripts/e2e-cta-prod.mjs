@@ -34,6 +34,7 @@ import puppeteer from 'puppeteer';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import { createProdSafe } from './lib/prod-safe.mjs';
 
 // ---------------------------------------------------------------- konfiguracja
 const argv = process.argv.slice(2);
@@ -82,22 +83,16 @@ const FINAL_RE =
 
 // ---------------------------------------------------------------- bezpieczeństwo sieci
 const ALLOWED_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+// Analityka (Zaraz, GA, GTM, Clarity, Hotjar, Meta, RUM...) blokuje wspólny moduł
+// scripts/lib/prod-safe.mjs (isAnalyticsUrl) — tu tylko hosty spoza analityki, których nie wolno ruszać.
 const BLOCKED_HOSTS = [
   /(^|\.)api\.mixturemarketing\.pl$/i, // hub płatności (binary-planet)
   /(^|\.)stripe\.(com|network)$/i,
   /(^|\.)resend\.(com|dev)$/i,
   /(^|\.)challenges\.cloudflare\.com$/i, // Turnstile (sam robi POST-y)
-  /(^|\.)google-analytics\.com$/i,
-  /(^|\.)analytics\.google\.com$/i,
-  /(^|\.)googletagmanager\.com$/i,
-  /(^|\.)doubleclick\.net$/i,
-  /(^|\.)facebook\.(com|net)$/i,
-  /(^|\.)cloudflareinsights\.com$/i,
-  /(^|\.)clarity\.ms$/i,
-  /(^|\.)hotjar\.(com|io)$/i,
 ];
-const BLOCKED_PATHS = [/^\/cdn-cgi\/zaraz\/t/, /\/rifd\//, /^\/cdn-cgi\/rum/];
 
+const safe = createProdSafe(BASE);
 const safetyLog = { aborted: 0, mocked: 0, abortedNonGet: [] };
 
 function verdict(req, mockContact) {
@@ -109,7 +104,6 @@ function verdict(req, mockContact) {
   }
   if (url.protocol === 'data:' || url.protocol === 'blob:') return 'allow';
   if (BLOCKED_HOSTS.some((r) => r.test(url.hostname))) return 'block-3p';
-  if (BLOCKED_PATHS.some((r) => r.test(url.pathname))) return 'block-3p';
   if (req.resourceType() === 'ping') return 'block-3p'; // sendBeacon / <a ping>
   if (!ALLOWED_METHODS.has(req.method())) {
     if (mockContact && url.origin === BASE_ORIGIN && url.pathname === '/api/contact-submit')
@@ -119,38 +113,46 @@ function verdict(req, mockContact) {
   return 'allow';
 }
 
-async function installSafety(page, session) {
-  await page.setRequestInterception(true);
-  page.on('request', (req) => {
-    if (req.isInterceptResolutionHandled()) return;
-    const v = verdict(req, session.mockContact);
-    if (v === 'allow') return req.continue().catch(() => {});
-    if (v === 'mock') {
-      safetyLog.mocked++;
-      let action = '?';
-      try {
-        action = JSON.parse(req.postData() || '{}').action;
-      } catch {
-        /* ignore */
+// Zablokowane przez moduł wspólny (analityka): liczymy jak dawne 'block-3p'.
+function onAnalyticsBlocked(req, session) {
+  safetyLog.aborted++;
+  if (!ALLOWED_METHODS.has(req.method())) session.beacons.push(req.url().slice(0, 140));
+}
+
+async function installSafety(page, session, userAgent) {
+  await safe.protect(page, {
+    userAgent,
+    onBlocked: (req) => onAnalyticsBlocked(req, session),
+    handler: (req) => {
+      const v = verdict(req, session.mockContact);
+      if (v === 'allow') return req.continue().catch(() => {});
+      if (v === 'mock') {
+        safetyLog.mocked++;
+        let action = '?';
+        try {
+          action = JSON.parse(req.postData() || '{}').action;
+        } catch {
+          /* ignore */
+        }
+        session.mocks.push(action);
+        return req
+          .respond({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ success: true, e2e_mock: true }),
+          })
+          .catch(() => {});
       }
-      session.mocks.push(action);
-      return req
-        .respond({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ success: true, e2e_mock: true }),
-        })
-        .catch(() => {});
-    }
-    safetyLog.aborted++;
-    if (v === 'block-3p') {
-      if (!ALLOWED_METHODS.has(req.method())) session.beacons.push(req.url().slice(0, 140));
-    } else if (!ALLOWED_METHODS.has(req.method())) {
-      const entry = `${req.method()} ${req.url().slice(0, 140)}`;
-      session.abortedNonGet.push(entry);
-      if (safetyLog.abortedNonGet.length < 200) safetyLog.abortedNonGet.push(entry);
-    }
-    return req.abort('blockedbyclient').catch(() => {});
+      safetyLog.aborted++;
+      if (v === 'block-3p') {
+        if (!ALLOWED_METHODS.has(req.method())) session.beacons.push(req.url().slice(0, 140));
+      } else if (!ALLOWED_METHODS.has(req.method())) {
+        const entry = `${req.method()} ${req.url().slice(0, 140)}`;
+        session.abortedNonGet.push(entry);
+        if (safetyLog.abortedNonGet.length < 200) safetyLog.abortedNonGet.push(entry);
+      }
+      return req.abort('blockedbyclient').catch(() => {});
+    },
   });
 }
 
@@ -420,10 +422,9 @@ async function newSession(browser, vpName, opts = {}) {
     popups: [],
   };
   await page.setViewport(vp.viewport);
-  await page.setUserAgent({ userAgent: vp.ua(CHROME_MAJOR) });
+  await installSafety(page, session, vp.ua(CHROME_MAJOR)); // UA z dopiskiem MixtureE2E/1 + blokada
   await page.evaluateOnNewDocument(pageHelpers);
   await page.evaluateOnNewDocument(fakeTurnstile);
-  await installSafety(page, session);
   page.on('pageerror', (e) => session.errors.push(`pageerror: ${String(e.message || e)}`));
   page.on('console', (m) => {
     if (process.env.E2E_CONSOLE) console.log(`    [console:${vpName}] ${m.text().slice(0, 300)}`);
@@ -2295,6 +2296,7 @@ async function main() {
   const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   if (proxy && !IS_LOCAL) args.push(`--proxy-server=${proxy}`);
   const browser = await puppeteer.launch({ headless: true, args, protocolTimeout: 120000 });
+  safe.watchBrowser(browser);
   CHROME_MAJOR = (await browser.version()).match(/\/(\d+)/)?.[1] || CHROME_MAJOR;
   console.log(`E2E CTA → ${BASE}  (raport: ${OUT})`);
   const meta = { base: BASE, viewports: VIEWPORT_NAMES };
@@ -2309,6 +2311,7 @@ async function main() {
   } finally {
     await browser.close();
   }
+  safe.finish(); // bezpiecznik: przeciek analityki / brak blokady = exit 1
   const fstat = (k, vp) => results.filter((r) => r.kind === k && r.viewport === vp).length;
   meta.checks = Object.fromEntries(
     VIEWPORT_NAMES.map((vp) => [
@@ -2329,7 +2332,7 @@ async function main() {
   console.log(
     `Bezpieczeństwo: zablokowano ${safetyLog.aborted} żądań (${safetyLog.abortedNonGet.length} nie-GET), mock ${safetyLog.mocked}.`,
   );
-  process.exitCode = fails ? 1 : 0;
+  if (fails) process.exitCode = 1;
 }
 
 main().catch((e) => {

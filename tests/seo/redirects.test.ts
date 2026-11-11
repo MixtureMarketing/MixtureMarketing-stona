@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { routes } from '../../routes.js';
+import { INDUSTRY_SLUG_ALIASES } from '../../config/slugAliases.js';
 
 // public/_redirects: pierwsza pasująca reguła wygrywa, catch-all `/*` musi być ostatni.
 const rules = fs
@@ -18,6 +19,11 @@ const ALIASES: Record<string, string> = {
   '/kontakt': '/contact/',
   '/oferta': '/offers/',
   '/realizacje': '/portfolio/',
+  // MIX-781 (S7): zgadywane adresy, które wcześniej dawały 404.
+  '/cennik': '/offers/', // tymczasowo — brak osobnej strony z cennikiem
+  '/opinie': '/wycena/',
+  '/kalkulator': '/wycena/',
+  '/audyt': '/audyt-360/',
 };
 
 describe('public/_redirects — polskie aliasy URL', () => {
@@ -70,5 +76,53 @@ describe('public/_redirects — panel klienta', () => {
     const idx = idxOf('/portal/*');
     expect(rules[idx]).toEqual({ from: '/portal/*', to: '/', status: '200' });
     expect(idx).toBeLessThan(idxOf('/*'));
+  });
+});
+
+// MIX-1266 (audyt MIX-897 P9): błędne slugi i literówka z zewnątrz → 301, bez 404 i bez łańcuchów.
+describe('public/_redirects — błędne slugi (P9)', () => {
+  const idxOf = (from: string) => rules.findIndex((r) => r.from === from);
+  const catchAll = () => idxOf('/*');
+
+  it.each(Object.entries(INDUSTRY_SLUG_ALIASES))(
+    '/branza/%s (z i bez slasha) → 301 /branza/%s/ przed regułą slasha i catch-allem',
+    (legacy, pub) => {
+      for (const from of [`/branza/${legacy}`, `/branza/${legacy}/`]) {
+        const idx = idxOf(from);
+        expect(idx, from).toBeGreaterThanOrEqual(0);
+        expect(rules[idx]).toEqual({ from, to: `/branza/${pub}/`, status: '301' });
+        // musi stać przed ogólną regułą /branza/:slug (pierwsza pasująca wygrywa)
+        expect(idx).toBeLessThan(idxOf('/branza/:slug'));
+        expect(idx).toBeLessThan(catchAll());
+      }
+    },
+  );
+
+  it('cel przekierowania branży kończy się slashem (bez łańcucha 301 przez /branza/:slug)', () => {
+    for (const pub of Object.values(INDUSTRY_SLUG_ALIASES)) {
+      const rule = rules.find((r) => r.to === `/branza/${pub}/`);
+      expect(rule, pub).toBeDefined();
+      expect(rule!.to.endsWith('/')).toBe(true);
+    }
+  });
+
+  it.each([
+    ['/baze-wiedzy', '/baza-wiedzy/'],
+    ['/baze-wiedzy/', '/baza-wiedzy/'],
+    ['/baze-wiedzy/:slug', '/baza-wiedzy/:slug/'],
+    ['/baze-wiedzy/:slug/', '/baza-wiedzy/:slug/'],
+  ])('literówka %s → 301 %s przed catch-allem', (from, to) => {
+    const idx = idxOf(from);
+    expect(idx, from).toBeGreaterThanOrEqual(0);
+    expect(rules[idx]).toEqual({ from, to, status: '301' });
+    expect(idx).toBeLessThan(catchAll());
+  });
+
+  it('cele to realne trasy: /baza-wiedzy/ jest w routes.js, nowe sloty branż nie kolidują z trasami statycznymi', () => {
+    expect(routes).toContain('/baza-wiedzy/');
+    for (const [legacy, pub] of Object.entries(INDUSTRY_SLUG_ALIASES)) {
+      expect(routes).not.toContain(`/branza/${legacy}/`);
+      expect(routes).not.toContain(`/branza/${pub}/`); // dokłada je generator z CMS
+    }
   });
 });
