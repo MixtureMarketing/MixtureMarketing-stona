@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { usePublicCalculator } from './usePublicCalculator';
 import * as svc from '../services/calculatorService';
@@ -109,10 +109,10 @@ describe('usePublicCalculator', () => {
 // gdy formularz przeszedł walidację i captchę, a wycena idzie do API. Wcześniej wysyłała go
 // tylko martwa gałąź ModalContext.
 describe('usePublicCalculator — calculator_submit', () => {
-  let track: ReturnType<typeof vi.fn>;
+  let track: Mock<(event: string, data?: Record<string, unknown>) => void>;
   const sent = () => track.mock.calls.filter((c) => c[0] === 'calculator_submit');
   beforeEach(() => {
-    track = vi.fn();
+    track = vi.fn<(event: string, data?: Record<string, unknown>) => void>();
     window.zaraz = { track, consent: { set: vi.fn() } };
   });
   afterEach(() => {
@@ -137,7 +137,10 @@ describe('usePublicCalculator — calculator_submit', () => {
     track.mockImplementation((e: string) => order.push(e));
     vi.spyOn(svc, 'submitPublicQuote').mockImplementation(async () => {
       order.push('POST');
-      return { ok: true, result: { priceRange: { min: 1, max: 2 }, currency: 'PLN', status: 'ok' } };
+      return {
+        ok: true,
+        result: { priceRange: { min: 1, max: 2 }, currency: 'PLN', status: 'ok' },
+      };
     });
     await fillAndSubmit(turnstile(), 'sklep');
     expect(sent()).toHaveLength(1);

@@ -12,14 +12,19 @@ import { auditService, type AuditResult } from '@/services/auditService';
 // Animacja skanowania: kończy się od razu, gdy dane są gotowe.
 vi.mock('@/components/features/audit/steps/AuditProgress', async () => {
   const R = await import('react');
-  return {
-    default: ({ onComplete, isDataReady }: { onComplete: () => void; isDataReady: boolean }) => {
-      R.useEffect(() => {
-        if (isDataReady) onComplete();
-      }, [isDataReady, onComplete]);
-      return null;
-    },
+  const AuditProgressStub = ({
+    onComplete,
+    isDataReady,
+  }: {
+    onComplete: () => void;
+    isDataReady: boolean;
+  }) => {
+    R.useEffect(() => {
+      if (isDataReady) onComplete();
+    }, [isDataReady, onComplete]);
+    return null;
   };
+  return { default: AuditProgressStub };
 });
 vi.mock('@/components/features/audit/steps/AuditDashboard', () => ({ default: () => null }));
 vi.mock('@/services/auditPdfService', () => ({
@@ -71,7 +76,9 @@ async function reachEmailGate() {
 
 describe('AuditWizard — audit_request', () => {
   it('po wysłaniu bramki e-mail: dokładnie jedno audit_request ze ścieżką i wynikiem, bez e-maila', async () => {
-    const capture = vi.spyOn(auditService, 'captureLead').mockResolvedValue({ ok: true, status: 200 });
+    const capture = vi
+      .spyOn(auditService, 'captureLead')
+      .mockResolvedValue({ ok: true, status: 200 });
     const input = await reachEmailGate();
     // Sam audyt (skan + bramka) jeszcze nie jest zgłoszeniem.
     expect(calls('audit_request')).toHaveLength(0);

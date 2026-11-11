@@ -57,8 +57,21 @@ async function clickButton(page, re) {
   if (!ok) throw new Error(`brak przycisku ${re}`);
 }
 
+const PAGES = [];
+const DIAG = [];
+
 async function newPage(browser, log) {
   const page = await browser.newPage();
+  PAGES.push(page);
+  page.on('pageerror', (e) => DIAG.push(`pageerror: ${e.message}`));
+  page.on('console', (m) => {
+    if (m.type() === 'error') DIAG.push(`console: ${m.text()}`);
+  });
+  page.on('requestfinished', (r) => {
+    if (r.url().includes('/api/')) {
+      DIAG.push(`api: ${r.method()} ${r.url()} ${r.response()?.status()}`);
+    }
+  });
   await page.evaluateOnNewDocument(() => {
     window.__ga4 = [];
     window.zaraz = {
@@ -154,6 +167,13 @@ async function main() {
     rc = ok ? 0 : 1;
   } catch (e) {
     console.error('BLAD', e?.message || e);
+    for (const p of PAGES) {
+      const t = await p
+        .evaluate(() => document.body.innerText.slice(0, 500))
+        .catch(() => '?');
+      console.error(`DIAG strona ${p.url()}: ${JSON.stringify(t)}`);
+    }
+    for (const d of DIAG.slice(0, 30)) console.error(`DIAG ${d}`);
   } finally {
     await browser.close();
     server.kill();
