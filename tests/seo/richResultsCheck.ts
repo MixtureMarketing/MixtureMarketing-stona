@@ -3,8 +3,12 @@
 // (merchant listings). Lista pól = to, co GSC zgłosił dla /abonament/professional/ 3.11.2026,
 // plus wymagane pola z dokumentacji Google (name, offers.price, offers.priceCurrency).
 
-export type Issue = { report: 'snippet' | 'merchant' | 'website'; level: 'ERROR' | 'WARNING'; field: string };
+type Report = 'snippet' | 'merchant';
+type Level = 'ERROR' | 'WARNING';
+export type Issue = { report: Report; level: Level; field: string };
 type Node = Record<string, unknown>;
+
+const GLOBAL_IDS = ['brand', 'gtin', 'gtin8', 'gtin12', 'gtin13', 'gtin14', 'mpn'];
 
 const types = (n: Node): string[] => {
   const t = n['@type'];
@@ -26,31 +30,31 @@ const has = (n: Node | undefined, key: string): boolean => {
 export function productIssues(n: Node): Issue[] {
   if (!types(n).includes('Product')) return [];
   const out: Issue[] = [];
+  const add = (report: Report, level: Level, field: string) => out.push({ report, level, field });
   const offer = firstOffer(n);
+
   // Opisy produktów: name + jedno z offers/review/aggregateRating; reszta to ostrzeżenia.
-  if (!has(n, 'name')) out.push({ report: 'snippet', level: 'ERROR', field: 'name' });
+  if (!has(n, 'name')) add('snippet', 'ERROR', 'name');
   if (!offer && !has(n, 'review') && !has(n, 'aggregateRating'))
-    out.push({ report: 'snippet', level: 'ERROR', field: 'offers|review|aggregateRating' });
-  if (!has(n, 'aggregateRating')) out.push({ report: 'snippet', level: 'WARNING', field: 'aggregateRating' });
-  if (!has(n, 'review')) out.push({ report: 'snippet', level: 'WARNING', field: 'review' });
-  if (offer && !has(offer, 'availability')) out.push({ report: 'snippet', level: 'WARNING', field: 'availability' });
+    add('snippet', 'ERROR', 'offers|review|aggregateRating');
+  if (!has(n, 'aggregateRating')) add('snippet', 'WARNING', 'aggregateRating');
+  if (!has(n, 'review')) add('snippet', 'WARNING', 'review');
+  if (offer && !has(offer, 'availability')) add('snippet', 'WARNING', 'availability');
+
   // Informacje o sprzedawcy: name, image, offers.price, offers.priceCurrency wymagane.
-  if (!has(n, 'name')) out.push({ report: 'merchant', level: 'ERROR', field: 'name' });
-  if (!has(n, 'image')) out.push({ report: 'merchant', level: 'ERROR', field: 'image' });
-  if (!offer) out.push({ report: 'merchant', level: 'ERROR', field: 'offers' });
-  if (offer && !has(offer, 'price')) out.push({ report: 'merchant', level: 'ERROR', field: 'offers.price' });
-  if (offer && !has(offer, 'priceCurrency'))
-    out.push({ report: 'merchant', level: 'ERROR', field: 'offers.priceCurrency' });
+  if (!has(n, 'name')) add('merchant', 'ERROR', 'name');
+  if (!has(n, 'image')) add('merchant', 'ERROR', 'image');
+  if (!offer) add('merchant', 'ERROR', 'offers');
+  if (offer && !has(offer, 'price')) add('merchant', 'ERROR', 'offers.price');
+  if (offer && !has(offer, 'priceCurrency')) add('merchant', 'ERROR', 'offers.priceCurrency');
   const audience = n.audience as Node | undefined;
   if (audience && !types(audience).includes('PeopleAudience'))
-    out.push({ report: 'merchant', level: 'WARNING', field: 'audience@type' });
-  if (!['brand', 'gtin', 'gtin8', 'gtin12', 'gtin13', 'gtin14', 'mpn'].some((k) => has(n, k)))
-    out.push({ report: 'merchant', level: 'WARNING', field: 'brand|gtin' });
+    add('merchant', 'WARNING', 'audience@type');
+  if (!GLOBAL_IDS.some((k) => has(n, k))) add('merchant', 'WARNING', 'brand|gtin');
   if (!has(offer, 'hasMerchantReturnPolicy') && !has(n, 'hasMerchantReturnPolicy'))
-    out.push({ report: 'merchant', level: 'WARNING', field: 'hasMerchantReturnPolicy' });
-  if (offer && !has(offer, 'shippingDetails'))
-    out.push({ report: 'merchant', level: 'WARNING', field: 'shippingDetails' });
-  if (offer && !has(offer, 'availability')) out.push({ report: 'merchant', level: 'WARNING', field: 'availability' });
+    add('merchant', 'WARNING', 'hasMerchantReturnPolicy');
+  if (offer && !has(offer, 'shippingDetails')) add('merchant', 'WARNING', 'shippingDetails');
+  if (offer && !has(offer, 'availability')) add('merchant', 'WARNING', 'availability');
   return out;
 }
 

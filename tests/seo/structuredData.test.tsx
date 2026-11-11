@@ -80,14 +80,16 @@ describe('walidator Product odwzorowuje raport GSC (kalibracja)', () => {
   });
 
   it('SearchAction wykrywany także zagnieżdżony w potentialAction', () => {
-    expect(searchActionCount({ '@type': 'WebSite', potentialAction: { '@type': 'SearchAction' } })).toBe(1);
+    const site = { '@type': 'WebSite', potentialAction: { '@type': 'SearchAction' } };
+    expect(searchActionCount(site)).toBe(1);
     expect(searchActionCount([{ '@type': 'WebSite' }])).toBe(0);
   });
 });
 
 describe('/abonament/professional/ — Product', () => {
-  it('0 błędów; zostają tylko ostrzeżenia wymagające danych od firmy (opinie, zwroty)', async () => {
-    const { default: Professional } = await import('../../components/pages/abonament/Professional');
+  it('0 błędów; zostają ostrzeżenia wymagające danych firmy (opinie, zwroty)', async () => {
+    const mod = await import('../../components/pages/abonament/Professional');
+    const Professional = mod.default;
     const blocks = await renderAndCollect(<Professional />, '/abonament/professional/', 'Product');
     const products = blocks.filter((b) => typesOf(b).includes('Product'));
     expect(products).toHaveLength(1);
