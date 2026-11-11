@@ -16,6 +16,7 @@ import {
 } from '../components/features/calculator/formLogic';
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
+import { trackEvent } from '../utils/analytics';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
@@ -96,6 +97,9 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
       return null;
     }
 
+    // GA4 key event (MIX-1300): formularz przeszedł walidację i captchę, wycena idzie do API.
+    // Bez e-maila i odpowiedzi; tylko ścieżka strony.
+    trackEvent('calculator_submit', { source: window.location.pathname });
     const res = await submitPublicQuote({
       answers: pickAnswers(questions, answers),
       email: email.trim(),

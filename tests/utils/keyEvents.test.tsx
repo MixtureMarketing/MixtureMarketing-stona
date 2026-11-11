@@ -34,16 +34,24 @@ describe('ModalContext.openModal', () => {
     expect(names()).toEqual(['consultation_click']);
   });
 
-  it('audit_request: tylko typ "audit" (dzis zaden komponent go nie wywoluje)', () => {
+  // MIX-1300: martwe galezie usuniete; audit_request wysyla AuditWizard
+  // (tests/components/auditWizardTracking.test.tsx), calculator_submit usePublicCalculator.
+  it('negatyw: typ "audit" nie wysyla juz audit_request z modala', () => {
     const { result } = renderHook(() => useModal(), { wrapper });
     act(() => result.current.openModal('audit'));
-    expect(names()).toEqual(['consultation_click', 'audit_request']);
+    expect(names()).toEqual(['consultation_click']);
   });
 
-  it('calculator_submit: tylko gdy dane maja calculator_result / estimatedPrice / projectType', () => {
+  it('negatyw: dane z projectType / estimatedPrice / calculator_result nie wysylaja calculator_submit', () => {
     const { result } = renderHook(() => useModal(), { wrapper });
-    act(() => result.current.openModal('web', { projectType: 'landing' }));
-    expect(names()).toEqual(['consultation_click', 'calculator_submit']);
+    act(() =>
+      result.current.openModal('web', {
+        projectType: 'landing',
+        estimatedPrice: 1,
+        calculator_result: {},
+      }),
+    );
+    expect(names()).toEqual(['consultation_click']);
   });
 
   it('negatyw: zwykle dane (specificType) nie wysylaja ani audit_request, ani calculator_submit', () => {

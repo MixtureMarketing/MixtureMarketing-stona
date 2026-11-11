@@ -77,6 +77,18 @@ describe('reportWebVitals', () => {
     expect(track.mock.calls[0][1]).toMatchObject({ metric_value: 73 });
   });
 
+  // MIX-1300 (mutant V5 z MIX-1253): page_path musi byc biezaca sciezka, nie stala.
+  it('page_path = biezaca sciezka strony (window.location.pathname)', () => {
+    vi.stubEnv('DEV', false);
+    const orig = window.location.href;
+    window.history.pushState({}, '', '/wycena/');
+    const track = vi.fn();
+    window.zaraz = { track, consent: { set: vi.fn() } };
+    reportWebVitals(metric('LCP', 1200));
+    window.history.pushState({}, '', orig);
+    expect(track.mock.calls[0][1]).toMatchObject({ page_path: '/wycena/', metric_value: 1200 });
+  });
+
   it('nie wysyla nic podczas prerenderu', () => {
     vi.stubEnv('DEV', false);
     const track = vi.fn();

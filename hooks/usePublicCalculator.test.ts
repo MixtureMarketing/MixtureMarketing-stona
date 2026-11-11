@@ -104,3 +104,66 @@ describe('usePublicCalculator', () => {
     expect(post).not.toHaveBeenCalled();
   });
 });
+
+// MIX-1300: calculator_submit (GA4 key event) idzie z prawdziwego przepływu /wycena/,
+// gdy formularz przeszedł walidację i captchę, a wycena idzie do API. Wcześniej wysyłała go
+// tylko martwa gałąź ModalContext.
+describe('usePublicCalculator — calculator_submit', () => {
+  let track: ReturnType<typeof vi.fn>;
+  const sent = () => track.mock.calls.filter((c) => c[0] === 'calculator_submit');
+  beforeEach(() => {
+    track = vi.fn();
+    window.zaraz = { track, consent: { set: vi.fn() } };
+  });
+  afterEach(() => {
+    delete window.zaraz;
+  });
+
+  async function fillAndSubmit(ref: { current: TurnstileWidgetHandle }, goal?: string) {
+    const { result } = renderHook(() => usePublicCalculator(ref));
+    await waitFor(() => expect(result.current.phase).toBe('ready'));
+    act(() => {
+      if (goal) result.current.setAnswer('project_goal', goal);
+      result.current.setEmail('jan@firma.pl');
+    });
+    await act(async () => {
+      await result.current.submit();
+    });
+    return result;
+  }
+
+  it('wysłanie wyceny → jedno calculator_submit ze ścieżką, przed POST, bez e-maila', async () => {
+    const order: string[] = [];
+    track.mockImplementation((e: string) => order.push(e));
+    vi.spyOn(svc, 'submitPublicQuote').mockImplementation(async () => {
+      order.push('POST');
+      return { ok: true, result: { priceRange: { min: 1, max: 2 }, currency: 'PLN', status: 'ok' } };
+    });
+    await fillAndSubmit(turnstile(), 'sklep');
+    expect(sent()).toHaveLength(1);
+    expect(sent()[0][1]).toEqual({ source: window.location.pathname });
+    expect(JSON.stringify(sent()[0][1])).not.toContain('jan@firma.pl');
+    expect(order).toEqual(['calculator_submit', 'POST']);
+  });
+
+  it('POST odrzucony (np. przerwany) → calculator_submit i tak poszedł', async () => {
+    vi.spyOn(svc, 'submitPublicQuote').mockResolvedValue({ ok: false, status: 0 });
+    await fillAndSubmit(turnstile(), 'sklep');
+    expect(sent()).toHaveLength(1);
+  });
+
+  it('negatyw: błąd walidacji → brak calculator_submit', async () => {
+    const post = vi.spyOn(svc, 'submitPublicQuote');
+    await fillAndSubmit(turnstile());
+    expect(post).not.toHaveBeenCalled();
+    expect(sent()).toHaveLength(0);
+  });
+
+  it('negatyw: captcha rzuca → brak calculator_submit', async () => {
+    const ref = {
+      current: { getToken: () => Promise.reject(new Error('x')), reset: () => undefined },
+    };
+    await fillAndSubmit(ref, 'sklep');
+    expect(sent()).toHaveLength(0);
+  });
+});

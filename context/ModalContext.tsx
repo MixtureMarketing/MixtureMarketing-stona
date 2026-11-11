@@ -23,33 +23,16 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setModalType(type);
     setAdditionalData(data);
     setIsModalOpen(true);
-    // GA4 key events:
-    // - consultation_click: zawsze (intent zostania klientem)
-    // - audit_request: gdy uzytkownik prosi o audyt (typ 'audit')
-    // - calculator_submit: gdy modal otwierany z wynikiem kalkulatora w data
+    // GA4 key event consultation_click: każde otwarcie modala (intent zostania klientem).
+    // audit_request i calculator_submit wysyłają same przepływy (AuditWizard, usePublicCalculator);
+    // MIX-1300: dawne gałęzie tutaj były martwe (żaden komponent nie otwierał modala z 'audit'
+    // ani z wynikiem kalkulatora).
     const source = typeof window !== 'undefined' ? window.location.pathname : '';
     trackEvent('consultation_click', {
       contact_type: type,
       source,
       package: data?.package,
     });
-    if (type === 'audit') {
-      trackEvent('audit_request', {
-        source,
-        specific_type: data?.specificType,
-      });
-    }
-    if (
-      data &&
-      ('calculator_result' in data || 'estimatedPrice' in data || 'projectType' in data)
-    ) {
-      trackEvent('calculator_submit', {
-        source,
-        contact_type: type,
-        estimated_price: data?.estimatedPrice,
-        project_type: data?.projectType,
-      });
-    }
   }, []);
 
   const closeModal = useCallback(() => {

@@ -54,7 +54,7 @@ export const applyConsent = (consent: ConsentState) => {
  * Eventy oznaczone jako key events w GA4 (konwersje):
  * - lead_start, contact_form_success, form_submit
  * - phone_click, email_click, consultation_click
- * - calculator_submit, audit_request
+ * - calculator_submit (hooks/usePublicCalculator), audit_request (AuditWizard)
  */
 export const trackEvent = (eventName: string, data?: Record<string, unknown>): void => {
   if (typeof window === 'undefined') return;
