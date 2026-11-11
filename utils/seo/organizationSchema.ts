@@ -36,12 +36,27 @@ export const ORG_PUBLISHER = {
 } as const;
 
 /**
+ * `sameAs` encji firmy (MIX-1020 + MIX-1262): profile społecznościowe, katalogi agencji
+ * (Clutch, Sortlist, GoodFirms) i stały adres Profilu Firmy w Google (kgmid). Tylko adresy
+ * https, bez duplikatów. Jedno źródło dla `getOrganizationSchema` i `getLocalBusinessSchema`.
+ */
+export const getOrganizationSameAs = (): string[] => {
+  const { social, directories, google } = SITE_CONFIG;
+  const urls = [
+    ...Object.values(social),
+    ...Object.values(directories),
+    google.knowledgeGraphUrl,
+  ].filter((url) => url.startsWith('https://'));
+  return [...new Set(urls)];
+};
+
+/**
  * Profil Google zamiast adresu biura wirtualnego (MIX-1020): wizytówka nie ma adresu, tylko
  * obszar działania. Dlatego encja NIE ma `address` / `geo` / `location`, a `hasMap` i `sameAs`
  * wskazują stały adres profilu (kgmid). Zasięg opisuje `areaServed`.
  */
 export const getOrganizationSchema = () => {
-  const { contact, social, google } = SITE_CONFIG;
+  const { contact, google } = SITE_CONFIG;
 
   return {
     '@context': 'https://schema.org',
@@ -92,12 +107,6 @@ export const getOrganizationSchema = () => {
     },
     paymentAccepted: 'Przelew bankowy, Faktura VAT',
     currenciesAccepted: 'PLN, EUR, USD',
-    sameAs: [
-      social.linkedin,
-      social.facebook,
-      social.instagram,
-      social.tiktok,
-      google.knowledgeGraphUrl,
-    ],
+    sameAs: getOrganizationSameAs(),
   };
 };
