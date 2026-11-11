@@ -104,14 +104,25 @@ describe('AuditWizard — deep-link z `%`', () => {
   afterEach(() => {
     window.history.pushState({}, '', origUrl);
     vi.restoreAllMocks();
+    delete (window as { turnstile?: unknown }).turnstile;
   });
 
   it('nie wywraca strony i uruchamia audyt z adresem zdekodowanym raz', async () => {
+    // MIX-1324: audyt wymaga tokenu Turnstile — atrapa API widgetu.
+    (window as { turnstile?: unknown }).turnstile = {
+      render: () => 'w1',
+      execute: () => {},
+      reset: () => {},
+      getResponse: () => 'tok-audyt',
+      remove: () => {},
+    };
     const run = vi.spyOn(auditService, 'runAudit').mockReturnValue(new Promise(() => {}));
     const { default: AuditWizard } = await import('@/components/features/audit/AuditWizard');
     render(<AuditWizard />);
     await waitFor(() => expect(run).toHaveBeenCalled());
     expect(run.mock.calls[0][0]).toBe('https://sklep.pl/promocja-50%');
+    // token z Turnstile idzie do serwera zamiast dawnego `force`
+    expect(run.mock.calls[0][2]).toBe('tok-audyt');
   });
 });
 

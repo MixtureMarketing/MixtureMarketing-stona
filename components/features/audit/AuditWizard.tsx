@@ -39,11 +39,21 @@ const AuditWizard: React.FC = () => {
   const startScanning = React.useCallback(
     async (targetUrl: string) => {
       setError(null);
+      // Turnstile jest jednorazowy: osobny token na audyt i osobny (getToken robi reset)
+      // na wysyłkę raportu. Brak tokenu = serwer odmówi (403), UI pokaże błąd.
+      let captchaToken: string | undefined;
       try {
-        const data = await auditService.runAudit(targetUrl, companyName, true);
+        captchaToken = await turnstileRef.current?.getToken();
+      } catch (err) {
+        console.error('audit turnstile failed:', err);
+      }
+      try {
+        const data = await auditService.runAudit(targetUrl, companyName, captchaToken);
         setResult(data);
       } catch (err) {
         console.error(err);
+        // Status i komunikat serwera (AuditError): 429 z bramki MIX-1324 niesie własny
+        // komunikat limitu, 403 captcha też; 400 = „Sprawdź adres URL”.
         setError(auditErrorMessage(err));
         setStep('INPUT');
       }
