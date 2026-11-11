@@ -158,7 +158,8 @@ export function assertUrlShape(raw: string): URL {
     if (!isPublicIp(host)) throw new UnsafeUrlError('adres prywatny/zarezerwowany');
     return u;
   }
-  if (host === 'localhost' || BLOCKED_SUFFIXES.some((s) => host.endsWith(s))) {
+  // „localhost” (bez kropki) odrzuca reguła niżej; tu sufiksy sieci lokalnych.
+  if (BLOCKED_SUFFIXES.some((s) => host.endsWith(s))) {
     throw new UnsafeUrlError('nazwa lokalna');
   }
   if (!host.includes('.')) throw new UnsafeUrlError('nazwa bez domeny');

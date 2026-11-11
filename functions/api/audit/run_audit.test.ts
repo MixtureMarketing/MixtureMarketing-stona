@@ -242,6 +242,8 @@ describe('audit/run_audit — bramka i SSRF (MIX-1324)', () => {
     ['sieć prywatna 10.0.0.1', 'http://10.0.0.1/'],
     ['port spoza 80/443', 'https://firma.pl:8080/'],
     ['localhost', 'http://localhost/'],
+    ['nazwa sieci lokalnej serwer.local', 'http://serwer.local/'],
+    ['nazwa wewnętrzna db.internal', 'https://db.internal/'],
   ])('atak: %s → 400, bez żadnego zapytania do źródeł ani Google', async (_n, url) => {
     const { res, json } = await run(createFakeKV(), { url });
     expect(res.status).toBe(400);
