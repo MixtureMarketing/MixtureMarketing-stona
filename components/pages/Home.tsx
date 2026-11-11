@@ -47,11 +47,8 @@ const Home = () => {
           url: 'https://mixturemarketing.pl',
           inLanguage: 'pl-PL',
           publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
-            'query-input': 'required name=search_term_string',
-          },
+          // Bez potentialAction/SearchAction (MIX-1261, audyt MIX-897 P7): strona nie ma
+          // wyszukiwarki, a szablon ?q={search_term_string} Google skanował jako osobny URL.
         }}
       />
 

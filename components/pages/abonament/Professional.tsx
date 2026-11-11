@@ -28,10 +28,12 @@ import MagneticButton from './MagneticButton';
 import { HeroBadge, GhostButton, CountUp } from './shared';
 import { trackEvent } from '../../../utils/analytics';
 import { ORG_REF } from '../../../utils/seo/organizationSchema';
+import { getOgImage } from '../../../hooks/useSeoHelpers';
 import ScrollRegion from '@/components/common/ScrollRegion';
 
 const PROFESSIONAL_PRICE = 549;
 const PROFESSIONAL_PRICE_GROSS = 675;
+const PROFESSIONAL_URL = 'https://mixturemarketing.pl/abonament/professional/';
 
 const TARGET_PROFESSIONS = [
   {
@@ -206,15 +208,29 @@ const Professional: React.FC = () => {
     name: 'Strona dla gabinetu / kancelarii — abonament Professional',
     description:
       'Strona internetowa w abonamencie dla branż regulowanych: adwokat, lekarz, dentysta, fizjoterapeuta, księgowy, doradca podatkowy. Zgodna z RODO+, tajemnicą zawodową. 549 zł/mc.',
+    // MIX-1261 (audyt MIX-897 P7): typ Product → Google sprawdza „Informacje o sprzedawcy”.
+    // image było BŁĘDEM; brand, availability, shippingDetails i PeopleAudience zdejmują ostrzeżenia.
+    image: [getOgImage()],
+    brand: { '@type': 'Brand', name: 'Mixture Marketing' },
+    url: PROFESSIONAL_URL,
     provider: ORG_REF,
     areaServed: { '@type': 'Country', name: 'Polska' },
     audience: {
-      '@type': 'BusinessAudience',
+      // Google przyjmuje w Product tylko PeopleAudience (BusinessAudience = ostrzeżenie).
+      '@type': 'PeopleAudience',
       audienceType: 'Adwokaci, lekarze, fizjoterapeuci, księgowi, doradcy podatkowi',
     },
     offers: {
       '@type': 'Offer',
       name: 'Professional',
+      url: PROFESSIONAL_URL,
+      availability: 'https://schema.org/InStock',
+      // Usługa online: nic nie jest wysyłane.
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        doesNotShip: true,
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'PL' },
+      },
       price: String(PROFESSIONAL_PRICE),
       priceCurrency: 'PLN',
       priceSpecification: {
