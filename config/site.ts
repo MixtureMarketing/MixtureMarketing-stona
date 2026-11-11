@@ -35,4 +35,16 @@ export const SITE_CONFIG = {
     linkedin: 'https://pl.linkedin.com/company/mixture-marketing',
     tiktok: 'https://www.tiktok.com/@mixturemarketing',
   },
+  /**
+   * Wizytówka firmy w Google (MIX-1020). Profil nie ma adresu — tylko obszar działania —
+   * więc w JSON-LD zamiast adresu biura wirtualnego idą `areaServed` + te linki.
+   * - `profileUrl`: link od Jakuba (przycisk „Zobacz nas w Google”),
+   * - `knowledgeGraphUrl`: stały adres profilu (kgmid) do `sameAs` / `hasMap`,
+   * - `reviewUrl`: link „Wystaw opinię” z panelu (od Karola). PUSTY = przycisk ukryty.
+   */
+  google: {
+    profileUrl: 'https://share.google/U5QLwlwd3Ls52C3An',
+    knowledgeGraphUrl: 'https://www.google.com/search?kgmid=/g/11t_svlzz2',
+    reviewUrl: 'https://g.page/r/CTeu70P5NjsgEBM/review',
+  },
 };

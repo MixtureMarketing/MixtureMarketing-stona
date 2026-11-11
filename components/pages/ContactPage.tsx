@@ -12,6 +12,7 @@ import {
 import AnimateOnScroll from '../common/AnimateOnScroll';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
+import GoogleProfileButtons from '../common/GoogleProfileButtons';
 import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
@@ -133,6 +134,9 @@ const ContactPage: React.FC = () => {
                     </a>
                   </AnimateOnScroll>
                 ))}
+                <AnimateOnScroll delay={contactMethods.length * 100}>
+                  <GoogleProfileButtons variant="light" />
+                </AnimateOnScroll>
               </div>
 
               {/* Invoice Data Block (Tech Style) */}
