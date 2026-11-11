@@ -10,6 +10,7 @@ import FooterLinks from './footer/FooterLinks';
 import FooterSocials from './footer/FooterSocials';
 import FooterTrustBox from './footer/FooterTrustBox';
 import Container from '../common/Container';
+import GoogleProfileButtons from '../common/GoogleProfileButtons';
 
 const Footer: React.FC = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const Footer: React.FC = () => {
               {CONTENT.columns.community.title}
             </p>
             <FooterSocials />
+            <GoogleProfileButtons variant="dark" className="mb-10 -mt-4" />
             <FooterTrustBox
               badge={CONTENT.trustBox.badge}
               text={CONTENT.trustBox.text}

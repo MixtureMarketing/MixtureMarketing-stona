@@ -35,19 +35,13 @@ export const ORG_PUBLISHER = {
   logo: { '@type': 'ImageObject', url: ORG_LOGO_URL },
 } as const;
 
-const MAP_URL =
-  'https://www.google.com/maps?q=Al.+J%C3%B3zefa+Pi%C5%82sudskiego+17,+35-074+Rzesz%C3%B3w';
-
+/**
+ * Profil Google zamiast adresu biura wirtualnego (MIX-1020): wizytówka nie ma adresu, tylko
+ * obszar działania. Dlatego encja NIE ma `address` / `geo` / `location`, a `hasMap` i `sameAs`
+ * wskazują stały adres profilu (kgmid). Zasięg opisuje `areaServed`.
+ */
 export const getOrganizationSchema = () => {
-  const { contact, social } = SITE_CONFIG;
-  const postalAddress = {
-    '@type': 'PostalAddress',
-    streetAddress: contact.address.street,
-    addressLocality: contact.address.city,
-    postalCode: contact.address.postalCode,
-    addressCountry: contact.address.countryCode,
-  };
-  const geo = { '@type': 'GeoCoordinates', latitude: 50.041187, longitude: 21.999116 };
+  const { contact, social, google } = SITE_CONFIG;
 
   return {
     '@context': 'https://schema.org',
@@ -68,18 +62,7 @@ export const getOrganizationSchema = () => {
     telephone: contact.phoneFull,
     email: contact.email,
     priceRange: '$$',
-    address: postalAddress,
-    geo,
-    // Adres rejestrowy (model pracy mobilnej — patrz /contact/), nie „biuro".
-    location: {
-      '@type': 'Place',
-      '@id': `${SITE_CONFIG.domain}/#office`,
-      name: `${SITE_CONFIG.name} — adres rejestrowy Rzeszów`,
-      address: postalAddress,
-      geo,
-      hasMap: MAP_URL,
-    },
-    hasMap: MAP_URL,
+    hasMap: google.knowledgeGraphUrl,
     areaServed: [
       { '@type': 'Country', name: 'Polska' },
       { '@type': 'City', name: 'Rzeszów' },
@@ -109,6 +92,12 @@ export const getOrganizationSchema = () => {
     },
     paymentAccepted: 'Przelew bankowy, Faktura VAT',
     currenciesAccepted: 'PLN, EUR, USD',
-    sameAs: [social.linkedin, social.facebook, social.instagram, social.tiktok],
+    sameAs: [
+      social.linkedin,
+      social.facebook,
+      social.instagram,
+      social.tiktok,
+      google.knowledgeGraphUrl,
+    ],
   };
 };
