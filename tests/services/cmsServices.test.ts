@@ -84,3 +84,42 @@ describe('getIndustryList — hub /branza/', () => {
     expect(out.map((i) => i._id)).toEqual(['1']);
   });
 });
+
+// MIX-1266 (audyt P9): publiczne slugi branż zamiast błędnych slugów z CMS.
+describe('pseoService — aliasy slugów branż', () => {
+  beforeEach(() => {
+    fetchWithCache.mockReset();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  it('getIndustryBySlug(publiczny) pyta CMS o slug dokumentu', async () => {
+    fetchWithCache.mockResolvedValueOnce({ _id: 'x', name: 'Usługi B2B' });
+    await pseoService.getIndustryBySlug('uslugi-b2b');
+    expect(fetchWithCache).toHaveBeenCalledTimes(1);
+    expect(fetchWithCache.mock.calls[0][1]).toEqual({ slug: 'usugi-b2b' });
+  });
+
+  it.each(['usugi-b2b', 'saas--startups'])(
+    'getIndustryBySlug(stary błędny „%s”) → null bez pytania CMS (adres idzie 301, nie jako kopia)',
+    async (legacy) => {
+      await expect(pseoService.getIndustryBySlug(legacy)).resolves.toBeNull();
+      expect(fetchWithCache).not.toHaveBeenCalled();
+    },
+  );
+
+  it('zwykły slug idzie do CMS bez zmian', async () => {
+    fetchWithCache.mockResolvedValueOnce(null);
+    await pseoService.getIndustryBySlug('e-commerce');
+    expect(fetchWithCache.mock.calls[0][1]).toEqual({ slug: 'e-commerce' });
+  });
+
+  it('getIndustryList zwraca kafelki z publicznymi slugami', async () => {
+    fetchWithCache.mockResolvedValueOnce([
+      { _id: 'a', name: 'Usługi B2B', slug: 'usugi-b2b', painPointCount: 1 },
+      { _id: 'b', name: 'SaaS i startupy', slug: 'saas--startups', painPointCount: 1 },
+      { _id: 'c', name: 'E-commerce', slug: 'e-commerce', painPointCount: 1 },
+    ]);
+    const slugs = (await pseoService.getIndustryList()).map((i) => i.slug).sort();
+    expect(slugs).toEqual(['e-commerce', 'saas-startups', 'uslugi-b2b']);
+  });
+});

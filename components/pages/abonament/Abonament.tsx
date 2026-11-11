@@ -770,7 +770,7 @@ const Abonament: React.FC = () => {
   return (
     <div className="min-h-screen bg-white text-slate-900 pb-20 md:pb-0">
       <Seo
-        title="Strona w abonamencie dla małej firmy • Gotowa strona WWW od 179 zł/mc"
+        title="Strona w abonamencie dla małej firmy od 179 zł/mc"
         description="Szukasz klientów z Google? Otrzymaj nowoczesną stronę internetową w abonamencie z pełnym pozycjonowaniem lokalnym (SEO) i Mapami Google. Bez opłat startowych!"
         canonical="/abonament/"
         breadcrumbs={[

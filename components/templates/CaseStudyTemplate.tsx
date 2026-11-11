@@ -19,6 +19,7 @@ import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
 import { ORG_PUBLISHER } from '../../utils/seo/organizationSchema';
+import { caseStudyTitle } from '../../utils/seo/title';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const builder = imageUrlBuilder(client);
@@ -54,7 +55,7 @@ const CaseStudyTemplate = () => {
   return (
     <div className="min-h-screen bg-gray-50 text-dark selection:bg-primary selection:text-white">
       <Seo
-        title={`${project.title} - Case Study Mixture Marketing`}
+        title={caseStudyTitle(project.title, 'Mixture Marketing')}
         description={project.excerpt || `Zobacz realizację dla klienta ${project.client}`}
         breadcrumbs={getPathBreadcrumbs(`/portfolio/${slug}/`, project.title)}
         jsonLd={{
