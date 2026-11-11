@@ -1,6 +1,8 @@
 import puppeteer from 'puppeteer';
+import { createProdSafe } from './lib/prod-safe.mjs';
 
 const URL = 'https://mixturemarketing.pl/abonament/';
+const safe = createProdSafe(URL);
 const SCREENSHOTS = 'D:/tmp/abonament-e2e';
 
 (async () => {
@@ -8,8 +10,10 @@ const SCREENSHOTS = 'D:/tmp/abonament-e2e';
     headless: true,
     args: ['--no-sandbox'],
   });
+  safe.watchBrowser(browser);
   try {
     const page = await browser.newPage();
+    await safe.protect(page);
     await page.setViewport({ width: 1280, height: 900 });
 
     // Listen for redirects
@@ -125,5 +129,6 @@ const SCREENSHOTS = 'D:/tmp/abonament-e2e';
     console.error('FAIL:', err.message);
   } finally {
     await browser.close();
+    safe.finish();
   }
 })();
