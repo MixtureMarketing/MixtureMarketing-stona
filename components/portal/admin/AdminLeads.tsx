@@ -2,14 +2,13 @@ import React from 'react';
 import { FileText } from 'lucide-react';
 import { Lead } from '../types';
 
+// Podgląd leadów, tylko do odczytu: odpowiedź i zamiana na klienta są w Mixture CRM.
 interface AdminLeadsProps {
   leads: Lead[];
   onViewDetails: (lead: Lead) => void;
-  onConvert: (leadId: string) => void;
-  onReply: (lead: Lead) => void;
 }
 
-const AdminLeads: React.FC<AdminLeadsProps> = ({ leads, onViewDetails, onConvert, onReply }) => {
+const AdminLeads: React.FC<AdminLeadsProps> = ({ leads, onViewDetails }) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
@@ -90,21 +89,6 @@ const AdminLeads: React.FC<AdminLeadsProps> = ({ leads, onViewDetails, onConvert
                     title="Zobacz szczegóły"
                   >
                     <FileText size={16} />
-                  </button>
-                  {lead.status !== 'converted' && (
-                    <button
-                      onClick={() => onConvert(lead.id)}
-                      className="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 transition-colors"
-                      title="Utwórz konto klienta"
-                    >
-                      Zrób Klienta
-                    </button>
-                  )}
-                  <button
-                    onClick={() => onReply(lead)}
-                    className="px-3 py-1 bg-secondary text-white rounded-lg text-xs font-bold hover:bg-dark transition-colors"
-                  >
-                    Odpisz
                   </button>
                 </td>
               </tr>

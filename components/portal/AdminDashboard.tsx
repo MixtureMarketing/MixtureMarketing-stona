@@ -1,167 +1,59 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Activity } from 'lucide-react';
-import { useAdminData } from './admin/useAdminData';
-import AdminMetrics from './admin/AdminMetrics';
-import AdminClients from './admin/AdminClients';
-import AdminProjects from './admin/AdminProjects';
+import { ExternalLink } from 'lucide-react';
 import AdminLeads from './admin/AdminLeads';
-import AdminChat from './admin/AdminChat';
-import { useAdminActions } from './admin/useAdminActions';
-import {
-  LeadDetailsModal,
-  ReplyModal,
-  MilestoneModal,
-  GenericEditModal,
-} from './admin/AdminModals';
-import { Client, Project, Lead, Milestone } from './types';
+import { LeadDetailsModal } from './admin/AdminModals';
+import { Lead } from './types';
+import { asArray } from '../../utils/sessionExpiry';
 
-// Moduł wycen — lazy chunk (nie wchodzi do głównego bundla; size-limit).
-const EstimationTab = lazy(() => import('./admin/estimation/EstimationTab'));
-
-type AdminTab = 'clients' | 'projects' | 'leads' | 'chat' | 'metrics' | 'wyceny';
-const ADMIN_TABS: readonly AdminTab[] = [
-  'clients',
-  'projects',
-  'leads',
-  'chat',
-  'metrics',
-  'wyceny',
-];
-const TAB_LABEL: Record<AdminTab, string> = {
-  clients: 'Clients',
-  projects: 'Projects',
-  leads: 'Leads',
-  chat: 'Chat',
-  metrics: 'Metrics',
-  wyceny: 'Wyceny',
-};
+/**
+ * Panel admina po przeniesieniu do Mixture CRM (decyzja Karola z 25.10.2026): Klienci, Projekty, Czat,
+ * Metryki i Wyceny są w CRM. Tu zostaje podgląd leadów, tylko do odczytu (bez „Odpisz” i „Zrób klienta”).
+ * Leady i tak trafiają do CRM: webhook (functions/api/_crm.ts) i dociąganie (functions/api/crm/leady.ts).
+ * Komponenty starych zakładek (admin/AdminClients, AdminProjects, AdminChat, AdminMetrics, estimation/)
+ * zostają w repo do usunięcia w osobnym PR.
+ */
+const ADRES_CRM = 'https://mixture-crm.pages.dev';
 
 const AdminDashboard: React.FC = () => {
-  const { user, sessionToken, isLoading } = useAuth();
+  const { user, sessionToken, isLoading, authFetch } = useAuth();
   const navigate = useNavigate();
-
-  // Deep-link ?tab=wyceny (SPA fallback w _redirects) — zakładka z URL, fallback 'clients'.
-  const initialTab = ((): AdminTab => {
-    if (typeof window === 'undefined') return 'clients';
-    const t = new URLSearchParams(window.location.search).get('tab');
-    return (ADMIN_TABS as readonly string[]).includes(t ?? '') ? (t as AdminTab) : 'clients';
-  })();
-
-  const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
-  const [activeChatId, setActiveChatId] = useState<string | null>(null);
-
-  const {
-    clients,
-    projects,
-    leads,
-    metricsData,
-    conversations,
-    chatMessages,
-    refreshData,
-    refreshLeads,
-    refreshChat,
-  } = useAdminData(activeTab, activeChatId);
-
-  const {
-    isUploadingDoc,
-    isSavingMilestone,
-    isSendingChat,
-    isReplying,
-    sendAdminMessage,
-    handleDownload,
-    handleDeleteDoc,
-    handleUploadDocument,
-    handleSaveMilestone,
-    handleConvertLead,
-    handleReply,
-    handleSaveItem,
-  } = useAdminActions({
-    sessionToken,
-    refreshData,
-    refreshLeads,
-    refreshChat,
-  });
-
-  // Search & UI States
-  const [searchTerm, setSearchTerm] = useState('');
-  const [adminMessage, setAdminMessage] = useState('');
-
-  // Modals & Action States
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<Client & Project> | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
-  const [replyingTo, setReplyingTo] = useState<Lead | null>(null);
-  const [replyMessage, setReplyMessage] = useState('');
-  const [editingMilestone, setEditingMilestone] = useState<Milestone | null>(null);
-  const [isMilestoneModalOpen, setIsMilestoneModalOpen] = useState(false);
-  const [uploadDocData, setUploadDocData] = useState({
-    project_id: '',
-    name: '',
-    type: 'document' as 'invoice' | 'document',
-    subtype: 'other',
-    file: null as File | null,
-  });
+  const [blad, setBlad] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
     // Brak użytkownika (np. sesja wygasła → AuthContext wylogował) → logowanie;
-    // zalogowany nie-admin → panel klienta.
+    // zalogowany nie-admin → strona o przeniesionym portalu klienta.
     if (!user) navigate('/portal', { replace: true });
     else if (user.role !== 'admin') navigate('/portal/dashboard');
   }, [user, isLoading, navigate]);
 
-  const onSendAdminMessage = async (e: React.FormEvent | React.KeyboardEvent) => {
-    e.preventDefault();
-    if (!activeChatId) return;
-    const success = await sendAdminMessage(activeChatId, adminMessage);
-    if (success) setAdminMessage('');
-  };
-
-  const onUploadDoc = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const success = await handleUploadDocument(uploadDocData);
-    if (success) {
-      setUploadDocData({
-        project_id: '',
-        name: '',
-        type: 'document',
-        subtype: 'other',
-        file: null,
-      });
+  const pobierzLeady = useCallback(async () => {
+    if (!sessionToken) return;
+    try {
+      const res = await authFetch(`/api/admin/get_leads?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} (get_leads)`);
+      const next = asArray<Lead>((await res.json())?.leads);
+      setLeads((prev) => (JSON.stringify(prev) !== JSON.stringify(next) ? next : prev));
+      setBlad(false);
+    } catch (e) {
+      // Wygasła sesja: authFetch już wylogował, efekt wyżej przeniesie na logowanie.
+      console.error(e);
+      setBlad(true);
     }
-  };
+    // authFetch jest stabilny (useCallback po sessionToken w AuthContext), więc interwał niżej
+    // nie startuje od nowa przy każdym renderze.
+  }, [sessionToken, authFetch]);
 
-  const onSaveMilestone = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!editingMilestone) return;
-    const success = await handleSaveMilestone(editingMilestone);
-    if (success) {
-      setEditingMilestone(null);
-      setIsMilestoneModalOpen(false);
-    }
-  };
-
-  const onReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!replyingTo) return;
-    const success = await handleReply(replyingTo, replyMessage);
-    if (success) {
-      setReplyingTo(null);
-      setReplyMessage('');
-    }
-  };
-
-  const onSaveItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingItem) return;
-    const success = await handleSaveItem(activeTab, editingItem);
-    if (success) {
-      setIsModalOpen(false);
-      setEditingItem(null);
-    }
-  };
+  useEffect(() => {
+    if (!sessionToken) return;
+    Promise.resolve().then(pobierzLeady);
+    const interval = setInterval(pobierzLeady, 30000);
+    return () => clearInterval(interval);
+  }, [sessionToken, pobierzLeady]);
 
   if (isLoading || !user) return null;
 
@@ -169,123 +61,37 @@ const AdminDashboard: React.FC = () => {
     // pt-28 = Navbar strony (fixed, h-20) + dotychczasowy odstęp p-8.
     <div className="min-h-screen bg-slate-50 px-4 pb-8 pt-28 sm:px-8 font-sans">
       <div className="max-w-7xl mx-auto">
-        {/* flex-wrap: 6 zakładek nie mieściło się na telefonie (strona 756 px przy 390). */}
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-          <h1 className="text-3xl font-black text-dark">Admin Panel</h1>
-          <div className="flex flex-wrap gap-2 sm:gap-4">
-            {ADMIN_TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-lg font-bold transition-colors flex items-center gap-2 ${activeTab === tab ? 'bg-dark text-white' : 'bg-white text-gray-600'}`}
-              >
-                {tab === 'metrics' && <Activity size={18} />}
-                {TAB_LABEL[tab]}
-              </button>
-            ))}
-          </div>
+        <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+          <h1 className="text-3xl font-black text-dark">Leady ze strony</h1>
+          <a
+            href={ADRES_CRM}
+            className="px-4 py-2 rounded-lg font-bold bg-dark text-white flex items-center gap-2"
+          >
+            Otwórz Mixture CRM <ExternalLink size={16} aria-hidden="true" />
+          </a>
         </div>
+        <p
+          role="status"
+          className="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg p-3 mb-6"
+        >
+          Klienci, projekty, czat, metryki i wyceny są teraz w Mixture CRM. Tu zostaje podgląd
+          leadów, tylko do odczytu; odpowiedź do leada i zamiana na klienta są w CRM.
+        </p>
 
-        {activeTab === 'metrics' && <AdminMetrics metricsData={metricsData} />}
-        {activeTab === 'clients' && (
-          <AdminClients
-            clients={clients}
-            onEdit={(c) => {
-              setEditingItem(c || {});
-              setIsModalOpen(true);
-            }}
-          />
-        )}
-        {activeTab === 'projects' && (
-          <AdminProjects
-            projects={projects}
-            onEdit={(p) => {
-              setEditingItem(p || {});
-              setIsModalOpen(true);
-            }}
-            onDownload={handleDownload}
-            onDeleteDoc={handleDeleteDoc}
-            onUploadDoc={onUploadDoc}
-            uploadDocData={uploadDocData}
-            setUploadDocData={setUploadDocData}
-            isUploadingDoc={isUploadingDoc}
-            onAddMilestone={(pid) => {
-              setEditingMilestone({
-                id: '',
-                project_id: pid,
-                title: '',
-                description: '',
-                due_date: new Date().toISOString().split('T')[0],
-                status: 'pending',
-                feedback: '',
-              });
-              setIsMilestoneModalOpen(true);
-            }}
-            onEditMilestone={(m) => {
-              setEditingMilestone(m);
-              setIsMilestoneModalOpen(true);
-            }}
-          />
-        )}
-        {activeTab === 'leads' && (
-          <AdminLeads
-            leads={leads}
-            onViewDetails={setViewingLead}
-            onConvert={handleConvertLead}
-            onReply={setReplyingTo}
-          />
-        )}
-        {activeTab === 'wyceny' && (
-          <Suspense fallback={<p className="text-gray-500">Ładowanie modułu wycen…</p>}>
-            <EstimationTab sessionToken={sessionToken} />
-          </Suspense>
-        )}
-        {activeTab === 'chat' && (
-          <AdminChat
-            conversations={conversations}
-            activeChatId={activeChatId}
-            setActiveChatId={setActiveChatId}
-            chatMessages={chatMessages}
-            adminMessage={adminMessage}
-            setAdminMessage={setAdminMessage}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            sendAdminMessage={onSendAdminMessage}
-            handleKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSendAdminMessage(e)}
-            isSending={isSendingChat}
-          />
+        {blad && (
+          <p
+            role="alert"
+            className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3 mb-4"
+          >
+            Nie udało się pobrać leadów. Odświeżymy listę za 30 sekund; jeśli błąd zostaje, sprawdź
+            leady w Mixture CRM.
+          </p>
         )}
 
-        <GenericEditModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={onSaveItem}
-          item={editingItem}
-          setItem={setEditingItem}
-          activeTab={activeTab}
-          clients={clients}
-        />
+        <AdminLeads leads={leads} onViewDetails={setViewingLead} />
+
         {viewingLead && (
           <LeadDetailsModal lead={viewingLead} onClose={() => setViewingLead(null)} />
-        )}
-        {replyingTo && (
-          <ReplyModal
-            lead={replyingTo}
-            onClose={() => setReplyingTo(null)}
-            replyMessage={replyMessage}
-            setReplyMessage={setReplyMessage}
-            onReply={onReply}
-            isSending={isReplying}
-          />
-        )}
-        {isMilestoneModalOpen && (
-          <MilestoneModal
-            milestone={editingMilestone}
-            onClose={() => setIsMilestoneModalOpen(false)}
-            onSave={onSaveMilestone}
-            setMilestone={setEditingMilestone}
-            isSaving={isSavingMilestone}
-          />
         )}
       </div>
     </div>
