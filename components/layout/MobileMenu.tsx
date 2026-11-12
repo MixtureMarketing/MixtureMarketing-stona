@@ -105,7 +105,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({
                   <div key={idx} className="mt-4 first:mt-6">
                     {/* Nie nagłówek: menu leży w DOM każdej strony PRZED <h1> (zamknięte = aria-hidden,
                         ale crawler bez CSS widzi konspekt h5 → h1). Kategoria to link, nie sekcja. */}
-                    <div className="text-xxs font-black text-accent-dark uppercase tracking-[0.2em] mb-4 pl-2 flex items-center justify-between group/cat">
+                    <div className="text-base font-black text-accent-dark uppercase tracking-[0.2em] mb-4 pl-2 flex items-center justify-between group/cat">
                       <Link
                         to={section.target}
                         onClick={() => setIsOpen(false)}
