@@ -1,10 +1,11 @@
 // MIX-1441: testy scripts/lib/preview-server.mjs (własny serwer sond e2e). Linux (ps, /proc).
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { execFileSync, spawn } from 'node:child_process';
 import http from 'node:http';
 import net from 'node:net';
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import fs, { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import {
   assertPortFree,
   killGroup,
@@ -249,5 +250,201 @@ describe('probe-view-transitions: pominięty przypadek to błąd (MIX-1441, kryt
     const skipped = src.match(/pominiete:/g) || [];
     const failed = src.match(/przypadek pominięty/g) || [];
     expect(skipped.length).toBe(failed.length);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// MIX-1443: właściciel portu nieznany = odmowa (fail-closed) + testy zabijające mutanty z MIX-1441.
+// ---------------------------------------------------------------------------------------------
+const withPlatform = async <T>(platform: string, fn: () => Promise<T> | T): Promise<T> => {
+  const desc = Object.getOwnPropertyDescriptor(process, 'platform')!;
+  Object.defineProperty(process, 'platform', { ...desc, value: platform });
+  try {
+    return await fn();
+  } finally {
+    Object.defineProperty(process, 'platform', desc);
+  }
+};
+
+// Port zwolniony po odmowie (serwer zatrzymany): jądro zwalnia gniazdo po wyjściu procesu,
+// na obciążonej maszynie chwilę później, więc do 3 s prób.
+const portFreeSoon = async (port: number) => {
+  for (let i = 0; i < 30; i++) {
+    try {
+      await assertPortFree(port);
+      return true;
+    } catch {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+  return false;
+};
+
+const realReadFileSync = fs.readFileSync;
+const realReaddirSync = fs.readdirSync;
+const failNetTables = () =>
+  vi.spyOn(fs, 'readFileSync').mockImplementation(((
+    p: fs.PathOrFileDescriptor,
+    ...a: unknown[]
+  ) => {
+    if (String(p).startsWith('/proc/net/'))
+      throw Object.assign(new Error('EACCES'), { code: 'EACCES' });
+    return (realReadFileSync as (...x: unknown[]) => unknown)(p, ...a);
+  }) as typeof fs.readFileSync);
+
+describe('MIX-1443: właściciel portu nieznany = odmowa', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('listenerBelongsToGroup: nie-Linux = null (nieznany), nie false i nie true', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop());
+    expect(await withPlatform('darwin', () => listenerBelongsToGroup(port, s.pid))).toBeNull();
+    // bliźniak: na Linuksie ten sam serwer jest rozpoznany jako nasz
+    expect(listenerBelongsToGroup(port, s.pid)).toBe(true);
+  });
+
+  it('listenerBelongsToGroup: brak tablic /proc/net (błąd odczytu) = null', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop());
+    failNetTables();
+    expect(listenerBelongsToGroup(port, s.pid)).toBeNull();
+  });
+
+  it('listenerBelongsToGroup: /proc nie da się wylistować = null', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop());
+    vi.spyOn(fs, 'readdirSync').mockImplementation(((p: fs.PathLike, ...a: unknown[]) => {
+      if (String(p) === '/proc') throw Object.assign(new Error('EACCES'), { code: 'EACCES' });
+      return (realReaddirSync as (...x: unknown[]) => unknown)(p, ...a);
+    }) as typeof fs.readdirSync);
+    expect(listenerBelongsToGroup(port, s.pid)).toBeNull();
+  });
+
+  it('startPreview na nie-Linuksie: odmowa z linią powodu, serwer zatrzymany, port wolny', async () => {
+    const port = await freePort();
+    const msg = await withPlatform('darwin', () => reason(startFixture('serve', port)));
+    expect(msg).toBe(
+      `nie da się ustalić właściciela portu ${port} (platforma darwin, /proc niedostępny lub błąd odczytu); odmowa`,
+    );
+    await expect(portFreeSoon(port)).resolves.toBe(true);
+  });
+
+  it('startPreview, gdy tablic gniazd nie da się odczytać: odmowa z linią powodu', async () => {
+    const port = await freePort();
+    failNetTables();
+    const msg = await reason(startFixture('serve', port));
+    expect(msg).toMatch(
+      new RegExp(`^nie da się ustalić właściciela portu ${port} \\(platforma linux`),
+    );
+    vi.restoreAllMocks();
+    await expect(portFreeSoon(port)).resolves.toBe(true);
+  });
+
+  it('bliźniak: właściciel znany i nasz (Linux, /proc czytelny) = gotowy', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop());
+    expect((await fetch(s.url)).status).toBe(200);
+  });
+});
+
+describe('MIX-1443: gotowość tylko przy odpowiedzi < 500 (mutant A4)', () => {
+  it('serwer zawsze HTTP 500: odmowa po limicie, grupa zabita', async () => {
+    const port = await freePort();
+    const msg = await reason(startFixture('http500', port, { readyTimeoutMs: 1500 }));
+    expect(msg).toBe(
+      'serwer nie jest gotowy po 1500 ms (brak odpowiedzi lub port trzyma obcy proces)',
+    );
+    await expect(portFreeSoon(port)).resolves.toBe(true);
+  });
+  it('bliźniak: HTTP 404 to żywy serwer = gotowy', async () => {
+    const port = await freePort();
+    const s = await startFixture('http404', port);
+    cleanup.push(() => s.stop());
+    expect((await fetch(s.url)).status).toBe(404);
+  });
+});
+
+describe('MIX-1443: SIGTERM do całej grupy, nie tylko rodzica (mutant A1)', () => {
+  it('stop(): rodzic i wnuk dostają SIGTERM (oba znaczniki), zanim przyjdzie SIGKILL', async () => {
+    const port = await freePort();
+    const dir = mkdtempSync(path.join(tmpdir(), 'mix1443-term-'));
+    cleanup.push(() => rmSync(dir, { recursive: true, force: true }));
+    const s = await startPreview({
+      port,
+      command: process.execPath,
+      args: [FIXTURE, 'graceful', String(port), dir],
+      readyTimeoutMs: 4000,
+      killTimeoutMs: 3000,
+    });
+    expect(groupPids(s.pid).length).toBeGreaterThanOrEqual(2);
+    await s.stop();
+    expect(groupPids(s.pid)).toEqual([]);
+    expect(readdirSync(dir).sort()).toEqual(['child.term', 'parent.term']);
+  });
+});
+
+describe('MIX-1443: grupa, której już nie ma (ESRCH, mutant A5)', () => {
+  it('killGroup na zakończonym i zebranym procesie = true od razu', async () => {
+    const p = spawn(process.execPath, ['-e', ''], { detached: true, stdio: 'ignore' });
+    await new Promise((r) => p.on('exit', r));
+    await new Promise((r) => setTimeout(r, 100));
+    const t0 = Date.now();
+    expect(await killGroup(p.pid!, 1500)).toBe(true);
+    expect(Date.now() - t0).toBeLessThan(500);
+  });
+  it('drugie stop() po zatrzymaniu nie zgłasza błędu', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    await s.stop();
+    await expect(s.stop()).resolves.toBeUndefined();
+  });
+});
+
+describe('MIX-1443: zombie w grupie to nie żywy proces (mutant A7)', () => {
+  it('grupa z samym zombie (rodzic poza grupą go nie zbiera) = zabita, true od razu', async () => {
+    // sh (grupa A) uruchamia w tle setsid -> nowa grupa B z jednym procesem, który kończy się po
+    // 0,3 s; sh robi exec sleep, więc nikt go nie zbiera: B = {zombie}.
+    const sh = spawn('sh', ['-c', 'setsid sh -c "sleep 0.3" & echo $!; exec sleep 20'], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    cleanup.push(() => killGroup(sh.pid!, 300));
+    let out = '';
+    sh.stdout.on('data', (d) => (out += d));
+    for (let i = 0; i < 50 && !/^\d+\n/.test(out); i++) await new Promise((r) => setTimeout(r, 50));
+    const z = Number(out.trim());
+    let state = '';
+    for (let i = 0; i < 60 && state !== 'Z'; i++) {
+      await new Promise((r) => setTimeout(r, 50));
+      const st = readFileSync(`/proc/${z}/stat`, 'utf8');
+      const f = st.slice(st.lastIndexOf(')') + 2).split(' ');
+      state = f[0];
+      expect(Number(f[2])).toBe(z); // własna grupa (setsid)
+    }
+    expect(state).toBe('Z');
+    const t0 = Date.now();
+    expect(await killGroup(z, 1500)).toBe(true);
+    expect(Date.now() - t0).toBeLessThan(500);
+  });
+});
+
+describe('MIX-1443: killGroup odmawia niepoprawnej grupy (0 = własna, ujemna, nie-liczba)', () => {
+  it.each([0, -5, 1.5, NaN, '4242', undefined, null])('odmowa dla %s', async (v) => {
+    await expect(killGroup(v as unknown as number, 100)).rejects.toThrow(
+      `odmowa zabicia grupy: niepoprawny identyfikator "${String(v)}"`,
+    );
+  });
+  it('odmowa dla własnego pidu sondy', async () => {
+    await expect(killGroup(process.pid, 100)).rejects.toThrow(/odmowa zabicia grupy/);
+  });
+  it('bliźniak: prawdziwa grupa serwera = zabita', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    expect(await killGroup(s.pid, 400)).toBe(true);
+    expect(groupPids(s.pid)).toEqual([]);
   });
 });
