@@ -73,6 +73,9 @@ export function usePagePulse() {
     const selector = `[${PAGE_PULSE_ATTR}]`;
     let last = -1;
     let lastCount = -1;
+    // Elementy z zapisaną zmienną: sprzątanie także tych już odpiętych z DOM
+    // (efekt odmontowania biegnie po commit, gdy querySelectorAll ich nie znajdzie).
+    const written = new Set<HTMLElement>();
     const remove = addScrollTask(() => {
       // READ: geometria + lista konsumentów (querySelectorAll nie wymusza layoutu).
       const max = root.scrollHeight - window.innerHeight;
@@ -84,11 +87,15 @@ export function usePagePulse() {
       lastCount = targets.length;
       const value = p.toFixed(3);
       return () => {
-        for (const el of targets) el.style.setProperty('--page-p', value);
+        for (const el of targets) {
+          el.style.setProperty('--page-p', value);
+          written.add(el);
+        }
       };
     });
     return () => {
       remove();
+      for (const el of written) el.style.removeProperty('--page-p');
       for (const el of document.querySelectorAll<HTMLElement>(selector)) {
         el.style.removeProperty('--page-p');
       }
