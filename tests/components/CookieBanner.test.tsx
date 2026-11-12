@@ -6,7 +6,8 @@ import CookieBanner from '../../components/features/CookieBanner';
 import { AuthProvider, useAuth } from '../../context/AuthContext';
 import { blockStorage } from '../utils/storageBlock';
 
-vi.mock('../../utils/analytics', () => ({
+vi.mock('../../utils/analytics', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/analytics')>()),
   applyConsent: vi.fn(),
 }));
 
