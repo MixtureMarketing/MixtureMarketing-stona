@@ -11,7 +11,7 @@ const FIX: Record<string, unknown[]> = {
   ],
   defaults: [{ archetype_code: 'x', aspect_code: 'frontend', default_level: 1, is_locked: 0 }],
   archetypes: [{ code: 'x', name: 'X', integration_mode: 'platform' }],
-  defs: [{ code: 'project_goal', answer_type: 'select' }],
+  defs: [{ code: 'project_goal', answer_type: 'select', options_json: '[{"value":"x"}]' }],
   questions: [{ code: 'project_goal', text: 'Cel?', unknown_weight: 1, visible_if_json: null }],
   rules: [
     {
@@ -104,6 +104,8 @@ const post = (env: unknown, body: unknown): Ctx =>
     }),
   }) as unknown as Ctx;
 
+/** Pola siteverify sprawdzane od MIX-1383 (A12): host produkcji i akcja kalkulatora. */
+const TS_OK = { hostname: 'mixturemarketing.pl', action: 'public_quote' };
 let captchaOk = true;
 beforeEach(() => {
   captchaOk = true;
@@ -111,7 +113,7 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string) => {
       if (String(url).includes('siteverify'))
-        return new Response(JSON.stringify({ success: captchaOk }));
+        return new Response(JSON.stringify({ ...TS_OK, success: captchaOk }));
       return new Response('ok'); // resend (nie wywoływane — brak RESEND_API_KEY)
     }),
   );
@@ -174,7 +176,8 @@ describe('POST /api/estimation/public-quote', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string, init?: RequestInit) => {
-        if (String(url).includes('siteverify')) return new Response('{"success":true}');
+        if (String(url).includes('siteverify'))
+          return new Response(JSON.stringify({ ...TS_OK, success: true }));
         if (String(url).includes('ingest/lead')) crm.push(JSON.parse(String(init?.body)));
         return new Response('{}', { status: 201 });
       }),

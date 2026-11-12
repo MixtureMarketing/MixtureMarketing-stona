@@ -6,7 +6,7 @@
 // Log: tylko stały kod powodu, n/l i cf-ray (bez IP, e-maila, skrótu i e.message).
 // Bez handlerów → nie tworzy trasy.
 
-import { verifyTurnstile } from '../_shared/security';
+import { verifyTurnstileStrict, type TurnstileExpect } from '../_shared/security';
 import {
   bumpCounter,
   CounterError,
@@ -54,6 +54,13 @@ export type QuoteGatePass = {
 export type QuoteGateResult = QuoteGatePass | QuoteGateDenial;
 
 export const MAX_QUERY_LEN = 256;
+
+/** Turnstile wyceny (MIX-1383, A12): host produkcji (repo nie ma listy hostów Preview) i akcja
+ *  widgetu kalkulatora. Dokładne dopasowanie, bez sufiksu. */
+export const QUOTE_TURNSTILE: TurnstileExpect = {
+  hostnames: ['mixturemarketing.pl'],
+  action: 'public_quote',
+};
 const BUSY = 'Usługa chwilowo niedostępna. Spróbuj później.';
 const TOO_MANY = 'Zbyt wiele zapytań. Spróbuj później.';
 
@@ -131,10 +138,14 @@ export async function quoteGate(
   const ip = edgeIpKey(rawIp);
   if (!ip.ok) return deny(ray, 503, ip.reason, BUSY);
 
-  // 8. Turnstile
-  if (!(await verifyTurnstile(body.captcha_token, env.TURNSTILE_SECRET, rawIp ?? ''))) {
-    return deny(ray, 403, 'captcha', 'Weryfikacja antybotowa nieudana.');
-  }
+  // 8. Turnstile (MIX-1383: także hostname i action, A12)
+  const ts = await verifyTurnstileStrict(
+    body.captcha_token,
+    env.TURNSTILE_SECRET,
+    rawIp ?? '',
+    QUOTE_TURNSTILE,
+  );
+  if (!ts.ok) return deny(ray, 403, ts.reason, 'Weryfikacja antybotowa nieudana.');
 
   // 9. Konfiguracja (zła wartość = 503, brak = domyślna) i sekret HMAC (brak = 503)
   const ipLimit = parseLimitEnv(env.QUOTE_IP_PER_HOUR, 5);

@@ -63,6 +63,57 @@ export async function verifyTurnstile(
   }
 }
 
+/** Czego oczekujemy od `siteverify` poza `success` (SPEC-MIX-1320 §6 A12). */
+export interface TurnstileExpect {
+  /** Dokładne nazwy hostów (allowlista, bez dopasowania sufiksu). */
+  hostnames: readonly string[];
+  /** Akcja nadana widgetowi przy renderze (`action`). */
+  action: string;
+}
+export type TurnstileVerdict = { ok: true } | { ok: false; reason: string };
+
+/** Najdłuższy token Turnstile według dokumentacji Cloudflare. */
+const TURNSTILE_TOKEN_MAX = 2048;
+
+/**
+ * Ścisła weryfikacja Turnstile: `success === true` ORAZ `hostname` z allowlisty ORAZ `action`
+ * równa oczekiwanej. Fail-closed: brak tokenu/sekretu/oczekiwań, błąd sieci, HTTP ≠ 2xx,
+ * odpowiedź nie-JSON albo brak pola = odmowa ze stałym kodem powodu (bez treści od klienta).
+ */
+export async function verifyTurnstileStrict(
+  token: unknown,
+  secret: string | undefined,
+  ip: string,
+  expect: TurnstileExpect,
+): Promise<TurnstileVerdict> {
+  if (typeof token !== 'string' || token === '' || token.length > TURNSTILE_TOKEN_MAX)
+    return { ok: false, reason: 'captcha: token' };
+  if (!secret) return { ok: false, reason: 'captcha: brak sekretu' };
+  if (expect.hostnames.length === 0 || expect.action === '')
+    return { ok: false, reason: 'captcha: brak oczekiwań' };
+  let data: unknown;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+    });
+    if (!res.ok) return { ok: false, reason: 'captcha: siteverify http' };
+    data = await res.json();
+  } catch {
+    return { ok: false, reason: 'captcha: siteverify niedostępny' };
+  }
+  if (data === null || typeof data !== 'object')
+    return { ok: false, reason: 'captcha: siteverify odpowiedź' };
+  const d = data as { success?: unknown; hostname?: unknown; action?: unknown };
+  if (d.success !== true) return { ok: false, reason: 'captcha: odrzucony' };
+  if (typeof d.hostname !== 'string' || !expect.hostnames.includes(d.hostname))
+    return { ok: false, reason: 'captcha: hostname' };
+  if (typeof d.action !== 'string' || d.action !== expect.action)
+    return { ok: false, reason: 'captcha: action' };
+  return { ok: true };
+}
+
 /** SHA-256 jako hex — do kluczy KV (np. limit per adres e-mail bez trzymania adresu). */
 export async function sha256Hex(input: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input));

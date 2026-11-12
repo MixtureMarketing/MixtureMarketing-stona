@@ -9,8 +9,8 @@
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
-import { limitsSwitch, quoteGate, safeRay, type QuoteGateEnv } from './_quoteGate';
-import { escapeHtml } from '../_shared/security';
+import { limitsSwitch, quoteGate, safeRay, QUOTE_TURNSTILE, type QuoteGateEnv } from './_quoteGate';
+import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import {
   parsePublicConfig,
@@ -42,6 +42,9 @@ interface Body {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RATE_WINDOW_SEC = 3600;
+/** Limit treści żądania (SPEC-MIX-1320 §6 A9): 16 kB; więcej = 413 przed jakąkolwiek pracą. */
+export const MAX_BODY_BYTES = 16 * 1024;
+const INTERNAL = 'Błąd serwera. Spróbuj później.';
 
 const CORS = {
   'Access-Control-Allow-Origin': 'https://mixturemarketing.pl',
@@ -55,26 +58,59 @@ const json = (data: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json', ...CORS },
   });
 
-/** Weryfikacja Turnstile (wzorzec contact-submit) — bez pseudo-tokenów obejścia. */
-async function verifyTurnstile(token: string, secret: string, ip: string): Promise<boolean> {
-  if (!token || !secret) return false;
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
-    });
-    const data = (await res.json()) as { success: boolean };
-    return data.success === true;
-  } catch {
-    return false;
+/** 400 walidacji odpowiedzi: komunikaty (kontrakt §3) + stały kod pierwszego powodu. */
+const invalid = (v: { errors: string[]; reasons: string[] }) =>
+  json({ errors: v.errors, reason: v.reasons[0] }, 400);
+
+type BodyRead = { ok: true; text: string } | { ok: false; status: 400 | 413; reason: string };
+
+/** Treść żądania z limitem bajtów: najpierw nagłówek (tania odmowa), potem faktyczna długość. */
+async function readBodyLimited(request: Request): Promise<BodyRead> {
+  const cl = request.headers.get('content-length');
+  if (cl !== null) {
+    if (!/^\d{1,15}$/.test(cl)) return { ok: false, status: 400, reason: 'body: content-length' };
+    if (Number(cl) > MAX_BODY_BYTES) return { ok: false, status: 413, reason: 'body: za duży' };
   }
+  const text = await request.text();
+  if (text.length > MAX_BODY_BYTES || new TextEncoder().encode(text).byteLength > MAX_BODY_BYTES)
+    return { ok: false, status: 413, reason: 'body: za duży' };
+  return { ok: true, text };
+}
+
+/** Żądanie z już odczytaną treścią (bramka MIX-1382 czyta ją sama przez text()). */
+function withReadBody(request: Request, text: string): Request {
+  return {
+    url: request.url,
+    method: request.method,
+    headers: request.headers,
+    text: async () => text,
+    json: async () => JSON.parse(text) as unknown,
+  } as unknown as Request;
 }
 
 export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS });
 
+/**
+ * A8: każdy nieobsłużony błąd (D1, biblioteka, silnik) = 500 z ogólną treścią i stałym kodem;
+ * do logu tylko nazwa błędu i cf-ray (bez e.message, stosu i danych klienta).
+ * A16: nagłówek `Origin` nie jest czytany; żądanie bez niego przechodzi te same bramki.
+ */
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
+  try {
+    return await handlePost(request, env, waitUntil);
+  } catch (e) {
+    const name = e instanceof Error ? e.name : 'nieznany';
+    console.error(`[quote] błąd wewnętrzny: ${name} ray=${safeRay(request)}`);
+    return json({ error: INTERNAL, reason: 'wewnętrzny' }, 500);
+  }
+};
+
+async function handlePost(
+  request: Request,
+  env: Env,
+  waitUntil?: (p: Promise<unknown>) => void,
+): Promise<Response> {
   // Przełącznik MIX-1382 (nowa funkcja wchodzi ukryta): brak/'0' = dotychczasowa ścieżka,
   // '1' = limity D1 fail-closed, inna wartość = 503 (bez cichego wyboru ścieżki).
   const mode = limitsSwitch(env.QUOTE_LIMITS_D1);
@@ -83,26 +119,41 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     console.error(`[quote] odmowa 503: ${reason} ray=${safeRay(request)}`);
     return json({ error: 'Usługa chwilowo niedostępna. Spróbuj później.', reason }, 503);
   }
-  if (mode === 'on') return gatedPost(request, env, waitUntil);
+
+  // 0. Rozmiar treści (A9) przed parsowaniem, Turnstile i D1.
+  const read = await readBodyLimited(request);
+  if (!read.ok) {
+    console.error(`[quote] odmowa ${read.status}: ${read.reason} ray=${safeRay(request)}`);
+    const msg = read.status === 413 ? 'Zbyt duże zapytanie.' : 'Niepoprawne zapytanie.';
+    return json({ error: msg, reason: read.reason }, read.status);
+  }
+  if (mode === 'on') return gatedPost(withReadBody(request, read.text), env, waitUntil);
 
   let body: Body;
   try {
-    body = (await request.json()) as Body;
+    const parsed: unknown = JSON.parse(read.text);
+    if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error();
+    body = parsed as Body;
   } catch {
-    return json({ error: 'Niepoprawny JSON.' }, 400);
+    return json({ error: 'Niepoprawny JSON.', reason: 'body: nieczytelny' }, 400);
   }
 
   // 1. Honeypot (darmowe, przed jakąkolwiek pracą).
   if (body.website_verify) return json({ error: 'Spam detected' }, 403);
 
   // 2. Email wymagany (kontrakt §3) — tania walidacja przed zewnętrznym fetchem.
-  const email = (body.email ?? '').trim();
+  const email = (typeof body.email === 'string' ? body.email : '').trim();
   if (!EMAIL_RE.test(email)) return json({ error: 'Podaj poprawny adres e-mail.' }, 400);
 
-  // 3. Turnstile.
+  // 3. Turnstile: success + hostname z allowlisty + action (A12), fail-closed.
   const ip = request.headers.get('cf-connecting-ip') || '';
-  if (!(await verifyTurnstile(body.captcha_token ?? '', env.TURNSTILE_SECRET, ip)))
-    return json({ error: 'Weryfikacja antybotowa nieudana.' }, 403);
+  const ts = await verifyTurnstileStrict(
+    body.captcha_token,
+    env.TURNSTILE_SECRET,
+    ip,
+    QUOTE_TURNSTILE,
+  );
+  if (!ts.ok) return json({ error: 'Weryfikacja antybotowa nieudana.', reason: ts.reason }, 403);
 
   // 4. Biblioteka + konfiguracja + rate-limit (limit z parametrów).
   const rawLib = await loadRawLibrary(env.DB);
@@ -110,10 +161,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   const rl = await checkRateLimit(env.CACHE, ip, config.ratePerHour, RATE_WINDOW_SEC);
   if (!rl.allowed) return json({ error: 'Zbyt wiele zapytań. Spróbuj za chwilę.' }, 429);
 
-  // 5. Walidacja odpowiedzi (tylko kody publiczne + typy).
+  // 5. Walidacja odpowiedzi: allowlista kodów, opcji, zakresów i długości (A9, A10).
   const defs = await loadPublicQuestionDefs(env.DB);
-  const { answers, errors } = sanitizePublicAnswers(body.answers, defs);
-  if (errors.length > 0) return json({ errors }, 400);
+  const checked = sanitizePublicAnswers(body.answers, defs);
+  if (checked.errors.length > 0) return invalid(checked);
+  const { answers } = checked;
 
   // 6. Compute + transform publiczny.
   const result = computePublicQuote(rawLib, answers, config);
@@ -125,7 +177,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   await sendEmails(env, email, result);
 
   return json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
-};
+}
 
 /**
  * Ścieżka MIX-1382 (QUOTE_LIMITS_D1='1'): bramka (wiersze 1-15) PRZED jakimkolwiek odczytem
@@ -153,8 +205,9 @@ async function gatedPost(
   const rawLib = await loadRawLibrary(env.DB);
   const config = parsePublicConfig(rawLib.params);
   const defs = await loadPublicQuestionDefs(env.DB);
-  const { answers, errors } = sanitizePublicAnswers(body.answers, defs);
-  if (errors.length > 0) return json({ errors }, 400);
+  const checked = sanitizePublicAnswers(body.answers, defs);
+  if (checked.errors.length > 0) return invalid(checked);
+  const { answers } = checked;
 
   const result = computePublicQuote(rawLib, answers, config);
   await persist(env, rawLib, email, answers, result, waitUntil);
