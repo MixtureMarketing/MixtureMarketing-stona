@@ -328,6 +328,7 @@ describe('każdy skrypt przeglądarkowy używa blokady albo jest lokalny', () =>
     'scripts/audit-a11y.js',
     'scripts/audit-health.js',
     'scripts/audit-performance.js',
+    'scripts/probe-live-price-bar.mjs',
   ];
   const candidates = [
     'prerender.js',

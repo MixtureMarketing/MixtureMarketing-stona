@@ -608,3 +608,15 @@
     margin-top: -100vh;
   }
 }
+
+/* Przycisk ciasteczek nad paskiem widełek /wycena/ (MIX-1385). Poza warstwami, żeby wygrać z
+   klasą bottom-4 (utilities). Telefon: nad paskiem (wysokość mierzy LivePriceBar); od 1024 px pasek
+   jest z prawej strony, więc przycisk zostaje przy dole. */
+body[data-live-price-bar='true'] .cookie-floating-btn {
+  bottom: calc(var(--live-price-bar-h, 5.5rem) + 1rem);
+}
+@media (min-width: 1024px) {
+  body[data-live-price-bar='true'] .cookie-floating-btn {
+    bottom: 1rem;
+  }
+}
