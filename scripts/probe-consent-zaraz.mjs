@@ -16,10 +16,9 @@
 //   node scripts/probe-consent-zaraz.mjs [wynik.json]
 // Kod wyjścia 0 = wszystkie scenariusze zgodne i bezpiecznik czysty, 1 = rozbieżność.
 import puppeteer from 'puppeteer';
-import { spawn } from 'node:child_process';
-import http from 'node:http';
 import { writeFileSync } from 'node:fs';
 import { createProdSafe, isProdUrl } from './lib/prod-safe.mjs';
+import { startPreviewOrExit } from './lib/preview-server.mjs';
 
 const PORT = 4179;
 const BASE = `http://127.0.0.1:${PORT}/`;
@@ -33,23 +32,6 @@ const AFTER_READY_MS = 5000;
 const MOUNT_TIMEOUT_MS = 20000;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-const waitForServer = async (url, timeout = 60000) => {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    const ok = await new Promise((resolve) => {
-      http
-        .get(url, (res) => {
-          res.resume();
-          resolve(res.statusCode !== undefined && res.statusCode < 500);
-        })
-        .on('error', () => resolve(false));
-    });
-    if (ok) return;
-    await sleep(500);
-  }
-  throw new Error(`serwer ${url} nie wstał w ${timeout} ms`);
-};
 
 // Atrapa Zaraz (w stronie, przed skryptami aplikacji). Zapisuje czasy (performance.now, ms):
 // read = aplikacja odczytała wpis zgody, listen = aplikacja nasłuchuje zarazConsentAPIReady,
@@ -181,16 +163,10 @@ const timing = (s) => ({
 const results = [];
 const check = (name, ok, measured) => results.push({ name, ok: !!ok, measured });
 
-const server = spawn(
-  'npx',
-  ['vite', 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'],
-  {
-    stdio: 'ignore',
-  },
-);
+// MIX-1441: własny serwer w osobnej grupie procesów; zajęty port / martwy serwer = kod 1, bez testów.
+const server = await startPreviewOrExit({ port: PORT });
 let browser;
 try {
-  await waitForServer(BASE);
   browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   safe.watchBrowser(browser);
 
@@ -286,7 +262,7 @@ try {
   check('sonda bez wyjątku', false, { error: String(e && e.message ? e.message : e) });
 } finally {
   if (browser) await browser.close();
-  server.kill('SIGTERM');
+  await server.stop();
 }
 
 const verdict = safe.finish(); // bezpiecznik: przeciek analityki = exit 1
