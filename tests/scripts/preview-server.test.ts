@@ -621,6 +621,7 @@ describe('MIX-1445: /proc nieczytelny w killGroup = grupa uznana za żywą (X3)'
   it('listing /proc rzuca: killGroup i tak wysyła SIGTERM i kończy, gdy grupa znika', async () => {
     const port = await freePort();
     const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop().catch(() => {})); // mutant zostawiłby grupę żywą
     const pids = groupPids(s.pid);
     expect(pids.length).toBeGreaterThanOrEqual(2);
     vi.spyOn(fs, 'readdirSync').mockImplementation(((p: fs.PathLike, ...a: unknown[]) => {
