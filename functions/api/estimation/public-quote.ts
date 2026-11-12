@@ -68,17 +68,22 @@ const json = (data: unknown, status = 200) =>
 const invalid = (v: { errors: string[]; reasons: string[] }) =>
   json({ errors: v.errors, reason: v.reasons[0] }, 400);
 
-type BodyRead = { ok: true; text: string } | { ok: false; status: 400 | 413; reason: string };
+export type BodyRead =
+  { ok: true; text: string } | { ok: false; status: 400 | 413; reason: string };
 
-/** Treść żądania z limitem bajtów: najpierw nagłówek (tania odmowa), potem faktyczna długość. */
-async function readBodyLimited(request: Request): Promise<BodyRead> {
+/** Treść żądania z limitem bajtów: najpierw nagłówek (tania odmowa), potem faktyczna długość.
+ *  `max` domyślnie 16 kB (wycena); podgląd ceny (MIX-1476) podaje 8 kB. */
+export async function readBodyLimited(
+  request: Request,
+  max: number = MAX_BODY_BYTES,
+): Promise<BodyRead> {
   const cl = request.headers.get('content-length');
   if (cl !== null) {
     if (!/^\d{1,15}$/.test(cl)) return { ok: false, status: 400, reason: 'body: content-length' };
-    if (Number(cl) > MAX_BODY_BYTES) return { ok: false, status: 413, reason: 'body: za duży' };
+    if (Number(cl) > max) return { ok: false, status: 413, reason: 'body: za duży' };
   }
   const text = await request.text();
-  if (text.length > MAX_BODY_BYTES || new TextEncoder().encode(text).byteLength > MAX_BODY_BYTES)
+  if (text.length > max || new TextEncoder().encode(text).byteLength > max)
     return { ok: false, status: 413, reason: 'body: za duży' };
   return { ok: true, text };
 }
