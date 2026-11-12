@@ -13,10 +13,25 @@ import { safeGetItem, safeSetItem } from './safeStorage';
  * < RELOAD_GUARD_MS temu (czyli błąd dotyczy także nowej wersji), nie przeładowujemy
  * ponownie — błąd idzie dalej do ErrorBoundary. Gdy storage jest niedostępny,
  * również nie przeładowujemy (nie da się zagwarantować braku pętli).
+ *
+ * Vite zgłasza `vite:preloadError` także wtedy, gdy chunk się pobrał, ale rzucił
+ * przy wykonaniu (np. błąd konfiguracji). Przeładowanie niczego tu nie naprawia
+ * (po reloadzie ten sam błąd), więc reagujemy tylko na rozpoznane błędy POBRANIA
+ * chunka (allowlista po `event.payload`); nieznany albo brakujący payload = bez reloadu.
  */
 
 export const CHUNK_RELOAD_KEY = 'mm:chunk-reload-at';
 export const RELOAD_GUARD_MS = 10_000;
+
+// Komunikaty przeglądarek i Vite dla nieudanego pobrania chunka (Chrome, Firefox, Safari, CSS, webpack).
+const CHUNK_LOAD_ERROR_RE =
+  /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|unable to preload css|loading (css )?chunk [^ ]+ failed/i;
+
+export const isChunkLoadError = (payload: unknown): boolean => {
+  const message =
+    payload instanceof Error ? payload.message : (payload as { message?: unknown } | null)?.message;
+  return typeof message === 'string' && CHUNK_LOAD_ERROR_RE.test(message);
+};
 
 interface InstallOptions {
   target?: Window;
@@ -34,6 +49,9 @@ export const installChunkReloadHandler = ({
   const handler = (event: Event) => {
     // Prerender (Puppeteer) ma się wywrócić głośno, a nie przeładowywać.
     if (target.isPrerendering) return;
+
+    // Błąd wykonania/konfiguracji modułu to nie nieaktualny chunk: reload nic nie da.
+    if (!isChunkLoadError((event as Event & { payload?: unknown }).payload)) return;
 
     // Kilka chunków może paść naraz — reload już zlecony, tłumimy kolejne błędy.
     if (reloading) {
