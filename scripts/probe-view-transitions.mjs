@@ -79,6 +79,30 @@ const VIEWPORTS = [
   { tag: 'pc', width: 1366, height: 768, deviceScaleFactor: 1 },
 ];
 const SANITY = /^https:\/\/([a-z0-9]+\.api\.sanity\.io|cdn\.sanity\.io)\//;
+const SANITY_API = /^https:\/\/[a-z0-9]+\.api\.sanity\.io\//;
+
+/**
+ * API Sanity nie ma w CORS adresu http://127.0.0.1:<losowy port> (MIX-1308 r3: każde
+ * zapytanie „blocked by CORS policy”, listy realizacji puste, preload celu odrzucony, więc
+ * przejście słusznie schodziło do zwykłej nawigacji). Próba pobiera to samo zapytanie (GET,
+ * tylko odczyt, bez tokenu) z Node i oddaje je stronie z nagłówkiem CORS dla jej originu.
+ */
+async function proxySanity(req) {
+  try {
+    const res = await fetch(req.url(), { headers: { accept: 'application/json' } });
+    const body = Buffer.from(await res.arrayBuffer());
+    await req.respond({
+      status: res.status,
+      headers: {
+        'content-type': res.headers.get('content-type') || 'application/json',
+        'access-control-allow-origin': req.headers().origin || '*',
+      },
+      body,
+    });
+  } catch {
+    req.abort().catch(() => {});
+  }
+}
 
 // Instrument w stronie: liczy wywołania startViewTransition, nazwy (computed style) na
 // starej i nowej stronie, animacje pseudo-elementów, długie zadania i przesunięcia układu.
@@ -89,6 +113,8 @@ const INSTRUMENT = () => {
     const m = {};
     for (const el of document.querySelectorAll('*')) {
       const n = getComputedStyle(el).viewTransitionName;
+      // `:root { view-transition-name: root }` to domyślny styl przeglądarki, nie nazwa strony.
+      if (el === document.documentElement && n === 'root') continue;
       if (n && n !== 'none') m[n] = (m[n] || 0) + 1;
     }
     return m;
@@ -149,7 +175,11 @@ const INSTRUMENT = () => {
     );
     t.finished.then(() => {
       rec.t1 = performance.now();
-      rec.after = names();
+      // Ten handler jest zapięty PRZED sprzątaniem strony (finished.finally), więc nazwy
+      // czytamy w następnym zadaniu, po wszystkich reakcjach na koniec przejścia (MIX-1308 r3).
+      setTimeout(() => {
+        rec.after = names();
+      }, 0);
     });
     return t;
   };
@@ -191,7 +221,8 @@ async function openPage(vp, { reduce = false, noVT = false, mode = 'metrics' } =
     handler: (req) => {
       const u = req.url();
       const own = u.startsWith(ON.origin) || u.startsWith(OFF.origin);
-      if (req.method() === 'GET' && (own || SANITY.test(u))) req.continue().catch(() => {});
+      if (req.method() === 'GET' && SANITY_API.test(u)) proxySanity(req);
+      else if (req.method() === 'GET' && (own || SANITY.test(u))) req.continue().catch(() => {});
       else {
         blocked++;
         note(diag.blockedUrls, `handler ${req.method()} ${u}`);
@@ -246,6 +277,14 @@ async function dismissConsent(page) {
       () => !document.querySelector('[role="region"][aria-label="Baner plików cookies"]'),
       { timeout: 3000 },
     );
+}
+
+/** Diagnoza „brak karty”: ile linków do realizacji i co przeglądarka zgłosiła. */
+async function logNoCard(page) {
+  const links = await page.evaluate(
+    () => document.querySelectorAll('a[href^="/portfolio/"]').length,
+  );
+  console.log('DIAG brak karty ' + JSON.stringify({ path: page.url(), links, ...page.__diag }));
 }
 
 async function waitForCard(page, opts) {
@@ -360,6 +399,7 @@ for (const vp of VIEWPORTS) {
     const card = await waitForCard(page);
     if (!card) {
       fail(`${vp.tag} ${key}: brak karty realizacji na ${src.url}`);
+      await logNoCard(page);
       await page.close();
       continue;
     }
@@ -447,6 +487,7 @@ for (const vp of VIEWPORTS) {
       const card = await waitForCard(page);
       if (!card) {
         fail(`${vp.tag} ${build}: brak karty`);
+        await logNoCard(page);
         await page.close();
         continue;
       }
