@@ -10,6 +10,9 @@
  * atrapa przeglądarki: public-questions (3 pytania) i public-preview (cena zależy od odpowiedzi,
  * opóźnienie 150 ms). Turnstile to atrapa `window.turnstile`. Wyniki: probe.json + zrzuty.
  * Kod wyjścia 0 = wszystkie progi spełnione, 1 = któryś próg nie.
+ * MIX-1412: szerokości 390/1024/1280/1366; nakładanie paska na Wstecz/Dalej i przycisku ciasteczek
+ * na Wstecz w pierwszym widoku (po odpowiedzi i u góry strony) oraz w przeglądzie przewijania co
+ * 100 px; wysokość przycisków opcji ≥ 44 px.
  */
 import http from 'node:http';
 import fs from 'node:fs/promises';
@@ -118,6 +121,8 @@ const check = (ok, msg) => {
 
 for (const vp of [
   { name: 'm390', width: 390, height: 844, mobile: true },
+  { name: 'd1024', width: 1024, height: 768, mobile: false },
+  { name: 'd1280', width: 1280, height: 800, mobile: false },
   { name: 'd1366', width: 1366, height: 768, mobile: false },
 ]) {
   const page = await browser.newPage();
@@ -250,6 +255,87 @@ for (const vp of [
       viewportH: window.innerHeight,
     };
   });
+  // MIX-1412: kto co zasłania (px²). Przejścia CSS wyłączone, żeby mierzyć stan końcowy.
+  await page.addStyleTag({ content: '*{transition:none!important}' });
+  const frames = () =>
+    page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  const covers = () =>
+    page.evaluate(() => {
+      const r = (e) => {
+        if (!e) return null;
+        const b = e.getBoundingClientRect();
+        return { x: b.x, y: b.y, w: b.width, h: b.height };
+      };
+      const ov = (a, b) => {
+        if (!a || !b) return 0;
+        const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        return w > 0 && h > 0 ? Math.round(w * h) : 0;
+      };
+      const btn = (t) =>
+        [...document.querySelectorAll('button')].find((e) => e.textContent.trim() === t);
+      const bar = r(document.querySelector('[data-testid="live-price-bar"]'));
+      const cookie = r(document.querySelector('.cookie-floating-btn'));
+      const back = r(btn('Wstecz'));
+      const next = r(btn('Dalej'));
+      return {
+        scrollY: Math.round(window.scrollY),
+        raised: document.body.dataset.livePriceBar === 'true',
+        barWstecz: ov(bar, back),
+        barDalej: ov(bar, next),
+        cookieWstecz: ov(cookie, back),
+        cookieBar: ov(cookie, bar),
+      };
+    });
+  await frames();
+  const afterAnswer = await covers();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await frames();
+  const atTop = await covers();
+  await page.screenshot({ path: path.join(OUT, 'shots', `${vp.name}-gora.png`) });
+  const maxY = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
+  );
+  const sweep = {
+    steps: 0,
+    barWstecz: 0,
+    barDalej: 0,
+    raisedCookieWstecz: 0,
+    cookieBar: 0,
+    plainCookieWstecz: 0,
+  };
+  for (let y = 0; y <= maxY; y += 100) {
+    await page.evaluate((yy) => window.scrollTo(0, yy), y);
+    await frames();
+    const c = await covers();
+    sweep.steps += 1;
+    sweep.barWstecz = Math.max(sweep.barWstecz, c.barWstecz);
+    sweep.barDalej = Math.max(sweep.barDalej, c.barDalej);
+    sweep.cookieBar = Math.max(sweep.cookieBar, c.cookieBar);
+    if (c.raised) sweep.raisedCookieWstecz = Math.max(sweep.raisedCookieWstecz, c.cookieWstecz);
+    else sweep.plainCookieWstecz = Math.max(sweep.plainCookieWstecz, c.cookieWstecz);
+  }
+  const firstView = [afterAnswer, atTop];
+  for (const [k, v] of [
+    ['poOdpowiedzi', afterAnswer],
+    ['gora', atTop],
+  ]) {
+    check(
+      v.barWstecz === 0 && v.barDalej === 0,
+      `${vp.name} ${k}: pasek na Wstecz/Dalej (${v.barWstecz}/${v.barDalej} px2)`,
+    );
+    check(v.cookieWstecz === 0, `${vp.name} ${k}: ciasteczka na Wstecz (${v.cookieWstecz} px2)`);
+  }
+  check(
+    sweep.barWstecz === 0 && sweep.barDalej === 0,
+    `${vp.name} przewijanie: pasek na Wstecz/Dalej`,
+  );
+  check(sweep.raisedCookieWstecz === 0, `${vp.name} przewijanie: podniesione ciasteczka na Wstecz`);
+  check(
+    geo.calculatorTargets.length > 0 && Math.min(...geo.calculatorTargets) >= 44,
+    `${vp.name}: przycisk opcji < 44 px (${geo.calculatorTargets.join(',')})`,
+  );
+
   const bar = rectOf(geo.bar);
   const cookie = rectOf(geo.cookie);
   const overlap = overlapPx(bar, cookie);
@@ -271,6 +357,8 @@ for (const vp of [
     calculatorButtonHeightsPx: geo.calculatorTargets,
     scrollWidth: geo.scrollWidth,
     barFlag: geo.barFlag,
+    firstView,
+    sweep,
   };
   check(noBarBefore, `${vp.name}: pasek przed pierwszą odpowiedzią`);
   check(t1 <= 1000 && t2 <= 1000, `${vp.name}: cena później niż 1 s (${t1}/${t2} ms)`);

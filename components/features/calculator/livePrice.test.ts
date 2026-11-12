@@ -14,7 +14,25 @@ describe('livePrice', () => {
   it('przełącznik: tylko "1" i "true" włączają', () => {
     expect(isLivePriceBarEnabled('1')).toBe(true);
     expect(isLivePriceBarEnabled('true')).toBe(true);
-    for (const v of [undefined, null, '', '0', 'false', 'TRUE ', 'yes', 1, true]) {
+    for (const v of [
+      undefined,
+      null,
+      '',
+      '0',
+      'false',
+      'TRUE ',
+      'TRUE',
+      'True',
+      ' true ',
+      'true ',
+      ' 1',
+      '1 ',
+      'yes',
+      'on',
+      1,
+      true,
+      {},
+    ]) {
       expect(isLivePriceBarEnabled(v)).toBe(false);
     }
   });

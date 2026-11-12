@@ -11,8 +11,9 @@ interface QuestionFieldProps {
   error?: string;
 }
 
+// min-h-11 = 44 px: cel dotyku WCAG 2.5.5 / próg firmy (MIX-1412; samo py-2.5 + text-sm = 42 px).
 const OPTION_BTN =
-  'px-4 py-2.5 rounded-xl border text-sm font-medium transition text-left focus:outline-none focus:ring-2 focus:ring-primary/60';
+  'min-h-11 px-4 py-2.5 rounded-xl border text-sm font-medium transition text-left focus:outline-none focus:ring-2 focus:ring-primary/60';
 const OPTION_ON = 'border-primary bg-primary/15 text-white';
 const OPTION_OFF = 'border-white/15 bg-white/[0.03] text-gray-200 hover:border-white/30';
 const INPUT =

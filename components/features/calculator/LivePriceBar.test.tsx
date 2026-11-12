@@ -35,9 +35,10 @@ const requestPricePreview = vi.fn();
 vi.mock('../../../services/pricePreviewService', () => ({
   requestPricePreview: (...a: unknown[]) => requestPricePreview(...a),
 }));
+const submitPublicQuote = vi.fn();
 vi.mock('../../../services/calculatorService', () => ({
   fetchPublicQuestions: () => Promise.resolve(QUESTIONS),
-  submitPublicQuote: vi.fn(),
+  submitPublicQuote: (...a: unknown[]) => submitPublicQuote(...a),
 }));
 
 const getToken = vi.fn();
@@ -89,6 +90,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
     requestPricePreview.mockReset();
+    submitPublicQuote.mockReset();
     getToken.mockReset();
     getToken.mockResolvedValue('captcha-1');
     requestPricePreview.mockImplementation(async (p: { answers: Record<string, string> }) =>
@@ -222,12 +224,185 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
   });
 
-  it('pasek na telefonie podnosi przycisk ciasteczek (znacznik na body)', async () => {
+  // Geometria (MIX-1412): jsdom nie liczy układu, więc prostokąty paska i przycisków pod nim
+  // (następny element) podajemy sami; wysokość okna jsdom = 768 px.
+  const geometry = (bar: [number, number], nav: [number, number]) => {
+    const rect = ([top, bottom]: [number, number]) =>
+      ({
+        top,
+        bottom,
+        height: bottom - top,
+        left: 0,
+        right: 390,
+        width: 390,
+        x: 0,
+        y: top,
+      }) as DOMRect;
+    return vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      if (this.dataset.testid === 'live-price-bar') return rect(bar);
+      if (this.previousElementSibling?.getAttribute('data-testid') === 'live-price-bar') {
+        return rect(nav);
+      }
+      return rect([0, 0]);
+    });
+  };
+
+  it('pasek stoi tuż przed przyciskami Wstecz/Dalej (sticky nie zasłania tego, co pod nim)', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar.className).toMatch(/(^|\s)sticky(\s|$)/);
+    expect(bar.className).toMatch(/(^|\s)bottom-0(\s|$)/);
+    expect(bar.className).toMatch(/(^|\s)lg:fixed(\s|$)/);
+    const next = bar.nextElementSibling as HTMLElement;
+    expect(next.querySelector('button')).toHaveTextContent('Wstecz');
+    expect(next).toHaveTextContent('Dalej');
+  });
+
+  it('pasek przyklejony u dołu ekranu: przycisk ciasteczek nad paskiem (o wysokość paska)', async () => {
+    const spy = geometry([668, 768], [800, 844]);
     await mount();
     pick('Sklep');
     await wait(400);
     expect(document.body.dataset.livePriceBar).toBe('true');
-    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toMatch(/px$/);
+    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toBe('100px');
+    spy.mockRestore();
+  });
+
+  it('przyciski Wstecz/Dalej w pasie ciasteczek: przycisk ciasteczek idzie nad pasek, nie na Wstecz', async () => {
+    const spy = geometry([560, 660], [692, 736]);
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(document.body.dataset.livePriceBar).toBe('true');
+    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toBe('208px');
+    spy.mockRestore();
+  });
+
+  it('bliźniak: pasek i przyciski wysoko nad pasem ciasteczek → przycisk ciasteczek zostaje na dole', async () => {
+    const spy = geometry([100, 200], [232, 276]);
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(screen.getByTestId('live-price-bar')).toBeInTheDocument();
+    expect(document.body.dataset.livePriceBar).toBeUndefined();
+    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toBe('');
+    spy.mockRestore();
+  });
+
+  it('przewinięcie: znacznik liczony od nowa (przyklejony → wysoko = zdjęty)', async () => {
+    const spy = geometry([668, 768], [800, 844]);
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(document.body.dataset.livePriceBar).toBe('true');
+    spy.mockRestore();
+    const spy2 = geometry([100, 200], [232, 276]);
+    window.dispatchEvent(new Event('scroll'));
+    await wait(50);
+    expect(document.body.dataset.livePriceBar).toBeUndefined();
+    spy2.mockRestore();
+  });
+
+  it('komputer (≥ 1024 px): przycisk ciasteczek zostaje na dole nawet przy pasku u dołu', async () => {
+    const spy = geometry([668, 768], [800, 844]);
+    const mm = vi.mocked(window.matchMedia);
+    const prev = mm.getMockImplementation();
+    mm.mockImplementation(
+      (q: string) =>
+        ({
+          matches: q === '(min-width: 1024px)',
+          media: q,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        }) as unknown as MediaQueryList,
+    );
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(screen.getByTestId('live-price-bar')).toBeInTheDocument();
+    expect(document.body.dataset.livePriceBar).toBeUndefined();
+    if (prev) mm.mockImplementation(prev);
+    spy.mockRestore();
+  });
+
+  it('odpowiedź z wcześniejszego zapytania (wyścig) nie pokazuje się i nie trafia do pamięci', async () => {
+    const pending: Array<(v: unknown) => void> = [];
+    requestPricePreview.mockImplementation(() => new Promise((resolve) => pending.push(resolve)));
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    pick('Wizytówka');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect((requestPricePreview.mock.calls[0][1] as AbortSignal).aborted).toBe(true);
+    await act(async () => {
+      pending[0]({ ok: true, priceRange: PRICES.sklep });
+    });
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent(/27\s?500/);
+    await act(async () => {
+      pending[1]({ ok: true, priceRange: PRICES.wizytowka });
+    });
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/8\s?000\s–\s15\s?000/);
+    // Sklep nie jest w pamięci (odpowiedź spóźniona była odrzucona): nowe zapytanie.
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(3);
+  });
+
+  it('burza 429: jedno zapytanie na zmianę odpowiedzi, bez samoczynnych ponowień; potem cena wraca', async () => {
+    requestPricePreview.mockResolvedValue({ ok: false, status: 429 });
+    await mount();
+    for (const l of ['Sklep', 'Wizytówka', 'Portal']) {
+      pick(l);
+      await wait(400);
+    }
+    await wait(10_000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(3);
+    expect(getToken).toHaveBeenCalledTimes(3);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Liczymy za często');
+    // Bliźniak: po burzy pierwsza dobra odpowiedź pokazuje cenę.
+    requestPricePreview.mockImplementation(async (p: { answers: Record<string, string> }) =>
+      ok(p.answers),
+    );
+    pick('Sklep');
+    await wait(400);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Liczymy za często');
+  });
+
+  it('ekran wyniku: brak paska, a zapytanie podglądu w locie jest przerwane (V6)', async () => {
+    submitPublicQuote.mockResolvedValue({
+      ok: true,
+      result: { priceRange: { min: 1000, max: 2000 }, currency: 'PLN', status: 'ok' },
+    });
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    // Drugie zapytanie zostaje w locie aż do wyniku.
+    requestPricePreview.mockImplementation(() => new Promise(() => {}));
+    pick('Portal');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    const inFlight = requestPricePreview.mock.calls[1][1] as AbortSignal;
+    expect(inFlight.aborted).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Dalej' }));
+    fireEvent.change(screen.getByLabelText('Twój e-mail'), { target: { value: 'a@b.pl' } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Poznaj widełki' }));
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(submitPublicQuote).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('button', { name: 'Dalej' })).not.toBeInTheDocument();
+    expect(screen.queryByTestId('live-price-bar')).not.toBeInTheDocument();
+    expect(document.body.dataset.livePriceBar).toBeUndefined();
+    expect(inFlight.aborted).toBe(true);
+    await wait(5000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
   });
 });
 

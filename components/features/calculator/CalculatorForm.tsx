@@ -29,6 +29,9 @@ interface CalculatorFormProps {
   submitting: boolean;
   /** Zwraca błędy walidacji (gdy nie przeszła) — wtedy przechodzimy do kroku z pierwszym błędem. */
   onSubmit: () => Promise<Record<string, string> | null> | void;
+  /** Pasek widełek na żywo (MIX-1412): stoi TUŻ PRZED przyciskami Wstecz/Dalej, bo na telefonie
+   *  jest `sticky` i nie może ich zasłonić (sticky przesuwa się tylko w górę). */
+  liveBar?: React.ReactNode;
 }
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({
@@ -43,6 +46,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
   submitError,
   submitting,
   onSubmit,
+  liveBar,
 }) => {
   // Uporządkowane, unikalne grupy widocznych pytań + krok kontaktowy na końcu.
   const groups = useMemo(() => {
@@ -185,6 +189,8 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           Uzupełnij, żeby poznać widełki: {errorLabels.join('; ')}
         </div>
       )}
+
+      {liveBar}
 
       <div className="flex items-center justify-between pt-2">
         <button

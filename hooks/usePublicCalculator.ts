@@ -1,7 +1,7 @@
 // Stan i przepływ publicznego kalkulatora (f4b). Ładuje pytania z API (data-driven),
 // trzyma odpowiedzi/email/honeypot, waliduje klienckie, i submituje przez Turnstile
 // (invisible-execute) do POST /public-quote. Logika czysta w formLogic; tu tylko orkiestracja.
-import { useState, useEffect, useCallback, type RefObject } from 'react';
+import { useState, useEffect, useCallback, useRef, type RefObject } from 'react';
 import {
   fetchPublicQuestions,
   submitPublicQuote,
@@ -19,6 +19,11 @@ import type { TurnstileWidgetHandle } from '../utils/turnstile';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
+/** Odmowa tokenu dla podglądu, gdy trwa wysyłka (MIX-1412: wysyłka ma pierwszeństwo). */
+export const PREVIEW_BLOCKED_BY_SUBMIT = 'PREVIEW_BLOCKED_BY_SUBMIT';
+/** Turnstile oddał pusty token: nie wysyłamy niczego (fail-closed). */
+export const TURNSTILE_EMPTY_TOKEN = 'TURNSTILE_EMPTY_TOKEN';
+
 export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandle | null>) {
   const [phase, setPhase] = useState<CalcPhase>('loading');
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
@@ -28,6 +33,35 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [result, setResult] = useState<PublicQuoteResult | null>(null);
+  // Wyścig Turnstile (MIX-1412): jeden widżet obsługuje wysyłkę i podgląd widełek, a każde
+  // getToken() robi reset + execute. Pobrania tokenu idą więc po kolei (łańcuch obietnic),
+  // a w trakcie wysyłki podgląd tokenu nie dostaje. `submittingRef` blokuje też drugą wysyłkę
+  // (podwójne kliknięcie przed odświeżeniem przycisku).
+  const submittingRef = useRef(false);
+  const tokenChain = useRef<Promise<unknown>>(Promise.resolve());
+
+  const nextToken = useCallback(
+    (forPreview: boolean): Promise<string> => {
+      const run = async () => {
+        if (forPreview && submittingRef.current) throw new Error(PREVIEW_BLOCKED_BY_SUBMIT);
+        const handle = turnstileRef.current;
+        if (!handle) throw new Error('TURNSTILE_NOT_READY');
+        const token = await handle.getToken();
+        if (typeof token !== 'string' || token === '') throw new Error(TURNSTILE_EMPTY_TOKEN);
+        return token;
+      };
+      const p = tokenChain.current.then(run, run);
+      tokenChain.current = p.catch(() => undefined);
+      return p;
+    },
+    [turnstileRef],
+  );
+
+  /** Token Turnstile dla podglądu widełek: po kolei z wysyłką, odmowa w trakcie wysyłki. */
+  const getPreviewToken = useCallback((): Promise<string> => {
+    if (submittingRef.current) return Promise.reject(new Error(PREVIEW_BLOCKED_BY_SUBMIT));
+    return nextToken(true);
+  }, [nextToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,39 +113,44 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
    * z pierwszym błędem i ustawić na nim fokus; `null`, gdy walidacja przeszła.
    */
   const submit = useCallback(async (): Promise<Record<string, string> | null> => {
+    // Druga wysyłka w trakcie pierwszej: nic nie robimy (jedno POST na jedno kliknięcie).
+    if (submittingRef.current) return null;
     setSubmitError(null);
     const v = validate(questions, answers, email);
     setErrors(v.errors);
     if (!v.valid) return v.errors;
 
-    setPhase('submitting');
-    let token: string;
+    submittingRef.current = true;
     try {
-      const handle = turnstileRef.current;
-      if (!handle) throw new Error('TURNSTILE_NOT_READY');
-      token = await handle.getToken();
-    } catch {
-      setSubmitError(humanError(403));
-      setPhase('ready');
-      return null;
-    }
+      setPhase('submitting');
+      let token: string;
+      try {
+        token = await nextToken(false);
+      } catch {
+        setSubmitError(humanError(403));
+        setPhase('ready');
+        return null;
+      }
 
-    const res = await submitPublicQuote({
-      answers: pickAnswers(questions, answers),
-      email: email.trim(),
-      captcha_token: token,
-      website_verify: websiteVerify,
-    });
-    if (res.ok) {
-      setResult(res.result);
-      setPhase('done');
-    } else {
-      setSubmitError(humanError(res.status));
-      setPhase('ready');
-      turnstileRef.current?.reset();
+      const res = await submitPublicQuote({
+        answers: pickAnswers(questions, answers),
+        email: email.trim(),
+        captcha_token: token,
+        website_verify: websiteVerify,
+      });
+      if (res.ok) {
+        setResult(res.result);
+        setPhase('done');
+      } else {
+        setSubmitError(humanError(res.status));
+        setPhase('ready');
+        turnstileRef.current?.reset();
+      }
+      return null;
+    } finally {
+      submittingRef.current = false;
     }
-    return null;
-  }, [questions, answers, email, websiteVerify, turnstileRef]);
+  }, [questions, answers, email, websiteVerify, turnstileRef, nextToken]);
 
   const reset = useCallback(() => {
     setResult(null);
@@ -135,5 +174,6 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     result,
     submit,
     reset,
+    getPreviewToken,
   };
 }

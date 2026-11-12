@@ -27,11 +27,8 @@ const PublicCalculator: React.FC = () => {
   const live = useLivePriceRange({
     enabled: liveEnabled,
     answers: pickAnswers(c.questions, c.answers),
-    getCaptchaToken: () => {
-      const handle = turnstileRef.current;
-      if (!handle) return Promise.reject(new Error('TURNSTILE_NOT_READY'));
-      return handle.getToken();
-    },
+    // Token po kolei z wysyłką; w trakcie wysyłki odmowa (wyścig Turnstile, MIX-1412).
+    getCaptchaToken: c.getPreviewToken,
   });
 
   return (
@@ -63,10 +60,9 @@ const PublicCalculator: React.FC = () => {
           submitError={c.submitError}
           submitting={c.phase === 'submitting'}
           onSubmit={c.submit}
+          liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
         />
       )}
-
-      {liveEnabled && <LivePriceBar state={live} />}
     </div>
   );
 };
