@@ -17,7 +17,7 @@ run() {
   "$@" > "$OUT/krok-$name.log" 2>&1
   local rc=$?
   echo -e "$name\t$rc" | tee -a "$TSV"
-  [ "$rc" -ne 0 ] && fail=1
+  if [ "$rc" -ne 0 ]; then fail=1; echo "--- $name (tail) ---"; grep -v "^$" "$OUT/krok-$name.log" | tail -n 45 | cut -c1-300; fi
 }
 for s in "${STEPS[@]}"; do
   case "$s" in

@@ -5,6 +5,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import http from 'node:http';
 import net from 'node:net';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import {
   assertPortFree,
   killGroup,
@@ -228,5 +229,25 @@ describe('ścieżki wyjścia sondy (osobny proces)', () => {
     const { rc, pgid } = await run('stop');
     expect(rc).toBe(0);
     expect(groupPids(pgid)).toEqual([]);
+  });
+});
+
+describe('probe-view-transitions: pominięty przypadek to błąd (MIX-1441, kryterium 4)', () => {
+  // Sonda wymaga budów i Chromium, więc tu sprawdzamy źródło: każda gałąź „brak karty” woła fail().
+  const src = readFileSync(
+    path.resolve(__dirname, '../../scripts/probe-view-transitions.mjs'),
+    'utf8',
+  );
+  it('brak karty do zrzutu w połowie przejścia kończy się fail()', () => {
+    expect(src).toMatch(/brak karty realizacji do zrzutu w połowie przejścia/);
+    expect(src).toMatch(/\} else \{\s*\/\/ MIX-1441: brak karty = błąd[^\n]*\n\s*fail\(/);
+  });
+  it('brak karty w Powiązanych (pominięty A2) kończy się fail()', () => {
+    expect(src).toMatch(/pominiete: 'brak karty realizacji w Powiązanych' \};\s*fail\(/);
+  });
+  it('żaden zapis „pominiete” nie zostaje bez fail()', () => {
+    const skipped = src.match(/pominiete:/g) || [];
+    const failed = src.match(/przypadek pominięty/g) || [];
+    expect(skipped.length).toBe(failed.length);
   });
 });

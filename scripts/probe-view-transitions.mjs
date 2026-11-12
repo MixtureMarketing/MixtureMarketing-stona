@@ -476,7 +476,7 @@ for (const vp of VIEWPORTS) {
         fail(`${vp.tag} ${key}: brak zrzutu w połowie przejścia`);
       }
     } else {
-      // MIX-1441: brak karty do zrzutu = błąd (wcześniej cichy brak zrzutu i kod 0).
+      // MIX-1441: brak karty = błąd (wcześniej cichy brak zrzutu i kod 0).
       fail(`${vp.tag} ${key}: brak karty realizacji do zrzutu w połowie przejścia`);
     }
     await shot.close();
