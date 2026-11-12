@@ -118,6 +118,24 @@ describe('mixtureEngine: klatki i przewijanie (MIX-1470)', () => {
     expect(rafQueue.size).toBe(0);
   });
 
+  // Tempo bezwzględne przez publiczne API: fala kliknięcia żyje WAVE.life = 1,7 s czasu sceny;
+  // przy znaczniku rAF 7 s po ostatniej interakcji pętla staje w pierwszej klatce bez fali.
+  // Czas do zatrzymania = 1,7 s rzeczywistego czasu zarówno przy 60, jak i 120 Hz.
+  it.each([60, 120])('tempo sceny przy %i Hz = czas rzeczywisty (fala gaśnie po ~1,7 s)', (hz) => {
+    const h = startMixture(fakeCanvas(), { reducedMotion: false });
+    h.pulse(10, 10);
+    const base = performance.now() + 7000;
+    let t = base;
+    while (rafQueue.size > 0 && t < base + 5000) {
+      flush(t);
+      t += 1000 / hz;
+    }
+    const elapsed = t - base;
+    expect(elapsed).toBeGreaterThan(1700 - 40);
+    expect(elapsed).toBeLessThan(1700 + 60);
+    h.destroy();
+  });
+
   it('reduced motion: jedna statyczna klatka, scroll niczego nie uruchamia', () => {
     const h = startMixture(fakeCanvas(), { reducedMotion: true });
     expect(draws).toBe(1);
