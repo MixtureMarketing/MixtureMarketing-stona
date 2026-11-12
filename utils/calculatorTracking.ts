@@ -18,8 +18,7 @@
 import { trackEvent } from './analytics';
 
 type ParamSpec =
-  | { kind: 'int'; min: number; max: number }
-  | { kind: 'enum'; values: readonly string[] };
+  { kind: 'int'; min: number; max: number } | { kind: 'enum'; values: readonly string[] };
 
 export const CALCULATOR_STEP_GROUPS = [
   'projekt',

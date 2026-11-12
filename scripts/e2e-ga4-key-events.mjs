@@ -5,14 +5,18 @@
 //  - window.zaraz to atrapa zapisująca zdarzenia (żadna analityka nie jest ładowana),
 //  - Turnstile to atrapa (żadnego żądania do Cloudflare),
 //  - POST-y tworzące leada (capture-lead, public-quote) są przechwycone i PRZERWANE,
-//  - każde żądanie poza localhost jest blokowane.
+//  - każde żądanie poza localhost jest blokowane; analitykę przerywa wspólny moduł
+//    scripts/lib/prod-safe.mjs (protect/watchBrowser/finish, jak w scripts/audit-render.mjs),
+//    przeciek analityki = kod 1.
 // Kod wyjścia 0 = oba zdarzenia poszły, oba POST-y przerwane, zero żądań zewnętrznych.
 import { spawn } from 'node:child_process';
 import puppeteer from 'puppeteer';
+import { createProdSafe } from './lib/prod-safe.mjs';
 
 const PORT = Number(process.argv[2] || 4179);
 const BASE = `http://127.0.0.1:${PORT}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const safe = createProdSafe(BASE);
 
 const QUESTIONS = {
   questions: [
@@ -63,10 +67,6 @@ const DIAG = [];
 async function newPage(browser, log) {
   const page = await browser.newPage();
   PAGES.push(page);
-  // Strony wykrywają prerender po „Headless” w UA (wtedy kalkulator się nie montuje).
-  await page.setUserAgent(
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 MixtureE2E/1',
-  );
   page.on('pageerror', (e) => DIAG.push(`pageerror: ${e.message}`));
   page.on('console', (m) => {
     if (m.type() === 'error') DIAG.push(`console: ${m.text()}`);
@@ -86,42 +86,51 @@ async function newPage(browser, log) {
       consent: { set() {} },
     };
   });
-  await page.setRequestInterception(true);
-  page.on('request', (req) => {
-    const u = new URL(req.url());
-    const local = u.hostname === '127.0.0.1' || u.hostname === 'localhost';
-    if (u.hostname === 'challenges.cloudflare.com') {
-      log.turnstileStub++;
-      return req.respond({ status: 200, contentType: 'text/javascript', body: FAKE_TURNSTILE });
-    }
-    if (!local || u.pathname.startsWith('/cdn-cgi/')) {
-      log.blocked.push(u.hostname + u.pathname);
-      return req.abort();
-    }
-    if (u.pathname === '/api/estimation/public-questions') {
-      return req.respond({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(QUESTIONS),
-      });
-    }
-    if (u.pathname === '/api/audit/run_audit') {
-      return req.respond({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(AUDIT),
-      });
-    }
-    if (req.method() === 'POST' && u.pathname.startsWith('/api/')) {
-      log.abortedPosts.push(u.pathname);
-      return req.abort();
-    }
-    if (u.pathname.startsWith('/api/')) {
-      return req.respond({ status: 404, body: '' });
-    }
-    return req.continue();
+  // Strony wykrywają prerender po „Headless” w UA (wtedy kalkulator się nie montuje);
+  // protect() zdejmuje „Headless” i dopisuje MixtureE2E/1.
+  await safe.protect(page, {
+    userAgent:
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36',
+    onBlocked: (req) => log.blocked.push(req.url()),
+    handler: (req) => route(req, log),
   });
   return page;
+}
+
+// Żądania poza analityką (analitykę przerywa prod-safe, zanim trafi tutaj).
+function route(req, log) {
+  const u = new URL(req.url());
+  const local = u.hostname === '127.0.0.1' || u.hostname === 'localhost';
+  if (u.hostname === 'challenges.cloudflare.com') {
+    log.turnstileStub++;
+    return req.respond({ status: 200, contentType: 'text/javascript', body: FAKE_TURNSTILE });
+  }
+  if (!local || u.pathname.startsWith('/cdn-cgi/')) {
+    log.blocked.push(u.hostname + u.pathname);
+    return req.abort();
+  }
+  if (u.pathname === '/api/estimation/public-questions') {
+    return req.respond({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(QUESTIONS),
+    });
+  }
+  if (u.pathname === '/api/audit/run_audit') {
+    return req.respond({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(AUDIT),
+    });
+  }
+  if (req.method() === 'POST' && u.pathname.startsWith('/api/')) {
+    log.abortedPosts.push(u.pathname);
+    return req.abort();
+  }
+  if (u.pathname.startsWith('/api/')) {
+    return req.respond({ status: 404, body: '' });
+  }
+  return req.continue();
 }
 
 const events = (page) => page.evaluate(() => window.__ga4.map(([e, d]) => ({ e, d })));
@@ -135,7 +144,9 @@ async function main() {
     },
   );
   let rc = 1;
+  let ok = false;
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  safe.watchBrowser(browser);
   try {
     await waitForServer();
 
@@ -185,7 +196,7 @@ async function main() {
     );
 
     const emailLeak = JSON.stringify([...evC, ...evA]).includes('e2e@example.com');
-    const ok =
+    ok =
       beforeC === 0 &&
       evC.length === 1 &&
       logC.abortedPosts.includes('/api/estimation/public-quote') &&
@@ -194,7 +205,6 @@ async function main() {
       logA.abortedPosts.includes('/api/audit/capture-lead') &&
       !emailLeak;
     console.log(`WYNIK ok=${ok} email_w_zdarzeniach=${emailLeak}`);
-    rc = ok ? 0 : 1;
   } catch (e) {
     console.error('BLAD', e?.message || e);
     for (const p of PAGES) {
@@ -206,6 +216,9 @@ async function main() {
     await browser.close();
     server.kill();
   }
+  // Bezpiecznik prod-safe: przeciek analityki = kod 1 niezależnie od wyniku scenariuszy.
+  const guard = safe.finish();
+  rc = ok && guard.ok ? 0 : 1;
   process.exit(rc);
 }
 
