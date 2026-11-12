@@ -127,15 +127,18 @@ function measure() {
 // Kontrast: każdy węzeł tekstowy w widocznej części menu, tło = najbliższe nieprzezroczyste
 // (gradient: najgorszy z jego kolorów). Zwraca najniższy kontrast i listę < 4.5.
 function contrast() {
+  // Kolor CSS (także oklch/oklab z Tailwind 4) -> sRGBA przez płótno 1x1.
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 1;
+  const cx = cv.getContext('2d', { willReadFrequently: true });
   const parse = (c) => {
-    const m = c.match(/rgba?\(([^)]+)\)/);
-    if (!m) return null;
-    const [r, g, b, a = 1] = m[1]
-      .split(/[ ,/]+/)
-      .filter(Boolean)
-      .map(Number);
-    return [r, g, b, a];
+    cx.clearRect(0, 0, 1, 1);
+    cx.fillStyle = c;
+    cx.fillRect(0, 0, 1, 1);
+    const d = cx.getImageData(0, 0, 1, 1).data;
+    return [d[0], d[1], d[2], d[3] / 255];
   };
+  const COLOR_FN = /(?:rgba?|oklch|oklab|lab|lch|hsla?|color)\([^)]*\)|#[0-9a-f]{3,8}\b/gi;
   const lum = ([r, g, b]) => {
     const f = (x) => ((x /= 255) <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
@@ -150,10 +153,11 @@ function contrast() {
       const s = getComputedStyle(p);
       const img = s.backgroundImage;
       if (img && img.includes('gradient')) {
-        return [...img.matchAll(/rgba?\([^)]+\)/g)].map((m) => parse(m[0]));
+        const stops = [...img.matchAll(COLOR_FN)].map((m) => parse(m[0])).filter((c) => c[3] > 0);
+        if (stops.length) return stops;
       }
       const c = parse(s.backgroundColor);
-      if (c && c[3] > 0.9) return [c];
+      if (c[3] > 0.9) return [c];
     }
     return [[255, 255, 255, 1]];
   };
