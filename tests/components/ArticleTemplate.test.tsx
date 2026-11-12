@@ -12,12 +12,20 @@ vi.mock('../../services/cmsService', () => ({
 }));
 vi.mock('../../components/articles/RelatedArticles', () => ({ default: () => null }));
 vi.mock('../../components/common/PortableTextRenderer', () => ({ default: () => null }));
-vi.mock('../../components/common/ArticleSchemaSeo', () => ({ default: () => null }));
+const schemaProps = vi.hoisted(() => ({
+  last: undefined as { article: { slug: string } } | undefined,
+}));
+vi.mock('../../components/common/ArticleSchemaSeo', () => ({
+  default: (props: { article: { slug: string } }) => {
+    schemaProps.last = props;
+    return null;
+  },
+}));
 
 const article = {
   _id: '1',
   title: 'Artykuł testowy',
-  slug: { current: 'ok' },
+  slug: 'ok', // kształt z GROQ: "slug": slug.current (tekst, nie obiekt)
   excerpt: 'Opis',
   publishedAt: '2026-01-01',
   body: [],
@@ -67,5 +75,21 @@ describe('ArticleTemplate — błąd Sanity ≠ 404', () => {
     await waitFor(() => expect(document.querySelector('[data-not-found]')).not.toBeNull());
     expect(document.querySelector('[data-cms-error]')).toBeNull();
     await waitFor(() => expect(robotsNoindex()).toBe(true));
+  });
+});
+
+describe('ArticleTemplate — adres artykułu w okruszkach i JSON-LD (MIX-1386)', () => {
+  it('slug z GROQ (tekst) daje prawdziwy adres, nigdy /undefined/', async () => {
+    vi.mocked(cmsService.getArticleBySlug).mockResolvedValueOnce(article);
+    schemaProps.last = undefined;
+    renderAt('/baza-wiedzy/ok');
+    await screen.findByRole('heading', { name: 'Artykuł testowy' });
+    await new Promise((r) => setTimeout(r, 20)); // flush Helmeta
+    const ld = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
+      .map((n) => n.textContent || '')
+      .join('\n');
+    expect(ld).toContain('/baza-wiedzy/ok/');
+    expect(ld).not.toContain('undefined');
+    expect(schemaProps.last?.article.slug).toBe('/baza-wiedzy/ok/');
   });
 });
