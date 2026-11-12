@@ -437,16 +437,6 @@
     border-radius: inherit;
   }
 
-  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny (np. /abonament/) */
-  body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
-    bottom: 6.5rem;
-  }
-  @media (min-width: 768px) {
-    body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
-      bottom: 1rem;
-    }
-  }
-
   /* prefers-reduced-motion respect — wycisz wszystkie animacje globalnie */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -472,6 +462,18 @@
 }
 
 @layer utilities {
+  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny (np. /abonament/).
+     MIX-1400: regula w warstwie utilities (nie base), bo klasa bottom-4 na przycisku jest
+     w utilities i wygrywala z regula z base (przycisk zaslanial pasek na telefonie). */
+  body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+    bottom: 6.5rem;
+  }
+  @media (min-width: 768px) {
+    body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+      bottom: 1rem;
+    }
+  }
+
   /* GPU Optimized Grid */
   .bg-tech-grid {
     background-image:
@@ -606,5 +608,17 @@
   }
   .hero-takeover-offset {
     margin-top: -100vh;
+  }
+}
+
+/* Przycisk ciasteczek nad paskiem widełek /wycena/ (MIX-1385). Poza warstwami, żeby wygrać z
+   klasą bottom-4 (utilities). Telefon: nad paskiem (wysokość mierzy LivePriceBar); od 1024 px pasek
+   jest z prawej strony, więc przycisk zostaje przy dole. */
+body[data-live-price-bar='true'] .cookie-floating-btn {
+  bottom: calc(var(--live-price-bar-h, 5.5rem) + 1rem);
+}
+@media (min-width: 1024px) {
+  body[data-live-price-bar='true'] .cookie-floating-btn {
+    bottom: 1rem;
   }
 }
