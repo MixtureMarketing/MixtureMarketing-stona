@@ -352,6 +352,13 @@ async function measureClick(vp, href, { reduce = false, pauseMid = false, shot =
   await sleep(700);
   const scrollBefore = await page.evaluate(() => Math.round(scrollY));
   await page.evaluate(() => window.__logFrames());
+  // A visitor hovers before the click, which starts the data preload; the transition falls back to
+  // a plain navigation when the preload is slower than 300 ms, so a loaded machine would
+  // otherwise measure the fallback instead of the transition. PROBE_COLD=1 clicks without the dwell.
+  if (process.env.PROBE_COLD !== '1') {
+    await card.hover();
+    await sleep(Number(process.env.PROBE_DWELL_MS ?? 1200));
+  }
   await card.click();
   let shotFile = null;
   if (pauseMid) {

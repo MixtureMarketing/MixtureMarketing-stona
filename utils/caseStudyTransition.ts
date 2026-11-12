@@ -17,6 +17,19 @@ let active = false;
 /** Przewinięcie na górę bez animacji (MIX-1471). */
 export const INSTANT_TOP: ScrollToOptions = { top: 0, left: 0, behavior: 'instant' };
 
+/**
+ * Argumenty `window.scrollTo` po zmianie trasy. Strona realizacji (/portfolio/<slug>/) przy
+ * włączonym przełączniku staje na górze od razu, bez animacji `html { scroll-behavior: smooth }`
+ * (dotyczy też zwykłej nawigacji, gdy przejście nie ruszyło, np. dane karty nie zdążyły w 300 ms).
+ * Przełącznik wyłączony albo inna trasa = jak dotąd (`0, 0`).
+ */
+export function topScrollArgs(
+  pathname: string,
+  enabled: boolean,
+): [ScrollToOptions] | [number, number] {
+  return enabled && /^\/portfolio\/[^/]+\/?$/.test(pathname) ? [INSTANT_TOP] : [0, 0];
+}
+
 /** Czy przejście jest teraz w toku (drugi klik w trakcie = zwykła nawigacja). */
 export function isTransitionActive(): boolean {
   return active;

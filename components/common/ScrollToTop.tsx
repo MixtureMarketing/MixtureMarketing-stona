@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
+import { topScrollArgs } from '@/utils/caseStudyTransition';
+import { isViewTransitionsEnabled } from '@/utils/viewTransitions';
 
 /** Jak długo czekamy na element kotwicy po nawigacji SPA (trasa jest lazy — chunk i render). */
 const HASH_WAIT_MS = 3000;
@@ -37,7 +39,7 @@ export default function ScrollToTop() {
     }
 
     if (!hash) {
-      if (pathChanged) window.scrollTo(0, 0);
+      if (pathChanged) window.scrollTo(...topScrollArgs(pathname, isViewTransitionsEnabled()));
       return;
     }
 
