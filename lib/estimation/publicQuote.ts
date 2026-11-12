@@ -45,47 +45,140 @@ export function parsePublicConfig(params: { key: string; value: string }[]): Pub
 export interface PublicQuestionDef {
   code: string;
   answer_type: string;
+  /** JSON listy opcji `[{value,label}]` (select/multiselect); bez niej odpowiedź = odmowa. */
+  options_json?: string | null;
+}
+
+/** Limit długości odpowiedzi tekstowej (SPEC-MIX-1320 §6 A9). */
+export const PUBLIC_TEXT_MAX = 200;
+
+/** Zakresy pól liczbowych (SPEC-MIX-1320 §6 A10): tylko liczby całkowite w przedziale [min, max].
+ *  Pole liczbowe spoza tej listy = odmowa (fail-closed), nie domyślny zakres. */
+export const PUBLIC_NUMBER_RANGES: Readonly<Record<string, readonly [number, number]>> = {
+  views_count: [1, 500],
+  languages: [1, 20],
+};
+
+/** Allowlista znaków tekstu: litery, cyfry, spacja i zwykła interpunkcja; bez `<`, `>`, `\`,
+ *  znaków sterujących i nowych linii (A9: zero HTML w leadzie, panelu i mailach). */
+const TEXT_ALLOWED = /^[\p{L}\p{N} .,;:!?()'"%&+\-/@#*_]*$/u;
+
+/** Wartości opcji z JSON kolumny; zły JSON, brak listy albo wartość nie-string = null. */
+function optionValues(raw: string | null | undefined): Set<string> | null {
+  if (typeof raw !== 'string' || raw.trim() === '') return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(parsed) || parsed.length === 0) return null;
+  const out = new Set<string>();
+  for (const o of parsed) {
+    const v = (o as { value?: unknown } | null)?.value;
+    if (typeof v !== 'string') return null;
+    out.add(v);
+  }
+  return out;
+}
+
+export interface SanitizedAnswers {
+  answers: Answers;
+  /** Komunikaty dla człowieka (kontrakt §3: `errors`). */
+  errors: string[];
+  /** Stałe kody powodów, równoległe do `errors` (bez wartości od klienta). */
+  reasons: string[];
 }
 
 /**
- * Filtruje i waliduje odpowiedzi publiczne (kontrakt §3): przepuszcza WYŁĄCZNIE kody ze zbioru
- * publicznego (ochrona przed wstrzyknięciem pytań internal, np. `sla_value`), kontroluje typy
- * i wymaga `project_goal`. Zwraca oczyszczone odpowiedzi + listę błędów walidacji.
+ * Waliduje odpowiedzi publiczne (kontrakt §3, SPEC-MIX-1320 §6 A9/A10) jako ALLOWLISTĘ:
+ * kod tylko ze zbioru publicznego (obcy kod = odmowa, nie ciche pominięcie), `select` i
+ * `multiselect` tylko z listy opcji pytania, `number` tylko całkowita liczba JSON w zakresie z
+ * PUBLIC_NUMBER_RANGES, `bool` tylko true/false, `text` ≤ PUBLIC_TEXT_MAX znaków z allowlisty.
+ * Nieznany typ pytania, brak listy opcji albo brak zakresu = odmowa (fail-closed).
+ * `null` jako wartość = brak odpowiedzi. Wymagane `project_goal`.
  */
-export function sanitizePublicAnswers(
-  raw: Record<string, unknown> | null | undefined,
-  defs: PublicQuestionDef[],
-): { answers: Answers; errors: string[] } {
-  const byCode = new Map(defs.map((d) => [d.code, d]));
+export function sanitizePublicAnswers(raw: unknown, defs: PublicQuestionDef[]): SanitizedAnswers {
   const answers: Answers = {};
   const errors: string[] = [];
-  for (const [code, val] of Object.entries(raw ?? {})) {
+  const reasons: string[] = [];
+  const fail = (reason: string, message: string) => {
+    reasons.push(reason);
+    errors.push(message);
+  };
+  if (raw !== undefined && raw !== null && (typeof raw !== 'object' || Array.isArray(raw))) {
+    fail('odpowiedzi: nie obiekt', 'Pole „answers" musi być obiektem.');
+    return { answers, errors, reasons };
+  }
+  const byCode = new Map(defs.map((d) => [d.code, d]));
+  for (const [code, val] of Object.entries((raw ?? {}) as Record<string, unknown>)) {
     const def = byCode.get(code);
-    if (!def || val === null || val === undefined) continue; // spoza public / puste → pomiń
+    if (!def) {
+      // Kodu od klienta nie wpisujemy do powodu ani komunikatu (może być HTML albo 1 MB).
+      fail('kod: spoza listy', 'Odpowiedź na nieznane pytanie.');
+      continue;
+    }
+    if (val === null) continue; // brak odpowiedzi
     switch (def.answer_type) {
       case 'number': {
-        const n = Number(val);
-        if (!Number.isFinite(n)) errors.push(`Pole „${code}" musi być liczbą.`);
-        else answers[code] = n;
+        const range = PUBLIC_NUMBER_RANGES[code];
+        if (!range) fail(`liczba: brak zakresu ${code}`, `Pole „${code}" jest niedostępne.`);
+        else if (typeof val !== 'number' || !Number.isInteger(val))
+          fail(`liczba: typ ${code}`, `Pole „${code}" musi być liczbą całkowitą.`);
+        else if (val < range[0] || val > range[1])
+          fail(
+            `liczba: zakres ${code}`,
+            `Pole „${code}" musi być liczbą od ${range[0]} do ${range[1]}.`,
+          );
+        else answers[code] = val;
         break;
       }
       case 'bool': {
-        if (typeof val !== 'boolean') errors.push(`Pole „${code}" musi być logiczne (tak/nie).`);
+        if (typeof val !== 'boolean')
+          fail(`bool: typ ${code}`, `Pole „${code}" musi być logiczne (tak/nie).`);
+        else answers[code] = val;
+        break;
+      }
+      case 'select': {
+        const opts = optionValues(def.options_json);
+        if (!opts) fail(`opcje: brak listy ${code}`, `Pole „${code}" jest niedostępne.`);
+        else if (typeof val !== 'string' || !opts.has(val))
+          fail(`opcja: spoza listy ${code}`, `Pole „${code}" ma niedozwoloną wartość.`);
         else answers[code] = val;
         break;
       }
       case 'multiselect': {
-        if (!Array.isArray(val)) errors.push(`Pole „${code}" musi być listą.`);
-        else answers[code] = val.filter((x): x is string => typeof x === 'string');
+        const opts = optionValues(def.options_json);
+        if (!opts) fail(`opcje: brak listy ${code}`, `Pole „${code}" jest niedostępne.`);
+        else if (!Array.isArray(val)) fail(`opcja: typ ${code}`, `Pole „${code}" musi być listą.`);
+        else if (
+          val.length > opts.size ||
+          new Set(val).size !== val.length ||
+          !val.every((x) => typeof x === 'string' && opts.has(x))
+        )
+          fail(`opcja: spoza listy ${code}`, `Pole „${code}" ma niedozwoloną wartość.`);
+        else answers[code] = val as string[];
         break;
       }
-      default: // select / text
-        answers[code] = typeof val === 'string' ? val : String(val);
+      case 'text': {
+        if (typeof val !== 'string') fail(`tekst: typ ${code}`, `Pole „${code}" musi być tekstem.`);
+        else if (val.length > PUBLIC_TEXT_MAX)
+          fail(
+            `tekst: za długi ${code}`,
+            `Pole „${code}" ma więcej niż ${PUBLIC_TEXT_MAX} znaków.`,
+          );
+        else if (!TEXT_ALLOWED.test(val))
+          fail(`tekst: znaki ${code}`, `Pole „${code}" zawiera niedozwolone znaki.`);
+        else answers[code] = val;
+        break;
+      }
+      default:
+        fail(`typ: nieznany ${code}`, `Pole „${code}" jest niedostępne.`);
     }
   }
   if (typeof answers.project_goal !== 'string' || answers.project_goal === '')
-    errors.push('Pole „project_goal" jest wymagane.');
-  return { answers, errors };
+    fail('wymagane: project_goal', 'Pole „project_goal" jest wymagane.');
+  return { answers, errors, reasons };
 }
 
 export interface PublicQuoteResult {

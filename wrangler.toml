@@ -12,6 +12,12 @@
 # database_id / bucket_name / KV id NIE są sekretami wg Cloudflare (bez tokenu API bezużyteczne).
 # Umieszczenie ich w PUBLICZNYM repo to jawna, świadoma decyzja właściciela (Jakub, f2-post).
 # account_id CELOWO tu nie ma — żyje w GitHub Secrets (CLOUDFLARE_ACCOUNT_ID).
+#
+# Zmienne Functions ustawiane w panelu Cloudflare Pages (tu tylko nazwy, bez wartości):
+# - QUOTE_TURNSTILE_EXTRA_HOSTS (MIX-1383): dodatkowe hosty Turnstile publicznej wyceny, lista
+#   po przecinku, DOKŁADNE nazwy (bez `*`, schematu, portu i ścieżki; takie wpisy są pomijane).
+#   Tylko środowisko Preview (np. alias gałęzi na *.pages.dev). Produkcja: NIE ustawiać, wtedy
+#   jedynym hostem jest mixturemarketing.pl.
 
 name = "mixturemarketing-stona"
 # RÓWNA dashboardowi produkcji (zweryfikowane przez API: 2026-02-05). Zmiana daty runtime

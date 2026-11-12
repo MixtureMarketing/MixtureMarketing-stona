@@ -7,6 +7,7 @@ import { useLivePriceRange } from '../../../hooks/useLivePriceRange';
 import TurnstileWidget from '../contact/TurnstileWidget';
 import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
 import { SITE_CONFIG } from '../../../config/site';
+import { PUBLIC_QUOTE_TURNSTILE_ACTION } from '../../../lib/estimation/turnstileAction';
 import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
@@ -40,7 +41,12 @@ const PublicCalculator: React.FC = () => {
       onFocusCapture={prepareCaptcha}
       onPointerDownCapture={prepareCaptcha}
     >
-      <TurnstileWidget ref={turnstileRef} siteKey={SITE_CONFIG.contact.turnstileSiteKey} defer />
+      <TurnstileWidget
+        ref={turnstileRef}
+        siteKey={SITE_CONFIG.contact.turnstileSiteKey}
+        action={PUBLIC_QUOTE_TURNSTILE_ACTION}
+        defer
+      />
 
       {c.phase === 'loading' && <CalculatorLoading />}
 

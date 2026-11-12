@@ -37,7 +37,7 @@ function route(sql: string): unknown[] {
   if (sql.includes('FROM est_archetypes'))
     return [{ code: 'x', name: 'X', integration_mode: 'platform' }];
   if (sql.includes("visibility = 'public'"))
-    return [{ code: 'project_goal', answer_type: 'select' }];
+    return [{ code: 'project_goal', answer_type: 'select', options_json: '[{"value":"x"}]' }];
   if (sql.includes('FROM est_questions'))
     return [{ code: 'project_goal', text: 'Cel?', unknown_weight: 1, visible_if_json: null }];
   if (sql.includes('FROM est_rules'))
@@ -150,6 +150,8 @@ function req(o: {
 }
 
 const VALID = { answers: { project_goal: 'x' }, email: 'jan@x.pl', captcha_token: 'tok' };
+/** Pola siteverify sprawdzane od MIX-1383 (A12): host produkcji i akcja kalkulatora. */
+const TS_OK = { hostname: 'mixturemarketing.pl', action: 'public_quote' };
 let mails: Array<{ to: string[]; subject: string; html: string }> = [];
 let usedTokens = new Set<string>();
 let singleUse = false;
@@ -185,7 +187,9 @@ beforeEach(() => {
         const tok = new URLSearchParams(String(init?.body)).get('response') ?? '';
         const reused = singleUse && usedTokens.has(tok);
         usedTokens.add(tok);
-        return new Response(JSON.stringify({ success: tok.startsWith('tok') && !reused }));
+        return new Response(
+          JSON.stringify({ ...TS_OK, success: tok.startsWith('tok') && !reused }),
+        );
       }
       if (String(url).includes('resend')) mails.push(JSON.parse(String(init?.body)));
       return new Response('{}');
@@ -275,7 +279,7 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
     expect(await post(env, { ip: '3.3.3.3', body: one })).toMatchObject(ok200);
     expect(await post(env, { ip: '3.3.3.3', body: one })).toMatchObject({
       status: 403,
-      reason: 'captcha',
+      reason: 'captcha: odrzucony',
     });
   });
 
@@ -565,7 +569,7 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
           ip: `40.0.0.${i}`,
           body: { ...VALID, email: 'ofiara@example.pl', captcha_token: 'zly' },
         }),
-      ).toMatchObject({ status: 403, reason: 'captcha' });
+      ).toMatchObject({ status: 403, reason: 'captcha: odrzucony' });
     expect(counterRows(sqlite)).toHaveLength(0);
     expect(
       await post(env, { ip: '40.0.1.1', body: { ...VALID, email: 'ofiara@example.pl' } }),

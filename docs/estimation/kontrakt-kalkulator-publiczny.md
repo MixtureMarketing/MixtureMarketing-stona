@@ -152,7 +152,10 @@ Jakub weryfikuje/zmienia przy dociąganiu w panelu.
 ## 6. Ochrona
 
 - **Turnstile** — wzorzec `contact-submit.ts` (`verifyTurnstile`, env `TURNSTILE_SECRET`).
-  Brak pseudo-tokenów obejścia.
+  Brak pseudo-tokenów obejścia. Od MIX-1383 `verifyTurnstileStrict`: `hostname` z allowlisty
+  (`mixturemarketing.pl` plus env `QUOTE_TURNSTILE_EXTRA_HOSTS`, lista po przecinku, dokładne
+  nazwy, tylko Preview, na produkcji nieustawiona) i `action` = `public_quote` (stała
+  `lib/estimation/turnstileAction.ts`, nadawana przez widget kalkulatora) → inaczej 403.
 - **Honeypot** — pole `website_verify`; niepuste = 403.
 - **Rate-limit (KV `CACHE`)** — **5 żądań / godzinę / IP** (POST). Klucz `pubcalc:rl:{ip}`,
   licznik z TTL 3600 s; po 5 → 429. Miękki (KV jest eventually consistent) — twardą bramą
