@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
-import { spawn } from 'node:child_process';
 import { routes } from '../routes.js';
+import { startPreviewOrExit } from './lib/preview-server.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPORT_PATH = path.resolve(__dirname, '../health-report.json');
@@ -12,13 +12,9 @@ const PORT = 4173;
 async function runHealthCheck() {
   console.log('🛡️ Starting Site Health Audit (Smoke Test)...');
 
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true,
-  });
-
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  // MIX-1443: własny serwer w osobnej grupie procesów (wspólny pomocnik); zajęty port albo
+  // martwy/cudzy serwer = kod 1 z linią powodu, bez sprawdzania tras. Zamiast stałych 5 s.
+  const server = await startPreviewOrExit({ port: PORT });
 
   const browser = await puppeteer.launch({
     headless: true,
@@ -65,7 +61,7 @@ async function runHealthCheck() {
         consoleErrors.push(`[PAGE_ERROR] ${err.message}\n${err.stack}`);
       });
 
-      const url = `http://localhost:${PORT}${route}`;
+      const url = `${server.url}${route}`;
       console.log(`🚀 Checking: ${route}`);
 
       // Blokuj /cdn-cgi/* (Zaraz, CF features) — endpoint istnieje TYLKO na CF edge,
@@ -120,13 +116,7 @@ async function runHealthCheck() {
     console.error('❌ Failed:', err);
   } finally {
     await browser.close();
-    if (server.pid) {
-      try {
-        process.kill(-server.pid, 'SIGTERM');
-      } catch (e) {
-        server.kill();
-      }
-    }
+    await server.stop().catch((e) => console.error(`❌ ${e.message}`));
     process.exit(fullReport.errors.length > 0 ? 1 : 0);
   }
 }

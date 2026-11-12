@@ -1,18 +1,15 @@
 import puppeteer from 'puppeteer';
-import { spawn } from 'node:child_process';
 import { routes } from '../routes.js';
+import { startPreviewOrExit } from './lib/preview-server.mjs';
 
 const PORT = 4173;
 
 async function runPerfAudit() {
   console.log('⏱️ Starting Deep Performance Audit...');
 
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
-    stdio: 'ignore',
-    shell: true,
-  });
-
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // MIX-1443: własny serwer w osobnej grupie procesów (wspólny pomocnik); zajęty port albo
+  // martwy/cudzy serwer = kod 1 z linią powodu, bez mierzenia. Zamiast stałych 3 s czekania.
+  const server = await startPreviewOrExit({ port: PORT });
 
   const browser = await puppeteer.launch({ headless: true });
   const results = [];
@@ -29,7 +26,7 @@ async function runPerfAudit() {
 
     console.log(`🚀 Analyzing performance: ${route}`);
 
-    await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: 'networkidle0' });
+    await page.goto(`${server.url}${route}`, { waitUntil: 'networkidle0' });
 
     // Get Web Vitals from the page
     const metrics = await page.evaluate(() => {
@@ -78,7 +75,7 @@ async function runPerfAudit() {
   });
 
   await browser.close();
-  server.kill();
+  await server.stop();
   process.exit(0);
 }
 

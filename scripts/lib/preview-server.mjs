@@ -9,7 +9,9 @@
  *    (SIGTERM, po limicie SIGKILL) na każdej ścieżce wyjścia: stop(), exit, SIGINT/SIGTERM/SIGHUP,
  *    wyjątek;
  *  - uznaje serwer za gotowy dopiero, gdy proces żyje, odpowiada HTTP (<500, dwa razy z rzędu)
- *    i (Linux) gniazdo nasłuchujące na porcie należy do NASZEJ grupy procesów; inaczej błąd.
+ *    i gniazdo nasłuchujące na porcie należy do NASZEJ grupy procesów; inaczej błąd.
+ *    MIX-1443: właściciel portu nieznany (nie-Linux, brak /proc, błąd odczytu) = odmowa
+ *    z linią powodu, nigdy „przepuść”.
  *
  * Zasada: fail-closed. Każdy błąd = wyjątek PreviewError z jednym zdaniem powodu; sonda ma wtedy
  * zakończyć się kodem != 0 bez testowania czegokolwiek.
@@ -49,11 +51,17 @@ export async function assertPortFree(port, host = '127.0.0.1') {
   });
 }
 
-/** Liczba niezombie procesów w grupie (Linux, /proc); null = nieznana (inna platforma). */
+/** Liczba niezombie procesów w grupie (Linux, /proc); null = nieznana (inna platforma, brak /proc). */
 function liveGroupMembers(pgid) {
   if (process.platform !== 'linux') return null;
+  let pids;
+  try {
+    pids = fs.readdirSync('/proc').filter((d) => /^\d+$/.test(d));
+  } catch {
+    return null;
+  }
   let n = 0;
-  for (const pid of fs.readdirSync('/proc').filter((d) => /^\d+$/.test(d))) {
+  for (const pid of pids) {
     try {
       const stat = fs.readFileSync(`/proc/${pid}/stat`, 'utf8');
       const f = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
@@ -75,9 +83,19 @@ const groupAlive = (pgid) => {
   return liveGroupMembers(pgid) !== 0;
 };
 
+/**
+ * Dozwolona grupa do zabicia: liczba całkowita >= 2, różna od naszego pidu.
+ * 0 = własna grupa, 1 -> kill(-1) = WSZYSTKIE procesy użytkownika, ujemna -> pojedynczy pid.
+ */
+function assertKillableGroup(pgid) {
+  if (!Number.isInteger(pgid) || pgid < 2 || pgid === process.pid)
+    throw new PreviewError(`odmowa zabicia grupy: niepoprawny identyfikator "${String(pgid)}"`);
+}
+
 /** Zabija całą grupę: SIGTERM, po `timeoutMs` SIGKILL. Zwraca true, gdy grupa znikła. */
 export async function killGroup(pgid, timeoutMs = 5000) {
-  if (!pgid || !groupAlive(pgid)) return true;
+  assertKillableGroup(pgid);
+  if (!groupAlive(pgid)) return true;
   try {
     process.kill(-pgid, 'SIGTERM');
   } catch {
@@ -99,7 +117,7 @@ export async function killGroup(pgid, timeoutMs = 5000) {
 
 /** Wersja synchroniczna (hak `exit`): od razu SIGKILL grupy. */
 function killGroupSync(pgid) {
-  if (!pgid) return;
+  if (!Number.isInteger(pgid) || pgid < 2 || pgid === process.pid) return;
   try {
     process.kill(-pgid, 'SIGKILL');
   } catch {
@@ -109,17 +127,21 @@ function killGroupSync(pgid) {
 
 /**
  * Czy gniazdo nasłuchujące na `port` należy do procesu z grupy `pgid`?
- * true/false na Linuksie; null, gdy nie da się ustalić (inna platforma). Błąd odczytu = false.
+ * true = tak; false = ustalone, że nie (brak gniazda albo trzyma je inny proces);
+ * null = nie da się ustalić (inna platforma, brak /proc, błąd odczytu). Wołający traktuje
+ * null jako odmowę (fail-closed), MIX-1443.
  */
 export function listenerBelongsToGroup(port, pgid) {
   if (process.platform !== 'linux') return null;
   try {
     const hex = port.toString(16).toUpperCase().padStart(4, '0');
     const inodes = new Set();
+    let tablesRead = 0;
     for (const f of ['/proc/net/tcp', '/proc/net/tcp6']) {
       let txt = '';
       try {
         txt = fs.readFileSync(f, 'utf8');
+        tablesRead += 1;
       } catch {
         continue;
       }
@@ -128,6 +150,7 @@ export function listenerBelongsToGroup(port, pgid) {
         if (c.length > 9 && c[3] === '0A' && c[1].endsWith(`:${hex}`)) inodes.add(c[9]);
       }
     }
+    if (tablesRead === 0) return null;
     if (inodes.size === 0) return false;
     for (const pid of fs.readdirSync('/proc').filter((d) => /^\d+$/.test(d))) {
       let pgrp;
@@ -156,7 +179,7 @@ export function listenerBelongsToGroup(port, pgid) {
     }
     return false;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -204,7 +227,8 @@ function installHooks() {
 /**
  * Startuje własny serwer i czeka na gotowość. Zwraca { pid, port, url, stop }.
  * Opcje: port (wymagany), host, command/args (domyślnie `npx vite preview ... --strictPort`),
- * cwd, readyPath, readyTimeoutMs, killTimeoutMs, requireOwnListener (domyślnie true).
+ * cwd, env, readyPath, readyTimeoutMs, killTimeoutMs. Właściciela gniazda sprawdzamy zawsze
+ * (MIX-1443: usunięta opcja requireOwnListener, która pozwalała to wyłączyć).
  */
 export async function startPreview(opts) {
   const {
@@ -217,7 +241,6 @@ export async function startPreview(opts) {
     readyPath = '/',
     readyTimeoutMs = 60000,
     killTimeoutMs = 5000,
-    requireOwnListener = true,
   } = opts || {};
   if (!Number.isInteger(port) || port < 1 || port > 65535)
     throw new PreviewError(`niepoprawny port: "${String(port)}"`);
@@ -263,8 +286,15 @@ export async function startPreview(opts) {
       // Odpowiedź musi pochodzić od NASZEGO procesu: nadal żyje i to jego grupa trzyma gniazdo.
       if (exited)
         await fail('serwer zakończył się tuż przed gotowością; odpowiedź od obcego procesu');
-      if (requireOwnListener && listenerBelongsToGroup(port, pgid) === false) okStreak = 0;
-      else okStreak += 1;
+      // Allowlista: tylko `true` liczy się jako gotowość. false = obcy proces (próbujemy dalej,
+      // aż do limitu); null = właściciel nieznany -> od razu odmowa (MIX-1443, fail-closed).
+      const owner = listenerBelongsToGroup(port, pgid);
+      if (owner === null)
+        await fail(
+          `nie da się ustalić właściciela portu ${port} (platforma ${process.platform}, /proc niedostępny lub błąd odczytu); odmowa`,
+        );
+      if (owner === true) okStreak += 1;
+      else okStreak = 0;
       if (okStreak >= 2) {
         return { pid: pgid, port, host, url: `http://${host}:${port}`, stop };
       }
