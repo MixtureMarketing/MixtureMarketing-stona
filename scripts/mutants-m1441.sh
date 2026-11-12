@@ -21,8 +21,8 @@ MUTANTS=(
   "7~$H~s/if \\(raw === undefined \\|\\| raw === null\\)/if (raw === undefined || raw === null || raw === '')/~pusty port uznany za domyślny"
   "8~$H~s/process.on\\('SIGINT', onSignal\\('SIGINT', 130\\)\\);//~brak obsługi SIGINT"
   "9~$H~s/process.on\\('exit', \\(\\) => \\{\\n    for \\(const pgid of live\\) killGroupSync\\(pgid\\);/process.on('exit', () => {\\n    for (const pgid of []) killGroupSync(pgid);/~brak sprzątania przy exit"
-  "10~$V~s/fail\\((.{1,30}brak karty realizacji do zrzutu)/void ($1/~cichy brak karty do zrzutu"
-  "11~$V~s/fail\\((.{1,30}A2-powiazane: brak karty)/void ($1/~cichy pominięty A2"
+  "10~$V~s/fail\\((.{1,30}brak karty realizacji do zrzutu)/void (\$1/~cichy brak karty do zrzutu"
+  "11~$V~s/fail\\((.{1,30}A2-powiazane: brak karty)/void (\$1/~cichy pominięty A2"
 )
 TSV="$OUT/mutanty.tsv"
 : > "$TSV"
