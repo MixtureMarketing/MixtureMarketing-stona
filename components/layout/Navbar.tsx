@@ -7,6 +7,8 @@ import { useScroll } from '@/hooks/useScroll';
 import NavbarLogo from './NavbarLogo';
 import DesktopMenu from './DesktopMenu';
 import MobileMenu from './MobileMenu';
+import MobileMenuB from './MobileMenuB';
+import { isMobileMenuBEnabled } from './mobileMenuFlag';
 import Container from '../common/Container';
 
 const Navbar: React.FC = () => {
@@ -159,15 +161,25 @@ const Navbar: React.FC = () => {
         </Container>
       </nav>
 
-      <MobileMenu
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        activeDropdown={activeDropdown}
-        toggleDropdownMobile={toggleDropdownMobile}
-        handleAnchorLink={handleAnchorLink}
-        location={location}
-        openModal={openModal}
-      />
+      {/* MIX-1411: wariant B tylko za przełącznikiem; wyłączony = stare menu bez zmian. */}
+      {isMobileMenuBEnabled() ? (
+        <MobileMenuB
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          location={location}
+          openModal={openModal}
+        />
+      ) : (
+        <MobileMenu
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          activeDropdown={activeDropdown}
+          toggleDropdownMobile={toggleDropdownMobile}
+          handleAnchorLink={handleAnchorLink}
+          location={location}
+          openModal={openModal}
+        />
+      )}
     </header>
   );
 };
