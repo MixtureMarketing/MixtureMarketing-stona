@@ -161,6 +161,8 @@ export function summarizeTrace(events) {
     script: 0,
     paintCount: 0,
     longTasks: 0,
+    viz: 0,
+    impl: 0,
   };
   const paints = new Map();
   const NAMES = {
@@ -185,6 +187,12 @@ export function summarizeTrace(events) {
     if (bucket === 'raster') sum.raster += ms;
     else if (bucket && mainKeys.has(key)) sum[bucket] += ms;
     if (mainKeys.has(key) && e.name === 'RunTask' && ms > 50) sum.longTasks++;
+    // Display compositor + GPU process: where filters, backdrop-filter and canvas uploads are drawn.
+    if (e.name === 'ThreadControllerImpl::RunTask') {
+      const tn = threads.get(key);
+      if (tn === 'VizCompositorThread' || tn === 'CrGpuMain') sum.viz += ms;
+      else if (tn === 'Compositor') sum.impl += ms;
+    }
     if (e.name === 'Paint' && mainKeys.has(key)) {
       sum.paintCount++;
       const d = e.args?.data || {};
@@ -358,7 +366,7 @@ export async function main(argv) {
         const res = await oneRun(browser, target, v, opts, r);
         results.push(res);
         console.log(
-          `${v} run${r + 1} t=${Math.round((Date.now() - t0) / 1000)}s: frames=${res.frames} janky=${res.janky} paint=${res.paint} comp=${res.composite} style=${res.style} layout=${res.layout} raster=${res.raster}`,
+          `${v} run${r + 1} t=${Math.round((Date.now() - t0) / 1000)}s: frames=${res.frames} janky=${res.janky} paint=${res.paint} comp=${res.composite} style=${res.style} layout=${res.layout} raster=${res.raster} viz=${res.viz}`,
         );
       }
     }
@@ -367,7 +375,17 @@ export async function main(argv) {
     srv?.server.close();
   }
   const keys = ['frames', 'janky', 'dropped', 'p95', 'longTasks', 'longTasksPO'];
-  const msKeys = ['paint', 'composite', 'layout', 'style', 'raster', 'script', 'paintCount'];
+  const msKeys = [
+    'paint',
+    'composite',
+    'layout',
+    'style',
+    'raster',
+    'script',
+    'viz',
+    'impl',
+    'paintCount',
+  ];
   const med = {};
   for (const v of names) {
     const rs = results.filter((x) => x.variant === v);
@@ -381,13 +399,13 @@ export async function main(argv) {
     `# probe-chrome-scroll ${new Date().toISOString()}`,
     `target ${opts.url || 'local dist'}; viewport ${opts.width}x${opts.height} DPR ${opts.dpr}; ${opts.headed ? 'headed' : 'headless'}; runs ${opts.runs} (median)`,
     '',
-    '| variant | frames | janky>25ms | dropped | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Paint+Comp vs base |',
-    '|---|---|---|---|---|---|---|---|---|---|---|---|',
+    '| variant | frames | janky>25ms | dropped | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Viz+GPU ms | Paint+Comp vs base |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|---|',
   ];
   for (const v of names) {
     const m = med[v];
     lines.push(
-      `| ${v} | ${m.frames} | ${m.janky} | ${m.dropped} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${base ? pct(m.paintComp, base.paintComp) : 'n/a'} |`,
+      `| ${v} | ${m.frames} | ${m.janky} | ${m.dropped} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${m.viz} | ${base ? pct(m.paintComp, base.paintComp) : 'n/a'} |`,
     );
   }
   const first = results.find((x) => x.variant === names[0]);
