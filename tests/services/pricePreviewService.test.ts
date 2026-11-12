@@ -14,6 +14,7 @@ const slowFetch =
   (ms: number, body: unknown = { priceRange: { min: 1000, max: 2000 } }) =>
   (_url: string, init: { signal: AbortSignal }) =>
     new Promise((resolve, reject) => {
+      if (init.signal.aborted) return reject(new DOMException('aborted', 'AbortError'));
       const t = setTimeout(() => resolve({ ok: true, status: 200, json: async () => body }), ms);
       init.signal.addEventListener('abort', () => {
         clearTimeout(t);
