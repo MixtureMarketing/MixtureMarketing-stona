@@ -15,6 +15,7 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
+import { createProdSafe } from './lib/prod-safe.mjs';
 
 const [onArg, offArg, outArg] = process.argv.slice(2);
 if (!onArg || !offArg || !outArg) {
@@ -68,6 +69,8 @@ async function serve(distArg) {
 
 const ON = await serve(onArg);
 const OFF = await serve(offArg);
+// Wspólna blokada analityki (prod-safe): adres lokalny, ale przeciek i tak liczy się jako błąd.
+const safe = createProdSafe(ON.origin);
 
 const UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36';
@@ -148,12 +151,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const median = (xs) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
 
 const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+safe.watchBrowser(browser);
 let pageErrors = 0;
 let blocked = 0;
 
 async function openPage(vp, { reduce = false, noVT = false, mode = 'metrics' } = {}) {
   const page = await browser.newPage();
-  await page.setUserAgent(UA);
   await page.setViewport(vp);
   await page.emulateMediaFeatures([
     { name: 'prefers-reduced-motion', value: reduce ? 'reduce' : 'no-preference' },
@@ -166,15 +169,18 @@ async function openPage(vp, { reduce = false, noVT = false, mode = 'metrics' } =
     { noVT, mode },
   );
   await page.evaluateOnNewDocument(INSTRUMENT);
-  await page.setRequestInterception(true);
-  page.on('request', (req) => {
-    const u = req.url();
-    const own = u.startsWith(ON.origin) || u.startsWith(OFF.origin);
-    if (req.method() === 'GET' && (own || SANITY.test(u))) req.continue();
-    else {
-      blocked++;
-      req.abort();
-    }
+  await safe.protect(page, {
+    userAgent: UA,
+    onBlocked: () => blocked++,
+    handler: (req) => {
+      const u = req.url();
+      const own = u.startsWith(ON.origin) || u.startsWith(OFF.origin);
+      if (req.method() === 'GET' && (own || SANITY.test(u))) req.continue().catch(() => {});
+      else {
+        blocked++;
+        req.abort().catch(() => {});
+      }
+    },
   });
   page.on('pageerror', (e) => {
     pageErrors++;
@@ -424,4 +430,5 @@ console.log(JSON.stringify({ ok: report.ok, failures: report.failures, pageError
 await browser.close();
 ON.server.close();
 OFF.server.close();
-process.exit(report.ok ? 0 : 1);
+const verdict = safe.finish(); // bezpiecznik: przeciek analityki / karta bez blokady = exit 1
+process.exit(report.ok && verdict.ok ? 0 : 1);
