@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import {
   CALCULATOR_EVENTS,
-  sanitizeCalculatorParams,
   trackCalculatorBookingOpen,
   trackCalculatorPreview,
   trackCalculatorShare,
   trackCalculatorStep,
 } from '@/utils/calculatorTracking';
+import { REFUSED, sanitizeGa4Event } from '@/utils/ga4Events';
 
 /**
  * MIX-1384 (Z3): zdarzenia GA4 kalkulatora. Kazde zdarzenie: nazwa, allowlista parametrow,
@@ -19,6 +19,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   delete window.zaraz;
+  delete window.dataLayer;
 });
 
 const PII_E = /[^\s@]+@[^\s@]+/;
@@ -56,12 +57,14 @@ describe('calculator_step', () => {
     noPii(track.mock.calls[0][1]);
   });
 
-  it('krok poza zakresem albo ulamek -> parametr odrzucony', () => {
+  it('krok poza zakresem albo ulamek -> parametr "(odrzucone)", zdarzenie idzie', () => {
     trackCalculatorStep({ stepNumber: 0, stepCount: 2.5, group: 'projekt', direction: 'next' });
-    const data = track.mock.calls[0][1] as Record<string, unknown>;
-    expect(data).not.toHaveProperty('step_number');
-    expect(data).not.toHaveProperty('step_count');
-    expect(data).toMatchObject({ step_group: 'projekt', direction: 'next' });
+    expect(track.mock.calls[0][1]).toEqual({
+      step_number: REFUSED,
+      step_count: REFUSED,
+      step_group: 'projekt',
+      direction: 'next',
+    });
   });
 });
 
@@ -98,42 +101,50 @@ describe('calculator_booking_open', () => {
   });
 });
 
-describe('sanitizeCalculatorParams (fail-closed)', () => {
+describe('allowlista kalkulatora (fail-closed, jedna brama sanitizeGa4Event)', () => {
+  const params = (event: string, p: Record<string, unknown>) => {
+    const r = sanitizeGa4Event(event, p);
+    return r.ok ? r.params : null;
+  };
+
   it('nieznane zdarzenie -> null (nic nie idzie)', () => {
-    expect(sanitizeCalculatorParams('calculator_hack', { a: 1 })).toBeNull();
-    expect(sanitizeCalculatorParams('__proto__', {})).toBeNull();
-    expect(sanitizeCalculatorParams('', {})).toBeNull();
+    expect(params('calculator_hack', { a: 1 })).toBeNull();
+    expect(params('__proto__', {})).toBeNull();
+    expect(params('', {})).toBeNull();
   });
 
-  it('nieznany parametr odpada, takze gdy niesie e-mail albo telefon', () => {
-    const out = sanitizeCalculatorParams('calculator_booking_open', {
+  it('nieznany parametr odpada (takze z e-mailem / telefonem), zdarzenie zostaje', () => {
+    expect(
+      params('calculator_booking_open', {
+        source: 'wycena',
+        variant: 'b',
+        label: 'cta',
+        email: 'jan@firma.pl',
+        phone: '+48 600 100 200',
+        __proto__: { x: 1 },
+      }),
+    ).toEqual({ source: 'wycena', variant: 'b' });
+  });
+
+  it('wartosc z e-mailem albo telefonem w dozwolonym kluczu -> "(odrzucone)"', () => {
+    expect(params('calculator_share', { source: 'jan@firma.pl' })).toEqual({ source: REFUSED });
+    expect(params('calculator_share', { method: '600100200' })).toEqual({ method: REFUSED });
+  });
+
+  it('wartosc spoza listy -> "(odrzucone)", z listy przechodzi (blizniak)', () => {
+    expect(params('calculator_share', { method: 'sms' })).toEqual({ method: REFUSED });
+    expect(params('calculator_share', { method: 'native' })).toEqual({ method: 'native' });
+  });
+
+  it('typ niezgodny: tekst zamiast liczby i liczba zamiast tekstu -> "(odrzucone)"', () => {
+    expect(params('calculator_preview', { answered_count: '5' })).toEqual({
+      answered_count: REFUSED,
+    });
+    expect(params('calculator_preview', { source: 5 })).toEqual({ source: REFUSED });
+    expect(params('calculator_preview', { source: 'wycena', answered_count: 5 })).toEqual({
       source: 'wycena',
-      variant: 'b',
-      email: 'jan@firma.pl',
-      phone: '+48 600 100 200',
-      __proto__: { x: 1 },
+      answered_count: 5,
     });
-    expect(out).toEqual({ source: 'wycena', variant: 'b' });
-  });
-
-  it('wartosc z e-mailem albo telefonem w dozwolonym kluczu odpada', () => {
-    const out = sanitizeCalculatorParams('calculator_share', {
-      source: 'jan@firma.pl',
-      method: '600100200',
-    });
-    expect(out).toEqual({});
-  });
-
-  it('wartosc spoza listy odpada, z listy przechodzi (blizniak)', () => {
-    expect(sanitizeCalculatorParams('calculator_share', { method: 'sms' })).toEqual({});
-    expect(sanitizeCalculatorParams('calculator_share', { method: 'native' })).toEqual({
-      method: 'native',
-    });
-  });
-
-  it('typ niezgodny: tekst zamiast liczby i liczba zamiast tekstu odpadaja', () => {
-    expect(sanitizeCalculatorParams('calculator_preview', { answered_count: '5' })).toEqual({});
-    expect(sanitizeCalculatorParams('calculator_preview', { source: 5 })).toEqual({});
   });
 });
 

@@ -100,7 +100,7 @@ describe('leadService', () => {
 });
 
 describe('installContactLinkTracking', () => {
-  it('phone_click i email_click na kliknieciu linkow tel: i mailto:', () => {
+  it('click_phone i click_email (P4, MIX-1457) na kliknieciu linkow tel: i mailto:', () => {
     document.body.innerHTML =
       '<a id="t" href="tel:+48123456789">t</a><a id="m" href="mailto:a@b.pl?subject=x">m</a><a id="o" href="/x">o</a>';
     // Bez nawigacji (jsdom nie ma handlera tel:), listener w fazie capture i tak biegnie pierwszy.
@@ -110,7 +110,7 @@ describe('installContactLinkTracking', () => {
     (document.getElementById('m') as HTMLElement).click();
     (document.getElementById('o') as HTMLElement).click();
     off();
-    expect(names()).toEqual(['phone_click', 'email_click']);
-    expect(track.mock.calls[1][1]).toMatchObject({ email: 'a@b.pl' });
+    expect(names()).toEqual(['click_phone', 'click_email']);
+    expect(track.mock.calls[1][1]).toEqual({ link_location: 'section' });
   });
 });

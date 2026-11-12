@@ -15,8 +15,8 @@ describe('trackEvent', () => {
   it('przekazuje event do zaraz.track', () => {
     const track = vi.fn();
     window.zaraz = { track, consent: { set: vi.fn() } };
-    trackEvent('lead_start', { source: 'x' });
-    expect(track).toHaveBeenCalledWith('lead_start', { source: 'x' });
+    trackEvent('lead_start', { source: 'contact_form_step_1' });
+    expect(track).toHaveBeenCalledWith('lead_start', { source: 'contact_form_step_1' });
   });
 
   it('obsługuje odrzucony Promise z zaraz.track (brak unhandledrejection)', async () => {
@@ -30,6 +30,6 @@ describe('trackEvent', () => {
   });
 
   it('nie rzuca, gdy Zaraz nie jest załadowany', () => {
-    expect(() => trackEvent('phone_click')).not.toThrow();
+    expect(() => trackEvent('click_phone')).not.toThrow();
   });
 });

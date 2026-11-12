@@ -84,7 +84,7 @@ function App() {
     typeof window !== 'undefined' &&
     (window.navigator.userAgent.includes('Headless') || window.isPrerendering);
 
-  // Global tracking dla klikniec tel:/mailto: linkow -> GA4 (phone_click, email_click).
+  // Global tracking dla klikniec tel:/mailto: linkow -> GA4 (click_phone, click_email, P4, MIX-1457).
   // Single-time install na poziomie App, event delegation na document.
   useEffect(() => installContactLinkTracking(), []);
 

@@ -1,6 +1,10 @@
 // Typy window.zaraz / window.gtag / window.dataLayer: vite-env.d.ts (jedno źródło deklaracji).
 import { type ConsentState, checkConsentValue } from './consentValue';
+import { contactLinkOf, linkLocationOf, linkScheme } from './ga4Events';
+import { sendGa4 } from './ga4Send';
 import { queueZarazDelivery } from './zarazConsent';
+
+export { ga4RefusalCounts, resetGa4RefusalCountsForTests, sendGa4 } from './ga4Send';
 
 export {
   type ConsentCheck,
@@ -68,63 +72,41 @@ export const applyConsent = (consent: ConsentState, options: ApplyConsentOptions
       : null,
   });
 
-  if (window.dataLayer) {
-    window.dataLayer.push({
-      event: 'cookie_consent_update',
-    });
-  }
+  // MIX-1457: także ten sygnał idzie przez jedną bramę zdarzeń (sendGa4).
+  sendGa4('cookie_consent_update', {}, 'dataLayer');
 };
 
 /**
- * Wysyla event do Zaraz (-> GA4 jako custom event).
+ * Wysyla event do Zaraz (-> GA4 jako custom event) przez `sendGa4`.
  * Bezpieczny - nic nie robi gdy zaraz nie zaladowany lub w SSR.
  *
  * Eventy oznaczone jako key events w GA4 (konwersje):
  * - lead_start, contact_form_success, form_submit
- * - phone_click, email_click, consultation_click
+ * - click_phone, click_email, consultation_click
  * - calculator_submit (hooks/usePublicCalculator), audit_request (AuditWizard)
  */
-export const trackEvent = (eventName: string, data?: Record<string, unknown>): void => {
-  if (typeof window === 'undefined') return;
-  try {
-    // Beacon idzie asynchronicznie: przy blokerze reklam / braku sieci Promise jest odrzucany
-    // („Failed to fetch"). Bez .catch nieobsłużone odrzucenie trafiało do /api/client-error
-    // jako błąd aplikacji (szum w logach + zjadało limit 5 zgłoszeń na sesję).
-    const pending = window.zaraz?.track(eventName, data);
-    if (pending && typeof pending.catch === 'function') pending.catch(() => undefined);
-  } catch (e) {
-    // Zaraz moze nie byc gotowy - nic nie blokujemy.
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`trackEvent(${eventName}) failed:`, e);
-    }
-  }
-};
+export const trackEvent = (eventName: string, data?: Record<string, unknown>): void =>
+  sendGa4(eventName, data, 'zaraz');
 
 /**
- * Globalny listener na klikiniecia w `<a href="tel:...">` i `<a href="mailto:...">`.
+ * Globalny listener na klikniecia w `<a href="tel:...">` i `<a href="mailto:...">`.
  * Wywolaj raz w App.tsx (useEffect). Wykrywa nawet linki w dynamicznie
  * renderowanej tresci (event delegation na document).
+ *
+ * MIX-1457 (slownik P4): `click_phone` / `click_email` z jednym parametrem `link_location`
+ * (header / footer / section). Numer, adres i sciezka strony NIE ida do GA4.
  */
 export const installContactLinkTracking = (): (() => void) => {
   if (typeof window === 'undefined') return () => undefined;
 
   const handler = (e: MouseEvent) => {
-    const target = e.target as HTMLElement | null;
-    if (!target) return;
-    const anchor = target.closest('a') as HTMLAnchorElement | null;
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    const anchor = contactLinkOf(target);
     if (!anchor) return;
-    const href = anchor.getAttribute('href') || '';
-    if (href.startsWith('tel:')) {
-      trackEvent('phone_click', {
-        phone: href.replace('tel:', ''),
-        source: window.location.pathname,
-      });
-    } else if (href.startsWith('mailto:')) {
-      trackEvent('email_click', {
-        email: href.replace('mailto:', '').split('?')[0],
-        source: window.location.pathname,
-      });
-    }
+    const scheme = linkScheme(anchor);
+    const event = scheme === 'tel:' ? 'click_phone' : scheme === 'mailto:' ? 'click_email' : null;
+    if (event) trackEvent(event, { link_location: linkLocationOf(anchor) });
   };
 
   document.addEventListener('click', handler, { capture: true });
