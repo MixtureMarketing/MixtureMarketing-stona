@@ -26,7 +26,8 @@ export interface SanityTeamMember {
 export interface SanityCaseStudy {
   _id: string;
   title: string;
-  slug: { current: string };
+  /** Zapytania GROQ rzutują `"slug": slug.current`, więc w aplikacji slug to zwykły tekst (MIX-1378). */
+  slug: string;
   client?: string;
   category: 'web' | 'marketing' | 'design';
   subcategory?: string[];
