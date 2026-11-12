@@ -4,9 +4,12 @@
  * Kontrakt: docs/estimation/kontrakt-kalkulator-publiczny.md §3.
  * Przepływ: honeypot → email → Turnstile → rate-limit (KV) → walidacja → compute → lead + draft
  * (best-effort, retry) → e-mail (best-effort, degradacja łagodna). Zwraca WYŁĄCZNIE priceRange.
+ * MIX-1382: przy QUOTE_LIMITS_D1='1' przepływ idzie przez quoteGate (_quoteGate.ts): honeypot →
+ * e-mail → IP krawędzi → Turnstile → liczniki D1 (fail-closed) → dopiero biblioteka i zapis.
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
+import { limitsSwitch, quoteGate, safeRay, type QuoteGateEnv } from './_quoteGate';
 import { escapeHtml } from '../_shared/security';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import {
@@ -20,12 +23,14 @@ import { withRetry } from '../../../lib/estimation/retry';
 import { ENGINE_VERSION } from '../../../lib/estimation/engine';
 import type { Answers } from '../../../lib/estimation/types';
 
-interface Env extends CrmEnv {
+interface Env extends CrmEnv, Omit<QuoteGateEnv, 'DB'> {
   DB: D1Database;
   CACHE: KVNamespace;
   TURNSTILE_SECRET: string;
   RESEND_API_KEY?: string;
   NOTIFY_EMAIL?: string;
+  /** Przełącznik MIX-1382: '1' = limity D1; brak/'0' = dotychczasowy limiter KV. */
+  QUOTE_LIMITS_D1?: string;
 }
 
 interface Body {
@@ -70,6 +75,16 @@ export const onRequestOptions: PagesFunction = async () =>
   new Response(null, { status: 204, headers: CORS });
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
+  // Przełącznik MIX-1382 (nowa funkcja wchodzi ukryta): brak/'0' = dotychczasowa ścieżka,
+  // '1' = limity D1 fail-closed, inna wartość = 503 (bez cichego wyboru ścieżki).
+  const mode = limitsSwitch(env.QUOTE_LIMITS_D1);
+  if (mode === 'bad') {
+    const reason = 'konfiguracja: QUOTE_LIMITS_D1';
+    console.error(`[quote] odmowa 503: ${reason} ray=${safeRay(request)}`);
+    return json({ error: 'Usługa chwilowo niedostępna. Spróbuj później.', reason }, 503);
+  }
+  if (mode === 'on') return gatedPost(request, env, waitUntil);
+
   let body: Body;
   try {
     body = (await request.json()) as Body;
@@ -111,6 +126,63 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
 
   return json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
 };
+
+/**
+ * Ścieżka MIX-1382 (QUOTE_LIMITS_D1='1'): bramka (wiersze 1-15) PRZED jakimkolwiek odczytem
+ * biblioteki i zapisem leada (A6). Limity z env (QUOTE_*), nie z D1: `public_rate_per_hour`
+ * nie działa w tej ścieżce.
+ */
+async function gatedPost(
+  request: Request,
+  env: Env,
+  waitUntil?: (p: Promise<unknown>) => void,
+): Promise<Response> {
+  const gate = await quoteGate(request, env, { waitUntil });
+  if (!gate.ok) {
+    const res = json({ error: gate.message, reason: gate.reason }, gate.status);
+    if (gate.retryAfter !== undefined) res.headers.set('Retry-After', String(gate.retryAfter));
+    return res;
+  }
+  const { body, email } = gate;
+  if (gate.budgetAlert) {
+    const alert = sendBudgetAlert(env, gate.budgetAlert);
+    if (waitUntil) waitUntil(alert);
+    else await alert;
+  }
+
+  const rawLib = await loadRawLibrary(env.DB);
+  const config = parsePublicConfig(rawLib.params);
+  const defs = await loadPublicQuestionDefs(env.DB);
+  const { answers, errors } = sanitizePublicAnswers(body.answers, defs);
+  if (errors.length > 0) return json({ errors }, 400);
+
+  const result = computePublicQuote(rawLib, answers, config);
+  await persist(env, rawLib, email, answers, result, waitUntil);
+  await sendEmails(env, email, result);
+  return json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
+}
+
+/** Jedno powiadomienie na dobę przy 80% budżetu: tylko liczby, bez e-maili klientów. */
+async function sendBudgetAlert(env: Env, line: string): Promise<void> {
+  if (!env.RESEND_API_KEY || !env.NOTIFY_EMAIL) return;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Mixture Marketing <info@mixturemarketing.pl>',
+        to: [env.NOTIFY_EMAIL],
+        subject: `Kalkulator: ${line}`,
+        html: `<p>Kalkulator wyceny: ${escapeHtml(line)} (doba UTC).</p>`,
+      }),
+    });
+  } catch (e) {
+    console.error(`[quote] powiadomienie: błąd ${e instanceof Error ? e.name : 'nieznany'}`);
+  }
+}
 
 /** Lead (source='calculator') + draft est_quote + odpowiedzi. Best-effort z retry; błąd nie 500-uje. */
 async function persist(
@@ -179,7 +251,7 @@ async function persist(
       details: { answers, priceRange: result.priceRange },
     });
   } catch (e) {
-    console.error('public-quote persist failed:', e);
+    console.error(`[quote] zapis: błąd ${e instanceof Error ? e.name : 'nieznany'}`);
   }
 }
 
@@ -215,6 +287,6 @@ async function sendEmails(env: Env, email: string, result: PublicQuoteResult): P
         `<p>Klient <strong>${escapeHtml(email)}</strong> policzył wycenę: ${escapeHtml(range)}. Draft czeka w panelu „Wyceny".</p>`,
       );
   } catch (e) {
-    console.error('public-quote email failed:', e);
+    console.error(`[quote] e-mail: błąd ${e instanceof Error ? e.name : 'nieznany'}`);
   }
 }
