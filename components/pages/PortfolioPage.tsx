@@ -8,6 +8,7 @@ import { SanityCaseStudy } from '../../types/sanity';
 import Container from '../common/Container';
 import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
+import TestimonialsSlot from '../sections/testimonials/TestimonialsSlot';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const PortfolioPage = () => {
@@ -153,6 +154,9 @@ const PortfolioPage = () => {
             <PortfolioGrid projects={filteredProjects} loading={loading} />
           )}
         </Container>
+
+        {/* MIX-1326: opinie klientów, za przełącznikiem VITE_MM_TESTIMONIALS (domyślnie brak w DOM). */}
+        <TestimonialsSlot />
       </div>
     </>
   );
