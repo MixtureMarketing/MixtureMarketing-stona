@@ -130,7 +130,7 @@ const CookieBanner: React.FC = () => {
       aria-label="Baner plików cookies"
       tabIndex={-1}
     >
-      <div className="max-w-screen-lg mx-auto bg-white/95 backdrop-blur-md border border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden relative">
+      <div className="max-w-screen-lg mx-auto bg-white/95 backdrop-blur-md chrome-no-backdrop border border-gray-200 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-2xl overflow-hidden relative">
         <button
           onClick={() => setIsOpen(false)}
           className="absolute top-4 right-4 p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"

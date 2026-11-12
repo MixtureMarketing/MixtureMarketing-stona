@@ -14,6 +14,7 @@ const AmbientBackground: React.FC = () => {
     // -inset-y-6 nadmiaruje warstwę, żeby dryf nie odsłaniał krawędzi.
     <div
       className="absolute -inset-y-6 inset-x-0 overflow-hidden pointer-events-none z-0"
+      data-page-pulse
       style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -24px), 0)' }}
     >
       {/* Architectural Grid Pattern - Simplified SVG */}
@@ -29,13 +30,14 @@ const AmbientBackground: React.FC = () => {
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      {/* Decorative Orbs - Client Side Only to save DOM nodes during initial parse */}
+      {/* Decorative Orbs - Client Side Only to save DOM nodes during initial parse.
+          W Chrome klasy ambient-orb zamieniają blur + blend na statyczny gradient (index.css). */}
       {isMounted && (
         <>
-          <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
+          <div className="ambient-orb ambient-orb-800 text-primary absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
+          <div className="ambient-orb ambient-orb-600 text-secondary absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
           {/* Trzeci orb w palecie marki (był bg-instagram — obcy róż przeciekał na 3 strony) */}
-          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-accent-dark rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
+          <div className="ambient-orb ambient-orb-600 text-accent-dark absolute -bottom-32 left-20 w-[600px] h-[600px] bg-accent-dark rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
         </>
       )}
     </div>

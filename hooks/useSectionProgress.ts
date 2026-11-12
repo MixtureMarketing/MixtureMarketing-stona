@@ -50,29 +50,48 @@ export function addScrollTask(task: ScrollTask): () => void {
   };
 }
 
+/** Atrybut konsumenta pulsu strony (element z `var(--page-p, 0)` we własnym stylu). */
+export const PAGE_PULSE_ATTR = 'data-page-pulse';
+
 /**
- * Puls strony (--page-p, 0..1 całego scrolla) publikowany na :root — warstwy
- * tła (ambient, siatki, poświaty) dryfują z KAŻDYM pikselem przewijania,
- * w obie strony (wątek „żywej całości", 2026-07-16). Jeden hook per strona
- * (Home, huby usług). Prerender/reduced-motion: brak zmiennej →
- * var(--page-p, 0) = statyka; sprzątanie usuwa zmienną przy zmianie trasy.
+ * Puls strony (--page-p, 0..1 całego scrolla) — warstwy tła (ambient, siatki,
+ * poświaty) dryfują z KAŻDYM pikselem przewijania, w obie strony (wątek
+ * „żywej całości", 2026-07-16). Jeden hook per strona (Home, huby usług).
+ *
+ * Zmienna trafia TYLKO na konsumentów oznaczonych `data-page-pulse` (MIX-1470):
+ * zapis na :root dziedziczył się w całe drzewo i co klatkę scrolla wymuszał
+ * przeliczenie stylów całego dokumentu (Chrome). Konsumenci czytają
+ * var(--page-p, 0) we własnym inline style, więc wygląd się nie zmienia.
+ * Prerender/reduced-motion: brak zmiennej → var(--page-p, 0) = statyka;
+ * sprzątanie usuwa zmienną przy zmianie trasy.
  */
 export function usePagePulse() {
   useEffect(() => {
     if (typeof window === 'undefined' || window.isPrerendering) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const root = document.documentElement;
+    const selector = `[${PAGE_PULSE_ATTR}]`;
     let last = -1;
+    let lastCount = -1;
     const remove = addScrollTask(() => {
+      // READ: geometria + lista konsumentów (querySelectorAll nie wymusza layoutu).
       const max = root.scrollHeight - window.innerHeight;
       const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-      if (Math.abs(p - last) < 0.002) return;
+      const targets = document.querySelectorAll<HTMLElement>(selector);
+      // Nowy konsument (leniwie zamontowana sekcja) dostaje bieżącą wartość od razu.
+      if (Math.abs(p - last) < 0.002 && targets.length === lastCount) return;
       last = p;
-      return () => root.style.setProperty('--page-p', p.toFixed(3));
+      lastCount = targets.length;
+      const value = p.toFixed(3);
+      return () => {
+        for (const el of targets) el.style.setProperty('--page-p', value);
+      };
     });
     return () => {
       remove();
-      root.style.removeProperty('--page-p');
+      for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+        el.style.removeProperty('--page-p');
+      }
     };
   }, []);
 }

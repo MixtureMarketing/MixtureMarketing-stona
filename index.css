@@ -622,3 +622,68 @@ body[data-live-price-bar='true'] .cookie-floating-btn {
     bottom: 1rem;
   }
 }
+
+/* Chrome: tańsze rozmycia przy przewijaniu (MIX-1470). Poza warstwami, żeby wygrać z utilities.
+   Wykrycie silnika bez UA: Chromium nie zna właściwości -webkit-hyphens (Safari/WebKit ją ma),
+   więc blok działa w Chrome/Edge (i Firefoksie); Safari, także Chrome na iOS (WebKit),
+   zostaje przy dotychczasowym wyglądzie. Gdyby Chromium kiedyś przyjęło -webkit-hyphens,
+   blok po prostu przestaje działać (powrót do obecnego wyglądu, bez błędu). */
+@supports not (-webkit-hyphens: none) {
+  /* Pasek nawigacji po przewinięciu i baner cookies: tło 95 % bieli bez backdrop-filter,
+     który co klatkę scrolla rozmywał treść pod spodem. */
+  .chrome-no-backdrop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Kule tła (AmbientBackground): zamiast filter: blur(120px) + mix-blend-multiply + animacji
+     statyczny gradient o profilu rozmytego koła (sigma 120 px), policzony z całki koła
+     rozmytego gaussem. Element ma ten sam rozmiar i opacity; poświata wychodzi 3 sigma poza
+     koło jak przy filtrze. Kolor z currentColor (klasa text-*). */
+  .ambient-orb {
+    filter: none;
+    mix-blend-mode: normal;
+    animation: none;
+    background: none;
+  }
+  .ambient-orb::before {
+    content: '';
+    position: absolute;
+    inset: -360px;
+    border-radius: 9999px;
+  }
+  .ambient-orb-800::before {
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, currentColor 99.6%, transparent) 0%,
+      color-mix(in srgb, currentColor 98.2%, transparent) 15%,
+      color-mix(in srgb, currentColor 89.1%, transparent) 30%,
+      color-mix(in srgb, currentColor 73.4%, transparent) 40%,
+      color-mix(in srgb, currentColor 55.3%, transparent) 48%,
+      color-mix(in srgb, currentColor 38.2%, transparent) 55%,
+      color-mix(in srgb, currentColor 23.2%, transparent) 62%,
+      color-mix(in srgb, currentColor 12.1%, transparent) 69%,
+      color-mix(in srgb, currentColor 5.4%, transparent) 76%,
+      color-mix(in srgb, currentColor 1.8%, transparent) 84%,
+      color-mix(in srgb, currentColor 0.5%, transparent) 92%,
+      transparent 100%
+    );
+  }
+  .ambient-orb-600::before {
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, currentColor 95.6%, transparent) 0%,
+      color-mix(in srgb, currentColor 90.5%, transparent) 15%,
+      color-mix(in srgb, currentColor 72.4%, transparent) 30%,
+      color-mix(in srgb, currentColor 53.2%, transparent) 40%,
+      color-mix(in srgb, currentColor 36.7%, transparent) 48%,
+      color-mix(in srgb, currentColor 23.9%, transparent) 55%,
+      color-mix(in srgb, currentColor 13.9%, transparent) 62%,
+      color-mix(in srgb, currentColor 7.2%, transparent) 69%,
+      color-mix(in srgb, currentColor 3.3%, transparent) 76%,
+      color-mix(in srgb, currentColor 1.2%, transparent) 84%,
+      color-mix(in srgb, currentColor 0.3%, transparent) 92%,
+      transparent 100%
+    );
+  }
+}

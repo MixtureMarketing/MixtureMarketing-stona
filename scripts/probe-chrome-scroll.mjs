@@ -21,7 +21,10 @@
  *   --keep-cookie-banner   do not pre-seed a "deny" consent (banner stays visible)
  *   --budget-s <s>       stop starting new rounds after <s> seconds (lock time limits)
  *   --list               print the variant names and exit
- * Outputs: <out>/results.json, <out>/results.md, <out>/trace-<variant>-<n>.json (first run).
+ *   --dist base=<dir>,fix=<dir>  (or --url a=<url>,b=<url>) compare builds: every target x
+ *        variant, interleaved per round, medians in one table with deltas vs the first row
+ * Every page gets the analytics block from lib/prod-safe.mjs (rc 1 on any analytics hit).
+ * Outputs: <out>/results.json, <out>/results.md, <out>/trace-<target_variant>.json (first run).
  * Headless numbers are relative (software raster); compare variants on one machine only.
  */
 import http from 'node:http';
@@ -29,6 +32,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import puppeteer from 'puppeteer';
+import { createProdSafe, isProdUrl } from './lib/prod-safe.mjs';
 
 export const VARIANTS = {
   baseline: { css: '' },
@@ -59,6 +63,15 @@ export const VARIANTS = {
   // Same visuals as baseline: --page-p written on its 3 consumers instead of :root
   // (no whole-document inheritance) - simulates the proposed fix.
   'page-pulse-scoped': { css: '', scopeRootVars: ['--page-p'] },
+  // On a build with the Chrome-only blur replacements: put the old navbar/cookie blur back
+  // (measures what the replacement alone gains; no effect on builds without the class).
+  'restore-nav-blur': {
+    css: '.chrome-no-backdrop{-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important}',
+  },
+  // Same for the ambient orbs: blur(120px) + multiply + blob animation instead of the gradient.
+  'restore-orbs': {
+    css: '.ambient-orb{filter:blur(120px)!important;mix-blend-mode:multiply!important;animation:var(--animate-blob)!important;background-color:currentColor!important}.ambient-orb::before{display:none!important}',
+  },
 };
 
 function parseArgs(argv) {
@@ -224,8 +237,9 @@ const CATEGORIES = [
   'blink.user_timing',
 ];
 
-async function oneRun(browser, target, variant, opts, runIdx) {
+async function oneRun(browser, safe, target, variant, key, opts, runIdx) {
   const page = await browser.newPage();
+  await safe.protect(page);
   await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.dpr });
   const def = VARIANTS[variant];
   await page.evaluateOnNewDocument(
@@ -334,10 +348,29 @@ async function oneRun(browser, target, variant, opts, runIdx) {
     }
   }
   if (runIdx === 0) {
-    await fs.writeFile(path.join(opts.out, `trace-${variant}.json`), traceBuf);
+    await fs.writeFile(
+      path.join(opts.out, `trace-${key.replace(/[^a-z0-9-]/gi, '_')}.json`),
+      traceBuf,
+    );
   }
   await page.close();
-  return { variant, distance, speed, ...inPage, ...sum, topPaints };
+  return { key, variant, distance, speed, ...inPage, ...sum, topPaints };
+}
+
+/**
+ * `--url` / `--dist` take one value or a comma list of `label=value` (e.g.
+ * `--dist base=.bieg/a/dist,fix=.bieg/b/dist`): every target runs every variant,
+ * interleaved per round, and the table compares each row with the first one.
+ */
+export function parseTargets(spec) {
+  if (!spec) return [];
+  return spec.split(',').map((part, i) => {
+    const eq = part.indexOf('=');
+    // A bare URL may contain '=' in its query: only `label=` before any '/' or ':' is a label.
+    const head = eq > 0 ? part.slice(0, eq) : '';
+    if (head && !/[/:]/.test(head)) return { label: head, value: part.slice(eq + 1) };
+    return { label: i === 0 ? 'site' : `site${i + 1}`, value: part };
+  });
 }
 
 export async function main(argv) {
@@ -351,8 +384,18 @@ export async function main(argv) {
   if (!opts.url && !opts.dist) throw new Error('give --url or --dist');
   opts.out = path.resolve(opts.out);
   await fs.mkdir(opts.out, { recursive: true });
-  const srv = opts.dist ? await serve(opts.dist) : null;
-  const target = opts.url || srv.url;
+  const servers = [];
+  const targets = [...parseTargets(opts.url)];
+  for (const t of parseTargets(opts.dist)) {
+    const srv = await serve(t.value);
+    servers.push(srv.server);
+    targets.push({ label: t.label, value: srv.url });
+  }
+  const multi = targets.length > 1;
+  const keyOf = (t, v) => (multi ? `${t.label}:${v}` : v);
+  const keys = targets.flatMap((t) => names.map((v) => keyOf(t, v)));
+  // Analytics block on every page (production URLs included); exit 1 on any leak.
+  const safe = createProdSafe((targets.find((t) => isProdUrl(t.value)) || targets[0]).value);
   const launch = {
     headless: !opts.headed,
     args: ['--no-sandbox', '--enable-precise-memory-info'],
@@ -361,28 +404,32 @@ export async function main(argv) {
   if (opts.chrome) launch.executablePath = opts.chrome;
   if (opts.userDataDir) launch.userDataDir = path.resolve(opts.userDataDir);
   const browser = await puppeteer.launch(launch);
+  safe.watchBrowser(browser);
   const results = [];
   try {
-    // Interleave variants per round so drift on the machine hits all of them alike.
+    // Interleave targets and variants per round so drift on the machine hits all of them alike.
     const t0 = Date.now();
     for (let r = 0; r < opts.runs; r++) {
       if (r > 0 && opts.budgetS && (Date.now() - t0) / 1000 > opts.budgetS) {
         console.log(`budget ${opts.budgetS} s reached after ${r} round(s)`);
         break;
       }
-      for (const v of names) {
-        const res = await oneRun(browser, target, v, opts, r);
-        results.push(res);
-        console.log(
-          `${v} run${r + 1} t=${Math.round((Date.now() - t0) / 1000)}s: frames=${res.frames} janky=${res.janky} paint=${res.paint} comp=${res.composite} style=${res.style} layout=${res.layout} raster=${res.raster} viz=${res.viz}`,
-        );
+      for (const t of targets) {
+        for (const v of names) {
+          const key = keyOf(t, v);
+          const res = await oneRun(browser, safe, t.value, v, key, opts, r);
+          results.push(res);
+          console.log(
+            `${key} run${r + 1} t=${Math.round((Date.now() - t0) / 1000)}s: frames=${res.frames} janky=${res.janky} longTasks=${res.longTasks} paint=${res.paint} comp=${res.composite} style=${res.style} layout=${res.layout} raster=${res.raster} viz=${res.viz}`,
+          );
+        }
       }
     }
   } finally {
     await browser.close();
-    srv?.server.close();
+    for (const s of servers) s.close();
   }
-  const keys = [
+  const intKeys = [
     'frames',
     'janky',
     'dropped',
@@ -404,41 +451,45 @@ export async function main(argv) {
     'paintCount',
   ];
   const med = {};
-  for (const v of names) {
-    const rs = results.filter((x) => x.variant === v);
-    med[v] = {};
-    for (const k of [...keys, ...msKeys]) med[v][k] = median(rs.map((x) => x[k]));
-    med[v].paintComp = Math.round((med[v].paint + med[v].composite) * 10) / 10;
+  for (const k of keys) {
+    const rs = results.filter((x) => x.key === k);
+    med[k] = { n: rs.length };
+    for (const m of [...intKeys, ...msKeys]) med[k][m] = median(rs.map((x) => x[m]));
+    med[k].paintComp = Math.round((med[k].paint + med[k].composite) * 10) / 10;
   }
-  const base = med.baseline;
+  const base = med[keys[0]];
   const pct = (a, b) => (b ? `${Math.round(((a - b) / b) * 100)}%` : 'n/a');
+  const where = targets.map((t) => `${t.label}=${t.value}`).join(' ');
   const lines = [
     `# probe-chrome-scroll ${new Date().toISOString()}`,
-    `target ${opts.url || 'local dist'}; viewport ${opts.width}x${opts.height} DPR ${opts.dpr}; ${opts.headed ? 'headed' : 'headless'}; runs ${opts.runs} (median)`,
+    `targets ${where}; viewport ${opts.width}x${opts.height} DPR ${opts.dpr}; ${opts.headed ? 'headed' : 'headless'}; runs ${opts.runs} (median); deltas vs ${keys[0]}`,
     '',
-    '| variant | frames | janky>25ms | dropped@60Hz | vsync ms | dropped@vsync | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Viz+GPU ms | Paint+Comp vs base |',
-    '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|',
+    '| target:variant | n | frames | janky>25ms | dropped@60Hz | vsync ms | dropped@vsync | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Viz+GPU ms | Style vs first | frames vs first | Paint+Comp vs first |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|',
   ];
-  for (const v of names) {
-    const m = med[v];
+  for (const k of keys) {
+    const m = med[k];
     lines.push(
-      `| ${v} | ${m.frames} | ${m.janky} | ${m.dropped} | ${m.vsyncMs} | ${m.droppedVs} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${m.viz} | ${base ? pct(m.paintComp, base.paintComp) : 'n/a'} |`,
+      `| ${k} | ${m.n} | ${m.frames} | ${m.janky} | ${m.dropped} | ${m.vsyncMs} | ${m.droppedVs} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${m.viz} | ${pct(m.style, base.style)} | ${pct(m.frames, base.frames)} | ${pct(m.paintComp, base.paintComp)} |`,
     );
   }
-  const first = results.find((x) => x.variant === names[0]);
-  lines.push('', `Top 5 paint areas (${names[0]}, run 1): node | count | ms | max w x h`);
-  for (const p of first.topPaints) {
-    lines.push(
-      `- ${p.node} | ${p.count} | ${Math.round(p.ms)} | ${p.maxArea > 1e7 ? 'unbounded' : `${Math.round(p.w)}x${Math.round(p.h)}`}`,
-    );
+  const first = results.find((x) => x.key === keys[0]);
+  if (first) {
+    lines.push('', `Top 5 paint areas (${keys[0]}, run 1): node | count | ms | max w x h`);
+    for (const p of first.topPaints) {
+      lines.push(
+        `- ${p.node} | ${p.count} | ${Math.round(p.ms)} | ${p.maxArea > 1e7 ? 'unbounded' : `${Math.round(p.w)}x${Math.round(p.h)}`}`,
+      );
+    }
   }
   await fs.writeFile(
     path.join(opts.out, 'results.json'),
-    JSON.stringify({ opts, med, results }, null, 1),
+    JSON.stringify({ opts, targets: where, med, results }, null, 1),
   );
   await fs.writeFile(path.join(opts.out, 'results.md'), lines.join('\n') + '\n');
   console.log(lines.join('\n'));
-  return 0;
+  const verdict = safe.finish();
+  return verdict.ok ? 0 : 1;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
