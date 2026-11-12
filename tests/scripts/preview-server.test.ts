@@ -1,4 +1,3 @@
-// @vitest-environment node
 // MIX-1441: testy scripts/lib/preview-server.mjs (własny serwer sond e2e). Linux (ps, /proc).
 import { afterEach, describe, expect, it } from 'vitest';
 import { execFileSync, spawn } from 'node:child_process';
@@ -195,7 +194,8 @@ describe('ścieżki wyjścia sondy (osobny proces)', () => {
     let out = '';
     child.stdout.on('data', (d) => (out += d));
     const code = new Promise<number | null>((r) => child.on('exit', (c) => r(c)));
-    for (let i = 0; i < 100 && !/PGID \d+/.test(out); i++) await new Promise((r) => setTimeout(r, 100));
+    for (let i = 0; i < 100 && !/PGID \d+/.test(out); i++)
+      await new Promise((r) => setTimeout(r, 100));
     const pgid = Number(/PGID (\d+)/.exec(out)?.[1]);
     expect(pgid).toBeGreaterThan(0);
     cleanup.push(() => killGroup(pgid, 200));

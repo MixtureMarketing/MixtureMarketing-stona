@@ -261,9 +261,9 @@ export async function startPreview(opts) {
       );
     if (await httpOk(host, port, readyPath)) {
       // Odpowiedź musi pochodzić od NASZEGO procesu: nadal żyje i to jego grupa trzyma gniazdo.
-      if (exited) await fail('serwer zakończył się tuż przed gotowością; odpowiedź od obcego procesu');
-      if (requireOwnListener && listenerBelongsToGroup(port, pgid) === false)
-        okStreak = 0;
+      if (exited)
+        await fail('serwer zakończył się tuż przed gotowością; odpowiedź od obcego procesu');
+      if (requireOwnListener && listenerBelongsToGroup(port, pgid) === false) okStreak = 0;
       else okStreak += 1;
       if (okStreak >= 2) {
         return { pid: pgid, port, host, url: `http://${host}:${port}`, stop };
