@@ -84,12 +84,39 @@ const groupAlive = (pgid) => {
 };
 
 /**
- * Dozwolona grupa do zabicia: liczba całkowita >= 2, różna od naszego pidu.
+ * Własna grupa procesów sondy z /proc/self/stat (pole pgrp). null = nieznana (brak /proc,
+ * inna platforma, błąd odczytu, nieczytelny format). Node nie ma process.getpgid().
+ */
+export function ownProcessGroup() {
+  try {
+    const stat = fs.readFileSync('/proc/self/stat', 'utf8');
+    const f = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
+    const pgrp = /^\d+$/.test(f[2] ?? '') ? Number(f[2]) : NaN;
+    return Number.isInteger(pgrp) && pgrp > 0 ? pgrp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Powód odmowy zabicia grupy albo null (wolno). Allowlista: liczba całkowita >= 2, różna od
+ * naszego pidu i od NASZEJ grupy procesów (MIX-1445: także gdy grupa != pid, np. sonda
+ * uruchomiona z powłoki lub npm), a własna grupa musi być znana (fail-closed).
  * 0 = własna grupa, 1 -> kill(-1) = WSZYSTKIE procesy użytkownika, ujemna -> pojedynczy pid.
  */
-function assertKillableGroup(pgid) {
+function killRefusal(pgid) {
   if (!Number.isInteger(pgid) || pgid < 2 || pgid === process.pid)
-    throw new PreviewError(`odmowa zabicia grupy: niepoprawny identyfikator "${String(pgid)}"`);
+    return `odmowa zabicia grupy: niepoprawny identyfikator "${String(pgid)}"`;
+  const own = ownProcessGroup();
+  if (own === null)
+    return `odmowa zabicia grupy ${pgid}: nie da się ustalić własnej grupy procesów sondy (/proc/self/stat niedostępny)`;
+  if (pgid === own) return `odmowa zabicia grupy ${pgid}: to własna grupa procesów sondy`;
+  return null;
+}
+
+function assertKillableGroup(pgid) {
+  const why = killRefusal(pgid);
+  if (why !== null) throw new PreviewError(why);
 }
 
 /** Zabija całą grupę: SIGTERM, po `timeoutMs` SIGKILL. Zwraca true, gdy grupa znikła. */
@@ -117,7 +144,7 @@ export async function killGroup(pgid, timeoutMs = 5000) {
 
 /** Wersja synchroniczna (hak `exit`): od razu SIGKILL grupy. */
 function killGroupSync(pgid) {
-  if (!Number.isInteger(pgid) || pgid < 2 || pgid === process.pid) return;
+  if (killRefusal(pgid) !== null) return;
   try {
     process.kill(-pgid, 'SIGKILL');
   } catch {
@@ -246,6 +273,12 @@ export async function startPreview(opts) {
     throw new PreviewError(`niepoprawny port: "${String(port)}"`);
 
   await assertPortFree(port, host);
+  // MIX-1445: bez znanej własnej grupy nie da się bezpiecznie zabić serwera (killGroup odmówi),
+  // więc nie startujemy go wcale; inaczej zostałby sierotą.
+  if (ownProcessGroup() === null)
+    throw new PreviewError(
+      'nie da się ustalić własnej grupy procesów sondy (/proc/self/stat niedostępny); odmowa startu serwera',
+    );
 
   installHooks();
   const child = spawn(command, args, { stdio: 'ignore', detached: true, cwd, env });

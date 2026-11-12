@@ -10,6 +10,7 @@ import {
   assertPortFree,
   killGroup,
   listenerBelongsToGroup,
+  ownProcessGroup,
   parsePort,
   PreviewError,
   startPreview,
@@ -446,5 +447,215 @@ describe('MIX-1443: killGroup odmawia niepoprawnej grupy (0 = własna, ujemna, n
     const s = await startFixture('serve', port);
     expect(await killGroup(s.pid, 400)).toBe(true);
     expect(groupPids(s.pid)).toEqual([]);
+  });
+});
+
+// MIX-1445 (X1, X3, F6 z werdyktu 1443). W testach odmowy process.kill jest atrapą: odmowa ma
+// nastąpić PRZED jakimkolwiek sygnałem, a mutant, który przepuści np. 1, nie wyśle kill(-1)
+// (wszystkie procesy użytkownika), tylko zostanie policzony.
+const OWN_GROUP_FIXTURE = path.resolve(__dirname, '../fixtures/own-group-member.mjs');
+
+const killSpy = () =>
+  vi.spyOn(process, 'kill').mockImplementation((() => {
+    throw Object.assign(new Error('ESRCH (atrapa)'), { code: 'ESRCH' });
+  }) as typeof process.kill);
+
+const sleeperGroup = () => {
+  const c = spawn(process.execPath, ['-e', 'setInterval(()=>{},1000)'], {
+    detached: true,
+    stdio: 'ignore',
+  });
+  const pid = c.pid!;
+  cleanup.push(() => {
+    try {
+      process.kill(-pid, 'SIGKILL');
+    } catch {
+      /* już nie ma */
+    }
+  });
+  return pid;
+};
+
+// /proc/self/stat sondy: `fake` = treść zamiast prawdziwej, `throw` = brak pliku.
+const ownStat = (v: { fake: string } | 'throw') =>
+  vi.spyOn(fs, 'readFileSync').mockImplementation(((
+    p: fs.PathOrFileDescriptor,
+    ...a: unknown[]
+  ) => {
+    if (String(p) === '/proc/self/stat') {
+      if (v === 'throw') throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+      return v.fake;
+    }
+    return (realReadFileSync as (...x: unknown[]) => unknown)(p, ...a);
+  }) as typeof fs.readFileSync);
+const statWithGroup = (g: number) => ({
+  fake: `${process.pid} (node (x) y) S 1 ${g} ${g} 0 -1 4194304 0 0 0 0 0 0 0 0 20 0 1 0`,
+});
+
+describe('MIX-1445: killGroup odmawia 0, 1, ujemnej i nie-liczby bez wysłania sygnału (X1)', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it.each([1, 0, -1, -5, 2.5, '7', ' 7', NaN, Infinity, -Infinity, true, undefined, null])(
+    'odmowa dla %s, 0 wywołań process.kill',
+    async (v) => {
+      const kill = killSpy();
+      await expect(killGroup(v as unknown as number, 50)).rejects.toThrow(
+        `odmowa zabicia grupy: niepoprawny identyfikator "${String(v)}"`,
+      );
+      expect(kill).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([2, 424242])('bliźniak: %s przechodzi przez strażnika (sygnał 0 wysłany)', async (g) => {
+    const kill = killSpy();
+    expect(await killGroup(g, 50)).toBe(true);
+    expect(kill).toHaveBeenCalledWith(-g, 0);
+  });
+});
+
+describe('MIX-1445: własna grupa procesów sondy, także gdy grupa != pid (F6)', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('ownProcessGroup = pgid z ps dla naszego pidu', () => {
+    const ps = execFileSync('ps', ['-o', 'pgid=', '-p', String(process.pid)], {
+      encoding: 'utf8',
+    }).trim();
+    expect(ownProcessGroup()).toBe(Number(ps));
+  });
+
+  it('grupa sondy (z /proc/self/stat) != pid: odmowa z linią powodu, 0 sygnałów, grupa żyje', async () => {
+    const g = sleeperGroup();
+    ownStat(statWithGroup(g));
+    const kill = vi.spyOn(process, 'kill');
+    await expect(killGroup(g, 100)).rejects.toThrow(
+      `odmowa zabicia grupy ${g}: to własna grupa procesów sondy`,
+    );
+    expect(kill).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+    expect(groupPids(g).length).toBeGreaterThan(0);
+  });
+
+  it('bliźniak: ta sama grupa, gdy NIE jest naszą = zabita', async () => {
+    const g = sleeperGroup();
+    expect(await killGroup(g, 400)).toBe(true);
+    expect(groupPids(g)).toEqual([]);
+  });
+
+  it.each([
+    ['brak /proc/self/stat', 'throw' as const],
+    ['pusty plik', { fake: '' }],
+    ['bez pola grupy', { fake: '1 (node) S' }],
+    ['grupa nie-liczba', { fake: '1 (node) S 1 x7 7' }],
+    ['grupa 0', { fake: '1 (node) S 1 0 0' }],
+  ])('własna grupa nieznana (%s): odmowa, 0 sygnałów, grupa żyje', async (_n, v) => {
+    const g = sleeperGroup();
+    ownStat(v);
+    expect(ownProcessGroup()).toBeNull();
+    const kill = vi.spyOn(process, 'kill');
+    await expect(killGroup(g, 100)).rejects.toThrow(
+      `odmowa zabicia grupy ${g}: nie da się ustalić własnej grupy procesów sondy (/proc/self/stat niedostępny)`,
+    );
+    expect(kill).not.toHaveBeenCalled();
+    vi.restoreAllMocks();
+    expect(groupPids(g).length).toBeGreaterThan(0);
+  });
+
+  it('bliźniak: nawias i spacje w nazwie procesu nie psują odczytu grupy', () => {
+    ownStat(statWithGroup(31337));
+    expect(ownProcessGroup()).toBe(31337);
+  });
+
+  it('startPreview bez znanej własnej grupy: odmowa PRZED startem serwera, port wolny', async () => {
+    const port = await freePort();
+    ownStat('throw');
+    const msg = await reason(startFixture('serve', port));
+    expect(msg).toBe(
+      'nie da się ustalić własnej grupy procesów sondy (/proc/self/stat niedostępny); odmowa startu serwera',
+    );
+    vi.restoreAllMocks();
+    await new Promise((r) => setTimeout(r, 300)); // serwer-atrapa wstałby w tym czasie
+    await expect(assertPortFree(port)).resolves.toBeUndefined();
+  });
+
+  const runMember = (target: string) =>
+    new Promise<string>((resolve) => {
+      const c = spawn(process.execPath, [OWN_GROUP_FIXTURE, 'leader', HELPER, target], {
+        detached: true,
+        stdio: ['ignore', 'pipe', 'ignore'],
+      });
+      let out = '';
+      c.stdout!.on('data', (d) => (out += d));
+      c.on('exit', () => resolve(out));
+      cleanup.push(() => {
+        try {
+          process.kill(-c.pid!, 'SIGKILL');
+        } catch {
+          /* już nie ma */
+        }
+      });
+    });
+
+  it('prawdziwy proces: sonda w cudzej grupie (grupa != pid) odmawia zabicia własnej grupy', async () => {
+    const out = await runMember('own');
+    const m = /^GRUPA (\d+) PID (\d+)$/m.exec(out);
+    expect(m).not.toBeNull();
+    expect(m![1]).not.toBe(m![2]);
+    expect(out).toMatch(
+      new RegExp(`^ODMOWA odmowa zabicia grupy ${m![1]}: to własna grupa procesów sondy$`, 'm'),
+    );
+    expect(out).toMatch(/^LIDER-ZYJE rc=3$/m);
+  });
+
+  it('bliźniak: ta sama sonda zabija cudzą grupę serwera', async () => {
+    const g = sleeperGroup();
+    const out = await runMember(String(g));
+    expect(out).toMatch(/^ZABITA true$/m);
+    expect(out).toMatch(/^LIDER-ZYJE rc=0$/m);
+    expect(groupPids(g)).toEqual([]);
+  });
+});
+
+describe('MIX-1445: /proc nieczytelny w killGroup = grupa uznana za żywą (X3)', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('listing /proc rzuca: killGroup i tak wysyła SIGTERM i kończy, gdy grupa znika', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop().catch(() => {})); // mutant zostawiłby grupę żywą
+    const pids = groupPids(s.pid);
+    expect(pids.length).toBeGreaterThanOrEqual(2);
+    vi.spyOn(fs, 'readdirSync').mockImplementation(((p: fs.PathLike, ...a: unknown[]) => {
+      if (String(p) === '/proc') throw Object.assign(new Error('EACCES'), { code: 'EACCES' });
+      return (realReaddirSync as (...x: unknown[]) => unknown)(p, ...a);
+    }) as typeof fs.readdirSync);
+    const kill = vi.spyOn(process, 'kill');
+    expect(await killGroup(s.pid, 400)).toBe(true);
+    expect(kill).toHaveBeenCalledWith(-s.pid, 'SIGTERM');
+    vi.restoreAllMocks();
+    expect(groupPids(s.pid)).toEqual([]);
+    expect(await portFreeSoon(port)).toBe(true);
+  });
+
+  it('bliźniak: /proc czytelny, ta sama ścieżka = zabita', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    expect(await killGroup(s.pid, 400)).toBe(true);
+    expect(groupPids(s.pid)).toEqual([]);
+  });
+});
+
+describe('MIX-1445: obcy serwer na :: (dual-stack) blokuje start', () => {
+  it('obcy nasłuch na :: = odmowa z powodem, bez uruchamiania', async () => {
+    const port = await freePort();
+    await foreignServer(port, '::');
+    expect(await reason(startFixture('serve', port))).toBe(
+      `port ${port} zajęty lub niedostępny (EADDRINUSE)`,
+    );
+  });
+  it('bliźniak: wolny port = gotowy', async () => {
+    const port = await freePort();
+    const s = await startFixture('serve', port);
+    cleanup.push(() => s.stop());
+    expect(s.url).toBe(`http://127.0.0.1:${port}`);
   });
 });
