@@ -11,10 +11,9 @@ limit="${1:-1024}"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 out=".bieg/m1326/size-$(date +%s)"
 mkdir -p "$out"
-# kopia robocza bez node_modules i katalogów wynikowych; pliki bazowe nadpisują zmienione
+# (node_modules rozwiązuje się z katalogu repo wyżej, bez dowiązań) kopia robocza bez node_modules i katalogów wynikowych; pliki bazowe nadpisują zmienione
 mkdir -p "$out/base"
 tar --exclude=./node_modules --exclude=./.bieg --exclude=./.bieg-stacja --exclude=./dist --exclude=./.git -cf - . | tar -xf - -C "$out/base"
-ln -s "$PWD/node_modules" "$out/base/node_modules"
 cp scripts/m1326-base/components_pages_Home.tsx.txt "$out/base/components/pages/Home.tsx"
 cp scripts/m1326-base/components_pages_PortfolioPage.tsx.txt "$out/base/components/pages/PortfolioPage.tsx"
 cp scripts/m1326-base/services_cmsService.ts.txt "$out/base/services/cmsService.ts"
