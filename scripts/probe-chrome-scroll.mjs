@@ -302,11 +302,19 @@ async function oneRun(browser, target, variant, opts, runIdx) {
     const f = window.__frames;
     const iv = f.slice(1).map((t, i) => t - f[i]);
     const janky = iv.filter((d) => d > 25).length;
-    const dropped = iv.reduce((s, d) => s + Math.max(0, Math.round(d / 16.667) - 1), 0);
+    // Vsync from the data (60 Hz -> 16.7 ms, ProMotion 120 Hz -> 8.3 ms): 10th percentile interval.
+    const vs = iv.length
+      ? Math.max(4, [...iv].sort((a, b) => a - b)[Math.floor(iv.length * 0.1)])
+      : 16.667;
+    const drop = (base) => iv.reduce((s, d) => s + Math.max(0, Math.round(d / base) - 1), 0);
+    const dropped = drop(16.667);
+    const droppedVs = drop(vs);
     return {
       frames: f.length,
       janky,
       dropped,
+      vsyncMs: Math.round(vs * 10) / 10,
+      droppedVs,
       p95: iv.length ? [...iv].sort((a, b) => a - b)[Math.floor(iv.length * 0.95)] : 0,
       longTasksPO: window.__lt.filter((d) => d > 50).length,
       scrollY: window.scrollY,
@@ -374,7 +382,16 @@ export async function main(argv) {
     await browser.close();
     srv?.server.close();
   }
-  const keys = ['frames', 'janky', 'dropped', 'p95', 'longTasks', 'longTasksPO'];
+  const keys = [
+    'frames',
+    'janky',
+    'dropped',
+    'droppedVs',
+    'vsyncMs',
+    'p95',
+    'longTasks',
+    'longTasksPO',
+  ];
   const msKeys = [
     'paint',
     'composite',
@@ -399,13 +416,13 @@ export async function main(argv) {
     `# probe-chrome-scroll ${new Date().toISOString()}`,
     `target ${opts.url || 'local dist'}; viewport ${opts.width}x${opts.height} DPR ${opts.dpr}; ${opts.headed ? 'headed' : 'headless'}; runs ${opts.runs} (median)`,
     '',
-    '| variant | frames | janky>25ms | dropped | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Viz+GPU ms | Paint+Comp vs base |',
-    '|---|---|---|---|---|---|---|---|---|---|---|---|---|',
+    '| variant | frames | janky>25ms | dropped@60Hz | vsync ms | dropped@vsync | p95 ms | long tasks | Paint ms | Composite ms | Layout ms | Style ms | Raster ms | Viz+GPU ms | Paint+Comp vs base |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|',
   ];
   for (const v of names) {
     const m = med[v];
     lines.push(
-      `| ${v} | ${m.frames} | ${m.janky} | ${m.dropped} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${m.viz} | ${base ? pct(m.paintComp, base.paintComp) : 'n/a'} |`,
+      `| ${v} | ${m.frames} | ${m.janky} | ${m.dropped} | ${m.vsyncMs} | ${m.droppedVs} | ${Math.round(m.p95)} | ${m.longTasks} | ${m.paint} | ${m.composite} | ${m.layout} | ${m.style} | ${m.raster} | ${m.viz} | ${base ? pct(m.paintComp, base.paintComp) : 'n/a'} |`,
     );
   }
   const first = results.find((x) => x.variant === names[0]);
