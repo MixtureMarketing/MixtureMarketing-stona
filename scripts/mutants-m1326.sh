@@ -6,16 +6,22 @@ TESTS="tests/components/testimonialsView.test.tsx tests/components/testimonialsS
 SLOT=components/sections/testimonials/TestimonialsSlot.tsx
 VIEW=components/sections/testimonials/TestimonialsView.tsx
 UT=utils/testimonials.ts
-run() { # id plik perl-wyrazenie opis
+run() { # id plik perl-wyrazenie opis; bez argumentow skryptu: wszystkie, z argumentami: tylko wskazane id
   local id="$1" file="$2" expr="$3" desc="$4"
+  if [ $# -gt 0 ] && [ -n "$ONLY" ] && [[ " $ONLY " != *" $id "* ]]; then return; fi
   perl -0pi -e "$expr" "$file"
   if git diff --quiet -- "$file"; then echo "MUT $id | $desc | NIE ZASTOSOWANY"; return; fi
   npx vitest run $TESTS --maxWorkers=2 > ".bieg/m1326/mut-$id.log" 2>&1
   local rc=$?
-  local failed; failed=$(grep -E '^\s+Tests ' ".bieg/m1326/mut-$id.log" | head -1)
+  local failed; failed=$(grep -aE "Tests +[0-9]" ".bieg/m1326/mut-$id.log" | head -1)
   if [ $rc -ne 0 ]; then echo "MUT $id | $desc | zabity | $failed"; else echo "MUT $id | $desc | PRZEZYL | $failed"; fi
   git checkout -- "$file"
 }
+ONLY="$*"
+if [ -z "$ONLY" ] || [[ " $ONLY " == *" K "* ]]; then
+  npx vitest run $TESTS --maxWorkers=2 > .bieg/m1326/mut-K.log 2>&1
+  echo "KONTROLA (bez mutacji) rc=$? $(grep -aE "Tests +[0-9]" .bieg/m1326/mut-K.log | head -1)"
+fi
 run M1 components/sections/testimonials/testimonialsFlag.ts "s/raw === '1' \|\| raw === 'true'/raw !== '0'/" "flaga: domyslnie wlaczona (raw !== '0')"
 run M2 $SLOT 's/if \(!isTestimonialsEnabled\(\)\) return null;//' "Slot: brak bramki przelacznika"
 run M3 $UT "s/url\.protocol === 'https:'/url.protocol !== 'data:'/" "safeReviewUrl: przepuszcza javascript:/http:"
