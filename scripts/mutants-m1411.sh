@@ -40,6 +40,7 @@ M4-escape-kazdy-klawisz|components/layout/MobileMenuB.tsx|if (e.key !== 'Escape'
 M5-blokada-przewijania-link-uslugi|components/layout/MobileMenuB.tsx|                      to={item.target}\n                      onClick={close}|                      to={item.target}
 M6-blokada-przewijania-cta|components/layout/MobileMenuB.tsx|            openModal('consultation');\n            close();|            openModal('consultation');
 M7-reset-ekranu|components/layout/MobileMenuB.tsx|if (!isOpen) setScreen('main');|if (isOpen) setScreen('main');
+M11-brak-resetu-ekranu|components/layout/MobileMenuB.tsx|if (!isOpen) setScreen('main');|
 M8-flaga-domyslnie-wlaczona|components/layout/mobileMenuFlag.ts|raw: unknown = import.meta.env.VITE_MM_MOBILE_MENU_B,|raw: unknown = import.meta.env.VITE_MM_MOBILE_MENU_B ?? '1',
 M9-flaga-allowlista|components/layout/mobileMenuFlag.ts|return raw === '1' || raw === 'true';|return Boolean(raw) && raw !== '0';
 M10-navbar-zawsze-B|components/layout/Navbar.tsx|{isMobileMenuBEnabled() ? (|{true ? (

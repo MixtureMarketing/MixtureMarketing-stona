@@ -119,6 +119,10 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     fireEvent.click(r.toggle);
     fireEvent.click(r.offerButton());
     fireEvent.click(within(r.menu).getByRole('button', { name: 'Zamknij menu nawigacyjne' }));
+    // Reset już przy zamknięciu (zamknięte menu w DOM zawsze pokazuje ekran główny).
+    expect(r.toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(r.mainList().hidden).toBe(false);
+    expect(r.offerScreen().hidden).toBe(true);
     fireEvent.click(r.toggle);
     expect(r.mainList().hidden).toBe(false);
     expect(r.offerScreen().hidden).toBe(true);
