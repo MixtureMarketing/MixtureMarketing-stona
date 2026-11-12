@@ -266,6 +266,20 @@ const withPlatform = async <T>(platform: string, fn: () => Promise<T> | T): Prom
   }
 };
 
+// Port zwolniony po odmowie (serwer zatrzymany): jądro zwalnia gniazdo po wyjściu procesu,
+// na obciążonej maszynie chwilę później, więc do 3 s prób.
+const portFreeSoon = async (port: number) => {
+  for (let i = 0; i < 30; i++) {
+    try {
+      await assertPortFree(port);
+      return true;
+    } catch {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+  }
+  return false;
+};
+
 const realReadFileSync = fs.readFileSync;
 const realReaddirSync = fs.readdirSync;
 const failNetTables = () =>
@@ -315,7 +329,7 @@ describe('MIX-1443: właściciel portu nieznany = odmowa', () => {
     expect(msg).toBe(
       `nie da się ustalić właściciela portu ${port} (platforma darwin, /proc niedostępny lub błąd odczytu); odmowa`,
     );
-    await expect(assertPortFree(port)).resolves.toBeUndefined();
+    await expect(portFreeSoon(port)).resolves.toBe(true);
   });
 
   it('startPreview, gdy tablic gniazd nie da się odczytać: odmowa z linią powodu', async () => {
@@ -326,7 +340,7 @@ describe('MIX-1443: właściciel portu nieznany = odmowa', () => {
       new RegExp(`^nie da się ustalić właściciela portu ${port} \\(platforma linux`),
     );
     vi.restoreAllMocks();
-    await expect(assertPortFree(port)).resolves.toBeUndefined();
+    await expect(portFreeSoon(port)).resolves.toBe(true);
   });
 
   it('bliźniak: właściciel znany i nasz (Linux, /proc czytelny) = gotowy', async () => {
@@ -344,7 +358,7 @@ describe('MIX-1443: gotowość tylko przy odpowiedzi < 500 (mutant A4)', () => {
     expect(msg).toBe(
       'serwer nie jest gotowy po 1500 ms (brak odpowiedzi lub port trzyma obcy proces)',
     );
-    await expect(assertPortFree(port)).resolves.toBeUndefined();
+    await expect(portFreeSoon(port)).resolves.toBe(true);
   });
   it('bliźniak: HTTP 404 to żywy serwer = gotowy', async () => {
     const port = await freePort();
