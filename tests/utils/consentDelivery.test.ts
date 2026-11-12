@@ -233,3 +233,60 @@ describe('checkStoredConsent: allowlista wpisu (formy ataku, każda z bliźniaki
     });
   });
 });
+
+describe('applyConsent: APIReady brakujące albo nie-boolean (MIX-1425)', () => {
+  const install = (consent: Record<string, unknown>) => {
+    const consentSet = vi.fn();
+    const sendQueuedEvents = vi.fn();
+    const zarazSet = vi.fn();
+    window.zaraz = {
+      track: vi.fn(),
+      set: zarazSet,
+      consent: { ...consent, set: consentSet, sendQueuedEvents },
+    } as never;
+    return { consentSet, sendQueuedEvents, zarazSet };
+  };
+
+  beforeEach(() => {
+    resetConsentDeliveryForTests();
+  });
+  afterEach(() => {
+    resetConsentDeliveryForTests();
+    delete window.zaraz;
+    delete window.gtag;
+  });
+
+  const cases: Array<[string, Record<string, unknown>]> = [
+    ['brak APIReady', {}],
+    ['APIReady="true"', { APIReady: 'true' }],
+    ['APIReady=1', { APIReady: 1 }],
+    ['APIReady=undefined', { APIReady: undefined }],
+  ];
+
+  it.each(cases)(
+    '%s i brak zdarzenia → 0 wywołań consent.set i sendQueuedEvents',
+    async (_n, consent) => {
+      const { consentSet, sendQueuedEvents } = install(consent);
+      applyConsent({ analytics: true, marketing: true });
+      await new Promise((r) => setTimeout(r, 20));
+      expect(consentSet).toHaveBeenCalledTimes(0);
+      expect(sendQueuedEvents).toHaveBeenCalledTimes(0);
+    },
+  );
+
+  it('bliźniak: APIReady === true → dokładnie 1 wywołanie consent.set z paczką', () => {
+    const { consentSet, sendQueuedEvents } = install({ APIReady: true });
+    applyConsent({ analytics: true, marketing: false });
+    expect(consentSet).toHaveBeenCalledTimes(1);
+    expect(consentSet).toHaveBeenCalledWith({ kese: true, Pzjv: false });
+    expect(sendQueuedEvents).toHaveBeenCalledTimes(0);
+  });
+
+  it('bliźniak: zdarzenie gotowości przy braku APIReady dostarcza dokładnie raz', () => {
+    const { consentSet } = install({});
+    applyConsent({ analytics: true, marketing: false });
+    expect(consentSet).toHaveBeenCalledTimes(0);
+    fireApiReady();
+    expect(consentSet).toHaveBeenCalledTimes(1);
+  });
+});
