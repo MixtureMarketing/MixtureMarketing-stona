@@ -54,6 +54,11 @@ export const VARIANTS = {
   'no-scroll-vars': { css: '', blockVars: ['--page-p', '--p', '--cover'] },
   // Only the :root page pulse (inherited custom property -> whole-document style recalc).
   'no-page-pulse': { css: '', blockVars: ['--page-p'] },
+  // Only the per-section --p (inherited by every descendant of each section).
+  'no-section-p': { css: '', blockVars: ['--p'] },
+  // Same visuals as baseline: --page-p written on its 3 consumers instead of :root
+  // (no whole-document inheritance) - simulates the proposed fix.
+  'page-pulse-scoped': { css: '', scopeRootVars: ['--page-p'] },
 };
 
 function parseArgs(argv) {
@@ -216,7 +221,7 @@ async function oneRun(browser, target, variant, opts, runIdx) {
   await page.setViewport({ width: opts.width, height: opts.height, deviceScaleFactor: opts.dpr });
   const def = VARIANTS[variant];
   await page.evaluateOnNewDocument(
-    (blockVars, seedConsent) => {
+    (blockVars, seedConsent, scopeRootVars) => {
       if (seedConsent) {
         try {
           localStorage.setItem(
@@ -227,10 +232,16 @@ async function oneRun(browser, target, variant, opts, runIdx) {
           /* storage unavailable: banner stays */
         }
       }
-      if (blockVars.length) {
+      if (blockVars.length || scopeRootVars.length) {
         const orig = CSSStyleDeclaration.prototype.setProperty;
         CSSStyleDeclaration.prototype.setProperty = function (name, ...rest) {
           if (blockVars.includes(name)) return undefined;
+          if (scopeRootVars.includes(name) && this === document.documentElement.style) {
+            for (const el of document.querySelectorAll(`[style*="var(${name}"]`)) {
+              orig.call(el.style, name, ...rest);
+            }
+            return undefined;
+          }
           return orig.call(this, name, ...rest);
         };
       }
@@ -245,6 +256,7 @@ async function oneRun(browser, target, variant, opts, runIdx) {
     },
     def.blockVars || [],
     !opts.keepCookieBanner,
+    def.scopeRootVars || [],
   );
   await page.goto(target, { waitUntil: 'networkidle2', timeout: 60000 });
   if (def.css) await page.addStyleTag({ content: def.css });
