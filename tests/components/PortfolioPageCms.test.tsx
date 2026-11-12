@@ -137,3 +137,16 @@ describe('PortfolioPage — udana odpowiedź (bliźniaki)', () => {
     expect(await screen.findByText('Brak projektów')).toBeInTheDocument();
   });
 });
+
+describe('PortfolioPage — odstęp hero → lista', () => {
+  it('sekcja listy ma górny odstęp pt-12 (jak /baza-wiedzy/), a nie przylega do hero', async () => {
+    h.getCaseStudyList.mockResolvedValue(projects);
+    renderPage();
+    await screen.findByText('Projekt Alfa');
+    const section = screen.getByRole('heading', {
+      level: 2,
+      name: 'Lista realizacji',
+    }).parentElement;
+    expect(section?.className).toMatch(/\bpt-12\b/);
+  });
+});
