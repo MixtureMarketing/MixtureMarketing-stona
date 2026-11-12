@@ -215,6 +215,64 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Liczymy za często');
   });
 
+  it('MIX-1495: click during the gap wait: one trailing request with the newest answers, no stale send', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    pick('Portal');
+    await wait(500);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    pick('Wizytówka');
+    await wait(499);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    await wait(1);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect(requestPricePreview.mock.calls[1][0].answers).toEqual({ project_goal: 'wizytowka' });
+    await wait(5000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar).toHaveTextContent(/8\s?000/);
+    expect(bar).not.toHaveTextContent('Nie udało się');
+  });
+
+  it('MIX-1495: 503 on the preview-token path: retry carries the preview token, Turnstile asked once', async () => {
+    await mount();
+    requestPricePreview.mockImplementationOnce(async (p: { answers: Record<string, string> }) =>
+      ok(p.answers, { previewToken: 'pt-1' }),
+    );
+    pick('Sklep');
+    await wait(400);
+    requestPricePreview.mockResolvedValueOnce({ ok: false, status: 503 });
+    pick('Portal');
+    await wait(1000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Nie udało się');
+    await wait(1000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(3);
+    expect(getToken).toHaveBeenCalledTimes(1);
+    expect(requestPricePreview.mock.calls[2][0]).toEqual({
+      answers: { project_goal: 'portal' },
+      preview_token: 'pt-1',
+    });
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/40\s?000/);
+  });
+
+  it('MIX-1495: 503 twice: error, but the next answer still asks the server', async () => {
+    await mount();
+    requestPricePreview
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce({ ok: false, status: 503 });
+    pick('Sklep');
+    await wait(1400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Nie udało się');
+    pick('Wizytówka');
+    await wait(1000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(3);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/8\s?000/);
+  });
+
   it('te same odpowiedzi drugi raz: 0 nowych zapytań, a cena wraca z pamięci', async () => {
     await mount();
     pick('Sklep');

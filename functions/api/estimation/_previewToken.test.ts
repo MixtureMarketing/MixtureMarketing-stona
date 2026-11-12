@@ -234,3 +234,28 @@ describe('issueToken / verifyToken', () => {
     expect((await verifyToken(ENV, token, IP, T0)).ok).toBe(true);
   });
 });
+
+// MIX-1495: odczyty znaków liczone atrapą, żeby wyjście po długości albo `===` nie przeszły.
+describe('timingSafeEqual: stały czas (liczone odczyty)', () => {
+  const counting = (counter: { n: number }) => (s: string) =>
+    ({
+      length: s.length,
+      charCodeAt: (i: number) => {
+        counter.n++;
+        return s.charCodeAt(i);
+      },
+    }) as unknown as string;
+
+  it('różne długości: nadal odczyt każdej pozycji dłuższego wejścia, wynik false', () => {
+    const c = { n: 0 };
+    const f = counting(c);
+    expect(timingSafeEqual(f('abcdefgh'), f('abcdefg'))).toBe(false);
+    expect(c.n).toBe(16);
+  });
+  it('ta sama treść w dwóch osobnych napisach: true z pętli, nie z tożsamości', () => {
+    const c = { n: 0 };
+    const f = counting(c);
+    expect(timingSafeEqual(f('abcdefgh'), f('abcdefgh'))).toBe(true);
+    expect(c.n).toBe(16);
+  });
+});
