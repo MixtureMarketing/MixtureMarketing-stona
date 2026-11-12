@@ -81,7 +81,7 @@ describe('ArticleTemplate — błąd Sanity ≠ 404', () => {
 describe('ArticleTemplate — adres artykułu w okruszkach i JSON-LD (MIX-1386)', () => {
   it('slug z GROQ (tekst) daje prawdziwy adres, nigdy /undefined/', async () => {
     vi.mocked(cmsService.getArticleBySlug).mockResolvedValueOnce(article);
-    schemaProps.last = undefined;
+    schemaProps.last = undefined as typeof schemaProps.last;
     renderAt('/baza-wiedzy/ok');
     await screen.findByRole('heading', { name: 'Artykuł testowy' });
     await new Promise((r) => setTimeout(r, 20)); // flush Helmeta
