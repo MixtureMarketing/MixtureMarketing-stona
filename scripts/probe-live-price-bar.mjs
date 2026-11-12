@@ -185,31 +185,41 @@ for (const vp of [
         [...document.querySelectorAll('[role="radio"]')].find((e) => e.textContent.trim() === l),
       label,
     );
+    await h.asElement().evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
     await h.asElement().click();
   };
   const priceText = () =>
     page.evaluate(
       () => document.querySelector('[data-testid="live-price-bar"]')?.textContent ?? '',
     );
+  page.on('pageerror', (e) => console.error(`[${vp.name}] pageerror: ${e.message}`));
 
   // Pomiar: od kliknięcia odpowiedzi do pojawienia się ceny w pasku.
   const timeToPrice = async (label, expected) => {
     const t0 = Date.now();
     await clickRadio(label);
-    await page.waitForFunction(
-      (re) =>
-        new RegExp(re).test(
-          document.querySelector('[data-testid="live-price-bar"]')?.textContent ?? '',
-        ),
-      { timeout: 5000, polling: 25 },
-      expected,
-    );
+    try {
+      await page.waitForFunction(
+        (re) =>
+          new RegExp(re).test(
+            document.querySelector('[data-testid="live-price-bar"]')?.textContent ?? '',
+          ),
+        { timeout: 5000, polling: 25 },
+        expected,
+      );
+    } catch (e) {
+      await page.screenshot({ path: path.join(OUT, 'shots', `${vp.name}-BLAD.png`) });
+      console.error(
+        `[${vp.name}] brak ceny po "${label}": pasek="${await priceText()}", zapytań=${previewCalls.length}`,
+      );
+      throw e;
+    }
     return Date.now() - t0;
   };
 
   const t1 = await timeToPrice('Sklep internetowy', '27\\s500');
   await page.screenshot({ path: path.join(OUT, 'shots', `${vp.name}-sklep.png`) });
-  const t2 = await timeToPrice('Wizytówka', '8\\s000');
+  const t2 = await timeToPrice('Wizytówka', '8\\s?000');
   await page.screenshot({ path: path.join(OUT, 'shots', `${vp.name}-wizytowka.png`) });
   // Powrót do wcześniejszych odpowiedzi: pamięć, zero nowego zapytania.
   const callsBefore = previewCalls.length;
@@ -236,7 +246,7 @@ for (const vp of [
         .filter((x) => x.tag === 'BUTTON')
         .map((x) => Math.round(x.height)),
       scrollWidth: document.documentElement.scrollWidth,
-      stickyFlag: document.body.dataset.stickyMobileBar ?? null,
+      barFlag: document.body.dataset.livePriceBar ?? null,
       viewportH: window.innerHeight,
     };
   });
@@ -260,7 +270,7 @@ for (const vp of [
     minTargetPx: Math.round(Math.min(...targets)),
     calculatorButtonHeightsPx: geo.calculatorTargets,
     scrollWidth: geo.scrollWidth,
-    stickyFlag: geo.stickyFlag,
+    barFlag: geo.barFlag,
   };
   check(noBarBefore, `${vp.name}: pasek przed pierwszą odpowiedzią`);
   check(t1 <= 1000 && t2 <= 1000, `${vp.name}: cena później niż 1 s (${t1}/${t2} ms)`);

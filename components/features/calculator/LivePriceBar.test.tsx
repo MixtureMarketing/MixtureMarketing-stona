@@ -226,7 +226,8 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     await mount();
     pick('Sklep');
     await wait(400);
-    expect(document.body.dataset.stickyMobileBar).toBe('true');
+    expect(document.body.dataset.livePriceBar).toBe('true');
+    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toMatch(/px$/);
   });
 });
 
@@ -250,7 +251,7 @@ describe('pasek widełek na żywo — przełącznik wyłączony', () => {
       expect(screen.queryByTestId('live-price-bar')).not.toBeInTheDocument();
       expect(requestPricePreview).not.toHaveBeenCalled();
       expect(getToken).not.toHaveBeenCalled();
-      expect(document.body.dataset.stickyMobileBar).toBeUndefined();
+      expect(document.body.dataset.livePriceBar).toBeUndefined();
     },
   );
 });
