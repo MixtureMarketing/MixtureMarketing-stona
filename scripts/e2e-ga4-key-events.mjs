@@ -9,11 +9,11 @@
 //    scripts/lib/prod-safe.mjs (protect/watchBrowser/finish, jak w scripts/audit-render.mjs),
 //    przeciek analityki = kod 1.
 // Kod wyjścia 0 = oba zdarzenia poszły, oba POST-y przerwane, zero żądań zewnętrznych.
-import { spawn } from 'node:child_process';
 import puppeteer from 'puppeteer';
 import { createProdSafe } from './lib/prod-safe.mjs';
+import { portOrExit, startPreviewOrExit } from './lib/preview-server.mjs';
 
-const PORT = Number(process.argv[2] || 4179);
+const PORT = portOrExit(process.argv[2], 4179);
 const BASE = `http://127.0.0.1:${PORT}`;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const safe = createProdSafe(BASE);
@@ -35,19 +35,6 @@ const QUESTIONS = {
 const AUDIT = { data: { client: { url: 'https://example.com', total_score: 61 } } };
 const FAKE_TURNSTILE = `window.turnstile = { render: () => 'w1', execute() {}, reset() {},
   getResponse: () => 'e2e-token', remove() {} };`;
-
-async function waitForServer() {
-  for (let i = 0; i < 60; i++) {
-    try {
-      const r = await fetch(`${BASE}/`);
-      if (r.ok) return;
-    } catch {
-      /* jeszcze nie wstał */
-    }
-    await sleep(500);
-  }
-  throw new Error('vite preview nie wstał');
-}
 
 async function clickButton(page, re) {
   const ok = await page.evaluate((src) => {
@@ -136,20 +123,13 @@ function route(req, log) {
 const events = (page) => page.evaluate(() => window.__ga4.map(([e, d]) => ({ e, d })));
 
 async function main() {
-  const server = spawn(
-    'npx',
-    ['vite', 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'],
-    {
-      stdio: 'ignore',
-    },
-  );
+  // MIX-1441: własny serwer w osobnej grupie procesów; zajęty port / martwy serwer = kod 1, bez testów.
+  const server = await startPreviewOrExit({ port: PORT });
   let rc = 1;
   let ok = false;
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   safe.watchBrowser(browser);
   try {
-    await waitForServer();
-
     // --- Kalkulator ---
     const logC = { blocked: [], abortedPosts: [], turnstileStub: 0 };
     const pc = await newPage(browser, logC);
@@ -214,7 +194,7 @@ async function main() {
     for (const d of DIAG.slice(0, 30)) console.error(`DIAG ${d}`);
   } finally {
     await browser.close();
-    server.kill();
+    await server.stop();
   }
   // Bezpiecznik prod-safe: przeciek analityki = kod 1 niezależnie od wyniku scenariuszy.
   const guard = safe.finish();

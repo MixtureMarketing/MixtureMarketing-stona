@@ -16,12 +16,12 @@
 //    tak jak w scripts/audit-render.mjs; przeciek analityki = kod 1.
 // Sprawdza: 0 zdarzeń dostarczonych przed zgodą; po akceptacji każda akcja = dokładnie 1 zdarzenie;
 // po odrzuceniu 0 dostarczonych; w parametrach brak e-maila. Kod 0 = wszystko się zgadza.
-import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import puppeteer from 'puppeteer';
 import { createProdSafe } from './lib/prod-safe.mjs';
+import { portOrExit, startPreviewOrExit } from './lib/preview-server.mjs';
 
-const PORT = Number(process.argv[2] || 4181);
+const PORT = portOrExit(process.argv[2], 4181);
 const BASE = `http://127.0.0.1:${PORT}`;
 const EMAIL = 'e2e@example.com';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -86,18 +86,6 @@ const QUESTIONS = {
 };
 const FAKE_TURNSTILE = `window.turnstile = { render: () => 'w1', execute() {}, reset() {},
   getResponse: () => 'e2e-token', remove() {} };`;
-
-async function waitForServer() {
-  for (let i = 0; i < 60; i++) {
-    try {
-      if ((await fetch(`${BASE}/`)).ok) return;
-    } catch {
-      /* jeszcze nie wstał */
-    }
-    await sleep(500);
-  }
-  throw new Error('vite preview nie wstał');
-}
 
 async function clickButton(page, re) {
   const ok = await page.evaluate((src) => {
@@ -237,18 +225,14 @@ async function scenario(page, consentLabel) {
 }
 
 async function main() {
-  const server = spawn(
-    'npx',
-    ['vite', 'preview', '--port', String(PORT), '--strictPort', '--host', '127.0.0.1'],
-    { stdio: 'ignore' },
-  );
+  // MIX-1441: własny serwer w osobnej grupie procesów; zajęty port / martwy serwer = kod 1, bez testów.
+  const server = await startPreviewOrExit({ port: PORT });
   let rc = 1;
   let ok = false;
   const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
   safe.watchBrowser(browser);
   try {
     checkBannerSource();
-    await waitForServer();
 
     // --- A: zgoda przyznana ---
     const logA = { blocked: [], abortedPosts: [] };
@@ -306,7 +290,7 @@ async function main() {
     console.error('BLAD', e?.message || e);
   } finally {
     await browser.close();
-    server.kill();
+    await server.stop();
   }
   // Bezpiecznik prod-safe: przeciek analityki = kod 1 niezależnie od wyniku scenariuszy.
   const guard = safe.finish();

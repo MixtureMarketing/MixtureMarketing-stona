@@ -446,7 +446,11 @@ for (const vp of VIEWPORTS) {
           fail(`${vp.tag} A2-powiazane: przejście/nazwy`);
         if (dup(rec2.old) || dup(rec2.next)) fail(`${vp.tag} A2-powiazane: duplikat nazwy`);
         if (Object.keys(m2.namesAtRest).length) fail(`${vp.tag} A2-powiazane: nazwy zostały`);
-      } else r['A2-powiazane-nazwy'] = { pominiete: 'brak karty realizacji w Powiązanych' };
+      } else {
+        // MIX-1441: pominięty przypadek to błąd, nie ciche przejście (uwaga MIX-1308).
+        r['A2-powiazane-nazwy'] = { pominiete: 'brak karty realizacji w Powiązanych' };
+        fail(`${vp.tag} A2-powiazane: brak karty realizacji w Powiązanych (przypadek pominięty)`);
+      }
       await page2.close();
     }
     await page.close();
@@ -471,6 +475,9 @@ for (const vp of VIEWPORTS) {
       } catch {
         fail(`${vp.tag} ${key}: brak zrzutu w połowie przejścia`);
       }
+    } else {
+      // MIX-1441: brak karty do zrzutu = błąd (wcześniej cichy brak zrzutu i kod 0).
+      fail(`${vp.tag} ${key}: brak karty realizacji do zrzutu w połowie przejścia`);
     }
     await shot.close();
   }
