@@ -33,6 +33,7 @@ export const CMS_DOC = {
   location: 'location',
   caseStudy: 'caseStudy',
   industryList: 'industryList',
+  caseStudyList: 'caseStudyList',
 } as const;
 export type CmsDocId = (typeof CMS_DOC)[keyof typeof CMS_DOC];
 

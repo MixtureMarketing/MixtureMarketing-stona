@@ -19,6 +19,7 @@ vi.mock('../../services/cmsService', () => ({
   cmsService: {
     getTestimonials: (...a: unknown[]) => h.getTestimonials(...a),
     getCaseStudies: () => Promise.resolve([]),
+    getCaseStudyList: () => Promise.resolve([]),
     getArticles: () => Promise.resolve([]),
   },
 }));
