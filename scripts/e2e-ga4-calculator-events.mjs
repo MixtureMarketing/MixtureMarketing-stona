@@ -4,6 +4,9 @@
 //  - window.zaraz to atrapa, która ODWZOROWUJE bramkę zgody Zaraz: zdarzenie jest „dostarczone do GA4”
 //    (window.__ga4) tylko, gdy ostatnie zaraz.consent.set miało kese=true (cel „analityka”);
 //    wszystko, czego aplikacja próbowała (window.__attempt), jest liczone osobno,
+//  - MIX-1430: atrapa ma Consent API jak Zaraz (APIReady=false aż do zdarzenia
+//    zarazConsentAPIReady, które próba wysyła po kliknięciu zgody); bez tego aplikacja z MIX-1389
+//    słusznie czeka z consent.set i po zgodzie dostarczano 0 zdarzeń,
 //  - POST /api/ jest przerywany (żaden lead nie powstaje), Turnstile to atrapa,
 //  - zgodę klika się prawdziwym banerem (CookieBanner): przycisk szukany w regionie banera
 //    (role="region", aria-label z CookieBanner.tsx) po DOKŁADNEJ etykiecie, którą skrypt najpierw
@@ -115,18 +118,34 @@ async function newPage(browser, log) {
   await page.evaluateOnNewDocument(() => {
     window.__ga4 = []; // dostarczone do GA4 (zgoda analityczna była przyznana)
     window.__attempt = []; // wszystko, co aplikacja wysłała do zaraz.track
+    // MIX-1430: Consent API jak w Zaraz (MIX-1389): APIReady=false, dopóki próba nie wyśle
+    // zdarzenia zarazConsentAPIReady (window.__zarazReady). consent.set przed gotowością jest
+    // liczony osobno (__consentSetEarly) i niczego nie przyznaje.
+    window.__consentSet = 0;
+    window.__consentSetEarly = 0;
     let granted = false;
+    const consent = {
+      APIReady: false,
+      set: (c) => {
+        if (!consent.APIReady) {
+          window.__consentSetEarly += 1;
+          return;
+        }
+        window.__consentSet += 1;
+        granted = c && c.kese === true;
+      },
+    };
+    window.__zarazReady = () => {
+      consent.APIReady = true;
+      document.dispatchEvent(new Event('zarazConsentAPIReady'));
+    };
     window.zaraz = {
       track: (e, d) => {
         window.__attempt.push([e, d]);
         if (granted) window.__ga4.push([e, d]);
         return Promise.resolve();
       },
-      consent: {
-        set: (c) => {
-          granted = c && c.kese === true;
-        },
-      },
+      consent,
     };
   });
   // Strony wykrywają prerender po „Headless” w UA (wtedy kalkulator i baner się nie montują);
@@ -187,7 +206,16 @@ async function scenario(page, consentLabel) {
   const beforeConsentDelivered = (await names(page, '__ga4', '')).length;
   const beforeConsentAttempt = (await names(page, '__attempt')).length;
   await clickConsent(page, consentLabel);
-  await sleep(500);
+  await sleep(300);
+  // Decyzja kliknięta, zanim Consent API Zaraz było gotowe: aplikacja ma czekać (0 wywołań set),
+  // a po zdarzeniu gotowości przekazać zgodę dokładnie raz.
+  const consentBeforeReady = await page.evaluate(
+    () => window.__consentSet + window.__consentSetEarly,
+  );
+  await page.evaluate(() => window.__zarazReady());
+  await sleep(300);
+  const consentSet = await page.evaluate(() => window.__consentSet);
+  const consentSetEarly = await page.evaluate(() => window.__consentSetEarly);
   await clickButton(page, /^\s*Wstecz\s*$/);
   await sleep(300);
   await clickButton(page, /^\s*Dalej\s*$/);
@@ -198,7 +226,14 @@ async function scenario(page, consentLabel) {
     timeout: 30000,
   });
   await sleep(1500);
-  return { loadAttempt, beforeConsentDelivered, beforeConsentAttempt };
+  return {
+    loadAttempt,
+    beforeConsentDelivered,
+    beforeConsentAttempt,
+    consentBeforeReady,
+    consentSet,
+    consentSetEarly,
+  };
 }
 
 async function main() {
@@ -224,6 +259,10 @@ async function main() {
     console.log(
       `A_zgoda load_attempt=${a.loadAttempt} przed_zgoda_dostarczone=${a.beforeConsentDelivered} przed_zgoda_proby=${a.beforeConsentAttempt}`,
     );
+    const setA = await pa.evaluate(() => [window.__consentSet, window.__consentSetEarly]);
+    console.log(
+      `A_zgoda zgoda_set_przed_API=${a.consentBeforeReady} zgoda_set_po_API=${a.consentSet} zgoda_set_wczesne=${a.consentSetEarly} zgoda_set_koniec=${setA[0]}`,
+    );
     const stepsA = delA.filter((x) => x.e === 'calculator_step');
     console.log(
       `A_zgoda step=${count(delA, 'calculator_step')} submit=${count(delA, 'calculator_submit')} preview=${count(delA, 'calculator_preview')} share=${count(delA, 'calculator_share')} booking_open=${count(delA, 'calculator_booking_open')} kierunki=${JSON.stringify(stepsA.map((x) => x.d.direction))} post_przerwany=${JSON.stringify(logA.abortedPosts)} zewn_zablokowane=${logA.blocked.length}`,
@@ -237,7 +276,7 @@ async function main() {
     const delB = await names(pb, '__ga4', '');
     const attB = await names(pb, '__attempt');
     console.log(
-      `B_odmowa dostarczone=${delB.length} proby_aplikacji=${attB.length} przed_zgoda_dostarczone=${b.beforeConsentDelivered}`,
+      `B_odmowa dostarczone=${delB.length} proby_aplikacji=${attB.length} przed_zgoda_dostarczone=${b.beforeConsentDelivered} zgoda_set_przed_API=${b.consentBeforeReady} zgoda_set_po_API=${b.consentSet}`,
     );
 
     ok =
@@ -254,7 +293,14 @@ async function main() {
       logA.abortedPosts.includes('/api/estimation/public-quote') &&
       logA.blocked.length === 0 &&
       delB.length === 0 &&
-      b.beforeConsentDelivered === 0;
+      b.beforeConsentDelivered === 0 &&
+      // MIX-1389: zgoda do Zaraz dopiero po gotowości Consent API i dokładnie raz.
+      a.consentBeforeReady === 0 &&
+      a.consentSet === 1 &&
+      setA[0] === 1 &&
+      setA[1] === 0 &&
+      b.consentBeforeReady === 0 &&
+      b.consentSet === 1;
     console.log(`WYNIK ok=${ok} email_w_zdarzeniach=${leakA}`);
   } catch (e) {
     console.error('BLAD', e?.message || e);
