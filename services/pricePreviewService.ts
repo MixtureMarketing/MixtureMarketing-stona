@@ -1,7 +1,8 @@
 // Klient podglądu widełek na żywo (MIX-1385, Z5 z MIX-1377; spec MIX-1320 §3, zadanie Z4).
 // Jedyne miejsce, które zna kontrakt endpointu `POST /api/estimation/public-preview`:
 //   1. pierwsze żądanie niesie token Turnstile (`captcha_token`) → serwer zwraca `preview_token`
-//      (podpisany, ważny ok. 30 min) razem z `priceRange`;
+//      (podpisany, ważny 15 min: PREVIEW_TOKEN_TTL_SEC w functions/api/estimation/_previewToken.ts)
+//      razem z `priceRange`;
 //   2. kolejne żądania niosą `preview_token` i zwracają tylko `priceRange`.
 // Endpoint (Z4) jeszcze nie istnieje; w testach ten moduł jest atrapą, a Z4 podłącza się tu.
 // TODO(MIX-1384): po scaleniu GA4 wywołać trackCalculatorPreview przy udanym podglądzie.
