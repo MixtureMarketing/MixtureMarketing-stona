@@ -88,7 +88,7 @@ describe('ArticleTemplate — adres artykułu w okruszkach i JSON-LD (MIX-1386)'
     const ld = Array.from(document.querySelectorAll('script[type="application/ld+json"]'))
       .map((n) => n.textContent || '')
       .join('\n');
-    expect(ld).toContain('/baza-wiedzy/ok/');
+    expect(ld).toMatch(/"item":"https?:[^"]*\/baza-wiedzy\/ok\/"/);
     expect(ld).not.toContain('undefined');
     expect(schemaProps.last?.article.slug).toBe('/baza-wiedzy/ok/');
   });
