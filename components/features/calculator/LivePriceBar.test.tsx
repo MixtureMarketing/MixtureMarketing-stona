@@ -32,7 +32,9 @@ const QUESTIONS: PublicQuestion[] = [
 ];
 
 const requestPricePreview = vi.fn();
-vi.mock('../../../services/pricePreviewService', () => ({
+// MIX-1466: prawdziwe isPreviewUnavailable (rozpoznanie braku endpointu), atrapa tylko zapytania.
+vi.mock('../../../services/pricePreviewService', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../services/pricePreviewService')>()),
   requestPricePreview: (...a: unknown[]) => requestPricePreview(...a),
 }));
 vi.mock('../../../services/calculatorService', () => ({
@@ -180,7 +182,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/40\s?000/);
   });
 
-  it('429: komunikat po polsku bez słów technicznych, a poprzednia cena zostaje', async () => {
+  it('429: komunikat po polsku bez słów technicznych, bez starej ceny (MIX-1466)', async () => {
     await mount();
     pick('Sklep');
     await wait(400);
@@ -190,7 +192,79 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     const bar = screen.getByTestId('live-price-bar');
     expect(bar).toHaveTextContent('Liczymy za często. Odczekaj chwilę');
     expect(bar.textContent).not.toMatch(/429|HTTP|błąd serwera|API|token/i);
-    expect(bar).toHaveTextContent(/27\s?500/);
+    expect(bar).not.toHaveTextContent(/27\s?500|zł/);
+  });
+
+  it('MIX-1466: błąd po cenie: komunikat zastępczy, stara cena znika, strona działa dalej', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
+    requestPricePreview.mockResolvedValueOnce({ ok: false, status: 0 });
+    pick('Wizytówka');
+    await wait(400);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar).toHaveTextContent(
+      'Nie udało się teraz policzyć ceny. Odpowiadaj dalej, widełki pokażemy też na końcu.',
+    );
+    expect(bar).not.toHaveTextContent(/27\s?500|8\s?000|zł/);
+    expect(bar).toHaveAttribute('aria-busy', 'false');
+    expect(screen.getByRole('radio', { name: 'Portal' })).toBeEnabled();
+  });
+
+  it('MIX-1466 bliźniak: po błędzie kolejna zmiana odpowiedzi znów pokazuje cenę', async () => {
+    await mount();
+    requestPricePreview.mockResolvedValueOnce({ ok: false, status: 500 });
+    pick('Sklep');
+    await wait(400);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Nie udało się');
+    pick('Portal');
+    await wait(400);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar).toHaveTextContent(/40\s?000\s–\s90\s?000\szł/);
+    expect(bar).not.toHaveTextContent('Nie udało się');
+  });
+
+  it.each([404, 405, 501])(
+    'MIX-1466: brak endpointu (%i): jedno zapytanie, potem już ani serwera, ani Turnstile',
+    async (status) => {
+      await mount();
+      requestPricePreview.mockResolvedValue({ ok: false, status });
+      pick('Sklep');
+      await wait(400);
+      pick('Wizytówka');
+      await wait(400);
+      pick('Portal');
+      await wait(2000);
+      expect(requestPricePreview).toHaveBeenCalledTimes(1);
+      expect(getToken).toHaveBeenCalledTimes(1);
+      const bar = screen.getByTestId('live-price-bar');
+      expect(bar).toHaveTextContent('Nie udało się teraz policzyć ceny');
+      expect(bar).not.toHaveTextContent(/zł|Liczę/);
+    },
+  );
+
+  it.each([500, 503, 0])(
+    'MIX-1466 bliźniak: zwykły błąd (%i) nie wyłącza pytania serwera',
+    async (status) => {
+      await mount();
+      requestPricePreview.mockResolvedValueOnce({ ok: false, status });
+      pick('Sklep');
+      await wait(400);
+      pick('Wizytówka');
+      await wait(400);
+      expect(requestPricePreview).toHaveBeenCalledTimes(2);
+      expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/8\s?000/);
+    },
+  );
+
+  it('MIX-1466: Turnstile niegotowy (odrzucony token): komunikat zastępczy, bez wyjątku', async () => {
+    await mount();
+    getToken.mockRejectedValueOnce(new Error('TURNSTILE_NOT_READY'));
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).not.toHaveBeenCalled();
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Nie udało się');
   });
 
   it('błąd (serwer i sieć): inny komunikat niż przy 429, bez słów technicznych', async () => {

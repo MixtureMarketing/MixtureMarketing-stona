@@ -10,11 +10,26 @@
  * atrapa przeglądarki: public-questions (3 pytania) i public-preview (cena zależy od odpowiedzi,
  * opóźnienie 150 ms). Turnstile to atrapa `window.turnstile`. Wyniki: probe.json + zrzuty.
  * Kod wyjścia 0 = wszystkie progi spełnione, 1 = któryś próg nie.
+ *
+ * MIX-1466, tryb adresu (bez atrap: prawdziwe API i Turnstile wdrożonej strony):
+ *
+ *   PROBE_ACCESS_ID_FILE=<plik> PROBE_ACCESS_SECRET_FILE=<plik> \
+ *     node scripts/probe-live-price-bar.mjs --url <https://host> <katalog-wyników>
+ *
+ * Nagłówki Cloudflare Access (gdy podane oba pliki) idą WYŁĄCZNIE do hosta z --url (przechwycenie
+ * żądań), nigdy do stron trzecich; ich wartości nie trafiają do wyników. Zapis: każde żądanie
+ * /api/* (metoda, status, ms), błędy konsoli, tekst paska, czas od kliknięcia do ceny albo do
+ * komunikatu zastępczego, zrzuty 390 i 1366 px. Kod wyjścia 0 = cena po zmianie odpowiedzi
+ * w ≤ 1 s na obu szerokościach, 1 = nie, 2 = złe wywołanie.
  */
 import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
+
+if (process.argv[2] === '--url') {
+  await runUrlMode(process.argv[3], process.argv[4]);
+}
 
 const [distArg, outArg] = process.argv.slice(2);
 if (!distArg || !outArg) {
@@ -287,3 +302,137 @@ results.fails = fails;
 await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(results, null, 2));
 console.log(JSON.stringify(results, null, 2));
 process.exit(fails.length ? 1 : 0);
+
+// ---------------------------------------------------------------------------------------------
+// MIX-1466: tryb adresu. Całość w funkcji (hoisting), tryb lokalny zostaje bez zmian.
+async function runUrlMode(baseArg, outArg2) {
+  let base = null;
+  try {
+    base = new URL(baseArg);
+  } catch {
+    /* niżej: kod 2 */
+  }
+  if (!base || base.protocol !== 'https:' || !outArg2) {
+    console.error('użycie: probe-live-price-bar.mjs --url <https://host> <out>');
+    process.exit(2);
+  }
+  const out = path.resolve(outArg2);
+  await fs.mkdir(path.join(out, 'shots'), { recursive: true });
+  const access = {};
+  const idFile = process.env.PROBE_ACCESS_ID_FILE;
+  const secretFile = process.env.PROBE_ACCESS_SECRET_FILE;
+  if (idFile || secretFile) {
+    if (!idFile || !secretFile) {
+      console.error('podaj oba pliki Access albo żaden');
+      process.exit(2);
+    }
+    access['CF-Access-Client-Id'] = (await fs.readFile(idFile, 'utf8')).trim();
+    access['CF-Access-Client-Secret'] = (await fs.readFile(secretFile, 'utf8')).trim();
+  }
+  const PRICE_RE = String.raw`\d[\d\s ]*–[\d\s ]*zł`;
+  const FALLBACK_RE = 'Nie udało się|Liczymy za często|pokażemy na końcu';
+  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  const res = { base: base.origin, accessHeaders: Object.keys(access).length > 0 };
+  const fails = [];
+  for (const vp of [
+    { name: 'm390', width: 390, height: 844, mobile: true },
+    { name: 'd1366', width: 1366, height: 768, mobile: false },
+  ]) {
+    const page = await browser.newPage();
+    // Bez „Headless” w UA: strona /wycena/ nie montuje kalkulatora przy prerenderze.
+    await page.setUserAgent(
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 MixtureE2E/1',
+    );
+    await page.setViewport({
+      width: vp.width,
+      height: vp.height,
+      isMobile: vp.mobile,
+      hasTouch: vp.mobile,
+      deviceScaleFactor: 1,
+    });
+    const api = [];
+    const consoleErrors = [];
+    const started = new Map();
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+      const u = new URL(req.url());
+      if (u.origin !== base.origin) return req.continue();
+      if (u.pathname.startsWith('/api/')) started.set(req, Date.now());
+      return req.continue({ headers: { ...req.headers(), ...access } });
+    });
+    const done = (req, status) => {
+      const t0 = started.get(req);
+      if (t0 === undefined) return;
+      api.push({
+        method: req.method(),
+        path: new URL(req.url()).pathname,
+        status,
+        ms: Date.now() - t0,
+      });
+    };
+    page.on('requestfinished', (req) => done(req, req.response()?.status() ?? 0));
+    page.on('requestfailed', (req) => done(req, `failed:${req.failure()?.errorText ?? '?'}`));
+    page.on('console', (m) => {
+      if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 200));
+    });
+    page.on('pageerror', (e) => consoleErrors.push(`pageerror: ${e.message.slice(0, 200)}`));
+    const r = { api, consoleErrors };
+    try {
+      await page.goto(`${base.origin}/wycena/`, { waitUntil: 'networkidle2', timeout: 30000 });
+      await page.waitForSelector('[role="radiogroup"]', { timeout: 15000 });
+      r.barBeforeAnswer = (await page.$('[data-testid="live-price-bar"]')) !== null;
+      const radios = async () => page.$$('[role="radiogroup"]:first-of-type [role="radio"]');
+      const barText = () =>
+        page.evaluate(
+          () => document.querySelector('[data-testid="live-price-bar"]')?.textContent ?? null,
+        );
+      const answer = async (i, tag) => {
+        const before = await barText();
+        const el = (await radios())[i];
+        const option = await el.evaluate((e) => e.textContent.trim());
+        await el.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
+        const t0 = Date.now();
+        await el.click();
+        let kind = 'timeout';
+        try {
+          const h = await page.waitForFunction(
+            (pre, fb, prev) => {
+              const bar = document.querySelector('[data-testid="live-price-bar"]');
+              const t = bar?.textContent;
+              if (!t || t === prev || bar.getAttribute('aria-busy') === 'true') return false;
+              if (new RegExp(fb).test(t)) return 'fallback';
+              if (new RegExp(pre).test(t)) return 'price';
+              return false;
+            },
+            { timeout: 8000, polling: 25 },
+            PRICE_RE,
+            FALLBACK_RE,
+            before,
+          );
+          kind = await h.jsonValue();
+        } catch {
+          /* kind zostaje 'timeout' */
+        }
+        const ms = Date.now() - t0;
+        await page.screenshot({ path: path.join(out, 'shots', `${vp.name}-${tag}.png`) });
+        return { option, kind, ms, bar: await barText() };
+      };
+      r.first = await answer(0, 'odp1');
+      r.change = await answer(1, 'odp2');
+    } catch (e) {
+      r.error = `${e.name}: ${String(e.message).slice(0, 200)}`;
+      await page.screenshot({ path: path.join(out, 'shots', `${vp.name}-BLAD.png`) });
+    }
+    if (!(r.change?.kind === 'price' && r.change.ms <= 1000)) {
+      const why = r.change ? `${r.change.kind}, ${r.change.ms} ms` : r.error;
+      fails.push(`${vp.name}: brak ceny po zmianie odpowiedzi w <= 1 s (${why})`);
+    }
+    res[vp.name] = r;
+    await page.close();
+  }
+  await browser.close();
+  res.fails = fails;
+  await fs.writeFile(path.join(out, 'probe-url.json'), JSON.stringify(res, null, 2));
+  console.log(JSON.stringify(res, null, 2));
+  process.exit(fails.length ? 1 : 0);
+}
