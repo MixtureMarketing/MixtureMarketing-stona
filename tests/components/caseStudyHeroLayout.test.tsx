@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { render, screen, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -87,7 +89,9 @@ describe('MIX-1471: switch ON = photo at the very top, text below', () => {
     expect(photo.hasAttribute('loading')).toBe(false);
     // Fixed frame (no layout shift when the image arrives) and no opacity-0 wrapper.
     const frame = photo.parentElement!;
-    expect(frame.className).toMatch(/aspect-\[4\/3\]/);
+    expect(frame.className.split(' ')).toEqual(
+      expect.arrayContaining(['aspect-square', 'sm:aspect-[4/3]', 'md:aspect-[16/9]']),
+    );
     expect(frame.getAttribute('style') ?? '').not.toMatch(/opacity/);
   });
 
@@ -133,5 +137,27 @@ describe('MIX-1471: shared element on the photo-top hero', () => {
     act(() => setArrivalPath('/portfolio/beta/'));
     const { container } = renderHero();
     expect(namesNow(container)).toEqual([]);
+  });
+});
+
+describe('MIX-1471: hero CSS touches only the photo-top layout', () => {
+  const css = readFileSync(
+    resolve(__dirname, '../../components/templates/case-study/caseStudyHero.css'),
+    'utf8',
+  ).replace(/\/\*[\s\S]*?\*\//g, '');
+  const selectors = [...css.matchAll(/([^{}]+)\{[^}]*\}/g)].flatMap((m) =>
+    m[1].split(',').map((s) => s.trim()),
+  );
+
+  it('has rules and every selector is scoped to [data-hero-layout=photo-top]', () => {
+    expect(selectors.length).toBeGreaterThanOrEqual(3);
+    for (const s of selectors) {
+      expect(s.startsWith("main:has([data-hero-layout='photo-top']) ")).toBe(true);
+    }
+  });
+
+  it('keeps the current-page breadcrumb on one line with an ellipsis', () => {
+    expect(css).toMatch(/white-space:\s*nowrap/);
+    expect(css).toMatch(/text-overflow:\s*ellipsis/);
   });
 });

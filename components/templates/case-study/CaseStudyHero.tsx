@@ -6,6 +6,7 @@ import { SanityCaseStudy } from '@/types';
 import { urlFor } from '@/services/cmsService';
 import { VT_NAMES, isViewTransitionsEnabled } from '@/utils/viewTransitions';
 import { getArrivalPath, signalTargetReady, subscribeArrival } from '@/utils/caseStudyArrival';
+import './caseStudyHero.css';
 
 interface CaseStudyHeroProps {
   project: SanityCaseStudy;
@@ -83,9 +84,10 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {project.mainImage && (
-            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia.
+            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; na telefonie
+            // kwadrat, żeby było większe od H1 (LCP) i rosło z karty listy.
             <div
-              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[4/3] md:aspect-[16/9] max-h-[75vh] mb-12"
+              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-square sm:aspect-[4/3] md:aspect-[16/9] max-h-[75vh] mb-12"
               style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
             >
               <img

@@ -412,12 +412,19 @@ report.projects = projects;
 if (projects.length < 2)
   fail(`fewer than 2 cards with an image on /portfolio/ (${projects.length})`);
 
-// PROBE_VP=390,1280 limits the run to some viewports (short lock slots).
+// Short lock slots: PROBE_VP=390,1280 limits viewports, PROBE_P=1 limits projects (1-based),
+// PROBE_LOAD_ONLY=1 measures only the direct load (before/after screenshots, geometry).
 const VP_SEL = process.env.PROBE_VP ? process.env.PROBE_VP.split(',') : null;
+const P_SEL = process.env.PROBE_P ? process.env.PROBE_P.split(',') : null;
+const LOAD_ONLY = process.env.PROBE_LOAD_ONLY === '1';
+report.selection = { vp: VP_SEL, p: P_SEL, loadOnly: LOAD_ONLY };
+const saveReport = () =>
+  fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(report, null, 2));
 for (const vp of VIEWPORTS.filter((v) => !VP_SEL || VP_SEL.includes(v.tag))) {
   const v = (report.viewports[vp.tag] = { load: {}, click: {} });
   for (const [i, href] of projects.entries()) {
     const tag = `p${i + 1}`;
+    if (P_SEL && !P_SEL.includes(String(i + 1))) continue;
     const L = (v.load[href] = await measureLoad(vp, href, tag));
     if (L.photoTop === null) fail(`${vp.tag} ${href}: no hero photo`);
     else if (L.photoTop > L.navBottom + 24)
@@ -429,6 +436,8 @@ for (const vp of VIEWPORTS.filter((v) => !VP_SEL || VP_SEL.includes(v.tag))) {
     if (L.lcp?.tag !== 'IMG') fail(`${vp.tag} ${href}: LCP element ${L.lcp?.tag}`);
     if (L.cls > 0.1) fail(`${vp.tag} ${href}: CLS ${L.cls}`);
     if (L.axe.length) fail(`${vp.tag} ${href}: axe ${JSON.stringify(L.axe)}`);
+    await saveReport();
+    if (LOAD_ONLY) continue;
 
     const C = (v.click[href] = await measureClick(vp, href, {
       pauseMid: true,
@@ -445,14 +454,18 @@ for (const vp of VIEWPORTS.filter((v) => !VP_SEL || VP_SEL.includes(v.tag))) {
       fail(`${vp.tag} ${href}: shared name not exactly once (old/new)`);
     if (!C.sameAsset) fail(`${vp.tag} ${href}: card and hero image are different assets`);
     if (Object.keys(C.namesAtRest).length) fail(`${vp.tag} ${href}: names left after transition`);
+    await saveReport();
   }
-  const R = (v.reducedMotion = await measureClick(vp, projects[0], { reduce: true }));
-  if (R.calls !== 0) fail(`${vp.tag}: reduced motion started ${R.calls} transitions`);
+  if (!LOAD_ONLY && (!P_SEL || P_SEL.includes('1'))) {
+    const R = (v.reducedMotion = await measureClick(vp, projects[0], { reduce: true }));
+    if (R.calls !== 0) fail(`${vp.tag}: reduced motion started ${R.calls} transitions`);
+    await saveReport();
+  }
 }
 
 await browser.close();
 local?.server.close();
-const verdict = safe.verdict().problems;
+const verdict = safe.finish().problems;
 if (verdict.length) report.failures.push(...verdict.map((p) => `prod-safe: ${p}`));
 await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(report, null, 2));
 console.log(`PROBE ${report.source}: failures ${report.failures.length}`);
