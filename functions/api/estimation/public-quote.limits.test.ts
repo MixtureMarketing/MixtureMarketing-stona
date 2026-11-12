@@ -57,12 +57,18 @@ function route(sql: string): unknown[] {
   return [];
 }
 
-type CounterMode = 'sqlite' | 'throw' | 'hang' | { delayMs: number };
+// { delayMs }: odpowiedź D1 opóźniona PRZED wykonaniem (test timeoutu);
+// { latencyMs }: jak prawdziwe D1, instrukcja wykonuje się od razu i atomowo, a wynik wraca po
+// czasie sieci. W tym oknie inne żądania wykonują swoje instrukcje, więc licznik „odczyt, potem
+// zapis” (dwie instrukcje) czyta stary stan i przepuszcza za dużo (Z1-A4).
+type CounterMode = 'sqlite' | 'throw' | 'hang' | { delayMs: number } | { latencyMs: number };
 
 function makeDb(mode: CounterMode = 'sqlite') {
   const sqlite = new DatabaseSync(':memory:');
   sqlite.exec(MIG);
   const stats = { counterCalls: 0, libReads: 0, leadInserts: 0, inserts: 0 };
+  /** Tekst każdej instrukcji first() na rate_counters (kształt: jedna instrukcja na licznik). */
+  const counterSql: string[] = [];
   const DB = {
     prepare(sql: string) {
       if (sql.includes('rate_counters')) {
@@ -72,8 +78,14 @@ function makeDb(mode: CounterMode = 'sqlite') {
           bind: (...v: unknown[]) => ({
             first: async () => {
               stats.counterCalls += isUpsert ? 1 : 0;
+              counterSql.push(sql);
               if (mode === 'throw') throw new Error('D1_ERROR: tabela');
               if (mode === 'hang') return new Promise(() => undefined);
+              if (typeof mode === 'object' && 'latencyMs' in mode) {
+                const out = st.get(...(v as never[])) ?? null;
+                await new Promise((r) => setTimeout(r, mode.latencyMs));
+                return out;
+              }
               if (typeof mode === 'object') await new Promise((r) => setTimeout(r, mode.delayMs));
               return st.get(...(v as never[])) ?? null;
             },
@@ -96,7 +108,7 @@ function makeDb(mode: CounterMode = 'sqlite') {
     },
     batch: async () => [],
   };
-  return { DB, sqlite, stats };
+  return { DB, sqlite, stats, counterSql };
 }
 
 const kvSpy = { get: vi.fn(async () => null), put: vi.fn(async () => undefined) };
@@ -244,7 +256,9 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
   });
 
   it('Z1-A4 ścisło: 20 równoległych z jednego IP i e-maila → dokładnie 3 × 200; ten sam token 2× → captcha', async () => {
-    const { env, stats } = makeEnv();
+    // Opóźnienie odpowiedzi D1 (5 ms) przeplata żądania: licznik nieatomowy (SELECT, potem
+    // INSERT OR REPLACE) przepuszcza tu więcej niż 3 (mutant M1, raport rundy 3).
+    const { env, stats, counterSql } = makeEnv({}, { latencyMs: 5 });
     const res = await Promise.all(Array.from({ length: 20 }, () => post(env, { ip: '2.2.2.2' })));
     expect(res.filter((r) => r.status === 200)).toHaveLength(3);
     expect(
@@ -252,6 +266,10 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
     ).toHaveLength(2);
     expect(res.filter((r) => String(r.reason).startsWith('limit IP'))).toHaveLength(15);
     expect(stats.leadInserts).toBe(3);
+    // Kształt: każda instrukcja licznika to jedno INSERT … ON CONFLICT … DO UPDATE … RETURNING.
+    const UPSERT =
+      /^INSERT INTO rate_counters[\s\S]*ON CONFLICT\(k\) DO UPDATE[\s\S]*RETURNING n, win$/;
+    expect(counterSql.filter((q) => !UPSERT.test(q))).toEqual([]);
     singleUse = true;
     const one = { ...VALID, email: 'raz@x.pl', captcha_token: 'tok-raz' };
     expect(await post(env, { ip: '3.3.3.3', body: one })).toMatchObject(ok200);
@@ -366,10 +384,14 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
 
   it('Z1-V3 e-mail norm.: warianty jednego adresu liczą się razem, 4. → 429; inny adres → 200', async () => {
     const { env } = makeEnv();
-    const group = (emails: string[], prefix: string) =>
-      Promise.all(
-        emails.map((email, i) => post(env, { ip: `${prefix}.${i}`, body: { ...VALID, email } })),
-      );
+    // Kolejno, nie równolegle: oczekiwana kolejność statusów [200, 200, 200, 429] jest wtedy
+    // deterministyczna (równoległość i ścisłość sprawdza Z1-A4 z opóźnieniem D1).
+    const group = async (emails: string[], prefix: string) => {
+      const out: Awaited<ReturnType<typeof post>>[] = [];
+      for (const [i, email] of emails.entries())
+        out.push(await post(env, { ip: `${prefix}.${i}`, body: { ...VALID, email } }));
+      return out;
+    };
     const a = await group(
       ['Ofiara+1@Example.PL', 'OFIARA@EXAMPLE.PL', 'ofiara+x@example.pl', ' ofiara@example.pl'],
       '20.0.0',

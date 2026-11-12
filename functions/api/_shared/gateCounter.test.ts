@@ -146,6 +146,30 @@ describe('bumpCounter (SQL na SQLite)', () => {
   });
 });
 
+describe('migracja 0010: schemat rate_counters', () => {
+  it('klucz NULL → odmowa NOT NULL (także drugi raz); bliźniak: klucz tekstowy → 1 wiersz', () => {
+    const { db } = sqliteD1();
+    const ins = db.prepare('INSERT INTO rate_counters (k, n, win, exp) VALUES (?, 1, 0, 172800)');
+    expect(() => ins.run(null)).toThrow('NOT NULL constraint failed: rate_counters.k');
+    expect(() => ins.run(null)).toThrow('NOT NULL constraint failed: rate_counters.k');
+    expect(rows(db)).toHaveLength(0);
+    ins.run('q:day');
+    expect(rows(db)).toEqual([{ k: 'q:day', n: 1, win: 0, exp: 172800 }]);
+  });
+
+  it('kolumna k: NOT NULL i klucz główny w schemacie', () => {
+    const { db } = sqliteD1();
+    const k = (
+      db.prepare('PRAGMA table_info(rate_counters)').all() as Array<{
+        name: string;
+        notnull: number;
+        pk: number;
+      }>
+    ).find((c) => c.name === 'k');
+    expect(k).toMatchObject({ notnull: 1, pk: 1 });
+  });
+});
+
 describe('retencja 48 h (warunek 1)', () => {
   it('wiersz starszy niż 48 h znika, świeży zostaje, wiersz z przyszłości znika', async () => {
     const { db, d1 } = sqliteD1();

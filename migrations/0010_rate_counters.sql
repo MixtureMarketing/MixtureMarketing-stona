@@ -3,9 +3,10 @@
 --       QUOTE_KEY_HMAC_SECRET, bez wartości jawnej);
 -- n   = liczba żądań w oknie; win = początek okna (sekundy epoki UTC);
 -- exp = win + 48 h: retencja, wiersze z exp < teraz usuwa kod przy każdym liczeniu.
+-- k NOT NULL jawnie: SQLite (i D1) przyjmuje NULL w kolumnie TEXT PRIMARY KEY bez NOT NULL.
 -- Tylko dodaje tabelę (wycofanie kodu nie wymaga cofania migracji).
 CREATE TABLE IF NOT EXISTS rate_counters (
-  k TEXT PRIMARY KEY,
+  k TEXT NOT NULL PRIMARY KEY,
   n INTEGER NOT NULL,
   win INTEGER NOT NULL,
   exp INTEGER NOT NULL
