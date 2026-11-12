@@ -14,6 +14,9 @@ import {
 
 let active = false;
 
+/** Przewinięcie na górę bez animacji (MIX-1471). */
+export const INSTANT_TOP: ScrollToOptions = { top: 0, left: 0, behavior: 'instant' };
+
 /** Czy przejście jest teraz w toku (drugi klik w trakcie = zwykła nawigacja). */
 export function isTransitionActive(): boolean {
   return active;
@@ -88,7 +91,9 @@ export async function runCaseStudyTransition(opts: RunOptions): Promise<'transit
       setArrivalPath(path);
       navigate();
       const ok = await ready;
-      win.scrollTo(0, 0);
+      // MIX-1471: `html { scroll-behavior: smooth }` (index.css) zrobiłby z tego animowane
+      // przewijanie w górę widoczne po przejściu; nowa strona ma stać na 0 od pierwszej klatki.
+      win.scrollTo(INSTANT_TOP);
       if (!ok) transition.skipTransition();
     });
   } catch {
