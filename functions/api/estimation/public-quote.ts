@@ -9,7 +9,13 @@
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
-import { limitsSwitch, quoteGate, safeRay, QUOTE_TURNSTILE, type QuoteGateEnv } from './_quoteGate';
+import {
+  limitsSwitch,
+  quoteGate,
+  safeRay,
+  quoteTurnstileExpect,
+  type QuoteGateEnv,
+} from './_quoteGate';
 import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
 import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
 import {
@@ -151,7 +157,7 @@ async function handlePost(
     body.captcha_token,
     env.TURNSTILE_SECRET,
     ip,
-    QUOTE_TURNSTILE,
+    quoteTurnstileExpect(env),
   );
   if (!ts.ok) return json({ error: 'Weryfikacja antybotowa nieudana.', reason: ts.reason }, 403);
 

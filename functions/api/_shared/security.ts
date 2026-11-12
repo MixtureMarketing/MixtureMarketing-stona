@@ -72,6 +72,28 @@ export interface TurnstileExpect {
 }
 export type TurnstileVerdict = { ok: true } | { ok: false; reason: string };
 
+/** Jedna etykieta DNS: małe litery, cyfry, myślnik tylko w środku, 1–63 znaki. */
+const HOST_LABEL = '[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?';
+/** Pełna nazwa hosta: co najmniej dwie etykiety; bez gwiazdki, schematu, portu i ścieżki. */
+const HOSTNAME_RE = new RegExp(`^${HOST_LABEL}(?:\\.${HOST_LABEL})+$`);
+
+/**
+ * Dodatkowe hosty Turnstile z env (lista po przecinku, MIX-1383 B2). Allowlista: każdy wpis po
+ * trim + lowercase musi być pełną nazwą hosta (HOSTNAME_RE, ≤ 253 znaki); wpis z `*`, spacją,
+ * schematem, portem, ścieżką albo pusty jest pomijany (fail-closed). Brak albo nie-tekst = [].
+ * Wynik porównuje się dokładnie (`includes`), bez dopasowania sufiksu.
+ */
+export function parseTurnstileExtraHosts(raw: unknown): string[] {
+  if (typeof raw !== 'string') return [];
+  const out: string[] = [];
+  for (const part of raw.split(',')) {
+    const host = part.trim().toLowerCase();
+    if (host.length > 253 || !HOSTNAME_RE.test(host)) continue;
+    if (!out.includes(host)) out.push(host);
+  }
+  return out;
+}
+
 /** Najdłuższy token Turnstile według dokumentacji Cloudflare. */
 const TURNSTILE_TOKEN_MAX = 2048;
 

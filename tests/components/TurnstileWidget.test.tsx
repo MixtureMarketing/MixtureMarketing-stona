@@ -68,6 +68,19 @@ describe('TurnstileWidget', () => {
     expect(renderInvisibleTurnstile).toHaveBeenCalledTimes(2);
   });
 
+  it('MIX-1383 B1: prop action trafia do renderInvisibleTurnstile; bez propa 2 argumenty jak dotąd', async () => {
+    renderInvisibleTurnstile.mockResolvedValue('w1');
+    render(<TurnstileWidget siteKey="k" action="public_quote" />);
+    expect(renderInvisibleTurnstile).toHaveBeenCalledWith(expect.any(HTMLElement), 'k', {
+      action: 'public_quote',
+    });
+    renderInvisibleTurnstile.mockClear();
+    render(<TurnstileWidget siteKey="k" />);
+    expect(renderInvisibleTurnstile).toHaveBeenCalledTimes(1);
+    expect(renderInvisibleTurnstile.mock.calls[0]).toHaveLength(2);
+    await act(async () => undefined);
+  });
+
   it('odmontowanie usuwa wyrenderowany widget', async () => {
     renderInvisibleTurnstile.mockResolvedValue('w1');
     const ref = createRef<TurnstileWidgetHandle>();

@@ -6,8 +6,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { onRequestPost, MAX_BODY_BYTES } from './public-quote';
-import { QUOTE_TURNSTILE } from './_quoteGate';
-import { verifyTurnstileStrict } from '../_shared/security';
+import { QUOTE_TURNSTILE, quoteTurnstileExpect } from './_quoteGate';
+import { parseTurnstileExtraHosts, verifyTurnstileStrict } from '../_shared/security';
+import { PUBLIC_QUOTE_TURNSTILE_ACTION } from '../../../lib/estimation/turnstileAction';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 const { DatabaseSync } = process.getBuiltinModule('node:sqlite') as typeof import('node:sqlite');
@@ -326,6 +327,60 @@ describe.each<[string, Mode]>([
     expect(await post(env)).toMatchObject(OK);
   });
 
+  it('B2: host Preview z QUOTE_TURNSTILE_EXTRA_HOSTS → 200; bez zmiennej, spoza listy, sufiks, gwiazdka, schemat, ścieżka → 403 „captcha: hostname”', async () => {
+    const PREVIEW = 'f4b-preview.mixturemarketing-stona.pages.dev';
+    const withHost = (hostname: string) => {
+      sv = async () => new Response(JSON.stringify({ ...TS_OK, hostname }));
+    };
+    const extra = (v: string) => makeEnv(mode, { extra: { QUOTE_TURNSTILE_EXTRA_HOSTS: v } });
+    const denied = { status: 403, reason: 'captcha: hostname' };
+
+    // Bliźniak dozwolony: host wpisany w zmienną (także z odstępami i wielkimi literami).
+    withHost(PREVIEW);
+    expect(await post(extra(PREVIEW).env)).toMatchObject(OK);
+    expect(
+      await post(extra(`  F4B-Preview.MixtureMarketing-Stona.pages.dev , `).env),
+    ).toMatchObject(OK);
+    expect(await post(extra(`other.example.com,${PREVIEW}`).env)).toMatchObject(OK);
+    // Produkcja dalej przechodzi przy ustawionej zmiennej.
+    withHost('mixturemarketing.pl');
+    expect(await post(extra(PREVIEW).env)).toMatchObject(OK);
+
+    // Ten sam host bez zmiennej albo z pustą zmienną → 403.
+    withHost(PREVIEW);
+    const noVar = makeEnv(mode);
+    expect(await post(noVar.env)).toMatchObject(denied);
+    expect(noVar.stats.leadInserts).toBe(0);
+    expect(await post(extra('').env)).toMatchObject(denied);
+    expect(await post(extra('  ,  ').env)).toMatchObject(denied);
+
+    // Host spoza listy (obcy alias tego samego projektu Pages) → 403.
+    withHost('evil.mixturemarketing-stona.pages.dev');
+    expect(await post(extra(PREVIEW).env)).toMatchObject(denied);
+    // Sufiks nie wystarcza: wpis domeny nadrzędnej nie wpuszcza aliasu.
+    withHost(PREVIEW);
+    expect(await post(extra('mixturemarketing-stona.pages.dev').env)).toMatchObject(denied);
+    withHost(`x.${PREVIEW}`);
+    expect(await post(extra(PREVIEW).env)).toMatchObject(denied);
+
+    // Wpisy z gwiazdką, schematem, ścieżką, portem albo spacją w środku są pomijane → 403.
+    withHost(PREVIEW);
+    for (const bad of [
+      '*.mixturemarketing-stona.pages.dev',
+      `*${PREVIEW}`,
+      `https://${PREVIEW}`,
+      `${PREVIEW}/`,
+      `${PREVIEW}/api`,
+      `${PREVIEW}:443`,
+      `f4b preview.mixturemarketing-stona.pages.dev`,
+    ]) {
+      expect(await post(extra(bad).env)).toMatchObject(denied);
+    }
+    // Siteverify zwraca dosłownie gwiazdkę, a zmienna ma gwiazdkę → 403.
+    withHost('*.mixturemarketing-stona.pages.dev');
+    expect(await post(extra('*.mixturemarketing-stona.pages.dev').env)).toMatchObject(denied);
+  });
+
   it('A12 forma 11: action obca, pusta albo brak → 403 „captcha: action”; bliźniak: public_quote 200', async () => {
     const { env } = makeEnv(mode);
     for (const action of ['contact', '', 'public_quote ', undefined, null]) {
@@ -422,5 +477,51 @@ describe('verifyTurnstileStrict: oczekiwania puste = odmowa (fail-closed)', () =
     expect(siteverifyCalls).toBe(0);
     expect(QUOTE_TURNSTILE).toEqual({ hostnames: ['mixturemarketing.pl'], action: 'public_quote' });
     expect(await verifyTurnstileStrict('tok', 's', '', QUOTE_TURNSTILE)).toEqual({ ok: true });
+  });
+});
+
+describe('MIX-1383 B1/B2: wspólna akcja i lista hostów Preview z env', () => {
+  it('akcja serwera = stała frontu public_quote', () => {
+    expect(PUBLIC_QUOTE_TURNSTILE_ACTION).toBe('public_quote');
+    expect(QUOTE_TURNSTILE.action).toBe(PUBLIC_QUOTE_TURNSTILE_ACTION);
+    expect(quoteTurnstileExpect({}).action).toBe(PUBLIC_QUOTE_TURNSTILE_ACTION);
+  });
+
+  it('parseTurnstileExtraHosts: allowlista nazw hostów, reszta pomijana; brak/nie-tekst = []', () => {
+    expect(parseTurnstileExtraHosts(undefined)).toEqual([]);
+    expect(parseTurnstileExtraHosts(null)).toEqual([]);
+    expect(parseTurnstileExtraHosts(42)).toEqual([]);
+    expect(parseTurnstileExtraHosts(['a.pages.dev'])).toEqual([]);
+    expect(parseTurnstileExtraHosts('')).toEqual([]);
+    expect(parseTurnstileExtraHosts('   ')).toEqual([]);
+    expect(
+      parseTurnstileExtraHosts(
+        [
+          '*.x.pages.dev',
+          'https://a.pages.dev',
+          'a.pages.dev/x',
+          'a.pages.dev:8788',
+          'a b.pages.dev',
+          'localhost',
+          '-a.pages.dev',
+          'a-.pages.dev',
+          'a..pages.dev',
+          '.a.pages.dev',
+          'a.pages.dev.',
+          'a_b.pages.dev',
+          `${'a'.repeat(64)}.pages.dev`,
+          `${'a.'.repeat(126)}dev`,
+        ].join(','),
+      ),
+    ).toEqual([]);
+    expect(parseTurnstileExtraHosts(' A.Pages.Dev ,b-1.x.pages.dev,a.pages.dev')).toEqual([
+      'a.pages.dev',
+      'b-1.x.pages.dev',
+    ]);
+    expect(quoteTurnstileExpect({ QUOTE_TURNSTILE_EXTRA_HOSTS: 'a.pages.dev,*.b' })).toEqual({
+      hostnames: ['mixturemarketing.pl', 'a.pages.dev'],
+      action: 'public_quote',
+    });
+    expect(quoteTurnstileExpect({})).toEqual(QUOTE_TURNSTILE);
   });
 });
