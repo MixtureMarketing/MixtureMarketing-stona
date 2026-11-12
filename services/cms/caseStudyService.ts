@@ -2,11 +2,12 @@ import { SanityTeamMember, SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import { fetchWithCache, CmsUnavailableError } from './client';
 
-export const caseStudyService = {
-  async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
-    try {
-      const filter = category ? `&& category == "${category}"` : '';
-      const query = `*[_type == "caseStudy" ${filter}] | order(date desc) {
+/** Limit oczekiwania na listę realizacji; po nim traktujemy pobranie jak błąd. */
+export const CASE_STUDY_LIST_TIMEOUT_MS = 10_000;
+
+const caseStudyListQuery = (category?: string) => {
+  const filter = category ? `&& category == "${category}"` : '';
+  return `*[_type == "caseStudy" ${filter}] | order(date desc) {
         _id,
         title,
         "slug": slug.current,
@@ -17,10 +18,42 @@ export const caseStudyService = {
         excerpt,
         mainImage
       }`;
-      return await fetchWithCache(query);
+};
+
+export const caseStudyService = {
+  async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
+    try {
+      return await fetchWithCache(caseStudyListQuery(category));
     } catch (error) {
       console.warn('Sanity fetch error (getCaseStudies):', error);
       return [];
+    }
+  },
+
+  /**
+   * Lista realizacji dla /portfolio/ (MIX-1467): w odróżnieniu od `getCaseStudies` błąd
+   * pobrania (sieć, 403, timeout, niepoprawny JSON) NIE jest pustą listą, tylko
+   * `CmsUnavailableError`. Pusta tablica oznacza wyłącznie udaną odpowiedź bez pozycji.
+   */
+  async getCaseStudyList(): Promise<SanityCaseStudy[]> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const rows = await Promise.race([
+        fetchWithCache<SanityCaseStudy[]>(caseStudyListQuery()),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`timeout ${CASE_STUDY_LIST_TIMEOUT_MS} ms`)),
+            CASE_STUDY_LIST_TIMEOUT_MS,
+          );
+        }),
+      ]);
+      if (!Array.isArray(rows)) throw new Error('odpowiedź nie jest listą');
+      return rows;
+    } catch (error) {
+      console.warn('Sanity fetch error (getCaseStudyList):', error);
+      throw new CmsUnavailableError('getCaseStudyList', error);
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   },
 

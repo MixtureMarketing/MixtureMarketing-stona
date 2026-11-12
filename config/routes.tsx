@@ -309,6 +309,7 @@ export const CMS_DOCUMENT: Record<string, CmsPick> = {
 /** Strony-listy (bez :slug) — fetcher wołany ze stałym kluczem CMS_LIST_KEY. */
 export const CMS_LIST: Record<string, CmsPick> = {
   '/branza': { id: 'industryList', pick: (cms) => cms.getIndustryList },
+  '/portfolio': { id: 'caseStudyList', pick: (cms) => cms.getCaseStudyList },
 };
 
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {
