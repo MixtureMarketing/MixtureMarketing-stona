@@ -94,6 +94,16 @@ const INSTRUMENT = () => {
     return m;
   };
   window.__vtNames = names;
+  // Diagnoza (MIX-1308 r3): w co naprawdę trafił klik (element i link nad nim).
+  vt.clicks = [];
+  document.addEventListener(
+    'click',
+    (e) => {
+      const a = e.target?.closest?.('a[href]');
+      vt.clicks.push({ t: e.target?.tagName, a: a?.getAttribute('href') ?? null, y: e.clientY });
+    },
+    true,
+  );
   try {
     new PerformanceObserver((l) => {
       for (const e of l.getEntries()) vt.longtasks.push([e.startTime, e.duration]);
@@ -169,19 +179,28 @@ async function openPage(vp, { reduce = false, noVT = false, mode = 'metrics' } =
     { noVT, mode },
   );
   await page.evaluateOnNewDocument(INSTRUMENT);
+  const diag = { blockedUrls: [], consoleErrors: [], failed: [] };
+  page.__diag = diag;
+  const note = (list, v) => list.length < 15 && list.push(String(v).slice(0, 160));
   await safe.protect(page, {
     userAgent: UA,
-    onBlocked: () => blocked++,
+    onBlocked: (req) => {
+      blocked++;
+      note(diag.blockedUrls, `prodsafe ${req.method()} ${req.url()}`);
+    },
     handler: (req) => {
       const u = req.url();
       const own = u.startsWith(ON.origin) || u.startsWith(OFF.origin);
       if (req.method() === 'GET' && (own || SANITY.test(u))) req.continue().catch(() => {});
       else {
         blocked++;
+        note(diag.blockedUrls, `handler ${req.method()} ${u}`);
         req.abort().catch(() => {});
       }
     },
   });
+  page.on('console', (m) => m.type() === 'error' && note(diag.consoleErrors, m.text()));
+  page.on('requestfailed', (r) => note(diag.failed, `${r.url()} ${r.failure()?.errorText}`));
   page.on('pageerror', (e) => {
     pageErrors++;
     report.failures.push(`pageerror: ${String(e.message).slice(0, 160)}`);
@@ -209,24 +228,89 @@ async function pickCard(page, { excludePath } = {}) {
   }, excludePath ?? null);
 }
 
+/**
+ * Baner zgód (fixed bottom) zasłania na 390 px środek karty: klik trafiał w jego akapit
+ * (MIX-1308 r3). Próba robi to co użytkownik: „Odrzuć opcjonalne" (bez zgody na analitykę).
+ */
+async function dismissConsent(page) {
+  const clicked = await page.evaluate(() => {
+    const region = document.querySelector('[role="region"][aria-label="Baner plików cookies"]');
+    const btn = [...(region?.querySelectorAll('button') ?? [])].find(
+      (b) => b.textContent.trim() === 'Odrzuć opcjonalne',
+    );
+    btn?.click();
+    return !!btn;
+  });
+  if (clicked)
+    await page.waitForFunction(
+      () => !document.querySelector('[role="region"][aria-label="Baner plików cookies"]'),
+      { timeout: 3000 },
+    );
+}
+
 async function waitForCard(page, opts) {
+  await dismissConsent(page);
   for (let i = 0; i < 40; i++) {
     const h = await pickCard(page, opts);
     if (await h.evaluate((a) => !!a)) return h;
-    await page.evaluate(() => window.scrollBy(0, 600));
+    // `html { scroll-behavior: smooth }` (index.css): bez `instant` przewijania się kolejkują
+    // i strona jedzie dalej już po kliknięciu (MIX-1308 r3: klik trafiał w H2 obok karty).
+    await page.evaluate(() => window.scrollBy({ top: 600, behavior: 'instant' }));
     await sleep(250);
   }
   return null;
 }
 
+/** Karta na środku ekranu i w spoczynku (pozycja stała przez 2 odczyty co 100 ms). */
+async function settleOnCard(card) {
+  await card.evaluate((a) => a.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  let last = null;
+  for (let i = 0; i < 30; i++) {
+    await sleep(100);
+    const now = await card.evaluate(
+      (a) => `${Math.round(a.getBoundingClientRect().top)}:${scrollY}`,
+    );
+    if (now === last) break;
+    last = now;
+    if (i === 29) throw new Error(`karta nie stanęła w 3 s (${last})`);
+  }
+  // Klik idzie w środek karty: coś nad nim (baner, nakładka) = jawny błąd zamiast 8 s ciszy.
+  const cover = await card.evaluate((a) => {
+    const r = a.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    return hit && (a === hit || a.contains(hit)) ? null : String(hit?.outerHTML).slice(0, 120);
+  });
+  if (cover) throw new Error(`środek karty zasłania: ${cover}`);
+}
+
 /** Klik w kartę i pomiar: przejście, nazwy, długie zadania, CLS na celu. */
 async function clickAndMeasure(page, card) {
-  await card.evaluate((a) => a.scrollIntoView({ block: 'center' }));
-  await sleep(400);
+  await settleOnCard(card);
   const href = await card.evaluate((a) => a.getAttribute('href'));
   const tClick = await page.evaluate(() => performance.now());
+  const box = await card.boundingBox();
   await card.click();
-  await page.waitForFunction((h) => location.pathname === h, { timeout: 8000 }, href);
+  try {
+    await page.waitForFunction((h) => location.pathname === h, { timeout: 8000 }, href);
+  } catch (e) {
+    const state = await page.evaluate((h) => {
+      const a = document.querySelector(`a[href="${h}"]`);
+      const r = a?.getBoundingClientRect();
+      const hit = r ? document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) : null;
+      return {
+        path: location.pathname,
+        ua: navigator.userAgent,
+        hidden: document.visibilityState,
+        vtAttr: document.documentElement.getAttribute('data-vt'),
+        vt: { calls: window.__vt.calls, records: window.__vt.records, clicks: window.__vt.clicks },
+        scrollY: window.scrollY,
+        hit: hit ? hit.outerHTML.slice(0, 200) : null,
+        hitInsideCard: !!(a && hit && (a === hit || a.contains(hit))),
+      };
+    }, href);
+    console.log('DIAG ' + JSON.stringify({ href, box, ...state, ...page.__diag }));
+    throw e;
+  }
   await sleep(2000);
   return page.evaluate(
     (t, h) => {
@@ -332,8 +416,7 @@ for (const vp of VIEWPORTS) {
     await shot.goto(ON.origin + src.url, { waitUntil: 'networkidle2', timeout: 30000 });
     const c2 = await waitForCard(shot);
     if (c2) {
-      await c2.evaluate((a) => a.scrollIntoView({ block: 'center' }));
-      await sleep(400);
+      await settleOnCard(c2);
       await c2.click();
       try {
         await shot.waitForFunction(() => window.__paused, { timeout: 8000 });
