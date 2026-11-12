@@ -59,7 +59,7 @@ const ArticleTemplate = () => {
         breadcrumbs={[
           { name: 'Strona Główna', item: '/' },
           { name: 'Baza Wiedzy', item: '/baza-wiedzy/' },
-          { name: article.title, item: `/baza-wiedzy/${article.slug.current}/` },
+          { name: article.title, item: `/baza-wiedzy/${article.slug}/` },
         ]}
       />
       <Suspense fallback={null}>
@@ -73,7 +73,7 @@ const ArticleTemplate = () => {
             readTime: article.readTime,
             categoryLabel: article.category?.title || 'Baza Wiedzy',
             image: '/assets/images/sygnet.png',
-            slug: `/baza-wiedzy/${article.slug.current}/`,
+            slug: `/baza-wiedzy/${article.slug}/`,
             tags: article.tags || [],
           }}
         />
