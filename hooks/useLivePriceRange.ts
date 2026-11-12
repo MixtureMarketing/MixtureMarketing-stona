@@ -2,7 +2,7 @@
 // serwer o podgląd, pamięta wynik dla tych samych odpowiedzi (0 nowych zapytań przy powrocie do
 // wcześniejszego zestawu) i nie zapamiętuje błędów. Wyłączony przełącznik = zero zapytań.
 import { useEffect, useRef, useState } from 'react';
-import { requestPricePreview } from '../services/pricePreviewService';
+import { isPreviewUnavailable, requestPricePreview } from '../services/pricePreviewService';
 import type { PriceRange } from '../services/calculatorService';
 import { LIVE_PRICE_DEBOUNCE_MS, answersHash } from '../components/features/calculator/livePrice';
 
@@ -10,7 +10,10 @@ export type LivePriceStatus = 'idle' | 'loading' | 'ok' | 'rateLimited' | 'error
 
 export interface LivePriceState {
   status: LivePriceStatus;
-  /** Ostatnie znane widełki (zostają widoczne w trakcie liczenia nowych). */
+  /**
+   * Ostatnie znane widełki (zostają widoczne w trakcie liczenia nowych). MIX-1466: po błędzie,
+   * przekroczeniu czasu albo 429 = null, bo stara cena nie pasuje już do nowych odpowiedzi.
+   */
   priceRange: PriceRange | null;
 }
 
@@ -28,6 +31,9 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
   const [state, setState] = useState<LivePriceState>(IDLE);
   const memo = useRef(new Map<string, PriceRange>());
   const previewToken = useRef<string | undefined>(undefined);
+  // MIX-1466: endpoint podglądu nie istnieje na tym wdrożeniu (404/405/501): do przeładowania
+  // strony już nie pytamy (ani serwera, ani Turnstile), pasek pokazuje komunikat zastępczy.
+  const unavailable = useRef(false);
   const captchaRef = useRef(getCaptchaToken);
   const answersRef = useRef(answers);
   useEffect(() => {
@@ -43,6 +49,10 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
     const cached = memo.current.get(hash);
     if (cached) {
       setState({ status: 'ok', priceRange: cached });
+      return;
+    }
+    if (unavailable.current) {
+      setState({ status: 'error', priceRange: null });
       return;
     }
 
@@ -69,11 +79,12 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
           memo.current.set(hash, res.priceRange);
           setState({ status: 'ok', priceRange: res.priceRange });
         } else {
+          if (isPreviewUnavailable(res.status)) unavailable.current = true;
           const status = res.status === 429 ? 'rateLimited' : 'error';
-          setState((s) => ({ status, priceRange: s.priceRange }));
+          setState({ status, priceRange: null });
         }
       } catch {
-        if (!cancelled) setState((s) => ({ status: 'error', priceRange: s.priceRange }));
+        if (!cancelled) setState({ status: 'error', priceRange: null });
       }
     }, LIVE_PRICE_DEBOUNCE_MS);
 

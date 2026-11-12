@@ -19,16 +19,35 @@ export interface PreviewPayload {
 export type PreviewResult =
   { ok: true; priceRange: PriceRange; previewToken?: string } | { ok: false; status: number };
 
+/**
+ * MIX-1466: górny limit czasu jednego zapytania (ms). Po nim zapytanie jest przerywane i wraca
+ * jak błąd sieci (status 0), żeby pasek nie wisiał w „Liczę…” bez końca.
+ */
+export const PREVIEW_TIMEOUT_MS = 4000;
+
+/**
+ * Endpoint nie istnieje na tym wdrożeniu (Pages zwraca 404/405 dla ścieżki bez funkcji,
+ * 501 = nie obsługujemy). Po takiej odpowiedzi kolejne zapytania nie mają sensu.
+ */
+export function isPreviewUnavailable(status: number): boolean {
+  return status === 404 || status === 405 || status === 501;
+}
+
 export async function requestPricePreview(
   payload: PreviewPayload,
   signal?: AbortSignal,
 ): Promise<PreviewResult> {
+  const own = new AbortController();
+  const timer = setTimeout(() => own.abort(), PREVIEW_TIMEOUT_MS);
+  const onAbort = () => own.abort();
+  if (signal?.aborted) own.abort();
+  else signal?.addEventListener('abort', onAbort, { once: true });
   try {
     const res = await fetch(PREVIEW_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal,
+      signal: own.signal,
     });
     if (!res.ok) return { ok: false, status: res.status };
     const data = (await res.json()) as {
@@ -42,5 +61,8 @@ export async function requestPricePreview(
     return { ok: true, priceRange: { min: pr.min, max: pr.max }, previewToken: data.preview_token };
   } catch {
     return { ok: false, status: 0 };
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener('abort', onAbort);
   }
 }
