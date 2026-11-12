@@ -1,46 +1,74 @@
-declare global {
-  interface Window {
-    zaraz?: {
-      consent: {
-        set: (data: Record<string, boolean>) => void;
-      };
-      // Zaraz zwraca Promise — odrzucany, gdy beacon /cdn-cgi/zaraz/t jest zablokowany.
-      track: (event: string, data?: Record<string, unknown>) => void | Promise<unknown>;
-    };
-  }
-  const gtag: (...args: unknown[]) => void;
-}
+// Typy window.zaraz / window.gtag / window.dataLayer: vite-env.d.ts (jedno źródło deklaracji).
+import { type ConsentState, checkConsentValue } from './consentValue';
+import { queueZarazDelivery } from './zarazConsent';
 
-export type ConsentState = {
-  analytics: boolean;
-  marketing: boolean;
+export {
+  type ConsentCheck,
+  type ConsentState,
+  CONSENT_STORAGE_KEY,
+  checkConsentValue,
+  checkStoredConsent,
+} from './consentValue';
+export { ZARAZ_CONSENT_API_READY_EVENT, resetConsentDeliveryForTests } from './zarazConsent';
+
+/** Identyfikatory celów (purposes) w Zaraz Consent Management: analityka, marketing. */
+const ZARAZ_PURPOSES = { analytics: 'kese', marketing: 'Pzjv' } as const;
+
+/**
+ * K2 (MIX-1375 B5, MIX-1389): Consent Mode v2 po stronie Zaraz.
+ * Gdy w panelu Zaraz zaznaczono „Set Google Consent Mode v2 state”, Zaraz wysyła do GA4
+ * „denied”, dopóki strona nie ustawi zastrzeżonej właściwości `google_consent_update`
+ * (źródło: https://developers.cloudflare.com/zaraz/advanced/google-consent-mode/ ,
+ * sekcja „Update the consent status”: `zaraz.set("google_consent_update", {...})`).
+ * Domyślnie WYŁĄCZONE: włączyć (true) tylko razem z tym zaznaczeniem w panelu.
+ */
+export const ZARAZ_GOOGLE_CONSENT_MODE = false;
+
+export type ApplyConsentOptions = {
+  /** K2: `zaraz.set('google_consent_update', …)`; domyślnie ZARAZ_GOOGLE_CONSENT_MODE (false). */
+  googleConsentMode?: boolean;
 };
 
-export const applyConsent = (consent: ConsentState) => {
+export const applyConsent = (consent: ConsentState, options: ApplyConsentOptions = {}) => {
+  if (typeof window === 'undefined') return;
+  // Fail-closed: wartość spoza allowlisty nie trafia ani do gtag, ani do Zaraz.
+  const checked = checkConsentValue(consent);
+  if (!checked.ok) {
+    if (process.env.NODE_ENV !== 'production') console.warn(`applyConsent: ${checked.reason}`);
+    return;
+  }
+  const { analytics, marketing } = checked.consent;
+  const googleConsentMode = options.googleConsentMode ?? ZARAZ_GOOGLE_CONSENT_MODE;
+
+  const adSignal = marketing ? 'granted' : 'denied';
+  const analyticsSignal = analytics ? 'granted' : 'denied';
   const consentSettings = {
-    ad_storage: consent.marketing ? 'granted' : 'denied',
-    ad_user_data: consent.marketing ? 'granted' : 'denied',
-    ad_personalization: consent.marketing ? 'granted' : 'denied',
-    analytics_storage: consent.analytics ? 'granted' : 'denied',
+    ad_storage: adSignal,
+    ad_user_data: adSignal,
+    ad_personalization: adSignal,
+    analytics_storage: analyticsSignal,
     personalization_storage: 'granted',
     functionality_storage: 'granted',
     security_storage: 'granted',
   };
 
-  gtag('consent', 'update', consentSettings);
-
-  if (typeof window !== 'undefined' && window.zaraz?.consent) {
-    try {
-      window.zaraz.consent.set({
-        kese: consent.analytics,
-        Pzjv: consent.marketing,
-      });
-    } catch (e) {
-      console.error('Zaraz consent error:', e);
-    }
+  if (typeof window.gtag === 'function') {
+    window.gtag('consent', 'update', consentSettings);
   }
 
-  if (typeof window !== 'undefined' && window.dataLayer) {
+  queueZarazDelivery({
+    purposes: { [ZARAZ_PURPOSES.analytics]: analytics, [ZARAZ_PURPOSES.marketing]: marketing },
+    google: googleConsentMode
+      ? {
+          ad_storage: adSignal,
+          ad_user_data: adSignal,
+          ad_personalization: adSignal,
+          analytics_storage: analyticsSignal,
+        }
+      : null,
+  });
+
+  if (window.dataLayer) {
     window.dataLayer.push({
       event: 'cookie_consent_update',
     });
