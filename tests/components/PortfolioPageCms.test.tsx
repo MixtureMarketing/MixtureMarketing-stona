@@ -150,3 +150,13 @@ describe('PortfolioPage — odstęp hero → lista', () => {
     expect(section?.className).toMatch(/\bpt-12\b/);
   });
 });
+
+describe('PortfolioPage — ładowanie', () => {
+  it('w trakcie pobierania nie ma „Brak projektów” ani stanu błędu (szkielet)', async () => {
+    h.getCaseStudyList.mockReturnValue(new Promise(() => {}));
+    renderPage();
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByText('Brak projektów')).toBeNull();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
