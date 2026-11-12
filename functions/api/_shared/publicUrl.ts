@@ -14,6 +14,10 @@ const ALLOWED_PORTS = new Set(['', '80', '443']);
 const DOH_URL = 'https://cloudflare-dns.com/dns-query';
 const DOH_TIMEOUT_MS = 3_000;
 const BLOCKED_SUFFIXES = ['.localhost', '.local', '.internal', '.lan', '.home.arpa', '.intranet'];
+// Allowlista kształtu nazwy (MIX-1395): etykieta 1–63 znaki [a-z0-9_-] (IDN parser URL
+// zamienia na punycode xn--), cała nazwa ≤ 253 znaki.
+const HOST_LABEL = /^[a-z0-9_-]{1,63}$/;
+const MAX_HOST_LEN = 253;
 
 export class UnsafeUrlError extends Error {
   constructor(public reason: string) {
@@ -109,6 +113,7 @@ function isPublicIPv6(h: number[]): boolean {
   if (h[0] === 0x2001 && h[1] === 0x0db8) return false; // dokumentacja
   if (h[0] === 0x2001 && h[1] < 0x0200) return false; // 2001::/23 (Teredo, ORCHID, IETF)
   if (h[0] === 0x2002) return false; // 6to4 (osadzony IPv4 dowolny)
+  if (h[0] === 0x3fff && h[1] < 0x1000) return false; // 3fff::/20 dokumentacja (RFC 9637)
   return true;
 }
 
@@ -121,21 +126,52 @@ export function isPublicIp(ip: string): boolean {
   return false; // nie-IP traktujemy jak niedozwolone
 }
 
-/** Adres IP klienta przycięty do klucza limitu: IPv4 bez zmian, IPv6 → prefiks /64. */
+/**
+ * Adres IP klienta przycięty do klucza limitu (allowlista, MIX-1395):
+ * IPv4 → ten adres (/32); IPv4 zmapowany ::ffff:0:0/96 (kropkowo albo heks) → ten sam klucz
+ * co IPv4; inny IPv6 → prefiks /64; puste albo nie-IP → wspólny klucz 'brak-ip'
+ * (wszyscy bez poprawnego IP dzielą jeden licznik — fail-closed).
+ */
 export function ipLimitKey(ip: string): string {
+  const v4 = parseIPv4(ip.trim());
+  if (v4) return v4.join('.');
   const v6 = ip.includes(':') ? parseIPv6(ip) : null;
-  if (v6) {
-    return (
-      v6
-        .slice(0, 4)
-        .map((x) => x.toString(16))
-        .join(':') + '::/64'
-    );
+  if (!v6) return 'brak-ip';
+  if (v6.slice(0, 5).every((x) => x === 0) && v6[5] === 0xffff) {
+    return [v6[6] >> 8, v6[6] & 255, v6[7] >> 8, v6[7] & 255].join('.');
   }
-  return ip.trim() || 'brak-ip';
+  return (
+    v6
+      .slice(0, 4)
+      .map((x) => x.toString(16))
+      .join(':') + '::/64'
+  );
 }
 
 // ---------- URL ----------
+
+/**
+ * Nazwa hosta do kontroli i do DNS (MIX-1395). Małe litery; najwyżej JEDNA kropka końcowa
+ * (FQDN) jest zdejmowana. Literał IPv6 ([…]) wraca bez zmian (decyduje isPublicIp).
+ * Reszta musi przejść allowlistę kształtu, inaczej UnsafeUrlError z powodem:
+ * pusta nazwa, pusta etykieta (`localhost..`, `a..b.pl`, `.a.pl`), znak spoza [a-z0-9_-],
+ * etykieta > 63 albo nazwa > 253 znaki. Odmowa zapada przed DNS.
+ */
+export function checkedHostname(hostname: string): string {
+  // Tylko litery ASCII na małe: toLowerCase() zamienia np. znak Kelvina (U+212A) na „k”.
+  const lower = hostname.replace(/[A-Z]/g, (c) => c.toLowerCase());
+  if (lower.startsWith('[')) return lower;
+  const name = lower.endsWith('.') ? lower.slice(0, -1) : lower;
+  if (!name.trim()) throw new UnsafeUrlError('brak hosta');
+  if (name.length > MAX_HOST_LEN) throw new UnsafeUrlError('nazwa hosta za długa');
+  const labels = name.split('.');
+  if (labels.some((l) => l === '')) throw new UnsafeUrlError('pusta etykieta w nazwie hosta');
+  if (labels.some((l) => l.length > 63)) throw new UnsafeUrlError('etykieta dłuższa niż 63 znaki');
+  if (!labels.every((l) => HOST_LABEL.test(l))) {
+    throw new UnsafeUrlError('niedozwolony znak w nazwie hosta');
+  }
+  return name;
+}
 
 /**
  * Kontrola kształtu (bez sieci). Zwraca URL albo rzuca UnsafeUrlError.
@@ -152,8 +188,7 @@ export function assertUrlShape(raw: string): URL {
   if (u.protocol !== 'http:' && u.protocol !== 'https:') throw new UnsafeUrlError('schemat');
   if (u.username || u.password) throw new UnsafeUrlError('dane logowania w adresie');
   if (!ALLOWED_PORTS.has(u.port)) throw new UnsafeUrlError(`port ${u.port}`);
-  const host = u.hostname.toLowerCase().replace(/\.$/, '');
-  if (!host) throw new UnsafeUrlError('brak hosta');
+  const host = checkedHostname(u.hostname);
   if (host.startsWith('[') || parseIPv4(host)) {
     if (!isPublicIp(host)) throw new UnsafeUrlError('adres prywatny/zarezerwowany');
     return u;
@@ -201,7 +236,7 @@ export async function assertPublicHost(host: string, f: FetchLike = fetch): Prom
 /** Pełna kontrola jednego adresu: kształt + (dla nazw) DNS. */
 export async function assertPublicUrl(raw: string, f: FetchLike = fetch): Promise<URL> {
   const u = assertUrlShape(raw);
-  const host = u.hostname.toLowerCase().replace(/\.$/, '');
+  const host = checkedHostname(u.hostname);
   if (!host.startsWith('[') && !parseIPv4(host)) await assertPublicHost(host, f);
   return u;
 }
