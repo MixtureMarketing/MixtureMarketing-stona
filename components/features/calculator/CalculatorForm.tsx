@@ -5,6 +5,7 @@ import QuestionField from './QuestionField';
 import { CONTACT_STEP, firstErrorTarget } from './formLogic';
 import type { PublicQuestion } from '../../../services/calculatorService';
 import type { Answers } from '../../../lib/estimation/types';
+import { trackCalculatorStep } from '../../../utils/calculatorTracking';
 
 // Etykiety grup (treść UI, Level 1) — fallback na „Szczegóły", gdy grupa spoza mapy.
 const GROUP_LABEL: Record<string, string> = {
@@ -62,8 +63,21 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
 
   const stepQuestions = isContact ? [] : visible.filter((q) => (q.group ?? 'projekt') === step);
 
-  const next = () => setStepIdx((i) => Math.min(i + 1, steps.length - 1));
-  const prev = () => setStepIdx((i) => Math.max(i - 1, 0));
+  // GA4 (MIX-1384): jedno zdarzenie calculator_step na faktyczną zmianę kroku, z handlera
+  // (nie z efektu), więc pierwszy render i ponowne renderowanie niczego nie wysyłają.
+  const goTo = (target: number, direction: 'next' | 'back' | 'error') => {
+    const clamped = Math.max(0, Math.min(target, steps.length - 1));
+    if (clamped === idx) return;
+    setStepIdx(clamped);
+    trackCalculatorStep({
+      stepNumber: clamped + 1,
+      stepCount: steps.length,
+      group: steps[clamped] === CONTACT_STEP ? 'contact' : steps[clamped],
+      direction,
+    });
+  };
+  const next = () => goTo(idx + 1, 'next');
+  const prev = () => goTo(idx - 1, 'back');
 
   // Fokus na polu z błędem PO renderze kroku, na którym to pole istnieje.
   const pendingFocus = useRef<string | null>(null);
@@ -89,7 +103,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
     const t = firstErrorTarget(steps, visible, errs);
     if (!t) return;
     pendingFocus.current = t.fieldId;
-    setStepIdx(t.stepIdx);
+    goTo(t.stepIdx, 'error');
     setFocusRequest((n) => n + 1);
   };
 
