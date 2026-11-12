@@ -54,6 +54,24 @@ describe('timingSafeEqual', () => {
     expect(timingSafeEqual('', 'a')).toBe(false);
   });
 
+  it('MIX-1495: różna długość z doklejonym NUL-em = false (zabija wyzerowanie xor długości)', () => {
+    // Bez składnika `a.length ^ b.length` brakujący znak liczyłby się jako 0 i NUL by przechodził.
+    expect(timingSafeEqual('ab', 'ab\0')).toBe(false);
+    expect(timingSafeEqual('ab\0\0', 'ab')).toBe(false);
+    expect(timingSafeEqual('', '\0')).toBe(false);
+    expect(timingSafeEqual('x'.repeat(43), 'x'.repeat(43) + '\0')).toBe(false);
+  });
+
+  it('MIX-1495: różnica jednego znaku na każdej pozycji podpisu (43 znaki) = false', () => {
+    const sig = 'A'.repeat(43);
+    for (let i = 0; i < sig.length; i++) {
+      const bad = sig.slice(0, i) + 'B' + sig.slice(i + 1);
+      expect(timingSafeEqual(sig, bad)).toBe(false);
+      expect(timingSafeEqual(bad, sig)).toBe(false);
+    }
+    expect(timingSafeEqual(sig, sig)).toBe(true);
+  });
+
   it('nie kończy wcześnie: czyta wszystkie znaki także przy różnicy na pozycji 0', () => {
     let reads = 0;
     const fake = (s: string) =>
@@ -154,6 +172,27 @@ describe('issueToken / verifyToken', () => {
     expect(spy.mock.calls[0][0]).toHaveLength(43);
   });
 
+  it('MIX-1495: podpis i skrót IP idą przez tokenCrypto.equal (podmiana na === / wczesne wyjście nie przejdzie)', async () => {
+    const { token } = await issueToken({ kid: 'main', secret: SECRET }, IP, T0);
+    const spy = vi.spyOn(tokenCrypto, 'equal');
+    expect(await verifyToken(ENV, token, IP, T0)).toMatchObject({ ok: true });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy.mock.calls.map((c) => c[0].length)).toEqual([43, 32]);
+    // Wymuszone `equal` = true przepuszcza zmieniony podpis: weryfikacja zależy od tej funkcji,
+    // a nie od własnego porównania `===`.
+    spy.mockReturnValue(true);
+    const last = token.slice(-1);
+    const bad = token.slice(0, -1) + (last === 'A' ? 'B' : 'A');
+    expect(await verifyToken(ENV, bad, IP, T0)).toMatchObject({ ok: true });
+    // Wymuszone `false` odrzuca prawidłowy token podpisem, a nie dopiero kolejnym warunkiem.
+    spy.mockReturnValue(false);
+    expect(await verifyToken(ENV, token, IP, T0)).toEqual({ ok: false, reason: 'token: podpis' });
+    // Skrót IP: pierwsze porównanie (podpis) prawdziwe, drugie (IP) fałszywe = token: ip.
+    spy.mockReset();
+    spy.mockReturnValueOnce(true).mockReturnValueOnce(false);
+    expect(await verifyToken(ENV, token, IP, T0)).toEqual({ ok: false, reason: 'token: ip' });
+  });
+
   it('kid nieznany podpisany sekretem głównym = token: kid; kid k2 z sekretem K2 = OK', async () => {
     const { token } = await issueToken({ kid: 'main', secret: SECRET }, IP, T0);
     const p = decode(token);
@@ -193,5 +232,30 @@ describe('issueToken / verifyToken', () => {
     ])
       expect(await verifyToken(ENV, t, IP, T0)).toEqual(fmt);
     expect((await verifyToken(ENV, token, IP, T0)).ok).toBe(true);
+  });
+});
+
+// MIX-1495: odczyty znaków liczone atrapą, żeby wyjście po długości albo `===` nie przeszły.
+describe('timingSafeEqual: stały czas (liczone odczyty)', () => {
+  const counting = (counter: { n: number }) => (s: string) =>
+    ({
+      length: s.length,
+      charCodeAt: (i: number) => {
+        counter.n++;
+        return s.charCodeAt(i);
+      },
+    }) as unknown as string;
+
+  it('różne długości: nadal odczyt każdej pozycji dłuższego wejścia, wynik false', () => {
+    const c = { n: 0 };
+    const f = counting(c);
+    expect(timingSafeEqual(f('abcdefgh'), f('abcdefg'))).toBe(false);
+    expect(c.n).toBe(16);
+  });
+  it('ta sama treść w dwóch osobnych napisach: true z pętli, nie z tożsamości', () => {
+    const c = { n: 0 };
+    const f = counting(c);
+    expect(timingSafeEqual(f('abcdefgh'), f('abcdefgh'))).toBe(true);
+    expect(c.n).toBe(16);
   });
 });

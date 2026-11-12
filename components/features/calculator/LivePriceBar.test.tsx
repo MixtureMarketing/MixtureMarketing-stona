@@ -135,12 +135,92 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     expect(requestPricePreview.mock.calls[0][0].answers).toEqual({ project_goal: 'wizytowka' });
   });
 
+  it('MIX-1495: dwa kliknięcia w odstępie 0,4 s: 1 zapytanie, potem 1 końcowe z ostatnim stanem, bez błędu', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    pick('Portal');
+    // Zwłoka 400 ms już minęłaby (800 ms), ale od zapytania nie minęła jeszcze 1 s.
+    await wait(399);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    await wait(500);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Nie udało się');
+    await wait(101);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect(requestPricePreview.mock.calls[1][0].answers).toEqual({ project_goal: 'portal' });
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/40\s?000\s–\s90\s?000\szł/);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Nie udało się');
+  });
+
+  it('MIX-1495: trzy kliknięcia w trakcie odstępu łączą się w jedno zapytanie z ostatnim stanem', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    pick('Portal');
+    await wait(300);
+    pick('Wizytówka');
+    await wait(2000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    expect(requestPricePreview.mock.calls[1][0].answers).toEqual({ project_goal: 'wizytowka' });
+  });
+
+  it('MIX-1495 bliźniak: kliknięcie po upływie 1 s idzie po samej zwłoce 400 ms', async () => {
+    await mount();
+    pick('Sklep');
+    await wait(400);
+    await wait(1000);
+    pick('Portal');
+    await wait(399);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    await wait(1);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+  });
+
+  it('MIX-1495: odpowiedź 503 (limiter): jedno ponowienie po 1 s, bez komunikatu o błędzie', async () => {
+    await mount();
+    requestPricePreview.mockResolvedValueOnce({ ok: false, status: 503 });
+    pick('Sklep');
+    await wait(400);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Nie udało się');
+    await wait(999);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('live-price-bar')).not.toHaveTextContent('Nie udało się');
+    await wait(1);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar).toHaveTextContent(/27\s?500\s–\s53\s?000\szł/);
+    expect(bar).not.toHaveTextContent('Nie udało się');
+  });
+
+  it('MIX-1495 bliźniak: 503 dwa razy z rzędu: komunikat zastępczy po jednym ponowieniu (2 zapytania)', async () => {
+    await mount();
+    requestPricePreview.mockResolvedValue({ ok: false, status: 503 });
+    pick('Sklep');
+    await wait(5000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(2);
+    const bar = screen.getByTestId('live-price-bar');
+    expect(bar).toHaveTextContent('Nie udało się teraz policzyć ceny');
+    expect(bar).not.toHaveTextContent(/zł/);
+  });
+
+  it('MIX-1495 bliźniak: 429 nie jest ponawiane', async () => {
+    await mount();
+    requestPricePreview.mockResolvedValue({ ok: false, status: 429 });
+    pick('Sklep');
+    await wait(5000);
+    expect(requestPricePreview).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Liczymy za często');
+  });
+
   it('te same odpowiedzi drugi raz: 0 nowych zapytań, a cena wraca z pamięci', async () => {
     await mount();
     pick('Sklep');
     await wait(400);
     pick('Wizytówka');
-    await wait(400);
+    await wait(1000);
     expect(requestPricePreview).toHaveBeenCalledTimes(2);
     pick('Sklep');
     await wait(2000);
@@ -156,7 +236,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     pick('Sklep');
     await wait(400);
     pick('Portal');
-    await wait(400);
+    await wait(1000);
     expect(getToken).toHaveBeenCalledTimes(1);
     expect(requestPricePreview.mock.calls[1][0]).toEqual({
       answers: { project_goal: 'portal' },
@@ -176,7 +256,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     pick('Sklep');
     await wait(400);
     pick('Portal');
-    await wait(400);
+    await wait(2000);
     expect(requestPricePreview).toHaveBeenCalledTimes(3);
     expect(requestPricePreview.mock.calls[2][0]).toMatchObject({ captcha_token: 'captcha-1' });
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/40\s?000/);
@@ -188,7 +268,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     await wait(400);
     requestPricePreview.mockResolvedValueOnce({ ok: false, status: 429 });
     pick('Wizytówka');
-    await wait(400);
+    await wait(1000);
     const bar = screen.getByTestId('live-price-bar');
     expect(bar).toHaveTextContent('Liczymy za często. Odczekaj chwilę');
     expect(bar.textContent).not.toMatch(/429|HTTP|błąd serwera|API|token/i);
@@ -202,7 +282,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
     requestPricePreview.mockResolvedValueOnce({ ok: false, status: 0 });
     pick('Wizytówka');
-    await wait(400);
+    await wait(1000);
     const bar = screen.getByTestId('live-price-bar');
     expect(bar).toHaveTextContent(
       'Nie udało się teraz policzyć ceny. Odpowiadaj dalej, widełki pokażemy też na końcu.',
@@ -219,7 +299,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     await wait(400);
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent('Nie udało się');
     pick('Portal');
-    await wait(400);
+    await wait(1000);
     const bar = screen.getByTestId('live-price-bar');
     expect(bar).toHaveTextContent(/40\s?000\s–\s90\s?000\szł/);
     expect(bar).not.toHaveTextContent('Nie udało się');
@@ -244,7 +324,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     },
   );
 
-  it.each([500, 503, 0])(
+  it.each([500, 0])(
     'MIX-1466 bliźniak: zwykły błąd (%i) nie wyłącza pytania serwera',
     async (status) => {
       await mount();
@@ -252,7 +332,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
       pick('Sklep');
       await wait(400);
       pick('Wizytówka');
-      await wait(400);
+      await wait(1000);
       expect(requestPricePreview).toHaveBeenCalledTimes(2);
       expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/8\s?000/);
     },
@@ -275,7 +355,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     ] as const) {
       requestPricePreview.mockResolvedValueOnce({ ok: false, status });
       pick(label);
-      await wait(400);
+      await wait(1000);
       const bar = screen.getByTestId('live-price-bar');
       expect(bar).toHaveTextContent('Nie udało się teraz policzyć ceny');
       expect(bar).not.toHaveTextContent('Liczymy za często');
@@ -289,9 +369,9 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     pick('Sklep');
     await wait(400);
     pick('Wizytówka');
-    await wait(400);
+    await wait(1000);
     pick('Sklep');
-    await wait(400);
+    await wait(1000);
     expect(requestPricePreview).toHaveBeenCalledTimes(3);
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
   });

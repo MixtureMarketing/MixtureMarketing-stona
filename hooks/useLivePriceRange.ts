@@ -1,10 +1,17 @@
 // Widełki na żywo (MIX-1385, Z5 z MIX-1377): po 400 ms ciszy od ostatniej zmiany odpowiedzi pyta
 // serwer o podgląd, pamięta wynik dla tych samych odpowiedzi (0 nowych zapytań przy powrocie do
 // wcześniejszego zestawu) i nie zapamiętuje błędów. Wyłączony przełącznik = zero zapytań.
+// MIX-1495: między zapytaniami co najmniej 1 s (kolejne odpowiedzi w tym czasie łączą się w jedno
+// zapytanie z ostatnim stanem), a jedna odpowiedź 503 (limiter KV) jest ponawiana raz po tym
+// odstępie, bez pokazywania błędu.
 import { useEffect, useRef, useState } from 'react';
 import { isPreviewUnavailable, requestPricePreview } from '../services/pricePreviewService';
 import type { PriceRange } from '../services/calculatorService';
-import { LIVE_PRICE_DEBOUNCE_MS, answersHash } from '../components/features/calculator/livePrice';
+import {
+  LIVE_PRICE_DEBOUNCE_MS,
+  LIVE_PRICE_MIN_GAP_MS,
+  answersHash,
+} from '../components/features/calculator/livePrice';
 
 export type LivePriceStatus = 'idle' | 'loading' | 'ok' | 'rateLimited' | 'error';
 
@@ -34,6 +41,8 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
   // MIX-1466: endpoint podglądu nie istnieje na tym wdrożeniu (404/405/501): do przeładowania
   // strony już nie pytamy (ani serwera, ani Turnstile), pasek pokazuje komunikat zastępczy.
   const unavailable = useRef(false);
+  // MIX-1495: chwila ostatniego wysłania zapytania (ms epoki); 0 = jeszcze nie pytaliśmy.
+  const lastSent = useRef(0);
   const captchaRef = useRef(getCaptchaToken);
   const answersRef = useRef(answers);
   useEffect(() => {
@@ -57,17 +66,23 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
     }
 
     let cancelled = false;
+    let gapTimer: ReturnType<typeof setTimeout> | undefined;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setState((s) => ({ status: 'loading', priceRange: s.priceRange }));
       const send = async (withCaptcha: boolean) => {
+        const gap = lastSent.current + LIVE_PRICE_MIN_GAP_MS - Date.now();
+        if (gap > 0) await new Promise<void>((resolve) => (gapTimer = setTimeout(resolve, gap)));
         const payload = withCaptcha
           ? { answers: answersRef.current, captcha_token: await captchaRef.current() }
           : { answers: answersRef.current, preview_token: previewToken.current };
+        lastSent.current = Date.now();
         return requestPricePreview(payload, controller.signal);
       };
       try {
         let res = await send(!previewToken.current);
+        // MIX-1495: 503 = limiter KV chwilowo odmówił; jedno ponowienie po odstępie, bez błędu.
+        if (!res.ok && res.status === 503) res = await send(!previewToken.current);
         // Token podglądu wygasł albo został odrzucony: jeden powrót do Turnstile.
         if (!res.ok && (res.status === 401 || res.status === 403) && previewToken.current) {
           previewToken.current = undefined;
@@ -91,6 +106,7 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      clearTimeout(gapTimer);
       controller.abort();
     };
   }, [enabled, hash, hasAnswers]);
