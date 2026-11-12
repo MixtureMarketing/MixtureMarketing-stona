@@ -9,6 +9,7 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import CursorGlow from '@/components/common/CursorGlow';
+import { CaseStudyTransitionsGate } from '@/components/common/CaseStudyTransitions';
 import { leadService } from '@/services/leadService';
 import { installContactLinkTracking } from '@/utils/analytics';
 import { AuthProvider } from '@/context/AuthContext';
@@ -147,6 +148,8 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <CursorGlow />
             <ScrollToTop />
+            {/* MIX-1308: przejście karta → realizacja, za przełącznikiem (domyślnie wyłączone). */}
+            <CaseStudyTransitionsGate disabled={isPrerendering} />
 
             {/* Skip Link for WCAG Accessibility */}
             <a

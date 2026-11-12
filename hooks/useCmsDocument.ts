@@ -164,8 +164,26 @@ export function useCmsDocument<T>(
       // Zrzut z prerenderu: bez żądania do Sanity (także po powrocie na ten slug);
       // dane bierze render niżej, bez stanu.
       if (readCmsSnapshot<T>(cmsId, slug) !== undefined) return;
-      // Dane z preloadu są już w stanie początkowym — zużyj je raz, bez drugiego żądania.
-      if (primed.get(fetcher)?.delete(slug)) return;
+      // Dane z preloadu: zużyj je raz, bez drugiego żądania. Przy pierwszym montowaniu są
+      // już w stanie początkowym; przy zmianie sluga bez remountu (MIX-1308: preload przed
+      // przejściem realizacja → realizacja) przenosimy je do stanu tutaj, inaczej hook
+      // zostałby w `loading` na zawsze.
+      const hit = primed.get(fetcher)?.get(slug);
+      if (hit) {
+        primed.get(fetcher)?.delete(slug);
+        let dropped = false;
+        void Promise.resolve().then(() => {
+          if (dropped) return;
+          setSettled((prev) =>
+            prev && prev.key === key
+              ? prev
+              : { key, status: hit.status, data: hit.data as T | null },
+          );
+        });
+        return () => {
+          dropped = true;
+        };
+      }
     }
     let cancelled = false;
     fetcher(slug).then(
@@ -191,6 +209,9 @@ export function useCmsDocument<T>(
   if (!current && attempt === 0) {
     const snap = readCmsSnapshot<T>(cmsId, slug);
     if (snap !== undefined) return { status: 'ok' as CmsDocumentStatus, data: snap, retry };
+    // Preload przed nawigacją SPA (MIX-1308): dane od pierwszego renderu nowego sluga.
+    const hit = primed.get(fetcher)?.get(slug);
+    if (hit) return { status: hit.status as CmsDocumentStatus, data: hit.data as T | null, retry };
   }
   return {
     status: (current ? current.status : 'loading') as CmsDocumentStatus,
