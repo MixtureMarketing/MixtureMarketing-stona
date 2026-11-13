@@ -117,6 +117,8 @@ jobs:
           # wiec wiecej rownoleglych stron nakłada sie na czasy oczekiwania.
           # Jesli runner zacznie OOM-owac (16GB, ~500MB/strona) — zejsc do 6.
           PRERENDER_CONCURRENCY: '8'
+          # MIX-1465: menu mobilne B wlaczone na produkcji; wylaczenie = usunac te linie.
+          VITE_MM_MOBILE_MENU_B: '1'
         run: npm run build
 
       - name: 🩺 Health Audit (non-blocking)
