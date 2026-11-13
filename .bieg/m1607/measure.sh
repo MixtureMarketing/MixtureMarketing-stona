@@ -28,7 +28,7 @@ for r in "${REFS[@]}"; do
     tar --exclude=./node_modules --exclude=./.bieg --exclude=./dist -cf - . | (cd "$d" && tar xf -)
     cp -al node_modules "$d/node_modules"
     case "$r" in
-      BASE) git show "06c7062:$FILE" > "$d/$FILE"; echo "BASE: $FILE z 06c7062 rc $?" ;;
+      BASE) cp .bieg/m1607/KnowledgeBase.base.tsx "$d/$FILE"; echo "BASE: $FILE z 06c7062 (kopia w repo) rc $?; wierszy $(wc -l < "$d/$FILE")" ;;
       ALL) sed -i 's/const FIRST_DEFERRED_CARD = 3;/const FIRST_DEFERRED_CARD = 0;/' "$d/$FILE"; echo "ALL: sed rc $?; $(grep -c 'FIRST_DEFERRED_CARD = 0' "$d/$FILE") trafien" ;;
       *) echo "nieznany ref $r"; exit 2 ;;
     esac
