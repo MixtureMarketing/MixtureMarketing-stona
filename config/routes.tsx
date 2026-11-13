@@ -43,6 +43,7 @@ const IleKosztujeStronaRzeszowArticle = lazy(
 );
 const GoogleAdsArticle = lazy(() => import('@/components/articles/GoogleAdsArticle'));
 const UxAuditArticle = lazy(() => import('@/components/articles/UxAuditArticle'));
+const AiSystemsArticle = lazy(() => import('@/components/articles/AiSystemsArticle'));
 const ServerSideTrackingArticle = lazy(
   () => import('@/components/articles/ServerSideTrackingArticle'),
 );
@@ -168,6 +169,11 @@ export const appRoutes: RouteObject[] = [
   {
     path: '/baza-wiedzy/audyt-ux-sklepu-internetowego',
     element: <UxAuditArticle />,
+  },
+  {
+    // MIX-1280 (plan SEO A34): UKRYTY do akceptacji Jakuba: noindex, tylko prerenderOnlyRoutes, poza rejestrem i menu.
+    path: '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto',
+    element: <AiSystemsArticle />,
   },
   {
     path: '/baza-wiedzy/server-side-tracking-koniec-cookies',
