@@ -6,7 +6,7 @@ mkdir -p "$OUT"
 : > "$OUT/summary.txt"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD)" | tee -a "$OUT/summary.txt"
-step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; echo "$n rc=$?" | tee -a "$OUT/summary.txt"; }
+step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "$n rc=$rc" | tee -a "$OUT/summary.txt"; if [ $rc -ne 0 ]; then echo "--- $n: koniec logu" | tee -a "$OUT/summary.txt"; sed "s/\x1b\[[0-9;]*m//g" "$OUT/$n.log" | tail -n 40 | tee -a "$OUT/summary.txt"; fi; }
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
 step prettier npx prettier --check scripts/lib/llms.js scripts/check-llms.mjs tests/seo/llmsTxt.test.ts package.json
@@ -14,6 +14,7 @@ step tsc-root npx tsc --noEmit -p tsconfig.json
 step tsc-functions npx tsc --noEmit -p functions/tsconfig.json
 step vitest npx vitest run --maxWorkers=2
 sed 's/\x1b\[[0-9;]*m//g' "$OUT/vitest.log" | grep -aE "Test Files|Tests " | tee -a "$OUT/summary.txt"
+sed "s/\x1b\[[0-9;]*m//g" "$OUT/vitest.log" | grep -aE "FAIL|AssertionError" | head -n 20 | tee -a "$OUT/summary.txt"
 step check-llms-committed node scripts/check-llms.mjs
 cat "$OUT/check-llms-committed.log" >> "$OUT/summary.txt"
 step build npm run build
