@@ -116,7 +116,7 @@ const Navbar: React.FC = () => {
     <header>
       <nav
         aria-label="Główna nawigacja"
-        className={`fixed w-full z-[var(--z-nav)] transition-colors duration-300 h-20 flex items-center ${isAnyDropdownOpen ? 'bg-white shadow-lg' : scrolled ? 'bg-white/95 backdrop-blur-xl chrome-no-backdrop shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md border-b border-transparent'}`}
+        className={`fixed w-full z-[var(--z-nav)] transition-all duration-300 h-20 flex items-center ${isAnyDropdownOpen ? 'bg-white shadow-lg' : scrolled ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100' : 'bg-white/80 backdrop-blur-md border-b border-transparent'}`}
       >
         <Container className="w-full">
           <div className="flex justify-between items-center h-full">

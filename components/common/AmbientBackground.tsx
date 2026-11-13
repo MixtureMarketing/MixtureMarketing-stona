@@ -30,14 +30,13 @@ const AmbientBackground: React.FC = () => {
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
 
-      {/* Decorative Orbs - Client Side Only to save DOM nodes during initial parse.
-          W Chrome klasy ambient-orb zamieniają blur + blend na statyczny gradient (index.css). */}
+      {/* Decorative Orbs - Client Side Only to save DOM nodes during initial parse */}
       {isMounted && (
         <>
-          <div className="ambient-orb ambient-orb-800 text-primary absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
-          <div className="ambient-orb ambient-orb-600 text-secondary absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
+          <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-primary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob"></div>
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-secondary rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.08] animate-blob animation-delay-2000"></div>
           {/* Trzeci orb w palecie marki (był bg-instagram — obcy róż przeciekał na 3 strony) */}
-          <div className="ambient-orb ambient-orb-600 text-accent-dark absolute -bottom-32 left-20 w-[600px] h-[600px] bg-accent-dark rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
+          <div className="absolute -bottom-32 left-20 w-[600px] h-[600px] bg-accent-dark rounded-full mix-blend-multiply filter blur-[120px] opacity-[0.05] animate-blob animation-delay-4000"></div>
         </>
       )}
     </div>
