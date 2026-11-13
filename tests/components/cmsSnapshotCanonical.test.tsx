@@ -77,7 +77,7 @@ const location = {
 const article = {
   _id: 'a1',
   title: 'Artykuł ze zrzutu',
-  slug: { current: 'artykul' },
+  slug: 'artykul', // kształt z GROQ: "slug": slug.current (tekst, MIX-1386)
   excerpt: 'Opis',
   publishedAt: '2026-01-01',
   body: [],

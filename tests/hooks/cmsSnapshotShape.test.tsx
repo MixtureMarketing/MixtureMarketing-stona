@@ -296,11 +296,13 @@ describe.each(LISTY)('zrzut listy $id', (L) => {
 });
 
 describe('allowlista: spójność ze szablonami', () => {
-  it('każda lista z CMS_DOC ma allowlistę, a dokumenty (nie listy) jej nie mają', () => {
+  it('każda lista z CMS_DOC ma allowlistę list, a dokumenty (nie listy) mają osobną (MIX-1620)', () => {
     expect(Object.keys(SNAPSHOT_LIST_SCHEMAS).sort()).toEqual(
       [CMS_DOC.articleList, CMS_DOC.caseStudyList, CMS_DOC.industryList].sort(),
     );
-    expect(isValidSnapshotEntry(CMS_DOC.article, { title: 'x' })).toBe(true);
+    // Dokument bez wymaganych pól czytanych przez szablon nie przechodzi (kiedyś wystarczył obiekt).
+    expect(isValidSnapshotEntry(CMS_DOC.article, { title: 'x' })).toBe(false);
+    expect(isValidSnapshotEntry(CMS_DOC.industry, { name: 'x' })).toBe(true);
     expect(isValidSnapshotEntry(CMS_DOC.article, [])).toBe(false);
     expect(isValidSnapshotEntry(CMS_DOC.industry, 7)).toBe(false);
     expect(isValidSnapshotEntry(CMS_DOC.location, null)).toBe(false);
