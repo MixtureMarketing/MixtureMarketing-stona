@@ -1,0 +1,19 @@
+/* MIX-1471: the case-study hero with the photo at the top (only with VITE_MM_VIEW_TRANSITIONS on,
+   the attribute exists only in that layout). The global breadcrumbs sit under the fixed site
+   header (y 0-52); a long project title wrapped them to 3 lines on phones, which pushed the
+   photo below the header and shifted the layout when the title arrived from the CMS. Here they
+   stay on one line and the current page label is cut with an ellipsis (full text stays in DOM). */
+main:has([data-hero-layout='photo-top']) nav[aria-label='Breadcrumb'] ol {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+main:has([data-hero-layout='photo-top']) nav[aria-label='Breadcrumb'] li:last-child {
+  min-width: 0;
+  overflow: hidden;
+}
+
+main:has([data-hero-layout='photo-top']) nav[aria-label='Breadcrumb'] li:last-child > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

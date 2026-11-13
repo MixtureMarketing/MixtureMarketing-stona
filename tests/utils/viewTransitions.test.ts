@@ -271,7 +271,7 @@ describe('runCaseStudyTransition', () => {
       'vt-przycisk-zgod': 1,
     });
     expect(navigate).toHaveBeenCalledTimes(1);
-    expect(win.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(win.scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
     expect(skip).not.toHaveBeenCalled();
     // Po końcu: nieruchome i <html> bez nazw; cel zdejmuje nazwy sam (stan arrival = null).
     const left = namesInDom();
