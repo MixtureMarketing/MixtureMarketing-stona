@@ -30,11 +30,15 @@ grep -E 'Size limit|Size:|kB' "$OUT/build.log" | tail -n 6 | cut -c1-200
 node scripts/probe-consent-zaraz.mjs "$OUT/consent.json" > "$OUT/consent.log" 2>&1
 echo "probe-consent-zaraz rc $?"
 
-CHROME_PATH=$(node -e "import('puppeteer').then((p) => console.log(p.default.executablePath()))")
+# puppeteer 25: executablePath() zwraca Promise.
+CHROME_PATH=$(node -e "import('puppeteer').then(async (p) => console.log(await p.default.executablePath()))")
 export CHROME_PATH
+echo "chrome: $CHROME_PATH"
 npx --yes "lighthouse@$LH_VERSION" --version > "$OUT/lh-version.txt" 2>&1
+echo "lighthouse: $(cat "$OUT/lh-version.txt")"
 
-npx vite preview --port "$PORT" --strictPort --host 127.0.0.1 > "$OUT/preview.log" 2>&1 &
+# Serwer bezpośrednio przez node (PID = serwer, zatrzymanie po PID).
+node node_modules/vite/bin/vite.js preview --port "$PORT" --strictPort --host 127.0.0.1 > "$OUT/preview.log" 2>&1 &
 PREVIEW_PID=$!
 ok=0
 for _ in $(seq 1 60); do
@@ -53,13 +57,14 @@ for p in $PAGES; do
         --output=json --output-path="$OUT/lh/$slug-$form-$i.json" --quiet \
         --chrome-flags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage" \
         --only-categories=performance --max-wait-for-load=60000 2> "$OUT/lh/$slug-$form-$i.err"
-      echo "lighthouse $slug $form $i rc $?"
+      rc=$?
+      echo "lighthouse $slug $form $i rc $rc"
+      [ "$rc" -eq 0 ] || grep -v '^$' "$OUT/lh/$slug-$form-$i.err" | tail -n 3 | cut -c1-200
     done
   done
 done
 
 kill "$PREVIEW_PID" 2> /dev/null
-pkill -f "vite preview --port $PORT" 2> /dev/null
 node scripts/measure-m1565-summary.mjs "$OUT/lh" > "$OUT/summary.md"
 echo "summary rc $?"
 cat "$OUT/summary.md"
