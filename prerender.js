@@ -6,13 +6,7 @@ import { spawn } from 'node:child_process';
 import { routes, prerenderOnlyRoutes } from './routes.js';
 import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
-import http from 'node:http';
-import {
-  pickPort,
-  writeNonce,
-  removeNonce,
-  assertServesThisBuild,
-} from './scripts/prerender-server.js';
+import { acquirePreview, writeNonce, removeNonce } from './scripts/prerender-server.js';
 import { createClient } from '@sanity/client';
 import {
   fetchDynamicLists,
@@ -44,27 +38,6 @@ const sanityClient = createClient({
   apiVersion: '2024-01-21',
   useCdn: false,
 });
-
-// Utility: Wait for server to be ready
-async function waitForServer(port, timeout = 60000) {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    try {
-      await new Promise((resolve, reject) => {
-        const req = http.get(`http://localhost:${port}`, (res) => {
-          if (res.statusCode === 200) resolve();
-          else reject(new Error(`Status ${res.statusCode}`));
-        });
-        req.on('error', reject);
-        req.end();
-      });
-      return;
-    } catch (e) {
-      await new Promise((r) => setTimeout(r, 1000));
-    }
-  }
-  throw new Error(`Server at port ${port} did not start within ${timeout}ms`);
-}
 
 // Trasy, ktore po retry nadal nie maja pelnego heada (title/canonical/meta) —
 // build konczy sie bledem zamiast cicho wysylac SEO-dziure na produkcje.
@@ -236,34 +209,24 @@ function killServer(server) {
   }
 }
 
-// Start preview na wolnym porcie z listy (przeglądarka musi działać z origin dozwolonym w CORS
-// Sanity — zmierzone: losowy port dostaje odmowę i prerender widzi „stan błędu CMS”) i dowód,
-// że odpowiada serwer TEGO builda. Wyścig dwóch buildów o ten sam port: --strictPort wywala
-// przegranego, znacznik odrzuca cudzy serwer, a pętla bierze następny port. Fail-closed:
-// brak wolnych portów albo wymuszony PRERENDER_PORT bez zgodności = błąd, nie zły dist.
-async function startPreview(nonce) {
-  const tried = [];
-  for (;;) {
-    PORT = await pickPort(process.env, tried);
-    console.log(`🔌 Preview port: ${PORT}`);
+// Start preview: wolny port z listy CORS Sanity + dowód znacznikiem, że to serwer TEGO builda
+// (logika i fail-closed w scripts/prerender-server.js, acquirePreview; MIX-1590, MIX-1601).
+function startPreview(nonce) {
+  return acquirePreview({
+    nonce,
+    env: process.env,
+    onPort: (p) => {
+      PORT = p;
+    },
+    kill: killServer,
     // --strictPort: zajęty port = błąd startu, nie ciche przeskoczenie na inny.
-    const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString(), '--strictPort'], {
-      stdio: 'ignore',
-      shell: true,
-      detached: true, // Allow killing process group
-    });
-    try {
-      await waitForServer(PORT);
-      // Fail-closed: to ma być serwer TEGO builda (nie równoległego na tej maszynie).
-      await assertServesThisBuild(PORT, nonce);
-      return server;
-    } catch (err) {
-      killServer(server);
-      if (process.env.PRERENDER_PORT) throw err; // port wymuszony — bez ponowień
-      tried.push(PORT);
-      console.warn(`⚠️ Port ${PORT} nie obsługuje tego builda (${err.message}) — próbuję kolejny`);
-    }
-  }
+    startServer: (port) =>
+      spawn('npm', ['run', 'preview', '--', '--port', port.toString(), '--strictPort'], {
+        stdio: 'ignore',
+        shell: true,
+        detached: true, // Allow killing process group
+      }),
+  });
 }
 
 async function prerender() {
