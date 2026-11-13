@@ -37,7 +37,7 @@
 
 ## Lokalizacja i obszar usług
 
-- Główna lokalizacja: [Rzeszów (Podkarpacie)](https://mixturemarketing.pl/miasto/rzeszow/) — model pracy mobilnej, dojazd do klienta na terenie Rzeszowa i Podkarpacia
+- [Rzeszów (Podkarpacie)](https://mixturemarketing.pl/miasto/rzeszow/): główna lokalizacja — model pracy mobilnej, dojazd do klienta na terenie Rzeszowa i Podkarpacia
 - Adres rejestrowy: Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów (centrum miasta)
 - Spotkania: preferowane u klienta (Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło), alternatywnie kawiarnia/coworking w centrum Rzeszowa lub online (Google Meet / Zoom)
 - Obsługa zdalna: cała Polska
@@ -58,7 +58,10 @@
 - **Kontakt**: +48 794 443 551, info@mixturemarketing.pl
 - **Obszar obsługi**: Rzeszów, Mielec, Stalowa Wola, Krosno, Przemyśl, Dębica, Jasło — cała Polska (zdalnie)
 - **Usługi**: tworzenie stron WWW (WordPress, Next.js, custom CMS), sklepy e-commerce (WooCommerce, PrestaShop, Medusa.js, Sylius, dedykowane), aplikacje webowe, Google Ads, Meta Ads, pozycjonowanie SEO, branding, UI/UX design
-- **Ceny**: aktualne widełki orientacyjne są na stronach [Oferta](https://mixturemarketing.pl/offers/), [Tworzenie stron internetowych Rzeszów](https://mixturemarketing.pl/web-development/rzeszow/) i [Strona w abonamencie](https://mixturemarketing.pl/abonament/) — tam jest źródło prawdy; ten plik celowo nie powtarza kwot.
+- **Ceny**: aktualne widełki orientacyjne są na stronach poniżej — tam jest źródło prawdy; ten plik celowo nie powtarza kwot.
+  - [Oferta](https://mixturemarketing.pl/offers/)
+  - [Tworzenie stron internetowych Rzeszów](https://mixturemarketing.pl/web-development/rzeszow/)
+  - [Strona w abonamencie](https://mixturemarketing.pl/abonament/)
 - **Bezpłatna konsultacja**: 45-60 minut, online lub na spotkaniu u klienta
 
 ## English summary
