@@ -92,6 +92,8 @@ describe('App: kolejność baneru zgód w DOM (MIX-1607)', () => {
       </MemoryRouter>,
     );
     expect(container.querySelectorAll('[data-testid="cookie-banner"]')).toHaveLength(1);
-    expect(container.querySelectorAll('section[aria-label="Zarządzanie plikami cookies"]')).toHaveLength(1);
+    expect(
+      container.querySelectorAll('section[aria-label="Zarządzanie plikami cookies"]'),
+    ).toHaveLength(1);
   });
 });
