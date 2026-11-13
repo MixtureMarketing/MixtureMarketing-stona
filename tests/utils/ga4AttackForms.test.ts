@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import {
-  ga4RefusalCounts,
-  installContactLinkTracking,
-  resetGa4RefusalCountsForTests,
-  trackEvent,
-} from '@/utils/analytics';
+import { installContactLinkTracking, trackEvent } from '@/utils/analytics';
 import { REFUSED } from '@/utils/ga4Events';
 
 /**
@@ -21,7 +16,6 @@ beforeEach(() => {
   track = vi.fn<(event: string, data?: Record<string, unknown>) => void>();
   window.zaraz = { track, consent: { set: vi.fn() } };
   vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-  resetGa4RefusalCountsForTests();
 });
 afterEach(() => {
   delete window.zaraz;
@@ -489,7 +483,7 @@ const FORMS: Form[] = [
       },
     }),
   ],
-  // formy z briefu rundy 3 (każda z bliźniakiem)
+  // telefon z podwójnymi separatorami, pełna szerokość, (at), id (każda z bliźniakiem)
   [
     'B1',
     'R:utm_campaign',
@@ -566,13 +560,11 @@ describe('formy ataku na bramę GA4 (stały zestaw)', () => {
     const payload = track.mock.calls[0][1] as Record<string, unknown>;
     if (exp === 'S') {
       expect(payload).toEqual(ALLOWED_KEYS(params));
-      expect(ga4RefusalCounts()).toEqual({});
       return;
     }
     const [kind, key] = [exp.slice(0, 1), exp.slice(2)];
     if (kind === 'R') {
       expect(payload[key]).toBe(REFUSED);
-      expect(ga4RefusalCounts()[key]).toBe(1);
     } else {
       expect(Object.prototype.hasOwnProperty.call(payload, key)).toBe(false);
     }

@@ -4,7 +4,7 @@ import { contactLinkOf, linkLocationOf, linkScheme } from './ga4Events';
 import { sendGa4 } from './ga4Send';
 import { queueZarazDelivery } from './zarazConsent';
 
-export { ga4RefusalCounts, resetGa4RefusalCountsForTests, sendGa4 } from './ga4Send';
+export { sendGa4 } from './ga4Send';
 
 export {
   type ConsentCheck,

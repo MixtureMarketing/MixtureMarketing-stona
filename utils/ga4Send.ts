@@ -9,18 +9,6 @@ const REASON: Record<RefusalWhy, string> = {
   format: 'poza allowlista',
 };
 
-/** Licznik odmow bez wartosci: nazwa parametru -> liczba (pomiar falszywych odmow). */
-const refusalCounts = new Map<string, number>();
-
-/** Kopia licznika odmow, np. `{ utm_campaign: 2, page_location: 1 }`. */
-export const ga4RefusalCounts = (): Record<string, number> => Object.fromEntries(refusalCounts);
-
-export const resetGa4RefusalCountsForTests = (): void => refusalCounts.clear();
-
-const countRefusal = (param: string): void => {
-  refusalCounts.set(param, (refusalCounts.get(param) ?? 0) + 1);
-};
-
 const devWarn = (line: string): void => {
   if (import.meta.env.DEV) console.warn(`trackEvent: ${line}`);
 };
@@ -31,14 +19,13 @@ export type Ga4Channel = 'zaraz' | 'dataLayer';
  * MIX-1457: JEDYNE miejsce, z ktorego zdarzenie GA4 wychodzi ze strony (zaraz.track albo
  * dataLayer). Brama `sanitizeGa4Event` (utils/ga4Events.ts): nieznana nazwa = zdarzenie nie idzie;
  * parametr spoza rodzaju albo wygladajacy na e-mail / telefon = wartosc "(odrzucone)", zdarzenie
- * idzie. page_location / page_referrer / page_title czysci ten sam detektor. Kazda odmowa trafia
- * do licznika (nazwa parametru, bez wartosci); linia w konsoli tylko w trybie dev.
+ * idzie. page_location / page_referrer / page_title czysci ten sam detektor. Odmowa daje linie
+ * w konsoli (nazwa parametru i powod, bez wartosci) tylko w trybie dev.
  */
 export const sendGa4 = (eventName: string, data?: unknown, via: Ga4Channel = 'zaraz'): void => {
   if (typeof window === 'undefined') return;
   const checked = sanitizeGa4Event(eventName, data);
   if (!checked.ok) {
-    countRefusal('(zdarzenie)');
     devWarn(checked.reason);
     return;
   }
@@ -48,7 +35,6 @@ export const sendGa4 = (eventName: string, data?: unknown, via: Ga4Channel = 'za
     title: document.title,
   });
   const refused = [...checked.refused, ...page.refused];
-  for (const r of refused) countRefusal(r.param);
   if (refused.length > 0) {
     const what = refused.map((r) => `${r.param} (${REASON[r.why]})`).join(', ');
     devWarn(`${eventName}: odrzucone ${what}`);

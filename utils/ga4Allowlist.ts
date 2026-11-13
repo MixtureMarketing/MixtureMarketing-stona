@@ -25,7 +25,8 @@ const bool: ParamSpec = { kind: 'bool' };
 const PATH: ParamSpec = { kind: 'text', re: /^\/[A-Za-z0-9/_.~%-]{0,200}$/ };
 /**
  * Wartosci utm_* i `package`: tylko ASCII [A-Za-z0-9_.-] (bez spacji, polskich liter, `@`, `+`).
- * Inna wartosc = "(odrzucone)". Liczbowe id kampanii (np. Google Ads 10-11 cyfr) odpadaja przez
+ * Inna wartosc = "(odrzucone)". `package` z tytulu w CMS robi slug utils/ga4Package.ts (przed ta
+ * kontrola, ktora sprawdza slug jak kazda wartosc). Liczbowe id kampanii (np. Google Ads 10-11 cyfr) odpadaja przez
  * detektor telefonu: dlugosc 9-15 cyfr pokrywa sie z numerami (PL 9 cyfr, E.164 do 15), wiec
  * z samej wartosci nie da sie ich odroznic. Zdarzenie idzie dalej, odpada tylko parametr.
  */

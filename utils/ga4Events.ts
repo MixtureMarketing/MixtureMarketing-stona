@@ -8,7 +8,7 @@
 //   3. Parametr z allowlisty, ktorego wartosc nie pasuje do rodzaju (typ, zakres, lista, wzorzec),
 //      wyglada na e-mail / telefon (utils/ga4Personal.ts) albo jest nieczytelna (kodowanie,
 //      dlugosc, getter rzuca) -> wartosc "(odrzucone)". Zdarzenie idzie dalej, odpada tylko ten
-//      parametr; powod (bez wartosci) wraca w `refused` do licznika odmow.
+//      parametr; powod (bez wartosci) wraca w `refused` (linia w konsoli w trybie dev).
 //   4. Ten sam detektor czysci page_location / page_referrer / page_title (`cleanPageContext`).
 //
 // Nazwy: slownik zdarzen firmy (P4) dla click_phone / click_email i zdarzen calculator_* /

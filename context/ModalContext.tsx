@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { ContactType } from '@/types';
 import { trackEvent } from '@/utils/analytics';
+import { packageSlug } from '@/utils/ga4Package';
 
 interface ModalContextType {
   isModalOpen: boolean;
@@ -31,7 +32,8 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     trackEvent('consultation_click', {
       contact_type: type,
       source,
-      package: data?.package,
+      // MIX-1514: tytul pakietu z CMS jako slug ASCII; straznik GA4 sprawdza go dalej.
+      package: packageSlug(data?.package),
     });
   }, []);
 

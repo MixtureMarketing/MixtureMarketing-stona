@@ -1,11 +1,6 @@
 import fs from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import {
-  applyConsent,
-  ga4RefusalCounts,
-  resetGa4RefusalCountsForTests,
-  trackEvent,
-} from '@/utils/analytics';
+import { applyConsent, trackEvent } from '@/utils/analytics';
 import { GA4_EVENTS, REFUSED, sanitizeGa4Event, scanText } from '@/utils/ga4Events';
 import { cleanPageContext, cleanUrl } from '@/utils/ga4Page';
 
@@ -22,7 +17,6 @@ beforeEach(() => {
   window.zaraz = { track, consent: { set: vi.fn() } };
   window.dataLayer = [];
   warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
-  resetGa4RefusalCountsForTests();
 });
 afterEach(() => {
   delete window.zaraz;
@@ -75,13 +69,11 @@ describe('nieznane zdarzenie nie idzie (jedyna odmowa calego zdarzenia)', () => 
     expect(track).not.toHaveBeenCalled();
     expect(warn).toHaveBeenCalledTimes(1);
     expect(String(warn.mock.calls[0][0])).toMatch(/^trackEvent: odmowa: nieznane zdarzenie/);
-    expect(ga4RefusalCounts()).toEqual({ '(zdarzenie)': 1 });
   });
-  it('blizniak: click_phone idzie bez linii w konsoli i bez odmowy w liczniku', () => {
+  it('blizniak: click_phone idzie bez linii w konsoli', () => {
     trackEvent('click_phone', { link_location: 'header' });
     expect(sent()).toEqual({ link_location: 'header' });
     expect(warn).not.toHaveBeenCalled();
-    expect(ga4RefusalCounts()).toEqual({});
   });
 });
 
@@ -139,7 +131,6 @@ describe('odmowa zastepuje tylko jeden parametr wartoscia "(odrzucone)"', () => 
     ];
     for (const [event, params] of cases) trackEvent(event, params);
     expect(track.mock.calls.map((c) => c[1])).toEqual(cases.map((c) => c[1]));
-    expect(ga4RefusalCounts()).toEqual({});
   });
 
   it('brak utm (undefined / null) = parametru brak, nie odmowa', () => {
@@ -150,7 +141,6 @@ describe('odmowa zastepuje tylko jeden parametr wartoscia "(odrzucone)"', () => 
       utm_medium: null,
     });
     expect(sent()).toEqual({ transaction_id: 'cs_test_a1', currency: 'PLN' });
-    expect(ga4RefusalCounts()).toEqual({});
   });
 
   it('nieznany klucz odpada bez czytania wartosci (getter, ktory rzuca, nie jest wolany)', () => {
@@ -173,7 +163,6 @@ describe('odmowa zastepuje tylko jeden parametr wartoscia "(odrzucone)"', () => 
     });
     trackEvent('click_phone', params);
     expect(sent()).toEqual({ link_location: REFUSED });
-    expect(ga4RefusalCounts()).toEqual({ link_location: 1 });
   });
 
   it('klucz z prototypu nie jest czytany (tylko wlasne pola)', () => {
@@ -184,20 +173,13 @@ describe('odmowa zastepuje tylko jeden parametr wartoscia "(odrzucone)"', () => 
     expect(sent()).toEqual({});
   });
 
-  it('parametry, ktore nie sa obiektem -> zdarzenie bez parametrow, odmowa w liczniku', () => {
+  it('parametry, ktore nie sa obiektem -> zdarzenie bez parametrow, linia odmowy w dev', () => {
+    vi.stubEnv('DEV', true);
     trackEvent('click_phone', ['header'] as unknown as Record<string, unknown>);
     expect(sent()).toEqual({});
-    expect(ga4RefusalCounts()).toEqual({ '(parametry)': 1 });
-  });
-});
-
-describe('licznik odmow: nazwa parametru i liczba, bez wartosci', () => {
-  it('trzy odmowy w dwoch parametrach', () => {
-    trackEvent('purchase', { transaction_id: 'cs_test_a1', utm_campaign: '600100200' });
-    trackEvent('purchase', { transaction_id: 'cs_test_a1', utm_campaign: 'a@b.pl' });
-    trackEvent('click_email', { link_location: 'x@y.pl' });
-    expect(ga4RefusalCounts()).toEqual({ utm_campaign: 2, link_location: 1 });
-    expect(JSON.stringify(ga4RefusalCounts())).not.toMatch(/@|600/);
+    expect(String(warn.mock.calls[0][0])).toBe(
+      'trackEvent: click_phone: odrzucone (parametry) (poza allowlista)',
+    );
   });
 });
 
@@ -242,7 +224,6 @@ describe('page_location / page_referrer / page_title przez ten sam detektor', ()
       `http://localhost:3000/abonament/?utm_source=google&utm_campaign=${REFUSED}`,
     );
     expect(JSON.stringify(p)).not.toMatch(/600/);
-    expect(ga4RefusalCounts()).toEqual({ page_location: 1 });
   });
   it('blizniak: czysty adres z utm -> brak nadpisania (GA4 wysle ten sam)', () => {
     window.history.replaceState({}, '', '/abonament/?utm_source=google&utm_campaign=black_friday');
