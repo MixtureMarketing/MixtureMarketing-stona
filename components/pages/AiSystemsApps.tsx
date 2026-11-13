@@ -49,8 +49,8 @@ const AiSystemsApps: React.FC = () => {
             'Aplikacje webowe i systemy z elementami AI budowane pod proces klienta: asystent w pracy, obieg zgłoszeń, platformy dla uczestników, panele i integracje. Płatność etapami, kod i prawa autorskie po stronie klienta.',
           serviceType: 'AI and Custom Application Development',
         }}
-        faq={CONTENT.faqs.map((f) => ({ question: f.q, answer: f.a }))}
       />
+      {/* FAQPage JSON-LD emituje wyłącznie FaqSection (StandardFaq), jak u sióstr; `faq=` w <Seo> zdublowałoby blok. */}
 
       <div ref={heroRef}>
         <StandardHero

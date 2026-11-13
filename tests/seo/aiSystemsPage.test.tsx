@@ -108,15 +108,17 @@ describe('/web-development/systemy-ai-aplikacje/: renderowanie, noindex, JSON-LD
     );
   });
 
-  it('JSON-LD: Service, BreadcrumbList i FAQPage z tą samą liczbą pytań co widoczne FAQ', async () => {
+  it('JSON-LD: Service, BreadcrumbList i dokładnie jeden FAQPage z tą samą liczbą pytań co widoczne FAQ', async () => {
     renderPage();
     await waitFor(() => expect(headLd().length).toBeGreaterThanOrEqual(3));
     const types = headLd().map((b) => b['@type']);
     expect(types).toEqual(expect.arrayContaining(['Service', 'BreadcrumbList', 'FAQPage']));
-    const faq = headLd().find((b) => b['@type'] === 'FAQPage') as Ld & {
+    // Dokładnie jeden blok FAQPage (zdublowany blok = ostrzeżenie w Search Console; siostry mają jeden).
+    const faqBlocks = headLd().filter((b) => b['@type'] === 'FAQPage') as (Ld & {
       mainEntity: unknown[];
-    };
-    expect(faq.mainEntity).toHaveLength(AI_SYSTEMS_CONTENT.faqs.length);
+    })[];
+    expect(faqBlocks).toHaveLength(1);
+    expect(faqBlocks[0].mainEntity).toHaveLength(AI_SYSTEMS_CONTENT.faqs.length);
     const crumbs = headLd().find((b) => b['@type'] === 'BreadcrumbList') as Ld & {
       itemListElement: { item: string }[];
     };
