@@ -7,6 +7,12 @@ import { routes, prerenderOnlyRoutes } from './routes.js';
 import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
 import http from 'node:http';
+import {
+  pickPort,
+  writeNonce,
+  removeNonce,
+  assertServesThisBuild,
+} from './scripts/prerender-server.js';
 import { createClient } from '@sanity/client';
 import {
   fetchDynamicLists,
@@ -26,7 +32,8 @@ try {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
-const PORT = 4173;
+// Port wybierany w prerender() (wolny port albo PRERENDER_PORT), nie na sztywno (MIX-1590).
+let PORT = 0;
 // 4 daje najlepszy stosunek czasu do RAM/CPU na typowym ubuntu-latest CI runnerze.
 // Powyzej 4 puppeteer page pool zaczyna konkurowac o RAM (~500MB/page).
 const MAX_CONCURRENCY = parseInt(process.env.PRERENDER_CONCURRENCY || '4', 10);
@@ -250,7 +257,18 @@ async function prerender() {
 
   // 1. Start Server
   console.log('📦 Starting preview server...');
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
+  try {
+    PORT = await pickPort();
+  } catch (err) {
+    console.error(`❌ ${err instanceof Error ? err.message : err}`);
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`🔌 Preview port: ${PORT}`);
+  // Znacznik jednorazowy w dist/ TEGO builda: serwer na PORT musi go oddać (niżej).
+  const nonce = writeNonce(DIST_DIR);
+  // --strictPort: zajęty port = błąd startu, nie ciche przeskoczenie na inny.
+  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString(), '--strictPort'], {
     stdio: 'ignore',
     shell: true,
     detached: true, // Allow killing process group
@@ -261,7 +279,9 @@ async function prerender() {
     // 2. Wait for server
     console.log('⏳ Waiting for server to be ready...');
     await waitForServer(PORT);
-    console.log('🟢 Server is ready!');
+    // Fail-closed: to ma być serwer TEGO builda (nie równoległego na tej maszynie).
+    await assertServesThisBuild(PORT, nonce);
+    console.log('🟢 Server is ready (znacznik builda zgodny)!');
 
     // 3. Launch Browser
     browser = await puppeteer.launch({
@@ -407,6 +427,7 @@ async function prerender() {
     process.exitCode = 1;
   } finally {
     if (browser) await browser.close().catch(() => {});
+    removeNonce(DIST_DIR); // dist/ wygląda jak dawniej: bez pliku znacznika
     if (server.pid) {
       try {
         // Kill the entire process group on Unix-like systems
