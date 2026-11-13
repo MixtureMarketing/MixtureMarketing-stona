@@ -98,6 +98,32 @@ describe('index.html: skrypt widoczności banera zgód (MIX-1579)', () => {
     },
   );
 
+  // MIX-1589 (luka V1 z werdyktu MIX-1579): pole marketing, które nie jest true/false, nie może
+  // przejść jako zgoda (skrypt nie chowa banera, allowlista odmawia). Bliźniak: false/true przechodzą.
+  it.each([
+    ['napis "true"', '"true"'],
+    ['liczba 1', '1'],
+    ['napis "yes"', '"yes"'],
+    ['null', 'null'],
+    ['tablica', '[true]'],
+    ['obiekt', '{"v":true}'],
+  ])('marketing jako %s nie chowa banera (skrypt i allowlista odmawiają)', (_n, value) => {
+    const raw = `{"analytics":true,"marketing":${value}}`;
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, raw);
+    const check = checkStoredConsent(raw);
+    expect(check.ok).toBe(false);
+    expect(check.ok ? '' : check.reason).toBe('odmowa: pole marketing nie jest true/false');
+    expect(runHeadScript()).toEqual([]);
+  });
+
+  it.each(['true', 'false'])('bliźniak: marketing %s (boolean) chowa baner', (value) => {
+    window.localStorage.setItem(
+      CONSENT_STORAGE_KEY,
+      `{"analytics":false,"marketing":${value}}`,
+    );
+    expect(runHeadScript()).toHaveLength(1);
+  });
+
   it('zgoda pod starym kluczem (cookie-consent) nie chowa banera', () => {
     window.localStorage.setItem('cookie-consent', '{"analytics":true,"marketing":true}');
     expect(runHeadScript()).toEqual([]);
