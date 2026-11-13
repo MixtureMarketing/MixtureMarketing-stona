@@ -65,7 +65,9 @@ describe('pickPort (MIX-1590: bez stałego portu 4173)', () => {
   it.each(['abc', '0', '70000', '-1', '12.5'])(
     'PRERENDER_PORT=%s = odmowa z komunikatem (fail-closed)',
     async (bad) => {
-      await expect(pickPort({ PRERENDER_PORT: bad })).rejects.toThrow(/PRERENDER_PORT=.*nie jest poprawnym portem/);
+      await expect(pickPort({ PRERENDER_PORT: bad })).rejects.toThrow(
+        /PRERENDER_PORT=.*nie jest poprawnym portem/,
+      );
     },
   );
 });
@@ -80,7 +82,9 @@ describe('assertServesThisBuild (znacznik builda)', () => {
 
   it('odmawia, gdy serwer oddaje znacznik INNEGO builda (200, inna treść)', async () => {
     const port = await serve((_req, res) => res.end('inny-build'));
-    await expect(assertServesThisBuild(port, nonce)).rejects.toThrow(/nie oddaje znacznika tego builda \(status 200\)/);
+    await expect(assertServesThisBuild(port, nonce)).rejects.toThrow(
+      /nie oddaje znacznika tego builda \(status 200\)/,
+    );
   });
 
   it('odmawia, gdy znacznika nie ma (404)', async () => {
@@ -126,7 +130,9 @@ describe('prerender.js: okablowanie', () => {
 
   it('preview startuje z --strictPort i sprawdza znacznik builda przed użyciem', () => {
     expect(src).toContain("'--strictPort'");
-    expect(src).toMatch(/await waitForServer\(PORT\);\s*[\s\S]{0,200}await assertServesThisBuild\(PORT, nonce\)/);
+    expect(src).toMatch(
+      /await waitForServer\(PORT\);\s*[\s\S]{0,200}await assertServesThisBuild\(PORT, nonce\)/,
+    );
   });
 
   it('sprząta znacznik w finally', () => {
