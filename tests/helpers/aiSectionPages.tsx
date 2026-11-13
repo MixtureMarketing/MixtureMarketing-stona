@@ -2,6 +2,7 @@
 // Ciężkie dzieci są zastąpione znacznikami (vi.mock w pliku testu), więc HTML zawiera tylko
 // własny układ stron, a „baseline” w tests/fixtures/mix1276 nie zależy od treści sekcji.
 import React from 'react';
+import { expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';

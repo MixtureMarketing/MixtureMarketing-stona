@@ -56,6 +56,10 @@ const fixture = (n: string) =>
 const HOME_BASE = fixture('home-flag-off.html.txt');
 const CUSTOM_BASE = fixture('customapp-flag-off.html.txt');
 
+/** Czy `b` leży w dokumencie za `a`. */
+const follows = (a: Node, b: Node) =>
+  Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+
 /** Wartości, przy których sekcji ma NIE być (allowlista: tylko dokładnie „1”). */
 const OFF: Array<string | undefined> = [undefined, '', '0', 'false', 'true', 'TRUE', ' 1', 'yes'];
 
@@ -102,7 +106,7 @@ describe('strona główna', () => {
     expect(container.innerHTML.replace(section.outerHTML, '')).toBe(HOME_BASE);
   });
 
-  it('włączony: sekcja jest pod hero (poza LCP), przed końcowym pasem, bez mediów i obrazów', async () => {
+  it('włączony: sekcja pod hero (poza LCP), przed końcowym pasem, bez mediów i obrazów', async () => {
     stubFlag('1');
     const { container } = await renderHome();
     const section = container.querySelector<HTMLElement>('#ai-systems')!;
@@ -110,9 +114,10 @@ describe('strona główna', () => {
     const runway = container.querySelector('.hero-runway')!;
     const final = container.querySelector('[data-mock="final"]')!;
     expect(runway.contains(section)).toBe(false);
-    expect(hero.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(section.compareDocumentPosition(final) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(section.querySelectorAll('img, picture, video, iframe, canvas, svg:not([aria-hidden])')).toHaveLength(0);
+    expect(follows(hero, section)).toBe(true);
+    expect(follows(section, final)).toBe(true);
+    const media = 'img, picture, video, iframe, canvas, svg:not([aria-hidden])';
+    expect(section.querySelectorAll(media)).toHaveLength(0);
   });
 
   it('kod sekcji nie ma stanu ani efektów (CLS 0: treść statyczna od pierwszego renderu)', () => {
@@ -120,7 +125,7 @@ describe('strona główna', () => {
     expect(src).not.toMatch(/useState|useEffect|useLayoutEffect|useRef|lazy\(|<img|fetch\(/);
   });
 
-  it('axe: 0 naruszeń w sekcji (kontrast sprawdza audyt-strony na Preview, jsdom go nie liczy)', async () => {
+  it('axe: 0 naruszeń w sekcji (kontrast mierzy audyt-strony na Preview)', async () => {
     stubFlag('1');
     const { container } = await renderHome();
     const section = container.querySelector('#ai-systems')!;
@@ -137,7 +142,7 @@ describe('/web-development/custom-app/', () => {
     expect(container.querySelector('a[href="' + AI_SYSTEMS_PATH + '"]')).toBeNull();
   });
 
-  it('włączony: zdanie z linkiem do strony usługi po sekcji „co zbudujemy”; reszta bez zmian', () => {
+  it('włączony: zdanie z linkiem po sekcji „co zbudujemy”; reszta bez zmian', () => {
     stubFlag('1');
     const { container } = renderCustomApp();
     const link = container.querySelector<HTMLAnchorElement>('a[href="' + AI_SYSTEMS_PATH + '"]')!;
@@ -146,8 +151,8 @@ describe('/web-development/custom-app/', () => {
     const section = link.closest('section')!;
     const useCases = container.querySelector('[data-mock="usecases"]')!;
     const start = container.querySelector('[data-mock="start"]')!;
-    expect(useCases.compareDocumentPosition(section) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(section.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(follows(useCases, section)).toBe(true);
+    expect(follows(section, start)).toBe(true);
     expect(container.innerHTML.replace(section.outerHTML, '')).toBe(CUSTOM_BASE);
   });
 
