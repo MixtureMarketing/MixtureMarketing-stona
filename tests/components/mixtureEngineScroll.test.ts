@@ -136,6 +136,48 @@ describe('mixtureEngine: klatki i przewijanie (MIX-1470)', () => {
     h.destroy();
   });
 
+  // lowPower: silnik podaje pacerowi 30 fps (nie 60) na każdym odświeżaniu ekranu.
+  it.each([60, 120])('lowPower przy %i Hz: najwyżej ~30 narysowanych klatek na sekundę', (hz) => {
+    const h = startMixture(fakeCanvas(), { reducedMotion: false, lowPower: true });
+    runFrames(performance.now(), hz, 1000);
+    expect(draws).toBeGreaterThanOrEqual(28);
+    expect(draws).toBeLessThanOrEqual(32);
+    h.destroy();
+  });
+
+  it('bez lowPower przy 60 Hz: nie spada do 30 fps (bliźniak testu lowPower)', () => {
+    const h = startMixture(fakeCanvas(), { reducedMotion: false, lowPower: false });
+    runFrames(performance.now(), 60, 1000);
+    expect(draws).toBeGreaterThanOrEqual(58);
+    h.destroy();
+  });
+
+  // Wznowienie po pauzie scrolla zeruje pacer: czas pauzy (i pierwsza klatka po niej)
+  // nie wchodzi do zegara sceny. Fala żyje 1,7 s czasu sceny: ~983 ms przed pauzą,
+  // więc po wznowieniu zostaje ~717 ms. Bez reset() pierwsza klatka dodałaby
+  // min(przerwa, 100 ms) i fala zgasłaby ~100 ms za wcześnie.
+  it('po pauzie scrolla scena rusza bez skoku zegara (pacer.reset przy wznowieniu)', () => {
+    const h = startMixture(fakeCanvas(), { reducedMotion: false });
+    h.pulse(10, 10);
+    const base = performance.now() + 7000;
+    let t = runFrames(base, 60, 1000);
+    expect(rafQueue.size).toBe(1); // fala żyje
+    window.dispatchEvent(new Event('scroll'));
+    expect(rafQueue.size).toBe(0);
+    vi.advanceTimersByTime(160); // koniec scrolla: wznowienie
+    expect(rafQueue.size).toBe(1);
+    t += 3000; // 3 s przerwy w klatkach rAF
+    const resumed = t;
+    while (rafQueue.size > 0 && t < resumed + 5000) {
+      flush(t);
+      t += 1000 / 60;
+    }
+    const afterResume = t - resumed;
+    expect(afterResume).toBeGreaterThan(717 - 30);
+    expect(afterResume).toBeLessThan(717 + 40);
+    h.destroy();
+  });
+
   it('reduced motion: jedna statyczna klatka, scroll niczego nie uruchamia', () => {
     const h = startMixture(fakeCanvas(), { reducedMotion: true });
     expect(draws).toBe(1);
