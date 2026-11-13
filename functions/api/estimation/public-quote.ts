@@ -17,7 +17,8 @@ import {
   type QuoteGateEnv,
 } from './_quoteGate';
 import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
-import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
+import { sprawdzWymaganyTekst } from '../_shared/limity';
+import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import {
   parsePublicConfig,
   computePublicQuote,
@@ -29,7 +30,7 @@ import { withRetry } from '../../../lib/estimation/retry';
 import { ENGINE_VERSION } from '../../../lib/estimation/engine';
 import type { Answers } from '../../../lib/estimation/types';
 
-interface Env extends CrmEnv, Omit<QuoteGateEnv, 'DB'> {
+interface Env extends LinearEnv, Omit<QuoteGateEnv, 'DB'> {
   DB: D1Database;
   CACHE: KVNamespace;
   TURNSTILE_SECRET: string;
@@ -153,6 +154,10 @@ async function handlePost(
   if (body.website_verify) return json({ error: 'Spam detected' }, 403);
 
   // 2. Email wymagany (kontrakt §3) — tania walidacja przed zewnętrznym fetchem.
+  // Limit długości e-maila (400 po polsku) przed Turnstile i zapisem. Token captcha sprawdza
+  // verifyTurnstileStrict (typ, długość <= 2048: 403 „captcha: token”, A12, MIX-1383).
+  const bladLimitu = sprawdzWymaganyTekst(body.email, 'email');
+  if (bladLimitu) return json({ error: bladLimitu }, 400);
   const email = (typeof body.email === 'string' ? body.email : '').trim();
   if (!EMAIL_RE.test(email)) return json({ error: 'Podaj poprawny adres e-mail.' }, 400);
 
@@ -269,6 +274,8 @@ async function persist(
         .bind(leadId, email, 'Klient z kalkulatora', 'Kalkulator wyceny', budget, details)
         .run(),
     );
+    // Zadanie w Linearze zaraz po zapisie leada (nie czeka na wycenę; wyjątek tu nic nie zmienia).
+    zglosLeadWTle(waitUntil, env, leadId);
 
     const paramsObj: Record<string, string> = {};
     for (const p of rawLib.params) paramsObj[p.key] = p.value;
@@ -301,19 +308,6 @@ async function persist(
       ).bind(quoteId, code, JSON.stringify(value)),
     );
     if (stmts.length > 0) await withRetry(() => env.DB.batch(stmts));
-
-    // Kopia do CRM po pełnym zapisie (lead + wycena). Efekt uboczny — silnik bez zmian.
-    wyslijDoCrmWTle(waitUntil, env, {
-      external_id: leadId,
-      source: 'calculator',
-      received_at: new Date().toISOString(),
-      email,
-      name: 'Klient z kalkulatora',
-      service: 'Kalkulator wyceny',
-      budget_text: budget,
-      quote_ref: String(quoteId),
-      details: { answers, priceRange: result.priceRange },
-    });
   } catch (e) {
     console.error(`[quote] zapis: błąd ${e instanceof Error ? e.name : 'nieznany'}`);
   }

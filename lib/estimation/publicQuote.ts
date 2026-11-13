@@ -90,6 +90,11 @@ export interface SanitizedAnswers {
   reasons: string[];
 }
 
+/** Limity wejścia kalkulatora (MIX-490); tekst ma niższy limit PUBLIC_TEXT_MAX z allowlisty A9. */
+export const MAX_ODPOWIEDZI = 100;
+export const MAX_POZYCJI_LISTY = 50;
+export const MAX_POZYCJA_ZNAKOW = 200;
+
 /**
  * Waliduje odpowiedzi publiczne (kontrakt §3, SPEC-MIX-1320 §6 A9/A10) jako ALLOWLISTĘ:
  * kod tylko ze zbioru publicznego (obcy kod = odmowa, nie ciche pominięcie), `select` i
@@ -110,8 +115,14 @@ export function sanitizePublicAnswers(raw: unknown, defs: PublicQuestionDef[]): 
     fail('odpowiedzi: nie obiekt', 'Pole „answers" musi być obiektem.');
     return { answers, errors, reasons };
   }
+  const wpisy = Object.entries((raw ?? {}) as Record<string, unknown>);
+  // Limit liczby odpowiedzi przed allowlistą (MIX-490): jeden błąd, nic nie przetworzone.
+  if (wpisy.length > MAX_ODPOWIEDZI) {
+    fail('odpowiedzi: za dużo', `Za dużo odpowiedzi (maks. ${MAX_ODPOWIEDZI}).`);
+    return { answers, errors, reasons };
+  }
   const byCode = new Map(defs.map((d) => [d.code, d]));
-  for (const [code, val] of Object.entries((raw ?? {}) as Record<string, unknown>)) {
+  for (const [code, val] of wpisy) {
     const def = byCode.get(code);
     if (!def) {
       // Kodu od klienta nie wpisujemy do powodu ani komunikatu (może być HTML albo 1 MB).
@@ -151,6 +162,17 @@ export function sanitizePublicAnswers(raw: unknown, defs: PublicQuestionDef[]): 
         const opts = optionValues(def.options_json);
         if (!opts) fail(`opcje: brak listy ${code}`, `Pole „${code}" jest niedostępne.`);
         else if (!Array.isArray(val)) fail(`opcja: typ ${code}`, `Pole „${code}" musi być listą.`);
+        // Limity MIX-490 przed allowlistą opcji (ta i tak odrzuci takie wartości; tu czytelny komunikat).
+        else if (val.length > MAX_POZYCJI_LISTY)
+          fail(
+            `opcja: za dużo pozycji ${code}`,
+            `Pole „${code}" może mieć maks. ${MAX_POZYCJI_LISTY} pozycji.`,
+          );
+        else if (val.some((x) => typeof x === 'string' && x.length > MAX_POZYCJA_ZNAKOW))
+          fail(
+            `opcja: za długa pozycja ${code}`,
+            `Pozycja w polu „${code}" może mieć maks. ${MAX_POZYCJA_ZNAKOW} znaków.`,
+          );
         else if (
           val.length > opts.size ||
           new Set(val).size !== val.length ||

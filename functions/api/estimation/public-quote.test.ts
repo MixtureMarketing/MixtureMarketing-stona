@@ -1,5 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { onRequestPost } from './public-quote';
+import {
+  ileOp,
+  srodowiskoWejsc,
+  stubSieci,
+  wierszeLinear,
+  zbieracz,
+  type Siec,
+} from '../../../tests/helpers/wejsciaLinear';
+import { HOST_CRM, URL_CRM_INGEST, jestCrm } from '../../../tests/helpers/hostCrm';
 
 type Ctx = Parameters<typeof onRequestPost>[0];
 
@@ -171,33 +182,367 @@ describe('POST /api/estimation/public-quote', () => {
     expect(inserts.some((s) => s.includes('INSERT INTO est_quote_answers'))).toBe(true);
   });
 
-  it('po zapisie leada i wyceny kopia idzie do CRM z quote_ref', async () => {
-    const crm: Array<Record<string, unknown>> = [];
+  it('przy ustawionych CRM_INGEST_URL/SECRET lead i wycena zapisane, a do CRM nie idzie żaden fetch', async () => {
+    const wywolane: string[] = [];
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (url: string, init?: RequestInit) => {
+      vi.fn(async (url: string) => {
+        wywolane.push(String(url));
         if (String(url).includes('siteverify'))
           return new Response(JSON.stringify({ ...TS_OK, success: true }));
-        if (String(url).includes('ingest/lead')) crm.push(JSON.parse(String(init?.body)));
         return new Response('{}', { status: 201 });
       }),
     );
-    const { env } = makeEnv();
+    const { env, inserts } = makeEnv();
     const czekaj: Promise<unknown>[] = [];
-    const ctx = post({ ...env, CRM_INGEST_SECRET: 'x'.repeat(64) }, VALID) as unknown as Record<
-      string,
-      unknown
-    >;
+    const ctx = post(
+      {
+        ...env,
+        CRM_INGEST_URL: URL_CRM_INGEST,
+        CRM_INGEST_SECRET: 'x'.repeat(64),
+      },
+      VALID,
+    ) as unknown as Record<string, unknown>;
     ctx.waitUntil = (p: Promise<unknown>) => czekaj.push(p);
     expect((await onRequestPost(ctx as unknown as Ctx)).status).toBe(200);
     await Promise.all(czekaj);
-    expect(crm).toHaveLength(1);
-    expect(crm[0]).toMatchObject({
-      source: 'calculator',
-      email: 'jan@x.pl',
-      budget_text: '500 - 1500',
+    expect(wywolane.filter(jestCrm)).toEqual([]);
+    expect(inserts.some((s) => s.includes('INSERT INTO leads'))).toBe(true);
+    expect(inserts.some((s) => s.includes('INSERT INTO est_quotes'))).toBe(true);
+  });
+
+  it('z kluczem Resend maile do klienta i agencji nadal wychodzą, bez fetchu do CRM', async () => {
+    const wywolane: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        wywolane.push(String(url));
+        if (String(url).includes('siteverify'))
+          return new Response(JSON.stringify({ ...TS_OK, success: true }));
+        return new Response('{}', { status: 200 });
+      }),
+    );
+    const { env } = makeEnv();
+    const res = await onRequestPost(
+      post(
+        {
+          ...env,
+          RESEND_API_KEY: 're_test',
+          NOTIFY_EMAIL: 'agencja@example.com',
+          CRM_INGEST_SECRET: 'x'.repeat(64),
+        },
+        VALID,
+      ),
+    );
+    expect(res.status).toBe(200);
+    expect(wywolane.filter((u) => u.includes('resend'))).toHaveLength(2);
+    expect(wywolane.filter(jestCrm)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// Wejście → Linear: biblioteka wyceny z atrap, lead/linear_leady w prawdziwym SQLite.
+// ---------------------------------------------------------------------------------------------
+
+describe('POST /api/estimation/public-quote — zgłoszenie do Lineara', () => {
+  let siec: Siec;
+  let zb: ReturnType<typeof zbieracz>;
+
+  beforeEach(() => {
+    siec = stubSieci({ captchaOk: (t) => t === 'tok' });
+    zb = zbieracz();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  /** Tabele est_* z atrap biblioteki, `leads` i `linear_leady` w SQLite z migracjami. */
+  function srodowisko(
+    wlasne: {
+      psujLeads?: boolean;
+      psujLinear?: boolean;
+      psujWycene?: boolean;
+      psujOdpowiedzi?: boolean;
+    } = {},
+  ) {
+    const wejscia = srodowiskoWejsc(siec, { TURNSTILE_SECRET: 'sekret' });
+    const biblioteka = makeDB();
+    const DB = {
+      prepare: (sql: string) => {
+        if (/linear_leady/.test(sql) && wlasne.psujLinear) {
+          throw new Error('D1_ERROR: no such table: linear_leady');
+        }
+        if (/INSERT INTO est_quotes/.test(sql) && wlasne.psujWycene) {
+          return {
+            bind: () => ({
+              run: async () => {
+                throw new Error('D1_ERROR: est_quotes overloaded');
+              },
+            }),
+          };
+        }
+        if (/INSERT INTO leads/.test(sql) && wlasne.psujLeads) {
+          return {
+            bind: () => ({
+              run: async () => {
+                throw new Error('D1_ERROR: overloaded');
+              },
+            }),
+          };
+        }
+        return /linear_leady|\bleads\b/.test(sql)
+          ? wejscia.DB.prepare(sql)
+          : biblioteka.DB.prepare(sql);
+      },
+      batch: wlasne.psujOdpowiedzi
+        ? async () => {
+            throw new Error('D1_ERROR: batch overloaded');
+          }
+        : biblioteka.DB.batch,
+    };
+    return { env: { ...wejscia.env, DB }, db: wejscia.db, CACHE: wejscia.CACHE };
+  }
+
+  const wywolaj = async (srv: unknown, body: unknown = VALID) => {
+    const ctx = post(srv, body) as unknown as Record<string, unknown>;
+    ctx.waitUntil = zb.waitUntil;
+    const res = await onRequestPost(ctx as unknown as Ctx);
+    await zb.czekaj();
+    return { status: res.status, body: (await res.json()) as Record<string, unknown> };
+  };
+
+  it('udany zapis leada → jedno zgłoszenie w tle, zadanie z etykietą „kalkulator” PO INSERT leads, odpowiedź bez zmian', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv);
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
+    expect(zb.liczba()).toBe(1); // tylko zgłoszenie do Lineara (kopii do CRM już nie ma)
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+    const lead = db.prepare('SELECT id FROM leads').get() as { id: string };
+    expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
+      input: { id: lead.id, teamId: 'team-1', labelIds: ['lab-kalkulator'] },
     });
-    expect(typeof crm[0].external_id).toBe('string');
-    expect(crm[0].quote_ref).toBeDefined();
+    expect(siec.os.indexOf('fetch:api.linear.app')).toBeGreaterThan(
+      siec.os.indexOf('sql:INSERT leads'),
+    );
+    expect(db.prepare('SELECT stan FROM linear_leady WHERE lead_id = ?').get(lead.id)).toEqual({
+      stan: 'wyslany',
+    });
+  });
+
+  it('weryfikacja Turnstile idzie wspólnym helperem: ten sam adres, metoda, nagłówek i parametry', async () => {
+    const { env: srv } = srodowisko();
+    await wywolaj(srv);
+    const wywolania = vi.mocked(fetch).mock.calls.filter(([u]) => String(u).includes('siteverify'));
+    expect(wywolania).toHaveLength(1);
+    const [url, init] = wywolania[0];
+    expect(String(url)).toBe('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    expect(init?.method).toBe('POST');
+    expect(new Headers(init?.headers).get('Content-Type')).toBe(
+      'application/x-www-form-urlencoded',
+    );
+    expect(Object.fromEntries(new URLSearchParams(String(init?.body)))).toEqual({
+      secret: 'sekret',
+      response: 'tok',
+      remoteip: '9.9.9.9',
+    });
+  });
+
+  it('kalkulator nie ma własnej kopii verifyTurnstile: import z _shared/security', () => {
+    const zrodlo = readFileSync(resolve(__dirname, 'public-quote.ts'), 'utf8');
+    expect(zrodlo).toMatch(
+      /import \{[^}]*\bverifyTurnstile(Strict)?\b[^}]*\} from '\.\.\/_shared\/security'/,
+    );
+    expect(zrodlo).not.toMatch(/function verifyTurnstile/);
+  });
+
+  it('bez LINEAR_API_KEY: 200 z ceną jak dotąd, zero wywołań Lineara (MIX-626)', async () => {
+    const { env: bezKlucza } = srodowisko();
+    const r = await wywolaj({ ...bezKlucza, LINEAR_API_KEY: undefined });
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
+    expect(siec.linear).toHaveLength(0);
+    expect(siec.hosty).not.toContain('api.linear.app');
+  });
+
+  it('(−) błąd sieci Turnstile → 403 (jak dotąd), zero wywołań Lineara', async () => {
+    const { env: srv, db } = srodowisko();
+    vi.mocked(fetch).mockImplementation(async () => {
+      throw new TypeError('fetch failed');
+    });
+    const r = await wywolaj(srv);
+    expect(r.status).toBe(403);
+    expect(r.body).toEqual({
+      error: 'Weryfikacja antybotowa nieudana.',
+      reason: 'captcha: siteverify niedostępny',
+    });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+  });
+
+  it('(−) honeypot → 403, zero wywołań Lineara, zero wierszy', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, website_verify: 'bot' });
+    expect(r.status).toBe(403);
+    expect(r.body).toEqual({ error: 'Spam detected' });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) zła captcha → 403 z komunikatem, zero wywołań Lineara, zero wierszy', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, captcha_token: 'zly' });
+    expect(r.status).toBe(403);
+    expect(r.body).toEqual({
+      error: 'Weryfikacja antybotowa nieudana.',
+      reason: 'captcha: odrzucony',
+    });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) przekroczony limit IP → 429, zero wywołań Lineara, zero wierszy', async () => {
+    const { env: srv, db, CACHE } = srodowisko();
+    CACHE.store.set('pubcalc:rl:9.9.9.9', '5');
+    const r = await wywolaj(srv);
+    expect(r.status).toBe(429);
+    expect(r.body).toEqual({ error: 'Zbyt wiele zapytań. Spróbuj za chwilę.' });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) błąd D1 przy zapisie leada → odpowiedź jak dotąd (cena), zero wywołań Lineara', async () => {
+    const { env: srv, db } = srodowisko({ psujLeads: true });
+    const r = await wywolaj(srv);
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
+    expect(siec.linear).toHaveLength(0);
+    expect(siec.hosty).not.toContain('api.linear.app');
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('(−) ścieżka z modułem Lineara nie dotyka CRM: zero fetch do hosta CRM', async () => {
+    const { env: srv } = srodowisko();
+    await wywolaj(srv);
+    expect(siec.crm).toBe(0);
+    expect(siec.hosty.some((h) => h.includes(HOST_CRM))).toBe(false);
+    expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+  });
+
+  it('(−) wyjątek w module Lineara (brak tabeli) nie zmienia kodu ani treści odpowiedzi', async () => {
+    const { env: srv } = srodowisko({ psujLinear: true });
+    const r = await wywolaj(srv);
+    expect(r.status).toBe(200);
+    expect(r.body).toEqual({ priceRange: { min: 500, max: 1500 }, currency: 'PLN', status: 'ok' });
+    expect(siec.linear).toHaveLength(0);
+  });
+
+  // ── Kolejność zapisu: lead jest zgłaszany do Lineara, zanim zapis wyceny może się nie udać ──
+
+  it.each(['psujWycene', 'psujOdpowiedzi'] as const)(
+    'zapis wyceny pada (%s) po zapisie leada → zadanie w Linearze i tak powstaje, odpowiedź bez zmian',
+    async (psuje) => {
+      const { env: srv, db } = srodowisko({ [psuje]: true });
+      const r = await wywolaj(srv);
+      expect(r.status).toBe(200);
+      expect(r.body).toEqual({
+        priceRange: { min: 500, max: 1500 },
+        currency: 'PLN',
+        status: 'ok',
+      });
+      const lead = db.prepare('SELECT id FROM leads').get() as { id: string };
+      expect(ileOp(siec, 'ZadanieUtworz')).toBe(1);
+      expect(siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars).toMatchObject({
+        input: { id: lead.id, labelIds: ['lab-kalkulator'] },
+      });
+      expect(db.prepare('SELECT stan FROM linear_leady WHERE lead_id = ?').get(lead.id)).toEqual({
+        stan: 'wyslany',
+      });
+      // Zgłoszenie do Lineara idzie zaraz po zapisie leada, więc przy awarii wyceny nadal jest jedno.
+      expect(zb.liczba()).toBe(1);
+    },
+  );
+
+  // ── Limity długości (400 po polsku, po stronie serwera) ────────────────────────────────────
+
+  const bezSiteverify = () =>
+    expect(
+      vi.mocked(fetch).mock.calls.filter(([u]) => String(u).includes('siteverify')),
+    ).toHaveLength(0);
+
+  it('(−) e-mail 255 znaków → 400 z komunikatem, bez Turnstile, bez zapisu i Lineara', async () => {
+    const { env: srv, db } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, email: `${'a'.repeat(255 - 5)}@x.pl` });
+    expect([r.status, r.body]).toEqual([
+      400,
+      { error: 'Pole „E-mail” może mieć maks. 254 znaków.' },
+    ]);
+    bezSiteverify();
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(db.prepare('SELECT COUNT(*) AS n FROM leads').get()).toEqual({ n: 0 });
+    expect(zb.liczba()).toBe(0);
+  });
+
+  it('e-mail dokładnie 254 znaki przechodzi (200)', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, email: `${'a'.repeat(254 - 5)}@x.pl` });
+    expect(r.status).toBe(200);
+  });
+
+  // MIX-626: token sprawdza verifyTurnstileStrict (A12, MIX-1383): 403 „captcha: token”, nie 400.
+  it('(−) token captcha 2049 znaków → 403 „captcha: token”, bez zapytania do Turnstile', async () => {
+    const { env: srv } = srodowisko();
+    const r = await wywolaj(srv, { ...VALID, captcha_token: 't'.repeat(2049) });
+    expect([r.status, r.body]).toEqual([
+      403,
+      { error: 'Weryfikacja antybotowa nieudana.', reason: 'captcha: token' },
+    ]);
+    bezSiteverify();
+  });
+
+  it('(−) e-mail o złym typie → 400, token o złym typie → 403 „captcha: token”; nie 500', async () => {
+    const { env: srv } = srodowisko();
+    const a = await wywolaj(srv, { ...VALID, email: 12345 });
+    expect([a.status, a.body]).toEqual([400, { error: 'Pole „E-mail” ma nieprawidłowy format.' }]);
+    const b = await wywolaj(srv, { ...VALID, captcha_token: { x: 1 } });
+    expect([b.status, b.body]).toEqual([
+      403,
+      { error: 'Weryfikacja antybotowa nieudana.', reason: 'captcha: token' },
+    ]);
+  });
+
+  // MIX-626: odpowiedź select przechodzi allowlistę opcji A9 (MIX-1383), więc długa wartość to
+  // „spoza listy”; bliźniak „przechodzi” to wartość z listy opcji.
+  it('(−) odpowiedź 2001 znaków → 400 z błędem po polsku, zero zapisu i Lineara; wartość z listy → 200', async () => {
+    const { env: srv, db } = srodowisko();
+    const za = await wywolaj(srv, { ...VALID, answers: { project_goal: 'x'.repeat(2001) } });
+    expect(za.status).toBe(400);
+    expect(za.body).toEqual({
+      errors: [
+        'Pole „project_goal" ma niedozwoloną wartość.',
+        'Pole „project_goal" jest wymagane.',
+      ],
+      reason: 'opcja: spoza listy project_goal',
+    });
+    expect(siec.linear).toHaveLength(0);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    const ok = await wywolaj(srv, VALID);
+    expect(ok.status).toBe(200);
+  });
+
+  it('(−) ponad 100 odpowiedzi → 400 z komunikatem po polsku', async () => {
+    const { env: srv, db } = srodowisko();
+    const wiele = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`k${i}`, 'x']));
+    const r = await wywolaj(srv, { ...VALID, answers: { project_goal: 'x', ...wiele } });
+    expect([r.status, r.body]).toEqual([
+      400,
+      { errors: ['Za dużo odpowiedzi (maks. 100).'], reason: 'odpowiedzi: za dużo' },
+    ]);
+    expect(wierszeLinear(db)).toHaveLength(0);
+    expect(siec.linear).toHaveLength(0);
   });
 });

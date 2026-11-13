@@ -234,3 +234,66 @@ describe('A10: zakresy liczb (podstrony 1–500, języki 1–20), tylko liczba c
     expect(PUBLIC_TEXT_MAX).toBe(200);
   });
 });
+
+// MIX-626: limity z łańcucha MIX-490 złożone z allowlistą A9 (MIX-1383). Tekst ma limit
+// PUBLIC_TEXT_MAX (200) zamiast 2000, a bliźniaki „przechodzi” używają wartości z listy opcji.
+describe('sanitizePublicAnswers — limity długości', () => {
+  it('(−) odpowiedź tekstowa ponad limit → błąd po polsku, odpowiedź odrzucona', () => {
+    const { answers, errors } = sanitizePublicAnswers(
+      { project_goal: 'sklep', notes: 'x'.repeat(201) },
+      DEFS,
+    );
+    expect(errors).toContain('Pole „notes" ma więcej niż 200 znaków.');
+    expect(answers).not.toHaveProperty('notes');
+  });
+
+  it('odpowiedź tekstowa dokładnie na limicie przechodzi', () => {
+    const { answers, errors } = sanitizePublicAnswers(
+      { project_goal: 'sklep', notes: 'x'.repeat(200) },
+      DEFS,
+    );
+    expect(errors).toEqual([]);
+    expect(answers.notes).toHaveLength(200);
+  });
+
+  it('(−) lista ponad 50 pozycji → błąd; lista z opcji przechodzi', () => {
+    const lista = (n: number) => Array.from({ length: n }, () => 'a');
+    const za = sanitizePublicAnswers({ project_goal: 'sklep', users_type: lista(51) }, DEFS);
+    expect(za.errors).toEqual(['Pole „users_type" może mieć maks. 50 pozycji.']);
+    expect(za.reasons).toEqual(['opcja: za dużo pozycji users_type']);
+    const ok = sanitizePublicAnswers(
+      { project_goal: 'sklep', users_type: ['nikt', 'klienci'] },
+      DEFS,
+    );
+    expect(ok.errors).toEqual([]);
+    expect(ok.answers.users_type).toHaveLength(2);
+  });
+
+  it('(−) pozycja listy ponad 200 znaków → błąd; pozycja z opcji przechodzi', () => {
+    const za = sanitizePublicAnswers(
+      { project_goal: 'sklep', users_type: ['a'.repeat(201)] },
+      DEFS,
+    );
+    expect(za.errors).toEqual(['Pozycja w polu „users_type" może mieć maks. 200 znaków.']);
+    expect(za.reasons).toEqual(['opcja: za długa pozycja users_type']);
+    const ok = sanitizePublicAnswers({ project_goal: 'sklep', users_type: ['klienci'] }, DEFS);
+    expect(ok.errors).toEqual([]);
+  });
+
+  it('(−) ponad 100 odpowiedzi → jeden błąd, nic nie przetworzone', () => {
+    const wiele = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`k${i}`, 'x']));
+    const r = sanitizePublicAnswers({ project_goal: 'sklep', ...wiele }, DEFS);
+    expect(r).toEqual({
+      answers: {},
+      errors: ['Za dużo odpowiedzi (maks. 100).'],
+      reasons: ['odpowiedzi: za dużo'],
+    });
+  });
+
+  it('dokładnie 100 odpowiedzi nie trafia w limit liczby (dalej allowlista kodów)', () => {
+    const wiele = Object.fromEntries(Array.from({ length: 99 }, (_, i) => [`k${i}`, 'x']));
+    const r = sanitizePublicAnswers({ project_goal: 'sklep', ...wiele }, DEFS);
+    expect(r.reasons).not.toContain('odpowiedzi: za dużo');
+    expect(r.reasons.filter((x) => x === 'kod: spoza listy')).toHaveLength(99);
+  });
+});
