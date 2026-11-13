@@ -1,4 +1,4 @@
-// MIX-1412 r2: one line per viewport from probe.json (switch on) and the bar state with the switch off.
+// MIX-1412 r2: one line per viewport from probe.json (switch on; optional second file).
 import fs from 'node:fs';
 
 const read = (p) => {
@@ -14,6 +14,7 @@ for (const [label, p] of [
   ['on', onPath],
   ['off', offPath],
 ]) {
+  if (!p) continue;
   const j = read(p);
   if (!j) continue;
   for (const [vp, v] of Object.entries(j)) {

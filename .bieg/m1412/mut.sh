@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
-# MIX-1412 mutants: apply one, confirm the line is present, run affected tests, restore THAT file.
+# MIX-1412 mutants: green baseline first; then apply one mutant, confirm the line is present, run affected
+# tests, restore THAT file. Killed = at least one named test failed (rc != 0 alone is not enough).
 set -u
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1412/mut
 mkdir -p "$OUT"
 T="services/pricePreviewService.test.ts tests/services/pricePreviewService.test.ts hooks/usePublicCalculator.race.test.ts hooks/usePublicCalculator.token.test.ts hooks/usePublicCalculator.test.ts components/features/calculator"
-echo "HEAD $(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' | wc -l)"
+echo "MUT HEAD $(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' | wc -l)"
+clean() { sed 's/\x1b\[[0-9;]*m//g' "$1"; }
+npx vitest run $T --maxWorkers=2 > "$OUT/baseline.log" 2>&1; brc=$?
+echo "MUT baseline rc=$brc $(clean "$OUT/baseline.log" | grep -aE '^\s+Tests ' | tr -s ' ')"
+if [ "$brc" -ne 0 ]; then echo "MUT ABORT: baseline red, mutants not run"; exit 1; fi
 run() { # name file from to
   local name="$1" f="$2" from="$3" to="$4"
   FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");const a=process.env.FROM,b=process.env.TO;if(!s.includes(a)){process.exit(3)}fs.writeFileSync(f,s.replace(a,b))' "$f" || { echo "$name NOMATCH"; return; }
   local changed; changed=$(git diff --numstat -- "$f" | awk '{print $1"+/"$2"-"}')
   npx vitest run $T --maxWorkers=2 > "$OUT/$name.log" 2>&1; local rc=$?
-  local failed; failed=$(grep -E '^\s+Tests ' "$OUT/$name.log" | grep -oE '[0-9]+ failed' || echo '0 failed')
-  if [ "$rc" -ne 0 ]; then echo "$name rc=$rc zabity ($failed) diff=$changed"; else echo "$name rc=0 PRZEZYL diff=$changed"; fi
+  local nf; nf=$(clean "$OUT/$name.log" | grep -aE '^\s+Tests ' | grep -oE '[0-9]+ failed' | grep -oE '[0-9]+' || echo 0)
+  local first; first=$(clean "$OUT/$name.log" | grep -aE '^\s*(×|FAIL) ' | head -1 | cut -c1-90)
+  if [ "$rc" -ne 0 ] && [ "${nf:-0}" -gt 0 ]; then echo "$name rc=$rc zabity ($nf failed: $first) diff=$changed"
+  elif [ "$rc" -ne 0 ]; then echo "$name rc=$rc NIEJASNY (0 named failures) diff=$changed"
+  else echo "$name rc=0 PRZEZYL diff=$changed"; fi
   git checkout -- "$f"
   git diff --quiet -- "$f" || echo "WARN $f dirty after $name"
 }

@@ -30,7 +30,11 @@ describe('requestPricePreview — kontrakt', () => {
     expect(init.method).toBe('POST');
     expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
     expect(JSON.parse(init.body)).toEqual({ answers: { a: 1 }, captcha_token: 'c1' });
-    expect(init.signal).toBe(ctrl.signal);
+    // MIX-1466: fetch dostaje własny sygnał (limit czasu) powiązany z sygnałem wywołującego.
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    expect(init.signal.aborted).toBe(false);
+    ctrl.abort();
+    expect(init.signal.aborted).toBe(true);
   });
 
   it('min/max mapowane wprost (nie zamienione), preview_token przekazany', async () => {
