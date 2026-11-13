@@ -2,6 +2,7 @@
 // interaktywny kalkulator montuje się wyłącznie w przeglądarce (guard isPrerendering — w Puppeteerze
 // nie ma żywego API, więc nie renderujemy stanu błędu do statycznego HTML).
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import PublicCalculator from '../features/calculator/PublicCalculator';
@@ -37,6 +38,16 @@ const WycenaCalculator: React.FC = () => (
           <p className="text-gray-300 text-lg mb-8">
             Odpowiedz na kilka pytań o stronie lub aplikacji, którą masz w głowie — pokażemy
             orientacyjne widełki kosztu. To zgrubny przedział na start, nie wiążąca oferta.
+          </p>
+          <p className="text-gray-400 text-sm mb-6">
+            Chcesz najpierw zrozumieć, z czego składa się cena strony? Przeczytaj{' '}
+            <Link
+              to="/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/"
+              className="text-primary font-semibold hover:underline"
+            >
+              artykuł o kosztach strony internetowej w 2026 roku
+            </Link>
+            .
           </p>
           <ul className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-gray-400">
             {TRUST.map((t) => (

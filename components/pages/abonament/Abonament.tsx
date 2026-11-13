@@ -2108,6 +2108,16 @@ const Abonament: React.FC = () => {
               </details>
             ))}
           </div>
+          <p className="max-w-4xl mx-auto mt-8 text-sm text-slate-600">
+            Wolisz jednorazowy zakup strony zamiast abonamentu? Zobacz{' '}
+            <Link
+              to="/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/"
+              className="font-bold text-indigo-700 hover:underline"
+            >
+              ile kosztuje strona internetowa w Rzeszowie w 2026 roku
+            </Link>
+            .
+          </p>
         </Container>
       </section>
 
