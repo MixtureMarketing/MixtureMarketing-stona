@@ -130,6 +130,16 @@ export async function assertServesThisBuild(port, nonce, timeoutMs = REQUEST_TIM
  * Start podglądu na wolnym porcie z listy i dowód, że odpowiada serwer TEGO builda (MIX-1590).
  * `startServer(port)` zwraca proces, `kill(proc)` go zabija. Przegrany wyścig o port = próba
  * następnego portu; PRERENDER_PORT wymuszony = pierwszy błąd kończy build, bez ponowień.
+ *
+ * @param {object} opts
+ * @param {string} opts.nonce
+ * @param {Record<string, string | undefined>} [opts.env]
+ * @param {(port: number) => any} opts.startServer
+ * @param {(server: any) => unknown} opts.kill
+ * @param {(port: number) => void} [opts.onPort]
+ * @param {{ log: (msg: string) => void, warn: (msg: string) => void }} [opts.log]
+ * @param {{ requestTimeoutMs?: number, retryMs?: number }} [opts.waitOptions]
+ * @returns {Promise<any>}
  */
 export async function acquirePreview({
   nonce,
