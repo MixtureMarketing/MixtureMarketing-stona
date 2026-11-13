@@ -11,6 +11,7 @@ import { installChunkReloadHandler } from './utils/chunkReload';
 import { installGlobalErrorHandlers } from './utils/errorReporter';
 import { preloadRoute } from './config/routes';
 import { markPrerenderBoot } from './utils/bootState';
+import { renderBoot } from './utils/bootRender';
 import './index.css';
 
 // Nieaktualne chunki po deployu → jednorazowy reload (z ochroną przed pętlą).
@@ -75,8 +76,10 @@ if (fromPrerender) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+// Start z prerenderu: render dzielony na kawałki (startTransition), patrz utils/bootRender (MIX-1565).
 void ready.then(() =>
-  root.render(
+  renderBoot(
+    root,
     <React.StrictMode>
       {/* Granica zewnętrzna: błąd w Navbar/Footer/CookieBanner/providerach (poza
         granicą w <main>) daje komunikat „odśwież stronę”, a nie białą stronę. */}
@@ -90,5 +93,6 @@ void ready.then(() =>
         </HelmetProvider>
       </ErrorBoundary>
     </React.StrictMode>,
+    fromPrerender,
   ),
 );
