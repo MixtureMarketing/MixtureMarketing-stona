@@ -1,0 +1,397 @@
+diff --git a/components/features/CookieBanner.tsx b/components/features/CookieBanner.tsx
+index 0c7314c..a2c64d4 100644
+--- a/components/features/CookieBanner.tsx
++++ b/components/features/CookieBanner.tsx
+@@ -11,14 +11,34 @@ import {
+ import CookiePreferences from './CookiePreferences';
+ import CookieFloatingButton from './CookieFloatingButton';
+ import { safeGetItem, safeSetItem } from '../../utils/safeStorage';
++import { isCookieBannerStaticEnabled } from '../../config/flags';
+ 
+ // Ten sam wzorzec co w App.tsx (UA Headless lub flaga ustawiana przez prerender.js).
+ const isPrerenderingEnv = () =>
+   typeof window !== 'undefined' &&
+   (window.navigator.userAgent.includes('Headless') || window.isPrerendering === true);
+ 
++// Tylko prerender.js (zrzut do dist/), bez heurystyki UA: przeglądarka headless u gościa
++// zostaje przy dotychczasowym zachowaniu (baner się nie otwiera).
++const isSnapshotRender = () => typeof window !== 'undefined' && window.isPrerendering === true;
++
+ const CookieBanner: React.FC = () => {
+-  const [isOpen, setIsOpen] = useState(false);
++  // MIX-1579 (VITE_MM_COOKIE_BANNER_STATIC): baner jest w prerenderowanym HTML, więc maluje się
++  // z pierwszą klatką, a nie po starcie Reacta (był elementem LCP po 4–5 s na telefonie).
++  // Zrzut: baner otwarty (gościom z zapisaną zgodą chowa go skrypt w <head>, index.html).
++  // Przeglądarka: stan od razu w pierwszym renderze (ta sama allowlista co w efekcie niżej),
++  // żeby podmiana prerenderu przez Reacta nie zamykała i nie otwierała banera ponownie.
++  const staticBanner = isCookieBannerStaticEnabled();
++  const staticSnapshot = staticBanner && isSnapshotRender();
++  const [isOpen, setIsOpen] = useState(() => {
++    if (!staticBanner) return false;
++    if (staticSnapshot) return true;
++    if (isPrerenderingEnv()) return false;
++    return !checkStoredConsent(safeGetItem(CONSENT_KEY)).ok;
++  });
++  // Wejście z animacją (opacity 0 → 1) tylko przy otwarciu przyciskiem: baner obecny już
++  // w HTML nie może znikać i wjeżdżać od nowa przy podmianie prerenderu.
++  const [entrance, setEntrance] = useState(!staticBanner);
+   const [showPreferences, setShowPreferences] = useState(false);
+   const [preferences, setPreferences] = useState<ConsentState>({
+     analytics: false,
+@@ -117,13 +137,20 @@ const CookieBanner: React.FC = () => {
+   };
+ 
+   if (!isOpen) {
+-    return <CookieFloatingButton onClick={() => setIsOpen(true)} />;
++    return (
++      <CookieFloatingButton
++        onClick={() => {
++          setEntrance(true);
++          setIsOpen(true);
++        }}
++      />
++    );
+   }
+ 
+-  return (
++  const banner = (
+     <div
+       ref={bannerRef}
+-      className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-fade-in-up"
++      className={`fixed bottom-0 left-0 right-0 z-[100] p-4${entrance ? ' animate-fade-in-up' : ''}${staticSnapshot ? ' mm-zgoda-baner' : ''}`}
+       // region zamiast complementary — banner renderuje się wewnątrz landmarku,
+       // a complementary musi być top-level (axe: landmark-complementary-is-top-level)
+       role="region"
+@@ -206,6 +233,16 @@ const CookieBanner: React.FC = () => {
+       </div>
+     </div>
+   );
++
++  if (!staticSnapshot) return banner;
++  // Zrzut: przycisk też trafia do HTML, ukryty (`hidden`). Skrypt w <head> przy zapisanej
++  // zgodzie chowa baner (.mm-zgoda-baner) i pokazuje przycisk (.mm-zgoda-przycisk).
++  return (
++    <>
++      {banner}
++      <CookieFloatingButton onClick={() => setIsOpen(true)} className="mm-zgoda-przycisk hidden" />
++    </>
++  );
+ };
+ 
+ export default CookieBanner;
+diff --git a/components/features/CookieFloatingButton.tsx b/components/features/CookieFloatingButton.tsx
+index b796bec..5c96141 100644
+--- a/components/features/CookieFloatingButton.tsx
++++ b/components/features/CookieFloatingButton.tsx
+@@ -3,13 +3,15 @@ import { Cookie } from 'lucide-react';
+ 
+ interface CookieFloatingButtonProps {
+   onClick: () => void;
++  /** Dodatkowe klasy (MIX-1579: wersja w prerenderowanym HTML, widoczność z <head>). */
++  className?: string;
+ }
+ 
+-const CookieFloatingButton: React.FC<CookieFloatingButtonProps> = ({ onClick }) => {
++const CookieFloatingButton: React.FC<CookieFloatingButtonProps> = ({ onClick, className = '' }) => {
+   return (
+     <button
+       onClick={onClick}
+-      className="cookie-floating-btn fixed bottom-4 left-4 z-[90] p-3 bg-white text-secondary rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-[transform,bottom] duration-300 group"
++      className={`cookie-floating-btn fixed bottom-4 left-4 z-[90] p-3 bg-white text-secondary rounded-full shadow-lg border border-gray-100 hover:scale-110 transition-[transform,bottom] duration-300 group${className ? ` ${className}` : ''}`}
+       aria-label="Ustawienia plików cookies"
+     >
+       <Cookie size={24} className="group-hover:rotate-12 transition-transform" />
+diff --git a/config/flags.ts b/config/flags.ts
+index aae71ad..b141e6d 100644
+--- a/config/flags.ts
++++ b/config/flags.ts
+@@ -6,3 +6,13 @@
+ 
+ /** Klauzula informacyjna RODO pod formularzami + pełna treść w polityce prywatności (MIX-844). */
+ export const isRodoKlauzulaEnabled = (): boolean => import.meta.env.VITE_RODO_KLAUZULA === '1';
++
++/**
++ * Baner zgód w prerenderowanym HTML (MIX-1579, LCP mobile). Baner rysował się dopiero po
++ * starcie Reacta (ok. 4–5 s na telefonie w Lighthouse) i był elementem LCP na /, /audyt-360/
++ * i /baza-wiedzy/. Włączony: prerender zapisuje baner i przycisk zgód w HTML, a skrypt
++ * w <head> (index.html) chowa baner gościom z zapisaną zgodą jeszcze przed pierwszym
++ * malowaniem. Wyłączony = dotychczasowe zachowanie.
++ */
++export const isCookieBannerStaticEnabled = (): boolean =>
++  import.meta.env.VITE_MM_COOKIE_BANNER_STATIC === '1';
+diff --git a/index.html b/index.html
+index 050c65a..cdb7f8f 100644
+--- a/index.html
++++ b/index.html
+@@ -36,6 +36,42 @@
+       });
+     </script>
+ 
++    <!--
++      MIX-1579: widoczność banera zgód zapisanego w prerenderze (VITE_MM_COOKIE_BANNER_STATIC)
++      rozstrzygana przed pierwszym malowaniem. Zgoda zapisana i poprawna (ta sama allowlista co
++      utils/consentValue.ts: zwykły obiekt, dokładnie pola analytics i marketing, oba true/false)
++      = baner ukryty, przycisk ustawień widoczny. Cokolwiek innego (brak wpisu, zły JSON, obce
++      pole, błąd storage) = nic się nie zmienia, czyli baner widoczny jak przy braku zgody.
++      Bez flagi klas mm-zgoda-* nie ma w HTML i skrypt niczego nie zmienia.
++    -->
++    <script>
++      (function () {
++        if (window.isPrerendering) return;
++        try {
++          var v = JSON.parse(window.localStorage.getItem('cookie-consent-v2'));
++          var own = Object.prototype.hasOwnProperty;
++          if (
++            v !== null &&
++            typeof v === 'object' &&
++            !Array.isArray(v) &&
++            Object.getPrototypeOf(v) === Object.prototype &&
++            Object.keys(v).length === 2 &&
++            own.call(v, 'analytics') &&
++            own.call(v, 'marketing') &&
++            typeof v.analytics === 'boolean' &&
++            typeof v.marketing === 'boolean'
++          ) {
++            var s = document.createElement('style');
++            s.textContent =
++              '.mm-zgoda-baner{display:none!important}.mm-zgoda-przycisk{display:block!important}';
++            document.head.appendChild(s);
++          }
++        } catch (e) {
++          /* fail-closed: baner zostaje widoczny */
++        }
++      })();
++    </script>
++
+     <!--
+       Cloudflare Zaraz jest wstrzykiwany automatycznie przez edge (autoInjectScript
+       aktywny — HAR 2026-07-10 pokazal i.js x4). Reczny <script src="/cdn-cgi/zaraz/i.js">
+diff --git a/tests/components/CookieBannerStatic.test.tsx b/tests/components/CookieBannerStatic.test.tsx
+new file mode 100644
+index 0000000..877fea8
+--- /dev/null
++++ b/tests/components/CookieBannerStatic.test.tsx
+@@ -0,0 +1,223 @@
++// MIX-1579: baner zgód w prerenderowanym HTML (VITE_MM_COOKIE_BANNER_STATIC) i skrypt w <head>,
++// który przed pierwszym malowaniem chowa go gościom z zapisaną zgodą. Skrypt powtarza
++// allowlistę z utils/consentValue.ts, więc test sprawdza zgodność obu na tych samych wpisach.
++import React from 'react';
++import fs from 'node:fs';
++import path from 'node:path';
++import { render, screen, fireEvent, act } from '@testing-library/react';
++import { describe, it, expect, afterEach, beforeEach, vi } from 'vitest';
++import { MemoryRouter } from 'react-router-dom';
++import CookieBanner from '../../components/features/CookieBanner';
++import { CONSENT_STORAGE_KEY, checkStoredConsent } from '../../utils/consentValue';
++import { blockStorage } from '../utils/storageBlock';
++
++vi.mock('../../utils/analytics', async (importOriginal) => ({
++  ...(await importOriginal<typeof import('../../utils/analytics')>()),
++  applyConsent: vi.fn(),
++}));
++
++const BANNER = { name: 'Baner plików cookies' };
++const BUTTON = { name: 'Ustawienia plików cookies' };
++
++const renderBanner = () =>
++  render(
++    <MemoryRouter>
++      <CookieBanner />
++    </MemoryRouter>,
++  );
++const flush = () => act(() => new Promise((r) => setTimeout(r, 0)));
++
++// --- skrypt z index.html -------------------------------------------------------------------
++const html = fs.readFileSync(path.resolve(__dirname, '../../index.html'), 'utf8');
++const headScript = (() => {
++  const all = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
++  const hit = all.find((s) => s.includes('mm-zgoda-baner'));
++  if (!hit) throw new Error('index.html: brak skryptu banera zgód (mm-zgoda-baner)');
++  return hit;
++})();
++
++const injectedStyles = () =>
++  [...document.head.querySelectorAll('style')].filter((s) =>
++    (s.textContent || '').includes('mm-zgoda-baner'),
++  );
++const runHeadScript = () => {
++  injectedStyles().forEach((s) => s.remove());
++  new Function(headScript)();
++  return injectedStyles().map((s) => s.textContent || '');
++};
++
++// Wpisy w localStorage (null = brak wpisu). Każda odmowa ma dozwolonego bliźniaka.
++const ENTRIES: Array<[string, string | null]> = [
++  ['zgoda pełna', '{"analytics":true,"marketing":true}'],
++  ['odmowa wszystkiego (też decyzja)', '{"analytics":false,"marketing":false}'],
++  ['mieszana', '{"marketing":true,"analytics":false}'],
++  ['brak wpisu', null],
++  ['pusty napis', ''],
++  ['uszkodzony JSON', '{"analytics":true,'],
++  ['null', 'null'],
++  ['liczba', '1'],
++  ['napis', '"tak"'],
++  ['tablica', '[true,true]'],
++  ['pusty obiekt', '{}'],
++  ['brak pola marketing', '{"analytics":true}'],
++  ['obce pole', '{"analytics":true,"marketing":true,"x":1}'],
++  ['obce pole zamiast marketing', '{"analytics":true,"ads":true}'],
++  ['napis zamiast boolean', '{"analytics":"true","marketing":true}'],
++  ['liczba zamiast boolean', '{"analytics":1,"marketing":0}'],
++  ['null w polu', '{"analytics":null,"marketing":true}'],
++  ['__proto__ jako pole', '{"__proto__":{"analytics":true},"marketing":true}'],
++  ['zagnieżdżony obiekt', '{"analytics":{"v":true},"marketing":true}'],
++];
++
++describe('index.html: skrypt widoczności banera zgód (MIX-1579)', () => {
++  beforeEach(() => {
++    window.localStorage.clear();
++    window.isPrerendering = undefined;
++  });
++  afterEach(() => {
++    injectedStyles().forEach((s) => s.remove());
++    window.isPrerendering = undefined;
++  });
++
++  it('klucz w skrypcie = CONSENT_STORAGE_KEY', () => {
++    expect(headScript).toContain(`'${CONSENT_STORAGE_KEY}'`);
++  });
++
++  it.each(ENTRIES)(
++    '%s: skrypt chowa baner wtedy i tylko wtedy, gdy allowlista przyjmuje',
++    (_n, raw) => {
++      if (raw !== null) window.localStorage.setItem(CONSENT_STORAGE_KEY, raw);
++      const styles = runHeadScript();
++      const allowed = checkStoredConsent(raw).ok;
++      expect(styles.length).toBe(allowed ? 1 : 0);
++      if (allowed) {
++        expect(styles[0]).toBe(
++          '.mm-zgoda-baner{display:none!important}.mm-zgoda-przycisk{display:block!important}',
++        );
++      }
++    },
++  );
++
++  it('zgoda pod starym kluczem (cookie-consent) nie chowa banera', () => {
++    window.localStorage.setItem('cookie-consent', '{"analytics":true,"marketing":true}');
++    expect(runHeadScript()).toEqual([]);
++  });
++
++  it('pole z zatrutego prototypu nie liczy się jako własne (allowlista też odmawia)', () => {
++    const raw = '{"analytics":true,"x":1}';
++    window.localStorage.setItem(CONSENT_STORAGE_KEY, raw);
++    const proto = Object.prototype as unknown as Record<string, unknown>;
++    proto.marketing = true;
++    try {
++      expect(checkStoredConsent(raw).ok).toBe(false);
++      expect(runHeadScript()).toEqual([]);
++    } finally {
++      delete proto.marketing;
++    }
++  });
++
++  it('zablokowany storage: brak stylu (baner widoczny), bez wyjątku', () => {
++    const restore = blockStorage();
++    try {
++      expect(() => runHeadScript()).not.toThrow();
++      expect(injectedStyles()).toHaveLength(0);
++    } finally {
++      restore();
++    }
++  });
++
++  it('w prerenderze nic nie wstrzykuje, nawet przy zapisanej zgodzie', () => {
++    window.localStorage.setItem(CONSENT_STORAGE_KEY, '{"analytics":true,"marketing":true}');
++    window.isPrerendering = true;
++    expect(runHeadScript()).toEqual([]);
++  });
++});
++
++describe('CookieBanner z VITE_MM_COOKIE_BANNER_STATIC (MIX-1579)', () => {
++  beforeEach(() => {
++    window.localStorage.clear();
++    window.isPrerendering = undefined;
++    vi.stubEnv('VITE_MM_COOKIE_BANNER_STATIC', '1');
++  });
++  afterEach(() => {
++    vi.unstubAllEnvs();
++    window.isPrerendering = undefined;
++  });
++
++  it('prerender: baner otwarty w zrzucie (mm-zgoda-baner, bez animacji) + ukryty przycisk', () => {
++    window.isPrerendering = true;
++    renderBanner();
++    const banner = screen.getByRole('region', BANNER);
++    expect(banner.className).toContain('mm-zgoda-baner');
++    expect(banner.className).not.toContain('animate-fade-in-up');
++    const button = screen.getByRole('button', { ...BUTTON, hidden: true });
++    expect(button.className).toContain('mm-zgoda-przycisk');
++    expect(button.className.split(' ')).toContain('hidden');
++  });
++
++  it('przeglądarka bez zgody: baner otwarty już w pierwszym renderze, bez animacji wejścia', () => {
++    renderBanner();
++    const banner = screen.getByRole('region', BANNER);
++    expect(banner.className).not.toContain('animate-fade-in-up');
++    expect(banner.className).not.toContain('mm-zgoda-baner');
++    expect(screen.queryByRole('button', BUTTON)).toBeNull();
++  });
++
++  it('przeglądarka z zapisaną zgodą: od razu tylko przycisk, ponowne otwarcie z animacją', async () => {
++    window.localStorage.setItem(CONSENT_STORAGE_KEY, '{"analytics":true,"marketing":false}');
++    renderBanner();
++    expect(screen.queryByRole('region', BANNER)).toBeNull();
++    const button = screen.getByRole('button', BUTTON);
++    expect(button.className).not.toContain('mm-zgoda-przycisk');
++    fireEvent.click(button);
++    expect(screen.getByRole('region', BANNER).className).toContain('animate-fade-in-up');
++    await flush();
++  });
++
++  it('przeglądarka z podmienionym wpisem: baner (fail-closed)', () => {
++    window.localStorage.setItem(CONSENT_STORAGE_KEY, '{"analytics":true,"marketing":true,"x":1}');
++    renderBanner();
++    expect(screen.getByRole('region', BANNER)).toBeInTheDocument();
++  });
++
++  it('UA headless poza prerenderem: baner się nie otwiera (jak dotąd)', async () => {
++    const ua = vi
++      .spyOn(Navigator.prototype, 'userAgent', 'get')
++      .mockReturnValue('HeadlessChrome/140');
++    try {
++      renderBanner();
++      await flush();
++      expect(screen.queryByRole('region', BANNER)).toBeNull();
++      expect(screen.getByRole('button', BUTTON).className).not.toContain('mm-zgoda-przycisk');
++    } finally {
++      ua.mockRestore();
++    }
++  });
++});
++
++describe('CookieBanner bez flagi: dotychczasowe zachowanie (MIX-1579)', () => {
++  beforeEach(() => {
++    window.localStorage.clear();
++    window.isPrerendering = undefined;
++    vi.stubEnv('VITE_MM_COOKIE_BANNER_STATIC', '');
++  });
++  afterEach(() => {
++    vi.unstubAllEnvs();
++    window.isPrerendering = undefined;
++  });
++
++  it('prerender: bez banera i bez klas mm-zgoda-*', async () => {
++    window.isPrerendering = true;
++    renderBanner();
++    await flush();
++    expect(screen.queryByRole('region', BANNER)).toBeNull();
++    expect(screen.getByRole('button', BUTTON).className).not.toContain('mm-zgoda');
++  });
++
++  it('przeglądarka bez zgody: baner otwiera się dopiero po efekcie, z animacją', async () => {
++    renderBanner();
++    expect(screen.queryByRole('region', BANNER)).toBeNull();
++    await flush();
++    expect(screen.getByRole('region', BANNER).className).toContain('animate-fade-in-up');
++  });
++});
