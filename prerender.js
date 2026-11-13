@@ -7,6 +7,12 @@ import { routes, prerenderOnlyRoutes } from './routes.js';
 import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
 import http from 'node:http';
+import {
+  pickPort,
+  writeNonce,
+  removeNonce,
+  assertServesThisBuild,
+} from './scripts/prerender-server.js';
 import { createClient } from '@sanity/client';
 import {
   fetchDynamicLists,
@@ -26,7 +32,8 @@ try {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
-const PORT = 4173;
+// Port wybierany w prerender() (wolny port albo PRERENDER_PORT), nie na sztywno (MIX-1590).
+let PORT = 0;
 // 4 daje najlepszy stosunek czasu do RAM/CPU na typowym ubuntu-latest CI runnerze.
 // Powyzej 4 puppeteer page pool zaczyna konkurowac o RAM (~500MB/page).
 const MAX_CONCURRENCY = parseInt(process.env.PRERENDER_CONCURRENCY || '4', 10);
@@ -219,6 +226,46 @@ async function processRoute(browser, critters, route, attempt = 1) {
   return true;
 }
 
+// Zabija całą grupę procesów preview (npm → vite).
+function killServer(server) {
+  if (!server.pid) return;
+  try {
+    process.kill(-server.pid, 'SIGTERM');
+  } catch {
+    server.kill();
+  }
+}
+
+// Start preview na wolnym porcie z listy (przeglądarka musi działać z origin dozwolonym w CORS
+// Sanity — zmierzone: losowy port dostaje odmowę i prerender widzi „stan błędu CMS”) i dowód,
+// że odpowiada serwer TEGO builda. Wyścig dwóch buildów o ten sam port: --strictPort wywala
+// przegranego, znacznik odrzuca cudzy serwer, a pętla bierze następny port. Fail-closed:
+// brak wolnych portów albo wymuszony PRERENDER_PORT bez zgodności = błąd, nie zły dist.
+async function startPreview(nonce) {
+  const tried = [];
+  for (;;) {
+    PORT = await pickPort(process.env, tried);
+    console.log(`🔌 Preview port: ${PORT}`);
+    // --strictPort: zajęty port = błąd startu, nie ciche przeskoczenie na inny.
+    const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString(), '--strictPort'], {
+      stdio: 'ignore',
+      shell: true,
+      detached: true, // Allow killing process group
+    });
+    try {
+      await waitForServer(PORT);
+      // Fail-closed: to ma być serwer TEGO builda (nie równoległego na tej maszynie).
+      await assertServesThisBuild(PORT, nonce);
+      return server;
+    } catch (err) {
+      killServer(server);
+      if (process.env.PRERENDER_PORT) throw err; // port wymuszony — bez ponowień
+      tried.push(PORT);
+      console.warn(`⚠️ Port ${PORT} nie obsługuje tego builda (${err.message}) — próbuję kolejny`);
+    }
+  }
+}
+
 async function prerender() {
   console.log('🚀 Starting optimized prerendering...');
 
@@ -250,18 +297,16 @@ async function prerender() {
 
   // 1. Start Server
   console.log('📦 Starting preview server...');
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true, // Allow killing process group
-  });
+  // Znacznik jednorazowy w dist/ TEGO builda: serwer na PORT musi go oddać (startPreview).
+  const nonce = writeNonce(DIST_DIR);
+  let server = null;
   let browser = null;
 
   try {
-    // 2. Wait for server
+    // 2. Start + wait for server (wolny port z listy dozwolonej przez CORS Sanity + znacznik)
     console.log('⏳ Waiting for server to be ready...');
-    await waitForServer(PORT);
-    console.log('🟢 Server is ready!');
+    server = await startPreview(nonce);
+    console.log('🟢 Server is ready (znacznik builda zgodny)!');
 
     // 3. Launch Browser
     browser = await puppeteer.launch({
@@ -407,7 +452,8 @@ async function prerender() {
     process.exitCode = 1;
   } finally {
     if (browser) await browser.close().catch(() => {});
-    if (server.pid) {
+    removeNonce(DIST_DIR); // dist/ wygląda jak dawniej: bez pliku znacznika
+    if (server?.pid) {
       try {
         // Kill the entire process group on Unix-like systems
         process.kill(-server.pid, 'SIGTERM');
