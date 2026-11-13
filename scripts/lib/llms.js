@@ -23,12 +23,43 @@ export const KEY_PATHS = [
   '/agencja-interaktywna-rzeszow/',
 ];
 
+/** Jedyna rozpoznawana forma odnośnika: `](https://…)` bez spacji, `<…>` i tytułu. */
+const LINK_RE = /\]\((https?:\/\/[^)\s<>]+)\)/g;
+
+/**
+ * Wszystko, co wygląda na adres albo odnośnik, a nie jest formą LINK_RE: schemat `://`
+ * (każda wielkość liter, `<…>`, adres nagi), `www.`, cel linku `](` (spacja, `<…>`,
+ * ścieżka względna, `//host`, `mailto:`), definicja referencyjna `[x]: …`, `href=`/`src=`,
+ * `mailto:`/`javascript:`/`data:`. Fail-closed: nierozpoznane = odmowa (MIX-1273 r2).
+ */
+const URL_LIKE_RE =
+  /:\/\/|\bwww\.|\]\(|^\s*\[[^\]]*\]:|\b(?:href|src)\s*=|\b(?:mailto|javascript|data):/im;
+
 /** Adresy z linków markdown `[tekst](url)` w llms.txt (unikalne, kolejność pojawienia). */
 export function llmsUrls(text) {
   const out = [];
-  for (const m of String(text ?? '').matchAll(/\]\((https?:\/\/[^)\s]+)\)/g)) {
+  for (const m of String(text ?? '').matchAll(LINK_RE)) {
     if (!out.includes(m[1])) out.push(m[1]);
   }
+  return out;
+}
+
+/**
+ * Linie z adresem w formie, której parser nie sprawdza (po wycięciu linków LINK_RE).
+ * @returns {string[]} powody odmowy, jeden na linię: `llms.txt linia N: nierozpoznany adres …`
+ */
+export function unparsedUrlLike(text) {
+  const out = [];
+  String(text ?? '')
+    .split(/\r?\n/)
+    .forEach((line, i) => {
+      const hit = line.replace(LINK_RE, ']').match(URL_LIKE_RE);
+      if (hit) {
+        out.push(
+          `llms.txt linia ${i + 1}: nierozpoznany adres (${hit[0]}): ${line.trim().slice(0, 80)}`,
+        );
+      }
+    });
   return out;
 }
 
@@ -42,7 +73,7 @@ export function sitemapUrls(xml) {
  * @param {string} sitemapXml
  * @param {{ keyPaths?: string[], hiddenPaths?: string[], machineAllow?: string[] }} [opts]
  *  hiddenPaths = ścieżki noindex/za flagą (prerenderOnlyRoutes): nie wolno ich wymieniać.
- * Fail-closed: pusta sitemapa albo pusty llms.txt = błąd w `problems`.
+ * Fail-closed: pusta sitemapa, pusty llms.txt albo adres w nierozpoznanej formie = błąd w `problems`.
  */
 export function llmsReport(llmsText, sitemapXml, opts = {}) {
   const keyPaths = opts.keyPaths ?? KEY_PATHS;
@@ -53,6 +84,7 @@ export function llmsReport(llmsText, sitemapXml, opts = {}) {
   const problems = [];
   if (llms.length === 0) problems.push('llms.txt: brak adresów');
   if (sitemap.size === 0) problems.push('sitemap.xml: brak adresów');
+  for (const reason of unparsedUrlLike(llmsText)) problems.push(reason);
   const notInSitemap = llms.filter((u) => !sitemap.has(u) && !machine.has(u));
   const llmsSet = new Set(llms);
   const missingKey = keyPaths.map((p) => BASE_URL + p).filter((u) => !llmsSet.has(u));
