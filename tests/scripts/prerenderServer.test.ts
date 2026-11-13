@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   ALLOWED_PORTS,
   REQUEST_TIMEOUT_MS,
+  WAIT_DEADLINE_MS,
   acquirePreview,
   waitForServer,
   NONCE_FILE,
@@ -151,14 +152,16 @@ describe('waitForServer / assertServesThisBuild: limit czasu żądania (MIX-1601
   it('limit żądania jest krótszy niż 10 s (kryterium: błąd buildu w ≤ 10 s)', () => {
     expect(REQUEST_TIMEOUT_MS).toBeGreaterThan(0);
     expect(REQUEST_TIMEOUT_MS).toBeLessThanOrEqual(8000);
+    expect(WAIT_DEADLINE_MS).toBeGreaterThan(REQUEST_TIMEOUT_MS);
+    expect(WAIT_DEADLINE_MS).toBeLessThanOrEqual(10000);
   });
 
   it('nasłuch, który milczy: waitForServer kończy się błędem z numerem portu, nie wisi', async () => {
     const port = await silent();
     const t0 = Date.now();
-    await expect(waitForServer(port, 60000, { requestTimeoutMs: 300 })).rejects.toThrow(
-      new RegExp(`porcie ${port} przyjął połączenie, ale nie odpowiedział`),
-    );
+    await expect(
+      waitForServer(port, 60000, { requestTimeoutMs: 300, deadlineMs: 900 }),
+    ).rejects.toThrow(new RegExp(`porcie ${port} przyjął połączenie, ale nie odpowiedział`));
     expect(Date.now() - t0).toBeLessThan(5000); // nie 60 s pętli
   });
 
@@ -172,9 +175,9 @@ describe('waitForServer / assertServesThisBuild: limit czasu żądania (MIX-1601
   it('nasłuch, który milczy: assertServesThisBuild też odmawia z numerem portu', async () => {
     const port = await silent();
     const t0 = Date.now();
-    await expect(assertServesThisBuild(port, 'n', 300)).rejects.toThrow(
-      new RegExp(`porcie ${port} przyjął połączenie`),
-    );
+    await expect(
+      assertServesThisBuild(port, 'n', { requestTimeoutMs: 300, deadlineMs: 600 }),
+    ).rejects.toThrow(new RegExp(`porcie ${port} przyjął połączenie`));
     expect(Date.now() - t0).toBeLessThan(2000); // przekazany limit działa, nie domyślne 3 s
   });
 
@@ -184,9 +187,58 @@ describe('waitForServer / assertServesThisBuild: limit czasu żądania (MIX-1601
       const t = setInterval(() => res.write('x'), 50);
       res.on('close', () => clearInterval(t));
     });
-    await expect(waitForServer(port, 60000, { requestTimeoutMs: 300 })).rejects.toThrow(
-      new RegExp(`porcie ${port}`),
+    await expect(
+      waitForServer(port, 60000, { requestTimeoutMs: 300, deadlineMs: 900 }),
+    ).rejects.toThrow(new RegExp(`porcie ${port}`));
+  });
+
+  /** Serwer odpowiadający z opóźnieniem: `/` = 200, plik znacznika = `nonce`. */
+  function slow(delayMs: number, nonce = 'n'): Promise<number> {
+    return serve((req, res) => {
+      const t = setTimeout(() => res.end(req.url?.includes(NONCE_FILE) ? nonce : 'ok'), delayMs);
+      res.on('close', () => clearTimeout(t));
+    });
+  }
+
+  it('wolny, ale poprawny serwer (odpowiedź po 4 s > limit żądania 3 s) NIE jest błędem', async () => {
+    const port = await slow(4000);
+    await expect(waitForServer(port)).resolves.toBeUndefined();
+  }, 12000);
+
+  it('wolny serwer znacznika (4 s) z dobrym znacznikiem przechodzi, ze złym odmawia', async () => {
+    const port = await slow(4000, 'dobry');
+    await expect(assertServesThisBuild(port, 'dobry')).resolves.toBeUndefined();
+    await expect(assertServesThisBuild(port, 'zly')).rejects.toThrow(/nie oddaje znacznika/);
+  }, 16000);
+
+  it('pierwsze żądanie wisi, kolejne dostaje odpowiedź = sukces (ponowienie, nie ucięcie)', async () => {
+    let n = 0;
+    const port = await serve((_req, res) => {
+      if (++n > 1) res.end('ok'); // pierwsze połączenie zostaje bez odpowiedzi
+    });
+    await expect(
+      waitForServer(port, 60000, { requestTimeoutMs: 200, deadlineMs: 3000 }),
+    ).resolves.toBeUndefined();
+    expect(n).toBeGreaterThan(1);
+  });
+
+  it('status ≠ 200 nie jest gotowością (503 do końca limitu = błąd z numerem portu)', async () => {
+    const port = await serve((_req, res) => {
+      res.statusCode = 503;
+      res.end('ok');
+    });
+    await expect(waitForServer(port, 600, { retryMs: 100 })).rejects.toThrow(
+      new RegExp(`port ${port} did not start`),
     );
+  });
+
+  it('bliźniak: 503, a potem 200 = doczekany', async () => {
+    let n = 0;
+    const port = await serve((_req, res) => {
+      res.statusCode = ++n < 3 ? 503 : 200;
+      res.end('ok');
+    });
+    await expect(waitForServer(port, 5000, { retryMs: 50 })).resolves.toBeUndefined();
   });
 
   it('bliźniak: serwer odpowiadający 200 przechodzi', async () => {
@@ -288,6 +340,24 @@ describe('acquirePreview (MIX-1601)', () => {
     expect(h.killed).toHaveLength(1); // nieudany podgląd zabity
   });
 
+  it('PRERENDER_PORT + wolny, ale poprawny własny podgląd (4 s) = sukces, bez zmiany portu', async () => {
+    const port = await serve((req, res) => {
+      const t = setTimeout(() => res.end(req.url?.includes(NONCE_FILE) ? nonce : 'ok'), 4000);
+      res.on('close', () => clearTimeout(t));
+    });
+    const h = harness(() => null);
+    const started = await acquirePreview({
+      nonce,
+      env: { PRERENDER_PORT: String(port) },
+      startServer: h.startServer,
+      kill: h.kill,
+      ...quiet,
+    });
+    expect(started).toEqual({ port });
+    expect(h.calls).toEqual([port]);
+    expect(h.killed).toHaveLength(0);
+  }, 20000);
+
   it('PRERENDER_PORT zajęty przez milczący nasłuch = błąd z numerem portu, bez ponowień', async () => {
     const port = await new Promise<number>((resolve) => {
       const s = net.createServer(() => {});
@@ -301,7 +371,7 @@ describe('acquirePreview (MIX-1601)', () => {
         env: { PRERENDER_PORT: String(port) },
         startServer: h.startServer,
         kill: h.kill,
-        waitOptions: { requestTimeoutMs: 300 },
+        waitOptions: { requestTimeoutMs: 300, deadlineMs: 900 },
         ...quiet,
       }),
     ).rejects.toThrow(new RegExp(`porcie ${port}`));

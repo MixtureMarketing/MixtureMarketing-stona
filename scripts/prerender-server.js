@@ -58,51 +58,97 @@ export function removeNonce(distDir) {
   fs.rmSync(path.join(distDir, NONCE_FILE), { force: true });
 }
 
-/** Limit jednego żądania do serwera podglądu; po nim błąd z numerem portu (MIX-1601). */
+/**
+ * Limity żądań do serwera podglądu (MIX-1601). Żądanie, które nie dostało odpowiedzi w
+ * REQUEST_TIMEOUT_MS, NIE jest ucinane: obok niego idzie kolejne (ta sama odpowiedź może przyjść
+ * z któregokolwiek), więc wolny, ale poprawny serwer (przeciążona maszyna) nie jest fałszywym
+ * błędem. Dopiero brak odpowiedzi do WAIT_DEADLINE_MS = błąd z numerem portu (fail-closed).
+ */
 export const REQUEST_TIMEOUT_MS = 3000;
+export const WAIT_DEADLINE_MS = 8000;
 
 class SilentServerError extends Error {}
 
-function fetchText(port, urlPath, timeoutMs = REQUEST_TIMEOUT_MS) {
+/**
+ * @typedef {{ requestTimeoutMs?: number, retryMs?: number, deadlineMs?: number }} WaitOptions
+ */
+
+/**
+ * Pierwsza ukończona odpowiedź (dowolny status) z serwera na porcie. Odmowa połączenia
+ * (żadne żądanie w toku) = natychmiastowy błąd połączenia, a milczenie do `deadlineMs` =
+ * SilentServerError z numerem portu.
+ * @param {number} port
+ * @param {string} urlPath
+ * @param {WaitOptions} [options]
+ * @returns {Promise<{ status: number | undefined, body: string }>}
+ */
+function fetchHedged(
+  port,
+  urlPath,
+  { requestTimeoutMs = REQUEST_TIMEOUT_MS, deadlineMs = WAIT_DEADLINE_MS } = {},
+) {
   return new Promise((resolve, reject) => {
-    const req = http.get(`http://localhost:${port}${urlPath}`, (res) => {
-      let body = '';
-      res.setEncoding('utf8');
-      res.on('data', (c) => (body += c));
-      res.on('end', () => resolve({ status: res.statusCode, body }));
-      res.on('error', reject);
-    });
-    req.on('error', reject);
-    // Limit całkowity (nie tylko bezczynności): nasłuch, który przyjmuje połączenie i milczy
-    // albo sączy odpowiedź, nie może zawiesić buildu.
-    const timer = setTimeout(
+    const reqs = new Set();
+    let finished = false;
+    let hedge;
+    let deadline;
+    const finish = (settle, value) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(hedge);
+      clearTimeout(deadline);
+      for (const r of reqs) r.destroy();
+      settle(value);
+    };
+    const launch = () => {
+      const req = http.get(`http://localhost:${port}${urlPath}`, (res) => {
+        let body = '';
+        res.setEncoding('utf8');
+        res.on('data', (c) => (body += c));
+        res.on('end', () => finish(resolve, { status: res.statusCode, body }));
+        res.on('error', fail);
+      });
+      const fail = (err) => {
+        reqs.delete(req);
+        if (reqs.size === 0) finish(reject, err); // wszystkie próby padły
+      };
+      reqs.add(req);
+      req.on('error', fail);
+    };
+    const tick = () => {
+      launch();
+      hedge = setTimeout(tick, requestTimeoutMs);
+    };
+    deadline = setTimeout(
       () =>
-        req.destroy(
+        finish(
+          reject,
           new SilentServerError(
-            `Serwer na porcie ${port} przyjął połączenie, ale nie odpowiedział w ${timeoutMs} ms ` +
-              '(obcy proces na porcie?); przerywam build',
+            `Serwer na porcie ${port} przyjął połączenie, ale nie odpowiedział w ${deadlineMs} ms ` +
+              '(obcy proces na porcie albo przeciążona maszyna); przerywam build',
           ),
         ),
-      timeoutMs,
+      deadlineMs,
     );
-    req.on('close', () => clearTimeout(timer));
+    tick();
   });
 }
 
 /**
- * Czeka, aż serwer na porcie odpowie 200. Odmowa połączenia = serwer jeszcze nie wstał (ponawiamy
- * co `retryMs` do `timeout`). Przyjęte połączenie bez odpowiedzi w `requestTimeoutMs` = błąd od
- * razu (fail-closed, MIX-1601); tak samo upływ `timeout`.
+ * Czeka, aż serwer na porcie odpowie 200. Odmowa połączenia albo status ≠ 200 = serwer jeszcze
+ * nie wstał (ponawiamy co `retryMs` do `timeout`). Serwer, który przyjął połączenie, ale nie
+ * odpowiada przez `deadlineMs`, = błąd od razu (fail-closed); wolna, lecz poprawna odpowiedź
+ * w tym czasie jest przyjmowana.
+ * @param {number} port
+ * @param {number} [timeout]
+ * @param {WaitOptions} [options]
  */
-export async function waitForServer(
-  port,
-  timeout = 60000,
-  { requestTimeoutMs = REQUEST_TIMEOUT_MS, retryMs = 1000 } = {},
-) {
+export async function waitForServer(port, timeout = 60000, options = {}) {
+  const { retryMs = 1000 } = options;
   const start = Date.now();
   while (Date.now() - start < timeout) {
     try {
-      const { status } = await fetchText(port, '/', requestTimeoutMs);
+      const { status } = await fetchHedged(port, '/', options);
       if (status === 200) return;
     } catch (e) {
       if (e instanceof SilentServerError) throw e;
@@ -115,9 +161,12 @@ export async function waitForServer(
 /**
  * Fail-closed: serwer na porcie ma oddać znacznik TEGO builda. Brak pliku (404 / HTML
  * z fallbacku SPA), inna wartość albo błąd = wyjątek, nigdy ciche przejście.
+ * @param {number} port
+ * @param {string} nonce
+ * @param {WaitOptions} [options]
  */
-export async function assertServesThisBuild(port, nonce, timeoutMs = REQUEST_TIMEOUT_MS) {
-  const { status, body } = await fetchText(port, `/${NONCE_FILE}`, timeoutMs);
+export async function assertServesThisBuild(port, nonce, options = {}) {
+  const { status, body } = await fetchHedged(port, `/${NONCE_FILE}`, options);
   if (status !== 200 || body.trim() !== nonce) {
     throw new Error(
       `Serwer na porcie ${port} nie oddaje znacznika tego builda (status ${status}) — ` +
@@ -138,7 +187,7 @@ export async function assertServesThisBuild(port, nonce, timeoutMs = REQUEST_TIM
  * @param {(server: any) => unknown} opts.kill
  * @param {(port: number) => void} [opts.onPort]
  * @param {{ log: (msg: string) => void, warn: (msg: string) => void }} [opts.log]
- * @param {{ requestTimeoutMs?: number, retryMs?: number }} [opts.waitOptions]
+ * @param {WaitOptions} [opts.waitOptions]
  * @returns {Promise<any>}
  */
 export async function acquirePreview({
