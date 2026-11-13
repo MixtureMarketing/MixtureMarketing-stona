@@ -132,6 +132,7 @@ jobs:
           VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_COOKIE_BANNER_STATIC: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_RZESZOW_SEKCJE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_TESTIMONIALS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_VIEW_TRANSITIONS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build

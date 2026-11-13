@@ -24,3 +24,11 @@ export const isCookieBannerStaticEnabled = (): boolean =>
  * Wyłączony (domyślnie) = HTML obu stron bez zmian co do bajta.
  */
 export const isAiSectionEnabled = (): boolean => import.meta.env.VITE_MM_AI_SECTION === '1';
+
+/**
+ * Sekcje lokalne „Rzeszów” na stronach Google Ads i sklepów internetowych (MIX-1286, plan SEO A35).
+ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1286.md). Wyłączony = sekcji nie ma w DOM ani
+ * w prerenderowanym HTML; Preview buduje się z `VITE_MM_RZESZOW_SEKCJE=1` (ci.yml).
+ */
+export const isRzeszowSectionsEnabled = (): boolean =>
+  import.meta.env.VITE_MM_RZESZOW_SEKCJE === '1';
