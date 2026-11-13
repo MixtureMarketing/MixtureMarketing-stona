@@ -8,7 +8,7 @@ step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; echo "STEP $n rc=$?"; }
 echo "legacy-peer-deps=true" > .npmrc
 echo "SHA $(git rev-parse HEAD)"
 step npm-ci npm ci --no-audit --no-fund
-step prettier npx prettier --check components/pages/KnowledgeBase.tsx tests/components/KnowledgeBaseDefer.test.tsx
+step prettier npx prettier --check App.tsx tests/components/AppCookieOrder.test.tsx
 tail -n 4 "$OUT/prettier.log" | cut -c1-200
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
 tail -n 10 "$OUT/eslint.log" | cut -c1-200
