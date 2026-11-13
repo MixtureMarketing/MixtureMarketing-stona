@@ -16,3 +16,11 @@ export const isRodoKlauzulaEnabled = (): boolean => import.meta.env.VITE_RODO_KL
  */
 export const isCookieBannerStaticEnabled = (): boolean =>
   import.meta.env.VITE_MM_COOKIE_BANNER_STATIC === '1';
+
+/**
+ * Sekcje lokalne „Rzeszów” na stronach Google Ads i sklepów internetowych (MIX-1286, plan SEO A35).
+ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1286.md). Wyłączony = sekcji nie ma w DOM ani
+ * w prerenderowanym HTML; Preview buduje się z `VITE_MM_RZESZOW_SEKCJE=1` (ci.yml).
+ */
+export const isRzeszowSectionsEnabled = (): boolean =>
+  import.meta.env.VITE_MM_RZESZOW_SEKCJE === '1';
