@@ -14,7 +14,7 @@ Każde wejście najpierw zapisuje lead w D1 (`leads`), dopiero potem zgłasza go
 |---|---|---|
 | formularz kontaktowy, krok 1 (`create`) | `functions/api/contact-submit.ts:294` | `functions/api/contact-submit.ts:313` (tylko gdy zapis się udał) |
 | formularz, kroki 2 i 3 (`update`) i porzucenie | `functions/api/contact-submit.ts:360` | komentarz kroku: `functions/api/contact-submit.ts:398`, porzucenie: `functions/api/contact-submit.ts:428` |
-| audyt strony (`capture-lead`) | `functions/api/audit/capture-lead.ts:179` (błąd D1 = 500 bez zgłoszenia, `:186-189`) | `functions/api/audit/capture-lead.ts:198` |
+| audyt strony (`capture-lead`) | `functions/api/audit/capture-lead.ts:179` (błąd D1 = 500 bez zgłoszenia, `:192-195`) | `functions/api/audit/capture-lead.ts:198` |
 | kalkulator wyceny (`public-quote`) | `functions/api/estimation/public-quote.ts:271` | `functions/api/estimation/public-quote.ts:278` (nie czeka na wycenę) |
 
 Ochrona wejść (nie zmieniana przez integrację): Turnstile `functions/api/contact-submit.ts:277`, limit per IP `functions/api/contact-submit.ts:228`, limit odbiorcy w audycie `functions/api/audit/capture-lead.ts:148`, bramka kalkulatora `functions/api/estimation/public-quote.ts:208` (przy `QUOTE_LIMITS_D1`).
