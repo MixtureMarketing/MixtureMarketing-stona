@@ -84,4 +84,16 @@ describe('App: kolejność baneru zgód w DOM (MIX-1607)', () => {
     expect(main.contains(banner)).toBe(false);
     expect(footer.contains(banner)).toBe(false);
   });
+
+  it('w DOM jest dokładnie jeden baner zgód (bez duplikatu)', () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/baza-wiedzy/']}>
+        <App />
+      </MemoryRouter>,
+    );
+    expect(container.querySelectorAll('[data-testid="cookie-banner"]')).toHaveLength(1);
+    expect(
+      container.querySelectorAll('section[aria-label="Zarządzanie plikami cookies"]'),
+    ).toHaveLength(1);
+  });
 });
