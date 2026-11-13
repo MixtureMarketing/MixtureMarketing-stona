@@ -9,7 +9,7 @@ echo "HEAD=$(git rev-parse HEAD)" | tee -a "$OUT/summary.txt"
 step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; echo "$n rc=$?" | tee -a "$OUT/summary.txt"; }
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
-step prettier npx prettier --check data/content/articles/ai-systems.ts components/articles/AiSystemsArticle.tsx components/articles/ArticleShell.tsx tests/seo/aiSystemsArticle.test.tsx config/routes.tsx config/breadcrumbs.ts routes.js
+step prettier npx prettier --check data/content/articles/ai-systems.ts components/articles/AiSystemsArticle.tsx components/articles/ArticleShell.tsx tests/seo/aiSystemsArticle.test.tsx tests/seo/articleAuthorDates.test.tsx config/routes.tsx config/breadcrumbs.ts routes.js
 step tsc-root npx tsc --noEmit -p tsconfig.json
 step tsc-functions npx tsc --noEmit -p functions/tsconfig.json
 step vitest npx vitest run --maxWorkers=2
