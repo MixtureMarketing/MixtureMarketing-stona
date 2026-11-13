@@ -58,29 +58,103 @@ export function removeNonce(distDir) {
   fs.rmSync(path.join(distDir, NONCE_FILE), { force: true });
 }
 
-function fetchText(port, urlPath) {
+/** Limit jednego żądania do serwera podglądu; po nim błąd z numerem portu (MIX-1601). */
+export const REQUEST_TIMEOUT_MS = 3000;
+
+class SilentServerError extends Error {}
+
+function fetchText(port, urlPath, timeoutMs = REQUEST_TIMEOUT_MS) {
   return new Promise((resolve, reject) => {
     const req = http.get(`http://localhost:${port}${urlPath}`, (res) => {
       let body = '';
       res.setEncoding('utf8');
       res.on('data', (c) => (body += c));
       res.on('end', () => resolve({ status: res.statusCode, body }));
+      res.on('error', reject);
     });
     req.on('error', reject);
-    req.setTimeout(5000, () => req.destroy(new Error('timeout')));
+    // Limit całkowity (nie tylko bezczynności): nasłuch, który przyjmuje połączenie i milczy
+    // albo sączy odpowiedź, nie może zawiesić buildu.
+    const timer = setTimeout(
+      () =>
+        req.destroy(
+          new SilentServerError(
+            `Serwer na porcie ${port} przyjął połączenie, ale nie odpowiedział w ${timeoutMs} ms ` +
+              '(obcy proces na porcie?); przerywam build',
+          ),
+        ),
+      timeoutMs,
+    );
+    req.on('close', () => clearTimeout(timer));
   });
+}
+
+/**
+ * Czeka, aż serwer na porcie odpowie 200. Odmowa połączenia = serwer jeszcze nie wstał (ponawiamy
+ * co `retryMs` do `timeout`). Przyjęte połączenie bez odpowiedzi w `requestTimeoutMs` = błąd od
+ * razu (fail-closed, MIX-1601); tak samo upływ `timeout`.
+ */
+export async function waitForServer(
+  port,
+  timeout = 60000,
+  { requestTimeoutMs = REQUEST_TIMEOUT_MS, retryMs = 1000 } = {},
+) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      const { status } = await fetchText(port, '/', requestTimeoutMs);
+      if (status === 200) return;
+    } catch (e) {
+      if (e instanceof SilentServerError) throw e;
+    }
+    await new Promise((r) => setTimeout(r, retryMs));
+  }
+  throw new Error(`Server at port ${port} did not start within ${timeout}ms`);
 }
 
 /**
  * Fail-closed: serwer na porcie ma oddać znacznik TEGO builda. Brak pliku (404 / HTML
  * z fallbacku SPA), inna wartość albo błąd = wyjątek, nigdy ciche przejście.
  */
-export async function assertServesThisBuild(port, nonce) {
-  const { status, body } = await fetchText(port, `/${NONCE_FILE}`);
+export async function assertServesThisBuild(port, nonce, timeoutMs = REQUEST_TIMEOUT_MS) {
+  const { status, body } = await fetchText(port, `/${NONCE_FILE}`, timeoutMs);
   if (status !== 200 || body.trim() !== nonce) {
     throw new Error(
       `Serwer na porcie ${port} nie oddaje znacznika tego builda (status ${status}) — ` +
         'to inny build albo obcy proces; przerywam, żeby nie zapisać cudzych stron do dist/',
     );
+  }
+}
+
+/**
+ * Start podglądu na wolnym porcie z listy i dowód, że odpowiada serwer TEGO builda (MIX-1590).
+ * `startServer(port)` zwraca proces, `kill(proc)` go zabija. Przegrany wyścig o port = próba
+ * następnego portu; PRERENDER_PORT wymuszony = pierwszy błąd kończy build, bez ponowień.
+ */
+export async function acquirePreview({
+  nonce,
+  env = process.env,
+  startServer,
+  kill,
+  onPort = () => {},
+  log = console,
+  waitOptions,
+}) {
+  const tried = [];
+  for (;;) {
+    const port = await pickPort(env, tried);
+    onPort(port);
+    log.log(`🔌 Preview port: ${port}`);
+    const server = startServer(port);
+    try {
+      await waitForServer(port, undefined, waitOptions);
+      await assertServesThisBuild(port, nonce);
+      return server;
+    } catch (err) {
+      kill(server);
+      if (env.PRERENDER_PORT) throw err; // port wymuszony: bez ponowień
+      tried.push(port);
+      log.warn(`⚠️ Port ${port} nie obsługuje tego builda (${err.message}) — próbuję kolejny`);
+    }
   }
 }
