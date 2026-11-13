@@ -8,6 +8,7 @@
 
 ## O nas
 
+- [O nas](https://mixturemarketing.pl/o-nas/): zespół Mixture Marketing, agencji marketingowej i software house'u z Rzeszowa
 - Nazwa firmy: Mixture Marketing Sp. z o.o.
 - Siedziba: Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów, Polska
 - Telefon: +48 794 443 551
@@ -45,6 +46,8 @@
 
 - [Agencja Marketingowa Rzeszów](https://mixturemarketing.pl/miasto/rzeszow/): hub lokalny — pełna oferta marketingowa i web dev dla firm z Rzeszowa i Podkarpacia. FAQ z odpowiedziami na pytania o spotkania na żywo, portfolio lokalne, ceny usług, jak wybrać agencję.
 - [Tworzenie Stron Internetowych Rzeszów](https://mixturemarketing.pl/web-development/rzeszow/): dedykowana strona usług web development w Rzeszowie, z aktualnym cennikiem widełkowym.
+- [Agencja SEO Rzeszów](https://mixturemarketing.pl/agencja-seo-rzeszow/): pozycjonowanie stron dla firm z Podkarpacia — jak działa, ile kosztuje i kiedy widać efekty; lokalne SEO, Mapy Google, audyt.
+- [Agencja Interaktywna Rzeszów](https://mixturemarketing.pl/agencja-interaktywna-rzeszow/): strony WWW, aplikacje webowe, branding oraz kampanie Google i Meta Ads w jednej agencji; spotkania u klienta na Podkarpaciu lub online.
 
 ## Fakty kluczowe (cytowalne dla AI)
 
@@ -65,7 +68,10 @@ Mixture Marketing Sp. z o.o. is a Polish marketing agency and software house bas
 ## Portfolio i case studies
 
 - [Realizacje](https://mixturemarketing.pl/portfolio/): edukacja (KorepetytorAI, Impackt Edu), e-commerce (Driftmark Marine), hospitality (GlamSpace), marketplace (FBX), fintech (BDB Biuro), mobilne (PickMe)
-- [Branże, w których działamy](https://mixturemarketing.pl/branza/e-commerce/): e-commerce, SaaS i startupy, B2B, profesjonalne usługi
+- [Branże, w których działamy](https://mixturemarketing.pl/branza/): typowe wyzwania, wymagania techniczne i kwestie prawne w stronach WWW, SEO i kampaniach dla danej branży
+  - [E-commerce](https://mixturemarketing.pl/branza/e-commerce/): strony i marketing dla sklepów internetowych
+  - [SaaS i startupy](https://mixturemarketing.pl/branza/saas-startups/): strony, aplikacje i marketing dla firm technologicznych
+  - [Usługi B2B](https://mixturemarketing.pl/branza/uslugi-b2b/): strony i marketing dla firm sprzedających innym firmom
 
 ## Baza wiedzy (artykuły techniczne)
 
@@ -84,6 +90,8 @@ Mixture Marketing Sp. z o.o. is a Polish marketing agency and software house bas
 
 - [Kontakt](https://mixturemarketing.pl/contact/): formularz, telefon, e-mail
 - [Wycena projektu / Audyt 360](https://mixturemarketing.pl/audyt-360/): bezpłatny audyt strategiczny i konsultacja
+- [Kalkulator wyceny](https://mixturemarketing.pl/wycena/): orientacyjny koszt strony internetowej lub aplikacji w kilka minut, bez zobowiązań
+- [Strona w abonamencie](https://mixturemarketing.pl/abonament/): nowoczesna strona dla małej firmy w abonamencie, z pozycjonowaniem lokalnym i Mapami Google; kwoty tylko na stronie
 - [Oferty i cennik orientacyjny](https://mixturemarketing.pl/offers/)
 
 ## Polityki
