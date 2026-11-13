@@ -42,7 +42,8 @@ export function load(dir) {
   return runs;
 }
 
-const shortUrl = (u) => u.replace(/^https?:\/\/[^/]+/, '').replace(/-[A-Za-z0-9_-]{8}\.js$/, '-*.js');
+const shortUrl = (u) =>
+  u.replace(/^https?:\/\/[^/]+/, '').replace(/-[A-Za-z0-9_-]{8}\.js$/, '-*.js');
 
 export function summarize(runs) {
   const rows = {};
@@ -85,7 +86,9 @@ const fmt = (x, d = 0) => (Number.isFinite(x) ? x.toFixed(d) : 'brak');
 function main() {
   const [dirA, dirB] = process.argv.slice(2);
   if (!dirA) {
-    console.error('użycie: node scripts/measure-m1565-summary.mjs <katalog-lh> [katalog-lh-porownania]');
+    console.error(
+      'użycie: node scripts/measure-m1565-summary.mjs <katalog-lh> [katalog-lh-porownania]',
+    );
     process.exit(2);
   }
   const A = summarize(load(dirA));
@@ -97,7 +100,9 @@ function main() {
       ? '| strona | profil | n | TBT baza ms | TBT gałąź ms | zmiana | próg | CLS baza | CLS gałąź | LCP gałąź ms | wynik gałąź |'
       : '| strona | profil | n | TBT ms | próg | CLS | LCP ms | wynik |',
   );
-  out.push(B ? '|---|---|---|---|---|---|---|---|---|---|---|' : '|---|---|---|---|---|---|---|---|');
+  out.push(
+    B ? '|---|---|---|---|---|---|---|---|---|---|---|' : '|---|---|---|---|---|---|---|---|',
+  );
   for (const key of Object.keys(A).sort()) {
     const [page, form] = key.split('|');
     const a = A[key];
@@ -113,7 +118,12 @@ function main() {
       );
     }
   }
-  const sets = runsB ? [['baza', load(dirA)], ['gałąź', runsB]] : [['pomiar', load(dirA)]];
+  const sets = runsB
+    ? [
+        ['baza', load(dirA)],
+        ['gałąź', runsB],
+      ]
+    : [['pomiar', load(dirA)]];
   for (const [name, runs] of sets) {
     out.push('', `Najdłuższe zadania mobile (${name}): skrypt | ms na przebieg | max ms | liczba`);
     for (const t of topLongTasks(runs)) {
