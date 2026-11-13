@@ -50,8 +50,7 @@ const renderPage = (url = '/baza-wiedzy/') =>
     </HelmetProvider>,
   );
 
-const titles = () =>
-  screen.getAllByRole('heading', { level: 3 }).map((e) => e.textContent ?? '');
+const titles = () => screen.getAllByRole('heading', { level: 3 }).map((e) => e.textContent ?? '');
 
 afterEach(() => {
   document.getElementById(CMS_SNAPSHOT_ID)?.remove();

@@ -117,10 +117,7 @@ describe('index.html: skrypt widoczności banera zgód (MIX-1579)', () => {
   });
 
   it.each(['true', 'false'])('bliźniak: marketing %s (boolean) chowa baner', (value) => {
-    window.localStorage.setItem(
-      CONSENT_STORAGE_KEY,
-      `{"analytics":false,"marketing":${value}}`,
-    );
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, `{"analytics":false,"marketing":${value}}`);
     expect(runHeadScript()).toHaveLength(1);
   });
 
