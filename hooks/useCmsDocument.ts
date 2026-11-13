@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { reportError } from '../utils/errorReporter';
+import { isValidSnapshotEntry } from './cmsSnapshotSchema';
 
 /**
  * Stan pobrania pojedynczego dokumentu CMS po slugu.
@@ -78,31 +79,7 @@ function snapshotMap(): Map<string, unknown> {
   return cachedMap;
 }
 
-const isRecord = (v: unknown): v is Record<string, unknown> =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
-const isText = (v: unknown): boolean => typeof v === 'string' && v.length > 0;
-
-/** Pola, bez których szablon listy się wywraca (item bez nich = zrzut nieużyteczny). */
-const LIST_ITEM_FIELDS: Partial<Record<CmsDocId, string[]>> = {
-  articleList: ['id', 'title', 'slug', 'date', 'category'],
-  industryList: ['name', 'slug'],
-  caseStudyList: ['title', 'slug'],
-};
-
-/**
- * Czy wpis zrzutu ma kształt, jakiego oczekuje szablon (MIX-1613). Lista musi być tablicą
- * obiektów z wymaganymi polami, dokument obiektem; wszystko inne (obiekt zamiast listy,
- * tekst, liczba, tablica z `null`/tekstem/obiektem bez pól) = brak zrzutu, więc hook
- * pobierze dane z CMS jak dawniej, zamiast wywrócić stronę (`x.filter is not a function`).
- */
-export function isValidSnapshotEntry(id: CmsDocId, value: unknown): boolean {
-  const fields = LIST_ITEM_FIELDS[id];
-  if (!fields) return isRecord(value);
-  return (
-    Array.isArray(value) &&
-    value.every((item) => isRecord(item) && fields.every((f) => isText(item[f])))
-  );
-}
+export { isValidSnapshotEntry };
 
 /** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma lub ma zły kształt. */
 export function readCmsSnapshot<T>(id: CmsDocId, slug: string): T | undefined {

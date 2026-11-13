@@ -54,7 +54,7 @@ export const articleService = {
       const mappedSanity: Article[] = sanityArticles.map((art) => ({
         id: art._id,
         title: art.title,
-        description: art.excerpt,
+        description: art.excerpt ?? '',
         category: (art.category?.title?.toLowerCase() as Article['category']) || 'tech',
         categoryLabel: art.category?.title || 'Artykuł',
         image: art.mainImage ? urlFor(art.mainImage).width(800).url() : '/assets/images/sygnet.png',

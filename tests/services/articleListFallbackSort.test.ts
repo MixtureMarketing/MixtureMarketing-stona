@@ -63,4 +63,21 @@ describe('articleService.getArticles: kolejność przy awarii i przy sukcesie', 
       ok.filter((a) => a.slug !== '/baza-wiedzy/tylko-w-cms').map((a) => a.slug),
     );
   });
+
+  it('artykuł tylko z CMS bez excerpt: description to pusty tekst (zrzut listy go wymaga, wyszukiwarka czyta .toLowerCase)', async () => {
+    fetchWithCache.mockResolvedValueOnce([
+      {
+        _id: 'y',
+        _updatedAt: '2026-02-02T16:40:00Z',
+        title: 'Bez opisu',
+        slug: 'bez-opisu',
+        publishedAt: '2026-03-02T12:00:00.000Z',
+        tags: ['a'],
+      },
+    ]);
+    const list = await articleService.getArticles();
+    const nowy = list.find((a) => a.slug === '/baza-wiedzy/bez-opisu');
+    expect(nowy?.description).toBe('');
+    for (const a of list) expect(typeof a.description).toBe('string');
+  });
 });
