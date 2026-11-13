@@ -5,9 +5,9 @@
 set -u
 N="${1:?N}"; shift
 REFS=("$@")
-OUT=.bieg/m1607/out
+OUT="${OUT:-.bieg/m1607/out}"
 LH=13.6.0
-PAGES="/baza-wiedzy/ /portfolio/ /"
+PAGES="${PAGES:-/baza-wiedzy/ /portfolio/ /}"
 FILE=components/pages/KnowledgeBase.tsx
 mkdir -p "$OUT"
 echo "legacy-peer-deps=true" > .npmrc
@@ -24,7 +24,7 @@ DIRS=(); PORTS=(); PIDS=()
 i=0
 for r in "${REFS[@]}"; do
   if [ "$r" = HEAD ]; then d=.; else
-    d="../m1607-$r"; mkdir -p "$d"
+    d="../m1607-${TAG:-}$r"; mkdir -p "$d"
     tar --exclude=./node_modules --exclude=./.bieg --exclude=./dist -cf - . | (cd "$d" && tar xf -)
     cp -al node_modules "$d/node_modules"
     case "$r" in
