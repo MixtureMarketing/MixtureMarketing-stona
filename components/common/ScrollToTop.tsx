@@ -39,7 +39,11 @@ export default function ScrollToTop() {
     }
 
     if (!hash) {
-      if (pathChanged) window.scrollTo(...topScrollArgs(pathname, isViewTransitionsEnabled()));
+      if (pathChanged) {
+        const args = topScrollArgs(pathname, isViewTransitionsEnabled());
+        if (args.length === 1) window.scrollTo(args[0]);
+        else window.scrollTo(args[0], args[1]);
+      }
       return;
     }
 

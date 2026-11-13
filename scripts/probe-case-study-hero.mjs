@@ -475,6 +475,23 @@ local?.server.close();
 const verdict = safe.finish().problems;
 if (verdict.length) report.failures.push(...verdict.map((p) => `prod-safe: ${p}`));
 await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(report, null, 2));
+for (const [vpTag, vv] of Object.entries(report.viewports)) {
+  for (const [href, L] of Object.entries(vv.load)) {
+    const C = vv.click?.[href];
+    const names = (o) => o?.['realizacja-zdjecie'] ?? null;
+    console.log(
+      `NUM ${vpTag} ${href} photoTop=${L.photoTop} navBottom=${L.navBottom} cls=${L.cls} lcp=${L.lcp?.tag}` +
+        ` axe=${L.axe.length} h1=${L.h1Count}` +
+        (C
+          ? ` transitions=${C.calls} scrollY start/end=${C.scrollAtStart}/${C.scrollAtEnd}` +
+            ` animatedScroll=${C.intermediateScrollValues.length}` +
+            ` sharedName old/new=${names(C.old)}/${names(C.next)} sameAsset=${C.sameAsset}`
+          : ''),
+    );
+  }
+  if (vv.reducedMotion)
+    console.log(`NUM ${vpTag} reduced-motion transitions=${vv.reducedMotion.calls}`);
+}
 console.log(`PROBE ${report.source}: failures ${report.failures.length}`);
 for (const f of report.failures) console.log('FAIL ' + f);
 process.exit(report.failures.length ? 1 : 0);
