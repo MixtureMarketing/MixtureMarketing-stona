@@ -5,6 +5,8 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import PseoTemplate from '../../components/templates/pseo/PseoTemplate';
 import ArticleTemplate from '../../components/templates/ArticleTemplate';
 import CaseStudyTemplate from '../../components/templates/CaseStudyTemplate';
+import ArticleShell, { articlePublicSlug } from '../../components/articles/ArticleShell';
+import { NotificationProvider } from '../../context/NotificationContext';
 import { ModalProvider } from '../../context/ModalContext';
 import { cmsService } from '../../services/cmsService';
 
@@ -152,4 +154,65 @@ describe('przełącznik wyłączony (produkcja do TAK)', () => {
     await screen.findAllByText('Artykuł testowy');
     expect(screen.queryByTestId('powiazane')).toBeNull();
   });
+});
+
+// MIX-1268 r3: 29 stron /baza-wiedzy/* to stałe trasy (config/routes.tsx) z ArticleShell,
+// nie ArticleTemplate, więc przełącznik musi działać także tutaj.
+const renderShell = (slug: string) =>
+  render(
+    <HelmetProvider>
+      <MemoryRouter initialEntries={['/baza-wiedzy/x/']}>
+        <NotificationProvider>
+          <ArticleShell
+            id="cdn-globalna-wydajnosc"
+            title="Artykuł statyczny"
+            description="Opis"
+            category="tech"
+            categoryLabel="Technologia"
+            image="/assets/images/CDN.png"
+            accentColor="#0EA5E9"
+            slug={slug}
+          >
+            <p>Treść artykułu</p>
+          </ArticleShell>
+        </NotificationProvider>
+      </MemoryRouter>
+    </HelmetProvider>,
+  );
+
+describe('ArticleShell (stałe trasy /baza-wiedzy/*)', () => {
+  it('VITE_MM_POWIAZANE=1: nowy blok ze slugiem z trasy, poza prozą, bez starego bloku', () => {
+    vi.stubEnv('VITE_MM_POWIAZANE', '1');
+    renderShell('/baza-wiedzy/cdn-globalna-wydajnosc');
+    const el = screen.getByTestId('powiazane');
+    expect(el).toHaveAttribute('data-type', 'article');
+    expect(el).toHaveAttribute('data-slug', 'cdn-globalna-wydajnosc');
+    expect(el.closest('article')).toBeNull();
+    expect(screen.getAllByTestId('powiazane')).toHaveLength(1);
+    expect(oldRelated).not.toHaveBeenCalled();
+  });
+
+  it('przełącznik pusty (produkcja): stary blok, bez nowego', () => {
+    vi.stubEnv('VITE_MM_POWIAZANE', '');
+    renderShell('/baza-wiedzy/cdn-globalna-wydajnosc');
+    expect(screen.queryByTestId('powiazane')).toBeNull();
+    expect(oldRelated).toHaveBeenCalled();
+  });
+
+  it('wartość „true” zamiast „1”: stary blok, bez nowego', () => {
+    vi.stubEnv('VITE_MM_POWIAZANE', 'true');
+    renderShell('/baza-wiedzy/cdn-globalna-wydajnosc/');
+    expect(screen.queryByTestId('powiazane')).toBeNull();
+    expect(oldRelated).toHaveBeenCalled();
+  });
+});
+
+describe('articlePublicSlug', () => {
+  it('kanoniczna ścieżka artykułu: ostatni segment', () => {
+    expect(articlePublicSlug('/baza-wiedzy/redis-optymalizacja/')).toBe('redis-optymalizacja');
+  });
+  it.each(['/baza-wiedzy/', '/portfolio/x/', '/baza-wiedzy/a/b/', '', '/baza-wiedzy/x'])(
+    'inna ścieżka %j: brak sluga',
+    (p) => expect(articlePublicSlug(p)).toBeUndefined(),
+  );
 });

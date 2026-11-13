@@ -72,6 +72,24 @@ describe('pickRelated: dodatnie nogi', () => {
     ]);
   });
 
+  it('remis wyniku i sluga u dwóch innych rodzajów: kolejność wg rodzaju (realizacja przed branżą), niezależnie od puli', () => {
+    // Ten sam slug „zeta” i ten sam wynik (1 wspólny temat) u realizacji i branży: rozstrzyga
+    // dopiero porządek rodzajów (RELATED_TYPES). Pula z branżą PRZED realizacją i odwrotnie.
+    const self = art('alfa', ['zeta']);
+    const branzaPierwsza = [self, ind('zeta'), cs('zeta', ['zeta'])];
+    const realizacjaPierwsza = [self, cs('zeta', ['zeta']), ind('zeta')];
+    for (const pool of [branzaPierwsza, realizacjaPierwsza]) {
+      expect(keys(pickRelated({ _type: 'article', slug: 'alfa' }, pool))).toEqual([
+        'caseStudy:zeta',
+        'industry:zeta',
+      ]);
+    }
+    // Ujemna noga: przy limicie 1 zostaje tylko realizacja, branża nie wchodzi.
+    expect(keys(pickRelated({ _type: 'article', slug: 'alfa' }, branzaPierwsza, 1))).toEqual([
+      'caseStudy:zeta',
+    ]);
+  });
+
   it('kolejność nie zależy od kolejności puli (deterministyczna)', () => {
     const a = pickRelated({ _type: 'article', slug: 'react' }, POOL);
     const b = pickRelated({ _type: 'article', slug: 'react' }, [...POOL].reverse());
