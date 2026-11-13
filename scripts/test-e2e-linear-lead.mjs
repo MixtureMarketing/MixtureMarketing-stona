@@ -563,7 +563,10 @@ async function przypadekZZadaniem(ctx, id, wyslij, wynikAudytu, pominiecie = nul
   if (!odpowiedzOk(odp)) {
     const d = pominiecie ? pominiecie(odp) : null;
     if (d?.pomin === true) return { status: 'skip', powod: d.powod };
-    return { status: 'fail', powod: `POST: ${opisBledu(ctx, odp)}${d?.powod ? ` (${d.powod})` : ''}` };
+    return {
+      status: 'fail',
+      powod: `POST: ${opisBledu(ctx, odp)}${d?.powod ? ` (${d.powod})` : ''}`,
+    };
   }
   const znalezione = await czekaj({
     start,
@@ -597,7 +600,13 @@ export async function przypadekB(ctx) {
 
 /** (c): odmowa ścisłego Turnstile (i tylko ona, decyzjaPominieciaC) = skip; inne błędy = fail. */
 export const przypadekC = (ctx) =>
-  przypadekZZadaniem(ctx, 'c', () => wyslijKalkulator(ctx, ctx.adres('c')), undefined, decyzjaPominieciaC);
+  przypadekZZadaniem(
+    ctx,
+    'c',
+    () => wyslijKalkulator(ctx, ctx.adres('c')),
+    undefined,
+    decyzjaPominieciaC,
+  );
 
 export const przypadekD = (ctx) =>
   przypadekZZadaniem(ctx, 'd', () => wyslijAudyt(ctx, ctx.adres('d'), ctx.wynikAudytu), ctx.wynikAudytu);

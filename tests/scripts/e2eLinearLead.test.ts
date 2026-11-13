@@ -69,7 +69,10 @@ interface Opcje {
   zepsutaLista?: boolean;
   kto?: string;
   /** Własna odpowiedź na POST danej ścieżki (MIX-1556: odmowy kalkulatora i formularza). */
-  nadpiszPost?: Record<string, (dodaj: (d: string | null, t: string, e: string[]) => string[]) => Response | Promise<Response>>;
+  nadpiszPost?: Record<
+    string,
+    (dodaj: (d: string | null, t: string, e: string[]) => string[]) => Response | Promise<Response>
+  >;
 }
 
 function atrapa(opcje: Opcje = {}) {
@@ -365,7 +368,12 @@ describe('kod wyjścia', () => {
     expect(bc).toMatchObject({ kod: 0, ok: 5 });
     expect(bc.linia).toBe('5/7, pominięte: b,c (a=pass b=skip c=skip d=pass e=pass f=pass g=pass)');
     // Fail-closed: skip bez powodu, z pustym albo białym powodem, z powodem nie-tekstem = niepełny.
-    for (const zly of [{ status: 'skip' }, { status: 'skip', powod: '' }, { status: 'skip', powod: '  ' }, { status: 'skip', powod: 7 }])
+    for (const zly of [
+      { status: 'skip' },
+      { status: 'skip', powod: '' },
+      { status: 'skip', powod: '  ' },
+      { status: 'skip', powod: 7 },
+    ])
       expect(podsumuj({ ...wszystkie(), c: zly })).toMatchObject({ kod: 3, ok: 6 });
     expect(podsumuj({ ...wszystkie(), f: { status: 'brak' } }).kod).toBe(3);
     expect(podsumuj({ ...wszystkie(), f: undefined }).kod).toBe(3);
@@ -3295,31 +3303,126 @@ describe('decyzjaPominieciaC (allowlista, fail-closed)', () => {
   // [forma, odpowiedź, oczekiwany powód odmowy]
   const odmowy: Array<[string, unknown, string]> = [
     ['F1 brak odpowiedzi', undefined, 'brak odpowiedzi'],
-    ['F2 limit czasu / błąd sieci', { blad: 'The operation was aborted due to timeout' }, 'błąd żądania'],
-    ['F3 500 z kształtem odmowy', scisla('captcha: hostname', { status: 500 }), 'kod 500 zamiast 403'],
-    ['F4 401 z kształtem odmowy', scisla('captcha: hostname', { status: 401 }), 'kod 401 zamiast 403'],
-    ['F5 429 z kształtem odmowy', scisla('captcha: action', { status: 429 }), 'kod 429 zamiast 403'],
-    ['F6 403 z pustym ciałem', { status: 403, location: null, typ: JSON_TYP, json: null }, '403 bez obiektu JSON'],
-    ['F7 403 strona Access (HTML)', { status: 403, location: null, typ: 'text/html', json: null }, '403 bez typu application/json'],
-    ['F8 403 JSON podany jako text/html (podmiana nagłówka)', scisla('captcha: hostname', { typ: 'text/html' }), '403 bez typu application/json'],
-    ['F9 403 typ application/json-evil', scisla('captcha: hostname', { typ: 'application/json-evil' }), '403 bez typu application/json'],
-    ['F10 403 bez nagłówka typu', scisla('captcha: hostname', { typ: null }), '403 bez typu application/json'],
-    ['F11 403 z Location (przekierowanie Access)', scisla('captcha: hostname', { location: 'https://x.cloudflareaccess.com/' }), '403 z nagłówkiem Location'],
-    ['F12 403 tablica JSON', scisla('captcha: hostname', { json: [ODMOWA_TS('captcha: hostname')] }), '403 bez obiektu JSON'],
-    ['F13 403 dodatkowe pole', scisla('captcha: hostname', { json: { ...ODMOWA_TS('captcha: hostname'), skip: true } }), '403 o innym kształcie niż odmowa Turnstile'],
-    ['F14 403 bez reason', scisla('captcha: hostname', { json: { error: 'Weryfikacja antybotowa nieudana.' } }), '403 o innym kształcie niż odmowa Turnstile'],
-    ['F15 403 honeypot „Spam detected”', scisla('x', { json: { error: 'Spam detected', reason: 'captcha: hostname' } }), '403 z innym komunikatem niż odmowa Turnstile'],
-    ['F16 403 komunikat ze spacją', scisla('x', { json: { error: 'Weryfikacja antybotowa nieudana. ', reason: 'captcha: hostname' } }), '403 z innym komunikatem niż odmowa Turnstile'],
-    ['F17 403 captcha: token (błąd skryptu)', scisla('captcha: token'), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F18 403 captcha: odrzucony (inny sekret)', scisla('captcha: odrzucony'), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F19 403 captcha: brak sekretu', scisla('captcha: brak sekretu'), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F20 403 captcha: siteverify niedostępny', scisla('captcha: siteverify niedostępny'), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F21 403 wielkość liter w powodzie', scisla('Captcha: hostname'), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F22 403 powód ze spacją na końcu', scisla('captcha: hostname '), '403 Turnstile z powodem spoza listy (host/akcja)'],
-    ['F23 403 powód jako tablica', scisla('x', { json: { error: 'Weryfikacja antybotowa nieudana.', reason: ['captcha: hostname'] } }), '403 Turnstile z powodem spoza listy (host/akcja)'],
+    [
+      'F2 limit czasu / błąd sieci',
+      { blad: 'The operation was aborted due to timeout' },
+      'błąd żądania',
+    ],
+    [
+      'F3 500 z kształtem odmowy',
+      scisla('captcha: hostname', { status: 500 }),
+      'kod 500 zamiast 403',
+    ],
+    [
+      'F4 401 z kształtem odmowy',
+      scisla('captcha: hostname', { status: 401 }),
+      'kod 401 zamiast 403',
+    ],
+    [
+      'F5 429 z kształtem odmowy',
+      scisla('captcha: action', { status: 429 }),
+      'kod 429 zamiast 403',
+    ],
+    [
+      'F6 403 z pustym ciałem',
+      { status: 403, location: null, typ: JSON_TYP, json: null },
+      '403 bez obiektu JSON',
+    ],
+    [
+      'F7 403 strona Access (HTML)',
+      { status: 403, location: null, typ: 'text/html', json: null },
+      '403 bez typu application/json',
+    ],
+    [
+      'F8 403 JSON podany jako text/html (podmiana nagłówka)',
+      scisla('captcha: hostname', { typ: 'text/html' }),
+      '403 bez typu application/json',
+    ],
+    [
+      'F9 403 typ application/json-evil',
+      scisla('captcha: hostname', { typ: 'application/json-evil' }),
+      '403 bez typu application/json',
+    ],
+    [
+      'F10 403 bez nagłówka typu',
+      scisla('captcha: hostname', { typ: null }),
+      '403 bez typu application/json',
+    ],
+    [
+      'F11 403 z Location (przekierowanie Access)',
+      scisla('captcha: hostname', { location: 'https://x.cloudflareaccess.com/' }),
+      '403 z nagłówkiem Location',
+    ],
+    [
+      'F12 403 tablica JSON',
+      scisla('captcha: hostname', { json: [ODMOWA_TS('captcha: hostname')] }),
+      '403 bez obiektu JSON',
+    ],
+    [
+      'F13 403 dodatkowe pole',
+      scisla('captcha: hostname', { json: { ...ODMOWA_TS('captcha: hostname'), skip: true } }),
+      '403 o innym kształcie niż odmowa Turnstile',
+    ],
+    [
+      'F14 403 bez reason',
+      scisla('captcha: hostname', { json: { error: 'Weryfikacja antybotowa nieudana.' } }),
+      '403 o innym kształcie niż odmowa Turnstile',
+    ],
+    [
+      'F15 403 honeypot „Spam detected”',
+      scisla('x', { json: { error: 'Spam detected', reason: 'captcha: hostname' } }),
+      '403 z innym komunikatem niż odmowa Turnstile',
+    ],
+    [
+      'F16 403 komunikat ze spacją',
+      scisla('x', {
+        json: { error: 'Weryfikacja antybotowa nieudana. ', reason: 'captcha: hostname' },
+      }),
+      '403 z innym komunikatem niż odmowa Turnstile',
+    ],
+    [
+      'F17 403 captcha: token (błąd skryptu)',
+      scisla('captcha: token'),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F18 403 captcha: odrzucony (inny sekret)',
+      scisla('captcha: odrzucony'),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F19 403 captcha: brak sekretu',
+      scisla('captcha: brak sekretu'),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F20 403 captcha: siteverify niedostępny',
+      scisla('captcha: siteverify niedostępny'),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F21 403 wielkość liter w powodzie',
+      scisla('Captcha: hostname'),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F22 403 powód ze spacją na końcu',
+      scisla('captcha: hostname '),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
+    [
+      'F23 403 powód jako tablica',
+      scisla('x', {
+        json: { error: 'Weryfikacja antybotowa nieudana.', reason: ['captcha: hostname'] },
+      }),
+      '403 Turnstile z powodem spoza listy (host/akcja)',
+    ],
   ];
   it.each(odmowy)('%s → nie pomija, powód odmowy', (_f, o, powod) => {
-    expect(decyzjaPominieciaC(o)).toEqual({ pomin: false, powod });
+    expect(decyzjaPominieciaC(o as Parameters<typeof decyzjaPominieciaC>[0])).toEqual({
+      pomin: false,
+      powod,
+    });
   });
 });
 
@@ -3333,7 +3436,11 @@ describe('przebieg: (c) przy ścisłym Turnstile (MIX-1556)', () => {
 
   it('403 host/akcja z public-quote → (c) skip z linią powodu, kod 0, reszta 6/6 pass, zero zadań kalkulatora', async () => {
     for (const reason of ['captcha: hostname', 'captcha: action']) {
-      const { ctx, a, logi } = kontekst(zQuote(() => odp(ODMOWA_TS(reason), 403)), ENV, STAN_F_OK);
+      const { ctx, a, logi } = kontekst(
+        zQuote(() => odp(ODMOWA_TS(reason), 403)),
+        ENV,
+        STAN_F_OK,
+      );
       const w = await biegnij(ctx);
       expect(w.wyniki.c).toEqual({ status: 'skip', powod: POWOD_POMINIECIA_C });
       expect(w.kod).toBe(0);
@@ -3345,11 +3452,38 @@ describe('przebieg: (c) przy ścisłym Turnstile (MIX-1556)', () => {
 
   // [forma, nadpisanie public-quote, oczekiwany fragment powodu (c)]
   const porazki: Array<[string, NonNullable<Opcje['nadpiszPost']>[string], RegExp]> = [
-    ['F24 500', () => odp(ODMOWA_TS('captcha: hostname'), 500), /^POST: HTTP 500 \(kod 500 zamiast 403\)$/],
-    ['F25 403 innego kształtu (captcha: token)', () => odp(ODMOWA_TS('captcha: token'), 403), /^POST: HTTP 403 \(403 Turnstile z powodem spoza listy/],
-    ['F26 403 z pustym ciałem', () => new Response(null, { status: 403 }), /^POST: HTTP 403 \(403 bez typu application\/json\)$/],
-    ['F27 403 HTML Access', () => new Response('<html>Access</html>', { status: 403, headers: { 'Content-Type': 'text/html' } }), /^POST: HTTP 403 \(403 bez typu/],
-    ['F28 limit czasu', () => Promise.reject(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), /^POST: .*timeout \(błąd żądania\)$/],
+    [
+      'F24 500',
+      () => odp(ODMOWA_TS('captcha: hostname'), 500),
+      /^POST: HTTP 500 \(kod 500 zamiast 403\)$/,
+    ],
+    [
+      'F25 403 innego kształtu (captcha: token)',
+      () => odp(ODMOWA_TS('captcha: token'), 403),
+      /^POST: HTTP 403 \(403 Turnstile z powodem spoza listy/,
+    ],
+    [
+      'F26 403 z pustym ciałem',
+      () => new Response(null, { status: 403 }),
+      /^POST: HTTP 403 \(403 bez typu application\/json\)$/,
+    ],
+    [
+      'F27 403 HTML Access',
+      () =>
+        new Response('<html>Access</html>', {
+          status: 403,
+          headers: { 'Content-Type': 'text/html' },
+        }),
+      /^POST: HTTP 403 \(403 bez typu/,
+    ],
+    [
+      'F28 limit czasu',
+      () =>
+        Promise.reject(
+          new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+        ),
+      /^POST: .*timeout \(błąd żądania\)$/,
+    ],
     ['F29 200 bez zadania', () => odp({ status: 'ok' }, 200), /^brak zadania w limicie czasu$/],
     [
       'F30 200 z zadaniem o złym tytule',
