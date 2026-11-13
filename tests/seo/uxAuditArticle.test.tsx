@@ -1,8 +1,6 @@
 // MIX-1270 (SEO A13): artykuł „audyt UX sklepu internetowego” przebudowany pod frazę
 // i artykuł o cenie strony podlinkowany z 3 stron (oraz z samego artykułu o audycie).
 import React from 'react';
-import fs from 'node:fs';
-import path from 'node:path';
 import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -14,23 +12,51 @@ import { UX_AUDIT_ARTICLE_CONTENT as CONTENT } from '../../data/content/articles
 import { routes } from '../../routes.js';
 import { TITLE_MAX } from '../../utils/seo/title';
 import UxAuditArticle from '../../components/articles/UxAuditArticle';
+import WebDevRzeszow from '../../components/pages/WebDevRzeszow';
+import WycenaCalculator from '../../components/pages/WycenaCalculator';
+import Abonament from '../../components/pages/abonament/Abonament';
 
+vi.hoisted(() => {
+  // PREONBOARD_KEY / HUB są czytane przy imporcie modala abonamentu (jak w tests/components/Abonament.test.tsx).
+  vi.stubEnv('VITE_MM_PREONBOARD_KEY', 'test-key');
+  vi.stubEnv('VITE_MM_HUB_URL', 'https://hub.mock.invalid');
+});
+vi.setConfig({ testTimeout: 20_000 });
 vi.mock('../../utils/analytics', () => ({ trackEvent: vi.fn() }));
+vi.mock('../../components/common/LazyMap', () => ({ default: () => null }));
+vi.mock('../../components/features/calculator/PublicCalculator', () => ({ default: () => null }));
 
-const ROOT = path.resolve(__dirname, '../..');
 const PRICE = '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/';
 const PHRASE = 'audyt ux sklepu internetowego';
 
-const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
+const renderAt = (route: string, page: React.ReactElement) =>
+  render(
+    <HelmetProvider>
+      <MemoryRouter initialEntries={[route]}>
+        <NotificationProvider>
+          <ModalProvider>{page}</ModalProvider>
+        </NotificationProvider>
+      </MemoryRouter>
+    </HelmetProvider>,
+  );
 
 describe('artykuł o cenie strony: 3 linki wewnętrzne z innych stron (A13)', () => {
+  // Renderujemy stronę i szukamy prawdziwej kotwicy <a href>: tekst `to="…"` w źródle nie wystarcza
+  // (mutant `<Link` -> `<span` zostawiał go w pliku, a linku nie było).
   it.each([
-    ['/web-development/rzeszow/', 'components/pages/WebDevRzeszow.tsx'],
-    ['/wycena/', 'components/pages/WycenaCalculator.tsx'],
-    ['/abonament/', 'components/pages/abonament/Abonament.tsx'],
-  ])('%s linkuje do artykułu o cenie (ze slashem na końcu)', (_route, file) => {
-    expect(read(file)).toContain(`to="${PRICE}"`);
-  });
+    ['/web-development/rzeszow/', () => <WebDevRzeszow />],
+    ['/wycena/', () => <WycenaCalculator />],
+    ['/abonament/', () => <Abonament />],
+  ])(
+    '%s: wyrenderowana strona ma kotwicę <a> do artykułu o cenie (ze slashem)',
+    async (route, page) => {
+      const { container } = renderAt(route, page());
+      await waitFor(() => expect(container.querySelectorAll('a').length).toBeGreaterThan(0));
+      const anchors = container.querySelectorAll(`a[href="${PRICE}"]`);
+      expect(anchors.length).toBeGreaterThanOrEqual(1);
+      expect(anchors[0].textContent!.trim().length).toBeGreaterThan(0);
+    },
+  );
 
   it('adres artykułu o cenie jest w mapie stron i w rejestrze', () => {
     expect(routes).toContain(PRICE);
