@@ -67,7 +67,26 @@ export function removeNonce(distDir) {
 export const REQUEST_TIMEOUT_MS = 3000;
 export const WAIT_DEADLINE_MS = 8000;
 
+/**
+ * Dolna i górna granica obu limitów (MIX-1618). Bez dolnej granicy `requestTimeoutMs` <= 0 / NaN
+ * dawał ok. 520 nowych połączeń na sekundę do cudzego procesu na porcie. Dozwolone są tylko
+ * skończone liczby z tego przedziału; wszystko inne (0, ujemne, NaN, Infinity, tekst, null) =
+ * natychmiastowy błąd (fail-closed), nigdy ciche przejście na wartość domyślną.
+ */
+export const MIN_TIMEOUT_MS = 100;
+export const MAX_TIMEOUT_MS = 600000;
+
 class SilentServerError extends Error {}
+class InvalidOptionError extends Error {}
+
+function checkTimeout(name, value) {
+  // Number.isFinite nie rzutuje typów: tekst, null, true i obiekt są odrzucone tak samo jak NaN.
+  if (!Number.isFinite(value) || value < MIN_TIMEOUT_MS || value > MAX_TIMEOUT_MS) {
+    throw new InvalidOptionError(
+      `${name}=${String(value)} jest niedozwolone: wymagana liczba od ${MIN_TIMEOUT_MS} do ${MAX_TIMEOUT_MS} ms`,
+    );
+  }
+}
 
 /**
  * @typedef {{ requestTimeoutMs?: number, retryMs?: number, deadlineMs?: number }} WaitOptions
@@ -88,6 +107,8 @@ function fetchHedged(
   { requestTimeoutMs = REQUEST_TIMEOUT_MS, deadlineMs = WAIT_DEADLINE_MS } = {},
 ) {
   return new Promise((resolve, reject) => {
+    checkTimeout('requestTimeoutMs', requestTimeoutMs); // throw w executorze = reject
+    checkTimeout('deadlineMs', deadlineMs);
     const reqs = new Set();
     let finished = false;
     let hedge;
@@ -151,7 +172,7 @@ export async function waitForServer(port, timeout = 60000, options = {}) {
       const { status } = await fetchHedged(port, '/', options);
       if (status === 200) return;
     } catch (e) {
-      if (e instanceof SilentServerError) throw e;
+      if (e instanceof SilentServerError || e instanceof InvalidOptionError) throw e;
     }
     await new Promise((r) => setTimeout(r, retryMs));
   }
@@ -211,6 +232,7 @@ export async function acquirePreview({
       return server;
     } catch (err) {
       kill(server);
+      if (err instanceof InvalidOptionError) throw err; // zły limit to błąd konfiguracji, nie powód na kolejny port
       if (env.PRERENDER_PORT) throw err; // port wymuszony: bez ponowień
       tried.push(port);
       log.warn(`⚠️ Port ${port} nie obsługuje tego builda (${err.message}) — próbuję kolejny`);
