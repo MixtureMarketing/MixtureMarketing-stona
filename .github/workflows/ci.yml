@@ -144,17 +144,19 @@ jobs:
           # Bindingi D1/KV/R2 skonfigurowane na projekcie Pages (dashboard).
           command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
 
-      # --- DEPLOY Preview: tylko push na dev (alias dev.mixturemarketing-stona.pages.dev) ---
+      # --- DEPLOY Preview: push na dev albo reczne uruchomienie (workflow_dispatch) na dev ---
+      # (alias dev.mixturemarketing-stona.pages.dev). MIX-1613: webhook Sanity po publikacji
+      # uruchamia ten workflow na dev, zeby Preview odswiezyl zrzuty list CMS. main: wylacznie push.
       # Pull requesty nigdy nie wdrazaja; produkcja (main) bez zmian.
       - name: 🧹 Sanitize commit message (dev)
         id: commit_dev
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/dev'
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (dev)" >> $GITHUB_OUTPUT
 
       - name: 🚀 Deploy to Cloudflare Pages (Preview dev)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/dev'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

@@ -25,7 +25,12 @@ type Workflow = {
 const wczytaj = (): Workflow => parse(fs.readFileSync(plik, 'utf8')) as Workflow;
 
 const IF_MAIN = "github.event_name == 'push' && github.ref == 'refs/heads/main'";
-const IF_DEV = "github.event_name == 'push' && github.ref == 'refs/heads/dev'";
+// MIX-1613: Preview odświeża też ręczne uruchomienie (webhook Sanity → workflow_dispatch na dev).
+const IF_DEV =
+  "(github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/dev'";
+// Jedyna dozwolona alternatywa w warunku wdrożenia: grupa zdarzeń push / workflow_dispatch.
+const GRUPA_ZDARZEN =
+  /\(github\.event_name == '(?:push|workflow_dispatch)'(?: \|\| github\.event_name == '(?:push|workflow_dispatch)')*\)/;
 const KOMENDA_MAIN =
   'pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}';
 const KOMENDA_DEV =
@@ -51,7 +56,13 @@ function naruszenia(w: Workflow): string[] {
       bledy.push(`wdrożenie „${k.name}” bez warunku push (PR mógłby wdrażać)`);
     const refy = [...warunek.matchAll(/github\.ref == '([^']+)'/g)].map((m) => m[1]);
     if (refy.length !== 1) bledy.push(`wdrożenie „${k.name}”: oczekiwano jednego warunku na gałąź`);
-    if (/\|\|/.test(warunek)) bledy.push(`wdrożenie „${k.name}”: alternatywa w warunku`);
+    if (/\|\|/.test(warunek.replace(GRUPA_ZDARZEN, '')))
+      bledy.push(`wdrożenie „${k.name}”: alternatywa w warunku`);
+    const zdarzenia = [...warunek.matchAll(/github\.event_name == '([^']+)'/g)].map((m) => m[1]);
+    if (zdarzenia.some((z) => z !== 'push' && z !== 'workflow_dispatch'))
+      bledy.push(`wdrożenie „${k.name}”: zdarzenie spoza push/workflow_dispatch`);
+    if (zdarzenia.includes('workflow_dispatch') && !warunek.includes('refs/heads/dev'))
+      bledy.push(`wdrożenie „${k.name}”: ręczne uruchomienie poza dev (produkcja tylko z push)`);
     const cmd = k.with?.command ?? '';
     if (
       refy[0] === 'refs/heads/dev' &&
@@ -103,7 +114,7 @@ describe('ci.yml: wdrożenie Preview z gałęzi dev', () => {
     expect(w.on.pull_request?.branches).toEqual(['main', 'master']);
   });
 
-  it('wdrożenie dev: warunek tylko push na refs/heads/dev i dokładna komenda', () => {
+  it('wdrożenie dev: warunek push albo ręczne uruchomienie na refs/heads/dev i dokładna komenda', () => {
     const dev = wdrozenia(wczytaj()).find((k) => k.with?.command.includes('--branch=dev'));
     expect(dev?.if).toBe(IF_DEV);
     expect(dev?.with?.command).toBe(KOMENDA_DEV);
@@ -162,6 +173,24 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     const dev = wdrozenia(w).find((k) => k.with?.command.includes('--branch=dev'))!;
     dev.if = `${IF_DEV} || github.event_name == 'pull_request'`;
     expect(naruszenia(w).join('|')).toMatch(/alternatywa/);
+  });
+  it('wdrożenie main z ręcznego uruchomienia (produkcja tylko po push)', () => {
+    const w = kopia();
+    const main = wdrozenia(w).find((k) => k.with?.command.includes('--branch=main'))!;
+    main.if = IF_DEV.replace('refs/heads/dev', 'refs/heads/main');
+    expect(naruszenia(w).join('|')).toMatch(/ręczne uruchomienie poza dev/);
+  });
+  it('wdrożenie dev także przy pull_request w grupie zdarzeń', () => {
+    const w = kopia();
+    const dev = wdrozenia(w).find((k) => k.with?.command.includes('--branch=dev'))!;
+    dev.if = IF_DEV.replace("'workflow_dispatch'", "'pull_request'");
+    expect(naruszenia(w).join('|')).toMatch(/zdarzenie spoza push\/workflow_dispatch|alternatywa/);
+  });
+  it('wdrożenie dev bez zdarzenia push w warunku (tylko ręczne) jest odrzucone', () => {
+    const w = kopia();
+    const dev = wdrozenia(w).find((k) => k.with?.command.includes('--branch=dev'))!;
+    dev.if = "github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/dev'";
+    expect(naruszenia(w).join('|')).toMatch(/bez warunku push/);
   });
   it('PR na dev uruchamia CI', () => {
     const w = kopia();

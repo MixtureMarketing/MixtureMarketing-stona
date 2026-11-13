@@ -29,6 +29,10 @@ interface SanityCategory {
   description?: string;
 }
 
+/** Kolejność listy /baza-wiedzy/: najnowsze pierwsze (ten sam klucz co `order(publishedAt desc)`). */
+const newestFirst = (items: Article[]): Article[] =>
+  [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
 export const articleService = {
   async getArticles(): Promise<Article[]> {
     try {
@@ -64,12 +68,12 @@ export const articleService = {
       // miała 57 kafli, a WAF dwie daty (w CMS literówka 2026-12-02). Wygrywa rejestr (MIX-783).
       const legacySlugs = new Set(LEGACY_ARTICLES.map((a) => a.slug.replace(/\/$/, '')));
       const cmsOnly = mappedSanity.filter((a) => !legacySlugs.has(a.slug.replace(/\/$/, '')));
-      return [...LEGACY_ARTICLES, ...cmsOnly].sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-      );
+      return newestFirst([...LEGACY_ARTICLES, ...cmsOnly]);
     } catch (error) {
       console.warn('Sanity fetch error (getArticles):', error);
-      return LEGACY_ARTICLES;
+      // MIX-1613: awaria CMS w buildzie trafia do zrzutu strony. Rejestr jest sortowany tak
+      // samo jak odpowiedź (data malejąco, jak `order(publishedAt desc)`), nigdy w kolejności pliku.
+      return newestFirst(LEGACY_ARTICLES);
     }
   },
 
