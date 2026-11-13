@@ -18,6 +18,7 @@ import { SITE_CONFIG } from '../../config/site';
 import CustomAppProof from '../features/web-development/CustomAppProof';
 import CustomAppStart from '../features/web-development/CustomAppStart';
 import WebAppUseCases from '../features/web-development/WebAppUseCases';
+import AiSystemsContextLink from '../features/web-development/AiSystemsContextLink';
 import WebAppTechStack from '../features/web-development/WebAppTechStack';
 import WebAppTrust from '../features/web-development/WebAppTrust';
 import WebAppQaPipeline from '../features/web-development/WebAppQaPipeline';
@@ -105,6 +106,9 @@ const CustomWebApp: React.FC = () => {
       </LazyHydrate>
 
       <WebAppUseCases />
+
+      {/* MIX-1276: zdanie z linkiem do strony „Systemy AI i aplikacje”, za przełącznikiem VITE_MM_AI_SECTION. */}
+      <AiSystemsContextLink />
 
       <CustomAppStart />
 

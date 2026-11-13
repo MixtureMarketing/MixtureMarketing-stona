@@ -16,3 +16,11 @@ export const isRodoKlauzulaEnabled = (): boolean => import.meta.env.VITE_RODO_KL
  */
 export const isCookieBannerStaticEnabled = (): boolean =>
   import.meta.env.VITE_MM_COOKIE_BANNER_STATIC === '1';
+
+/**
+ * Sekcja „Aplikacje i systemy z elementami AI” na stronie głównej i zdanie z linkiem na
+ * /web-development/custom-app/ (MIX-1276, plan SEO A20). Prowadzą na ukrytą stronę usługi
+ * (MIX-1272), więc cały ruch zostaje za przełącznikiem do akceptacji tekstu przez Jakuba.
+ * Wyłączony (domyślnie) = HTML obu stron bez zmian co do bajta.
+ */
+export const isAiSectionEnabled = (): boolean => import.meta.env.VITE_MM_AI_SECTION === '1';
