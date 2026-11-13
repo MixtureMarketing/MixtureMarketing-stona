@@ -178,7 +178,7 @@ describe('audit/capture-lead', () => {
   });
 
   it('limit per IP: 6. zgłoszenie z tego samego IP w ciągu godziny → 429', async () => {
-    const { env } = makeEnv();
+    const { env, inserts } = makeEnv();
     const statuses: number[] = [];
     for (let i = 0; i < 6; i++) {
       const res = await call(
@@ -188,6 +188,8 @@ describe('audit/capture-lead', () => {
       statuses.push(res.status);
     }
     expect(statuses).toEqual([200, 200, 200, 200, 200, 429]);
+    // Limit IP działa PRZED zapisem D1 (MIX-1556, mutant X1): odrzucone zgłoszenie = 0 INSERT.
+    expect(inserts).toHaveLength(5);
   });
 
   it('przy ustawionych CRM_INGEST_URL/SECRET lead zapisany, maile wychodzą, a do CRM nie idzie żaden fetch', async () => {
@@ -333,6 +335,26 @@ describe('audit/capture-lead — zgłoszenie do Lineara', () => {
     expect(ileOp(siec, 'ZadanieUtworz')).toBe(5);
     expect(wierszeLinear(db)).toHaveLength(5);
     expect(zb.liczba()).toBe(5); // 5 zapisów × zgłoszenie do Lineara
+  });
+
+  it('(−) limit IP przed zapisem D1 (MIX-1556, X1): po 6. zgłoszeniu w `leads` zostaje 5 wierszy, 0 zapisów odmowy', async () => {
+    const { env: srv, db } = srodowisko();
+    const leady = () => db.prepare('SELECT id FROM leads').all();
+    const zapisyLeads = () => siec.os.filter((w) => w === 'sql:INSERT leads').length;
+    for (let i = 0; i < 5; i++) {
+      expect((await wywolaj(srv, form({ ...pola, email: `x${i}@firma${i}.pl` }))).status).toBe(200);
+    }
+    expect(leady()).toHaveLength(5);
+    expect(zapisyLeads()).toBe(5);
+    const odmowa = await wywolaj(srv, form({ ...pola, email: 'x5@firma5.pl' }));
+    expect(odmowa.status).toBe(429);
+    expect(leady()).toHaveLength(5);
+    expect(zapisyLeads()).toBe(5);
+    // Bliźniak: inne IP w tym samym oknie zapisuje (licznik jest per IP, nie globalny).
+    expect((await wywolaj(srv, form({ ...pola, email: 'x6@firma6.pl' }), '5.6.7.8')).status).toBe(
+      200,
+    );
+    expect(leady()).toHaveLength(6);
   });
 
   it('(−) limit na adres odbiorcy → 429 i brak zadania dla odrzuconego zgłoszenia', async () => {

@@ -22,8 +22,10 @@
 //   E2E_BEZ_RESEND=1        Preview nie ma RESEND_API_KEY, więc (b) wolno uruchomić
 //   E2E_SHA                 SHA wdrożenia (albo --sha), trafia do raportu
 //
-// Kody wyjścia: 0 = wszystkie 7 przypadków przeszły; 1 = jest porażka; 2 = ochrona Preview albo
-// konfiguracja odmówiła (przed jakimkolwiek POST); 3 = przebieg niepełny (pominięte albo brakujące fazy).
+// Kody wyjścia: 0 = każdy przypadek poza pominiętymi (skip z linią powodu) przeszedł; 1 = jest porażka;
+// 2 = ochrona Preview albo konfiguracja odmówiła (przed jakimkolwiek POST); 3 = przebieg niepełny
+// (brakujące fazy albo skip bez powodu). (c) jest pomijane tylko przy odmowie ścisłego Turnstile
+// (403 z public-quote, powód host/akcja, MIX-1383; Recenzja L-SYS MIX-626), każda inna porażka (c) = 1.
 // Raport: .bieg/e2e-leady/<znacznik>.md (ścieżka względna do katalogu repo, tylko id i liczby).
 import { execFile } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -217,25 +219,75 @@ export function etykietyPrzypadku(przypadek) {
   }
 }
 
+/** Linia powodu pominięcia (c) na Preview ze ścisłym Turnstile (Recenzja L-SYS MIX-626, MIX-1556). */
+export const POWOD_POMINIECIA_C =
+  'Preview ze ścisłym Turnstile (token testowy odrzucony), Recenzja L-SYS MIX-626';
+/** Komunikat odmowy Turnstile w public-quote (functions/api/estimation/public-quote.ts). */
+export const BLAD_TURNSTILE_KALKULATORA = 'Weryfikacja antybotowa nieudana.';
+/**
+ * Powody ścisłej weryfikacji (verifyTurnstileStrict, MIX-1383), które oznaczają: siteverify przyjął
+ * token testowy (`success: true`), ale host albo akcja nie zgadzają się z allowlistą Preview.
+ * Inne powody (`captcha: token`, `brak sekretu`, `brak oczekiwań`, `siteverify …`, `odrzucony`)
+ * to błąd skryptu albo konfiguracji, więc zostają porażką.
+ */
+export const POWODY_SCISLEGO_TURNSTILE = Object.freeze(['captcha: hostname', 'captcha: action']);
+
+/**
+ * Decyzja pominięcia (c) (Z3, allowlista, fail-closed). `pomin: true` tylko gdy odpowiedź na POST
+ * kalkulatora to dokładnie odmowa ścisłego Turnstile z public-quote: 403, bez Location, typ
+ * application/json, ciało = obiekt o kluczach dokładnie {error, reason}, error = komunikat
+ * kalkulatora, reason z POWODY_SCISLEGO_TURNSTILE. Wszystko inne (inny kod, błąd sieci lub limit
+ * czasu, puste ciało, HTML strony Access, inny powód, dodatkowe pola) = `pomin: false` z powodem.
+ * @param {{status?: unknown, location?: unknown, typ?: unknown, json?: unknown, blad?: unknown}} o
+ */
+export function decyzjaPominieciaC(o) {
+  if (!o || typeof o !== 'object') return { pomin: false, powod: 'brak odpowiedzi' };
+  if (o.blad) return { pomin: false, powod: 'błąd żądania' };
+  if (o.status !== 403) return { pomin: false, powod: `kod ${o.status} zamiast 403` };
+  if (o.location !== null && o.location !== undefined)
+    return { pomin: false, powod: '403 z nagłówkiem Location' };
+  if (typeof o.typ !== 'string' || !/^application\/json(\s*;|$)/i.test(o.typ.trim()))
+    return { pomin: false, powod: '403 bez typu application/json' };
+  const j = o.json;
+  if (!j || typeof j !== 'object' || Array.isArray(j))
+    return { pomin: false, powod: '403 bez obiektu JSON' };
+  const klucze = Object.keys(j).sort();
+  if (klucze.length !== 2 || klucze[0] !== 'error' || klucze[1] !== 'reason')
+    return { pomin: false, powod: '403 o innym kształcie niż odmowa Turnstile' };
+  if (j.error !== BLAD_TURNSTILE_KALKULATORA)
+    return { pomin: false, powod: '403 z innym komunikatem niż odmowa Turnstile' };
+  if (typeof j.reason !== 'string' || !POWODY_SCISLEGO_TURNSTILE.includes(j.reason))
+    return { pomin: false, powod: '403 Turnstile z powodem spoza listy (host/akcja)' };
+  return { pomin: true, powod: POWOD_POMINIECIA_C };
+}
+
 /** (b) idzie tylko przy Preview bez Resend (flaga E2E_BEZ_RESEND=1); inaczej mail poszedłby naprawdę. */
 export function czyUruchomicB(env) {
   return env?.E2E_BEZ_RESEND === '1';
 }
 
 /**
- * Kod wyjścia i podsumowanie. 0 tylko gdy wszystkie 7 przypadków mają status `pass`.
- * Status `fail` albo nieznany = 1; `skip`/`brak` (bez porażek) = 3 (przebieg niepełny).
+ * Kod wyjścia i podsumowanie (MIX-1556). 0 gdy każdy przypadek, który nie jest pominięty, ma `pass`.
+ * Pominięty = `skip` z niepustą linią powodu (np. (b) przy Resend, (c) przy ścisłym Turnstile).
+ * Status `fail` albo nieznany = 1; `brak` albo `skip` bez powodu (bez porażek) = 3 (przebieg niepełny).
  */
 export function podsumuj(wyniki) {
-  const stany = PRZYPADKI.map((p) => [p, wyniki?.[p]?.status ?? 'brak']);
+  const stany = PRZYPADKI.map((p) => {
+    const w = wyniki?.[p];
+    const s = w?.status ?? 'brak';
+    const zPowodem = s === 'skip' && typeof w?.powod === 'string' && w.powod.trim() !== '';
+    return [p, s, zPowodem];
+  });
   const ok = stany.filter(([, s]) => s === 'pass').length;
   const zle = stany.filter(([, s]) => s !== 'pass' && s !== 'skip' && s !== 'brak');
-  const niepelne = stany.filter(([, s]) => s === 'skip' || s === 'brak');
+  const niepelne = stany.filter(([, s, zPowodem]) => s === 'brak' || (s === 'skip' && !zPowodem));
+  const pominiete = stany.filter(([, , zPowodem]) => zPowodem);
   const opis = stany.map(([p, s]) => `${p}=${s}`).join(' ');
+  const listaPom = pominiete.length ? `, pominięte: ${pominiete.map(([p]) => p).join(',')}` : '';
   if (zle.length > 0) return { kod: 1, ok, linia: `${ok}/7, PORAŻKA: ${zle.map(([p]) => p).join(',')} (${opis})` };
   if (niepelne.length > 0)
     return { kod: 3, ok, linia: `${ok}/7, niepełny: ${niepelne.map(([p]) => p).join(',')} (${opis})` };
-  return { kod: 0, ok, linia: `${ok}/7 (${opis})` };
+  return { kod: 0, ok, linia: `${ok}/7${listaPom} (${opis})` };
 }
 
 /** Podpis POST /api/leady/ponow (zgodny z functions/api/crm/_podpis.ts, prefiks `leady-ponow:v1:`). */
@@ -368,6 +420,7 @@ export async function zapytaj(ctx, url, opcje = {}) {
     return {
       status: odp.status,
       location: odp.headers?.get?.('location') ?? null,
+      typ: odp.headers?.get?.('content-type') ?? null,
       json,
     };
   } catch (e) {
@@ -503,11 +556,15 @@ function sprawdzZadanie(przypadek, z) {
 }
 
 /** Wspólny szkielet (a)–(d): migawka, POST, odpytywanie `lin`, kontrola tytułu, przypisania i etykiet. */
-async function przypadekZZadaniem(ctx, id, wyslij, wynikAudytu) {
+async function przypadekZZadaniem(ctx, id, wyslij, wynikAudytu, pominiecie = null) {
   const przed = new Set((await pobierzZadania(ctx.lin)).map((z) => z.id));
   const start = ctx.now();
   const odp = await wyslij();
-  if (!odpowiedzOk(odp)) return { status: 'fail', powod: `POST: ${opisBledu(ctx, odp)}` };
+  if (!odpowiedzOk(odp)) {
+    const d = pominiecie ? pominiecie(odp) : null;
+    if (d?.pomin === true) return { status: 'skip', powod: d.powod };
+    return { status: 'fail', powod: `POST: ${opisBledu(ctx, odp)}${d?.powod ? ` (${d.powod})` : ''}` };
+  }
   const znalezione = await czekaj({
     start,
     now: ctx.now,
@@ -538,8 +595,9 @@ export async function przypadekB(ctx) {
   return przypadekZZadaniem(ctx, 'b', () => wyslijFormularz(ctx, ctx.adres('b', 'gmail.com')));
 }
 
+/** (c): odmowa ścisłego Turnstile (i tylko ona, decyzjaPominieciaC) = skip; inne błędy = fail. */
 export const przypadekC = (ctx) =>
-  przypadekZZadaniem(ctx, 'c', () => wyslijKalkulator(ctx, ctx.adres('c')));
+  przypadekZZadaniem(ctx, 'c', () => wyslijKalkulator(ctx, ctx.adres('c')), undefined, decyzjaPominieciaC);
 
 export const przypadekD = (ctx) =>
   przypadekZZadaniem(ctx, 'd', () => wyslijAudyt(ctx, ctx.adres('d'), ctx.wynikAudytu), ctx.wynikAudytu);
