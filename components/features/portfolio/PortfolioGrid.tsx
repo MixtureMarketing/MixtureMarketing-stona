@@ -66,11 +66,13 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               className="h-full flex flex-col border-gray-100 relative"
             >
               {/* Image Container */}
-              <div className="relative h-72 overflow-hidden bg-gray-100">
+              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
                 {project.mainImage ? (
                   <img
                     src={urlFor(project.mainImage).width(800).height(600).url()}
                     alt={project.title}
+                    width={800}
+                    height={600}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />

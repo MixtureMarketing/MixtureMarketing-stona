@@ -84,10 +84,10 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {project.mainImage && (
-            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; na telefonie
-            // kwadrat, żeby było większe od H1 (LCP) i rosło z karty listy.
+            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; MIX-1651: proporcja 16/9 na każdej szerokości (jak na desktopie);
+            // bez kwadratu na telefonie, ramka rezerwuje miejsce (CLS 0).
             <div
-              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-square sm:aspect-[4/3] md:aspect-[16/9] max-h-[75vh] mb-12"
+              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh] mb-12"
               style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
             >
               <img
