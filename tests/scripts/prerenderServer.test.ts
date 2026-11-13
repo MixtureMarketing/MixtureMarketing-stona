@@ -8,6 +8,8 @@ import {
   ALLOWED_PORTS,
   REQUEST_TIMEOUT_MS,
   WAIT_DEADLINE_MS,
+  MIN_TIMEOUT_MS,
+  MAX_TIMEOUT_MS,
   acquirePreview,
   waitForServer,
   NONCE_FILE,
@@ -445,5 +447,167 @@ describe('prerender.js: okablowanie', () => {
 
   it('sprząta znacznik w finally', () => {
     expect(src).toMatch(/finally \{[\s\S]*removeNonce\(DIST_DIR\)/);
+  });
+});
+
+describe('sprzątanie po sukcesie: dodatkowe żądania i liczniki (MIX-1618)', () => {
+  const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const SERVER_JS = path.resolve(__dirname, '../../scripts/prerender-server.js');
+
+  /** Serwer: pierwsze `hang` żądań wisi bez odpowiedzi, kolejne dostają `ok`. Liczy żądania i wiszące. */
+  function hanging(hang: number) {
+    const state = { total: 0, open: 0 };
+    return serve((_req, res) => {
+      const n = ++state.total;
+      state.open++;
+      res.on('close', () => state.open--);
+      if (n > hang) res.end('ok');
+    }).then((port) => ({ port, state }));
+  }
+
+  it('po sukcesie wszystkie wiszące żądania są zamknięte (nic nie zostaje otwarte)', async () => {
+    const { port, state } = await hanging(3);
+    await waitForServer(port, 60000, { requestTimeoutMs: 100, deadlineMs: 5000 });
+    expect(state.total).toBeGreaterThan(3); // były dodatkowe, równoległe żądania
+    await delay(400);
+    expect(state.open).toBe(0);
+  });
+
+  it('po sukcesie nie wychodzą nowe żądania (licznik czasu ponowień wyczyszczony)', async () => {
+    const { port, state } = await hanging(2);
+    await waitForServer(port, 60000, { requestTimeoutMs: 100, deadlineMs: 5000 });
+    await delay(150);
+    const after = state.total;
+    await delay(600); // 6 okresów ponowienia
+    expect(state.total).toBe(after);
+  });
+
+  it('po sukcesie proces może się zakończyć sam (bez otwartych uchwytów i liczników)', async () => {
+    const { port, state } = await hanging(2);
+    const code = `
+      import { waitForServer, assertServesThisBuild } from ${JSON.stringify(SERVER_JS)};
+      const port = ${port};
+      await waitForServer(port, 60000, { requestTimeoutMs: 100, deadlineMs: 600000 });
+      await assertServesThisBuild(port, 'ok', { requestTimeoutMs: 100, deadlineMs: 600000 });
+    `;
+    const { spawn } = await import('node:child_process');
+    const child = spawn(process.execPath, ['--input-type=module', '-e', code], { stdio: 'ignore' });
+    const exit = await new Promise<{ code: number | null; killed: boolean }>((resolve) => {
+      const guard = setTimeout(() => {
+        child.kill('SIGKILL');
+      }, 5000);
+      child.on('exit', (c) => {
+        clearTimeout(guard);
+        resolve({ code: c, killed: child.killed });
+      });
+    });
+    expect(exit).toEqual({ code: 0, killed: false }); // sam wyszedł w < 5 s (deadline 600 s, nie czeka)
+    expect(state.total).toBeGreaterThan(2);
+  }, 15000);
+
+  it('jedno żądanie pada, a inne trwa: to nie jest błąd, wygrywa żądanie, które dojdzie', async () => {
+    let n = 0;
+    const port = await serve((req, res) => {
+      const mine = ++n;
+      setTimeout(() => {
+        if (mine === 1) {
+          req.socket.destroy(); // pierwsze żądanie: zerwane połączenie
+        } else {
+          res.end('ok'); // drugie: poprawna odpowiedź, ale później niż błąd pierwszego
+        }
+      }, 150);
+    });
+    // assertServesThisBuild, nie waitForServer: ten drugi ponawia po błędzie (retryMs) i
+    // zamaskowałby przedwczesne odrzucenie przez fetchHedged.
+    await expect(
+      assertServesThisBuild(port, 'ok', { requestTimeoutMs: 100, deadlineMs: 5000 }),
+    ).resolves.toBeUndefined();
+    expect(n).toBeGreaterThanOrEqual(2); // sukces z żądania równoległego do zerwanego
+  });
+
+  it('bliźniak: wszystkie próby padły (zerwane połączenia) = błąd, nie cisza do terminu', async () => {
+    const port = await serve((req) => req.socket.destroy());
+    const t0 = Date.now();
+    await expect(
+      assertServesThisBuild(port, 'n', { requestTimeoutMs: 100, deadlineMs: 5000 }),
+    ).rejects.toThrow(/socket hang up|ECONNRESET/);
+    expect(Date.now() - t0).toBeLessThan(2000);
+  });
+});
+
+describe('limity czasu: dozwolone tylko skończone liczby w przedziale (MIX-1618)', () => {
+  it('przedział jest sensowny i domyślne wartości w nim mieszczą się', () => {
+    expect(MIN_TIMEOUT_MS).toBeGreaterThanOrEqual(100);
+    expect(MAX_TIMEOUT_MS).toBeLessThanOrEqual(2 ** 31 - 1);
+    for (const v of [REQUEST_TIMEOUT_MS, WAIT_DEADLINE_MS]) {
+      expect(v).toBeGreaterThanOrEqual(MIN_TIMEOUT_MS);
+      expect(v).toBeLessThanOrEqual(MAX_TIMEOUT_MS);
+    }
+  });
+
+  const bad: Array<[string, unknown]> = [
+    ['0', 0],
+    ['-1', -1],
+    ['NaN', NaN],
+    ['Infinity', Infinity],
+    ['-Infinity', -Infinity],
+    ['tekst "3000"', '3000'],
+    ['tekst "5000x"', '5000x'],
+    ['null', null],
+    ['true', true],
+    ['obiekt', {}],
+    ['tuż pod minimum', MIN_TIMEOUT_MS - 1],
+    ['tuż nad maksimum', MAX_TIMEOUT_MS + 1],
+    ['2**40', 2 ** 40],
+  ];
+
+  for (const [name, value] of bad) {
+    for (const option of ['requestTimeoutMs', 'deadlineMs'] as const) {
+      it(`${option} = ${name}: błąd od razu, zero połączeń`, async () => {
+        let hits = 0;
+        const port = await serve((_req, res) => {
+          hits++;
+          res.end('ok');
+        });
+        const t0 = Date.now();
+        // timeout pętli 60 s: błąd opcji nie może być połknięty przez ponawianie
+        const refusal = new RegExp(`${option}=.*niedozwolone`);
+        await expect(waitForServer(port, 60000, { [option]: value } as never)).rejects.toThrow(
+          refusal,
+        );
+        await expect(
+          assertServesThisBuild(port, 'ok', { [option]: value } as never),
+        ).rejects.toThrow(refusal);
+        expect(Date.now() - t0).toBeLessThan(1000);
+        expect(hits).toBe(0);
+      });
+    }
+  }
+
+  it('bliźniak: granice dolna i górna są dozwolone, brak opcji = wartości domyślne', async () => {
+    const port = await serve((_req, res) => res.end('ok'));
+    await expect(
+      waitForServer(port, 5000, { requestTimeoutMs: MIN_TIMEOUT_MS, deadlineMs: MAX_TIMEOUT_MS }),
+    ).resolves.toBeUndefined();
+    await expect(
+      waitForServer(port, 5000, { requestTimeoutMs: MAX_TIMEOUT_MS, deadlineMs: MIN_TIMEOUT_MS }),
+    ).resolves.toBeUndefined();
+    await expect(
+      waitForServer(port, 5000, { requestTimeoutMs: undefined, deadlineMs: undefined }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('acquirePreview przekazuje zły limit jako błąd (nie ponawia po cichu na kolejnym porcie)', async () => {
+    const started: number[] = [];
+    await expect(
+      acquirePreview({
+        nonce: 'n',
+        env: { PRERENDER_PORT: '' },
+        startServer: (p: number) => started.push(p) && {},
+        kill: () => {},
+        log: { log: () => {}, warn: () => {} },
+        waitOptions: { requestTimeoutMs: 0 },
+      }),
+    ).rejects.toThrow(/requestTimeoutMs=0.*niedozwolone/);
   });
 });
