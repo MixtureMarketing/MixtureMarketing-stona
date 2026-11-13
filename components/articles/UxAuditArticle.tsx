@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import {
   Search,
   MousePointer2,
@@ -9,6 +10,7 @@ import {
   BarChart3,
   Flame,
   MousePointerClick,
+  ListChecks,
 } from 'lucide-react';
 
 import AnimateOnScroll from '../common/AnimateOnScroll';
@@ -29,6 +31,7 @@ const UxAuditArticle = () => {
     <ArticleShell
       id="ux-audit"
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
+      seoTitle={CONTENT.header.seoTitle}
       description={CONTENT.header.subtitle}
       category="design"
       categoryLabel={CONTENT.header.badge}
@@ -42,7 +45,7 @@ const UxAuditArticle = () => {
             <Image
               src="/assets/images/audyt-ux.png"
               sizes="(max-width: 1024px) 100vw, 1024px"
-              alt="UX Team analyzing interface usability"
+              alt="Zespół analizuje użyteczność interfejsu sklepu internetowego"
               className="w-full h-[400px] object-cover"
               priority
             />
@@ -169,6 +172,48 @@ const UxAuditArticle = () => {
       </div>
 
       <div className="my-24">
+        <SectionHeader
+          title={CONTENT.checklist.title}
+          subtitle={CONTENT.checklist.subtitle}
+          align="left"
+        />
+        <p>{CONTENT.checklist.text}</p>
+        <ArticleUseCases
+          title=""
+          accentColor="#3B82F6"
+          items={CONTENT.checklist.items.map((item) => ({
+            ...item,
+            icon: <ListChecks size={24} />,
+          }))}
+        />
+      </div>
+
+      <div className="my-24">
+        <SectionHeader
+          title={CONTENT.process.title}
+          subtitle={CONTENT.process.subtitle}
+          align="left"
+        />
+        <p>{CONTENT.process.text}</p>
+        <ol className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 not-prose list-none p-0">
+          {CONTENT.process.steps.map((step, index) => (
+            <li
+              key={step.title}
+              className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex gap-4"
+            >
+              <span className="w-10 h-10 shrink-0 bg-blue-50 text-primary rounded-xl flex items-center justify-center font-bold">
+                {index + 1}
+              </span>
+              <div>
+                <h3 className="font-bold text-dark mb-1">{step.title}</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">{step.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="my-24">
         <SectionHeader title={CONTENT.tools.title} subtitle={CONTENT.tools.subtitle} align="left" />
         <p>{CONTENT.tools.text}</p>
         <div className="my-12">
@@ -213,6 +258,28 @@ const UxAuditArticle = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="my-16 p-6 bg-secondary/5 border-l-4 border-secondary rounded-r-xl not-prose">
+        <p className="text-sm font-bold text-dark mb-3">{CONTENT.related.text}</p>
+        <ul className="space-y-2 text-sm">
+          <li>
+            <Link
+              to={CONTENT.related.cost.href}
+              className="text-secondary font-bold hover:underline"
+            >
+              {CONTENT.related.cost.label}
+            </Link>
+          </li>
+          <li>
+            <Link
+              to={CONTENT.related.speed.href}
+              className="text-secondary font-bold hover:underline"
+            >
+              {CONTENT.related.speed.label}
+            </Link>
+          </li>
+        </ul>
       </div>
 
       <BaseCta

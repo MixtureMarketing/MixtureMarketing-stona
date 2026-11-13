@@ -4,6 +4,8 @@ import { X, Loader2, AlertTriangle, ShieldCheck, ArrowRight, LogIn } from 'lucid
 import { Link } from 'react-router-dom';
 import { trackEvent } from '../../../utils/analytics';
 import { useDialogFocusReturn } from '../../../hooks/useDialogFocusReturn';
+import { isRodoKlauzulaEnabled } from '../../../config/flags';
+import RodoKlauzulaKrotka from '../../common/RodoKlauzulaKrotka';
 import {
   normalizePhone,
   isValidPhoneE164,
@@ -245,7 +247,10 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
       return;
     }
 
-    if (!consentProcessing) {
+    // Flaga VITE_RODO_KLAUZULA=1 (MIX-627, decyzja A): zamiast obowiązkowej zgody krótka klauzula
+    // informacyjna; dane są potrzebne do umowy, więc brak okienka zgody nie blokuje wysyłki.
+    const klauzula = isRodoKlauzulaEnabled();
+    if (!klauzula && !consentProcessing) {
       trackEvent('preonboard_error', { tier, error_code: 'VALIDATION', field: 'consent' });
       return setError('Aby kontynuować, zaakceptuj regulamin i zgodę na przetwarzanie danych.');
     }
@@ -279,7 +284,7 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
           phone: phoneNormalized,
           nip,
           tier,
-          consent_processing: consentProcessing,
+          ...(klauzula ? {} : { consent_processing: consentProcessing }),
           consent_marketing: consentMarketing,
           consent_text_version: CONSENT_TEXT_VERSION,
         }),
@@ -704,33 +709,39 @@ const PreonboardModal: React.FC<PreonboardModalProps> = ({ tier, onClose }) => {
 
             {/* Consents — WCAG 2.5.8 target size: label ma py-2 dla większej tap area */}
             <div className="space-y-1 pt-2">
-              <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors">
-                <input
-                  type="checkbox"
-                  required
-                  checked={consentProcessing}
-                  onChange={(e) => setConsentProcessing(e.target.checked)}
-                  className="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                />
-                <span>
-                  Akceptuję{' '}
-                  <Link to="/terms/" target="_blank" className="text-emerald-700 hover:underline">
-                    regulamin
-                  </Link>{' '}
-                  i zgadzam się na przetwarzanie danych zgodnie z{' '}
-                  <Link
-                    to="/privacy-policy/"
-                    target="_blank"
-                    className="text-emerald-700 hover:underline"
-                  >
-                    polityką prywatności
-                  </Link>
-                  .{' '}
-                  <span className="text-rose-500" aria-label="wymagane">
-                    *
+              {isRodoKlauzulaEnabled() ? (
+                <div className="py-2 px-1">
+                  <RodoKlauzulaKrotka variant="abonament" />
+                </div>
+              ) : (
+                <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={consentProcessing}
+                    onChange={(e) => setConsentProcessing(e.target.checked)}
+                    className="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <span>
+                    Akceptuję{' '}
+                    <Link to="/terms/" target="_blank" className="text-emerald-700 hover:underline">
+                      regulamin
+                    </Link>{' '}
+                    i zgadzam się na przetwarzanie danych zgodnie z{' '}
+                    <Link
+                      to="/privacy-policy/"
+                      target="_blank"
+                      className="text-emerald-700 hover:underline"
+                    >
+                      polityką prywatności
+                    </Link>
+                    .{' '}
+                    <span className="text-rose-500" aria-label="wymagane">
+                      *
+                    </span>
                   </span>
-                </span>
-              </label>
+                </label>
+              )}
               <label className="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors">
                 <input
                   type="checkbox"

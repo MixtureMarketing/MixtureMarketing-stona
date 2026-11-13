@@ -19,6 +19,7 @@
  *   - NOTIFY_EMAIL        — adres docelowy powiadomień (plain text)
  *   - LEAD_TOKEN_SECRET   — klucz podpisu tokenów edycji leada (encrypted; zalecany,
  *                           bez niego awaryjnie używany jest TURNSTILE_SECRET)
+ *   - LINEAR_*            — zgłoszenie leada do Lineara (patrz _linear.ts; brak = wyłączone)
  *
  * Compat: zachowujemy strukturę API zgodną z poprzednim /api/contact_submit.php,
  * żeby leadService.ts nie wymagał zmian (action: 'create'|'update'|'send_notification'|'get_lead').
@@ -28,9 +29,10 @@ import { checkRateLimit } from './estimation/_rateLimit';
 import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
-import { wyslijDoCrmWTle, type CrmEnv } from './_crm';
+import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
+import { sprawdzKrok, sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
 
-interface Env extends CrmEnv {
+interface Env extends LinearEnv {
   TURNSTILE_SECRET: string;
   LEAD_TOKEN_SECRET?: string;
   RESEND_API_KEY: string;
@@ -179,6 +181,31 @@ function rowToLead(row: Record<string, unknown>) {
 
 const BRAK_TOKENU = { message: 'Brak lub niepoprawny token leada' };
 
+/** Pierwszy błąd z listy sprawdzeń (komunikat po polsku) albo null. */
+const pierwszyBlad = (...bledy: Array<string | null>): string | null =>
+  bledy.find((b) => b !== null) ?? null;
+
+/** Limity pól akcji `create`: lead, adres źródłowy. Pola zapisywane do kolumn muszą być tekstem. */
+function bladCreate(body: RequestBody): string | null {
+  const lead = (body.lead ?? {}) as Record<string, unknown>;
+  return pierwszyBlad(
+    ...['name', 'email', 'phone', 'service_interest', 'captcha_token'].map((k) =>
+      sprawdzWymaganyTekst(lead[k], k),
+    ),
+    sprawdzWymaganyTekst(body.source_url, 'source_url'),
+    sprawdzObiekt(body.lead, 'lead'),
+  );
+}
+
+/** Limity wspólne dla akcji z tokenem: id, token, typ powiadomienia. */
+function bladIdentyfikatorow(body: RequestBody): string | null {
+  return pierwszyBlad(
+    sprawdzWymaganyTekst(body.id, 'id'),
+    sprawdzWymaganyTekst(body.edit_token, 'edit_token'),
+    sprawdzWymaganyTekst(body.type, 'type'),
+  );
+}
+
 async function pobierzLead(env: Env, id: string) {
   try {
     const row = await env.DB.prepare('SELECT * FROM leads WHERE id = ?').bind(id).first();
@@ -245,6 +272,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       if (!body.lead?.name || !body.lead?.email) {
         return json({ message: 'Brak wymaganych pól (name, email)' }, 400);
       }
+      const bladLimitu = bladCreate(body);
+      if (bladLimitu) return json({ message: bladLimitu }, 400);
       const ok = await verifyTurnstile(body.lead.captcha_token || '', env.TURNSTILE_SECRET, ip);
       if (!ok) return json({ message: 'Weryfikacja captcha nieudana' }, 403);
 
@@ -280,21 +309,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         console.error('D1 insert lead failed:', e);
       }
 
-      // Kopia do CRM tylko po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
-      if (stored) {
-        wyslijDoCrmWTle(waitUntil, env, {
-          external_id: lead.id,
-          source: 'website',
-          received_at: new Date().toISOString(),
-          source_url: body.source_url,
-          name: lead.name,
-          email: lead.email,
-          phone: lead.phone,
-          service: lead.service_interest,
-          form_step: 1,
-          form_steps: 3,
-        });
-      }
+      // Zadanie w Linearze tylko po udanym zapisie (źródło prawdy: D1). W tle, nie zmienia odpowiedzi.
+      if (stored) zglosLeadWTle(waitUntil, env, lead.id);
 
       // Powiadomienie do agencji.
       const subject = `🆕 Nowy lead — ${lead.name} (${lead.service_interest || 'general'})`;
@@ -327,7 +343,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       // Mail do agencji tylko, gdy lead faktycznie istnieje (UPDATE trafił w wiersz) —
       // inaczej dowolne `id` pozwalało wysyłać maile z treścią atakującego.
       // Token wydany przy create — bez niego każdy znający id mógłby nadpisać dane.
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
+      const bladDetails = pierwszyBlad(
+        sprawdzKrok(body.step),
+        sprawdzObiekt(body.details, 'details'),
+      );
+      if (bladDetails) return json({ message: bladDetails }, 400);
       let updated = false;
       if (body.id) {
         const d = (body.details || {}) as Record<string, unknown>;
@@ -363,28 +386,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         } catch (e) {
           console.error('D1 update lead failed:', e);
         }
-        // Kolejny krok formularza do CRM (uzupełnia ten sam lead po external_id).
-        if (updated) {
-          const str = (v: unknown) => (typeof v === 'string' ? v : null);
-          const extra = splitLeadFields(d);
-          wyslijDoCrmWTle(waitUntil, env, {
-            external_id: body.id,
-            source: 'website',
-            name: str(d.name),
-            email: str(d.email),
-            phone: str(d.phone),
-            company: str(d.company),
-            budget_text: str(d.budget),
-            message: str(d.message),
-            details: {
-              ...extra,
-              ...(str(d.website) ? { website: d.website } : {}),
-              ...(str(d.package_name) ? { package_name: d.package_name } : {}),
-            },
-            form_step: body.step ?? null,
-            form_steps: 3,
-          });
-        }
+      }
+      // Komentarz w zadaniu Lineara: kroki 2 i 3 (krok 1 to wznowienie formularza, bez szumu).
+      // Raz na krok (blokada KV w module), tylko gdy UPDATE trafił w istniejący lead.
+      if (updated && (body.step === 2 || body.step === 3)) {
+        const pola = Object.fromEntries(
+          Object.entries((body.details || {}) as Record<string, unknown>).filter(
+            ([k]) => !LEAD_SKIP.has(k),
+          ),
+        );
+        komentarzKrokuWTle(waitUntil, env, body.id as string, `krok${body.step}`, pola);
       }
       // Email do agencji przy finalnym kroku (step=3).
       if (body.step === 3 && body.id && updated) {
@@ -397,6 +408,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     case 'send_notification': {
       // Tylko dla istniejącego leada i raz na (lead, typ) — bez tego endpoint był
       // publiczną pompą maili do skrzynki agencji.
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       if (!body.id || !(await leadExists(env, body.id))) return json({ success: true });
       const type = body.type || 'success';
@@ -409,6 +422,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
           /* KV niedostępne — fail-open, lead i tak istnieje */
         }
       }
+      // Porzucony formularz: komentarz w zadaniu Lineara (mail do agencji idzie jak dotąd).
+      if (type === 'abandoned_step_1' || type === 'abandoned_step_2') {
+        const n = type === 'abandoned_step_1' ? 1 : 2;
+        komentarzKrokuWTle(waitUntil, env, body.id, `porzucenie${n}`, {
+          status: `porzucony po kroku ${n}`,
+        });
+      }
       const subjectMap: Record<string, string> = {
         success: '✅ Lead skonwertowany',
         abandoned_step_1: '⚠️ Lead porzucony (krok 1)',
@@ -420,6 +440,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     }
 
     case 'get_lead': {
+      const bladId = bladIdentyfikatorow(body);
+      if (bladId) return json({ message: bladId }, 400);
       if (!body.id) return json({ lead: null });
       if (!(await sprawdzLead(env, body.id, body.edit_token))) return json(BRAK_TOKENU, 403);
       return pobierzLead(env, body.id);

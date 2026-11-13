@@ -23,6 +23,8 @@ interface TurnstileWidgetProps {
   siteKey: string;
   /** Ładuj skrypt dopiero przy prepare()/getToken(), nie przy montowaniu. */
   defer?: boolean;
+  /** Akcja Turnstile (kalkulator: `public_quote`, MIX-1383); brak = widget bez akcji. */
+  action?: string;
 }
 
 const HIDDEN_STYLE: React.CSSProperties = {
@@ -37,7 +39,7 @@ const HIDDEN_STYLE: React.CSSProperties = {
 const READY_TIMEOUT_MS = 15000;
 
 const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
-  ({ siteKey, defer = false }, ref) => {
+  ({ siteKey, defer = false, action }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
     const renderRef = useRef<Promise<string> | null>(null);
@@ -55,7 +57,10 @@ const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
         return Promise.reject(new Error('TURNSTILE_NOT_READY'));
       }
       const gen = genRef.current;
-      renderRef.current = renderInvisibleTurnstile(container, siteKey).then(
+      const rendering = action
+        ? renderInvisibleTurnstile(container, siteKey, { action })
+        : renderInvisibleTurnstile(container, siteKey);
+      renderRef.current = rendering.then(
         (id) => {
           if (gen !== genRef.current) {
             removeTurnstile(id);
@@ -70,7 +75,7 @@ const TurnstileWidget = forwardRef<TurnstileWidgetHandle, TurnstileWidgetProps>(
         },
       );
       return renderRef.current;
-    }, [siteKey]);
+    }, [siteKey, action]);
 
     useEffect(() => {
       if (!defer) ensureRendered().catch(() => undefined);

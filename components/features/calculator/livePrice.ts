@@ -6,6 +6,12 @@
 /** Zwłoka (ms) po ostatniej zmianie odpowiedzi, zanim pójdzie zapytanie. */
 export const LIVE_PRICE_DEBOUNCE_MS = 400;
 
+/**
+ * MIX-1495: najmniejszy odstęp (ms) między dwoma zapytaniami o podgląd. Serwer liczy zapytania
+ * w KV, które przyjmuje 1 zapis na sekundę na klucz; szybsze kliknięcia dawałyby błąd 503.
+ */
+export const LIVE_PRICE_MIN_GAP_MS = 1000;
+
 /** Włączony tylko dla wartości `1` albo `true`; brak, puste i cokolwiek innego = wyłączony. */
 export function isLivePriceBarEnabled(
   raw: unknown = import.meta.env.VITE_MM_LIVE_PRICE_BAR,

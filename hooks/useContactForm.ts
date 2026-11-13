@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, RefObject } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { contactSchema } from '../types/validation';
+import { getContactSchema } from '../types/validation';
 import { useModal } from '../context/ModalContext';
 import { leadService, LeadBase, Lead } from '../services/leadService';
 import { ContactType } from '../types';
@@ -35,7 +35,7 @@ export const useContactForm = (
   const resetCaptcha = () => turnstileRef?.current?.reset();
 
   const formMethods = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
+    resolver: zodResolver(getContactSchema()),
     mode: 'onTouched',
   });
 

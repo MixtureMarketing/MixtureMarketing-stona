@@ -62,6 +62,26 @@ describe('utils/turnstile — loader z jawnym renderem', () => {
       appearance: 'interaction-only',
       language: 'pl',
     });
+    // Bez opcji akcji (kontakt, audyt): render bez klucza `action`, jak przed MIX-1383.
+    expect('action' in vi.mocked(ts.render).mock.calls[0][1]).toBe(false);
+  });
+
+  it('MIX-1383 B1: renderInvisibleTurnstile z action → turnstile.render dostaje action', async () => {
+    const ts = fakeTurnstile();
+    (window as { turnstile?: TurnstileAPI }).turnstile = ts;
+    const container = document.createElement('div');
+    await renderInvisibleTurnstile(container, 'SITEKEY', { action: 'public_quote' });
+    expect(ts.render).toHaveBeenCalledWith(container, {
+      sitekey: 'SITEKEY',
+      size: 'invisible',
+      execution: 'execute',
+      appearance: 'interaction-only',
+      language: 'pl',
+      action: 'public_quote',
+    });
+    // Pusta akcja = brak klucza (nie wysyłamy pustego `action` do Turnstile).
+    await renderInvisibleTurnstile(container, 'SITEKEY', { action: '' });
+    expect('action' in vi.mocked(ts.render).mock.calls[1][1]).toBe(false);
   });
 
   it('getTurnstileToken → reset+execute po widgetId, zwraca token', async () => {

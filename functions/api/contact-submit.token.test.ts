@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { onRequestPost, onRequestGet } from './contact-submit';
 import { d1Sqlite } from '../../tests/helpers/d1Sqlite';
 import { podpiszLead, sprawdzLead } from './_leadToken';
+import {
+  ileOp,
+  srodowiskoWejsc,
+  stubSieci,
+  zbieracz,
+  type Siec,
+} from '../../tests/helpers/wejsciaLinear';
 
 // Regresja: `update` / `get_lead` / `send_notification` wymagały wyłącznie id leada.
 // Kto znał id (np. z logów, z Zaraz `lead_id`), czytał i nadpisywał dane osobowe.
@@ -195,5 +202,93 @@ describe('contact-submit — akcje wymagające tokenu', () => {
     });
     expect(res.status).toBe(200);
     expect(wyslaneMaile).toHaveLength(1);
+  });
+});
+
+describe('contact-submit — token a zgłoszenia do Lineara', () => {
+  let siec: Siec;
+  let zb: ReturnType<typeof zbieracz>;
+
+  beforeEach(() => {
+    siec = stubSieci();
+    zb = zbieracz();
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  const wejscie = async (srv: unknown, body: unknown) => {
+    const res = (await onRequestPost({
+      env: srv,
+      waitUntil: zb.waitUntil,
+      request: new Request('https://mixturemarketing.pl/api/contact-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }),
+    } as never)) as Response;
+    await zb.czekaj();
+    return { status: res.status, body: (await res.json()) as Record<string, unknown> };
+  };
+
+  const przygotuj = async () => {
+    const { env: srv, db } = srodowiskoWejsc(siec, {
+      TURNSTILE_SECRET: 'ts',
+      LEAD_TOKEN_SECRET: SEKRET,
+      RESEND_API_KEY: 'r',
+      NOTIFY_EMAIL: 'a@b.pl',
+    });
+    const r = await wejscie(srv, {
+      action: 'create',
+      lead: { name: 'Jan', email: 'jan@firma.pl', captcha_token: 'tok' },
+    });
+    return { srv, db, id: r.body.id as string, token: r.body.edit_token as string };
+  };
+
+  it('update z poprawnym tokenem (krok 2) → jeden komentarz w zadaniu tego leada', async () => {
+    const { srv, id, token } = await przygotuj();
+    const r = await wejscie(srv, {
+      action: 'update',
+      id,
+      edit_token: token,
+      step: 2,
+      details: { budget: '10k' },
+    });
+    expect(r.status).toBe(200);
+    expect(ileOp(siec, 'Komentarz')).toBe(1);
+    expect(siec.linear.at(-1)?.vars.input).toMatchObject({ issueId: id });
+  });
+
+  it.each([
+    ['bez tokenu', undefined],
+    ['z cudzym tokenem', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'],
+  ])(
+    '(−) update %s → 403 z komunikatem i zero komentarzy w Linearze',
+    async (_opis, edit_token) => {
+      const { srv, id } = await przygotuj();
+      const r = await wejscie(srv, { action: 'update', id, edit_token, step: 2, details: {} });
+      expect(r.status).toBe(403);
+      expect(r.body).toEqual({ message: 'Brak lub niepoprawny token leada' });
+      expect(ileOp(siec, 'Komentarz')).toBe(0);
+    },
+  );
+
+  it('(−) send_notification abandoned_step_2 bez tokenu → 403, zero komentarzy i zero maili', async () => {
+    const { srv, id } = await przygotuj();
+    const maile = siec.resend;
+    const r = await wejscie(srv, { action: 'send_notification', id, type: 'abandoned_step_2' });
+    expect(r.status).toBe(403);
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+    expect(siec.resend).toBe(maile);
+  });
+
+  it('(−) update dla nieistniejącego leada (UPDATE bez trafienia) → zero komentarzy', async () => {
+    const { srv } = await przygotuj();
+    const obcy = 'nie-ma-takiego-leada';
+    const edit_token = await podpiszLead({ LEAD_TOKEN_SECRET: SEKRET }, obcy);
+    const przed = zb.liczba();
+    const r = await wejscie(srv, { action: 'update', id: obcy, edit_token, step: 3, details: {} });
+    expect(r.status).toBe(200);
+    expect(ileOp(siec, 'Komentarz')).toBe(0);
+    expect(zb.liczba()).toBe(przed); // nic nie trafia do waitUntil (ani CRM, ani Linear)
   });
 });

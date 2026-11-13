@@ -1,0 +1,6 @@
+*.log
+*.tmp
+*.diff
+*.syn
+mut.txt
+summary.txt

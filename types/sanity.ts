@@ -23,10 +23,23 @@ export interface SanityTeamMember {
   linkedin?: string;
 }
 
+/** Opinia klienta (MIX-1326): wyłącznie dokumenty z potwierdzoną zgodą na publikację. */
+export interface SanityTestimonial {
+  _id: string;
+  companyName: string;
+  industry: string;
+  personFirstName: string;
+  quote: string;
+  logo?: SanityImage;
+  /** Link do oryginalnej opinii w Google; tylko https (patrz utils/testimonials.ts). */
+  googleReviewUrl?: string;
+}
+
 export interface SanityCaseStudy {
   _id: string;
   title: string;
-  slug: { current: string };
+  /** Zapytania GROQ rzutują `"slug": slug.current`, więc w aplikacji slug to zwykły tekst (MIX-1378). */
+  slug: string;
   client?: string;
   category: 'web' | 'marketing' | 'design';
   subcategory?: string[];

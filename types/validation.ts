@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isRodoKlauzulaEnabled } from '../config/flags';
 
 export const contactSchema = z.object({
   name: z
@@ -49,5 +50,19 @@ export const contactSchema = z.object({
   auditScope: z.string().optional(),
   package_name: z.string().optional(),
 });
+
+// Przy fladze VITE_RODO_KLAUZULA=1 (MIX-847, decyzja MIX-627 A) formularz nie ma okienka zgody,
+// więc pole `privacy` nie jest wymagane. Reszta walidacji bez zmian.
+export const contactSchemaBezZgody = contactSchema.extend({ privacy: z.boolean().optional() });
+
+/**
+ * Schemat formularza kontaktowego zależny od flagi (czytanej przy wywołaniu). Typ zwracany to typ
+ * schematu z wymaganą zgodą: formularz (ContactFormData.privacy: boolean) zostaje typowany jak dotąd,
+ * a przy fladze pole po prostu nie jest wypełniane i nie jest walidowane jako wymagane.
+ */
+export const getContactSchema = (): typeof contactSchema =>
+  isRodoKlauzulaEnabled()
+    ? (contactSchemaBezZgody as unknown as typeof contactSchema)
+    : contactSchema;
 
 export type ContactSchema = z.infer<typeof contactSchema>;

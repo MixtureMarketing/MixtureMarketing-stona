@@ -18,9 +18,10 @@
 
 import { escapeHtml, safeHttpUrl, sha256Hex } from '../_shared/security';
 import { denialResponse, envInt, gateCaptcha, gateLimits, strictBump } from '../_shared/publicGate';
-import { wyslijDoCrmWTle, type CrmEnv } from '../_crm';
+import { zglosLeadWTle, type LinearEnv } from '../_linear';
+import { sprawdzTekst } from '../_shared/limity';
 
-interface Env extends CrmEnv {
+interface Env extends LinearEnv {
   DB: D1Database;
   FILES?: R2Bucket;
   CACHE?: KVNamespace;
@@ -98,11 +99,16 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ status: 'error', message: 'Spam detected' }, 403);
   }
 
+  // Limity długości pól tekstowych przed jakąkolwiek pracą (mail, captcha, zapis): 400 po polsku.
+  for (const pole of ['email', 'url', 'companyName', 'score', 'captcha_token']) {
+    const wartosc = formData.get(pole);
+    const blad = typeof wartosc === 'string' ? sprawdzTekst(wartosc, pole) : null;
+    if (blad) return json({ status: 'error', message: blad }, 400);
+  }
+
   const email = String(formData.get('email') ?? '').trim();
   const url = safeHttpUrl(formData.get('url'));
-  const companyName = String(formData.get('companyName') ?? '')
-    .trim()
-    .slice(0, 200);
+  const companyName = String(formData.get('companyName') ?? '').trim();
   const scoreRaw = formData.get('score') as string | null;
   const scoreNum = scoreRaw !== null ? Number(scoreRaw) : NaN;
   const score = Number.isFinite(scoreNum) ? Math.max(0, Math.min(100, scoreNum)) : undefined;
@@ -188,17 +194,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ status: 'error', message: 'DB error' }, 500);
   }
 
-  // Kopia do CRM po udanym zapisie (docs/INTEGRACJA-STRONY.md w repo CRM).
-  wyslijDoCrmWTle(waitUntil, env, {
-    external_id: id,
-    source: 'audit',
-    received_at: new Date().toISOString(),
-    email,
-    name: companyName || 'Lead z audytu',
-    company: companyName || null,
-    source_url: url,
-    details: { score, pdf_key: r2Key, website: url },
-  });
+  // Zadanie w Linearze po udanym zapisie (błąd D1 wyżej kończy żądanie bez zgłoszenia).
+  zglosLeadWTle(waitUntil, env, id);
 
   const safeUrl = escapeHtml(url);
   const safeEmail = escapeHtml(email);

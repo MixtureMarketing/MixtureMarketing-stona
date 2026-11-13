@@ -1,16 +1,26 @@
 // Widełki na żywo (MIX-1385, Z5 z MIX-1377): po 400 ms ciszy od ostatniej zmiany odpowiedzi pyta
 // serwer o podgląd, pamięta wynik dla tych samych odpowiedzi (0 nowych zapytań przy powrocie do
 // wcześniejszego zestawu) i nie zapamiętuje błędów. Wyłączony przełącznik = zero zapytań.
+// MIX-1495: między zapytaniami co najmniej 1 s (kolejne odpowiedzi w tym czasie łączą się w jedno
+// zapytanie z ostatnim stanem), a jedna odpowiedź 503 (limiter KV) jest ponawiana raz po tym
+// odstępie, bez pokazywania błędu.
 import { useEffect, useRef, useState } from 'react';
-import { requestPricePreview } from '../services/pricePreviewService';
+import { isPreviewUnavailable, requestPricePreview } from '../services/pricePreviewService';
 import type { PriceRange } from '../services/calculatorService';
-import { LIVE_PRICE_DEBOUNCE_MS, answersHash } from '../components/features/calculator/livePrice';
+import {
+  LIVE_PRICE_DEBOUNCE_MS,
+  LIVE_PRICE_MIN_GAP_MS,
+  answersHash,
+} from '../components/features/calculator/livePrice';
 
 export type LivePriceStatus = 'idle' | 'loading' | 'ok' | 'rateLimited' | 'error';
 
 export interface LivePriceState {
   status: LivePriceStatus;
-  /** Ostatnie znane widełki (zostają widoczne w trakcie liczenia nowych). */
+  /**
+   * Ostatnie znane widełki (zostają widoczne w trakcie liczenia nowych). MIX-1466: po błędzie,
+   * przekroczeniu czasu albo 429 = null, bo stara cena nie pasuje już do nowych odpowiedzi.
+   */
   priceRange: PriceRange | null;
 }
 
@@ -28,6 +38,11 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
   const [state, setState] = useState<LivePriceState>(IDLE);
   const memo = useRef(new Map<string, PriceRange>());
   const previewToken = useRef<string | undefined>(undefined);
+  // MIX-1466: endpoint podglądu nie istnieje na tym wdrożeniu (404/405/501): do przeładowania
+  // strony już nie pytamy (ani serwera, ani Turnstile), pasek pokazuje komunikat zastępczy.
+  const unavailable = useRef(false);
+  // MIX-1495: chwila ostatniego wysłania zapytania (ms epoki); 0 = jeszcze nie pytaliśmy.
+  const lastSent = useRef(0);
   const captchaRef = useRef(getCaptchaToken);
   const answersRef = useRef(answers);
   useEffect(() => {
@@ -45,19 +60,29 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
       setState({ status: 'ok', priceRange: cached });
       return;
     }
+    if (unavailable.current) {
+      setState({ status: 'error', priceRange: null });
+      return;
+    }
 
     let cancelled = false;
+    let gapTimer: ReturnType<typeof setTimeout> | undefined;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setState((s) => ({ status: 'loading', priceRange: s.priceRange }));
       const send = async (withCaptcha: boolean) => {
+        const gap = lastSent.current + LIVE_PRICE_MIN_GAP_MS - Date.now();
+        if (gap > 0) await new Promise<void>((resolve) => (gapTimer = setTimeout(resolve, gap)));
         const payload = withCaptcha
           ? { answers: answersRef.current, captcha_token: await captchaRef.current() }
           : { answers: answersRef.current, preview_token: previewToken.current };
+        lastSent.current = Date.now();
         return requestPricePreview(payload, controller.signal);
       };
       try {
         let res = await send(!previewToken.current);
+        // MIX-1495: 503 = limiter KV chwilowo odmówił; jedno ponowienie po odstępie, bez błędu.
+        if (!res.ok && res.status === 503) res = await send(!previewToken.current);
         // Token podglądu wygasł albo został odrzucony: jeden powrót do Turnstile.
         if (!res.ok && (res.status === 401 || res.status === 403) && previewToken.current) {
           previewToken.current = undefined;
@@ -69,17 +94,19 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
           memo.current.set(hash, res.priceRange);
           setState({ status: 'ok', priceRange: res.priceRange });
         } else {
+          if (isPreviewUnavailable(res.status)) unavailable.current = true;
           const status = res.status === 429 ? 'rateLimited' : 'error';
-          setState((s) => ({ status, priceRange: s.priceRange }));
+          setState({ status, priceRange: null });
         }
       } catch {
-        if (!cancelled) setState((s) => ({ status: 'error', priceRange: s.priceRange }));
+        if (!cancelled) setState({ status: 'error', priceRange: null });
       }
     }, LIVE_PRICE_DEBOUNCE_MS);
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
+      clearTimeout(gapTimer);
       controller.abort();
     };
   }, [enabled, hash, hasAnswers]);

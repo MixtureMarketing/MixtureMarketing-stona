@@ -8,9 +8,9 @@ import type { PublicQuestionDef } from '../../../lib/estimation/publicQuote';
 /** Definicje pytań publicznych (kod + typ) do walidacji odpowiedzi POST (kontrakt §3). */
 export async function loadPublicQuestionDefs(DB: D1Database): Promise<PublicQuestionDef[]> {
   const res = await DB.prepare(
-    `SELECT code, answer_type FROM est_questions WHERE visibility = 'public' AND is_active = 1`,
+    `SELECT code, answer_type, options_json FROM est_questions WHERE visibility = 'public' AND is_active = 1`,
   ).all();
-  return (res.results ?? []) as PublicQuestionDef[];
+  return (res.results ?? []) as unknown as PublicQuestionDef[];
 }
 
 /** Surowe wiersze biblioteki (kształt RawLibrary) — te same SELECT-y co quote-finalize. */

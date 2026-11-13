@@ -42,6 +42,7 @@ const WhyUs: React.FC = () => {
       {/* Siatka dryfuje z pulsem strony (--page-p) — tło żyje przy scrollu. */}
       <div
         className="bg-tech-grid pointer-events-none absolute -inset-y-6 inset-x-0 opacity-[0.025]"
+        data-page-pulse
         style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -18px), 0)' }}
       />
 

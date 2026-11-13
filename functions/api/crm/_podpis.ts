@@ -18,8 +18,23 @@ export interface CrmZapytanieEnv {
   DB: D1Database;
 }
 
-const tekstDoPodpisu = (czas: string, nonce: string, metoda: string, sciezka: string) =>
-  `${PREFIKS}${czas}.${nonce}.${metoda.toUpperCase()} ${sciezka}`;
+/**
+ * Opcje innego kierunku podpisu niż CRM → strona (np. timer → POST /api/leady/ponow). Domyślnie: sekret
+ * `CRM_STRONA_SECRET` i prefiks CRM, czyli zachowanie sprzed parametryzacji. Sekret podany jako '' to brak
+ * sekretu (503), nie powrót do sekretu CRM; podpis jednego kierunku nie przechodzi w drugim (inny prefiks).
+ */
+export interface OpcjePodpisu {
+  sekret?: string;
+  prefiks?: string;
+}
+
+const tekstDoPodpisu = (
+  czas: string,
+  nonce: string,
+  metoda: string,
+  sciezka: string,
+  prefiks: string = PREFIKS,
+) => `${prefiks}${czas}.${nonce}.${metoda.toUpperCase()} ${sciezka}`;
 
 async function klucz(sekret: string, uzycie: KeyUsage) {
   return crypto.subtle.importKey(
@@ -44,11 +59,12 @@ export async function podpiszZapytanie(
   nonce: string,
   metoda: string,
   sciezka: string,
+  prefiks: string = PREFIKS,
 ) {
   const p = await crypto.subtle.sign(
     'HMAC',
     await klucz(sekret, 'sign'),
-    enc.encode(tekstDoPodpisu(czas, nonce, metoda, sciezka)),
+    enc.encode(tekstDoPodpisu(czas, nonce, metoda, sciezka, prefiks)),
   );
   return `sha256=${hex(p)}`;
 }
@@ -61,8 +77,10 @@ export async function bladPodpisu(
   request: Request,
   env: CrmZapytanieEnv,
   teraz: number = Date.now(),
+  opcje: OpcjePodpisu = {},
 ): Promise<Response | null> {
-  const sekret = env.CRM_STRONA_SECRET;
+  const sekret = opcje.sekret ?? env.CRM_STRONA_SECRET;
+  const prefiks = opcje.prefiks ?? PREFIKS;
   if (!sekret || sekret.length < 32) return blad(503, 'Integracja z CRM jest wyłączona.');
   const czas = request.headers.get('X-Mixture-Timestamp') ?? '';
   const nonce = (request.headers.get('X-Mixture-Nonce') ?? '').toLowerCase();
@@ -88,7 +106,7 @@ export async function bladPodpisu(
     'HMAC',
     await klucz(sekret, 'verify'),
     bajty,
-    enc.encode(tekstDoPodpisu(czas, nonce, request.method, adres.pathname + adres.search)),
+    enc.encode(tekstDoPodpisu(czas, nonce, request.method, adres.pathname + adres.search, prefiks)),
   );
   if (!zgodny) return blad(401, 'Podpis się nie zgadza.');
 

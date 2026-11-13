@@ -1,5 +1,6 @@
--- Czas ostatniej zmiany leada: Mixture CRM dociąga po nim leady, których wysyłka w tle (_crm.ts) nie przeszła,
--- także kolejne kroki formularza (GET /api/crm/leady). Wyzwalacze ustawiają go przy każdym INSERT i UPDATE,
+-- Czas ostatniej zmiany leada: Mixture CRM dociąga po nim leady (GET /api/crm/leady), także kolejne kroki
+-- formularza. Strona sama ich już nie wysyła (dawna wysyłka w tle: functions/_archiwum/_crm.ts.txt).
+-- Wyzwalacze ustawiają go przy każdym INSERT i UPDATE,
 -- więc żaden endpoint (contact-submit, admin/reply_lead, admin/convert_lead…) nie musi o nim pamiętać.
 ALTER TABLE leads ADD COLUMN updated_at TEXT;
 UPDATE leads SET updated_at = created_at WHERE updated_at IS NULL;

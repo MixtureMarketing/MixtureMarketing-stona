@@ -8,15 +8,17 @@
 //
 // Użycie:
 //   npm run test:e2e                                  # wymaga `npm run build` (dist/), startuje
-//                                                     # własny `vite preview` na porcie 4174
+//                                                     # własny `vite preview` na 127.0.0.1:4174
+//                                                     # (MIX-1443: wspólny pomocnik; zajęty port
+//                                                     # = kod 1 z linią powodu, bez testu)
 //   E2E_BASE_URL=http://127.0.0.1:5173 npm run test:e2e   # na już działającym serwerze (np. dev)
 import puppeteer from 'puppeteer';
-import { spawn } from 'node:child_process';
 import http from 'node:http';
 import { createProdSafe } from './lib/prod-safe.mjs';
+import { startPreviewOrExit } from './lib/preview-server.mjs';
 
 const PORT = 4174; // inny niż prerender (4173)
-const BASE_URL = (process.env.E2E_BASE_URL || `http://localhost:${PORT}`).replace(/\/+$/, '');
+const BASE_URL = (process.env.E2E_BASE_URL || `http://127.0.0.1:${PORT}`).replace(/\/+$/, '');
 const CONTACT_URL = `${BASE_URL}/contact/`;
 const API_PATH = '/api/contact-submit';
 const safe = createProdSafe(BASE_URL); // analityka (Zaraz też z własnej domeny) zawsze zablokowana
@@ -65,19 +67,13 @@ async function waitForText(page, text, timeout = 15000) {
 async function runTest() {
   console.log('🚀 E2E: formularz kontaktowy (/contact/)');
 
-  let server = null;
-  if (!process.env.E2E_BASE_URL) {
-    server = spawn('npm', ['run', 'preview', '--', '--port', String(PORT), '--strictPort'], {
-      stdio: 'ignore',
-      shell: true,
-      detached: true,
-    });
-  }
+  // Własny serwer tylko bez E2E_BASE_URL; wtedy pomiar gotowości robi pomocnik (to NASZ proces).
+  const server = process.env.E2E_BASE_URL ? null : await startPreviewOrExit({ port: PORT });
 
   let browser;
   const apiCalls = [];
   try {
-    await waitForServer(BASE_URL);
+    if (!server) await waitForServer(BASE_URL);
     browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -172,12 +168,11 @@ async function runTest() {
   } finally {
     if (browser) await browser.close().catch(() => {});
     if (browser) safe.finish();
-    if (server?.pid) {
-      try {
-        process.kill(-server.pid, 'SIGTERM');
-      } catch {
-        server.kill();
-      }
+    if (server) {
+      await server.stop().catch((e) => {
+        console.error(`❌ ${e.message}`);
+        process.exitCode = 1;
+      });
     }
   }
 }

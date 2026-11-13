@@ -96,8 +96,10 @@ describe('rejestr dat artykułów (legacyArticles)', () => {
     expect(byId['waf-bezpieczenstwo'].date).toBe('2026-01-28');
     expect(byId['ile-kosztuje-strona-rzeszow-2026'].date).toBe('2026-05-19');
     expect(byId['ile-kosztuje-strona-rzeszow-2026'].updatedDate).toBe('2026-10-24');
+    expect(byId['ux-audit'].updatedDate).toBe('2026-11-13'); // przebudowa pod frazę, MIX-1270
     expect(LEGACY_ARTICLES.filter((a) => a.updatedDate).map((a) => a.id)).toEqual([
       'ile-kosztuje-strona-rzeszow-2026',
+      'ux-audit',
     ]);
   });
 });

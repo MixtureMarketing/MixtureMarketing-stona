@@ -1,0 +1,437 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PreonboardModal: klauzula RODO zamiast obowiązkowej zgody (flaga VITE_RODO_KLAUZULA) > flaga wyłączona: dokładnie jak dotąd > migawka DOM formularza = stan sprzed zmiany (cc8f97a) 1`] = `
+<body>
+  <div>
+    <dialog
+      aria-describedby="preonboard-desc"
+      aria-labelledby="preonboard-title"
+      class="preonboard-dialog fixed inset-0 m-0 p-0 w-full h-full max-w-none max-h-none bg-transparent open:flex hidden items-end sm:items-center justify-center sm:p-4 backdrop:bg-dark/60 backdrop:backdrop-blur-sm"
+      open=""
+    >
+      <div
+        class="relative bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden focus:outline-none"
+      >
+        <div
+          class="relative bg-gradient-to-br from-emerald-600 to-emerald-700 text-white p-6 sm:p-8"
+        >
+          <button
+            aria-label="Zamknij okno"
+            class="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-x"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6 6 18"
+              />
+              <path
+                d="m6 6 12 12"
+              />
+            </svg>
+          </button>
+          <p
+            class="text-xs font-black uppercase tracking-[0.2em] text-emerald-100 mb-2"
+          >
+            Pakiet · 
+            Standard
+          </p>
+          <h2
+            class="text-2xl sm:text-3xl font-extrabold leading-tight mb-1"
+            id="preonboard-title"
+          >
+            249
+             zł / mc netto
+          </h2>
+          <p
+            class="text-xs text-emerald-100/80 mb-2"
+          >
+            (
+            306
+             zł brutto · faktura VAT w panelu)
+          </p>
+          <p
+            class="text-sm text-emerald-50"
+            id="preonboard-desc"
+          >
+            4 pola. 60 sekund. Płatność kartą przez Stripe.
+          </p>
+        </div>
+        <form
+          class="p-6 sm:p-8 space-y-4 max-h-[70vh] overflow-y-auto"
+        >
+          <div>
+            <label
+              class="block text-sm font-semibold text-dark mb-1.5"
+              for="pb-tier"
+            >
+              Wybrany pakiet
+               
+              <span
+                aria-label="wymagane"
+                class="text-rose-500"
+              >
+                *
+              </span>
+            </label>
+            <select
+              class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors text-dark bg-white"
+              id="pb-tier"
+              required=""
+            >
+              <option
+                disabled=""
+                value=""
+              >
+                — wybierz pakiet —
+              </option>
+              <option
+                value="starter"
+              >
+                Starter — 179 zł/mc (mikrofirmy)
+              </option>
+              <option
+                value="standard"
+              >
+                Standard — 249 zł/mc (rozwijające się)
+              </option>
+              <option
+                value="premium"
+              >
+                Premium — 349 zł/mc (wielolokalizacyjne)
+              </option>
+              <option
+                value="professional"
+              >
+                Professional — 549 zł/mc (B2B regulowane)
+              </option>
+            </select>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-semibold text-dark mb-1.5"
+              for="pb-business"
+            >
+              Nazwa firmy
+               
+              <span
+                aria-label="wymagane"
+                class="text-rose-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              aria-invalid="false"
+              autocapitalize="words"
+              autocomplete="organization"
+              autocorrect="off"
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+              id="pb-business"
+              maxlength="200"
+              placeholder="np. Ślusarstwo Kowalski"
+              required=""
+              spellcheck="false"
+              type="text"
+              value=""
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-semibold text-dark mb-1.5"
+              for="pb-email"
+            >
+              Email
+               
+              <span
+                aria-label="wymagane"
+                class="text-rose-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              aria-invalid="false"
+              autocapitalize="off"
+              autocomplete="email"
+              autocorrect="off"
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+              id="pb-email"
+              inputmode="email"
+              placeholder="biuro@twojafirma.pl"
+              required=""
+              spellcheck="false"
+              type="email"
+              value=""
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-semibold text-dark mb-1.5"
+              for="pb-phone"
+            >
+              Telefon
+               
+              <span
+                aria-label="wymagane"
+                class="text-rose-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              aria-describedby="pb-phone-hint"
+              aria-invalid="false"
+              autocomplete="tel"
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+              id="pb-phone"
+              inputmode="tel"
+              placeholder="600 100 200"
+              required=""
+              type="tel"
+              value="+48 "
+            />
+            <p
+              class="text-xs text-gray-500 mt-1"
+              id="pb-phone-hint"
+            >
+              Wystarczy 9 cyfr polskiego numeru. Automatycznie dodamy +48.
+            </p>
+          </div>
+          <div>
+            <label
+              class="block text-sm font-semibold text-dark mb-1.5"
+              for="pb-nip"
+            >
+              NIP
+               
+              <span
+                aria-label="wymagane"
+                class="text-rose-500"
+              >
+                *
+              </span>
+            </label>
+            <input
+              aria-describedby="pb-nip-hint"
+              aria-invalid="false"
+              autocapitalize="off"
+              autocomplete="off"
+              autocorrect="off"
+              class="w-full px-4 py-3 rounded-xl border focus:ring-2 transition-colors text-dark font-mono border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20"
+              id="pb-nip"
+              inputmode="numeric"
+              maxlength="10"
+              pattern="[0-9]{10}"
+              placeholder="1234567890"
+              required=""
+              spellcheck="false"
+              type="text"
+              value=""
+            />
+            <p
+              class="text-xs text-gray-500 mt-1"
+              id="pb-nip-hint"
+            >
+              0
+              /10 cyfr · potrzebny do faktury VAT
+            </p>
+          </div>
+          <div
+            class="space-y-1 pt-2"
+          >
+            <label
+              class="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <input
+                class="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                required=""
+                type="checkbox"
+              />
+              <span>
+                Akceptuję
+                 
+                <a
+                  class="text-emerald-700 hover:underline"
+                  data-discover="true"
+                  href="/terms/"
+                  target="_blank"
+                >
+                  regulamin
+                </a>
+                 
+                i zgadzam się na przetwarzanie danych zgodnie z
+                 
+                <a
+                  class="text-emerald-700 hover:underline"
+                  data-discover="true"
+                  href="/privacy-policy/"
+                  target="_blank"
+                >
+                  polityką prywatności
+                </a>
+                .
+                 
+                <span
+                  aria-label="wymagane"
+                  class="text-rose-500"
+                >
+                  *
+                </span>
+              </span>
+            </label>
+            <label
+              class="flex items-start gap-3 cursor-pointer text-sm text-gray-700 py-2 px-1 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <input
+                class="mt-1 w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                type="checkbox"
+              />
+              <span>
+                Wyrażam zgodę na kontakt marketingowy (opcjonalnie).
+              </span>
+            </label>
+          </div>
+          <button
+            class="w-full bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold rounded-full px-8 py-4 shadow-lg hover:shadow-[0_8px_25px_-5px_rgba(4,120,87,0.5)] transition-all motion-safe:hover:-translate-y-0.5 motion-safe:focus-visible:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            type="submit"
+          >
+            Zapłać 
+            249 zł
+             kartą
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-arrow-right"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M5 12h14"
+              />
+              <path
+                d="m12 5 7 7-7 7"
+              />
+            </svg>
+          </button>
+          <div
+            class="pt-2 space-y-2"
+          >
+            <ul
+              class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-600"
+            >
+              <li
+                class="flex items-center gap-1.5"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="lucide lucide-shield-check text-emerald-600"
+                  fill="none"
+                  height="12"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  width="12"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                  />
+                  <path
+                    d="m9 12 2 2 4-4"
+                  />
+                </svg>
+                Anulujesz w panelu — 1 klikiem
+              </li>
+              <li
+                aria-hidden="true"
+                class="text-gray-300"
+              >
+                ·
+              </li>
+              <li>
+                Faktura VAT 1. dnia mc
+              </li>
+              <li
+                aria-hidden="true"
+                class="text-gray-300"
+              >
+                ·
+              </li>
+              <li>
+                Bez opłaty aktywacyjnej
+              </li>
+            </ul>
+            <p
+              class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xxs text-gray-400"
+            >
+              <span>
+                Płatność: Stripe · 256-bit SSL
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                ·
+              </span>
+              <span
+                class="font-semibold tracking-wide"
+              >
+                VISA
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                ·
+              </span>
+              <span
+                class="font-semibold tracking-wide"
+              >
+                Mastercard
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                ·
+              </span>
+              <span
+                class="font-semibold tracking-wide"
+              >
+                BLIK
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                ·
+              </span>
+              <span
+                class="font-semibold tracking-wide"
+              >
+                Apple Pay
+              </span>
+            </p>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  </div>
+</body>
+`;

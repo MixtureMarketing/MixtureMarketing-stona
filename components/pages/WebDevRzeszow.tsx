@@ -513,6 +513,13 @@ const WebDevRzeszow: React.FC = () => {
                 </p>
                 <div className="flex flex-col gap-2">
                   <Link
+                    to="/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/"
+                    className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
+                  >
+                    Ile kosztuje strona internetowa w Rzeszowie (cennik 2026){' '}
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                  <Link
                     to="/agencja-seo-rzeszow/"
                     className="inline-flex items-center gap-2 text-secondary font-semibold hover:underline"
                   >

@@ -2,12 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Cookie, Check, Settings, ChevronUp, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Button from '../common/Button';
-import { ConsentState, applyConsent } from '../../utils/analytics';
+import {
+  CONSENT_STORAGE_KEY as CONSENT_KEY,
+  ConsentState,
+  applyConsent,
+  checkStoredConsent,
+} from '../../utils/analytics';
 import CookiePreferences from './CookiePreferences';
 import CookieFloatingButton from './CookieFloatingButton';
-import { safeGetJSON, safeSetItem } from '../../utils/safeStorage';
-
-const CONSENT_KEY = 'cookie-consent-v2';
+import { safeGetItem, safeSetItem } from '../../utils/safeStorage';
 
 // Ten sam wzorzec co w App.tsx (UA Headless lub flaga ustawiana przez prerender.js).
 const isPrerenderingEnv = () =>
@@ -29,14 +32,17 @@ const CookieBanner: React.FC = () => {
     // a decyzję o otwarciu podejmuje dopiero przeglądarka użytkownika.
     if (isPrerenderingEnv()) return;
 
-    // safeGetJSON: zablokowany storage / uszkodzony wpis → traktujemy jak brak zgody.
-    const parsedConsent = safeGetJSON<ConsentState>(CONSENT_KEY);
-    if (!parsedConsent || typeof parsedConsent !== 'object') {
+    // Allowlista (fail-closed, MIX-1389): zablokowany storage, uszkodzony JSON, obiekt
+    // niepełny, z obcym polem albo z nie-boolean = brak zgody → baner, nic do Zaraz.
+    // applyConsent sam czeka na gotowość Consent API Zaraz (K1), więc wyścig z ładowaniem
+    // Zaraz nie gubi zgody powracającego gościa.
+    const stored = checkStoredConsent(safeGetItem(CONSENT_KEY));
+    if (!stored.ok) {
       setTimeout(() => setIsOpen(true), 0);
     } else {
       setTimeout(() => {
-        setPreferences(parsedConsent);
-        applyConsent(parsedConsent);
+        setPreferences(stored.consent);
+        applyConsent(stored.consent);
       }, 0);
     }
   }, []);

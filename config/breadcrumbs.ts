@@ -6,6 +6,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/web-development/landing-page': 'Landing Page',
   '/web-development/corporate': 'Strona Firmowa',
   '/web-development/custom-app': 'Aplikacje Dedykowane',
+  '/web-development/systemy-ai-aplikacje': 'Systemy AI i aplikacje',
   '/web-development/rzeszow': 'Rzeszów',
   '/marketing': 'Marketing Cyfrowy',
   '/marketing/google-ads': 'Google Ads',

@@ -1,9 +1,9 @@
 {
   // Typecheck Cloudflare Pages Functions (runtime Workers, nie DOM/Node).
   // Uruchamiany w CI: `npx tsc --noEmit -p functions/tsconfig.json`.
-  // Modul wycen (api/estimation, api/admin/estimation) ma osobny proces pracy —
-  // wylaczony z listy wejsciowej; pliki importowane z niego przez inne funkcje
-  // (np. _rateLimit.ts) i tak sa sprawdzane przez TS jako zaleznosci.
+  // MIX-1495: modul wycen publicznych (api/estimation) jest sprawdzany jak reszta funkcji;
+  // poza listą zostaje tylko api/admin/estimation (osobny proces pracy). Pliki importowane z
+  // niego przez inne funkcje (np. _rateLimit.ts) i tak sprawdza TS jako zależności.
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -18,5 +18,5 @@
     "resolveJsonModule": true
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/*.test.ts", "api/estimation/**", "api/admin/estimation/**"]
+  "exclude": ["**/*.test.ts", "api/admin/estimation/**"]
 }

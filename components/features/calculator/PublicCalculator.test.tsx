@@ -44,10 +44,13 @@ vi.mock('../../../services/calculatorService', () => ({
   submitPublicQuote: (...a: unknown[]) => submitPublicQuote(...a),
 }));
 
+// Ostatnie propsy widgetu Turnstile (MIX-1383 B1: kalkulator nadaje akcję `public_quote`).
+const widgetProps: Record<string, unknown>[] = [];
 vi.mock('../contact/TurnstileWidget', async () => {
   const R = await import('react');
   return {
-    default: R.forwardRef((_p: unknown, ref: React.Ref<unknown>) => {
+    default: R.forwardRef((p: Record<string, unknown>, ref: React.Ref<unknown>) => {
+      widgetProps.push(p);
       R.useImperativeHandle(ref, () => ({
         getToken: () => Promise.resolve('tok'),
         reset: () => {},
@@ -60,6 +63,8 @@ vi.mock('../contact/TurnstileWidget', async () => {
 
 import { MemoryRouter } from 'react-router-dom';
 import PublicCalculator from './PublicCalculator';
+import { PUBLIC_QUOTE_TURNSTILE_ACTION } from '../../../lib/estimation/turnstileAction';
+import { QUOTE_TURNSTILE } from '../../../functions/api/estimation/_quoteGate';
 
 const renderCalc = () =>
   render(
@@ -74,6 +79,19 @@ const goToLastStep = async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Dalej' }));
   expect(screen.getByText(/Krok 3 z 3/)).toBeInTheDocument();
 };
+
+describe('PublicCalculator — akcja Turnstile (MIX-1383 B1)', () => {
+  it('widget dostaje action public_quote, tę samą co serwer (QUOTE_TURNSTILE.action)', async () => {
+    widgetProps.length = 0;
+    renderCalc();
+    await screen.findByText('Jaki jest cel projektu?');
+    expect(widgetProps.length).toBeGreaterThan(0);
+    expect(widgetProps.every((p) => p.action === 'public_quote')).toBe(true);
+    expect(widgetProps[0]).toMatchObject({ defer: true });
+    expect(PUBLIC_QUOTE_TURNSTILE_ACTION).toBe('public_quote');
+    expect(QUOTE_TURNSTILE.action).toBe(PUBLIC_QUOTE_TURNSTILE_ACTION);
+  });
+});
 
 describe('PublicCalculator — błąd walidacji na innym kroku', () => {
   beforeEach(() => {

@@ -22,6 +22,7 @@ const Ecommerce = lazy(() => import('@/components/pages/Ecommerce'));
 const LandingPage = lazy(() => import('@/components/pages/LandingPage'));
 const CorporateWebsite = lazy(() => import('@/components/pages/CorporateWebsite'));
 const CustomWebApp = lazy(() => import('@/components/pages/CustomWebApp'));
+const AiSystemsApps = lazy(() => import('@/components/pages/AiSystemsApps'));
 const GoogleAds = lazy(() => import('@/components/pages/GoogleAds'));
 const MetaAds = lazy(() => import('@/components/pages/MetaAds'));
 const MarketingSeo = lazy(() => import('@/components/pages/MarketingSeo'));
@@ -103,6 +104,8 @@ export const appRoutes: RouteObject[] = [
   { path: '/web-development/landing-page', element: <LandingPage /> },
   { path: '/web-development/corporate', element: <CorporateWebsite /> },
   { path: '/web-development/custom-app', element: <CustomWebApp /> },
+  // MIX-1272 (plan SEO A18): UKRYTA do akceptacji Jakuba: noindex, tylko prerenderOnlyRoutes, bez menu.
+  { path: '/web-development/systemy-ai-aplikacje', element: <AiSystemsApps /> },
   // Spoke lokalny — Rzeszów. Targetuje frazy: "strony internetowe rzeszów" (590 vol)
   // + "projektowanie stron www rzeszów" (70 vol). Cluster pillar: /miasto/rzeszow/.
   { path: '/web-development/rzeszow', element: <WebDevRzeszow /> },
@@ -309,6 +312,7 @@ export const CMS_DOCUMENT: Record<string, CmsPick> = {
 /** Strony-listy (bez :slug) — fetcher wołany ze stałym kluczem CMS_LIST_KEY. */
 export const CMS_LIST: Record<string, CmsPick> = {
   '/branza': { id: 'industryList', pick: (cms) => cms.getIndustryList },
+  '/portfolio': { id: 'caseStudyList', pick: (cms) => cms.getCaseStudyList },
 };
 
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {

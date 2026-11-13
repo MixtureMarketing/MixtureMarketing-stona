@@ -6,6 +6,7 @@ import Hero from '@/components/sections/Hero';
 import StickyMobileBar from '@/components/common/StickyMobileBar';
 import { usePagePulse } from '@/hooks/useSectionProgress';
 import { SITE_CONFIG } from '@/config/site';
+import TestimonialsSlot from '@/components/sections/testimonials/TestimonialsSlot';
 import { lazyWithPreload } from '@/components/common/lazyWithPreload';
 
 // Sekcje pod hero — osobne chunki (lazy). Przy starcie z prerenderu preloadRoute()
@@ -82,6 +83,8 @@ const Home = () => {
             <LeadMagnet />
           </div>
           <KnowledgeBaseTeaser />
+          {/* MIX-1326: opinie klientów, za przełącznikiem VITE_MM_TESTIMONIALS (domyślnie brak w DOM). */}
+          <TestimonialsSlot />
           <FinalBand onOpenModal={() => _openModal('general')} />
         </Suspense>
       </div>

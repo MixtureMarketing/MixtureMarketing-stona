@@ -1,6 +1,7 @@
 import { client, urlFor, CmsUnavailableError } from './cms/client';
 import { articleService } from './cms/articleService';
 import { caseStudyService } from './cms/caseStudyService';
+import { testimonialService } from './cms/testimonialService';
 import { pseoService } from './cms/pseoService';
 import { configService } from './cms/configService';
 
@@ -12,6 +13,7 @@ export * from './cms/configService';
 export const cmsService = {
   ...articleService,
   ...caseStudyService,
+  ...testimonialService,
   ...pseoService,
   ...configService,
 };

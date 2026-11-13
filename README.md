@@ -70,6 +70,12 @@ npm run audit:health     # Custom health audit (a11y/seo/perf)
 - Native `<dialog>` defensive guard dla jsdom (showModal/close fallback)
 - CI: lint + typecheck (non-blocking baseline 41 ts errors) + unit tests + build + deploy
 
+## 📬 Leady → Linear
+
+Źródłem prawdy dla leadów jest D1 (`leads`). Zgłoszenia z formularza kontaktowego, audytu i kalkulatora zapisują się w D1, a agencja dostaje maila przez Resend (`NOTIFY_EMAIL`, `RESEND_API_KEY`). Zadanie w Linearze (zespół LEA) tworzy moduł `functions/api/_linear.ts` po udanym zapisie w D1 (w tle: formularz, audyt, kalkulator), a niewysłane zgłoszenia ponawia `POST /api/leady/ponow` (osobny sekret i prefiks podpisu).
+
+**Mixture CRM — wysyłka wyłączona.** Strona nie wysyła już leadów do `mixture-crm.pages.dev` (w kodzie od 2026-10-31; na produkcji od wdrożenia tej gałęzi). Zostaje tylko odczyt: `GET /api/crm/leady` (podpisany, od `updated_at`), którym CRM sam dociąga leady. Dawny moduł wysyłki leży w `functions/_archiwum/_crm.ts.txt` (test: `_crm.test.ts.txt`); rozszerzenie `.txt` sprawia, że Pages nie tworzy trasy, a `tsc` i `vitest` plików nie czytają. Zmienne `CRM_INGEST_URL` i `CRM_INGEST_SECRET` są już nieużywane; usunięcie ich z panelu Cloudflare robi Jakub po wdrożeniu na produkcję.
+
 ## 🚀 Deploy
 
 **Automatyczny** przez GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
@@ -102,6 +108,7 @@ mixturemarketing-stona/
 ├── config/                 # Site config, routes, breadcrumbs
 ├── services/               # CMS service, lead service
 ├── functions/              # Cloudflare Workers (api/contact, api/audit)
+│   └── _archiwum/          # wyłączone moduły (np. _crm.ts.txt — wysyłka do Mixture CRM)
 ├── public/                 # Static assets, _redirects, sitemap
 ├── scripts/                # Build scripts: convert-images, generate-sitemap, audit-health
 ├── studio-mixture-marketing/  # Sanity Studio (osobny projekt)

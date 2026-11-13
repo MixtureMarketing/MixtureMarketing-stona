@@ -7,7 +7,8 @@ export interface SanityArticle {
   _id: string;
   _updatedAt: string;
   title: string;
-  slug: { current: string };
+  /** Zapytania GROQ rzutują `"slug": slug.current`, więc to zwykły tekst (MIX-1386). */
+  slug: string;
   mainImage: SanityImage;
   publishedAt: string;
   excerpt: string;
@@ -55,7 +56,7 @@ export const articleService = {
         image: art.mainImage ? urlFor(art.mainImage).width(800).url() : '/assets/images/sygnet.png',
         date: art.publishedAt,
         readTime: art.readTime || '5 min',
-        slug: `/baza-wiedzy/${typeof art.slug === 'string' ? art.slug : art.slug.current}`,
+        slug: `/baza-wiedzy/${art.slug}`,
         tags: art.tags || [],
       }));
 

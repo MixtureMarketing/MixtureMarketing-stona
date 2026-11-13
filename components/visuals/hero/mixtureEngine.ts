@@ -13,15 +13,18 @@ import {
   type MixtureHandle,
   type MixtureOptions,
 } from './mixtureConfig';
+import { createFramePacer } from './framePacer';
 
 /**
  * Silnik sceny „Mixture" (canvas 2D, zero zależności): siatka kropek + barwne
  * prądy marki, które się w nią mieszają (konfiguracja w mixtureConfig; elipsa
  * strefy tekstu chroni kontrast H1). Reduced-motion: jedna statyczna klatka.
- * Auto-pauzy: poza viewportem, karta w tle, pełne zakrycie arkuszem (covered),
+ * Auto-pauzy: poza viewportem, karta w tle, przewijanie (wznowienie 150 ms po
+ * ostatnim scrollu), pełne zakrycie arkuszem (covered),
  * pauza użytkownika (setPaused, WCAG 2.2.2), bezczynność (IDLE_MS bez ruchu
- * wskaźnika/scrolla/dotyku/klawisza — pętla staje na stabilnej klatce i wraca przy
- * pierwszej interakcji); degradacja gęstości > ~24 ms. lowPower: limit ~30 fps.
+ * wskaźnika/dotyku/klawisza — pętla staje na stabilnej klatce i wraca przy
+ * pierwszej interakcji); degradacja gęstości > ~24 ms. Limit 60 fps (lowPower 30)
+ * na każdym odświeżaniu ekranu (framePacer).
  * Czas animacji to zegar wirtualny (suma klatek), więc po każdej pauzie scena
  * rusza dokładnie z miejsca, w którym stanęła — bez skoku.
  * Wejścia z MixtureField: setPointer (4. prąd), setFront (fala dziobowa),
@@ -58,14 +61,20 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   // EMA czasu klatki — jednorazowa degradacja gęstości na słabym sprzęcie.
   let emaDt = 16;
   let frames = 0;
-  let lastT = 0;
 
-  // Limit FPS (lowPower) — klatki rAF szybsze niż MIN_FRAME_MS są pomijane.
-  // Margines 4 ms, żeby jitter vsync 60 Hz nie spychał do 20 fps.
-  const MIN_FRAME_MS = opts.lowPower ? 1000 / 30 - 4 : 0;
+  // Limit FPS na każdym odświeżaniu ekranu (MIX-1470): 60 fps, lowPower 30 fps.
+  // Krok zegara = rzeczywisty czas między narysowanymi klatkami (framePacer),
+  // więc tempo sceny przy 120 Hz (Chrome, ProMotion) jest takie samo jak przy 60 Hz.
+  const pacer = createFramePacer(opts.lowPower ? 30 : 60);
   const DEGRADE_MS = opts.lowPower ? 48 : 24; // próg degradacji względem docelowego FPS
   // Zegar wirtualny (ms): rośnie tylko, gdy pętla rysuje (max 100 ms na klatkę).
   let clock = 0;
+
+  // Przewijanie: pętla stoi w trakcie scrolla i wraca SCROLL_IDLE_MS po ostatnim
+  // zdarzeniu scroll (MIX-1470) — klatki canvasu nie konkurują z klatkami scrolla.
+  const SCROLL_IDLE_MS = 150;
+  let scrolling = false;
+  let scrollTimer: ReturnType<typeof setTimeout> | undefined;
 
   // Bezczynność: po IDLE_MS bez interakcji pętla staje (na stabilnej klatce).
   const IDLE_MS = 6000;
@@ -448,18 +457,17 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   const frame = (tMs: number) => {
     if (!running) return;
     rafId = requestAnimationFrame(frame);
-    if (lastT > 0) {
-      const dt = tMs - lastT;
-      if (dt < MIN_FRAME_MS) return; // limit FPS: pomiń tę klatkę rAF
-      clock += Math.min(dt, 100);
-      emaDt = emaDt * 0.9 + dt * 0.1;
+    const step = pacer.tick(tMs);
+    if (step === null) return; // limit FPS: pomiń tę klatkę rAF
+    if (step > 0) {
+      clock += Math.min(step, 100);
+      emaDt = emaDt * 0.9 + step * 0.1;
       frames++;
       if (frames === 90 && emaDt > DEGRADE_MS && !degraded) {
         degraded = true;
         rebuild();
       }
     }
-    lastT = tMs;
     draw(clock);
     // Bezczynność → stop, ale tylko na stabilnej klatce: sygnet w pełni złożony
     // albo nieobecny, bez żywych fal kliknięć (żadnego zamrożenia w pół ruchu).
@@ -468,22 +476,17 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   };
 
   const start = () => {
-    if (running || paused || covered || opts.reducedMotion || !visible || document.hidden) return;
+    if (running || paused || covered || scrolling || opts.reducedMotion) return;
+    if (!visible || document.hidden) return;
     running = true;
-    lastT = 0;
+    pacer.reset();
     lastActivity = performance.now(); // każde wznowienie = pełne okno IDLE_MS
     rafId = requestAnimationFrame(frame);
   };
 
-  // Interakcja (ruch, scroll, dotyk, klawisz) przedłuża okno i budzi uśpioną pętlę.
-  const ACTIVITY_EVENTS = [
-    'pointermove',
-    'pointerdown',
-    'wheel',
-    'scroll',
-    'keydown',
-    'touchstart',
-  ];
+  // Interakcja (ruch, dotyk, klawisz) przedłuża okno i budzi uśpioną pętlę.
+  // Scroll ma własną obsługę (onScroll): pauza w trakcie, wznowienie po nim.
+  const ACTIVITY_EVENTS = ['pointermove', 'pointerdown', 'wheel', 'keydown', 'touchstart'];
   const onActivity = () => {
     lastActivity = performance.now();
     if (!running) start();
@@ -492,6 +495,16 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
   const stop = () => {
     running = false;
     cancelAnimationFrame(rafId);
+  };
+
+  const onScroll = () => {
+    scrolling = true;
+    stop();
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      scrolling = false;
+      onActivity(); // koniec przewijania = interakcja: scena rusza z miejsca, w którym stanęła
+    }, SCROLL_IDLE_MS);
   };
 
   const onVisibility = () => (document.hidden ? stop() : start());
@@ -522,6 +535,7 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
     start();
     document.addEventListener('visibilitychange', onVisibility);
     for (const ev of ACTIVITY_EVENTS) window.addEventListener(ev, onActivity, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   const io = new IntersectionObserver(([entry]) => {
@@ -575,6 +589,8 @@ export function startMixture(canvas: HTMLCanvasElement, opts: MixtureOptions): M
       ro.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       for (const ev of ACTIVITY_EVENTS) window.removeEventListener(ev, onActivity);
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(scrollTimer);
     },
   };
 }

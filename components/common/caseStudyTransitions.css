@@ -1,0 +1,49 @@
+/* MIX-1308 (A1 + A2): przejście karta realizacji → strona realizacji.
+   Wzór TRY DIVE: 0,3 s, krzywa cubic-bezier(0.32, 0.72, 0.18, 1); WSZYSTKIE reguły tylko
+   w @media (prefers-reduced-motion: no-preference) (test: tests/utils/viewTransitions.test.ts).
+   Nazwy istnieją w DOM tylko na czas przejścia (utils/viewTransitions.ts). */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(realizacja-zdjecie),
+  ::view-transition-old(realizacja-zdjecie),
+  ::view-transition-new(realizacja-zdjecie),
+  ::view-transition-group(realizacja-tytul),
+  ::view-transition-old(realizacja-tytul),
+  ::view-transition-new(realizacja-tytul) {
+    animation-duration: 0.3s;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0.18, 1);
+  }
+
+  ::view-transition-group(realizacja-zdjecie) {
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  ::view-transition-old(realizacja-zdjecie),
+  ::view-transition-new(realizacja-zdjecie) {
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Nagłówek, baner i przycisk zgód stoją: bez ruchu, nad lecącym zdjęciem. */
+  ::view-transition-group(vt-naglowek),
+  ::view-transition-group(vt-baner-zgod),
+  ::view-transition-group(vt-przycisk-zgod) {
+    animation: none;
+    z-index: 10;
+  }
+
+  ::view-transition-old(vt-naglowek),
+  ::view-transition-old(vt-baner-zgod),
+  ::view-transition-old(vt-przycisk-zgod) {
+    display: none;
+  }
+
+  ::view-transition-new(vt-naglowek),
+  ::view-transition-new(vt-baner-zgod),
+  ::view-transition-new(vt-przycisk-zgod) {
+    animation: none;
+  }
+}

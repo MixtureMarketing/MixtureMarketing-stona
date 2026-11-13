@@ -2,11 +2,12 @@ import { SanityTeamMember, SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import { fetchWithCache, CmsUnavailableError } from './client';
 
-export const caseStudyService = {
-  async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
-    try {
-      const filter = category ? `&& category == "${category}"` : '';
-      const query = `*[_type == "caseStudy" ${filter}] | order(date desc) {
+/** Limit oczekiwania na listę realizacji; po nim traktujemy pobranie jak błąd. */
+export const CASE_STUDY_LIST_TIMEOUT_MS = 10_000;
+
+const caseStudyListQuery = (category?: string) => {
+  const filter = category ? `&& category == "${category}"` : '';
+  return `*[_type == "caseStudy" ${filter}] | order(date desc) {
         _id,
         title,
         "slug": slug.current,
@@ -17,10 +18,42 @@ export const caseStudyService = {
         excerpt,
         mainImage
       }`;
-      return await fetchWithCache(query);
+};
+
+export const caseStudyService = {
+  async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
+    try {
+      return await fetchWithCache(caseStudyListQuery(category));
     } catch (error) {
       console.warn('Sanity fetch error (getCaseStudies):', error);
       return [];
+    }
+  },
+
+  /**
+   * Lista realizacji dla /portfolio/ (MIX-1467): w odróżnieniu od `getCaseStudies` błąd
+   * pobrania (sieć, 403, timeout, niepoprawny JSON) NIE jest pustą listą, tylko
+   * `CmsUnavailableError`. Pusta tablica oznacza wyłącznie udaną odpowiedź bez pozycji.
+   */
+  async getCaseStudyList(): Promise<SanityCaseStudy[]> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const rows = await Promise.race([
+        fetchWithCache<SanityCaseStudy[]>(caseStudyListQuery()),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error(`timeout ${CASE_STUDY_LIST_TIMEOUT_MS} ms`)),
+            CASE_STUDY_LIST_TIMEOUT_MS,
+          );
+        }),
+      ]);
+      if (!Array.isArray(rows)) throw new Error('odpowiedź nie jest listą');
+      return rows;
+    } catch (error) {
+      console.warn('Sanity fetch error (getCaseStudyList):', error);
+      throw new CmsUnavailableError('getCaseStudyList', error);
+    } finally {
+      if (timer) clearTimeout(timer);
     }
   },
 
@@ -115,13 +148,27 @@ export const caseStudyService = {
       caseStudyService.getCaseStudies(),
     ]);
     if (!current) return null;
-    const currentIndex = all.findIndex((p) => p.slug.current === slug);
-    let nextProject: SanityCaseStudy | null = null;
-    if (currentIndex !== -1 && currentIndex < all.length - 1) {
-      nextProject = all[currentIndex + 1];
-    } else if (all.length > 0 && all[0].slug.current !== slug) {
-      nextProject = all[0];
-    }
-    return { project: current, nextProject };
+    return { project: current, nextProject: pickNextCaseStudy(all, slug) };
   },
 };
+
+/** Slug nadaje się do linku tylko jako niepusty tekst (GROQ: `"slug": slug.current`). */
+const hasUsableSlug = (p: SanityCaseStudy | null | undefined): p is SanityCaseStudy =>
+  typeof p?.slug === 'string' && p.slug.trim() !== '';
+
+/**
+ * „Następny projekt” (MIX-1378): kolejny case study z listy, po ostatnim pierwszy (zawinięcie).
+ * Pozycje bez sluga są pomijane, więc link nigdy nie prowadzi do /portfolio/undefined/.
+ * `null`, gdy nie ma innego projektu niż bieżący.
+ */
+export function pickNextCaseStudy(
+  all: SanityCaseStudy[],
+  currentSlug: string,
+): SanityCaseStudy | null {
+  const candidates = all.filter(hasUsableSlug);
+  if (candidates.length === 0) return null;
+  const currentIndex = candidates.findIndex((p) => p.slug === currentSlug);
+  const next =
+    currentIndex === -1 ? candidates[0] : candidates[(currentIndex + 1) % candidates.length];
+  return next.slug === currentSlug ? null : next;
+}

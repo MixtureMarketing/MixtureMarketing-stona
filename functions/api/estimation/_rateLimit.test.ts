@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { checkRateLimit, type RateLimitStore } from './_rateLimit';
+import { checkRateLimit, RateLimitError, type RateLimitStore } from './_rateLimit';
 
 // Atrapa KV: Map + liczniki wywołań put.
 function mockKV(
@@ -54,5 +54,46 @@ describe('checkRateLimit — miękki limiter na KV (per IP)', () => {
     };
     const r = await checkRateLimit(kv, '1.2.3.4', 5, 3600);
     expect(r.allowed).toBe(true);
+  });
+});
+
+describe('checkRateLimit — tryb failClosed (MIX-1476, podgląd ceny)', () => {
+  const fc = { failClosed: true };
+
+  it('błąd get/put albo brak wiązania → RateLimitError (nigdy „przepuść”)', async () => {
+    const getFails: RateLimitStore = {
+      get: vi.fn().mockRejectedValue(new Error('KV down')),
+      put: vi.fn(),
+    };
+    await expect(checkRateLimit(getFails, 'j', 60, 900, 'pv:jti:', fc)).rejects.toBeInstanceOf(
+      RateLimitError,
+    );
+    const putFails: RateLimitStore = {
+      get: vi.fn().mockResolvedValue(null),
+      put: vi.fn().mockRejectedValue(new Error('429 write rate')),
+    };
+    await expect(checkRateLimit(putFails, 'j', 60, 900, 'pv:jti:', fc)).rejects.toBeInstanceOf(
+      RateLimitError,
+    );
+    await expect(
+      checkRateLimit(undefined as unknown as RateLimitStore, 'j', 60, 900, 'pv:jti:', fc),
+    ).rejects.toBeInstanceOf(RateLimitError);
+  });
+
+  it('nieczytelna zapisana wartość → RateLimitError; liczba → zwykłe liczenie', async () => {
+    for (const v of ['NaN', '-1', '1e3', ' 5', ''])
+      await expect(
+        checkRateLimit(mockKV({ 'pv:jti:j': v }), 'j', 60, 900, 'pv:jti:', fc),
+      ).rejects.toBeInstanceOf(RateLimitError);
+    const kv = mockKV({ 'pv:jti:j': '59' });
+    expect(await checkRateLimit(kv, 'j', 60, 900, 'pv:jti:', fc)).toEqual({
+      allowed: true,
+      count: 60,
+    });
+    expect(await checkRateLimit(kv, 'j', 60, 900, 'pv:jti:', fc)).toEqual({
+      allowed: false,
+      count: 60,
+    });
+    expect(kv.puts).toEqual([['pv:jti:j', '60']]);
   });
 });

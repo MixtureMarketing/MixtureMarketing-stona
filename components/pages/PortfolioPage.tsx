@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Filter, Layers, Layout, Zap, PenTool } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cmsService } from '../../services/cmsService';
@@ -8,25 +8,23 @@ import { SanityCaseStudy } from '../../types/sanity';
 import Container from '../common/Container';
 import BaseCard from '../common/BaseCard';
 import Button from '../common/Button';
+import TestimonialsSlot from '../sections/testimonials/TestimonialsSlot';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
+import { useCmsDocument, CMS_LIST_KEY, CMS_DOC } from '@/hooks/useCmsDocument';
 
 const PortfolioPage = () => {
-  const [projects, setProjects] = useState<SanityCaseStudy[]>([]);
+  // MIX-1467: lista z zrzutu w prerenderowanym HTML (bez żądania do Sanity), a przy jego
+  // braku z Sanity. Błąd pobrania to stan błędu z „Spróbuj ponownie”, nie „Brak projektów”.
+  const { status, data, retry } = useCmsDocument<SanityCaseStudy[]>(
+    CMS_LIST_KEY,
+    cmsService.getCaseStudyList,
+    CMS_DOC.caseStudyList,
+  );
+  const projects = React.useMemo(() => data ?? [], [data]);
+  const loading = status === 'loading';
   const [filter, setFilter] = useState<'all' | 'web' | 'marketing' | 'design'>('all');
-  const [loading, setLoading] = useState(true);
   // Globalny CSS-kill nie łapie animacji JS framera — respektujemy reduced-motion ręcznie
   const reducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      setLoading(true);
-      const data = await cmsService.getCaseStudies();
-      setProjects(data);
-      setLoading(false);
-    };
-
-    fetchProjects();
-  }, []);
 
   const filteredProjects = React.useMemo(() => {
     if (filter === 'all') {
@@ -127,10 +125,28 @@ const PortfolioPage = () => {
         </div>
 
         {/* --- PROJECTS GRID --- */}
-        <Container className="pb-32">
+        {/* pt-12: ten sam odstęp hero → lista co na /baza-wiedzy/ (MIX-1467). */}
+        <Container className="pt-12 pb-32">
           {/* Karty projektów to h3 — ukryty h2 domyka kontur nagłówków (h1 → h2 → h3). */}
           <h2 className="sr-only">Lista realizacji</h2>
-          {!loading && filteredProjects.length === 0 ? (
+          {status === 'error' ? (
+            // `data-cms-error` łapie bramka prerenderu: strona bez listy nie trafi do dist/.
+            <div
+              data-cms-error=""
+              role="alert"
+              className="text-center py-20 rounded-3xl border border-dashed border-gray-200 bg-white"
+            >
+              <h3 className="text-2xl font-bold text-dark mb-2">
+                Nie udało się wczytać realizacji
+              </h3>
+              <p className="text-gray-600 max-w-md mx-auto mb-8">
+                To chwilowy problem z połączeniem — projekty istnieją. Spróbuj ponownie za moment.
+              </p>
+              <Button variant="primary" onClick={retry}>
+                Spróbuj ponownie
+              </Button>
+            </div>
+          ) : !loading && filteredProjects.length === 0 ? (
             <BaseCard
               variant="solid"
               padding="lg"
@@ -153,6 +169,9 @@ const PortfolioPage = () => {
             <PortfolioGrid projects={filteredProjects} loading={loading} />
           )}
         </Container>
+
+        {/* MIX-1326: opinie klientów, za przełącznikiem VITE_MM_TESTIMONIALS (domyślnie brak w DOM). */}
+        <TestimonialsSlot />
       </div>
     </>
   );

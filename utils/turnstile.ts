@@ -12,6 +12,8 @@ export interface TurnstileRenderOptions {
   execution?: 'render' | 'execute';
   appearance?: 'always' | 'execute' | 'interaction-only';
   language?: string;
+  /** Akcja widgetu (siteverify ją zwraca); serwer wyceny wymaga `public_quote` (MIX-1383). */
+  action?: string;
 }
 
 export interface TurnstileAPI {
@@ -78,10 +80,13 @@ export function loadTurnstile(): Promise<TurnstileAPI> {
   return scriptPromise;
 }
 
-/** Renderuje NIEWIDOCZNY widget (invisible + execution 'execute') do kontenera; zwraca widgetId. */
+/** Renderuje NIEWIDOCZNY widget (invisible + execution 'execute') do kontenera; zwraca widgetId.
+ *  `opts.action` (np. `public_quote` kalkulatora) trafia do render tylko, gdy jest podane:
+ *  pozostałe widgety (kontakt, audyt) renderują się bez akcji, jak dotąd. */
 export async function renderInvisibleTurnstile(
   container: HTMLElement,
   sitekey: string,
+  opts: { action?: string } = {},
 ): Promise<string> {
   const ts = await loadTurnstile();
   return ts.render(container, {
@@ -90,6 +95,7 @@ export async function renderInvisibleTurnstile(
     execution: 'execute',
     appearance: 'interaction-only',
     language: 'pl',
+    ...(opts.action ? { action: opts.action } : {}),
   });
 }
 
@@ -116,15 +122,8 @@ export async function getTurnstileToken(widgetId: string, timeoutMs = 20000): Pr
   throw new Error('TURNSTILE_TIMEOUT');
 }
 
-/** Kontrakt imperatywny wrappera React (TurnstileWidget) — używany przez useContactForm i f4b. */
-export interface TurnstileWidgetHandle {
-  /** reset + execute + token (rzuca TURNSTILE_NOT_READY/TIMEOUT). Czeka na skrypt, jeśli
-   *  widget jeszcze się ładuje (tryb `defer`). */
-  getToken: () => Promise<string>;
-  reset: () => void;
-  /** Zacznij ładować skrypt i renderować widget (tryb `defer`, pierwsza interakcja). */
-  prepare?: () => void;
-}
+// Kontrakt imperatywny wrappera React w osobnym pliku (budżet linii utils, MIX-1383).
+export type { TurnstileWidgetHandle } from './turnstileHandle';
 
 /** Usuwa widget (cleanup przy unmount). Idempotentne — błędy ignorowane. */
 export function removeTurnstile(widgetId: string): void {

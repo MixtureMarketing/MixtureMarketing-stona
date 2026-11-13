@@ -99,4 +99,34 @@ describe('useCmsDocument', () => {
     expect(result.current.status).toBe('loading');
     await waitFor(() => expect(result.current.status).toBe('error'));
   });
+
+  it('MIX-1308: preload nowego sluga przy zamontowanym hooku = dane od razu, bez wiecznego loading', async () => {
+    const fetcher = vi.fn(async (slug: string) => ({ slug }));
+    const { result, rerender } = renderHook(
+      ({ slug }) => useCmsDocument(slug, fetcher, 'caseStudy'),
+      { initialProps: { slug: 'alfa' } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('ok'));
+    expect(fetcher).toHaveBeenCalledTimes(1);
+
+    await primeCmsDocument(fetcher, 'beta');
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    rerender({ slug: 'beta' });
+    // Pierwszy render nowego sluga ma dane z preloadu (bez szkieletu w przejściu).
+    expect(result.current.status).toBe('ok');
+    expect(result.current.data).toEqual({ slug: 'beta' });
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 0));
+    });
+    expect(result.current.status).toBe('ok');
+    expect(result.current.data).toEqual({ slug: 'beta' });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+
+    // Jednorazowe: powrót na beta po zmianie sluga pobiera normalnie.
+    rerender({ slug: 'alfa' });
+    await waitFor(() => expect(result.current.status).toBe('ok'));
+    rerender({ slug: 'beta' });
+    await waitFor(() => expect(result.current.data).toEqual({ slug: 'beta' }));
+    expect(fetcher).toHaveBeenCalledTimes(4);
+  });
 });

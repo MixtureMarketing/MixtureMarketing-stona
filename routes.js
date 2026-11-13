@@ -98,4 +98,7 @@ export const prerenderOnlyRoutes = [
   // Strona po platnosci Stripe (success URL z PreonboardModal). Bez prerenderu CF Pages
   // serwowal 404.html z kodem 404 i migal "Nie znaleziono" przed podmiana przez React.
   '/abonament/dziekujemy/',
+  // MIX-1272 (plan SEO A18): strona uslugi "systemy AI i aplikacje" ukryta do akceptacji Jakuba
+  // (noindex, bez sitemapy i menu). Publikacja: przeniesc do `routes`, zdjac noindex w komponencie.
+  '/web-development/systemy-ai-aplikacje/',
 ];

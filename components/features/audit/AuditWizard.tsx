@@ -9,6 +9,7 @@ import TurnstileWidget from '../contact/TurnstileWidget';
 import type { TurnstileWidgetHandle } from '../../../utils/turnstile';
 import { SITE_CONFIG } from '../../../config/site';
 import { reportError } from '../../../utils/errorReporter';
+import { trackEvent } from '../../../utils/analytics';
 import AuditPdfNotice from './AuditPdfNotice';
 import {
   readDeepLinkUrl,
@@ -119,6 +120,12 @@ const AuditWizard: React.FC = () => {
     e.preventDefault();
     if (!email) return;
     if (result) {
+      // GA4 key event (MIX-1300): zgłoszenie audytu = wysłanie bramki e-mail z wynikiem.
+      // Bez e-maila i adresu strony; ponowienie wysyłki PDF nie liczy się drugi raz.
+      trackEvent('audit_request', {
+        source: window.location.pathname,
+        score: result.client.total_score,
+      });
       setPdfDelivery({ state: 'sending' });
       void sendReport(result, email, false);
     }

@@ -48,7 +48,14 @@ export async function gateCaptcha(
   return ok ? { ok: true } : deny(name, 403, 'captcha', 'Weryfikacja captcha nieudana');
 }
 
-/** Licznik ścisły: rzuca przy błędzie KV (wołający odmawia). */
+// Wartość licznika, którą sami zapisujemy: liczba dziesiętna bez znaku i zer wiodących.
+const COUNTER_VALUE = /^(?:0|[1-9][0-9]{0,14})$/;
+
+/**
+ * Licznik ścisły: rzuca przy błędzie KV (wołający odmawia). Brak klucza (null) = 0; każda
+ * inna wartość spoza allowlisty COUNTER_VALUE („abc”, „-3”, „5abc”, „”, „1e3”) = uszkodzony
+ * licznik (MIX-1395: parseInt przepuszczał „5abc” jako 5).
+ */
 export async function strictBump(
   kv: GateStore,
   key: string,
@@ -56,8 +63,8 @@ export async function strictBump(
   ttl: number,
 ): Promise<boolean> {
   const raw = await kv.get(key);
-  const count = raw ? parseInt(raw, 10) : 0;
-  if (!Number.isFinite(count) || count < 0) throw new Error('uszkodzony licznik');
+  if (raw !== null && !COUNTER_VALUE.test(raw)) throw new Error('uszkodzony licznik');
+  const count = raw === null ? 0 : Number(raw);
   if (count >= limit) return false;
   await kv.put(key, String(count + 1), { expirationTtl: ttl });
   return true;

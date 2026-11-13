@@ -1,10 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import http from 'node:http';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
-import { spawn } from 'node:child_process';
 import { routes } from '../routes.js';
+import { startPreviewOrExit } from './lib/preview-server.mjs';
 
 // Użycie: `npm run audit:a11y` (wszystkie statyczne trasy z routes.js)
 // albo `node scripts/audit-a11y.js /contact/ /o-nas/` (wybrane trasy).
@@ -13,32 +12,8 @@ import { routes } from '../routes.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPORT_PATH = path.resolve(__dirname, '../a11y-report.json');
 const PORT = 4173; // Preview server port
-const BASE_URL = `http://localhost:${PORT}`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-// Czy ktoś już słucha na porcie (dowolna odpowiedź HTTP = tak).
-const probe = (port) =>
-  new Promise((resolve) => {
-    const req = http.get(`http://localhost:${port}`, (res) => {
-      res.resume();
-      resolve(true);
-    });
-    req.on('error', () => resolve(false));
-    req.setTimeout(2000, () => {
-      req.destroy();
-      resolve(false);
-    });
-  });
-
-async function waitForServer(port, timeout = 60000) {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    if (await probe(port)) return;
-    await sleep(500);
-  }
-  throw new Error(`Preview na porcie ${port} nie wstał w ${timeout}ms`);
-}
 
 /**
  * Przewija stronę KROKAMI do samego dołu i czeka, aż wszystko się dociągnie.
@@ -80,30 +55,12 @@ async function runAudit() {
   const auditRoutes = selected.length > 0 ? selected : routes;
 
   // Pułapka z CLAUDE.md: zombie `vite preview` na 4173 serwowałby stary dist/,
-  // a audyt mierzyłby nie tę aplikację. Zajęty port = przerwij, zamiast mierzyć cudzy serwer.
-  if (await probe(PORT)) {
-    console.error(
-      `❌ Port ${PORT} jest już zajęty (pozostałość po buildzie/prerenderze?). Zabij proces i uruchom ponownie.`,
-    );
-    process.exit(1);
-  }
-
-  // 1. Start the preview server (własna grupa procesów — da się ją potem zabić w całości;
-  // samo server.kill() przy shell:true zabijało tylko powłokę, a vite zostawał na porcie).
+  // a audyt mierzyłby nie tę aplikację. MIX-1443: wspólny pomocnik — zajęty port (sierota
+  // po buildzie/prerenderze, cudzy serwer) albo serwer, który nie jest NASZ = kod 1 z linią
+  // powodu, bez audytu; serwer w osobnej grupie procesów, zabijany w całości na każdym wyjściu.
   console.log('📦 Starting preview server...');
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString(), '--strictPort'], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true,
-  });
-  const stopServer = () => {
-    if (!server.pid) return;
-    try {
-      process.kill(-server.pid, 'SIGTERM');
-    } catch {
-      server.kill();
-    }
-  };
+  const server = await startPreviewOrExit({ port: PORT });
+  const BASE_URL = server.url;
 
   let browser = null;
   const fullReport = {};
@@ -111,8 +68,6 @@ async function runAudit() {
   let exitCode = 0;
 
   try {
-    await waitForServer(PORT);
-
     browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -189,7 +144,10 @@ async function runAudit() {
   } finally {
     console.log('🛑 Closing browser and server...');
     if (browser) await browser.close().catch(() => {});
-    stopServer();
+    await server.stop().catch((e) => {
+      console.error(`❌ ${e.message}`);
+      exitCode = 1;
+    });
     setTimeout(() => process.exit(exitCode), 500);
   }
 }

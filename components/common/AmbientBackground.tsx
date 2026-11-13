@@ -14,6 +14,7 @@ const AmbientBackground: React.FC = () => {
     // -inset-y-6 nadmiaruje warstwę, żeby dryf nie odsłaniał krawędzi.
     <div
       className="absolute -inset-y-6 inset-x-0 overflow-hidden pointer-events-none z-0"
+      data-page-pulse
       style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -24px), 0)' }}
     >
       {/* Architectural Grid Pattern - Simplified SVG */}

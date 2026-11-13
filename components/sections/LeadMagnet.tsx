@@ -34,6 +34,7 @@ const LeadMagnet: React.FC = () => {
       />
       <div
         className="bg-tech-grid absolute inset-0 opacity-10"
+        data-page-pulse
         style={{ transform: 'translate3d(0, calc(var(--page-p, 0) * -14px), 0)' }}
       ></div>
 

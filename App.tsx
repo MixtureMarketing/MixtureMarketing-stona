@@ -9,6 +9,7 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import Breadcrumbs from '@/components/common/Breadcrumbs';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import CursorGlow from '@/components/common/CursorGlow';
+import { CaseStudyTransitionsGate } from '@/components/common/CaseStudyTransitions';
 import { leadService } from '@/services/leadService';
 import { installContactLinkTracking } from '@/utils/analytics';
 import { AuthProvider } from '@/context/AuthContext';
@@ -83,7 +84,7 @@ function App() {
     typeof window !== 'undefined' &&
     (window.navigator.userAgent.includes('Headless') || window.isPrerendering);
 
-  // Global tracking dla klikniec tel:/mailto: linkow -> GA4 (phone_click, email_click).
+  // Global tracking dla klikniec tel:/mailto: linkow -> GA4 (click_phone, click_email, P4, MIX-1457).
   // Single-time install na poziomie App, event delegation na document.
   useEffect(() => installContactLinkTracking(), []);
 
@@ -147,6 +148,8 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <CursorGlow />
             <ScrollToTop />
+            {/* MIX-1308: przejście karta → realizacja, za przełącznikiem (domyślnie wyłączone). */}
+            <CaseStudyTransitionsGate disabled={isPrerendering} />
 
             {/* Skip Link for WCAG Accessibility */}
             <a
