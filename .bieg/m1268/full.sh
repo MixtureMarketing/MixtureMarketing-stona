@@ -8,8 +8,7 @@ export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 CZERWONE=""
 step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local r=$?; echo "$n rc=$r"; [ $r -eq 0 ] || CZERWONE="$CZERWONE $n"; }
 echo "git HEAD $(git rev-parse HEAD 2>/dev/null || echo brak)"
-echo "legacy-peer-deps=true" > .npmrc
-step npm-ci npm ci --no-audit --no-fund
+step npm-ci npm ci --no-audit --no-fund --legacy-peer-deps
 mapfile -t F < .bieg/m1268/pliki.txt
 step prettier npx prettier --check "${F[@]}"
 tail -n 5 "$OUT/prettier.log"
@@ -25,9 +24,8 @@ VITE_MM_POWIAZANE=1 step build npm run build
 tail -n 8 "$OUT/build.log" | cut -c1-200
 step policz node .bieg/m1268/policz-linki.mjs dist
 cat "$OUT/policz.log"
-git checkout -- .npmrc 2>/dev/null
 echo "--- mutanty"
 bash .bieg/m1268/mut.sh
-git checkout -- .npmrc 2>/dev/null
+git checkout -- public/sitemap.xml 2>/dev/null
 echo "PELNA KONTROLA m1268: czerwone=[${CZERWONE# }]"
 [ -z "$CZERWONE" ]

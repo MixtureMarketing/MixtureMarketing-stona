@@ -46,4 +46,12 @@ console.log(
   `RAZEM strony z blokiem=${suma.s} linki=${suma.l} doSiebie=${doSiebie} bezPliku=${bezPliku} niespojne=${pustaSekcja}`,
 );
 for (const p of przyklady) console.log(`PRZYKLAD ${p}`);
-process.exitCode = doSiebie || bezPliku || pustaSekcja ? 1 : 0;
+// Kryterium MIX-1268: blok na >= 3 stronach KAŻDEGO z 3 rodzajów (brak katalogu = 0 stron).
+const MIN_STRON = 3;
+const malo = Object.values(RODZAJE).filter(
+  (t) => (wiersze.find((w) => w.typ === t)?.zBlokiem ?? 0) < MIN_STRON,
+);
+console.log(
+  `PROG >= ${MIN_STRON} stron z blokiem na rodzaj: ${malo.length ? `NIE (${malo.join(', ')})` : 'OK'}`,
+);
+process.exitCode = doSiebie || bezPliku || pustaSekcja || malo.length ? 1 : 0;

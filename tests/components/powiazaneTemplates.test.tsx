@@ -164,7 +164,7 @@ const renderShell = (slug: string) =>
       <MemoryRouter initialEntries={['/baza-wiedzy/x/']}>
         <NotificationProvider>
           <ArticleShell
-            id="cdn-globalna-wydajnosc"
+            id="cdn-inny-identyfikator"
             title="Artykuł statyczny"
             description="Opis"
             category="tech"

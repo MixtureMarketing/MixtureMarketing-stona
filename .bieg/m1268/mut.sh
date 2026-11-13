@@ -4,8 +4,7 @@
 set -u
 OUT=.bieg/r/m1268
 mkdir -p "$OUT"
-echo "legacy-peer-deps=true" > .npmrc
-[ -d node_modules ] || { npm ci --no-audit --no-fund > "$OUT/mut-ci.log" 2>&1; echo "npm-ci rc=$?"; }
+[ -d node_modules ] || { npm ci --no-audit --no-fund --legacy-peer-deps > "$OUT/mut-ci.log" 2>&1; echo "npm-ci rc=$?"; }
 T="tests/utils/related.test.ts tests/components/Powiazane.test.tsx tests/components/powiazaneTemplates.test.tsx tests/hooks/cmsSnapshotShape.test.tsx"
 run() { # id plik opis sed-expr
   local id=$1 f=$2 desc=$3 expr=$4
@@ -36,4 +35,9 @@ run M11 $F "przełącznik: każda niepusta wartość" "s/import.meta.env.VITE_MM
 V=services/cms/relatedService.ts
 run M12 $V "błąd CMS = pusta lista (do zrzutu)" 's/throw new CmsUnavailableError(`getRelatedFor: ${key}`, error);/return [];/'
 run M13 $V "makiety nie odfiltrowane" 's/if (type === .caseStudy. \&\& !hasRealScreenshot(row.slug)) return null;//'
-git checkout -- .npmrc 2>/dev/null
+run M14 $R "remis rodzajów bez porządku RELATED_TYPES (X2)" 's/        RELATED_TYPES.indexOf(a.item._type) - RELATED_TYPES.indexOf(b.item._type),/        0,/'
+A=components/articles/ArticleShell.tsx
+run M15 $A "ArticleShell: nowy blok nigdy (przełącznik pominięty)" 's/{isPowiazaneEnabled() \&\& (/{false \&\& (/'
+run M16 $A "ArticleShell: stary blok także z przełącznikiem" 's/{!isPowiazaneEnabled() \&\& (/{true \&\& (/'
+run M17 $A "ArticleShell: slug z id zamiast z trasy" 's/slug={articlePublicSlug(canonicalPath)}/slug={id}/'
+run M18 $A "ArticleShell: blok w prozie artykułu" 's#^          </article>$#          <Powiazane type="article" slug={articlePublicSlug(canonicalPath)} /></article>#'

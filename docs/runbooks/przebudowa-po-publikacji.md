@@ -12,7 +12,7 @@ Webhook woła GitHub API z `"ref": "dev"`. Gdy gałęzi `dev` nie ma w repozytor
 
 ## Przełączniki funkcji w Preview (zasada MIX-1411)
 
-Build dla `dev` ustawia WSZYSTKIE przełączniki `VITE_MM_*` na `1`: `VITE_MM_COOKIE_BANNER_STATIC`, `VITE_MM_LIVE_PRICE_BAR`, `VITE_MM_MOBILE_MENU_B`, `VITE_MM_TESTIMONIALS`, `VITE_MM_VIEW_TRANSITIONS`. Na produkcji i w pull requestach włączone jest tylko `VITE_MM_MOBILE_MENU_B` (decyzja MIX-1465); resztę włącza dopiero `TAK <SHA>`. Lista pochodzi z kodu: test `tests/scripts/ciWorkflow.test.ts` czyta wszystkie `VITE_MM_*` z kodu aplikacji i pada, gdy nowy przełącznik nie trafi do kroku budowy. `VITE_MM_HUB_URL` i `VITE_MM_PREONBOARD_KEY` to wartości konfiguracji, nie przełączniki. Poza zakresem: `VITE_RODO_KLAUZULA` (inny przedrostek, treść prawna do osobnej decyzji Jakuba).
+Build dla `dev` ustawia WSZYSTKIE przełączniki `VITE_MM_*` na `1`: `VITE_MM_AI_SECTION`, `VITE_MM_COOKIE_BANNER_STATIC`, `VITE_MM_LIVE_PRICE_BAR`, `VITE_MM_MOBILE_MENU_B`, `VITE_MM_POWIAZANE`, `VITE_MM_RZESZOW_SEKCJE`, `VITE_MM_TESTIMONIALS`, `VITE_MM_VIEW_TRANSITIONS`. Na produkcji i w pull requestach włączone jest tylko `VITE_MM_MOBILE_MENU_B` (decyzja MIX-1465); resztę włącza dopiero `TAK <SHA>`. Lista pochodzi z kodu: test `tests/scripts/ciWorkflow.test.ts` czyta wszystkie `VITE_MM_*` z kodu aplikacji i pada, gdy nowy przełącznik nie trafi do kroku budowy. `VITE_MM_HUB_URL` i `VITE_MM_PREONBOARD_KEY` to wartości konfiguracji, nie przełączniki. Poza zakresem: `VITE_RODO_KLAUZULA` (inny przedrostek, treść prawna do osobnej decyzji Jakuba).
 
 ## Co robi Jakub ręcznie (kolejność)
 
