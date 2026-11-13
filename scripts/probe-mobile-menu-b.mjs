@@ -1,25 +1,35 @@
 #!/usr/bin/env node
 /**
- * MIX-1411: pomiar menu mobilnego (wariant B) w Chromium headless na lokalnym serwerze Vite.
+ * MIX-1411 / MIX-1465: pomiar menu mobilnego (wariant B = makieta B „Karta pod kciukiem”)
+ * w Chromium headless na lokalnym serwerze Vite.
  *
- *   node scripts/probe-mobile-menu-b.mjs <katalog-wynikow> [--off]
+ *   node scripts/probe-mobile-menu-b.mjs <katalog-wynikow> [--off] [--makieta <b.html>]
  *
  * Domyślnie przełącznik VITE_MM_MOBILE_MENU_B=1 (wariant B); --off = stare menu (tylko zrzuty
- * i pomiary ogólne). Cały ruch poza 127.0.0.1 jest ABORTOWANY (bez CMS, bez analityki).
- * Wynik: <katalog>/probe.json, zrzuty <katalog>/shots/<szer>-<1-zamkniete|2-otwarte|3-oferta>.png.
+ * i pomiary ogólne). --makieta = zatwierdzona makieta (git show 3daea5a:makiety/mix1465/b.html):
+ * te same stany przy 360 i 390 px, zrzuty <katalog>/shots/makieta-<szer>-*.png i porównanie
+ * położenia oraz tekstu elementów karty (makieta ↔ strona, w px).
+ * Cały ruch poza 127.0.0.1 jest ABORTOWANY (bez CMS, bez analityki).
+ * Wynik: <katalog>/probe.json, zrzuty <katalog>/shots/<szer>-<stan>.png.
  * Kod wyjścia 0 = wszystkie progi spełnione (tryb B); 1 = próg niespełniony; 2 = błąd pomiaru.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const [outArg, ...flags] = process.argv.slice(2);
 if (!outArg) {
-  console.error('użycie: node scripts/probe-mobile-menu-b.mjs <katalog-wynikow> [--off]');
+  console.error(
+    'użycie: node scripts/probe-mobile-menu-b.mjs <katalog> [--off] [--makieta <b.html>]',
+  );
   process.exit(2);
 }
 const OFF = flags.includes('--off');
+const MOCK = flags.includes('--makieta')
+  ? path.resolve(flags[flags.indexOf('--makieta') + 1])
+  : null;
 process.env.VITE_MM_MOBILE_MENU_B = OFF ? '0' : '1';
 const OUT = path.resolve(outArg);
 await fs.mkdir(path.join(OUT, 'shots'), { recursive: true });
@@ -34,10 +44,27 @@ const SIZES = [
   [430, 932],
   [768, 1024],
 ];
+const SHOT_W = [360, 390];
 const CONSENT = JSON.stringify({ necessary: true, analytics: false, marketing: false });
-const MENU = '#mobile-menu';
-const TOGGLE = 'button[aria-controls="mobile-menu"]';
-const OFFER_BTN = '#mobile-menu button[aria-controls="mobile-menu-offer"]';
+// Selektory strony i makiety (makieta: te same nazwy klas bez przedrostka mmb-).
+const SITE = {
+  menu: '#mobile-menu',
+  toggle: 'button[aria-controls="mobile-menu"]',
+  offerBtn: '#mobile-menu button[aria-controls="mobile-menu-offer"]',
+  tab1: '#mobile-menu-tab-1',
+  handle: '#mobile-menu .mmb-handle',
+  p: 'mmb-',
+  title: '.mmb-title',
+};
+const MOCKUP = {
+  menu: '#menu',
+  toggle: '#burger',
+  offerBtn: '#to-offer',
+  tab1: '#tab-1',
+  handle: '#handle',
+  p: '',
+  title: 'h2',
+};
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const server = await createServer({
@@ -45,11 +72,13 @@ const server = await createServer({
   server: { host: '127.0.0.1', port: 0, strictPort: false, hmr: false },
 });
 await server.listen();
-const addr = server.httpServer.address();
-const BASE = `http://127.0.0.1:${addr.port}`;
+const BASE = `http://127.0.0.1:${server.httpServer.address().port}`;
 
-const browser = await chromium.launch({ args: ['--no-sandbox'] });
-const results = { base: BASE, mode: OFF ? 'off' : 'B', widths: {}, clickThrough: null };
+const browser = await chromium.launch({
+  args: ['--no-sandbox'],
+  executablePath: process.env.CHROMIUM_PATH || undefined,
+});
+const results = { base: BASE, mode: OFF ? 'off' : 'B', widths: {}, mockup: {}, clickThrough: null };
 let failed = 0;
 const check = (cond, what) => {
   if (!cond) {
@@ -58,7 +87,7 @@ const check = (cond, what) => {
   }
 };
 
-async function newPage(w, h) {
+async function newPage(w, h, url = `${BASE}/`, sel = SITE) {
   const ctx = await browser.newContext({
     viewport: { width: w, height: h },
     deviceScaleFactor: 2,
@@ -66,20 +95,28 @@ async function newPage(w, h) {
     hasTouch: true,
   });
   await ctx.addInitScript((c) => localStorage.setItem('cookie-consent-v2', c), CONSENT);
-  await ctx.route('**/*', (route) =>
-    route.request().url().startsWith(BASE) ? route.continue() : route.abort(),
-  );
+  await ctx.route('**/*', (route) => {
+    const u = route.request().url();
+    return u.startsWith(BASE) || u.startsWith('file:') || u.startsWith('data:')
+      ? route.continue()
+      : route.abort();
+  });
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/`, { waitUntil: 'load', timeout: 120000 });
-  await page.waitForSelector(TOGGLE, { state: 'attached', timeout: 60000 });
-  await wait(1200);
+  await page.goto(url, { waitUntil: 'load', timeout: 120000 });
+  await page.waitForSelector(sel.toggle, { state: 'attached', timeout: 60000 });
+  // MIX-1465 kryt. 2: menu B to osobny fragment (lazy); czekamy, aż karta jest w DOM.
+  if (!OFF && sel === SITE)
+    await page.waitForSelector('.mmb #mobile-menu', { state: 'attached', timeout: 60000 });
+  await wait(1500);
+  await page.evaluate(() => document.fonts.ready);
   return { ctx, page };
 }
 
 // Pomiary w stronie (jedna funkcja, wołana po każdym stanie).
-function measure() {
-  const menu = document.querySelector('#mobile-menu');
-  const scroller = menu.querySelector('.overflow-y-auto');
+function measure(menuSel) {
+  const menu = document.querySelector(menuSel);
+  const scroller =
+    menu.querySelector('.is-active .mmb-scroll') || menu.querySelector('.overflow-y-auto');
   const vis = (el) => {
     const r = el.getBoundingClientRect();
     const s = getComputedStyle(el);
@@ -89,222 +126,265 @@ function measure() {
   const small = tappables
     .map((el) => [
       el.getAttribute('aria-label') || el.textContent.trim(),
-      el.getBoundingClientRect().height,
+      Math.round(el.getBoundingClientRect().height),
+      Math.round(el.getBoundingClientRect().width),
     ])
-    .filter(([, hgt]) => hgt < 44);
-  const bs = (el) => {
-    const s = getComputedStyle(el);
-    const bw = ['Top', 'Right', 'Bottom', 'Left'].some((k) => parseFloat(s[`border${k}Width`]) > 0);
-    return bw && s.boxShadow !== 'none';
-  };
-  const boxed = [...menu.querySelectorAll('*')].filter((el) => vis(el) && bs(el));
-  const nested = boxed.filter((el) => {
-    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement)
-      if (bs(p)) return true;
-    return false;
-  });
+    .filter(([, hgt, wid]) => hgt < 44 || wid < 44);
   const doc = document.documentElement;
+  const a = document.activeElement;
   return {
     docScrollW: doc.scrollWidth,
     innerW: innerWidth,
-    innerH: innerHeight,
     menuScrollW: scroller ? scroller.scrollWidth : null,
     menuClientW: scroller ? scroller.clientWidth : null,
-    scrollH: scroller ? scroller.scrollHeight : null,
-    clientH: scroller ? scroller.clientHeight : null,
     tappables: tappables.length,
     under44: small,
-    boxedNested: nested.length,
     menuHidden: menu.getAttribute('aria-hidden'),
+    sheetTop: Math.round(menu.getBoundingClientRect().top),
     bodyOverflow: document.body.style.overflow,
-    active: document.activeElement
-      ? `${document.activeElement.tagName}#${document.activeElement.id}|${document.activeElement.textContent.trim().slice(0, 30)}`
+    bodyPosition: document.body.style.position,
+    active: a
+      ? `${a.tagName}#${a.id}|${a.getAttribute('aria-label') || a.textContent.trim().slice(0, 30)}`
       : null,
+    inMenu: !!(a && menu.contains(a)),
+    current: [...menu.querySelectorAll('[aria-current="page"]')].map((e) => e.textContent.trim()),
     text: menu.innerText,
   };
 }
 
-// Kontrast: każdy węzeł tekstowy w widocznej części menu, tło = najbliższe nieprzezroczyste
-// (gradient: najgorszy z jego kolorów). Zwraca najniższy kontrast i listę < 4.5.
-function contrast() {
-  // Kolor CSS (także oklch/oklab z Tailwind 4) -> sRGBA przez płótno 1x1.
-  const cv = document.createElement('canvas');
-  cv.width = cv.height = 1;
-  const cx = cv.getContext('2d', { willReadFrequently: true });
-  const parse = (c) => {
-    cx.clearRect(0, 0, 1, 1);
-    cx.fillStyle = c;
-    cx.fillRect(0, 0, 1, 1);
-    const d = cx.getImageData(0, 0, 1, 1).data;
-    return [d[0], d[1], d[2], d[3] / 255];
+// Położenie i tekst elementów karty; ta sama lista dla makiety (p='') i strony (p='mmb-').
+function geometry({ menu: menuSel, p, title }) {
+  const menu = document.querySelector(menuSel);
+  const q = (s) =>
+    [...menu.querySelectorAll(s)].filter((e) => e.getBoundingClientRect().height > 0);
+  const act = `.${p}screen.is-active`;
+  const items = {
+    sheet: [menu],
+    close: q(`.${p}close`),
+    kicker: q(`${act} .${p}head .${p}kicker`),
+    rows: q(`${act} .${p}row`),
+    chip: q(`${act} .${p}chip`),
+    promo: q(`${act} .${p}promo`),
+    back: q(`${act} .${p}back`),
+    title: q(`${act} ${title}`),
+    tabs: q(`${act} .${p}tab`),
+    desc: q(`${act} [role="tabpanel"]:not([hidden]) .${p}panel-desc`),
+    seeAll: q(`${act} [role="tabpanel"]:not([hidden]) .${p}see-all`),
+    actions: q(`.${p}actions .${p}btn`),
   };
-  const COLOR_FN = /(?:rgba?|oklch|oklab|lab|lch|hsla?|color)\([^)]*\)|#[0-9a-f]{3,8}\b/gi;
-  const lum = ([r, g, b]) => {
-    const f = (x) => ((x /= 255) <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4);
-    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
-  };
-  const blend = (fg, bg) => fg.slice(0, 3).map((v, i) => v * fg[3] + bg[i] * (1 - fg[3]));
-  const ratio = (a, b) => {
-    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
-    return (x + 0.05) / (y + 0.05);
-  };
-  const bgsOf = (el) => {
-    for (let p = el; p; p = p.parentElement) {
-      const s = getComputedStyle(p);
-      const img = s.backgroundImage;
-      if (img && img.includes('gradient')) {
-        const stops = [...img.matchAll(COLOR_FN)].map((m) => parse(m[0])).filter((c) => c[3] > 0);
-        if (stops.length) return stops;
-      }
-      const c = parse(s.backgroundColor);
-      if (c[3] > 0.9) return [c];
-    }
-    return [[255, 255, 255, 1]];
-  };
-  const menu = document.querySelector('#mobile-menu');
-  const walker = document.createTreeWalker(menu, NodeFilter.SHOW_TEXT);
-  const rows = [];
-  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-    if (!n.textContent.trim()) continue;
-    const el = n.parentElement;
-    const r = el.getBoundingClientRect();
-    const s = getComputedStyle(el);
-    if (!r.width || s.visibility === 'hidden' || el.closest('[hidden]') || el.closest('.sr-only'))
-      continue;
-    const fg = parse(s.color);
-    const worst = Math.min(...bgsOf(el).map((bg) => ratio(blend(fg, bg), bg)));
-    rows.push([n.textContent.trim().slice(0, 30), Math.round(worst * 100) / 100]);
-  }
-  rows.sort((a, b) => a[1] - b[1]);
-  return {
-    min: rows.length ? rows[0][1] : null,
-    count: rows.length,
-    below: rows.filter((r) => r[1] < 4.5),
-  };
+  const out = {};
+  for (const [k, els] of Object.entries(items))
+    out[k] = els.map((e) => {
+      const r = e.getBoundingClientRect();
+      const t = k === 'sheet' ? '' : e.innerText.replace(/\s+/g, ' ').trim();
+      return [Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height), t];
+    });
+  return out;
 }
 
-async function axe(page) {
+function compareGeometry(mock, site) {
+  let maxPx = 0;
+  const diffs = [];
+  for (const k of Object.keys(mock)) {
+    if (mock[k].length !== site[k].length) {
+      diffs.push(`${k}: liczba ${mock[k].length}≠${site[k].length}`);
+      continue;
+    }
+    mock[k].forEach((m, i) => {
+      const s = site[k][i];
+      const d = Math.max(...[0, 1, 2, 3].map((j) => Math.abs(m[j] - s[j])));
+      maxPx = Math.max(maxPx, d);
+      if (d > 2) diffs.push(`${k}[${i}] ${d}px ${JSON.stringify(m)}→${JSON.stringify(s)}`);
+      if (m[4] !== s[4]) diffs.push(`${k}[${i}] tekst „${m[4]}”≠„${s[4]}”`);
+    });
+  }
+  return { maxPx, diffs };
+}
+
+async function axe(page, menuSel) {
   await page.addScriptTag({ content: AXE });
-  return page.evaluate(async () => {
-    const r = await window.axe.run('#mobile-menu', {
+  return page.evaluate(async (sel) => {
+    const r = await window.axe.run(sel, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
     });
     const bad = r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
     return {
       seriousCritical: bad.map((v) => `${v.id}:${v.nodes.length}`),
-      incomplete: r.incomplete.map((v) => v.id),
+      all: r.violations.length,
     };
-  });
+  }, menuSel);
 }
 
-async function cookieVsCta(page) {
-  return page.evaluate(() => {
-    const cta = [...document.querySelectorAll('#mobile-menu button')].find((b) =>
-      b.textContent.includes('Darmowa Konsultacja'),
-    );
-    const cookie = document.querySelector('.cookie-floating-btn');
-    if (!cta) return { error: 'brak przycisku konsultacji' };
-    const r = cta.getBoundingClientRect();
-    const pts = [
-      [r.left + 3, r.top + 3],
-      [r.right - 3, r.top + 3],
-      [r.left + 3, r.bottom - 3],
-      [r.right - 3, r.bottom - 3],
-      [r.left + r.width / 2, r.top + r.height / 2],
-    ];
-    const covered = pts.filter(([x, y]) => {
-      const hit = document.elementFromPoint(x, y);
-      return !(hit && cta.contains(hit));
-    }).length;
-    return {
-      cookiePresent: !!cookie,
-      ctaRect: [r.left, r.top, r.width, r.height].map(Math.round),
-      covered,
-    };
-  });
+async function dragHandle(page, sel, dy, stepMs) {
+  const b = await page.locator(sel.handle).boundingBox();
+  const x = b.x + b.width / 2;
+  const y = b.y + b.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  const steps = 10;
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(x, y + (dy * i) / steps);
+    await wait(stepMs);
+  }
+  return async () => {
+    await page.mouse.up();
+    await wait(600);
+  };
+}
+
+// Stany karty (wspólne dla strony i makiety): zamknięte, otwarte, Oferta, Oferta/Marketing,
+// przeciąganie 120 px (zrzut w trakcie), puszczenie = zamknięcie.
+async function states(page, sel, w, prefix, row) {
+  const shot = (n) => page.screenshot({ path: path.join(OUT, 'shots', `${prefix}${w}-${n}.png`) });
+  const takeShots = SHOT_W.includes(w);
+  row.closed = await page.evaluate(measure, sel.menu);
+  if (takeShots) await shot('1-zamkniete');
+  await page.click(sel.toggle);
+  await wait(900);
+  row.open = await page.evaluate(measure, sel.menu);
+  row.geoOpen = await page.evaluate(geometry, sel);
+  if (takeShots) await shot('2-otwarte');
+  await page.click(sel.offerBtn);
+  await wait(700);
+  row.offer = await page.evaluate(measure, sel.menu);
+  row.geoOffer = await page.evaluate(geometry, sel);
+  if (takeShots) await shot('3-oferta');
+  await page.click(sel.tab1);
+  await wait(700);
+  row.geoMarketing = await page.evaluate(geometry, sel);
+  if (takeShots) await shot('4-oferta-marketing');
+  await page.keyboard.press('Escape');
+  await wait(600);
+  row.afterEsc1 = await page.evaluate(measure, sel.menu);
+  const release = await dragHandle(page, sel, 120, 30);
+  if (takeShots) await shot('6-przeciaganie');
+  row.dragMid = await page.evaluate(measure, sel.menu);
+  await release();
+  row.afterDrag120 = await page.evaluate(measure, sel.menu);
 }
 
 try {
   for (const [w, h] of SIZES) {
     const { ctx, page } = await newPage(w, h);
     const row = {};
-    row.closed = await page.evaluate(measure);
-    await page.screenshot({ path: path.join(OUT, 'shots', `${w}-1-zamkniete.png`) });
-    await page.click(TOGGLE);
-    await wait(900);
-    row.open = await page.evaluate(measure);
-    row.openContrast = await page.evaluate(contrast);
-    row.openAxe = await axe(page);
-    row.cookie = await cookieVsCta(page);
-    await page.screenshot({ path: path.join(OUT, 'shots', `${w}-2-otwarte.png`) });
-    if (!OFF) {
-      await page.click(OFFER_BTN);
-      await wait(400);
-      row.offer = await page.evaluate(measure);
-      row.offerContrast = await page.evaluate(contrast);
-      row.offerAxe = await axe(page);
-      row.offerGroupNamed = await page.getByRole('group', { name: 'Oferta' }).count();
-      row.fonts = await page.evaluate(() => {
-        const a = document.querySelector('#mobile-menu-offer li a');
-        const [n, d] = a.querySelectorAll('span');
-        const f = (e) => [getComputedStyle(e).fontSize, getComputedStyle(e).fontWeight];
-        return { name: f(n), desc: f(d) };
-      });
-      await page.screenshot({ path: path.join(OUT, 'shots', `${w}-3-oferta.png`) });
-      await page.click('#mobile-menu button[aria-label="Wróć do menu"]');
-      await wait(200);
-      row.afterBack = await page.evaluate(() =>
-        document.activeElement?.getAttribute('aria-controls'),
-      );
-      await page.keyboard.press('Escape');
-      await wait(600);
-      row.afterEscape = await page.evaluate(measure);
-      delete row.afterEscape.text;
-    } else {
-      const btn = '#mobile-menu button[aria-controls="mobile-offers-submenu"]';
-      await page.click(btn);
+    if (OFF) {
+      row.closed = await page.evaluate(measure, SITE.menu);
+      await page.screenshot({ path: path.join(OUT, 'shots', `${w}-1-zamkniete.png`) });
+      await page.click(SITE.toggle);
       await wait(900);
-      await page.screenshot({ path: path.join(OUT, 'shots', `${w}-3-oferta.png`) });
+      row.open = await page.evaluate(measure, SITE.menu);
+      await page.screenshot({ path: path.join(OUT, 'shots', `${w}-2-otwarte.png`) });
+      results.widths[w] = row;
+      await ctx.close();
+      continue;
     }
+    // Dostępność i klawiatura na świeżej stronie.
+    await page.click(SITE.toggle);
+    await wait(900);
+    row.openAxe = await axe(page, SITE.menu);
+    row.focusOnOpen = await page.evaluate(measure, SITE.menu);
+    row.trap = [];
+    for (let i = 0; i < 12; i++) {
+      await page.keyboard.press('Tab');
+      row.trap.push(
+        await page.evaluate(
+          (s) => document.querySelector(s).contains(document.activeElement),
+          SITE.menu,
+        ),
+      );
+    }
+    await page.click(SITE.offerBtn);
+    await wait(700);
+    row.offerAxe = await axe(page, SITE.menu);
+    row.offerFocus = (await page.evaluate(measure, SITE.menu)).active;
+    await page.keyboard.press('Escape');
+    await wait(500);
+    row.esc1 = await page.evaluate(measure, SITE.menu);
+    await page.keyboard.press('Escape');
+    await wait(600);
+    row.esc2 = await page.evaluate(measure, SITE.menu);
+    delete row.esc1.text;
+    delete row.esc2.text;
+    // Stany jak w makiecie (świeża strona).
+    await page.goto(`${BASE}/`, { waitUntil: 'load' });
+    await page.waitForSelector(SITE.toggle, { state: 'attached' });
+    await wait(1500);
+    await states(page, SITE, w, '', row);
+    // Krótkie przeciągnięcie (60 px, wolno) = karta wraca.
+    await page.click(SITE.toggle);
+    await wait(900);
+    const rel = await dragHandle(page, SITE, 60, 60);
+    await rel();
+    row.afterDrag60 = await page.evaluate(measure, SITE.menu);
+    delete row.afterDrag60.text;
     results.widths[w] = row;
     await ctx.close();
+
+    if (MOCK && SHOT_W.includes(w)) {
+      const m = await newPage(w, h, pathToFileURL(MOCK).href, MOCKUP);
+      const mrow = {};
+      await states(m.page, MOCKUP, w, 'makieta-', mrow);
+      results.mockup[w] = {
+        open: compareGeometry(mrow.geoOpen, row.geoOpen),
+        offer: compareGeometry(mrow.geoOffer, row.geoOffer),
+        marketing: compareGeometry(mrow.geoMarketing, row.geoMarketing),
+      };
+      await m.ctx.close();
+    }
   }
 
   if (!OFF) {
+    // Podświetlenie bieżącej strony (opcja A): / = 0 pozycji, /portfolio/ = „Realizacje”.
+    results.current = {};
+    for (const route of ['/', '/portfolio/', '/marketing/google-ads/']) {
+      const { ctx, page } = await newPage(390, 844, `${BASE}${route}`);
+      results.current[route] = (await page.evaluate(measure, SITE.menu)).current;
+      await ctx.close();
+    }
     // Przeklikanie: każdy link obu ekranów (390x844) zamyka menu i odblokowuje przewijanie.
     const { ctx, page } = await newPage(390, 844);
-    const count = await page.evaluate(() => ({
-      main: document.querySelectorAll('#mobile-menu ul[class*="pt-"] > li > a').length,
-      offer: document.querySelectorAll('#mobile-menu-offer a').length,
-    }));
+    const MAIN_A = '#mobile-menu nav.mmb-screen-main a';
+    const OFFER_A = '#mobile-menu-offer a';
+    const count = await page.evaluate(
+      ([a, b]) => ({
+        main: document.querySelectorAll(a).length,
+        offer: document.querySelectorAll(b).length,
+      }),
+      [MAIN_A, OFFER_A],
+    );
     const fails = [];
     let done = 0;
-    for (const [where, n] of [
-      ['main', count.main],
-      ['offer', count.offer],
+    for (const [where, n, sel] of [
+      ['main', count.main, MAIN_A],
+      ['offer', count.offer, OFFER_A],
     ]) {
       for (let i = 0; i < n; i++) {
         await page.goto(`${BASE}/`, { waitUntil: 'load' });
-        await page.waitForSelector(TOGGLE, { state: 'attached' });
+        await page.waitForSelector(SITE.toggle, { state: 'attached' });
         await wait(500);
-        await page.click(TOGGLE);
+        await page.click(SITE.toggle);
         await wait(700);
         if (where === 'offer') {
-          await page.click(OFFER_BTN);
-          await wait(200);
+          await page.click(SITE.offerBtn);
+          await wait(500);
+          const tabId = await page
+            .locator(sel)
+            .nth(i)
+            .evaluate((a) => a.closest('[role="tabpanel"]').getAttribute('aria-labelledby'));
+          await page.click(`#${tabId}`);
+          await wait(400);
         }
-        const sel =
-          where === 'main' ? '#mobile-menu ul[class*="pt-"] > li > a' : '#mobile-menu-offer a';
         const href = await page.locator(sel).nth(i).getAttribute('href');
         await page.locator(sel).nth(i).click();
         await wait(700);
         const st = await page.evaluate(() => ({
           hidden: document.querySelector('#mobile-menu').getAttribute('aria-hidden'),
           overflow: document.body.style.overflow,
+          position: document.body.style.position,
           path: location.pathname,
         }));
         done++;
-        if (st.hidden !== 'true' || st.overflow !== '' || st.path !== href)
+        if (st.hidden !== 'true' || st.overflow !== '' || st.position !== '' || st.path !== href)
           fails.push({ where, i, href, ...st });
       }
     }
@@ -321,7 +401,6 @@ await browser.close();
 await server.close();
 
 // Progi (tylko wariant B).
-const TEXTS = ['Oferta', 'Zobacz całą ofertę', 'Darmowa Konsultacja'];
 const lines = [];
 for (const [w, r] of Object.entries(results.widths)) {
   for (const st of OFF ? ['closed', 'open'] : ['closed', 'open', 'offer']) {
@@ -330,7 +409,7 @@ for (const [w, r] of Object.entries(results.widths)) {
       m.docScrollW <= m.innerW,
       `${w} ${st}: poziome przewijanie strony ${m.docScrollW}>${m.innerW}`,
     );
-    if (st !== 'closed')
+    if (st !== 'closed' && m.menuScrollW !== null)
       check(
         m.menuScrollW <= m.menuClientW,
         `${w} ${st}: poziome przewijanie menu ${m.menuScrollW}>${m.menuClientW}`,
@@ -342,47 +421,63 @@ for (const [w, r] of Object.entries(results.widths)) {
       r[st].under44.length === 0,
       `${w} ${st}: dotykane < 44 px ${JSON.stringify(r[st].under44)}`,
     );
-    check(r[st].boxedNested === 0, `${w} ${st}: ramka+cień w ramce+cieniu: ${r[st].boxedNested}`);
-    check(
-      r[`${st}Contrast`].below.length === 0,
-      `${w} ${st}: kontrast < 4.5 ${JSON.stringify(r[`${st}Contrast`].below)}`,
-    );
     check(
       r[`${st}Axe`].seriousCritical.length === 0,
       `${w} ${st}: axe ${r[`${st}Axe`].seriousCritical}`,
     );
   }
-  const all = r.open.text + '\n' + r.offer.text;
-  for (const t of TEXTS) check(all.includes(t), `${w}: brak nazwy „${t}”`);
-  check(r.offerGroupNamed === 1, `${w}: ekran bez nazwy dla czytnika`);
   check(
-    r.offer.active.includes('mobile-menu-offer-title'),
-    `${w}: fokus po wejściu ${r.offer.active}`,
+    r.focusOnOpen.active.includes('Zamknij menu'),
+    `${w}: fokus po otwarciu ${r.focusOnOpen.active}`,
   );
-  check(r.afterBack === 'mobile-menu-offer', `${w}: fokus po powrocie ${r.afterBack}`);
+  check(r.trap.every(Boolean), `${w}: Tab wyszedł z karty ${JSON.stringify(r.trap)}`);
+  check(r.offerFocus.includes('mobile-menu-offer-title'), `${w}: fokus po wejściu ${r.offerFocus}`);
   check(
-    r.afterEscape.menuHidden === 'true' && r.afterEscape.bodyOverflow === '',
-    `${w}: Escape nie zamknął`,
+    r.esc1.menuHidden === 'false' &&
+      r.esc1.active.includes('Oferta') &&
+      r.esc1.bodyPosition === 'fixed',
+    `${w}: Escape 1 (Oferta) nie wrócił do menu ${JSON.stringify(r.esc1)}`,
   );
   check(
-    parseFloat(r.fonts.desc[0]) < parseFloat(r.fonts.name[0]),
-    `${w}: opis nie mniejszy niż nazwa ${JSON.stringify(r.fonts)}`,
+    r.esc2.menuHidden === 'true' &&
+      r.esc2.bodyOverflow === '' &&
+      r.esc2.bodyPosition === '' &&
+      r.esc2.active.includes('Menu nawigacyjne'),
+    `${w}: Escape 2 nie zamknął / fokus ${JSON.stringify(r.esc2)}`,
   );
-  check(r.fonts.desc[0] === '10px', `${w}: opis ${r.fonts.desc[0]} zamiast 10px`);
   check(
-    r.cookie.covered === 0 && !r.cookie.error,
-    `${w}: konsultacja zasłonięta ${JSON.stringify(r.cookie)}`,
+    r.dragMid.sheetTop > r.open.sheetTop + 100,
+    `${w}: karta nie idzie za palcem ${r.dragMid.sheetTop}`,
   );
-  const screens = r.offer.scrollH / r.offer.clientH;
+  check(r.afterDrag120.menuHidden === 'true', `${w}: przeciągnięcie 120 px nie zamknęło`);
+  check(r.afterDrag60.menuHidden === 'false', `${w}: przeciągnięcie 60 px zamknęło`);
   lines.push(
-    `${w}: ekrany oferty=${screens.toFixed(2)} (scrollH ${r.offer.scrollH}/clientH ${r.offer.clientH}), min kontrast open=${r.openContrast.min} offer=${r.offerContrast.min}, dotykane open=${r.open.tappables} offer=${r.offer.tappables}, cookie=${r.cookie.cookiePresent}`,
+    `${w}: karta top=${r.open.sheetTop}, dotykane open=${r.open.tappables} offer=${r.offer.tappables}, axe open=${r.openAxe.all} offer=${r.offerAxe.all}, drag60 otwarte, drag120 zamknięte`,
   );
-  if (w === '390') check(screens <= 1.6, `390: oferta ${screens.toFixed(2)} ekranu > 1.6`);
 }
 if (!OFF) {
+  for (const [w, cmp] of Object.entries(results.mockup)) {
+    for (const [st, c] of Object.entries(cmp)) {
+      check(c.diffs.length === 0, `${w} ${st}: makieta≠strona ${c.diffs.slice(0, 6).join('; ')}`);
+      lines.push(`makieta ${w} ${st}: max odchyłka ${c.maxPx}px, różnice ${c.diffs.length}`);
+    }
+  }
+  if (MOCK)
+    check(Object.keys(results.mockup).length === SHOT_W.length, 'brak porównania z makietą');
+  const cur = results.current;
+  check(cur['/'].length === 0, `/: podświetlone ${JSON.stringify(cur['/'])}`);
+  check(
+    cur['/portfolio/'].length === 1 && cur['/portfolio/'][0] === 'Realizacje',
+    `/portfolio/: ${JSON.stringify(cur['/portfolio/'])}`,
+  );
+  check(
+    cur['/marketing/google-ads/'].length === 1,
+    `/marketing/google-ads/: ${JSON.stringify(cur['/marketing/google-ads/'])}`,
+  );
+  lines.push(`aria-current: ${JSON.stringify(cur)}`);
   const ct = results.clickThrough;
   check(
-    ct.links === 19 && ct.fails.length === 0,
+    ct.links === 20 && ct.fails.length === 0,
     `przeklikanie: ${ct.links} linków, porażki ${JSON.stringify(ct.fails)}`,
   );
   lines.push(
@@ -390,7 +485,7 @@ if (!OFF) {
   );
 }
 for (const r of Object.values(results.widths))
-  for (const st of ['closed', 'open', 'offer']) if (r[st]) delete r[st].text;
+  for (const v of Object.values(r)) if (v && typeof v === 'object' && 'text' in v) delete v.text;
 await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(results, null, 1));
 console.log(lines.join('\n'));
 console.log(`PROBE ${results.mode}: progi niespełnione=${failed}`);

@@ -7,7 +7,7 @@ import { useScroll } from '@/hooks/useScroll';
 import NavbarLogo from './NavbarLogo';
 import DesktopMenu from './DesktopMenu';
 import MobileMenu from './MobileMenu';
-import MobileMenuB from './MobileMenuB';
+import MobileMenuBSlot from './MobileMenuBSlot';
 import { isMobileMenuBEnabled } from './mobileMenuFlag';
 import Container from '../common/Container';
 
@@ -25,6 +25,8 @@ const Navbar: React.FC = () => {
   const { scrolled } = useScroll(20);
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
+  // MIX-1411/MIX-1465: wariant B menu mobilnego tylko za przełącznikiem VITE_MM_MOBILE_MENU_B.
+  const menuB = isMobileMenuBEnabled();
 
   // Blokada scrolla sprzęgnięta ze STANEM menu, nie z handlerami (bugfix
   // 2026-07-18): zamknięcie przez X, przez CTA konsultacji (bez zmiany trasy)
@@ -146,15 +148,26 @@ const Navbar: React.FC = () => {
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"
               >
-                <span
-                  className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 origin-center ${isOpen ? 'rotate-45 translate-y-2 bg-secondary' : ''}`}
-                ></span>
-                <span
-                  className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 ${isOpen ? 'opacity-0 -translate-x-2' : ''}`}
-                ></span>
-                <span
-                  className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 origin-center ${isOpen ? '-rotate-45 -translate-y-2 bg-secondary' : ''}`}
-                ></span>
+                {/* Menu B (makieta MIX-1465): trzy kreski, środkowa krótsza, bez zmiany w X. */}
+                {menuB ? (
+                  <>
+                    <span className="w-6 h-0.5 bg-dark rounded-full"></span>
+                    <span className="w-4 h-0.5 bg-dark rounded-full ml-2"></span>
+                    <span className="w-6 h-0.5 bg-dark rounded-full"></span>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 origin-center ${isOpen ? 'rotate-45 translate-y-2 bg-secondary' : ''}`}
+                    ></span>
+                    <span
+                      className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 ${isOpen ? 'opacity-0 -translate-x-2' : ''}`}
+                    ></span>
+                    <span
+                      className={`w-6 h-0.5 bg-dark rounded-full transition-all duration-300 origin-center ${isOpen ? '-rotate-45 -translate-y-2 bg-secondary' : ''}`}
+                    ></span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -162,8 +175,8 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* MIX-1411: wariant B tylko za przełącznikiem; wyłączony = stare menu bez zmian. */}
-      {isMobileMenuBEnabled() ? (
-        <MobileMenuB
+      {menuB ? (
+        <MobileMenuBSlot
           isOpen={isOpen}
           setIsOpen={setIsOpen}
           location={location}

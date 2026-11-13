@@ -1,19 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Phone, X } from 'lucide-react';
+import { ArrowRight, ChevronRight, Phone, X } from 'lucide-react';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { SITE_CONFIG } from '@/config/site';
-import Button from '@/components/common/Button';
-import { MOBILE_MENU_DATA } from './navbarData';
 import { ContactType } from '@/types';
+import {
+  MMB_MAIN_AFTER,
+  MMB_MAIN_BEFORE,
+  MMB_OFFER_ICON as OfferIcon,
+  MMB_SERVICE_COUNT,
+  MMB_TEXT as T,
+  MmbMainLink,
+  isCurrentPage,
+} from './mobileMenuBData';
+import MobileMenuBOffer, { OFFER_SCREEN_ID, Swap, current, stagger } from './MobileMenuBOffer';
+import { focusables, useCloseOnDesktop, useOpenSheet, useSheetDrag } from './useMobileMenuB';
+import { loadMobileMenuBFont } from './mobileMenuBFont';
+import './mobileMenuB.css';
 
 // Wariant B menu mobilnego (MIX-1411, za przełącznikiem VITE_MM_MOBILE_MENU_B, patrz
-// mobileMenuFlag.ts): płaska lista bez bloczków; „Oferta” otwiera drugi ekran ze strzałką
-// „wstecz”. Oba ekrany są w DOM (nieaktywny ma `hidden`), więc linki zostają w HTML po prerenderze.
+// mobileMenuFlag.ts), od MIX-1465 = zatwierdzona makieta B „Karta pod kciukiem”
+// (makiety/mix1465/zrodla/b.src.html @ 3daea5a): karta od dołu z uchwytem, ekran „Oferta” z trzema
+// zakładkami. Decyzje Jakuba (MIX-1465, 12.11): Escape najpierw wraca o poziom (Oferta → menu),
+// na ekranie głównym zamyka i oddaje fokus przyciskowi menu; podświetlona jest pozycja bieżącej
+// strony (aria-current="page"), na stronie głównej żadna.
 
-export const OFFER_SCREEN_ID = 'mobile-menu-offer';
-const OFFER_TITLE_ID = 'mobile-menu-offer-title';
+export { OFFER_SCREEN_ID };
+/** Reset ekranu i zakładki po zamknięciu, gdy karta już zjechała (jak w makiecie). */
+export const RESET_AFTER_CLOSE_MS = 320;
 
 interface MobileMenuBProps {
   isOpen: boolean;
@@ -24,201 +39,234 @@ interface MobileMenuBProps {
 
 type Screen = 'main' | 'offer';
 
-const ROW = 'flex items-center min-h-12 border-b border-gray-100';
-const mainRow = (active: boolean) =>
-  `${ROW} w-full py-2 text-2xl font-black ${active ? 'text-accent-dark' : 'text-dark'}`;
-
 const MobileMenuB: React.FC<MobileMenuBProps> = ({ isOpen, setIsOpen, location, openModal }) => {
   const [screen, setScreen] = useState<Screen>('main');
-  const [wasOpen, setWasOpen] = useState(isOpen);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [tab, setTab] = useState(0);
+  const [swap, setSwap] = useState<Swap>('');
+  const [hasMore, setHasMore] = useState({ main: false, offer: false });
+  const layerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const offerScrollRef = useRef<HTMLDivElement>(null);
   const offerButtonRef = useRef<HTMLButtonElement>(null);
   const offerTitleRef = useRef<HTMLParagraphElement>(null);
 
-  // Każde zamknięcie (X, link, Escape, zmiana trasy w Navbar) wraca do ekranu głównego.
-  if (wasOpen !== isOpen) {
-    setWasOpen(isOpen);
-    if (!isOpen) setScreen('main');
-  }
+  const close = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const path = location.pathname;
+  const offerActive = screen === 'offer';
 
+  // Delikatne przygaszenie u dołu listy, gdy jest jeszcze coś do przewinięcia.
+  const updateFade = useCallback(() => {
+    const more = (el: HTMLDivElement | null) =>
+      !!el && el.scrollTop + el.clientHeight < el.scrollHeight - 4;
+    const next = { main: more(mainScrollRef.current), offer: more(offerScrollRef.current) };
+    setHasMore((prev) => (prev.main === next.main && prev.offer === next.offer ? prev : next));
+  }, []);
+
+  // Fokus po zmianie ekranu: wejście = nagłówek „Oferta”, powrót = przycisk „Oferta”.
+  const showScreen = useCallback(
+    (next: Screen) => {
+      flushSync(() => setScreen(next));
+      (next === 'offer' ? offerTitleRef : offerButtonRef).current?.focus({ preventScroll: true });
+      updateFade();
+    },
+    [updateFade],
+  );
+
+  const selectTab = (index: number) => {
+    if (index === tab) return;
+    setSwap(index < tab ? 'swap from-left' : 'swap');
+    setTab(index);
+    requestAnimationFrame(updateFade);
+  };
+
+  // Krój menu (Manrope 700 z makiety) w wolnej chwili po załadowaniu strony, najpóźniej przy otwarciu.
+  useEffect(() => {
+    if (isOpen) return loadMobileMenuBFont();
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
+    if (w.requestIdleCallback) w.requestIdleCallback(loadMobileMenuBFont);
+    else setTimeout(loadMobileMenuBFont, 1500);
+  }, [isOpen]);
+  useOpenSheet(isOpen, layerRef, closeRef, updateFade);
+  const dragZone = useSheetDrag(layerRef, menuRef, close);
+
+  // Reset do ekranu głównego i pierwszej zakładki dopiero, gdy karta zjechała.
+  useEffect(() => {
+    if (isOpen) return;
+    const timer = setTimeout(() => {
+      setScreen('main');
+      setTab(0);
+      setSwap('');
+    }, RESET_AFTER_CLOSE_MS);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
+  // Klawiatura: Escape cofa o poziom (decyzja A), Tab krąży w karcie.
   useEffect(() => {
     if (!isOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
-      setIsOpen(false);
-      document.querySelector<HTMLElement>('button[aria-controls="mobile-menu"]')?.focus();
+      if (e.key === 'Escape') {
+        if (screen === 'offer') showScreen('main');
+        else close();
+        return;
+      }
+      if (e.key !== 'Tab' || !menuRef.current) return;
+      const items = focusables(menuRef.current);
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first) return;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, setIsOpen]);
+  }, [isOpen, screen, close, showScreen]);
 
-  // Fokus po zmianie ekranu: wejście = nagłówek „Oferta”, powrót = przycisk „Oferta”.
-  const showScreen = (next: Screen) => {
-    flushSync(() => setScreen(next));
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    (next === 'offer' ? offerTitleRef : offerButtonRef).current?.focus();
+  useCloseOnDesktop(isOpen, close, updateFade);
+
+  const mainLink = (item: MmbMainLink, i: number) => {
+    const Icon = item.icon;
+    return (
+      <li key={item.target} className="mmb-stg" style={stagger(i)}>
+        <Link
+          to={item.target}
+          onClick={close}
+          className="mmb-row"
+          aria-current={current(isCurrentPage(path, item.target, item.prefix))}
+        >
+          <span className="mmb-tile">
+            <Icon className="mmb-ico" size={20} aria-hidden="true" />
+          </span>
+          <span className="mmb-row-txt">
+            <strong>{item.label}</strong>
+          </span>
+          <ChevronRight className="mmb-ico" size={20} aria-hidden="true" />
+        </Link>
+      </li>
+    );
   };
 
-  const close = () => setIsOpen(false);
-  const path = location.pathname;
-
   return (
-    <div
-      id="mobile-menu"
-      // z-[95]: nad przyciskiem ciasteczek (z-[90]), który zasłaniał „Darmowa Konsultacja”;
-      // pod oknami (z-modal 100), które otwiera przycisk konsultacji.
-      className={`lg:hidden fixed inset-0 z-[95] bg-white transform transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? 'translate-x-0 visible' : 'translate-x-full invisible'} flex flex-col`}
-      aria-hidden={!isOpen}
-      role="navigation"
-      aria-label="Menu mobilne"
-    >
-      <button
-        type="button"
-        onClick={close}
-        className="absolute top-5 right-5 w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-dark z-10"
-        aria-label="Zamknij menu nawigacyjne"
+    <div ref={layerRef} className={`mmb${isOpen ? ' is-open' : ''}`}>
+      <div className="mmb-scrim" aria-hidden="true" onClick={close} />
+      <div
+        ref={menuRef}
+        id="mobile-menu"
+        className="mmb-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label={T.dialog}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
       >
-        <X size={22} aria-hidden="true" />
-      </button>
-
-      <div ref={scrollRef} className="flex-1 px-6 pt-5 pb-6 overflow-y-auto overflow-x-hidden">
-        <ul hidden={screen !== 'main'} className="pt-[60px]">
-          <li>
-            <Link
-              to="/o-nas/"
-              onClick={close}
-              className={mainRow(path === '/o-nas' || path === '/o-nas/')}
-              aria-label="Przejdź do strony O nas"
-            >
-              {CONTENT.about}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/portfolio/"
-              onClick={close}
-              className={mainRow(path.startsWith('/portfolio'))}
-              aria-label="Przejdź do strony realizacje"
-            >
-              {CONTENT.portfolio}
-            </Link>
-          </li>
-          <li>
-            <button
-              ref={offerButtonRef}
-              type="button"
-              onClick={() => showScreen('offer')}
-              className={`${mainRow(false)} justify-between`}
-              aria-controls={OFFER_SCREEN_ID}
-            >
-              {CONTENT.offer.label}
-              <ChevronRight size={24} aria-hidden="true" />
-            </button>
-          </li>
-          <li>
-            <Link
-              to="/baza-wiedzy/"
-              onClick={close}
-              className={mainRow(path.startsWith('/baza-wiedzy'))}
-              aria-label={`Przejdź do ${CONTENT.knowledgeBase.label.toLowerCase()}`}
-            >
-              {CONTENT.knowledgeBase.label}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/contact/"
-              onClick={close}
-              className={mainRow(path === '/contact' || path === '/contact/')}
-              aria-label={`Przejdź do sekcji ${CONTENT.contact.toLowerCase()}`}
-            >
-              {CONTENT.contact}
-            </Link>
-          </li>
-        </ul>
-
-        <div
-          id={OFFER_SCREEN_ID}
-          role="group"
-          aria-labelledby={OFFER_TITLE_ID}
-          hidden={screen !== 'offer'}
+        <div className="mmb-handle" aria-hidden="true" {...dragZone} />
+        <button
+          ref={closeRef}
+          className="mmb-close"
+          type="button"
+          aria-label={T.close}
+          onClick={close}
         >
-          <div className="flex items-center gap-1 h-12 pr-14">
-            <button
-              type="button"
-              onClick={() => showScreen('main')}
-              className="w-12 h-12 -ml-3 flex items-center justify-center text-dark"
-              aria-label="Wróć do menu"
-            >
-              <ChevronLeft size={28} aria-hidden="true" />
-            </button>
-            <p
-              id={OFFER_TITLE_ID}
-              ref={offerTitleRef}
-              tabIndex={-1}
-              className="text-2xl font-black text-dark"
-            >
-              {CONTENT.offer.label}
-            </p>
-          </div>
+          <X className="mmb-ico" size={20} aria-hidden="true" />
+        </button>
 
-          {MOBILE_MENU_DATA.map((section) => (
-            <div key={section.target} className="mt-4">
-              <div className="flex items-center justify-between gap-2 border-b border-gray-200">
-                <span className="text-xs font-black text-accent-dark uppercase tracking-wider">
-                  {section.category}
-                </span>
-                <Link
-                  to={section.target}
-                  onClick={close}
-                  className="min-h-11 inline-flex items-center gap-1 text-xs font-bold text-secondary text-right"
-                  aria-label={`${CONTENT.mobileMenu.seeAll}: ${section.category}`}
-                >
-                  {CONTENT.mobileMenu.seeAll}
-                  <ArrowRight size={14} aria-hidden="true" />
-                </Link>
-              </div>
-              <ul>
-                {section.items.map((item) => (
-                  <li key={item.target}>
-                    <Link
-                      to={item.target}
-                      onClick={close}
-                      className="flex flex-col justify-center min-h-12 py-1.5 border-b border-gray-100"
-                    >
-                      <span className="text-sm font-bold text-dark">{item.label}</span>
-                      <span className="text-xxs font-medium text-gray-700">{item.desc}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+        <div className="mmb-screens">
+          <nav
+            className={`mmb-screen mmb-screen-main${offerActive ? '' : ' is-active'}${hasMore.main ? ' has-more' : ''}`}
+            aria-label={T.mainNav}
+            inert={offerActive}
+          >
+            <div className="mmb-head mmb-stg" style={stagger(0)} {...dragZone}>
+              <p className="mmb-kicker">{T.kicker}</p>
             </div>
-          ))}
-        </div>
-      </div>
+            <div ref={mainScrollRef} className="mmb-scroll" onScroll={updateFade}>
+              <ul>
+                {MMB_MAIN_BEFORE.map((item, i) => mainLink(item, i))}
+                <li className="mmb-stg" style={stagger(2)}>
+                  <button
+                    ref={offerButtonRef}
+                    className="mmb-row mmb-row-offer"
+                    type="button"
+                    aria-controls={OFFER_SCREEN_ID}
+                    aria-expanded={offerActive}
+                    onClick={() => showScreen('offer')}
+                  >
+                    <span className="mmb-tile">
+                      <OfferIcon className="mmb-ico" size={20} aria-hidden="true" />
+                    </span>
+                    <span className="mmb-row-txt">
+                      <strong>{CONTENT.offer.label}</strong>
+                      <small>{T.offerSub}</small>
+                    </span>
+                    <span className="mmb-chip">
+                      {MMB_SERVICE_COUNT}
+                      <span className="sr-only">{T.services}</span>
+                    </span>
+                    <ChevronRight className="mmb-ico" size={20} aria-hidden="true" />
+                  </button>
+                </li>
+                {MMB_MAIN_AFTER.map((item, i) => mainLink(item, i + 3))}
+              </ul>
+              <Link
+                to={T.promoTarget}
+                onClick={close}
+                className="mmb-promo mmb-stg"
+                style={stagger(5)}
+                aria-current={current(isCurrentPage(path, T.promoTarget, true))}
+              >
+                <span className="mmb-promo-top">
+                  <span className="mmb-kicker">{T.promoKicker}</span>
+                  <ArrowRight className="mmb-ico" size={20} aria-hidden="true" />
+                </span>
+                <strong>{T.promoTitle}</strong>
+                <span className="mmb-promo-sub">{T.promoSub}</span>
+              </Link>
+            </div>
+          </nav>
 
-      <div className="px-6 pt-2 pb-5 bg-dark text-white">
-        <a
-          href={`tel:${SITE_CONFIG.contact.phoneFull}`}
-          className="flex items-center justify-between gap-3 min-h-11 mb-2 text-sm"
-        >
-          <span>
-            <span className="text-gray-300">{CONTENT.mobileMenu.question}</span>{' '}
-            <span className="font-black">{SITE_CONFIG.contact.phone}</span>
-          </span>
-          <Phone size={20} aria-hidden="true" />
-        </a>
-        <Button
-          variant="primary"
-          className="w-full justify-center py-3 text-base rounded-2xl"
-          onClick={() => {
-            openModal('consultation');
-            close();
-          }}
-        >
-          {CONTENT.mobileMenu.cta}
-          <ArrowRight size={20} className="ml-2" aria-hidden="true" />
-        </Button>
+          <MobileMenuBOffer
+            active={offerActive}
+            hasMore={hasMore.offer}
+            tab={tab}
+            swap={swap}
+            path={path}
+            dragZone={dragZone}
+            scrollRef={offerScrollRef}
+            titleRef={offerTitleRef}
+            onScroll={updateFade}
+            onBack={() => showScreen('main')}
+            onSelectTab={selectTab}
+            onNavigate={close}
+          />
+        </div>
+
+        <div className="mmb-actions">
+          <a
+            className="mmb-btn mmb-btn-ghost mmb-stg"
+            href={`tel:${SITE_CONFIG.contact.phoneFull}`}
+            style={stagger(6)}
+          >
+            <Phone className="mmb-ico" size={20} aria-hidden="true" />
+            <span>{T.call}</span>
+          </a>
+          <button
+            className="mmb-btn mmb-btn-primary mmb-stg"
+            type="button"
+            style={stagger(7)}
+            onClick={() => {
+              openModal('consultation');
+              close();
+            }}
+          >
+            {CONTENT.mobileMenu.cta}
+          </button>
+        </div>
       </div>
     </div>
   );
