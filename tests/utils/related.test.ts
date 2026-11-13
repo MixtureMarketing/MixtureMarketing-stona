@@ -263,7 +263,9 @@ describe('relatedService', () => {
   });
 
   it('getRelatedFor: błąd Sanity RZUCA CmsUnavailableError (pusty wynik z awarii nie trafia do zrzutu)', async () => {
-    fetchWithCache.mockRejectedValue(new Error('timeout'));
+    fetchWithCache.mockImplementation(async () => {
+      throw new Error('timeout');
+    });
     await expect(relatedService.getRelatedFor('article:a')).rejects.toBeInstanceOf(
       CmsUnavailableError,
     );

@@ -142,7 +142,9 @@ describe('Powiazane (dane)', () => {
   });
 
   it('błąd CMS = nic (bez stanu błędu na stronie)', async () => {
-    getRelatedFor.mockRejectedValue(new Error('Sanity 503'));
+    getRelatedFor.mockImplementation(async () => {
+      throw new Error('Sanity 503');
+    });
     const { container } = renderBlock();
     await waitFor(() => expect(getRelatedFor).toHaveBeenCalled());
     await Promise.resolve();
