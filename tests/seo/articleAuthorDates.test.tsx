@@ -58,7 +58,11 @@ const findArticleLd = async (): Promise<Ld> => {
 
 const staticArticleRoutes = (): string[] => {
   const src = fs.readFileSync(path.join(ROOT, 'config/routes.tsx'), 'utf-8');
-  return Array.from(src.matchAll(/path: '(\/baza-wiedzy\/[a-z0-9-]+)'/g)).map((m) => m[1]);
+  // Ukryte artykuły (noindex, poza rejestrem do akceptacji, np. MIX-1280) nie należą do rejestru dat.
+  const hidden = new Set(['/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto']);
+  return Array.from(src.matchAll(/path: '(\/baza-wiedzy\/[a-z0-9-]+)'/g))
+    .map((m) => m[1])
+    .filter((r) => !hidden.has(r));
 };
 
 beforeEach(() => {

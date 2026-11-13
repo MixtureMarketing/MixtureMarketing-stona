@@ -46,6 +46,8 @@ interface ArticleShellProps {
   author?: { name: string; role?: string; url?: string; sameAs?: string[] };
   publishedDate?: string;
   updatedDate?: string;
+  /** Artykuł ukryty do akceptacji (noindex); domyślnie indeksowany. MIX-1280. */
+  noindex?: boolean;
 }
 
 /** Publiczny slug artykułu z kanonicznej ścieżki `/baza-wiedzy/<slug>/`; inna ścieżka = brak. */
@@ -83,6 +85,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   author = DEFAULT_AUTHOR,
   publishedDate,
   updatedDate,
+  noindex = false,
 }: ArticleShellProps) => {
   const titleStr = typeof title === 'string' ? title : '';
   const titleParts = titleStr.includes(':') ? titleStr.split(':') : [titleStr, ''];
@@ -169,6 +172,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
         description={description}
         image={image}
         type="article"
+        noindex={noindex}
         breadcrumbs={breadcrumbs}
         jsonLd={articleJsonLd}
       />
