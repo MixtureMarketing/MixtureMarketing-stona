@@ -10,24 +10,41 @@ import path from 'node:path';
 
 export const NONCE_FILE = 'prerender-nonce.txt';
 
-/** PRERENDER_PORT (liczba 1-65535) albo wolny port przydzielony przez system. */
-export function pickPort(env = process.env) {
+/**
+ * Porty localhost dozwolone w CORS projektu Sanity (zmierzone OPTIONS z Origin, MIX-1590):
+ * 3000, 3333, 4173, 5173. Strona w prerenderze pobiera dane z Sanity z przeglądarki, więc
+ * origin musi być z tej listy — dowolny wolny port (listen na 0) daje „stan błędu CMS”.
+ */
+export const ALLOWED_PORTS = [4173, 5173, 3000, 3333];
+
+function isFree(port) {
+  return new Promise((resolve) => {
+    const srv = net.createServer();
+    srv.once('error', () => resolve(false));
+    srv.listen(port, () => srv.close(() => resolve(true)));
+  });
+}
+
+/**
+ * PRERENDER_PORT (liczba 1-65535, bez sprawdzania wolności) albo pierwszy wolny port z
+ * ALLOWED_PORTS poza `exclude`. Brak wolnego = odmowa z komunikatem (fail-closed).
+ */
+export async function pickPort(env = process.env, exclude = []) {
   const raw = env.PRERENDER_PORT;
   if (raw !== undefined && raw !== '') {
     const n = Number(raw);
     if (!Number.isInteger(n) || n < 1 || n > 65535) {
-      return Promise.reject(new Error(`PRERENDER_PORT=${raw} nie jest poprawnym portem`));
+      throw new Error(`PRERENDER_PORT=${raw} nie jest poprawnym portem`);
     }
-    return Promise.resolve(n);
+    return n;
   }
-  return new Promise((resolve, reject) => {
-    const srv = net.createServer();
-    srv.once('error', reject);
-    srv.listen(0, () => {
-      const { port } = srv.address();
-      srv.close(() => resolve(port));
-    });
-  });
+  for (const port of ALLOWED_PORTS) {
+    if (!exclude.includes(port) && (await isFree(port))) return port;
+  }
+  throw new Error(
+    `Brak wolnego portu prerenderu z listy dozwolonej w CORS Sanity (${ALLOWED_PORTS.join(', ')}); ` +
+      'zwolnij jeden (inny build na tej maszynie) albo ustaw PRERENDER_PORT',
+  );
 }
 
 /** Zapisuje losowy znacznik w katalogu dist tego builda; zwraca jego wartość. */

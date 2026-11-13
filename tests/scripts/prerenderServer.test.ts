@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  ALLOWED_PORTS,
   NONCE_FILE,
   assertServesThisBuild,
   pickPort,
@@ -41,24 +42,31 @@ afterEach(() => {
   for (const d of tmpDirs.splice(0)) fs.rmSync(d, { recursive: true, force: true });
 });
 
-describe('pickPort (MIX-1590: bez stałego portu 4173)', () => {
-  it('zwraca wolny port inny niż 4173, także gdy 4173 jest zajęty', async () => {
-    await hold(4173); // zajęty albo już cudzy — w obu przypadkach wynik ma być inny
-    for (let i = 0; i < 3; i++) {
-      const p = await pickPort({});
-      expect(p).toBeGreaterThan(0);
-      expect(p).not.toBe(4173);
-    }
+describe('pickPort (MIX-1590: wolny port z listy dozwolonej w CORS Sanity)', () => {
+  it('zwraca port z listy dozwolonych', async () => {
+    expect(ALLOWED_PORTS).toContain(await pickPort({}));
   });
 
-  it('dwa kolejne wywołania z zajętym pierwszym portem dają różne, wolne porty', async () => {
-    const a = await pickPort({});
-    expect(await hold(a)).toBe(true);
-    const b = await pickPort({});
-    expect(b).not.toBe(a);
+  it('gdy 4173 jest zajęty, daje inny port z listy (nie stały 4173)', async () => {
+    await hold(4173); // zajęty przez nas albo już cudzy — w obu przypadkach wynik ma być inny
+    const p = await pickPort({});
+    expect(p).not.toBe(4173);
+    expect(ALLOWED_PORTS).toContain(p);
   });
 
-  it('PRERENDER_PORT wygrywa z losowaniem', async () => {
+  it('pomija porty z listy exclude', async () => {
+    const first = await pickPort({});
+    const second = await pickPort({}, [first]);
+    expect(second).not.toBe(first);
+    expect(ALLOWED_PORTS).toContain(second);
+  });
+
+  it('wszystkie porty zajęte = odmowa z komunikatem (fail-closed)', async () => {
+    for (const p of ALLOWED_PORTS) await hold(p);
+    await expect(pickPort({})).rejects.toThrow(/Brak wolnego portu prerenderu/);
+  });
+
+  it('PRERENDER_PORT wygrywa z listą', async () => {
     expect(await pickPort({ PRERENDER_PORT: '5555' })).toBe(5555);
   });
 
@@ -101,7 +109,8 @@ describe('assertServesThisBuild (znacznik builda)', () => {
   });
 
   it('odmawia, gdy nic nie nasłuchuje (błąd połączenia, nie ciche przejście)', async () => {
-    const port = await pickPort({});
+    const port = await serve((_req, res) => res.end(nonce)); // port efemeryczny...
+    servers.pop()?.close(); // ...zwolniony: nic nie nasłuchuje
     await expect(assertServesThisBuild(port, nonce)).rejects.toThrow();
   });
 });
@@ -125,7 +134,7 @@ describe('prerender.js: okablowanie', () => {
 
   it('nie ma stałego portu 4173', () => {
     expect(src).not.toMatch(/\b4173\s*;/);
-    expect(src).toMatch(/PORT = await pickPort\(\)/);
+    expect(src).toMatch(/PORT = await pickPort\(process\.env, tried\)/);
   });
 
   it('preview startuje z --strictPort i sprawdza znacznik builda przed użyciem', () => {
@@ -133,6 +142,10 @@ describe('prerender.js: okablowanie', () => {
     expect(src).toMatch(
       /await waitForServer\(PORT\);\s*[\s\S]{0,200}await assertServesThisBuild\(PORT, nonce\)/,
     );
+  });
+
+  it('przy odrzuconym porcie próbuje następny (tried.push) i zabija nieudany preview', () => {
+    expect(src).toMatch(/killServer\(server\);[\s\S]{0,200}tried\.push\(PORT\)/);
   });
 
   it('sprząta znacznik w finally', () => {
