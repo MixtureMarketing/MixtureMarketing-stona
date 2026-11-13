@@ -313,6 +313,7 @@ export const CMS_DOCUMENT: Record<string, CmsPick> = {
 export const CMS_LIST: Record<string, CmsPick> = {
   '/branza': { id: 'industryList', pick: (cms) => cms.getIndustryList },
   '/portfolio': { id: 'caseStudyList', pick: (cms) => cms.getCaseStudyList },
+  '/baza-wiedzy': { id: 'articleList', pick: (cms) => cms.getArticles },
 };
 
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {

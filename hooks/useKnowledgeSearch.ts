@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { cmsService } from '@/services/cmsService';
 import { Article } from '../types';
+import { useCmsDocument, CMS_LIST_KEY, CMS_DOC } from '@/hooks/useCmsDocument';
 
 const CATEGORY_IDS = new Set(['tech', 'marketing', 'design', 'analytics', 'business']);
 
@@ -20,8 +21,16 @@ export const useKnowledgeSearch = () => {
     urlCategory && CATEGORY_IDS.has(urlCategory) ? urlCategory : 'all',
   );
   const [searchQuery, setSearchQuery] = useState('');
-  const [allArticles, setAllArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  // MIX-1589: lista z zrzutu w prerenderowanym HTML (bez żądania do Sanity i bez
+  // zwijania 30 kart do 6 szkieletów), a przy jego braku z Sanity — jak /portfolio/.
+  // getArticles nie rzuca (błąd Sanity = rejestr), więc stan błędu tu nie wystąpi.
+  const { status, data } = useCmsDocument<Article[]>(
+    CMS_LIST_KEY,
+    cmsService.getArticles,
+    CMS_DOC.articleList,
+  );
+  const allArticles = useMemo(() => data ?? [], [data]);
+  const loading = status === 'loading';
 
   // Nawigacja z menu przy już otwartej bazie: param się zmienia bez remountu.
   useEffect(() => {
@@ -34,20 +43,6 @@ export const useKnowledgeSearch = () => {
     setActiveCategoryState(id);
     setSearchParams(id === 'all' ? {} : { kategoria: id }, { replace: true });
   };
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const data = await cmsService.getArticles();
-        setAllArticles(data);
-      } catch (err) {
-        console.error('Failed to load articles:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticles();
-  }, []);
 
   const filteredArticles = useMemo(() => {
     return allArticles.filter((article) => {
