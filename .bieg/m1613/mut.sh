@@ -21,5 +21,5 @@ run M3 $H "lista: tablica nie wymagana (obiekt przechodzi)" 's/Array.isArray(val
 run M4 $H "dokument: lista przechodzi jako dokument" 's/if (!fields) return isRecord(value);/if (!fields) return value !== null \&\& value !== undefined;/'
 run M5 $A "awaria CMS: rejestr bez sortowania" 's/return newestFirst(LEGACY_ARTICLES);/return LEGACY_ARTICLES;/'
 run M6 $A "awaria CMS: sortowanie rosnaco" 's/new Date(b.date).getTime() - new Date(a.date).getTime()/new Date(a.date).getTime() - new Date(b.date).getTime()/'
-run M7 .github/workflows/ci.yml "CI: main wdraza tez z workflow_dispatch" "0,/if: github.event_name == 'push' \&\& github.ref == 'refs\/heads\/main'/s//if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') \&\& github.ref == 'refs\/heads\/main'/"
+run M7 .github/workflows/ci.yml "CI: main wdraza tez z workflow_dispatch" "s/if: github.event_name == 'push' \&\& github.ref == 'refs\/heads\/main'/if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') \&\& github.ref == 'refs\/heads\/main'/"
 run M8 .github/workflows/ci.yml "CI: dev wdraza tez z pull_request" "s/github.event_name == 'workflow_dispatch') \&\& github.ref == 'refs\/heads\/dev'/github.event_name == 'pull_request') \&\& github.ref == 'refs\/heads\/dev'/"
