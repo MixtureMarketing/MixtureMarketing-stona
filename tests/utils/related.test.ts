@@ -78,6 +78,28 @@ describe('pickRelated: dodatnie nogi', () => {
     expect(b).toEqual(a);
   });
 
+  it('ten sam rodzaj ma ≥ limit dopasowań: najwyżej limit - 1 miejsc, ostatnie dla innego rodzaju', () => {
+    // 4 artykuły z 2 wspólnymi tematami i 1 realizacja z 1 wspólnym: realizacja i tak dostaje
+    // miejsce (ten sam rodzaj zajmuje najwyżej limit - 1), a 4. artykuł z wyższym wynikiem nie.
+    const pool = [
+      art('a', ['x', 'y']),
+      art('b', ['x', 'y']),
+      art('c', ['x', 'y']),
+      art('d', ['x', 'y']),
+      art('e', ['x', 'y']),
+      cs('z', ['x']),
+    ];
+    const out = keys(pickRelated({ _type: 'article', slug: 'a' }, pool));
+    expect(out).toEqual(['article:b', 'article:c', 'article:d', 'caseStudy:z']);
+    expect(out.filter((k) => k.startsWith('article:'))).toHaveLength(RELATED_LIMIT - 1);
+    expect(out).not.toContain('article:e');
+    // limit 2: jeden artykuł i jedna realizacja, nie dwa artykuły
+    expect(keys(pickRelated({ _type: 'article', slug: 'a' }, pool, 2))).toEqual([
+      'article:b',
+      'caseStudy:z',
+    ]);
+  });
+
   it('za mało innych rodzajów: dopełnienie tym samym rodzajem do limitu', () => {
     const pool = [
       art('a', ['x']),

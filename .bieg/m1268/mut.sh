@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # MIX-1268: mutanty (po commicie, w kopii biegu). Kazdy: zmiana JEDNEGO pliku, celowane testy,
-# przywrocenie TEGO pliku (git checkout -- plik). Sciezki wzgledne.
+# przywrocenie TEGO pliku (git checkout -- plik). Sciezki wzgledne. TYLKO=M7 = jeden mutant.
 set -u
 OUT=.bieg/r/m1268
 mkdir -p "$OUT"
@@ -9,6 +9,7 @@ echo "legacy-peer-deps=true" > .npmrc
 T="tests/utils/related.test.ts tests/components/Powiazane.test.tsx tests/components/powiazaneTemplates.test.tsx tests/hooks/cmsSnapshotShape.test.tsx"
 run() { # id plik opis sed-expr
   local id=$1 f=$2 desc=$3 expr=$4
+  [ -n "${TYLKO:-}" ] && [ "$id" != "$TYLKO" ] && return
   sed -i "$expr" "$f"
   if git diff --quiet -- "$f"; then echo "| $id | $desc | NIE ZASTOSOWANY |"; return; fi
   npx vitest run --maxWorkers=2 $T > "$OUT/mut-$id.log" 2>&1; rc=$?
@@ -35,3 +36,4 @@ run M11 $F "przełącznik: każda niepusta wartość" "s/import.meta.env.VITE_MM
 V=services/cms/relatedService.ts
 run M12 $V "błąd CMS = pusta lista (do zrzutu)" 's/throw new CmsUnavailableError(`getRelatedFor: ${key}`, error);/return [];/'
 run M13 $V "makiety nie odfiltrowane" 's/if (type === .caseStudy. \&\& !hasRealScreenshot(row.slug)) return null;//'
+git checkout -- .npmrc 2>/dev/null
