@@ -103,6 +103,19 @@ describe('index.html: skrypt widoczności banera zgód (MIX-1579)', () => {
     expect(runHeadScript()).toEqual([]);
   });
 
+  it('pole z zatrutego prototypu nie liczy się jako własne (allowlista też odmawia)', () => {
+    const raw = '{"analytics":true,"x":1}';
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, raw);
+    const proto = Object.prototype as unknown as Record<string, unknown>;
+    proto.marketing = true;
+    try {
+      expect(checkStoredConsent(raw).ok).toBe(false);
+      expect(runHeadScript()).toEqual([]);
+    } finally {
+      delete proto.marketing;
+    }
+  });
+
   it('zablokowany storage: brak stylu (baner widoczny), bez wyjątku', () => {
     const restore = blockStorage();
     try {
