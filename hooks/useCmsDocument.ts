@@ -34,6 +34,7 @@ export const CMS_DOC = {
   caseStudy: 'caseStudy',
   industryList: 'industryList',
   caseStudyList: 'caseStudyList',
+  articleList: 'articleList',
 } as const;
 export type CmsDocId = (typeof CMS_DOC)[keyof typeof CMS_DOC];
 
