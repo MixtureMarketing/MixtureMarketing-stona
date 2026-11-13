@@ -133,7 +133,7 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
   roi: {
     title: 'ROI: Czy to się opłaca?',
     subtitle: 'Zwrot z Inwestycji',
-    text: 'Znany przykład to „przycisk za 300 milionów dolarów”: duży sklep internetowy zastąpił obowiązkowe logowanie przy zakupie opcją „Kontynuuj” bez konta. Według opisu Jareda Spoola (User Interface Engineering, 2009) liczba kupujących wzrosła o 45%. To wynik jednego, bardzo dużego sklepu, więc u siebie traktuj go jako kierunek, a nie obietnicę.',
+    text: 'Każda poprawka w sklepie ma sens tylko wtedy, gdy zwiększa liczbę zamówień. Dlatego audyt zaczyna się od liczb z Twojej analityki, a nie od opinii o wyglądzie. Poniżej dwa powody, dla których to zwykle się opłaca.',
     cards: [
       {
         label: 'Koszt Naprawy',

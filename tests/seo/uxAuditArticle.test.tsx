@@ -3,7 +3,7 @@
 import React from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { describe, it, expect, vi } from 'vitest';
@@ -56,6 +56,7 @@ describe('artykuł „audyt UX sklepu” pod frazę (A13)', () => {
     const all = JSON.stringify(CONTENT);
     expect(all).not.toMatch(/ponad 70%/);
     expect(all).not.toMatch(/100x/);
+    expect(all).not.toMatch(/45%/);
   });
 
   it('linki wewnętrzne w treści prowadzą do istniejących stron i mają slash', () => {
@@ -79,8 +80,13 @@ describe('artykuł „audyt UX sklepu” pod frazę (A13)', () => {
     );
     await waitFor(() => expect(container.querySelector('h1')).not.toBeNull());
     expect(container.querySelector('h1')!.textContent!.toLowerCase()).toContain(PHRASE);
-    expect(screen.getByText(CONTENT.checklist.title)).toBeTruthy();
-    expect(screen.getByText(CONTENT.process.title)).toBeTruthy();
+    // SectionHeader rozbija tytuł na słowa (TextReveal), więc porównujemy tekst nagłówków bez spacji.
+    const headings = Array.from(container.querySelectorAll('h2')).map((h) =>
+      h.textContent!.replace(/\s+/g, ''),
+    );
+    for (const title of [CONTENT.checklist.title, CONTENT.process.title]) {
+      expect(headings).toContain(title.replace(/\s+/g, ''));
+    }
     expect(container.querySelector(`a[href="${PRICE}"]`)).not.toBeNull();
     expect(container.querySelector('a[href="/design/visual-audit/"]')).not.toBeNull();
     await waitFor(() => expect(document.title.toLowerCase()).toContain(PHRASE));
