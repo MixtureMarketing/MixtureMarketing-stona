@@ -2,13 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { prerenderOnlyRoutes } from '../../routes.js';
-import {
-  BASE_URL,
-  KEY_PATHS,
-  llmsReport,
-  llmsUrls,
-  sitemapUrls,
-} from '../../scripts/lib/llms.js';
+import { BASE_URL, KEY_PATHS, llmsReport, llmsUrls, sitemapUrls } from '../../scripts/lib/llms.js';
 
 // MIX-1273 (plan SEO A32): każdy adres z public/llms.txt musi być w mapie strony, strony kluczowe
 // muszą być w llms.txt, a strony ukryte (noindex / za flagą) nie mogą być wymienione.
@@ -44,11 +38,10 @@ describe('public/llms.txt vs public/sitemap.xml', () => {
     expect(llms).not.toContain('systemy-ai-aplikacje');
   });
 
-  it('każdy wpis listy w llms.txt z adresem ma opis po dwukropku (strony kluczowe)', () => {
+  it('strony kluczowe mają w llms.txt wpis listy `- [nazwa](adres): opis`', () => {
     for (const p of KEY_PATHS) {
-      const line = llms.split('\n').find((l) => l.includes(`](${BASE_URL}${p})`));
-      expect(line, p).toBeDefined();
-      expect(line, p).toMatch(/\): \S/);
+      const entry = new RegExp(`^\\s*- \\[[^\\]]+\\]\\(${BASE_URL}${p}\\): \\S`, 'm');
+      expect(llms, p).toMatch(entry);
     }
   });
 });
