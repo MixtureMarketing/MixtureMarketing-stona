@@ -11,14 +11,34 @@ import {
 import CookiePreferences from './CookiePreferences';
 import CookieFloatingButton from './CookieFloatingButton';
 import { safeGetItem, safeSetItem } from '../../utils/safeStorage';
+import { isCookieBannerStaticEnabled } from '../../config/flags';
 
 // Ten sam wzorzec co w App.tsx (UA Headless lub flaga ustawiana przez prerender.js).
 const isPrerenderingEnv = () =>
   typeof window !== 'undefined' &&
   (window.navigator.userAgent.includes('Headless') || window.isPrerendering === true);
 
+// Tylko prerender.js (zrzut do dist/), bez heurystyki UA: przeglądarka headless u gościa
+// zostaje przy dotychczasowym zachowaniu (baner się nie otwiera).
+const isSnapshotRender = () => typeof window !== 'undefined' && window.isPrerendering === true;
+
 const CookieBanner: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  // MIX-1579 (VITE_MM_COOKIE_BANNER_STATIC): baner jest w prerenderowanym HTML, więc maluje się
+  // z pierwszą klatką, a nie po starcie Reacta (był elementem LCP po 4–5 s na telefonie).
+  // Zrzut: baner otwarty (gościom z zapisaną zgodą chowa go skrypt w <head>, index.html).
+  // Przeglądarka: stan od razu w pierwszym renderze (ta sama allowlista co w efekcie niżej),
+  // żeby podmiana prerenderu przez Reacta nie zamykała i nie otwierała banera ponownie.
+  const staticBanner = isCookieBannerStaticEnabled();
+  const staticSnapshot = staticBanner && isSnapshotRender();
+  const [isOpen, setIsOpen] = useState(() => {
+    if (!staticBanner) return false;
+    if (staticSnapshot) return true;
+    if (isPrerenderingEnv()) return false;
+    return !checkStoredConsent(safeGetItem(CONSENT_KEY)).ok;
+  });
+  // Wejście z animacją (opacity 0 → 1) tylko przy otwarciu przyciskiem: baner obecny już
+  // w HTML nie może znikać i wjeżdżać od nowa przy podmianie prerenderu.
+  const [entrance, setEntrance] = useState(!staticBanner);
   const [showPreferences, setShowPreferences] = useState(false);
   const [preferences, setPreferences] = useState<ConsentState>({
     analytics: false,
@@ -117,13 +137,20 @@ const CookieBanner: React.FC = () => {
   };
 
   if (!isOpen) {
-    return <CookieFloatingButton onClick={() => setIsOpen(true)} />;
+    return (
+      <CookieFloatingButton
+        onClick={() => {
+          setEntrance(true);
+          setIsOpen(true);
+        }}
+      />
+    );
   }
 
-  return (
+  const banner = (
     <div
       ref={bannerRef}
-      className="fixed bottom-0 left-0 right-0 z-[100] p-4 animate-fade-in-up"
+      className={`fixed bottom-0 left-0 right-0 z-[100] p-4${entrance ? ' animate-fade-in-up' : ''}${staticSnapshot ? ' mm-zgoda-baner' : ''}`}
       // region zamiast complementary — banner renderuje się wewnątrz landmarku,
       // a complementary musi być top-level (axe: landmark-complementary-is-top-level)
       role="region"
@@ -205,6 +232,16 @@ const CookieBanner: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+
+  if (!staticSnapshot) return banner;
+  // Zrzut: przycisk też trafia do HTML, ukryty (`hidden`). Skrypt w <head> przy zapisanej
+  // zgodzie chowa baner (.mm-zgoda-baner) i pokazuje przycisk (.mm-zgoda-przycisk).
+  return (
+    <>
+      {banner}
+      <CookieFloatingButton onClick={() => setIsOpen(true)} className="mm-zgoda-przycisk hidden" />
+    </>
   );
 };
 
