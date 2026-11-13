@@ -263,14 +263,14 @@ describe('relatedService', () => {
   });
 
   it('getRelatedFor: błąd Sanity RZUCA CmsUnavailableError (pusty wynik z awarii nie trafia do zrzutu)', async () => {
-    fetchWithCache.mockImplementation(async () => {
-      throw new Error('timeout');
-    });
-    await expect(relatedService.getRelatedFor('article:a')).rejects.toBeInstanceOf(
-      CmsUnavailableError,
+    fetchWithCache.mockRejectedValueOnce(new Error('timeout'));
+    const err = await relatedService.getRelatedFor('article:a').then(
+      () => null,
+      (e: unknown) => e,
     );
-    await expect(relatedService.getRelatedFor('article:a')).rejects.toThrow(
-      /Sanity niedostępne \(getRelatedFor: article:a\): (Error: )?timeout/,
+    expect(err).toBeInstanceOf(CmsUnavailableError);
+    expect(String((err as Error).message)).toBe(
+      'Sanity niedostępne (getRelatedFor: article:a): timeout',
     );
   });
 
