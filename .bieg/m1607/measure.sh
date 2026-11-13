@@ -15,7 +15,7 @@ npm ci --no-audit --no-fund > "$OUT/npm.log" 2>&1; echo "npm ci rc $?"
 build() { # $1 = katalog drzewa
   (cd "$1" && VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production VITE_MM_PREONBOARD_KEY= \
    VITE_STRIPE_PUBLISHABLE_KEY= VITE_MM_MOBILE_MENU_B=1 VITE_MM_LIVE_PRICE_BAR=1 \
-   VITE_MM_VIEW_TRANSITIONS=1 VITE_MM_TESTIMONIALS=1 \
+   VITE_MM_VIEW_TRANSITIONS=1 VITE_MM_TESTIMONIALS=1 VITE_MM_COOKIE_BANNER_STATIC="${CB:-1}" \
    npm run build > build-m1607.log 2>&1
    rc=$?; echo "build $1 rc $rc"; [ $rc -eq 0 ] || tail -n 25 build-m1607.log | cut -c1-250
    return $rc)
@@ -50,6 +50,7 @@ for p in $PAGES; do
   slug=$(echo "$p" | tr -d '/'); slug=${slug:-home}
   for n in $(seq 1 "$N"); do
     for k in "${!PORTS[@]}"; do
+      [ "${REFS[$k]}" = ALL ] && [ "$slug" != "baza-wiedzy" ] && continue
       mkdir -p "$OUT/lh$k"
       npx --yes "lighthouse@$LH" "http://127.0.0.1:${PORTS[$k]}$p" --output=json \
         --output-path="$OUT/lh$k/$slug-m-$n.json" --quiet --only-categories=performance --save-assets \
