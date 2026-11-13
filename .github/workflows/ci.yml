@@ -54,6 +54,13 @@ jobs:
           # continue-on-error). Repo jest male (~160 commitow, ~42 MB), koszt kilka sekund.
           fetch-depth: 0
 
+      # MIX-1613 r2: cel wdrożenia wyznacza skrypt (porównanie ref czułe na wielkość liter; wyrażenie
+      # `==` w Actions takie nie jest, więc `DEV` albo `Dev` przeszłoby jako dev). Jedyne źródło prawdy
+      # dla kroków niżej: target=prod (push main) | preview (push albo ręczne uruchomienie na dev) | none.
+      - name: 🎯 Resolve deploy target
+        id: target
+        run: bash scripts/ci-deploy-guard.sh target >> "$GITHUB_OUTPUT"
+
       - name: 🛡️ Gitleaks Security Scan
         uses: gitleaks/gitleaks-action@v3
         env:
@@ -119,23 +126,38 @@ jobs:
           PRERENDER_CONCURRENCY: '8'
           # MIX-1465: menu mobilne B wlaczone na produkcji; wylaczenie = usunac te linie.
           VITE_MM_MOBILE_MENU_B: '1'
+          # MIX-1613 r2 (zasada wlasciciela MIX-1411): kazda scalona funkcja za przelacznikiem VITE_MM_*
+          # jest wlaczona w Preview (build dla dev), a na produkcji i w PR wylaczona do `TAK <SHA>`.
+          # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
+          VITE_MM_COOKIE_BANNER_STATIC: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_TESTIMONIALS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_VIEW_TRANSITIONS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build
 
       - name: 🩺 Health Audit (non-blocking)
         run: npm run audit:health
         continue-on-error: true
 
-      # --- DEPLOY: tylko push na main ---
+      # --- DEPLOY: tylko push na main (target=prod, patrz krok „Resolve deploy target”) ---
+      # Strażnik powtórek (MIX-1613 r2): ponowne uruchomienie starego biegu (re-run, token z
+      # Actions:write) ma SHA starego pusha na main. Wdrażamy wyłącznie SHA będące bieżącym końcem
+      # main w GitHub (`git ls-remote`); inaczej krok kończy się kodem 1 z linią powodu i deploy
+      # nie startuje. Fail-closed: brak odpowiedzi, brak SHA albo niejednoznaczny wynik = odmowa.
+      - name: 🔒 Replay guard (SHA = koniec main)
+        if: steps.target.outputs.target == 'prod'
+        run: bash scripts/ci-deploy-guard.sh main-tip
+
       # Sanityzacja commit message — wrangler ma bug z UTF-8 w commit msg (code 8000111).
       - name: 🧹 Sanitize commit message
         id: commit
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.target.outputs.target == 'prod'
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (main)" >> $GITHUB_OUTPUT
 
       - name: 🚀 Deploy to Cloudflare Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: steps.target.outputs.target == 'prod'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -144,17 +166,20 @@ jobs:
           # Bindingi D1/KV/R2 skonfigurowane na projekcie Pages (dashboard).
           command: pages deploy dist --project-name=mixturemarketing-stona --branch=main --commit-dirty=true --commit-message="${{ steps.commit.outputs.msg }}" --commit-hash=${{ github.sha }}
 
-      # --- DEPLOY Preview: tylko push na dev (alias dev.mixturemarketing-stona.pages.dev) ---
-      # Pull requesty nigdy nie wdrazaja; produkcja (main) bez zmian.
+      # --- DEPLOY Preview: push na dev albo reczne uruchomienie (workflow_dispatch) na dev ---
+      # (alias dev.mixturemarketing-stona.pages.dev). MIX-1613: webhook Sanity po publikacji
+      # uruchamia ten workflow na dev, zeby Preview odswiezyl zrzuty list CMS. main: wylacznie push.
+      # Pull requesty nigdy nie wdrazaja; produkcja (main) bez zmian. Ref `dev` rozstrzyga skrypt
+      # (case-sensitive): `DEV` i `Dev` nie wdrazaja (krok „Resolve deploy target” konczy sie kodem 1).
       - name: 🧹 Sanitize commit message (dev)
         id: commit_dev
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        if: steps.target.outputs.target == 'preview'
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (dev)" >> $GITHUB_OUTPUT
 
       - name: 🚀 Deploy to Cloudflare Pages (Preview dev)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        if: steps.target.outputs.target == 'preview'
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

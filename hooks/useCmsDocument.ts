@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { reportError } from '../utils/errorReporter';
+import { isValidSnapshotEntry } from './cmsSnapshotSchema';
 
 /**
  * Stan pobrania pojedynczego dokumentu CMS po slugu.
@@ -78,9 +79,12 @@ function snapshotMap(): Map<string, unknown> {
   return cachedMap;
 }
 
-/** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma. */
+export { isValidSnapshotEntry };
+
+/** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma lub ma zły kształt. */
 export function readCmsSnapshot<T>(id: CmsDocId, slug: string): T | undefined {
-  return snapshotMap().get(snapshotKey(id, slug)) as T | undefined;
+  const value = snapshotMap().get(snapshotKey(id, slug));
+  return value !== undefined && isValidSnapshotEntry(id, value) ? (value as T) : undefined;
 }
 
 /** JSON bezpieczny w treści <script>: bez `<` (`</script>`, `<!--`) i U+2028/2029. */
