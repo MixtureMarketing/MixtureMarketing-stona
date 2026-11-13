@@ -22,8 +22,14 @@ vi.mock('../../services/cmsService', () => ({
   urlFor: () => ({ width: () => ({ url: () => 'img' }) }),
   CmsUnavailableError: class CmsUnavailableError extends Error {},
 }));
+// Stary blok w LazyHydrate znika po pierwszym renderze (atrapa IntersectionObserver nie
+// zgłasza widoczności), więc liczymy jego rendery zamiast szukać go w DOM.
+const oldRelated = vi.hoisted(() => vi.fn());
 vi.mock('../../components/articles/RelatedArticles', () => ({
-  default: () => <div data-testid="related-old" />,
+  default: () => {
+    oldRelated();
+    return null;
+  },
 }));
 vi.mock('../../components/common/Powiazane', () => ({
   default: ({ type, slug }: { type: string; slug?: string }) => (
@@ -72,6 +78,7 @@ const PAGES = [
 ] as const;
 
 beforeEach(() => {
+  oldRelated.mockClear();
   vi.mocked(cmsService.getArticleBySlug).mockResolvedValue({
     _id: 'a1',
     title: 'Artykuł testowy',
@@ -115,7 +122,7 @@ describe('VITE_MM_POWIAZANE=1', () => {
       expect(el).toHaveAttribute('data-type', p.type);
       expect(el).toHaveAttribute('data-slug', p.slug);
       expect(screen.getAllByTestId('powiazane')).toHaveLength(1);
-      expect(screen.queryByTestId('related-old')).toBeNull();
+      expect(oldRelated).not.toHaveBeenCalled();
     });
   }
 
@@ -132,10 +139,10 @@ describe('przełącznik wyłączony (produkcja do TAK)', () => {
     it(`${p.type}: bez bloku „Powiązane”; stary blok tam, gdzie był`, async () => {
       vi.stubEnv('VITE_MM_POWIAZANE', '');
       renderAt(p.url);
-      if (p.old) await screen.findByTestId('related-old');
-      else await screen.findAllByText(p.h);
+      if (p.old) await waitFor(() => expect(oldRelated).toHaveBeenCalled());
+      else await screen.findAllByText(/Branża:/);
       expect(screen.queryByTestId('powiazane')).toBeNull();
-      expect(screen.queryAllByTestId('related-old')).toHaveLength(p.old ? 1 : 0);
+      if (!p.old) expect(oldRelated).not.toHaveBeenCalled();
     });
   }
 

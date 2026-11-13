@@ -22,7 +22,9 @@ interface PowiazaneListaProps {
  */
 export const PowiazaneLista: React.FC<PowiazaneListaProps> = ({ links }) => {
   const headingId = useId();
-  const items = Array.isArray(links) ? links.slice(0, RELATED_LIMIT) : [];
+  const items: RelatedLink[] = Array.isArray(links)
+    ? (links as ReadonlyArray<RelatedLink>).slice(0, RELATED_LIMIT)
+    : [];
   if (items.length === 0) return null;
 
   return (

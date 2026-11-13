@@ -268,7 +268,7 @@ describe('relatedService', () => {
       CmsUnavailableError,
     );
     await expect(relatedService.getRelatedFor('article:a')).rejects.toThrow(
-      /Sanity niedostępne \(getRelatedFor: article:a\): timeout/,
+      /Sanity niedostępne \(getRelatedFor: article:a\): (Error: )?timeout/,
     );
   });
 

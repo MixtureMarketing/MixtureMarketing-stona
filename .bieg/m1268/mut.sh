@@ -27,7 +27,7 @@ run M6 $R "remis: bez porządku cyklicznego" 's/(slug > current.slug ? 0 : 1)/(s
 run M7 $R "ten sam rodzaj bez limitu (max - 1)" 's/...same.slice(0, max - 1),/...same.slice(0, max),/'
 P=components/common/Powiazane.tsx
 run M8 $P "pusta lista renderuje sekcję" 's/if (items.length === 0) return null;/if (items.length < 0) return null;/'
-run M9 $P "blok bez limitu w widoku" 's/links.slice(0, RELATED_LIMIT)/links.slice(0)/'
+run M9 $P "blok bez limitu w widoku" 's/.slice(0, RELATED_LIMIT)/.slice(0)/'
 S=hooks/cmsSnapshotSchema.ts
 run M10 $S "zrzut: slug bez allowlisty" 's/slug: req(isSafeSlug), \/\/ adres/slug: req(text), \/\/ adres/'
 F=config/flags.ts
