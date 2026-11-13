@@ -129,8 +129,10 @@ describe.each(strony)('%s: sekcja lokalna Rzeszów', (_nazwa, Page, path, conten
     for (const nazwa of ['Q-PLAST', 'PsychON', 'Bibmot', 'Niepodzielni', 'Gabinet', 'Driftmark']) {
       expect(wszystko).not.toContain(nazwa);
     }
-    const liczby = wszystko.match(/\d[\d\s.,/]*/g) ?? [];
-    for (const l of liczby) expect(['2020', '24/7']).toContain(l.trim());
+    // Token liczby = cyfry, ewentualnie z jednym "/" (24/7); kropka i przecinek zdania nie wchodzą.
+    const liczby = wszystko.match(/\d+(?:\/\d+)?/g) ?? [];
+    expect(liczby.length).toBeGreaterThan(0);
+    for (const l of liczby) expect(['2020', '24/7']).toContain(l);
     expect(wszystko).not.toMatch(/\d\s*%|zł|gwarant|1\.\s*miejsce|TOP\s*\d/i);
   });
 });
