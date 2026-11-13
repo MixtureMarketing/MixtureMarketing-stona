@@ -6,13 +6,13 @@ T="tests/seo/aiSystemsPage.test.tsx tests/routes.test.ts"
 mut() { # id file sed-expr
   local id=$1 f=$2 expr=$3
   sed -i "$expr" "$f"
-  if git diff --quiet -- "$f"; then echo "$id NOOP (sed changed nothing)" >> "$OUT/mutants.txt"; return; fi
+  if git diff --quiet -- "$f"; then echo "$id NOOP (sed changed nothing)" | tee -a "$OUT/mutants.txt"; return; fi
   npx vitest run --maxWorkers=2 $T > "$OUT/mut-$id.log" 2>&1; local rc=$?
   local first; first=$(grep -m1 -E "FAIL|AssertionError" "$OUT/mut-$id.log" | cut -c1-110)
-  echo "$id | $f | $expr | rc=$rc | ${first}" >> "$OUT/mutants.txt"
+  echo "$id | $f | rc=$rc | ${first}" | tee -a "$OUT/mutants.txt"
   git checkout -- "$f"
 }
-: > "$OUT/mutants.txt"
+mkdir -p "$OUT"; git checkout -- public/sitemap.xml 2>/dev/null; : > "$OUT/mutants.txt"
 mut M1 routes.js "s#^  '/web-development/systemy-ai-aplikacje/',#  // removed#"
 mut M2 routes.js "s#^  '/offers/',#  '/offers/',\n  '/web-development/systemy-ai-aplikacje/',#"
 mut M3 components/pages/AiSystemsApps.tsx "0,/^        noindex\$/{/^        noindex\$/d}"
