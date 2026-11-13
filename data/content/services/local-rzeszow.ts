@@ -42,6 +42,9 @@ export const LOCAL_RZESZOW_ECOMMERCE: LocalRzeszowContent = {
     'Bezpłatna konsultacja: online albo na spotkaniu u Ciebie w firmie, a gdy wolisz miejsce neutralne, w centrum Rzeszowa.',
     'Obsługujemy firmy z Rzeszowa, Mielca, Stalowej Woli, Krosna, Przemyśla, Dębicy i Jasła, a także z całej Polski zdalnie.',
   ],
-  localLink: { to: '/web-development/rzeszow/', label: 'Tworzenie stron internetowych w Rzeszowie' },
+  localLink: {
+    to: '/web-development/rzeszow/',
+    label: 'Tworzenie stron internetowych w Rzeszowie',
+  },
   ctaLabel: 'Umów rozmowę o sklepie',
 };
