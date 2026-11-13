@@ -2,10 +2,13 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
   header: {
     badge: 'Baza Wiedzy: Design & UX',
     title: {
-      line1: 'Dlaczego Twój sklep',
-      line2: 'nie sprzedaje?',
+      line1: 'Audyt UX sklepu internetowego:',
+      line2: 'dlaczego sklep nie sprzedaje?',
     },
-    subtitle: 'Audyt UX, czyli jak załatać dziurawy lejek i przestać przepalać budżet reklamowy.',
+    /** <title> strony (≤ 60 znaków, fraza „audyt UX sklepu internetowego” na początku). */
+    seoTitle: 'Audyt UX sklepu internetowego: co sprawdzić i jak',
+    subtitle:
+      'Audyt UX sklepu internetowego: co sprawdzamy, jak wygląda krok po kroku i jakie błędy najczęściej zatrzymują zakup.',
   },
   lead: {
     highlight:
@@ -17,7 +20,7 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
   definition: {
     title: 'Czym właściwie jest Audyt UX?',
     subtitle: 'Definicja',
-    text: 'Audyt UX (User Experience) to profesjonalna ocena użyteczności Twojego sklepu. To nie jest opinia "czy strona jest ładna". To analiza oparta na twardych danych, psychologii zachowań i tzw. <strong>Heurystykach Nielsena</strong> (złotych zasadach projektowania).',
+    text: 'Audyt UX sklepu internetowego (User Experience) to ocena tego, jak łatwo klient przechodzi od wejścia na stronę do opłaconego zamówienia. To nie jest opinia „czy strona jest ładna”. To analiza oparta na danych z analityki, obserwacji zachowań i <strong>10 heurystykach użyteczności Jakoba Nielsena</strong> (zasadach oceny interfejsu, źródło: Nielsen Norman Group, „10 Usability Heuristics for User Interface Design”).',
     ui: {
       title: 'UI (User Interface)',
       desc: 'Sklep wygląda nowocześnie, ma ładne kolory i zdjęcia.',
@@ -32,10 +35,10 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
   killers: {
     title: 'Top 5 "Zabójców Konwersji"',
     subtitle: 'Najczęstsze Błędy',
-    text: 'Podczas audytów w naszym Software House najczęściej trafiamy na te same, krytyczne błędy. Sprawdź, czy nie popełniasz ich u siebie.',
+    text: 'To błędy, które w audytach sklepów wracają najczęściej. Sprawdź, czy któryś z nich dotyczy Twojego sklepu.',
     mobile: {
       title: 'Koszmar na mobile',
-      desc: 'W wielu branżach ruch z telefonów to już ponad 70%. Jeśli Twój sklep to tylko "zmniejszona wersja" desktopu, tracisz pieniądze.',
+      desc: 'W wielu sklepach większość wejść pochodzi z telefonów (sprawdzisz to w raporcie „Urządzenia” w Google Analytics 4). Jeśli Twój sklep to tylko „zmniejszona wersja” wersji na komputer, tracisz klientów dokładnie tam, gdzie jest ich najwięcej.',
     },
     forms: {
       title: 'Formularze, które odstraszają',
@@ -52,6 +55,60 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
         desc: 'Informacja o drogiej dostawie dopiero w ostatnim kroku koszyka.',
       },
       { title: 'Brak Zaufania', desc: 'Brak opinii, brak polityki zwrotów, podejrzany wygląd.' },
+    ],
+  },
+  checklist: {
+    title: 'Co obejmuje audyt UX sklepu',
+    subtitle: 'Zakres',
+    text: 'Dobry audyt nie kończy się na liście uwag. Przechodzi przez całą ścieżkę klienta i ocenia każdy etap osobno, żeby było jasne, gdzie sklep traci zamówienia.',
+    items: [
+      {
+        title: 'Strona główna i kategorie',
+        desc: 'Czy w kilka sekund widać, co sklep sprzedaje, jak filtrować produkty i jak wrócić do poprzedniego widoku.',
+      },
+      {
+        title: 'Karta produktu',
+        desc: 'Zdjęcia, cena, dostępność, koszt dostawy i opinie w jednym miejscu, bez przewijania w poszukiwaniu odpowiedzi.',
+      },
+      {
+        title: 'Koszyk i dostawa',
+        desc: 'Czy koszt końcowy jest widoczny od początku, czy da się zmienić ilość i czy klient wie, ile jeszcze kroków przed nim.',
+      },
+      {
+        title: 'Płatność i zakup',
+        desc: 'Zakup bez konta, czytelne formularze, komunikaty o błędach i znane metody płatności.',
+      },
+      {
+        title: 'Wyszukiwarka sklepu',
+        desc: 'Literówki, synonimy, wyniki bez trafień i sortowanie: to, od czego często zaczyna się zakup.',
+      },
+      {
+        title: 'Szybkość i dostępność',
+        desc: 'Czas ładowania na telefonie, czytelność i obsługa klawiaturą.',
+      },
+    ],
+  },
+  process: {
+    title: 'Jak wygląda audyt krok po kroku',
+    subtitle: 'Przebieg',
+    text: 'Pracujemy w czterech krokach. Pierwszy opiera się na liczbach, drugi na ocenie eksperta, trzeci na obserwacji ludzi, czwarty zamienia to w plan.',
+    steps: [
+      {
+        title: 'Dane z analityki',
+        desc: 'Z GA4 odczytujemy lejek zakupowy i miejsca, w których odpada najwięcej osób, osobno dla telefonu i komputera.',
+      },
+      {
+        title: 'Przegląd ekspercki',
+        desc: 'Przechodzimy ścieżkę zakupu według 10 heurystyk Nielsena i zapisujemy każdy problem z opisem i zrzutem ekranu.',
+      },
+      {
+        title: 'Obserwacja użytkowników',
+        desc: 'Mapy cieplne i nagrania sesji pokazują, co klienci robią naprawdę, a nie co deklarują.',
+      },
+      {
+        title: 'Raport i priorytety',
+        desc: 'Każda poprawka dostaje ocenę wpływu na sprzedaż i nakładu pracy, więc od razu wiadomo, co zrobić w pierwszej kolejności.',
+      },
     ],
   },
   tools: {
@@ -76,22 +133,33 @@ export const UX_AUDIT_ARTICLE_CONTENT = {
   roi: {
     title: 'ROI: Czy to się opłaca?',
     subtitle: 'Zwrot z Inwestycji',
-    text: 'Historia "przycisku za 300 milionów dolarów" jest legendą. Zmiana "Zarejestruj się" na "Kontynuuj jako gość" dała wzrost sprzedaży o 45% w miesiąc.',
+    text: 'Znany przykład to „przycisk za 300 milionów dolarów”: duży sklep internetowy zastąpił obowiązkowe logowanie przy zakupie opcją „Kontynuuj” bez konta. Według opisu Jareda Spoola (User Interface Engineering, 2009) liczba kupujących wzrosła o 45%. To wynik jednego, bardzo dużego sklepu, więc u siebie traktuj go jako kierunek, a nie obietnicę.',
     cards: [
       {
         label: 'Koszt Naprawy',
-        text: 'Naprawa błędu w kodzie kosztuje <strong class="text-red-700 text-lg">100x więcej</strong> niż na etapie makiety UX.',
+        text: 'Błąd wychwycony na etapie makiety jest tańszy niż ten sam błąd poprawiany w gotowym kodzie. <strong class="text-red-700 text-lg">Audyt przed przebudową</strong> pozwala wprowadzić tylko te zmiany, które mają wpływ na sprzedaż.',
       },
       {
         label: 'Efekt Skali',
-        text: 'Wzrost konwersji z 1% na 2% to <strong class="text-emerald-700 text-lg">2x większy przychód</strong> bez wydawania złotówki na reklamy.',
+        text: 'Przy tym samym ruchu wzrost konwersji z 1% do 2% to <strong class="text-emerald-700 text-lg">2x więcej zamówień</strong> bez zwiększania budżetu na reklamy (prosty rachunek, a nie obietnica wyniku).',
       },
     ],
   },
+  related: {
+    text: 'Zanim zamówisz audyt, sprawdź też:',
+    cost: {
+      label: 'Ile kosztuje strona internetowa w Rzeszowie w 2026 roku',
+      href: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
+    },
+    speed: {
+      label: 'Core Web Vitals 2025: nowy standard Google Lighthouse',
+      href: '/baza-wiedzy/core-web-vitals-2025/',
+    },
+  },
   cta: {
     title: 'Przestań zgadywać, zacznij sprzedawać.',
-    text: 'Zamów profesjonalny Audyt UX. Wskażemy Ci "wąskie gardła" i przygotujemy plan naprawczy, który zwiększy Twoją konwersję.',
-    primaryBtn: 'Zamów Bezpłatną Wycenę',
+    text: 'Zamów audyt UX. Wskażemy wąskie gardła w ścieżce zakupu i przygotujemy plan poprawek uporządkowany według wpływu na sprzedaż.',
+    primaryBtn: 'Zamów audyt UX',
     secondaryBtn: 'Wróć do Bazy Wiedzy',
   },
 };

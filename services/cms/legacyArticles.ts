@@ -42,14 +42,16 @@ export const LEGACY_ARTICLES: Article[] = [
   },
   {
     id: 'ux-audit',
-    title: 'Dlaczego Twój sklep nie sprzedaje? Audyt UX.',
+    title: 'Audyt UX sklepu internetowego: dlaczego sklep nie sprzedaje?',
     description:
-      'Użytkownicy porzucają koszyki? Często problemem nie jest cena, ale design. Zobacz 5 najczęstszych błędów UX w e-commerce.',
+      'Klienci porzucają koszyki? Sprawdź, co obejmuje audyt UX sklepu internetowego, jak przebiega krok po kroku i jakie 5 błędów najczęściej zatrzymuje zakup.',
     category: 'design',
     categoryLabel: 'Design & UX',
     image: '/assets/images/audyt-ux.png',
     date: '2025-12-22',
-    readTime: '6 min',
+    // Przebudowa pod frazę „audyt UX sklepu internetowego” (SEO A13, MIX-1270).
+    updatedDate: '2026-11-13',
+    readTime: '7 min',
     slug: '/baza-wiedzy/audyt-ux-sklepu-internetowego',
     tags: ['UX/UI', 'E-commerce', 'Conversion'],
     isFeatured: true,
