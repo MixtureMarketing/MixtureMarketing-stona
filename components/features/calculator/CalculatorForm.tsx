@@ -2,6 +2,7 @@
 // = kontakt (e-mail + honeypot + submit). Widoczność pytań (visible_if) liczy hook; tu render.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import QuestionField from './QuestionField';
+import RodoKlauzulaKrotka from '../../common/RodoKlauzulaKrotka';
 import { CONTACT_STEP, firstErrorTarget } from './formLogic';
 import type { PublicQuestion } from '../../../services/calculatorService';
 import type { Answers } from '../../../lib/estimation/types';
@@ -229,6 +230,8 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           </button>
         )}
       </div>
+
+      {isContact && <RodoKlauzulaKrotka variant="calculator" tone="dark" />}
     </div>
   );
 };

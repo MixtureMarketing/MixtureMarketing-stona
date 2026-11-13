@@ -1,6 +1,13 @@
 import { SITE_CONFIG } from '../../config/site';
 import { DICTIONARY } from '../dictionary';
 
+// Adres siedziby z konfiguracji (jedno źródło prawdy). Spacje wokół ukośnika w numerze lokalu
+// zwijamy ("17 / 4" -> "17/4"), żeby tekst był taki sam jak dotychczasowy, wpisany ręcznie.
+const ADRES_ULICA = SITE_CONFIG.contact.address.street.replace(/\s*\/\s*/g, '/');
+const ADRES_KOD = SITE_CONFIG.contact.address.postalCode;
+const ADRES_MIASTO = SITE_CONFIG.contact.address.city;
+// Miejscownik miasta ("w Rzeszowie") nie wynika z konfiguracji, więc zostaje w tekście.
+
 export const HERO_CONTENT = {
   badge: 'Partner Strategiczny dla Biznesu',
   title: {
@@ -165,7 +172,7 @@ export const TERMS_CONTENT = {
     general: {
       title: '1. Postanowienia Ogólne',
       content: [
-        `Właścicielem serwisu dostępnego pod adresem <strong>mixturemarketing.pl</strong> (dalej: "Serwis") jest spółka <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie (35-074), Al. Józefa Piłsudskiego 17/4, wpisana do rejestru przedsiębiorców Krajowego Rejestru Sądowego, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Usługodawca").`,
+        `Właścicielem serwisu dostępnego pod adresem <strong>mixturemarketing.pl</strong> (dalej: "Serwis") jest spółka <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie (${ADRES_KOD}), ${ADRES_ULICA}, wpisana do rejestru przedsiębiorców Krajowego Rejestru Sądowego, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Usługodawca").`,
         `Pytania dotyczące Regulaminu prosimy kierować na adres: <strong>${SITE_CONFIG.contact.email}</strong> lub telefonicznie pod numerem: <strong>${SITE_CONFIG.contact.phone}</strong>.`,
       ],
     },
@@ -238,6 +245,74 @@ export const TERMS_CONTENT = {
   },
 };
 
+const RODO_ADRES = `${ADRES_ULICA}, ${ADRES_KOD} ${ADRES_MIASTO}`;
+
+// Okresy przechowywania (decyzja właściciela MIX-627 A): to samo brzmienie w pkt 6 klauzuli
+// formularzy i w pkt 3 polityki prywatności przy włączonej fladze.
+const RODO_RETENCJA_LEADY =
+  'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy.';
+const RODO_RETENCJA_PDF = 'Raport PDF z audytu strony przechowujemy 90 dni.';
+
+// Klauzula informacyjna RODO formularzy (MIX-844). Pokazywana tylko przy włączonej fladze
+// VITE_RODO_KLAUZULA=1 (config/flags.ts). Tekst wg dodatku RODO MIX-627, odpowiedzi właściciela 2.11.
+export const RODO_KLAUZULA_CONTENT = {
+  anchorId: 'klauzula-formularze',
+  linkHref: '/privacy-policy/#klauzula-formularze',
+  linkLabel: 'pełnej informacji o przetwarzaniu danych',
+  short: {
+    contact: `Administratorem Twoich danych jest ${SITE_CONFIG.companyName}. Dane z formularza przetwarzamy, żeby odpowiedzieć na Twoje zapytanie — podstawa: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy) oraz lit. f RODO (nasz prawnie uzasadniony interes: ochrona formularza przed spamem i nadużyciami). Dane trafiają do naszych dostawców (system zgłoszeń Linear, hosting Cloudflare, poczta Resend), część z nich działa poza Europejskim Obszarem Gospodarczym. Podanie danych jest dobrowolne, ale potrzebne, żebyśmy mogli odpowiedzieć. Masz prawo dostępu do danych, ich usunięcia i inne prawa opisane w `,
+    calculator: `Administratorem Twoich danych jest ${SITE_CONFIG.companyName}. Dane z kalkulatora przetwarzamy, żeby odpowiedzieć na Twoje zapytanie i przygotować wycenę — podstawa: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy) oraz lit. f RODO (nasz prawnie uzasadniony interes: ochrona formularza przed spamem i nadużyciami). Dane trafiają do naszych dostawców (system zgłoszeń Linear, hosting Cloudflare, poczta Resend), część z nich działa poza Europejskim Obszarem Gospodarczym. Podanie danych jest dobrowolne, ale potrzebne, żebyśmy mogli odpowiedzieć. Masz prawo dostępu do danych, ich usunięcia i inne prawa opisane w `,
+    abonament: `Administratorem Twoich danych jest ${SITE_CONFIG.companyName}. Dane z formularza zapisu (nazwa firmy, e-mail, telefon, NIP) przetwarzamy, żeby założyć konto, zawrzeć i wykonać umowę abonamentu oraz wystawić fakturę — podstawa: art. 6 ust. 1 lit. b RODO (zawarcie i wykonanie umowy na Twoje żądanie) oraz lit. c RODO (obowiązki podatkowe i księgowe). Dane trafiają do naszych dostawców (system obsługi klientów, operator płatności Stripe, hosting Cloudflare), część z nich działa poza Europejskim Obszarem Gospodarczym. Podanie danych jest dobrowolne, ale potrzebne do zawarcia umowy. Masz prawo dostępu do danych, ich usunięcia i inne prawa opisane w `,
+  },
+  full: {
+    title: '7. Formularz kontaktowy i kalkulator wyceny: informacja o przetwarzaniu danych',
+    intro:
+      'Informacja o przetwarzaniu danych osobowych z formularza kontaktowego i kalkulatora wyceny (art. 13 RODO).',
+    items: [
+      {
+        title: 'Administrator.',
+        text: `Administratorem Twoich danych osobowych jest ${SITE_CONFIG.companyName}, NIP ${SITE_CONFIG.contact.vatID}, z siedzibą pod adresem ${RODO_ADRES}. Kontakt w sprawach danych osobowych: ${SITE_CONFIG.contact.email}.`,
+      },
+      {
+        title: 'Jakie dane przetwarzamy.',
+        text: 'Dane, które sam wpisujesz: imię, adres e-mail, numer telefonu, nazwa firmy, adres strony WWW, treść wiadomości i inne pola formularza, informacje o projekcie (rodzaj usługi, pakiet, budżet), a w kalkulatorze także Twoje odpowiedzi na pytania i wyliczone widełki ceny. Zapisujemy też adres strony, z której wysłano formularz. Twój adres IP służy wyłącznie do ochrony przed nadużyciami (weryfikacja Turnstile, limity zapytań) i nie trafia do bazy zgłoszeń ani do systemu Linear; klucze liczników z adresem IP wygasają po godzinie.',
+      },
+      {
+        title: 'Cele i podstawy prawne.',
+        text: '(a) Odpowiedź na Twoje zapytanie, przygotowanie wyceny i kontakt przed zawarciem umowy: art. 6 ust. 1 lit. b RODO (działania podejmowane na Twoje żądanie przed zawarciem umowy). (b) Ochrona formularzy przed spamem i nadużyciami oraz zapewnienie bezpieczeństwa: art. 6 ust. 1 lit. f RODO (nasz prawnie uzasadniony interes).',
+      },
+      {
+        title: 'Odbiorcy danych.',
+        text: 'Dane przetwarzają na nasze zlecenie (jako podmioty przetwarzające): Linear Orbit Inc. (system, w którym zespół obsługuje zgłoszenia), Cloudflare, Inc. (hosting strony, baza danych, pamięć plików i ochrona Turnstile) oraz Resend (wysyłka wiadomości e-mail). Z każdym z tych dostawców mamy zaakceptowaną umowę powierzenia przetwarzania danych. Dostęp do zgłoszeń ma zespół, który je obsługuje, oraz administratorzy tych systemów.',
+      },
+      {
+        title: 'Przekazywanie danych poza EOG.',
+        text: 'Linear i Cloudflare mogą przetwarzać dane w Stanach Zjednoczonych. Podstawą przekazania są standardowe klauzule umowne (SCC). Kopię zabezpieczeń możesz uzyskać, pisząc pod adres z pkt 1. To samo dotyczy dostawcy poczty, jeśli przetwarza dane poza EOG.',
+      },
+      {
+        title: 'Jak długo przechowujemy dane.',
+        text: `${RODO_RETENCJA_LEADY} ${RODO_RETENCJA_PDF} Techniczne znaczniki ochrony przed nadużyciami (liczniki zapytań, blokady powtórzeń) wygasają same po czasie od jednej godziny do 30 dni.`,
+      },
+      {
+        title: 'Twoje prawa.',
+        text: 'Masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia danych (gdy podstawą jest lit. b) oraz sprzeciwu wobec przetwarzania opartego na naszym uzasadnionym interesie (gdy podstawą jest lit. f). Żądanie wyślij na adres z pkt 1; odpowiemy w ciągu jednego miesiąca.',
+      },
+      {
+        title: 'Skarga.',
+        text: 'Masz prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).',
+      },
+      {
+        title: 'Dobrowolność.',
+        text: 'Podanie danych jest dobrowolne, ale bez danych kontaktowych nie możemy odpowiedzieć na zapytanie ani przygotować wyceny.',
+      },
+      {
+        title: 'Decyzje zautomatyzowane.',
+        text: 'Nie podejmujemy decyzji w sposób zautomatyzowany ani nie profilujemy.',
+      },
+    ],
+  },
+};
+
 export const PRIVACY_POLICY_CONTENT = {
   seo: {
     title: 'Polityka Prywatności | Mixture Marketing',
@@ -253,7 +328,7 @@ export const PRIVACY_POLICY_CONTENT = {
   admin: {
     title: '1. Administrator Danych',
     content: [
-      `Administratorem danych osobowych zbieranych za pośrednictwem serwisu jest <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie, przy Al. Józefa Piłsudskiego 17/4, 35-074 Rzeszów, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Administrator").`,
+      `Administratorem danych osobowych zbieranych za pośrednictwem serwisu jest <strong>Mixture Marketing Sp. z o.o.</strong> z siedzibą w Rzeszowie, przy ${ADRES_ULICA}, ${ADRES_KOD} ${ADRES_MIASTO}, NIP: ${SITE_CONFIG.contact.vatID} (dalej: "Administrator").`,
       `W sprawach dotyczących ochrony danych osobowych możesz skontaktować się z nami pod adresem e-mail: <strong>${SITE_CONFIG.contact.email}</strong>.`,
     ],
   },
@@ -291,6 +366,8 @@ export const PRIVACY_POLICY_CONTENT = {
     retention: {
       title: 'Okres przechowywania:',
       text: 'Dane kontaktowe przechowujemy przez okres trwania korespondencji, a następnie do czasu przedawnienia ewentualnych roszczeń (zazwyczaj 3-6 lat) lub do momentu wycofania przez Ciebie zgody.',
+      // Przy fladze VITE_RODO_KLAUZULA=1 (decyzja MIX-627 A: bez okienka zgody, stałe okresy).
+      textRodo: `${RODO_RETENCJA_LEADY} ${RODO_RETENCJA_PDF}`,
     },
   },
   cookies: {
