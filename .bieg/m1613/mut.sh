@@ -3,6 +3,8 @@
 set -u
 OUT=.bieg/r/m1613
 mkdir -p "$OUT"
+echo "legacy-peer-deps=true" > .npmrc
+npm ci --no-audit --no-fund > "$OUT/mut-ci.log" 2>&1; echo "npm-ci rc=$?"
 T="tests/hooks/cmsSnapshotShape.test.tsx tests/services/articleListFallbackSort.test.ts tests/scripts/ciWorkflow.test.ts tests/components/KnowledgeBaseSnapshot.test.tsx"
 run() { # id plik opis sed-expr
   local id=$1 f=$2 desc=$3 expr=$4
@@ -11,8 +13,9 @@ run() { # id plik opis sed-expr
   npx vitest run --maxWorkers=2 $T > "$OUT/mut-$id.log" 2>&1; rc=$?
   git checkout -- "$f"
   n=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/mut-$id.log" | grep -aE "Tests " | head -1)
-  if [ $rc -ne 0 ]; then echo "| $id | $desc | zabity ($n) |"; else echo "| $id | $desc | PRZEZYL |"; fi
+  if [ $rc -ne 0 ] && grep -aq " failed" "$OUT/mut-$id.log"; then echo "| $id | $desc | zabity ($n) |"; else echo "| $id | $desc | PRZEZYL |"; fi
 }
+npx vitest run --maxWorkers=2 $T > "$OUT/mut-base.log" 2>&1; echo "baza rc=$? $(sed "s/\x1b\[[0-9;]*m//g" "$OUT/mut-base.log" | grep -aE "Tests " | head -1)"
 H=hooks/useCmsDocument.ts
 A=services/cms/articleService.ts
 run M1 $H "readCmsSnapshot: bez walidacji ksztaltu" 's/return value !== undefined \&\& isValidSnapshotEntry(id, value) ? (value as T) : undefined;/return value as T | undefined;/'
