@@ -26,6 +26,13 @@ import { useKnowledgeSearch } from '@/hooks/useKnowledgeSearch';
 import { formatDate } from '@/utils/date';
 import { withTrailingSlash } from '@/utils/url';
 
+// MIX-1607: karty od FIRST_DEFERRED_CARD w dół (pod pierwszym ekranem) nie liczą layoutu i stylu,
+// dopóki nie zbliżą się do okna (content-visibility:auto). Wszystkie linki zostają w DOM i w HTML
+// z prerenderu (roboty widzą pełną listę). Wysokość zastępcza 540 px ≈ realna karta; `auto` zapamiętuje
+// ostatnio zmierzoną, więc po zrenderowaniu nie ma skoku układu. Pierwszy rząd (3 karty) bez zmian.
+const FIRST_DEFERRED_CARD = 3;
+const DEFERRED_CARD = '[content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_540px]';
+
 // Categories Configuration
 const CATEGORIES = [
   { id: 'all', icon: Hash },
@@ -156,13 +163,15 @@ const KnowledgeBase = () => {
               ))}
             </div>
           ) : filteredArticles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
-              {filteredArticles.map((article) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredArticles.map((article, index) => (
                 <BaseCard
                   key={article.id}
                   padding="none"
                   hover="lift"
-                  className="flex flex-col h-full group overflow-hidden border-gray-200/50 hover:border-primary/50"
+                  className={`flex flex-col h-full group overflow-hidden border-gray-200/50 hover:border-primary/50${
+                    index >= FIRST_DEFERRED_CARD ? ` ${DEFERRED_CARD}` : ''
+                  }`}
                 >
                   {/* Image Container */}
                   <div className="relative h-56 overflow-hidden">
