@@ -14,6 +14,8 @@ import LazyHydrate from '@/components/common/LazyHydrate';
 import { Calendar, Clock, Tag } from 'lucide-react';
 import RelatedArticles from '../articles/RelatedArticles';
 import PortableTextRenderer from '../common/PortableTextRenderer';
+import Powiazane from '../common/Powiazane';
+import { isPowiazaneEnabled } from '@/config/flags';
 
 // Stabilna referencja (metoda serwisu) — ta sama, którą preloaduje trasa (config/routes).
 const fetchArticle = cmsService.getArticleBySlug;
@@ -144,9 +146,13 @@ const ArticleTemplate = () => {
         </div>
       </div>
 
-      <LazyHydrate minHeight="400px">
-        <RelatedArticles currentSlug={slug || ''} category={article.category?.title as string} />
-      </LazyHydrate>
+      {isPowiazaneEnabled() ? (
+        <Powiazane type="article" slug={slug} />
+      ) : (
+        <LazyHydrate minHeight="400px">
+          <RelatedArticles currentSlug={slug || ''} category={article.category?.title as string} />
+        </LazyHydrate>
+      )}
     </div>
   );
 };

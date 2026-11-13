@@ -16,3 +16,10 @@ export const isRodoKlauzulaEnabled = (): boolean => import.meta.env.VITE_RODO_KL
  */
 export const isCookieBannerStaticEnabled = (): boolean =>
   import.meta.env.VITE_MM_COOKIE_BANNER_STATIC === '1';
+
+/**
+ * Blok „Powiązane” (MIX-1268, plan SEO A11) na stronach artykułu, realizacji i branży z CMS.
+ * Włączony: `components/common/Powiazane.tsx` zamiast dawnego `RelatedArticles` (artykuł,
+ * realizacja) i nowy blok na branży. Wyłączony = dotychczasowe zachowanie.
+ */
+export const isPowiazaneEnabled = (): boolean => import.meta.env.VITE_MM_POWIAZANE === '1';

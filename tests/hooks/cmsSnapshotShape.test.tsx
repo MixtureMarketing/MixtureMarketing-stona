@@ -298,7 +298,7 @@ describe.each(LISTY)('zrzut listy $id', (L) => {
 describe('allowlista: spójność ze szablonami', () => {
   it('każda lista z CMS_DOC ma allowlistę list, a dokumenty (nie listy) mają osobną (MIX-1620)', () => {
     expect(Object.keys(SNAPSHOT_LIST_SCHEMAS).sort()).toEqual(
-      [CMS_DOC.articleList, CMS_DOC.caseStudyList, CMS_DOC.industryList].sort(),
+      [CMS_DOC.articleList, CMS_DOC.caseStudyList, CMS_DOC.industryList, CMS_DOC.related].sort(),
     );
     // Dokument bez wymaganych pól czytanych przez szablon nie przechodzi (kiedyś wystarczył obiekt).
     expect(isValidSnapshotEntry(CMS_DOC.article, { title: 'x' })).toBe(false);

@@ -11,6 +11,8 @@
  * w szablonie) musi być obecne i właściwego typu. Nieznany identyfikator = odmowa (fail-closed).
  */
 
+import { isRelatedType, isSafeSlug, MAX_RELATED_TITLE } from '../utils/related';
+
 /** Maks. liczba pozycji listy; więcej = zrzut odrzucony (ochrona przed rozdmuchanym wpisem). */
 export const MAX_SNAPSHOT_LIST_ITEMS = 1000;
 /** Maks. długość tablicy tekstów w pozycji (tagi, podkategorie). */
@@ -134,6 +136,13 @@ export const SNAPSHOT_LIST_SCHEMAS: Record<string, ListSchema> = {
     name: req(text), // nagłówek, JSON-LD
     slug: req(text), // key, link, JSON-LD
     forWho: opt(textOrNull), // audienceLine(...).trim()
+  },
+  // Blok „Powiązane” (MIX-1268): components/common/Powiazane.tsx. Rodzaj z listy i slug ze
+  // wzorca bezpiecznego adresu (utils/related.ts), bo oba trafiają do href linku.
+  related: {
+    _type: req(isRelatedType), // adres i podpis rodzaju
+    slug: req(isSafeSlug), // adres
+    title: req((v) => text(v) && (v as string).length <= MAX_RELATED_TITLE), // tekst linku
   },
 };
 
