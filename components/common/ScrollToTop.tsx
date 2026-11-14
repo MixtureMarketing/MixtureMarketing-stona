@@ -4,6 +4,7 @@ import { endPrerenderBoot } from '@/utils/bootState';
 import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
 import {
   armSource,
+  backOwned,
   backTicket,
   bumpGeneration,
   listenUserInput,
@@ -76,6 +77,9 @@ export default function ScrollToTop() {
     const live = backTicket(() => locRef.current);
     if (!live()) return;
     restoredFor.current = pathname;
+    // MIX-1707: przywrócenie należy do przejścia wstecz (przewija po potwierdzeniu pojedynczego cofnięcia);
+    // tu tylko bez przewinięcia na górę
+    if (backOwned()) return;
     // bilet: inne pokolenie, inna ścieżka/query albo ruch użytkownika = oczekujące przywrócenie nic nie przewija
     startRestore(y, { guard: live });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- tylko zmiana ścieżki

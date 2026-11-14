@@ -1,0 +1,8 @@
+NUM 375 double-back-12 path=/ rest=2 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=2
+NUM 375 double-back-15 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300
+NUM 375 double-back-18 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300
+NUM 375 double-back-20 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300
+NUM 375 double-back-22 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300
+NUM 375 double-back-25 path=/ rest=2 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=2
+NUM 375 double-back-28 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300
+NUM 375 double-back-30 path=/ rest=300 sameDocument=true transitions=0 restoreCallsOnRoot=0 rootFramesMaxY=300

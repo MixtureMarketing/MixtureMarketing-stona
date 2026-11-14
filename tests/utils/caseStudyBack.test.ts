@@ -16,11 +16,14 @@ import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
 import {
   type BackLocation,
   armSource,
+  backOwned,
   backTicket,
   bumpGeneration,
   claimBack,
   currentGeneration,
   dropClaim,
+  listenUserInput,
+  ownBack,
   resetBackState,
 } from '@/utils/caseStudyGeneration';
 
@@ -386,6 +389,27 @@ describe('claimBack: restore only on one exact back onto the source list (MIX-16
     expect(claimBack(target)).toBe(false);
     expect(backTicket(() => list)()).toBe(false);
   });
+  it('MIX-1707: ownership: only the accepted back can be owned; a new popstate starts unowned', () => {
+    // no accepted back: nothing to own, no error
+    expect(() => ownBack(true)).not.toThrow();
+    expect(backOwned()).toBe(false);
+    armSource(list);
+    expect(claimBack(list)).toBe(true);
+    expect(backOwned()).toBe(false);
+    ownBack(true);
+    expect(backOwned()).toBe(true);
+    ownBack(false);
+    expect(backOwned()).toBe(false);
+    ownBack(true);
+    // the next popstate (refused) replaces the claim: not owned any more
+    expect(claimBack(list)).toBe(false);
+    expect(backOwned()).toBe(false);
+    armSource(list);
+    claimBack(list);
+    ownBack(true);
+    dropClaim();
+    expect(backOwned()).toBe(false);
+  });
   it('refused: no source list (direct entry) or a broken one', () => {
     expect(claimBack(list)).toBe(false);
     armSource(null);
@@ -502,5 +526,75 @@ describe('manualRestorationFor / revertManualRestoration (MIX-1675 r6)', () => {
     manualRestorationFor(win, 1200);
     vi.advanceTimersByTime(1300);
     expect(h.value).toBe('auto');
+  });
+});
+
+describe('MIX-1699: a link (PUSH) within the manual window after an accepted back', () => {
+  /**
+   * History with entries, as in the HTML spec: a push creates a new entry that copies the scroll
+   * restoration mode of the current one; `scrollRestoration` reads and writes the current entry only.
+   */
+  function historyWithEntries() {
+    const list = { mode: 'auto' as ScrollRestoration };
+    const h = {
+      cur: list,
+      get scrollRestoration() {
+        return this.cur.mode;
+      },
+      set scrollRestoration(v: ScrollRestoration) {
+        this.cur.mode = v;
+      },
+      push() {
+        this.cur = { mode: this.cur.mode };
+        return this.cur;
+      },
+    };
+    const win = {
+      history: h,
+      setTimeout: (cb: () => void, ms: number) => setTimeout(cb, ms),
+      clearTimeout: (t: ReturnType<typeof setTimeout>) => clearTimeout(t),
+    } as unknown as Window;
+    return { h, list, win };
+  }
+  let unlisten: () => void = () => undefined;
+  afterEach(() => {
+    unlisten();
+    revertManualRestoration();
+  });
+
+  it('measured residual: a push with no input first leaves the list entry in manual (timer writes only the new entry)', () => {
+    const { h, list, win } = historyWithEntries();
+    manualRestorationFor(win, 1200);
+    const next = h.push();
+    expect(next.mode).toBe('manual'); // copied from the list entry
+    vi.advanceTimersByTime(1300);
+    expect(next.mode).toBe('auto');
+    expect(list.mode).toBe('manual');
+  });
+
+  it.each(['mousedown', 'touchstart', 'keydown', 'click'])(
+    'input (%s) before the push ends the window on the list entry: both entries end in auto',
+    (type) => {
+      const { h, list, win } = historyWithEntries();
+      unlisten = listenUserInput(window);
+      manualRestorationFor(win, 1200);
+      window.dispatchEvent(new Event(type));
+      expect(list.mode).toBe('auto');
+      const next = h.push();
+      expect(next.mode).toBe('auto');
+      vi.advanceTimersByTime(1300);
+      expect(list.mode).toBe('auto');
+      expect(next.mode).toBe('auto');
+    },
+  );
+
+  it('allowed twin: without input the window stays manual on the list entry until its timer', () => {
+    const { list, win } = historyWithEntries();
+    unlisten = listenUserInput(window);
+    manualRestorationFor(win, 1200);
+    vi.advanceTimersByTime(1000);
+    expect(list.mode).toBe('manual');
+    vi.advanceTimersByTime(300);
+    expect(list.mode).toBe('auto');
   });
 });

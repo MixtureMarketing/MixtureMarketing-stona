@@ -4,7 +4,7 @@ import { MemoryRouter, Link, Route, Routes, useNavigate } from 'react-router-dom
 import ScrollToTop from '@/components/common/ScrollToTop';
 import { INSTANT_TOP } from '@/utils/caseStudyTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
-import { resetBackState } from '@/utils/caseStudyGeneration';
+import { ownBack, resetBackState } from '@/utils/caseStudyGeneration';
 
 function Nav() {
   const navigate = useNavigate();
@@ -129,6 +129,50 @@ describe('MIX-1675 switch on: restore without animation', () => {
     for (const call of scrollTo.mock.calls) {
       expect((call[0] as ScrollToOptions).behavior).not.toBe('smooth');
     }
+  });
+
+  it('MIX-1699 (G8c): mounted on "/", link to the list, card, back: the list position is restored', () => {
+    // the list is reached by a link, not mounted: the source must be the page before the card, not the mount page
+    render(<Tree entries={['/']} index={0} />);
+    fireEvent.click(screen.getByText('menu-list'));
+    recordScroll('/portfolio/', 1800);
+    fireEvent.click(screen.getByText('card'));
+    scrollTo.mockClear();
+    browserBack('/portfolio/');
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('MIX-1707: the back transition owns the restore: ScrollToTop makes no scroll (no restore, no top)', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/portfolio/');
+    // the interceptor's transition takes the restore before the router renders the list
+    ownBack(true);
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('MIX-1707: allowed twin: a transition that failed to start gives the restore back to ScrollToTop', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/portfolio/');
+    ownBack(true);
+    ownBack(false);
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('MIX-1699 (G8c): allowed twin: back from the list to "/" (mount page) is left to the browser', () => {
+    recordScroll('/', 500);
+    render(<Tree entries={['/']} index={0} />);
+    fireEvent.click(screen.getByText('menu-list'));
+    scrollTo.mockClear();
+    browserBack('/');
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(500));
   });
 
   it('switch on + reduced motion: the saved position is still restored instantly', () => {
