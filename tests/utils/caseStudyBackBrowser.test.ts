@@ -99,7 +99,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
   });
 
   it.each([
-    ['switch off', () => vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '')],
     ['reduced motion', () => motion(false)],
     [
       'no API',
@@ -115,9 +114,21 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(router).toHaveBeenCalledTimes(1);
   });
 
-  it('scroll events caused by the browser during the back navigation do not overwrite the saved position', () => {
+  it('switch off: popstate is left alone (router handles it, no hold, no manual restoration)', () => {
     page(true);
     vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+    recordScroll('/portfolio/', 0);
+    expect(savedPosition('/portfolio/')).toBe(0);
+  });
+
+  it('scroll events caused by the browser during the back navigation do not overwrite the saved position', () => {
+    page(true);
+    motion(false); // switch on, reduced motion: plain restore plan
     pop();
     recordScroll('/portfolio/', 0);
     expect(savedPosition('/portfolio/')).toBe(1500);
@@ -125,7 +136,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
 
   it('scrollRestoration is manual only during the back navigation, then restored', () => {
     page(true);
-    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    motion(false); // switch on, reduced motion: plain restore plan
     window.history.scrollRestoration = 'auto';
     pop();
     expect(window.history.scrollRestoration).toBe('manual');

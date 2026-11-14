@@ -121,12 +121,14 @@ interface PlanInput extends Omit<BackInput, 'navType'> {
 }
 
 /**
- * Decyzja przy cofnięciu: `transition` tylko, gdy KAŻDY warunek jest spełniony; zapis jest,
- * a coś zawodzi = samo przywrócenie bez animacji (`restore`); brak zapisu = `none`.
+ * Decyzja przy cofnięciu. Przełącznik wyłączony = `none` (nowe zachowanie jest ukryte, powrót
+ * jak przed MIX-1675). Włączony: `transition` tylko, gdy KAŻDY warunek jest spełniony; zapis
+ * jest, a coś zawodzi = samo przywrócenie bez animacji (`restore`); brak zapisu = `none`.
  */
 export function planBack(i: PlanInput): BackPlan {
+  if (!i.enabled) return { kind: 'none' };
   const y = backRestoreTarget({ from: i.from, to: i.to, navType: 'POP', saved: i.saved });
   if (y === null) return { kind: 'none' };
-  const ok = i.enabled && i.supported && i.motion && !i.active && i.hero;
+  const ok = i.supported && i.motion && !i.active && i.hero;
   return ok ? { kind: 'transition', y } : { kind: 'restore', y };
 }

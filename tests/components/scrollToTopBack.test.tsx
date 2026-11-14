@@ -52,20 +52,6 @@ describe.each([
 ])('MIX-1675 ScrollToTop back navigation (%s)', (_n, flag) => {
   beforeEach(() => vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', flag));
 
-  it('back (POP) from a case study restores the saved list position, instantly, no scroll to top', () => {
-    recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
-    scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back'));
-    expect(scrollTo).toHaveBeenCalledTimes(1);
-    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
-    expect(scrollTo).not.toHaveBeenCalledWith(0, 0);
-    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT_TOP);
-    for (const call of scrollTo.mock.calls) {
-      expect((call[0] as ScrollToOptions).behavior).not.toBe('smooth');
-    }
-  });
-
   it('back with no saved position (direct entry) falls through to the old behaviour', () => {
     render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
     scrollTo.mockClear();
@@ -102,8 +88,100 @@ describe.each([
   });
 });
 
+describe('MIX-1675 switch on: restore without animation', () => {
+  beforeEach(() => vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '1'));
+
+  it('back (POP) from a case study restores the saved list position, instantly, no scroll to top', () => {
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+    expect(scrollTo).not.toHaveBeenCalledWith(0, 0);
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT_TOP);
+    for (const call of scrollTo.mock.calls) {
+      expect((call[0] as ScrollToOptions).behavior).not.toBe('smooth');
+    }
+  });
+
+  it('switch on + reduced motion: the saved position is still restored instantly', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((q: string) => ({
+        matches: q !== '(prefers-reduced-motion: no-preference)',
+        media: q,
+      })),
+    );
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+    vi.unstubAllGlobals();
+  });
+
+  it('installs the scroll, click and popstate listeners', () => {
+    const add = vi.spyOn(window, 'addEventListener');
+    render(<Tree entries={['/portfolio/']} index={0} />);
+    const names = add.mock.calls.map((c) => c[0]);
+    expect(names).toEqual(expect.arrayContaining(['scroll', 'click', 'popstate']));
+  });
+});
+
+describe('MIX-1675 switch off: identical to the behaviour before the change', () => {
+  beforeEach(() => vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', ''));
+
+  it('back (POP) from a case study does NOT restore the saved position: scrolls to the top as before', () => {
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('switch off + reduced motion: still no restore (the fallback exists only with the switch on)', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn((q: string) => ({
+        matches: q !== '(prefers-reduced-motion: no-preference)',
+        media: q,
+      })),
+    );
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(0, 0);
+    vi.unstubAllGlobals();
+  });
+
+  it('adds no scroll, click or popstate listeners and does not touch scrollRestoration', () => {
+    window.history.scrollRestoration = 'auto';
+    const add = vi.spyOn(window, 'addEventListener');
+    render(<Tree entries={['/portfolio/alfa/']} index={0} />);
+    const names = add.mock.calls.map((c) => c[0]);
+    for (const n of ['scroll', 'click', 'popstate']) expect(names).not.toContain(n);
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('scrolling is not recorded', () => {
+    window.history.pushState({}, '', '/portfolio/');
+    render(<Tree entries={['/portfolio/']} index={0} />);
+    Object.defineProperty(window, 'scrollY', { value: 640, configurable: true });
+    window.dispatchEvent(new Event('scroll'));
+    expect(savedPosition('/portfolio/')).toBeNull();
+    window.history.pushState({}, '', '/');
+  });
+});
+
 describe('position is recorded from scroll events of the current page', () => {
   it('records on the list, ignores a case-study page', async () => {
+    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '1');
     window.history.pushState({}, '', '/portfolio/');
     render(<Tree entries={['/portfolio/']} index={0} />);
     Object.defineProperty(window, 'scrollY', { value: 640, configurable: true });

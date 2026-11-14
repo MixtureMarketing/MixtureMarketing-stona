@@ -1,7 +1,7 @@
 // Podpięcie powrotu z realizacji na listę do przeglądarki (MIX-1675).
-// Montuje to ScrollToTop (zawsze, także przy wyłączonym przełączniku): zapis pozycji listy i
-// przywrócenie jej bez animacji. Przejście (zmniejszenie zdjęcia do karty) tylko przy włączonym
-// przełączniku VITE_MM_VIEW_TRANSITIONS i wszystkich warunkach z planBack().
+// Montuje to ScrollToTop TYLKO przy włączonym przełączniku VITE_MM_VIEW_TRANSITIONS: zapis pozycji
+// listy i przywrócenie jej bez animacji; przejście (zmniejszenie zdjęcia do karty) dodatkowo przy
+// wszystkich warunkach z planBack(). Wyłączony = brak nasłuchów i zmian (zachowanie jak dawniej).
 import {
   holdRecording,
   manualRestorationFor,
@@ -68,10 +68,6 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
     const saved = savedPosition(to);
     if (saved === null) return; // wejście bez zapisu: zachowanie przeglądarki
-    // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
-    holdRecording();
-    manualRestorationFor(win);
-    const cardHref = from.endsWith('/') ? from : `${from}/`;
     const hero = findHeroParts(doc);
     const plan = planBack({
       from,
@@ -83,6 +79,11 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       active: isTransitionActive(),
       hero: hero !== null,
     });
+    if (plan.kind === 'none') return; // przełącznik wyłączony: bez żadnych zmian
+    // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
+    holdRecording();
+    manualRestorationFor(win);
+    const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
     void runCaseStudyBackTransition({

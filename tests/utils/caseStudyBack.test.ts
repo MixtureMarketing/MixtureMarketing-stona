@@ -111,7 +111,6 @@ describe('planBack: allowlist, fail-closed', () => {
     expect(planBack(ok)).toEqual({ kind: 'transition', y: 700 });
   });
   it.each([
-    ['switch off', { enabled: false }],
     ['no API support', { supported: false }],
     ['reduced motion', { motion: false }],
     ['another transition active', { active: true }],
@@ -120,6 +119,8 @@ describe('planBack: allowlist, fail-closed', () => {
     expect(planBack({ ...ok, ...over })).toEqual({ kind: 'restore', y: 700 });
   });
   it.each([
+    ['switch off (new behaviour hidden, as before MIX-1675)', { enabled: false }],
+    ['switch off, nothing else wrong, saved position present', { enabled: false, saved: 0 }],
     ['direct entry (no saved position)', { saved: null }],
     ['not from a case study', { from: '/kontakt/' }],
     ['to a case study', { to: '/portfolio/beta/' }],

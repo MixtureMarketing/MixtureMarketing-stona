@@ -31,15 +31,17 @@ export default function ScrollToTop() {
 
   // MIX-1675: zapis pozycji listy i przejęcie cofnięcia; layout effect dzieci wykonuje się przed
   // efektem routera, więc nasłuch popstate (faza capture) jest pierwszy.
-  useLayoutEffect(() => installBackInterceptor(), []);
+  // Przełącznik wyłączony = nic nie nasłuchuje i nic nie przywraca (zachowanie jak przed MIX-1675).
+  useLayoutEffect(() => (isViewTransitionsEnabled() ? installBackInterceptor() : undefined), []);
 
   // MIX-1675: powrót z realizacji na stronę z zapisaną pozycją stoi na niej od pierwszej klatki
   // (layout effect, bez animacji) zamiast przewijać od góry. Kotwice (#) zostają po staremu.
   useLayoutEffect(() => {
     const prev = prevLayoutPath.current;
     prevLayoutPath.current = pathname;
-    noteLocation(pathname);
     restoredFor.current = null;
+    if (!isViewTransitionsEnabled()) return;
+    noteLocation(pathname);
     if (prev === pathname || hash) return;
     const y = backRestoreTarget({
       from: prev,
