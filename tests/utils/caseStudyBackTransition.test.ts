@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   BACK_CONFIRM_MS,
+  VT_BACK_VALUE,
   runCaseStudyBackTransition,
   type BackRunOptions,
 } from '@/utils/caseStudyBackTransition';
 import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
 import { skipBackTransition } from '@/utils/caseStudyBackSkip';
+import { BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
@@ -16,7 +20,7 @@ const names = () =>
 
 /** The update callback runs in a later task; `finished` stays open until release() is called. */
 let release: () => void = () => undefined;
-function installVT(opts: { throws?: boolean } = {}) {
+function installVT(opts: { throws?: boolean; cbDone?: 'missing' | 'getter-throws' } = {}) {
   const skip = vi.fn();
   const spy = vi.fn((cb: () => Promise<void>) => {
     if (opts.throws) throw new Error('boom');
@@ -47,6 +51,18 @@ function installVT(opts: { throws?: boolean } = {}) {
         0,
       ),
     );
+    // MIX-1711 (A12, A13): the callback still runs, but the object has no usable updateCallbackDone
+    if (opts.cbDone === 'missing') return { ready, finished, skipTransition: skip };
+    if (opts.cbDone === 'getter-throws')
+      return Object.defineProperty(
+        { ready, finished, skipTransition: skip },
+        'updateCallbackDone',
+        {
+          get() {
+            throw new Error('getter');
+          },
+        },
+      );
     return { ready, finished, updateCallbackDone, skipTransition: skip };
   });
   (document as unknown as Record<string, unknown>).startViewTransition = spy;
@@ -71,6 +87,7 @@ function options(over: Partial<BackRunOptions> = {}): BackRunOptions {
     cardMs: 50,
     // MIX-1707: the confirmation wait has its own tests below; the older ones run without it
     confirmMs: 0,
+    settleMs: 0,
     ...over,
   };
 }
@@ -108,7 +125,7 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     expect(await runCaseStudyBackTransition(o)).toBe('transition');
     // before the snapshot: hero image + title + nav carry names
     expect(names().sort()).toEqual(['realizacja-tytul', 'realizacja-zdjecie', 'vt-naglowek']);
-    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_BACK_VALUE);
     expect(isTransitionActive()).toBe(true);
     await flush();
     expect(spy).toHaveBeenCalledTimes(1);
@@ -228,6 +245,27 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     expect(o.restore).toHaveBeenCalledTimes(1);
   });
 
+  // MIX-1711: BACK = ENTER played backwards: the reversed curve is keyed on this attribute, only while running
+  it('the back attribute is set for the transition only, and the CSS reverses the ENTER curve under it', async () => {
+    installVT();
+    await runCaseStudyBackTransition(options());
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja-powrot');
+    await flush();
+    release();
+    await flush();
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    const css = fs.readFileSync(
+      path.resolve(__dirname, '../../components/common/caseStudyTransitions.css'),
+      'utf8',
+    );
+    const rule = css.match(
+      /html\[data-vt='realizacja-powrot'\]::view-transition-group\(realizacja-zdjecie\)[^{]*\{([^}]*)\}/,
+    );
+    expect(rule?.[1]).toMatch(
+      /animation-timing-function:\s*cubic-bezier\(0\.82,\s*0,\s*0\.68,\s*0\.28\)/,
+    );
+  });
+
   it('names disappear and the flag clears when the transition finishes', async () => {
     installVT();
     await runCaseStudyBackTransition(options());
@@ -292,12 +330,33 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     expect(names()).toEqual([]);
     expect(isTransitionActive()).toBe(false);
   });
+
+  // MIX-1711 (A12, A13): no usable updateCallbackDone = the run does not throw, the drift is still corrected
+  // and the names and the flag go at the end (before: `updateCallbackDone.catch` threw, cleanup was never hooked)
+  for (const cbDone of ['missing', 'getter-throws'] as const)
+    it(`updateCallbackDone ${cbDone}: transition runs, drift corrected, names and flag cleared at the end`, async () => {
+      installVT({ cbDone });
+      const o = options();
+      await expect(runCaseStudyBackTransition(o)).resolves.toBe('transition');
+      setScrollY(1700);
+      await flush();
+      expect(o.redispatch).toHaveBeenCalledTimes(1);
+      // the restore in the callback plus the drift correction before the first frame
+      expect(o.restore).toHaveBeenCalledTimes(2);
+      release();
+      await flush();
+      expect(names()).toEqual([]);
+      expect(isTransitionActive()).toBe(false);
+    });
 });
 
 describe('MIX-1707: the list is scrolled only after the back is confirmed single', () => {
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  it('the confirmation window is 250 ms', () => expect(BACK_CONFIRM_MS).toBe(250));
+  it('MIX-1711: the confirmation window is 90 ms from the accepted back, 32 ms after the list is ready', () => {
+    expect(BACK_CONFIRM_MS).toBe(90);
+    expect(BACK_SETTLE_MS).toBe(32);
+  });
 
   it('list ready at once: no restore before the window ends, one restore after it', async () => {
     installVT();
@@ -338,6 +397,52 @@ describe('MIX-1707: the list is scrolled only after the back is confirmed single
     await wait(30);
     expect(done).toBe(true);
     expect(o.restore).not.toHaveBeenCalled();
+  });
+
+  // MIX-1711: a second back queued behind the list render gets settleMs after the list is ready
+  it('the list ready later than the window = restore settleMs after it is ready, not at once', async () => {
+    installVT();
+    let ready = false;
+    const o = options({ confirmMs: 40, settleMs: 60, cardMs: 400, listReady: () => ready });
+    await runCaseStudyBackTransition(o);
+    await wait(100);
+    ready = true;
+    await wait(40);
+    expect(o.restore).not.toHaveBeenCalled();
+    await wait(80);
+    expect(o.restore).toHaveBeenCalledTimes(1);
+  });
+
+  it('refusal: a second back during the settle wait after the list is ready = nothing restored', async () => {
+    const { skip } = installVT();
+    let alive = true;
+    let ready = false;
+    const o = options({
+      confirmMs: 40,
+      settleMs: 300,
+      cardMs: 400,
+      listReady: () => ready,
+      live: () => alive,
+    });
+    await runCaseStudyBackTransition(o);
+    await wait(80);
+    ready = true;
+    await wait(40);
+    alive = false;
+    skipBackTransition();
+    await wait(60);
+    expect(o.restore).not.toHaveBeenCalled();
+    expect(skip).toHaveBeenCalled();
+  });
+
+  it('allowed twin: the window from acceptance still holds when the list is ready at once', async () => {
+    installVT();
+    const o = options({ confirmMs: 150, settleMs: 20 });
+    await runCaseStudyBackTransition(o);
+    await wait(100);
+    expect(o.restore).not.toHaveBeenCalled();
+    await wait(110);
+    expect(o.restore).toHaveBeenCalledTimes(1);
   });
 
   it('allowed twin: the list ready later than the window = restore right when it is ready', async () => {

@@ -16,6 +16,20 @@
     animation-timing-function: cubic-bezier(0.32, 0.72, 0.18, 1);
   }
 
+  /* MIX-1711 (Jakub, MIX-1311 21:38): powrót to wejście odtworzone wstecz; odwrócenie czasu odwraca też krzywą:
+     cubic-bezier(0.32, 0.72, 0.18, 1) wstecz = cubic-bezier(0.82, 0, 0.68, 0.28) (1 - x2, 1 - y2, 1 - x1, 1 - y1). */
+  html[data-vt='realizacja-powrot']::view-transition-group(root),
+  html[data-vt='realizacja-powrot']::view-transition-old(root),
+  html[data-vt='realizacja-powrot']::view-transition-new(root),
+  html[data-vt='realizacja-powrot']::view-transition-group(realizacja-zdjecie),
+  html[data-vt='realizacja-powrot']::view-transition-old(realizacja-zdjecie),
+  html[data-vt='realizacja-powrot']::view-transition-new(realizacja-zdjecie),
+  html[data-vt='realizacja-powrot']::view-transition-group(realizacja-tytul),
+  html[data-vt='realizacja-powrot']::view-transition-old(realizacja-tytul),
+  html[data-vt='realizacja-powrot']::view-transition-new(realizacja-tytul) {
+    animation-timing-function: cubic-bezier(0.82, 0, 0.68, 0.28);
+  }
+
   ::view-transition-group(realizacja-zdjecie) {
     overflow: hidden;
     border-radius: 1rem;
@@ -25,6 +39,13 @@
   ::view-transition-new(realizacja-zdjecie) {
     height: 100%;
     object-fit: cover;
+  }
+
+  /* MIX-1711: w trakcie przejścia lista realizacji jest rysowana cała: przy content-visibility:auto karta, do
+     której wraca zdjęcie, bywała pominięta w nowym zdjęciu strony (sonda: brak nowej strony zdjęcia, samo
+     wygaszenie). Po przejściu (atrybut znika) wraca content-visibility:auto. */
+  html[data-vt] .vt-lista {
+    content-visibility: visible;
   }
 
   /* Nagłówek, baner i przycisk zgód stoją: bez ruchu, nad lecącym zdjęciem. */

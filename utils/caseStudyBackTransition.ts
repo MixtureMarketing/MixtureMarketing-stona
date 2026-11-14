@@ -2,7 +2,6 @@
 import { waitUntil } from './caseStudyRestore';
 import {
   VT_ATTR,
-  VT_ATTR_VALUE,
   VT_NAMES,
   VT_STILL,
   type ViewTransitionLike,
@@ -10,16 +9,19 @@ import {
 } from './viewTransitions';
 import { setTransitionActive } from './caseStudyTransition';
 import { ownBack } from './caseStudyGeneration';
-import { NO_SKIP, setBackSkip, type BackSkip } from './caseStudyBackSkip';
+import { NO_SKIP, callbackSettled, setBackSkip, type BackSkip } from './caseStudyBackSkip';
 import {
   BACK_CARD_MAX_MS,
   BACK_CONFIRM_MS,
+  BACK_SETTLE_MS,
   SCROLL_TOLERANCE_PX,
   type BackRunOptions,
 } from './caseStudyBackOptions';
 
 export { BACK_CARD_MAX_MS, BACK_CONFIRM_MS, SCROLL_TOLERANCE_PX, type BackRunOptions };
 
+/** MIX-1711: powrót = wejście odtworzone wstecz (odwrócona krzywa, components/common/caseStudyTransitions.css). */
+export const VT_BACK_VALUE = 'realizacja-powrot';
 const setName = (el: HTMLElement, name: string) =>
   el.style.setProperty('view-transition-name', name);
 const clearName = (el: HTMLElement) => el.style.removeProperty('view-transition-name');
@@ -35,6 +37,7 @@ export async function runCaseStudyBackTransition(
   opts: BackRunOptions,
 ): Promise<'transition' | 'plain'> {
   const { doc, hero, y, cardMs = BACK_CARD_MAX_MS, confirmMs = BACK_CONFIRM_MS } = opts;
+  const settleMs = opts.settleMs ?? BACK_SETTLE_MS;
   const acceptedAt = Date.now();
   setTransitionActive(true);
   const start = (doc as VtDocument).startViewTransition;
@@ -55,7 +58,7 @@ export async function runCaseStudyBackTransition(
     const el = doc.querySelector<HTMLElement>(selector);
     if (el) mark(el, name);
   }
-  doc.documentElement.setAttribute(VT_ATTR, VT_ATTR_VALUE);
+  doc.documentElement.setAttribute(VT_ATTR, VT_BACK_VALUE);
 
   // MIX-1699 r2: pominięcie (nieprzyjęte cofnięcie) budzi czekanie na listę od razu (skip.woken)
   let skip: BackSkip = NO_SKIP;
@@ -82,9 +85,10 @@ export async function runCaseStudyBackTransition(
       opts.redispatch();
       // czekanie kończy się od razu przy nowszej nawigacji (renderowanie nie stoi 300 ms)
       const ready = await Promise.race([waitUntil(opts.listReady, cardMs, opts.live), skip.woken]);
-      // MIX-1707: lista przewija się dopiero po potwierdzeniu, że cofnięcie jest pojedyncze (BACK_CONFIRM_MS
-      // od przyjęcia bez nowszego popstate); drugie cofnięcie budzi czekanie od razu (skip.woken)
-      const left = confirmMs - (Date.now() - acceptedAt);
+      // MIX-1707: lista przewija się dopiero po potwierdzeniu, że cofnięcie jest pojedyncze (bez nowszego
+      // popstate); drugie cofnięcie budzi czekanie od razu (skip.woken). MIX-1711: potwierdzenie = co najmniej
+      // confirmMs od przyjęcia i co najmniej settleMs od gotowości listy (zaległe cofnięcie stoi za renderem listy)
+      const left = Math.max(confirmMs - (Date.now() - acceptedAt), settleMs);
       if (left > 0) await Promise.race([new Promise((r) => setTimeout(r, left)), skip.woken]);
       // szybkie drugie cofnięcie: lista nie jest już na ekranie, jej pozycji nie wolno stawiać na innej stronie
       if (!opts.live()) {
@@ -119,8 +123,8 @@ export async function runCaseStudyBackTransition(
       if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) opts.restore(y);
     });
   };
-  void Promise.allSettled([transition.ready, transition.updateCallbackDone]).then(correctDrift);
-  transition.updateCallbackDone.catch(() => undefined);
+  // MIX-1711 (A12, A13): brak albo błąd updateCallbackDone nie zatrzymuje korekty ani sprzątania
+  void Promise.allSettled([transition.ready, callbackSettled(transition)]).then(correctDrift);
   transition.finished.catch(() => undefined).finally(cleanup);
   return 'transition';
 }

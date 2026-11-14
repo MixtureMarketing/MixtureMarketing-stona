@@ -114,7 +114,18 @@ const INSTRUMENT = () => {
   Document.prototype.startViewTransition = function (cb) {
     const rec = { t0: performance.now(), path0: location.pathname };
     if (m.armed) m.recs.push(rec);
-    const t = orig.call(this, cb);
+    // at the end of the update callback: is the element named realizacja-zdjecie rendered (not skipped by
+    // content-visibility:auto), its top/height and opacity visibility (why a side of the morph may be missing)
+    const t = orig.call(this, async () => {
+      await cb();
+      const el = [...document.querySelectorAll('[style*="view-transition-name"]')].find(
+        (e) => getComputedStyle(e).viewTransitionName === 'realizacja-zdjecie',
+      );
+      const r = el?.getBoundingClientRect();
+      rec.vis = el
+        ? [Math.round(r.top), Math.round(r.height), el.checkVisibility({ contentVisibilityAuto: true }), el.checkVisibility({ opacityProperty: true })].join(':')
+        : 'none';
+    });
     const origSkip = t.skipTransition.bind(t);
     t.skipTransition = () => {
       rec.skipped ??= performance.now();
@@ -227,6 +238,7 @@ function summarise(m) {
     cb: rec.tCb !== undefined ? Math.round(rec.tCb - m.trig) : null,
     dur: Math.round(rec.t1 - rec.tReady),
     css: rec.css,
+    vis: rec.vis ?? null,
     anims: (rec.anims || []).map(([p, d]) => `${p.replace('::view-transition-', '')}=${d}`).join(','),
     long: gaps.filter((g) => g > 20).length,
     n: span.length,
@@ -293,7 +305,7 @@ await fs.writeFile(path.join(OUT, `smooth-${vpTag}.json`), JSON.stringify({ rows
 
 const fmt = (s) =>
   s.ok || s.start !== undefined
-    ? `start=${s.start} firstFrame=${s.firstFrame} cb=${s.cb} dur=${s.dur} css=${s.css} long=${s.long}/${s.n} maxGap=${s.maxGap} loaf=${s.loaf}(${s.loafMax}) calls=${s.calls}${s.skipped ? ' SKIPPED' : ''} anims=${s.anims}`
+    ? `start=${s.start} firstFrame=${s.firstFrame} cb=${s.cb} dur=${s.dur} css=${s.css} long=${s.long}/${s.n} maxGap=${s.maxGap} loaf=${s.loaf}(${s.loafMax}) calls=${s.calls}${s.skipped ? ' SKIPPED' : ''} vis=${s.vis} anims=${s.anims}`
     : `NOT MEASURED (${s.why}, calls=${s.calls})`;
 for (const r of rows) {
   console.log(`RUN ${vpTag} ${r.k} ENTER ${fmt(r.enter)}`);
@@ -335,6 +347,7 @@ const crit = [
   // declared duration of the image group (CSS 0.3 s) at every run, both directions; wall time is frame-bound on
   // the cloud (software rendering), so BACK wall time may not exceed ENTER wall time by more than 20 ms
   ['C3 declared image-group duration 300 +-20 (every run, ENTER and BACK)', S.enter.cssOk && S.back.cssOk, `ENTER ${S.enter.css} BACK ${S.back.css}`],
+  ['C0 image morph on both sides (group(realizacja-zdjecie) animated) at every run', rows.every((r) => r.enter.css !== null && r.back.css !== null), `ENTER ${rows.filter((r) => r.enter.css !== null).length}/${rows.length} BACK ${rows.filter((r) => r.back.css !== null).length}/${rows.length}`],
   ['C3 BACK wall dur median <= ENTER wall median + 20', S.back.dur <= S.enter.dur + 20, `${S.back.dur} <= ${S.enter.dur + 20}`],
 ];
 for (const [name, ok, val] of crit) console.log(`CRIT ${vpTag} ${name}: ${val} ${ok ? 'OK' : 'NO'}`);
