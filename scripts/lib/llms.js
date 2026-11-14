@@ -280,7 +280,7 @@ export function llmsReport(llmsText, sitemapXml, opts = {}) {
   const hiddenOk =
     Array.isArray(hiddenPaths) &&
     hiddenPaths.length > 0 &&
-    hiddenPaths.every((p) => typeof p === 'string' && /^\/[^\s]+$/.test(p));
+    hiddenPaths.every((p) => typeof p === 'string' && /^\/[^\s]+$/.test(p) && skeletonOf(p) !== '');
   if (!hiddenOk) problems.push('lista stron ukrytych (prerenderOnlyRoutes) pusta albo nieczytelna');
   const hidden = hiddenOk ? hiddenPaths : [];
 

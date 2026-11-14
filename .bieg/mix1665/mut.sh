@@ -25,4 +25,5 @@ mut M8-mark-once "$L" '/^(?:\s*(?:#{1,6}|>|[-*+]|\d+[.)]))*\s*/u' '/^\s*(?:#{1,6
 mut M9-min-zero "$L" 'export const MIN_SKELETON = 8;' 'export const MIN_SKELETON = 0;'
 mut M10-slug-off "$L" 'out.push([p, plain(slugRaw), longRe(slug)]);' '{}'
 mut M11-nfkc-off "$L" 'for (const ch of norm(s)) {' 'for (const ch of String(s)) {'
+mut M12-empty-skeleton-ok "$L" " && skeletonOf(p) !== ''" ''
 echo "after: porcelain=$(git status --porcelain -- scripts tests | wc -l)"

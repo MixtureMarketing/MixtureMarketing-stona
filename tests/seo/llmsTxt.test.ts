@@ -754,7 +754,7 @@ describe('llmsReport: wejście puste albo nieczytelne = odmowa (fail-closed)', (
 
   it('pusta lista stron ukrytych = odmowa; lista z jednym wpisem przechodzi', () => {
     const msg = 'lista stron ukrytych (prerenderOnlyRoutes) pusta albo nieczytelna';
-    for (const hiddenPaths of [[], undefined, [''], ['bez-ukosnika'], [42]]) {
+    for (const hiddenPaths of [[], undefined, [''], ['bez-ukosnika'], [42], ['/-/']]) {
       const r = llmsReport(ok, xml('/a/'), {
         keyPaths: ['/a/'],
         hiddenPaths: hiddenPaths as unknown as string[],
