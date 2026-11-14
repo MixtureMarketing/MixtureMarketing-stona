@@ -165,3 +165,56 @@ export const AI_ARTICLE_CONTENT = {
     offer: { label: 'Aplikacje dedykowane', to: '/web-development/custom-app/' },
   },
 };
+
+/**
+ * Infografiki artykułu (MIX-1280 b, wizualnie). Wyłącznie fakty z tekstu powyżej: każda liczba i każda
+ * nazwa modułu występuje w `AI_ARTICLE_CONTENT` (test tests/seo/aiSystemsArticleVisuals.test.tsx).
+ * Kroki procesu są wyprowadzane z punktów sekcji „Jak wygląda projekt krok po kroku” (bez kopiowania zdań).
+ */
+export const AI_ARTICLE_VISUALS = {
+  process: {
+    sectionTitle: 'Jak wygląda projekt krok po kroku',
+    label:
+      'Przebieg projektu w czterech krokach: rozmowa, warsztat wymagań, wycena, wersja testowa',
+  },
+  stats: {
+    label:
+      'Koszt i czas w liczbach: od 23 000 zł, od 19 000 zł, od około 3 miesięcy, widełki w 24 godziny',
+    items: [
+      { value: 'od 23 000 zł', caption: 'aplikacje dedykowane' },
+      { value: 'od 19 000 zł', caption: 'portal B2B' },
+      { value: 'od około 3 miesięcy', caption: 'najmniejsze wdrożenia' },
+      { value: '24 godziny', caption: 'wstępne widełki po rozmowie' },
+    ],
+  },
+  compare: {
+    label:
+      'Porównanie: kiedy dedykowany system z AI się opłaca, a kiedy wystarczy zwykła aplikacja lub gotowe narzędzie',
+    yes: {
+      title: 'Dedykowany system z AI się opłaca',
+      items: [
+        'Wiedza siedzi w głowach pracowników',
+        'Zgłoszenia, grafiki i raporty żyją w kilku narzędziach',
+        'Gotowe narzędzie wymusza obejścia',
+        'Dane są wrażliwe lub muszą zostać u Ciebie',
+      ],
+    },
+    no: {
+      title: 'Wystarczy zwykła aplikacja albo gotowe narzędzie',
+      items: [
+        'Zgłoszenia giną w poczcie, wystarczy zwykły obieg zgłoszeń z historią i powiadomieniami',
+        'Standardowy program pokrywa Twój proces',
+        'Błędna odpowiedź AI ma poważne skutki i nikt jej nie sprawdza',
+      ],
+    },
+  },
+  stack: {
+    label:
+      'Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią',
+    frame: 'Aplikacja dedykowana',
+    modules: ['Dane', 'Uprawnienia', 'Testy', 'Logowanie', 'Historia zmian', 'Raporty'],
+    ai: 'Funkcja AI',
+    aiNote: 'bywa najmniejszą częścią systemu',
+    engineering: 'Zwykła inżynieria',
+  },
+} as const;
