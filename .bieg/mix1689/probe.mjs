@@ -35,5 +35,12 @@ const hk = skeletonText('a#b$c%d&e*f+g-h/x<j=k>m@n[o\\p]q^r_s`t{u|v}w~y—z–a'
 check('hard separators', hk === 'a/b/c/d/e/f/g/h/x/j/k/m/n/o/p/q/r/s/t/u/v/w/y/z/a', JSON.stringify(hk));
 const ctl = skeletonText('a\x01b\rc\u0085d e…f°');
 check('controls/NEL wildcard, NBSP and … via NFKC', ctl === `a${W}b${W}c${W}d e   f${W}`, JSON.stringify(ctl));
+// Fail-closed (Z3): empty/unreadable input = refusal with a reason line.
+const fc = (id, r, why) => check(`fail-closed ${id}`, !r.ok && r.problems.some((p) => p.includes(why)), r.problems.join(' | ').slice(0, 120));
+fc('empty hidden list', llmsReport(`${base}`, sm, { keyPaths: ['/a/'], hiddenPaths: [] }), 'lista stron ukrytych');
+fc('hidden list missing', llmsReport(`${base}`, sm, { keyPaths: ['/a/'] }), 'lista stron ukrytych');
+fc('empty llms', llmsReport('', sm, { keyPaths: ['/a/'], hiddenPaths: H }), 'llms.txt: pusty albo nieczytelny');
+fc('non-string llms', llmsReport(undefined, sm, { keyPaths: ['/a/'], hiddenPaths: H }), 'pusty albo nieczytelny');
+fc('empty sitemap', llmsReport(base, '', { keyPaths: ['/a/'], hiddenPaths: H }), 'sitemap.xml: brak adresów');
 console.log(`PROBE1689 TOTAL checks=${n} failed=${bad}`);
 process.exit(bad ? 1 : 0);
