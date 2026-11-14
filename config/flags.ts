@@ -18,6 +18,13 @@ export const isCookieBannerStaticEnabled = (): boolean =>
   import.meta.env.VITE_MM_COOKIE_BANNER_STATIC === '1';
 
 /**
+ * Blok „Powiązane” (MIX-1268, plan SEO A11) na stronach artykułu, realizacji i branży z CMS.
+ * Włączony: `components/common/Powiazane.tsx` zamiast dawnego `RelatedArticles` (artykuł,
+ * realizacja) i nowy blok na branży. Wyłączony = dotychczasowe zachowanie.
+ */
+export const isPowiazaneEnabled = (): boolean => import.meta.env.VITE_MM_POWIAZANE === '1';
+
+/**
  * Sekcja „Aplikacje i systemy z elementami AI” na stronie głównej i zdanie z linkiem na
  * /web-development/custom-app/ (MIX-1276, plan SEO A20). Prowadzą na ukrytą stronę usługi
  * (MIX-1272), więc cały ruch zostaje za przełącznikiem do akceptacji tekstu przez Jakuba.

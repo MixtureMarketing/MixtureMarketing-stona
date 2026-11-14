@@ -36,6 +36,8 @@ export const CMS_DOC = {
   industryList: 'industryList',
   caseStudyList: 'caseStudyList',
   articleList: 'articleList',
+  // Blok „Powiązane” (MIX-1268): lista linków dla klucza `<rodzaj>:<slug>`.
+  related: 'related',
 } as const;
 export type CmsDocId = (typeof CMS_DOC)[keyof typeof CMS_DOC];
 
