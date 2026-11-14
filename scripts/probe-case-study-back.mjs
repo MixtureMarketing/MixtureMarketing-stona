@@ -20,7 +20,7 @@
  *   - no view-transition-name left after the transition.
  * Round 3 (switch ON): extra cases "card-removed" (the card link is renamed so the list has no card:
  * transition skipped after 300 ms, position must still be restored, F1) and "double-back" (two
- * history.back() 40 ms apart from case study -> list -> "/", the list position must not be restored
+ * history.back() a few ms apart from case study -> list -> "/" (gaps from PROBE_GAPS, default 40), the list position must not be restored
  * on "/", F2). PROBE_MODE=observe (switch OFF build or the base b95200e): no restore assertions,
  * only the numbers (listeners, scrollRestoration, rest, first frame) so OFF can be compared with base.
  * Output: <out>/probe.json and <out>/shots/*.png. Exit 0 = every criterion met.
@@ -239,8 +239,14 @@ const CASES = [
   { name: 'reduced-motion', reduce: true, noApi: false },
   { name: 'no-api', reduce: false, noApi: true },
   { name: 'card-removed', reduce: false, noApi: false, hideCard: true },
-  { name: 'double-back', reduce: false, noApi: false, double: true },
-].filter((c) => !OBSERVE || ['transition', 'double-back'].includes(c.name));
+  ...(process.env.PROBE_GAPS || '40').split(',').map((g) => ({
+    name: `double-back-${g}`,
+    reduce: false,
+    noApi: false,
+    double: true,
+    gap: Number(g),
+  })),
+].filter((c) => !OBSERVE || c.name === 'transition' || c.double);
 const UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36';
 const report = { source: remote ? 'preview' : 'local', viewports: {}, failures: [] };
@@ -430,6 +436,7 @@ async function measureBack(vp, c, pick) {
 
 /** Rapid double back: case study -> list -> "/" (history: "/", list, case study). */
 async function measureDouble(vp, c) {
+  const gap = c.gap ?? 40;
   const page = await openPage(vp, c);
   await page.goto(ORIGIN + '/', { waitUntil: 'networkidle2', timeout: 45000 });
   await dismissConsent(page);
@@ -451,12 +458,12 @@ async function measureDouble(vp, c) {
   const scrollAtClick = await page.evaluate(() => window.__vt.clickY);
   await page.waitForFunction((h) => location.pathname === h, { timeout: 10000 }, href);
   await sleep(2000);
-  await page.evaluate(() => {
+  await page.evaluate((g) => {
     window.__reset();
     window.__logFrames();
     history.back();
-    setTimeout(() => history.back(), 40);
-  });
+    setTimeout(() => history.back(), g);
+  }, gap);
   await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 });
   await sleep(2500);
   const r = await page.evaluate(() => ({
@@ -541,9 +548,9 @@ if (verdict.length) report.failures.push(...verdict.map((p) => `prod-safe: ${p}`
 await saveReport();
 for (const [vpTag, vv] of Object.entries(report.viewports)) {
   for (const [name, M] of Object.entries(vv)) {
-    if (name === 'double-back') {
+    if (name.startsWith('double-back')) {
       console.log(
-        `NUM ${vpTag} double-back path=${M.path} rest=${M.scrollNow} transitions=${M.calls} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
+        `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} transitions=${M.calls} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
       );
       continue;
     }
