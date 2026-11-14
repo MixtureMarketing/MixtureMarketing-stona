@@ -995,6 +995,112 @@ describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżo
   });
 });
 
+describe('MIX-1689: allowlista separatorów (interpunkcja spoza listy = dżoker)', () => {
+  // WERDYKT-MIX-1684 uwaga 1: interpunkcja spoza ASCII była separatorem (`dz¡ekujemy` przechodził).
+  // Teraz separator tylko z listy (ASCII, „ ” “ ’ « » — –), inny znak = dżoker. Znaki jako \u.
+  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const sm = xml('/a/');
+  const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
+  const run = (line: string, o = opts) => llmsReport(`${base}${line}\n`, sm, o);
+  const L = 'llms.txt linia 4: ';
+  const AB = '/abonament/dziekujemy/';
+  const AI = '/web-development/systemy-ai-aplikacje/';
+  const hitAB = `${L}ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy)`;
+  const hitAI = `${L}ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje)`;
+  const dz = (c: string) => `- Strona abonament/dz${c}ekujemy`;
+  const ap = (c: string) => `- Nowość: systemy-ai-ap${c}ikacje`;
+  const dot = (c: string) => `${L}słowo z kropką (host?): dz${c}ekujemy: ${dz(c)}`;
+  type Form = [string, string, string, string[], string];
+  // [nazwa, szkielet znaku, atak, oczekiwane problemy, bliźniak: ten sam znak między wyrazami]
+  const forms: Form[] = [
+    ['S01 ¡ U+00A1', '¡', dz('¡'), [hitAB], '- Strona abonament ¡ cennik'],
+    ['S02 । U+0964', '।', ap('।'), [hitAI], '- Nowość: systemy । aplikacje'],
+    ['S03 ׀ U+05C0', '׀', ap('׀'), [hitAI], '- Nowość: strony ׀ aplikacje'],
+    ['S04 · U+00B7', '·', dz('·'), [hitAB], '- Strona strony · aplikacje'],
+    ['S05 ‧ U+2027', '‧', ap('‧'), [hitAI], '- Nowość: strony ‧ aplikacje'],
+    ['S06 ‐ U+2010', '‐', dz('‐'), [hitAB], '- Strona strony‐aplikacje'],
+    // ． U+FF0E: NFKC daje ASCII `.` (separator z listy), odmowa z reguły słowa z kropką.
+    ['S07 ． U+FF0E', '.', dz('．'), [dot('.')], '- Strona abonament． Cennik'],
+    ['S08 。 U+3002', '。', dz('。'), [dot('。'), hitAB], '- Strona abonament。 Cennik'],
+    ['S09 ː U+02D0', 'ː', dz('ː'), [hitAB], '- Strona abonament ː cennik'],
+    ['S10 ∣ U+2223', '∣', ap('∣'), [hitAI], '- Nowość: strony ∣ aplikacje'],
+    ['S11 ・ U+30FB', '・', dz('・'), [hitAB], '- Strona strony ・ aplikacje'],
+    ['S12 ։ U+0589', '։', ap('։'), [hitAI], '- Nowość: strony։ aplikacje'],
+    ['S13 ogham U+1680', ' ', dz(' '), [hitAB], '- Strona abonament i cennik'],
+    ['S14 ano teleia U+0387', '·', dz('·'), [hitAB], '- Ελληνικά· ιστοσελίδες'],
+    ['S15 ⸱ U+2E31', '⸱', ap('⸱'), [hitAI], '- Nowość: strony ⸱ aplikacje'],
+  ];
+
+  it(`co najmniej 10 form S (jest ${forms.length})`, () => {
+    expect(forms.length).toBeGreaterThanOrEqual(10);
+  });
+
+  for (const [name, c, line, whys, twin] of forms) {
+    it(`odmowa: ${name}`, () => {
+      const r = run(line);
+      expect(r.problems).toEqual(whys);
+      expect(r.ok).toBe(false);
+    });
+    it(`OK (bliźniak, ten sam znak między wyrazami): ${name}`, () => {
+      const r = run(twin);
+      expect(r.problems).toEqual([]);
+      expect(r.ok).toBe(true);
+    });
+    it(`szkielet: ${name}`, () => {
+      expect(skeletonText(c)).toBe(c === '.' ? ' ' : WILDCARD);
+    });
+  }
+
+  it('separatory z listy: miękkie → spacja, twarde → /', () => {
+    const soft = 'a b\tc\nd.e,f;g:h!x?j\'k"m(n)o„p”q“r’s«t»u';
+    expect(skeletonText(soft)).toBe('a b c d e f g h x j k m n o p q r s t u');
+    const hard = 'a#b$c%d&e*f+g-h/x<j=k>m@n[o\\p]q^r_s`t{u|v}w~y—z–a';
+    expect(skeletonText(hard)).toBe('a/b/c/d/e/f/g/h/x/j/k/m/n/o/p/q/r/s/t/u/v/w/y/z/a');
+  });
+
+  it('znak spoza listy = dżoker (sterujące, NEL, °); NBSP i … przez NFKC jako ASCII', () => {
+    const W = WILDCARD;
+    expect(skeletonText('a\x01b\rc\u0085d e…f°')).toBe(`a${W}b${W}c${W}d e   f${W}`);
+  });
+
+  // Separator z listy (nie dżoker): `abonamen — dziekujemy` przechodzi, pauza nie jest literą.
+  it('pauza, półpauza i cudzysłowy z listy nie zastępują litery; ¡ w tym miejscu = odmowa', () => {
+    for (const c of ['—', '–', '„', '«']) {
+      expect(run(`- Strona abonamen ${c} dziekujemy`).problems).toEqual([]);
+    }
+    expect(run('- Strona abonamen ¡ dziekujemy').problems).toEqual([hitAB]);
+  });
+
+  const prose = [
+    '- Po polsku: „Strony, które działają” — szybkie, dostępne – i bez reklam…',
+    '- Українською: «Сайти, що працюють» — швидкі, доступні – м’які…',
+    '- По-русски: «Сайты, которые работают» — „быстрые“ и доступные…',
+    '- Ελληνικά: «Ιστοσελίδες που λειτουργούν» — γρήγορες· προσβάσιμες;',
+    '- Auf Deutsch: „Webseiten, die funktionieren“ – schnell, barrierefrei…',
+    '- In English: it’s “fast” — and accessible…',
+  ];
+  for (const t of prose) {
+    it(`proza z interpunkcją przechodzi: ${t.slice(2, 14)}`, () => {
+      expect(run(t).problems).toEqual([]);
+    });
+  }
+
+  // WERDYKT-MIX-1684 uwaga 2: formy W06 i X04 z WERDYKT-MIX-1670 przywrócone.
+  it('X04: wielkie Г po nazwie strony ukrytej = odmowa; bliźniak z cennik przechodzi', () => {
+    expect(run('- Strona ABONAMENT/DZIEKUJEMY Г').problems).toEqual([hitAB]);
+    expect(run('- Strona ABONAMENT/CENNIK Г').problems).toEqual([]);
+  });
+
+  it('W06: `moderrn` (wstawiona litera) przechodzi z założenia; `modern` = odmowa', () => {
+    // Odmowa wstawionej litery wymagałaby dopasowania z odległością edycyjną (poza projektem,
+    // fałszywe odmowy zwykłych słów). Resztka zapisana w AV25 (formy-ataku.md wtyczki).
+    const o = { ...opts, hiddenPaths: [...prerenderOnlyRoutes, '/modern-cloud-platform/'] };
+    const hit = `${L}ścieżka strony ukrytej /modern-cloud-platform/ (szkielet moderncloudplatform)`;
+    expect(run('- Strona moderrn-cloud-platform', o).problems).toEqual([]);
+    expect(run('- Strona modern-cloud-platform', o).problems).toEqual([hit]);
+  });
+});
+
 describe('llmsReport: wejście puste albo nieczytelne = odmowa (fail-closed)', () => {
   const opts = { keyPaths: ['/a/'], hiddenPaths: ['/hidden/'] };
   const ok = `- [a](${BASE_URL}/a/): opis\n`;
