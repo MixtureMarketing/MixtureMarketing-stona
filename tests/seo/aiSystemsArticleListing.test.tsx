@@ -60,10 +60,14 @@ describe('Baza wiedzy: artykuł o aplikacjach z AI na liście', () => {
     const tile = container.querySelector(`a[href="${AI_ARTICLE_SLUG}"]`)!;
     expect(tile.textContent).toContain(CONTENT.header.title);
     // kafel ma obraz i tytuł jako osobne odnośniki do tego samego adresu; więcej niż kafel = duplikat wpisu
-    expect(container.querySelectorAll(`a[href="${AI_ARTICLE_SLUG}"]`).length).toBeLessThanOrEqual(2);
+    expect(container.querySelectorAll(`a[href="${AI_ARTICLE_SLUG}"]`).length).toBeLessThanOrEqual(
+      2,
+    );
     expect(container.querySelectorAll('h3').length).toBeGreaterThan(5);
     expect(
-      Array.from(container.querySelectorAll('h3')).filter((h) => h.textContent === CONTENT.header.title),
+      Array.from(container.querySelectorAll('h3')).filter(
+        (h) => h.textContent === CONTENT.header.title,
+      ),
     ).toHaveLength(1);
   });
 });

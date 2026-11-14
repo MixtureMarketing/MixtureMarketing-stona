@@ -330,7 +330,7 @@ describe('wizualnie: pełny skan tekstu infografik (MIX-1677)', () => {
     const a = articleJson();
     expect(naruszenia(['bywa tylko 5% systemu'], a)).toHaveLength(1);
     expect(naruszenia(['portal B2B Q-PLAST'], a).join()).toContain('Q-PLAST');
-    expect(naruszenia(['Q-PLAST bywa'], a)).toHaveLength(1);
+    expect(naruszenia(['Q-PLAST bywa'], a).join()).toContain('Q-PLAST');
     expect(naruszenia(['od 77 000 zł'], a)).toHaveLength(1);
     // MIX-1677 W6: nazwa klienta małą literą (w środku i na początku etykiety) też jest czerwona
     expect(naruszenia(['historia bibmot'], a).join()).toContain('bibmot');
