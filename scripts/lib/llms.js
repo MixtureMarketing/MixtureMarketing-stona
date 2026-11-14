@@ -110,18 +110,22 @@ export function linkProblem(url) {
 }
 
 /**
- * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39): każdy znak po NFKC → NFKD, małe
- * litery, bez znaków łączących (ogonek, kropka nad İ), sobowtóry z SKELETON_MAP → ASCII; litera
- * albo cyfra [a-z0-9] zostaje, odstęp i interpunkcja zdania → ' ' (separator miękki), każdy inny
- * znak (ukośnik, myślnik, `*`, `_`, `ノ`, `⟋`, litera spoza tablicy) → '/' (separator twardy).
- * Bez listy separatorów: liczą się tylko litery i cyfry.
+ * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39; MIX-1670): każdy znak po NFKC → NFKD,
+ * bez znaków łączących (ogonek, kropka nad İ), sobowtór z SKELETON_MAP → ASCII PRZED małymi
+ * literami (greckie `Ν`, `Υ`, `Η` po małych literach dawały v, u, n), potem małe litery i tablica
+ * jeszcze raz; litera albo cyfra [a-z0-9] zostaje. Każda inna litera, cyfra albo symbol spoza ASCII
+ * (Μ, ɛ, Armenian օ, Coptic ⲟ, `ノ`, `⟋`, `∩`) → WILDCARD: dowolna jedna litera ścieżki albo
+ * separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy). Odstęp i interpunkcja zdania →
+ * ' ' (separator miękki), reszta ASCII i interpunkcja spoza ASCII (ukośnik, myślnik, `*`, `_`, `⸺`)
+ * → '/' (separator twardy).
  */
-// Pary [sobowtór, szkielet ASCII], po małych literach: cyrylica, greka, łacina rozszerzona,
-// kapitaliki; na końcu klasy mylone w ASCII (l i 1 → i, 0 → o), wspólne dla tekstu i ścieżki.
-// Wartości są końcowe (bez drugiego przejścia), więc sobowtór l daje od razu i.
+// Pary [sobowtór, szkielet ASCII]: cyrylica, greka, łacina rozszerzona, kapitaliki, wielkie litery
+// greckie i cyrylickie `И` (sprawdzane przed małymi literami); na końcu klasy mylone w ASCII (l i 1
+// → i, 0 → o), wspólne dla tekstu i ścieżki. Wartości są końcowe (bez drugiego przejścia).
 const SKELETON_PAIRS = [
   ['авгезикмнопрстухьѕіјԁԛԝүһӏꙇ', 'abre3ukmhonpctyxbsijdqwyhii'],
   ['αβγεηικνορστυχω', 'abyenikvopotuxw'],
+  ['ΑΒΕΖΗΙΚΜΝΟΡΤΥΧИ', 'abezhikmnoptyxn'],
   ['ıȷłđħŧøɑɡɩɪʟᴀʙᴄᴅᴇɢʜᴊᴋᴍɴᴏᴘʀꜱᴛᴜᴠᴡʏᴢ', 'ijidhtoagiiiabcdeghjkmnoprstuvwyz'],
   ['l10', 'iio'],
 ];
@@ -133,15 +137,20 @@ const SKELETON_MAP = new Map([
 ]);
 const SOFT_SEP_RE = /[\s.,;:!?'"()„”«»…]/u;
 
-/** Szkielet ze znacznikami separatorów: znaki tylko z [a-z0-9 /]. */
+/** Znak szkieletu dla litery, cyfry albo symbolu spoza tablicy (dowolna litera albo separator). */
+export const WILDCARD = '?';
+const noMarks = (s) => s.normalize('NFKD').replace(/\p{M}/gu, '');
+const fold = (s) => [...s].map((c) => SKELETON_MAP.get(c) ?? c).join('');
+const isWild = (c) => /[\p{L}\p{N}]/u.test(c) || (c > '\x7f' && /\p{S}/u.test(c));
+
+/** Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. */
 export function skeletonText(s) {
   let out = '';
   for (const ch of norm(s)) {
-    const d = ch.normalize('NFKD').toLowerCase().replace(/\p{M}/gu, '');
-    if (d === '') continue;
-    for (const c of d) {
-      const m = SKELETON_MAP.get(c) ?? c;
+    for (const c of noMarks(ch)) {
+      const m = SKELETON_MAP.get(c) ?? fold(noMarks(c.toLowerCase()));
       if (/^[a-z0-9]+$/.test(m)) out += m;
+      else if (isWild(c)) out += WILDCARD;
       else out += SOFT_SEP_RE.test(c) ? ' ' : '/';
     }
   }
@@ -160,6 +169,8 @@ export const MIN_SKELETON = 8;
  * Igły skanu stron ukrytych: [ścieżka, szkielet, wyrażenie na skeletonText]. Długi szkielet (całej
  * ścieżki; nazwy z myślnikiem, gdy ma ≥ MIN_SKELETON): litery i cyfry po kolei, między nimi
  * dowolne separatory, z granicą wyrazu na obu końcach (`superabonament/dziekujemyteraz` przechodzi).
+ * WILDCARD pasuje jako dowolna litera ścieżki albo separator (także na granicy); pary dwuliterowe
+ * z LOOK_PAIRS w obu kierunkach (`rn` w tekście za `m` ścieżki i `m` w tekście za `rn` ścieżki).
  */
 function hiddenNeedles(hiddenPaths) {
   const out = [];
@@ -175,11 +186,11 @@ function hiddenNeedles(hiddenPaths) {
       out.push([p, shown, longRe(full)]);
     } else {
       // Kilka członów: separator twardy między nimi wystarcza; jeden człon: `/nazwa` albo `nazwa/`.
-      const body = segs.join('/+');
+      const body = segs.map(shortBody).join(`${HARD}+`);
       const re =
         segs.length > 1
           ? `(?<![a-z0-9])${body}(?![a-z0-9])`
-          : `/+${body}(?![a-z0-9])|(?<![a-z0-9])${body}/+(?![a-z0-9])`;
+          : `${HARD}+${body}(?![a-z0-9])|(?<![a-z0-9])${body}${HARD}+(?![a-z0-9])`;
       out.push([p, shown, new RegExp(re)]);
     }
     const slugRaw = raw[raw.length - 1];
@@ -191,7 +202,73 @@ function hiddenNeedles(hiddenPaths) {
 }
 /** Szkielet w linii odmowy: litery i cyfry ścieżki bez klas l/1/0 (czytelny dla autora). */
 const plain = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
-const longRe = (k) => new RegExp(`(?<![a-z0-9])${[...k].join('[^a-z0-9]*')}(?![a-z0-9])`);
+
+/**
+ * Sobowtóry dwuliterowe na szkielecie [litera ścieżki, dwie litery tekstu] (MIX-1670): `rn` → m,
+ * `cl` → d (l w szkielecie to i, więc `ci`), `vv` → w. Działają w obu kierunkach.
+ */
+export const LOOK_PAIRS = [
+  ['m', 'rn'],
+  ['d', 'ci'],
+  ['w', 'vv'],
+];
+const HARD = `[/${WILDCARD}]`;
+const isAlnum = (c) => c !== undefined && /^[a-z0-9]$/.test(c);
+const fits = (t, k) => t === k || t === WILDCARD;
+const cls = (c) => `[${c}${WILDCARD}]`;
+
+/** Człon krótkiego szkieletu jako wyrażenie: litery po kolei bez separatorów, pary w obu kierunkach. */
+function shortBody(seg) {
+  let re = '';
+  for (let i = 0; i < seg.length;) {
+    const rev = LOOK_PAIRS.find(([, two]) => seg.startsWith(two, i));
+    const one = LOOK_PAIRS.find(([o]) => o === seg[i]);
+    if (rev) {
+      re += `(?:${cls(rev[1][0])}${cls(rev[1][1])}|${cls(rev[0])})`;
+      i += 2;
+    } else {
+      re += one ? `(?:${cls(one[0])}|${cls(one[1][0])}${cls(one[1][1])})` : cls(seg[i]);
+      i += 1;
+    }
+  }
+  return re;
+}
+
+/**
+ * Długi szkielet `k` jako automat po pozycjach (bez cofania, czas n × k): stan q = liczba liter
+ * ścieżki już dopasowanych. Start tylko na granicy wyrazu, separator (też WILDCARD) tylko między
+ * literami, koniec przy granicy wyrazu. Obiekt z `test(s)` jak wyrażenie regularne.
+ */
+function longRe(k) {
+  const K = k.length;
+  const test = (s) => {
+    const n = s.length;
+    const at = new Uint8Array((n + 3) * (K + 1));
+    const put = (j, q) => {
+      at[j * (K + 1) + q] = 1;
+    };
+    for (let j = 0; j <= n; j++) {
+      if (!isAlnum(s[j - 1])) put(j, 0);
+      for (let q = 0; q <= K; q++) {
+        if (!at[j * (K + 1) + q]) continue;
+        const t = s[j];
+        if (q === K) {
+          if (!isAlnum(t)) return true;
+          continue;
+        }
+        if (t === undefined) continue;
+        if (q > 0 && !isAlnum(t)) put(j + 1, q);
+        if (fits(t, k[q])) put(j + 1, q + 1);
+        for (const [one, two] of LOOK_PAIRS) {
+          if (k[q] === one && fits(t, two[0]) && fits(s[j + 1], two[1])) put(j + 2, q + 1);
+          if (k.startsWith(two, q) && fits(t, one)) put(j + 1, q + 2);
+        }
+      }
+    }
+    return false;
+  };
+  return { test };
+}
 
 /** Znaczniki na początku linii zdejmowane przed złączeniem (`> - `, `## `, `1. `, wcięcie). */
 const LINE_MARK_RE = /^(?:\s*(?:#{1,6}|>|[-*+]|\d+[.)]))*\s*/u;
