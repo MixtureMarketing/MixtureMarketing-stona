@@ -58,8 +58,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
 
   const onScroll = () => recordScroll(win.location.pathname, win.scrollY);
 
-  // Pozycja w chwili kliknięcia: zdarzenie `scroll` z ostatniej klatki mogłoby nie zdążyć przed nawigacją.
-  const onClick = () => recordScroll(win.location.pathname, win.scrollY);
+  // Ten sam zapis przy kliknięciu (pozycja w chwili kliknięcia): zdarzenie `scroll` z ostatniej klatki mogłoby nie zdążyć przed nawigacją.
 
   const onPop = (e: PopStateEvent) => {
     if (passthrough) return;
@@ -67,6 +66,8 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
+    // drugie cofnięcie w trakcie przejścia: własne przywracanie przeglądarki nadpisałoby górę po jego końcu
+    if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);
     const saved = savedPosition(to);
     if (saved === null) return; // wejście bez zapisu: zachowanie przeglądarki
     const hero = findHeroParts(doc);
@@ -108,12 +109,12 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
   };
 
   win.addEventListener('scroll', onScroll, { passive: true });
-  win.addEventListener('click', onClick, true);
+  win.addEventListener('click', onScroll, true);
   // capture: przed nasłuchem routera, który rejestruje się w fazie bąbelkowania
   win.addEventListener('popstate', onPop, true);
   return () => {
     win.removeEventListener('scroll', onScroll);
-    win.removeEventListener('click', onClick, true);
+    win.removeEventListener('click', onScroll, true);
     win.removeEventListener('popstate', onPop, true);
   };
 }

@@ -216,6 +216,16 @@ describe('startRestore: instant, waits for height', () => {
     expect(t.win.scrollTo).not.toHaveBeenCalled();
   });
 
+  it('F2: the guard is checked again at the limit: a restore that lost its page does not scroll then', () => {
+    const t = mk(900);
+    let on = true;
+    startRestore(1500, { doc: t.doc, win: t.win, watch: t.watch, maxMs: 1500, guard: () => on });
+    vi.advanceTimersByTime(1000);
+    on = false; // no layout tick in between: only the timeout can still scroll
+    vi.advanceTimersByTime(600);
+    expect(t.win.scrollTo).not.toHaveBeenCalled();
+  });
+
   it('a passing guard does not stop the restore', () => {
     const m = mk(3000);
     startRestore(1500, { doc: m.doc, win: m.win, watch: m.watch, maxMs: 1500, guard: () => true });

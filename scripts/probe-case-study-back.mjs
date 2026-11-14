@@ -251,7 +251,7 @@ const CASES = [
     double: true,
     gap: Number(g),
   })),
-].filter((c) => !OBSERVE || c.name === 'transition' || c.double);
+].filter((c) => !OBSERVE || c.name === 'transition' || c.hideCard || c.double);
 const UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36';
 const report = { source: remote ? 'preview' : 'local', viewports: {}, failures: [] };
@@ -484,7 +484,11 @@ async function measureDouble(vp, c) {
     calls: window.__vt.calls,
     scrollCalls: window.__vt.scrollCalls,
     scrollEvents: window.__vt.scrollEvents,
-    records: window.__vt.records.map((x) => [Math.round(x.t0), x.pathAfterUpdate, Math.round(x.tCbDone || 0)]),
+    records: window.__vt.records.map((x) => [
+      Math.round(x.t0),
+      x.pathAfterUpdate,
+      Math.round(x.tCbDone || 0),
+    ]),
     sameDocument: !!window.__vt.clickY,
     framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([, y]) => y),
     namesAtRest: window.__vtNames(),
@@ -522,7 +526,8 @@ for (const vp of VIEWPORTS) {
         if (D.scrollNow > TOL) fail(`${id}: rest on "/" at ${D.scrollNow} (expected 0)`);
         if (Object.keys(D.namesAtRest).length) fail(`${id}: names left`);
         if (D.calls > 1) fail(`${id}: transitions ${D.calls}`);
-        if (!D.sameDocument) fail(`${id}: "/" and the list are not in one document (probe invalid)`);
+        if (!D.sameDocument)
+          fail(`${id}: "/" and the list are not in one document (probe invalid)`);
         const onRoot = D.scrollCalls.filter((x) => x[3] === '/' && !x[1].startsWith('[0')).length;
         if (onRoot || D.scrollNow > TOL || process.env.PROBE_TRACE === '1') {
           console.log(`TRACE ${id} calls=${JSON.stringify(D.scrollCalls)}`);

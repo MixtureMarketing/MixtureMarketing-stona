@@ -264,6 +264,37 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
+  it('F2: a second back during our transition keeps the browser from restoring the page it lands on', async () => {
+    page(true);
+    pop();
+    await vi.advanceTimersByTimeAsync(10);
+    window.history.scrollRestoration = 'auto';
+    window.history.pushState({}, '', '/');
+    pop();
+    expect(window.history.scrollRestoration).toBe('manual');
+    await vi.advanceTimersByTimeAsync(1300);
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('F2: switch off while a transition is in progress: the second back still leaves the restoration alone', async () => {
+    page(true);
+    pop();
+    await vi.advanceTimersByTimeAsync(10);
+    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    window.history.scrollRestoration = 'auto';
+    window.history.pushState({}, '', '/');
+    pop();
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('F2: a back with no transition of ours in progress leaves the browser restoration alone', () => {
+    page(true);
+    window.history.pushState({}, '', '/');
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
   it('a click records the exact position even when the last scroll event has not fired yet', () => {
     page(true);
     window.history.pushState({}, '', '/portfolio/');

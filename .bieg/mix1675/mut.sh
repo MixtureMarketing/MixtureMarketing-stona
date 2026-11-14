@@ -32,7 +32,7 @@ mut M7-card-missing-not-skipped "$X" '      if (!card) {' '      if (false) {'
 mut M8-pop-only-removed "$B" "  if (navType !== 'POP') return null;" ''
 mut M9-case-study-position-recorded "$B" 'holding || !pathname || isCaseStudyRoute(pathname)' 'holding || !pathname'
 mut M10-top-after-restore "$S" 'pathChanged && restoredFor.current !== pathname' 'pathChanged'
-mut M11-no-wait-for-height "$R" 'if (finished || !canReach(y, deps)) return;' 'if (finished) return;'
+mut M11-no-wait-for-height "$R" 'if (!canReach(y, deps)) return;' ''
 mut M12-hold-removed "$W" '    holdRecording();' ''
 mut M13-active-ignored "$B" 'i.motion && !i.active && i.hero' 'i.motion && i.hero'
 mut M14-drift-fix-removed "$X" 'if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) opts.restore(y);' ''
@@ -63,11 +63,29 @@ mut F2f-cancelRestore-noop "$R" '  cancelCurrent?.();
 
 /** Czeka'
 mut F2g-popstate-no-cancel "$W" '    cancelRestore(); // kolejne' '    void 0; // kolejne'
-mut F2h-layout-no-cancel "$S" '    cancelRestore();
+mut F2h-layout-no-cancel-equiv-guard-covers "$S" '    cancelRestore();
     noteLocation(pathname);' '    noteLocation(pathname);'
 mut F2i-restore-guard-ignored-timer "$R" 'if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);' 'scrollInstant(y, deps.win);'
 mut F2j-restore-guard-ignored-layout "$R" "if (deps.guard && !deps.guard()) return stop();" ''
-mut F2k-both-cancel-and-guard-off "$S" 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
+mut F2k-guard-off-equiv-cancel-covers "$S" 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
+mut2() {
+  local name=$1 f=$2 from1=$3 to1=$4 from2=$5 to2=$6
+  cmp -s "$f" "$PR/$f" || { echo "mutant $name: BLAD, plik nie jest wzorcem przed mutantem" | tee -a "$OUT/mutants.txt"; return; }
+  node .bieg/mix1657/mutate.mjs "$f" "$from1" "$to1" && node .bieg/mix1657/mutate.mjs "$f" "$from2" "$to2" || { cp "$PR/$f" "$f"; echo "mutant $name: BLAD WZORCA" | tee -a "$OUT/mutants.txt"; return; }
+  npx vitest run $T --maxWorkers=2 > "$OUT/mut-$name.log" 2>&1
+  local rc=$?
+  cp "$PR/$f" "$f"; cmp -s "$f" "$PR/$f" || echo "mutant $name: BLAD PRZYWROCENIA" | tee -a "$OUT/mutants.txt"
+  local t; t=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/mut-$name.log" | grep -aE '^ +Tests ' | tail -n 1 | tr -s ' ')
+  local k; k=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/mut-$name.log" | grep -aE '^ FAIL ' | head -n 1 | cut -c1-150)
+  if [ $rc -ne 0 ]; then echo "mutant $name: zabity (rc=$rc;$t) $k" | tee -a "$OUT/mutants.txt"; else echo "mutant $name: PRZEZYL ($t)" | tee -a "$OUT/mutants.txt"; fi
+}
+mut2 F2l-layout-cancel-and-guard-both-off "$S" '    cancelRestore();
+    noteLocation(pathname);' '    noteLocation(pathname);' 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
+mut F3a-second-back-manual-restoration-removed "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' ''
+mut F3b-manual-restoration-without-active-check "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' 'if (isViewTransitionsEnabled()) manualRestorationFor(win);'
+mut F3c-manual-restoration-without-flag-check "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' 'if (isTransitionActive()) manualRestorationFor(win);'
+mut F3d-ref-write-removed "$S" '    pathRef.current = pathname;
+  });' '  });'
 for f in utils/caseStudyBack.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
 git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | head
 echo "mutanty: $(grep -c zabity "$OUT/mutants.txt") zabite, $(grep -c PRZEZYL "$OUT/mutants.txt") przezylo, $(grep -c BLAD "$OUT/mutants.txt") bledne"

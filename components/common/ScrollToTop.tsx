@@ -29,7 +29,11 @@ export default function ScrollToTop() {
   const prevLayoutPath = useRef(pathname);
   const restoredFor = useRef<string | null>(null);
   const pathRef = useRef(pathname);
-  pathRef.current = pathname;
+
+  // bieżąca ścieżka dla straży oczekującego przywrócenia (zapis w efekcie, nie w trakcie renderu)
+  useLayoutEffect(() => {
+    pathRef.current = pathname;
+  });
 
   // MIX-1675: zmiana samego query też kończy oczekujące przywrócenie (przed efektem trasy niżej)
   useLayoutEffect(() => {
