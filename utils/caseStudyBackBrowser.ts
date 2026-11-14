@@ -3,6 +3,8 @@
 // listy i przywrócenie jej bez animacji; przejście (zmniejszenie zdjęcia do karty) dodatkowo przy
 // wszystkich warunkach z planBack(). Wyłączony = brak nasłuchów i zmian (zachowanie jak dawniej).
 import {
+  backTicket,
+  bumpGeneration,
   holdRecording,
   manualRestorationFor,
   isCaseStudyRoute,
@@ -11,7 +13,7 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
-import { cancelRestore, canReach, scrollInstant } from './caseStudyRestore';
+import { canReach, scrollInstant } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
   caseStudyPath,
@@ -61,13 +63,12 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
   // Ten sam zapis przy kliknięciu (pozycja w chwili kliknięcia): zdarzenie `scroll` z ostatniej klatki mogłoby nie zdążyć przed nawigacją.
 
   const onPop = (e: PopStateEvent) => {
-    if (passthrough) return;
-    cancelRestore(); // kolejne cofnięcie: oczekujące przywrócenie poprzedniego nie może ruszyć innej strony
+    if (passthrough) return; // nasze własne oddanie zdarzenia routerowi: to samo cofnięcie
+    // nowe pokolenie: każdy odroczony skutek poprzedniego cofnięcia (czekanie, timer, rAF) gaśnie
+    bumpGeneration();
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
-    // drugie cofnięcie w trakcie przejścia: własne przywracanie przeglądarki nadpisałoby górę po jego końcu
-    if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);
     const saved = savedPosition(to);
     if (saved === null) return; // wejście bez zapisu: zachowanie przeglądarki
     const hero = findHeroParts(doc);
@@ -85,7 +86,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
     holdRecording();
     manualRestorationFor(win);
-    const toSearch = win.location.search;
+    const live = backTicket(() => win.location);
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
@@ -103,7 +104,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       },
       listReady: () => hasCard(doc, win, cardHref) && canReach(plan.y, { win, doc }),
       findCard: () => visibleCard(doc, win, cardHref),
-      stillOnList: () => win.location.pathname === to && win.location.search === toSearch,
+      live,
       restore: (y) => scrollInstant(y, win),
     });
   };

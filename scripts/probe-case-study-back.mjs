@@ -150,6 +150,33 @@ const INSTRUMENT = () => {
     ]);
     return origScrollTo(...a);
   };
+  // every other way a page can move the viewport (r4: find who scrolls without window.scrollTo)
+  vt.otherScrolls = [];
+  const spy = (obj, name, label) => {
+    const orig = obj[name];
+    if (typeof orig !== 'function') return;
+    obj[name] = function (...a) {
+      const st = (new Error().stack || '')
+        .split('\n')
+        .slice(2, 5)
+        .map((s) => s.trim().slice(0, 90));
+      vt.otherScrolls.push([
+        Math.round(performance.now()),
+        label,
+        JSON.stringify(a).slice(0, 60),
+        Math.round(scrollY),
+        location.pathname,
+        st,
+      ]);
+      return orig.apply(this, a);
+    };
+  };
+  spy(window, 'scroll', 'window.scroll');
+  spy(window, 'scrollBy', 'window.scrollBy');
+  spy(Element.prototype, 'scrollIntoView', 'scrollIntoView');
+  spy(Element.prototype, 'scrollTo', 'Element.scrollTo');
+  spy(Element.prototype, 'scroll', 'Element.scroll');
+  spy(HTMLElement.prototype, 'focus', 'focus');
   window.__vt = vt;
   const named = () => {
     const m = {};
@@ -176,7 +203,12 @@ const INSTRUMENT = () => {
   window.addEventListener(
     'scroll',
     () =>
-      vt.scrollEvents.push([Math.round(performance.now()), Math.round(scrollY), location.pathname]),
+      vt.scrollEvents.push([
+        Math.round(performance.now()),
+        Math.round(scrollY),
+        location.pathname,
+        history.scrollRestoration,
+      ]),
     { passive: true },
   );
   window.__logFrames = () => {
@@ -195,6 +227,7 @@ const INSTRUMENT = () => {
     vt.frames = [];
     vt.scrollEvents = [];
     vt.scrollCalls = [];
+    vt.otherScrolls = [];
     vt.backT0 = performance.now();
   };
   if (window.__noApi) {
@@ -259,6 +292,16 @@ const fail = (m) => report.failures.push(m);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const assetId = (u) => (u ? (/\/images\/[^/]+\/[^/]+\/([a-f0-9]+)-/.exec(u)?.[1] ?? null) : null);
 const TOL = 4;
+/** Target y of a recorded scrollTo call: `[{top}]` or `[x, y]`; a call to the top (0) is not a restore. */
+const callTop = (c) => {
+  try {
+    const a = JSON.parse(c[1]);
+    return Math.round(Number(a[0] !== null && typeof a[0] === 'object' ? a[0].top : a[1]) || 0);
+  } catch {
+    return -1;
+  }
+};
+const restoreCallsOnRoot = (calls) => calls.filter((c) => c[3] === '/' && callTop(c) !== 0).length;
 
 const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
 safe.watchBrowser(browser);
@@ -484,6 +527,7 @@ async function measureDouble(vp, c) {
     calls: window.__vt.calls,
     scrollCalls: window.__vt.scrollCalls,
     scrollEvents: window.__vt.scrollEvents,
+    otherScrolls: window.__vt.otherScrolls,
     records: window.__vt.records.map((x) => [
       Math.round(x.t0),
       x.pathAfterUpdate,
@@ -505,6 +549,7 @@ async function measureDouble(vp, c) {
     scrollCalls: r.scrollCalls,
     sameDocument: r.sameDocument,
     scrollEvents: r.scrollEvents,
+    otherScrolls: r.otherScrolls,
     records: r.records,
     rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot) : null,
     namesAtRest: r.namesAtRest,
@@ -528,10 +573,11 @@ for (const vp of VIEWPORTS) {
         if (D.calls > 1) fail(`${id}: transitions ${D.calls}`);
         if (!D.sameDocument)
           fail(`${id}: "/" and the list are not in one document (probe invalid)`);
-        const onRoot = D.scrollCalls.filter((x) => x[3] === '/' && !x[1].startsWith('[0')).length;
+        const onRoot = restoreCallsOnRoot(D.scrollCalls);
         if (onRoot || D.scrollNow > TOL || process.env.PROBE_TRACE === '1') {
           console.log(`TRACE ${id} calls=${JSON.stringify(D.scrollCalls)}`);
           console.log(`TRACE ${id} events=${JSON.stringify(D.scrollEvents)}`);
+          console.log(`TRACE ${id} other=${JSON.stringify(D.otherScrolls)}`);
           console.log(`TRACE ${id} vt(t0,pathAfterUpdate,tCbDone)=${JSON.stringify(D.records)}`);
         }
         if (onRoot) fail(`${id}: ${onRoot} scrollTo to a saved position while on "/"`);
@@ -581,7 +627,7 @@ for (const [vpTag, vv] of Object.entries(report.viewports)) {
   for (const [name, M] of Object.entries(vv)) {
     if (name.startsWith('double-back')) {
       console.log(
-        `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} sameDocument=${M.sameDocument} transitions=${M.calls} restoreCallsOnRoot=${M.scrollCalls.filter((c) => c[3] === '/' && !c[1].startsWith('[0')).length} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
+        `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} sameDocument=${M.sameDocument} transitions=${M.calls} restoreCallsOnRoot=${restoreCallsOnRoot(M.scrollCalls)} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
       );
       continue;
     }

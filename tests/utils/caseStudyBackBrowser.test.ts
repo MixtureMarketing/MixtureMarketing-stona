@@ -264,31 +264,31 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
-  it('F2: a second back during our transition keeps the browser from restoring the page it lands on', async () => {
+  it('G6: a second back before our transition callback (hash popstate, same list): the old back does nothing', async () => {
+    page(true);
+    pop();
+    // same path and query, only a new generation: the location check alone would let it through
+    window.history.pushState({}, '', '/portfolio/#x');
+    pop();
+    await vi.advanceTimersByTimeAsync(400);
+    expect(skip).toHaveBeenCalled();
+    expect(scrollTo).not.toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+    // only the second popstate reached the router; the stale first one is not handed over
+    expect(router).toHaveBeenCalledTimes(1);
+  });
+
+  it('G6: allowed twin: a single back runs the transition and restores the list', async () => {
+    page(true);
+    pop();
+    await vi.advanceTimersByTimeAsync(400);
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+  });
+
+  it('G7: the second back does not set manual restoration on the page it lands on', async () => {
     page(true);
     pop();
     await vi.advanceTimersByTimeAsync(10);
-    window.history.scrollRestoration = 'auto';
-    window.history.pushState({}, '', '/');
-    pop();
-    expect(window.history.scrollRestoration).toBe('manual');
-    await vi.advanceTimersByTimeAsync(1300);
-    expect(window.history.scrollRestoration).toBe('auto');
-  });
-
-  it('F2: switch off while a transition is in progress: the second back still leaves the restoration alone', async () => {
-    page(true);
-    pop();
-    await vi.advanceTimersByTimeAsync(10);
-    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
-    window.history.scrollRestoration = 'auto';
-    window.history.pushState({}, '', '/');
-    pop();
-    expect(window.history.scrollRestoration).toBe('auto');
-  });
-
-  it('F2: a back with no transition of ours in progress leaves the browser restoration alone', () => {
-    page(true);
     window.history.pushState({}, '', '/');
     window.history.scrollRestoration = 'auto';
     pop();

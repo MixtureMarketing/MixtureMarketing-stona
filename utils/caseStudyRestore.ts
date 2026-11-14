@@ -1,5 +1,10 @@
 // Przywrócenie pozycji przewinięcia bez animacji po powrocie z realizacji (MIX-1675).
-import { RESTORE_MAX_MS, holdRecording, releaseRecording } from './caseStudyBack';
+import {
+  RESTORE_MAX_MS,
+  currentGeneration,
+  holdRecording,
+  releaseRecording,
+} from './caseStudyBack';
 
 export interface RestoreDeps {
   win: Pick<Window, 'scrollTo' | 'innerHeight'>;
@@ -60,6 +65,9 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
   };
   cancelCurrent?.();
   holdRecording(deps.maxMs + 500);
+  // bilet: nowsze cofnięcie albo przejście linkiem (inne pokolenie) = już nic nie przewijamy
+  const gen = currentGeneration();
+  const live = () => gen === currentGeneration() && (!deps.guard || deps.guard());
   let finished = false;
   let unwatch: () => void = () => undefined;
   const stop = () => {
@@ -76,12 +84,12 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
   cancelCurrent = stop;
   const timer = setTimeout(() => {
     if (finished) return;
-    if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);
+    if (live()) scrollInstant(y, deps.win);
     stop();
   }, deps.maxMs);
   const attempt = () => {
     if (finished) return;
-    if (deps.guard && !deps.guard()) return stop();
+    if (!live()) return stop();
     if (!canReach(y, deps)) return;
     scrollInstant(y, deps.win);
     stop();
@@ -91,13 +99,15 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
   return stop;
 }
 
-/** Przerywa oczekujące przywrócenie pozycji (zmiana trasy albo kolejne cofnięcie): nic już nie przewinie. */
-export function cancelRestore(): void {
-  cancelCurrent?.();
-}
-
-/** Czeka, aż `pred()` da prawdę (sprawdza co 16 ms), najdłużej `ms`; false po czasie. */
-export function waitUntil(pred: () => boolean, ms: number): Promise<boolean> {
+/**
+ * Czeka, aż `pred()` da prawdę (sprawdza co 16 ms), najdłużej `ms`; false po czasie albo od razu,
+ * gdy `alive()` da fałsz (nowsze pokolenie nawigacji).
+ */
+export function waitUntil(
+  pred: () => boolean,
+  ms: number,
+  alive: () => boolean = () => true,
+): Promise<boolean> {
   return new Promise((resolve) => {
     const started = Date.now();
     const step = () => {
@@ -107,6 +117,7 @@ export function waitUntil(pred: () => boolean, ms: number): Promise<boolean> {
       } catch {
         ok = false;
       }
+      if (!alive()) return resolve(false);
       if (ok) return resolve(true);
       if (Date.now() - started >= ms) return resolve(false);
       setTimeout(step, 16);

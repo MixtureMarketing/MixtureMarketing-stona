@@ -50,42 +50,33 @@ mut V9c-card-below-ok "$W" "$V" 'if (r.bottom > 0 && r.width > 0) return parts;'
 mut V9d-card-zero-width-ok "$W" "$V" 'if (r.bottom > 0 && r.top < win.innerHeight) return parts;'
 mut F1a-drift-only-after-ready "$X" 'void Promise.allSettled([transition.ready, transition.updateCallbackDone]).then(correctDrift);' 'transition.ready.then(correctDrift, () => undefined);'
 mut F1b-drift-never-after-skip "$X" 'void Promise.allSettled([transition.ready, transition.updateCallbackDone]).then(correctDrift);' 'transition.ready.then(correctDrift).catch(() => undefined);'
-mut F2a-no-location-check-in-callback "$X" 'if (!opts.stillOnList()) {' 'if (false) {'
-mut F2b-no-location-check-in-drift "$X" '      if (!opts.stillOnList()) return;' ''
-mut F2c-search-ignored "$W" 'win.location.pathname === to && win.location.search === toSearch' 'win.location.pathname === to'
-mut F2d-path-ignored "$W" 'win.location.pathname === to && win.location.search === toSearch' 'win.location.search === toSearch'
-mut F2e-always-on-list "$W" 'win.location.pathname === to && win.location.search === toSearch' 'true'
-mut F2f-cancelRestore-noop "$R" '  cancelCurrent?.();
-}
-
-/** Czeka' '  void 0;
-}
-
-/** Czeka'
-mut F2g-popstate-no-cancel "$W" '    cancelRestore(); // kolejne' '    void 0; // kolejne'
-mut F2h-layout-no-cancel-equiv-guard-covers "$S" '    cancelRestore();
-    noteLocation(pathname);' '    noteLocation(pathname);'
-mut F2i-restore-guard-ignored-timer "$R" 'if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);' 'scrollInstant(y, deps.win);'
-mut F2j-restore-guard-ignored-layout "$R" "if (deps.guard && !deps.guard()) return stop();" ''
-mut F2k-guard-off-equiv-cancel-covers "$S" 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
-mut2() {
-  local name=$1 f=$2 from1=$3 to1=$4 from2=$5 to2=$6
-  cmp -s "$f" "$PR/$f" || { echo "mutant $name: BLAD, plik nie jest wzorcem przed mutantem" | tee -a "$OUT/mutants.txt"; return; }
-  node .bieg/mix1657/mutate.mjs "$f" "$from1" "$to1" && node .bieg/mix1657/mutate.mjs "$f" "$from2" "$to2" || { cp "$PR/$f" "$f"; echo "mutant $name: BLAD WZORCA" | tee -a "$OUT/mutants.txt"; return; }
-  npx vitest run $T --maxWorkers=2 > "$OUT/mut-$name.log" 2>&1
-  local rc=$?
-  cp "$PR/$f" "$f"; cmp -s "$f" "$PR/$f" || echo "mutant $name: BLAD PRZYWROCENIA" | tee -a "$OUT/mutants.txt"
-  local t; t=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/mut-$name.log" | grep -aE '^ +Tests ' | tail -n 1 | tr -s ' ')
-  local k; k=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/mut-$name.log" | grep -aE '^ FAIL ' | head -n 1 | cut -c1-150)
-  if [ $rc -ne 0 ]; then echo "mutant $name: zabity (rc=$rc;$t) $k" | tee -a "$OUT/mutants.txt"; else echo "mutant $name: PRZEZYL ($t)" | tee -a "$OUT/mutants.txt"; fi
-}
-mut2 F2l-layout-cancel-and-guard-both-off "$S" '    cancelRestore();
-    noteLocation(pathname);' '    noteLocation(pathname);' 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
-mut F3a-second-back-manual-restoration-removed "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' ''
-mut F3b-manual-restoration-without-active-check "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' 'if (isViewTransitionsEnabled()) manualRestorationFor(win);'
-mut F3c-manual-restoration-without-flag-check "$W" 'if (isViewTransitionsEnabled() && isTransitionActive()) manualRestorationFor(win);' 'if (isTransitionActive()) manualRestorationFor(win);'
-mut F3d-ref-write-removed "$S" '    pathRef.current = pathname;
-  });' '  });'
+# r4: jeden bilet pokolenia (bumpGeneration/backTicket). F2f/F2g/F2h/F2l/F3a-d usuniete razem z kodem (cancelRestore, pathRef, reczne przywracanie przy drugim cofnieciu); zastepuja je G*.
+mut F2a-no-live-check-after-wait "$X" 'na innej stronie
+      if (!opts.live()) {' 'na innej stronie
+      if (false) {'
+mut F2b-no-live-check-in-drift "$X" '      if (!opts.live()) return;' ''
+mut F2c-search-ignored "$B" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return listKey(loc.pathname);'
+mut F2d-path-ignored "$B" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return loc.search;'
+mut F2e-always-on-list "$W" '      live,' '      live: () => true,'
+mut F2i-restore-live-ignored-timer "$R" 'if (live()) scrollInstant(y, deps.win);' 'scrollInstant(y, deps.win);'
+mut F2j-restore-live-ignored-layout "$R" 'if (!live()) return stop();' ''
+mut F2k-scrolltotop-no-ticket "$S" 'startRestore(y, { guard: backTicket(() => locRef.current) });' 'startRestore(y);'
+mut G1-transition-start-no-live-check "$X" 'nic nie robi
+      if (!opts.live()) {' 'nic nie robi
+      if (false) {'
+mut G2-transition-wait-not-aborted "$X" 'waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS, opts.live)' 'waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS)'
+mut G3-restore-layout-no-generation "$R" 'if (!live()) return stop();' 'if (deps.guard && !deps.guard()) return stop();'
+mut G4-restore-timer-no-generation "$R" 'if (live()) scrollInstant(y, deps.win);' 'if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);'
+mut G5-wait-alive-ignored "$R" '      if (!alive()) return resolve(false);' ''
+mut G6-popstate-no-bump "$W" '    bumpGeneration();
+    const from = trackedPath;' '    const from = trackedPath;'
+mut G7-ticket-no-generation "$B" 'return () => gen === generation && locationKey(read) === at;' 'return () => locationKey(read) === at;'
+mut G7b-ticket-unknown-alive "$B" 'if (at === null) return () => false;' 'if (at === null) return () => true;'
+mut G7c-ticket-search-type-unchecked "$B" " || typeof loc.search !== 'string') return null;" ') return null;'
+mut G7d-ticket-relative-path-ok "$B" "    if (!loc.pathname.startsWith('/')) return null;" ''
+mut G8-link-no-bump "$S" "    if (isViewTransitionsEnabled() && navType !== 'POP') bumpGeneration();" ''
+mut G8b-only-push-bumps "$S" "navType !== 'POP') bumpGeneration();" "navType === 'PUSH') bumpGeneration();"
+mut G8c-locref-not-updated "$S" '    locRef.current = { pathname, search };' ''
 for f in utils/caseStudyBack.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
 git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | head
 echo "mutanty: $(grep -c zabity "$OUT/mutants.txt") zabite, $(grep -c PRZEZYL "$OUT/mutants.txt") przezylo, $(grep -c BLAD "$OUT/mutants.txt") bledne"

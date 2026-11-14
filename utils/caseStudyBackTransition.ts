@@ -30,8 +30,11 @@ export interface BackRunOptions {
   listReady: () => boolean;
   /** Karta tej samej realizacji na liście (zdjęcie i tytuł) albo null; tylko widoczna. */
   findCard: () => { image: HTMLElement; title: HTMLElement | null } | null;
-  /** Czy przeglądarka nadal jest na liście, dla której zapisano `y` (ścieżka i query); inaczej nic nie ruszamy. */
-  stillOnList: () => boolean;
+  /**
+   * Bilet tego cofnięcia (backTicket): to samo pokolenie nawigacji i nadal lista, dla której zapisano
+   * `y` (ścieżka i query). Fałsz = żaden odroczony skutek tego cofnięcia już nie działa.
+   */
+  live: () => boolean;
   /** Przewinięcie do `y` bez animacji. */
   restore: (y: number) => void;
   doc: Document;
@@ -82,10 +85,16 @@ export async function runCaseStudyBackTransition(
       // Zdjęcie starej strony jest zrobione: nagłówek realizacji oddaje nazwy.
       clearName(hero.image);
       if (hero.title) clearName(hero.title);
+      // nowsza nawigacja przed zdjęciem starej strony: ona ma już router, to cofnięcie nic nie robi
+      if (!opts.live()) {
+        transition.skipTransition();
+        return;
+      }
       opts.redispatch();
-      const ready = await waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS);
+      // czekanie kończy się od razu przy nowszej nawigacji (renderowanie nie stoi 300 ms)
+      const ready = await waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS, opts.live);
       // szybkie drugie cofnięcie: lista nie jest już na ekranie, jej pozycji nie wolno stawiać na innej stronie
-      if (!opts.stillOnList()) {
+      if (!opts.live()) {
         transition.skipTransition();
         return;
       }
@@ -110,7 +119,7 @@ export async function runCaseStudyBackTransition(
   const correctDrift = () => {
     const win = doc.defaultView;
     win?.requestAnimationFrame(() => {
-      if (!opts.stillOnList()) return;
+      if (!opts.live()) return;
       if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) opts.restore(y);
     });
   };

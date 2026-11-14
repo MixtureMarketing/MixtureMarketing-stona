@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
+  type BackLocation,
   backRestoreTarget,
+  backTicket,
+  bumpGeneration,
+  currentGeneration,
   isCaseStudyRoute,
   isRecordingHeld,
   holdRecording,
@@ -10,7 +14,7 @@ import {
   resetPositions,
   savedPosition,
 } from '@/utils/caseStudyBack';
-import { cancelRestore, canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
+import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -189,16 +193,25 @@ describe('startRestore: instant, waits for height', () => {
     expect(a.win.scrollTo).not.toHaveBeenCalled();
   });
 
-  it('F2: cancelRestore stops a pending restore: neither a later layout nor the timeout scrolls', () => {
+  it('G3: a new generation stops a pending restore on the next layout, without scrolling', () => {
     const m = mk(900);
     startRestore(1500, { doc: m.doc, win: m.win, watch: m.watch, maxMs: 1500 });
-    cancelRestore();
-    expect(m.unwatch).toHaveBeenCalled();
+    bumpGeneration();
     (m.doc.documentElement as unknown as { scrollHeight: number }).scrollHeight = 3000;
     m.tick();
+    expect(m.win.scrollTo).not.toHaveBeenCalled();
+    expect(m.unwatch).toHaveBeenCalled();
     vi.advanceTimersByTime(2000);
     expect(m.win.scrollTo).not.toHaveBeenCalled();
-    expect(() => cancelRestore()).not.toThrow();
+  });
+
+  it('G4: a new generation also stops the restore at the time limit (no layout in between)', () => {
+    const t = mk(900);
+    startRestore(1500, { doc: t.doc, win: t.win, watch: t.watch, maxMs: 1500 });
+    vi.advanceTimersByTime(1000);
+    bumpGeneration();
+    vi.advanceTimersByTime(600);
+    expect(t.win.scrollTo).not.toHaveBeenCalled();
   });
 
   it('F2: a failed guard stops the restore without scrolling (layout and timeout paths)', () => {
@@ -258,5 +271,70 @@ describe('waitUntil', () => {
     }, 300);
     await vi.advanceTimersByTimeAsync(400);
     await expect(p).resolves.toBe(false);
+  });
+  it('G5: ends at once with false when the navigation is no longer alive', async () => {
+    let alive = true;
+    let done: boolean | null = null;
+    void waitUntil(
+      () => false,
+      300,
+      () => alive,
+    ).then((v) => (done = v));
+    await vi.advanceTimersByTimeAsync(50);
+    expect(done).toBeNull();
+    alive = false;
+    await vi.advanceTimersByTimeAsync(20);
+    expect(done).toBe(false);
+  });
+});
+
+describe('backTicket: one generation, one list location (fail-closed)', () => {
+  const at = (pathname: unknown, search: unknown = '') => ({ pathname, search }) as BackLocation;
+
+  it('alive while generation and path + query are unchanged (slash form ignored)', () => {
+    let loc = at('/portfolio/', '?k=1');
+    const live = backTicket(() => loc);
+    expect(live()).toBe(true);
+    loc = at('/portfolio', '?k=1');
+    expect(live()).toBe(true);
+  });
+  it('a popstate or link (new generation) ends it, also on the same location', () => {
+    const loc = at('/portfolio/');
+    const live = backTicket(() => loc);
+    bumpGeneration();
+    expect(live()).toBe(false);
+    expect(backTicket(() => loc)()).toBe(true);
+  });
+  it('another path or another query ends it', () => {
+    let loc = at('/portfolio/');
+    const live = backTicket(() => loc);
+    loc = at('/');
+    expect(live()).toBe(false);
+    loc = at('/portfolio/', '?q=x');
+    expect(live()).toBe(false);
+  });
+  it('unknown, missing or broken location = never alive', () => {
+    expect(backTicket(() => null)()).toBe(false);
+    expect(backTicket(() => undefined)()).toBe(false);
+    expect(backTicket(() => at(42))()).toBe(false);
+    expect(backTicket(() => at('/portfolio/', null))()).toBe(false);
+    expect(backTicket(() => at('portfolio/'))()).toBe(false);
+    expect(
+      backTicket(() => {
+        throw new Error('x');
+      })(),
+    ).toBe(false);
+    let broken = false;
+    const live = backTicket(() => {
+      if (broken) throw new Error('x');
+      return at('/portfolio/');
+    });
+    broken = true;
+    expect(live()).toBe(false);
+  });
+  it('the generation only grows', () => {
+    const g = currentGeneration();
+    bumpGeneration();
+    expect(currentGeneration()).toBe(g + 1);
   });
 });

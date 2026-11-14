@@ -59,7 +59,7 @@ function options(over: Partial<BackRunOptions> = {}): BackRunOptions {
     redispatch: vi.fn(),
     listReady: () => true,
     findCard: () => ({ image: cardImg, title: cardTitle }),
-    stillOnList: () => true,
+    live: () => true,
     restore: vi.fn(),
     doc: document,
     cardMs: 50,
@@ -162,26 +162,55 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     expect(still.restore).toHaveBeenCalledTimes(1);
   });
 
-  it('rapid second back (no longer on the list): nothing is restored, transition skipped, no card named', async () => {
+  it('G1: a newer navigation before the callback: no hand-over to the router, nothing restored, skipped', async () => {
     const { skip } = installVT();
-    const o = options({ stillOnList: () => false });
+    const o = options({ live: () => false });
     await runCaseStudyBackTransition(o);
     setScrollY(1335);
     await flush();
     expect(skip).toHaveBeenCalledTimes(1);
     expect(o.restore).not.toHaveBeenCalled();
     expect(cardImg.style.getPropertyValue('view-transition-name')).toBe('');
-    expect(o.redispatch).toHaveBeenCalledTimes(1);
+    // the newer popstate already reached the router: the stale one is not handed over again
+    expect(o.redispatch).not.toHaveBeenCalled();
     release();
     await flush();
     expect(names()).toEqual([]);
     expect(isTransitionActive()).toBe(false);
   });
 
+  it('G2: a newer navigation while waiting for the list ends the wait at once: skipped, nothing restored', async () => {
+    const { skip } = installVT();
+    let alive = true;
+    const o = options({ listReady: () => false, live: () => alive, cardMs: 300 });
+    await runCaseStudyBackTransition(o);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(o.redispatch).toHaveBeenCalledTimes(1);
+    alive = false; // second back: new generation
+    await new Promise((r) => setTimeout(r, 60));
+    // well before the 300 ms limit: rendering is not held back by a wait for a list that is gone
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(o.restore).not.toHaveBeenCalled();
+    await new Promise((r) => setTimeout(r, 300));
+    expect(o.restore).not.toHaveBeenCalled();
+    expect(o.redispatch).toHaveBeenCalledTimes(1);
+  });
+
+  it('G2: same wait without a newer navigation runs to the limit and restores (allowed twin)', async () => {
+    const { skip } = installVT();
+    const o = options({ listReady: () => false, cardMs: 300 });
+    await runCaseStudyBackTransition(o);
+    await new Promise((r) => setTimeout(r, 80));
+    expect(skip).not.toHaveBeenCalled();
+    await new Promise((r) => setTimeout(r, 300));
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(o.restore).toHaveBeenCalledWith(1500);
+  });
+
   it('the list is left after the restore: the drift correction does not run on another page', async () => {
     installVT();
     let onList = true;
-    const o = options({ stillOnList: () => onList });
+    const o = options({ live: () => onList });
     await runCaseStudyBackTransition(o);
     await new Promise((r) => setTimeout(r, 30));
     expect(o.restore).toHaveBeenCalledTimes(1);

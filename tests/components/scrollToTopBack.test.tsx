@@ -162,6 +162,23 @@ describe('MIX-1675 switch on: restore without animation', () => {
     vi.useRealTimers();
   });
 
+  it('G8: a link click (PUSH or REPLACE) to the same list while the restore waits: new generation, no restore', () => {
+    vi.useFakeTimers();
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
+    fireEvent.click(screen.getByText('back')); // to the list: restore waits for its height
+    scrollTo.mockClear();
+    // same path and query: only the generation tells the restore that the visitor moved on
+    fireEvent.click(screen.getByText('menu-list'));
+    vi.advanceTimersByTime(3000);
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+    vi.useRealTimers();
+  });
+
   it('installs the scroll, click and popstate listeners', () => {
     const add = vi.spyOn(window, 'addEventListener');
     render(<Tree entries={['/portfolio/']} index={0} />);

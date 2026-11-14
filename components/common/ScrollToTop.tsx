@@ -1,8 +1,13 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
-import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
-import { cancelRestore, startRestore } from '@/utils/caseStudyRestore';
+import {
+  backRestoreTarget,
+  backTicket,
+  bumpGeneration,
+  savedPosition,
+} from '@/utils/caseStudyBack';
+import { startRestore } from '@/utils/caseStudyRestore';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { topScrollArgs } from '@/utils/caseStudyTransition';
 import { isViewTransitionsEnabled } from '@/utils/viewTransitions';
@@ -22,23 +27,21 @@ function findHashTarget(hash: string): HTMLElement | null {
 }
 
 export default function ScrollToTop() {
-  const { pathname, search, hash } = useLocation();
+  const { pathname, search, hash, key } = useLocation();
   const navType = useNavigationType();
   const isFirst = useRef(true);
   const prevPathname = useRef(pathname);
   const prevLayoutPath = useRef(pathname);
   const restoredFor = useRef<string | null>(null);
-  const pathRef = useRef(pathname);
+  const locRef = useRef({ pathname, search });
 
-  // bieżąca ścieżka dla straży oczekującego przywrócenia (zapis w efekcie, nie w trakcie renderu)
+  // MIX-1675: bieżąca lokalizacja routera dla biletu przywrócenia (zapis w efekcie, nie w renderze);
+  // przejście linkiem (PUSH/REPLACE) to nowe pokolenie: oczekujące przywrócenie listy gaśnie
   useLayoutEffect(() => {
-    pathRef.current = pathname;
-  });
-
-  // MIX-1675: zmiana samego query też kończy oczekujące przywrócenie (przed efektem trasy niżej)
-  useLayoutEffect(() => {
-    if (isViewTransitionsEnabled()) cancelRestore();
-  }, [search]);
+    locRef.current = { pathname, search };
+    if (isViewTransitionsEnabled() && navType !== 'POP') bumpGeneration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- każda nawigacja (klucz wpisu)
+  }, [key]);
 
   // MIX-1675: zapis pozycji listy i przejęcie cofnięcia; layout effect dzieci wykonuje się przed
   // efektem routera, więc nasłuch popstate (faza capture) jest pierwszy.
@@ -52,8 +55,6 @@ export default function ScrollToTop() {
     prevLayoutPath.current = pathname;
     restoredFor.current = null;
     if (!isViewTransitionsEnabled()) return;
-    // oczekujące przywrócenie z poprzedniej trasy (szybkie drugie cofnięcie) nie może przewinąć nowej
-    cancelRestore();
     noteLocation(pathname);
     if (prev === pathname || hash) return;
     const y = backRestoreTarget({
@@ -64,7 +65,8 @@ export default function ScrollToTop() {
     });
     if (y === null) return;
     restoredFor.current = pathname;
-    startRestore(y, { guard: () => pathRef.current === pathname });
+    // bilet: inne pokolenie albo inna ścieżka/query = oczekujące przywrócenie nic nie przewija
+    startRestore(y, { guard: backTicket(() => locRef.current) });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- tylko zmiana ścieżki
   }, [pathname]);
 
