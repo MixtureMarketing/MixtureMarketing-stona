@@ -483,6 +483,8 @@ async function measureDouble(vp, c) {
     scrollNow: Math.round(scrollY),
     calls: window.__vt.calls,
     scrollCalls: window.__vt.scrollCalls,
+    scrollEvents: window.__vt.scrollEvents,
+    records: window.__vt.records.map((x) => [Math.round(x.t0), x.pathAfterUpdate, Math.round(x.tCbDone || 0)]),
     sameDocument: !!window.__vt.clickY,
     framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([, y]) => y),
     namesAtRest: window.__vtNames(),
@@ -498,6 +500,8 @@ async function measureDouble(vp, c) {
     calls: r.calls,
     scrollCalls: r.scrollCalls,
     sameDocument: r.sameDocument,
+    scrollEvents: r.scrollEvents,
+    records: r.records,
     rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot) : null,
     namesAtRest: r.namesAtRest,
     listeners: r.listeners,
@@ -520,6 +524,11 @@ for (const vp of VIEWPORTS) {
         if (D.calls > 1) fail(`${id}: transitions ${D.calls}`);
         if (!D.sameDocument) fail(`${id}: "/" and the list are not in one document (probe invalid)`);
         const onRoot = D.scrollCalls.filter((x) => x[3] === '/' && !x[1].startsWith('[0')).length;
+        if (onRoot || D.scrollNow > TOL || process.env.PROBE_TRACE === '1') {
+          console.log(`TRACE ${id} calls=${JSON.stringify(D.scrollCalls)}`);
+          console.log(`TRACE ${id} events=${JSON.stringify(D.scrollEvents)}`);
+          console.log(`TRACE ${id} vt(t0,pathAfterUpdate,tCbDone)=${JSON.stringify(D.records)}`);
+        }
         if (onRoot) fail(`${id}: ${onRoot} scrollTo to a saved position while on "/"`);
       }
       await saveReport();
