@@ -8,7 +8,7 @@ import {
   type BackRunOptions,
 } from '@/utils/caseStudyBackTransition';
 import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
-import { skipBackTransition } from '@/utils/caseStudyBackSkip';
+import { setBackSkip, skipBackTransition } from '@/utils/caseStudyBackSkip';
 import { BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
@@ -494,5 +494,159 @@ describe('MIX-1707: the list is scrolled only after the back is confirmed single
     acceptedBack();
     expect(await runCaseStudyBackTransition(options())).toBe('plain');
     expect(backOwned()).toBe(false);
+  });
+});
+
+describe('MIX-1719: a late second back (after our list scroll) gives the root its position back', () => {
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  /** Root at 0 before the list scroll; restore() really moves it (as startRestore does). */
+  function late(over: Partial<BackRunOptions> = {}) {
+    setScrollY(0);
+    const calls: unknown[] = [];
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(((a: ScrollToOptions) => {
+      calls.push(a);
+      setScrollY(Number(a.top));
+    }) as typeof window.scrollTo);
+    const o = options({ restore: vi.fn((y: number) => setScrollY(y)), ...over });
+    return { o, calls, scrollTo };
+  }
+  const INSTANT_0 = { top: 0, left: window.scrollX, behavior: 'instant' };
+
+  it('second back after the restore: one instant scroll to the old position, before skipTransition', async () => {
+    const { skip } = installVT();
+    const { o, calls, scrollTo } = late();
+    const order: string[] = [];
+    scrollTo.mockImplementation(((a: ScrollToOptions) => {
+      order.push(`scrollTo:${a.top}`);
+      calls.push(a);
+      setScrollY(Number(a.top));
+    }) as typeof window.scrollTo);
+    skip.mockImplementationOnce(() => order.push('skip'));
+    await runCaseStudyBackTransition(o);
+    await flush();
+    expect(o.restore).toHaveBeenCalledWith(1500);
+    expect(window.scrollY).toBe(1500);
+    expect(skipBackTransition()).not.toBeNull();
+    expect(calls).toEqual([INSTANT_0]);
+    expect(window.scrollY).toBe(0);
+    expect(order).toEqual(['scrollTo:0', 'skip']);
+  });
+
+  it('only once: a later skip of the same transition does not scroll again', async () => {
+    installVT();
+    const { o, calls } = late();
+    await runCaseStudyBackTransition(o);
+    await flush();
+    skipBackTransition();
+    expect(skipBackTransition()).toBeNull();
+    expect(calls).toHaveLength(1);
+  });
+
+  it('refusal: second back inside the window (before the restore) = no scroll at all', async () => {
+    installVT();
+    let alive = true;
+    const { o, calls } = late({ confirmMs: 300, live: () => alive });
+    await runCaseStudyBackTransition(o);
+    await wait(40);
+    alive = false;
+    skipBackTransition();
+    await wait(60);
+    expect(o.restore).not.toHaveBeenCalled();
+    expect(calls).toEqual([]);
+    expect(window.scrollY).toBe(0);
+  });
+
+  it('refusal: the root moved away from our position (user, browser) = left where it is', async () => {
+    installVT();
+    const { o, calls } = late();
+    await runCaseStudyBackTransition(o);
+    await flush();
+    setScrollY(1500 + 5);
+    skipBackTransition();
+    expect(calls).toEqual([]);
+    expect(window.scrollY).toBe(1505);
+  });
+
+  it('allowed twin: drift within 4 px of our position still gives the old position back', async () => {
+    installVT();
+    const { o, calls } = late();
+    await runCaseStudyBackTransition(o);
+    await flush();
+    setScrollY(1500 + 4);
+    skipBackTransition();
+    expect(calls).toEqual([INSTANT_0]);
+  });
+
+  it('refusal: the old position equals ours (list was already there) = no scroll', async () => {
+    installVT();
+    const { o, calls } = late();
+    setScrollY(1497);
+    await runCaseStudyBackTransition(o);
+    await flush();
+    skipBackTransition();
+    expect(calls).toEqual([]);
+  });
+
+  it('refusal: the old position is not a number = no scroll', async () => {
+    installVT();
+    const { o, calls } = late();
+    setScrollY(Number.NaN);
+    await runCaseStudyBackTransition(o);
+    await flush();
+    skipBackTransition();
+    expect(calls).toEqual([]);
+  });
+
+  it('refusal: the transition already finished = nothing to skip, no scroll', async () => {
+    installVT();
+    const { o, calls } = late();
+    await runCaseStudyBackTransition(o);
+    await flush();
+    release();
+    await wait(0);
+    expect(skipBackTransition()).toBeNull();
+    expect(calls).toEqual([]);
+  });
+
+  it('scrollTo throws: the transition is still skipped and the back still handed over', async () => {
+    const { skip } = installVT();
+    const { o, scrollTo } = late();
+    scrollTo.mockImplementation(() => {
+      throw new Error('scroll');
+    });
+    await runCaseStudyBackTransition(o);
+    await flush();
+    const released = skipBackTransition();
+    expect(released).not.toBeNull();
+    expect(skip).toHaveBeenCalled();
+    await expect(released).resolves.toBeUndefined();
+    expect(isTransitionActive()).toBe(false);
+  });
+});
+
+describe('MIX-1719: BackSkip.restoring keeps the position from before the FIRST list scroll', () => {
+  it('a second restoring call (e.g. a drift fix) does not overwrite the old position', () => {
+    const calls: unknown[] = [];
+    vi.spyOn(window, 'scrollTo').mockImplementation(((a: ScrollToOptions) => {
+      calls.push(a);
+      setScrollY(Number(a.top));
+    }) as typeof window.scrollTo);
+    const s = setBackSkip({ skipTransition: vi.fn() }, vi.fn());
+    setScrollY(0);
+    s.restoring(window, 1500, (y) => setScrollY(y));
+    setScrollY(1502);
+    s.restoring(window, 1500, (y) => setScrollY(y));
+    expect(skipBackTransition()).not.toBeNull();
+    expect(calls).toEqual([{ top: 0, left: window.scrollX, behavior: 'instant' }]);
+  });
+
+  it('no window: the scroll still runs and a later skip scrolls nothing', () => {
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const run = vi.fn();
+    const s = setBackSkip({ skipTransition: vi.fn() }, vi.fn());
+    s.restoring(null, 1500, run);
+    expect(run).toHaveBeenCalledWith(1500);
+    skipBackTransition();
+    expect(scrollTo).not.toHaveBeenCalled();
   });
 });

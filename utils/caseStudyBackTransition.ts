@@ -95,7 +95,8 @@ export async function runCaseStudyBackTransition(
         transition.skipTransition();
         return;
       }
-      opts.restore(y);
+      // MIX-1719: spóźnione drugie cofnięcie (po tym przewinięciu) oddaje korzeniowi pozycję sprzed niego
+      skip.restoring(doc.defaultView, y, opts.restore);
       const card = ready ? opts.findCard() : null;
       if (!card) {
         transition.skipTransition();

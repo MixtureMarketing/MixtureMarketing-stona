@@ -1,6 +1,21 @@
 // Pominięcie przejścia wstecz w toku (MIX-1699, MIX-1707 r2); wydzielone z utils/caseStudyGeneration.ts.
-import { BACK_RELEASE_MAX_MS } from './caseStudyBackOptions';
+import { BACK_RELEASE_MAX_MS, SCROLL_TOLERANCE_PX } from './caseStudyBackOptions';
 import { currentGeneration } from './caseStudyGeneration';
+
+type Restore = (y: number) => void;
+
+/**
+ * MIX-1719: cofnięcie naszego przewinięcia listy przy spóźnionym drugim cofnięciu (człowiek: 100–250 ms, po
+ * potwierdzeniu okna MIX-1711): korzeń wraca na pozycję sprzed przewinięcia, jak przy drugim cofnięciu w oknie
+ * (wtedy nic nie przewijamy). Allowlista: korzeń nadal stoi na naszej pozycji (±4 px; ruch użytkownika,
+ * przeglądarki albo innego kodu = nic) i pozycja sprzed jest liczbą ≥ 0 różną od naszej.
+ */
+function undoListScroll(win: Window, before: number, y: number): void {
+  if (!(before >= 0)) return;
+  if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) return;
+  if (Math.abs(before - y) <= SCROLL_TOLERANCE_PX) return;
+  win.scrollTo({ top: before, left: win.scrollX, behavior: 'instant' });
+}
 
 /**
  * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
@@ -14,8 +29,14 @@ import { currentGeneration } from './caseStudyGeneration';
 export interface BackSkip {
   release: () => void;
   woken: Promise<false>;
+  /** MIX-1719: przewinięcie listy na `y` przez `run`; pierwsze zapamiętuje pozycję korzenia sprzed niego. */
+  restoring: (win: Window | null, y: number, run: Restore) => void;
 }
-export const NO_SKIP: BackSkip = { release: () => undefined, woken: new Promise(() => undefined) };
+export const NO_SKIP: BackSkip = {
+  release: () => undefined,
+  woken: new Promise(() => undefined),
+  restoring: (_win, y, run) => run(y),
+};
 let skipActive: (() => Promise<void>) | null = null;
 
 /**
@@ -49,7 +70,25 @@ export function setBackSkip(
 ): BackSkip {
   let wake: (v: false) => void = () => undefined;
   const woken = new Promise<false>((resolve) => (wake = resolve));
+  let undo: (() => void) | null = null;
+  const restoring = (win: Window | null, y: number, run: Restore) => {
+    // tylko pierwsze przewinięcie: późniejsza korekta dryfu (ten sam cel) nie nadpisuje pozycji sprzed
+    if (win && !undo) {
+      const before = win.scrollY;
+      undo = () => undoListScroll(win, before, y);
+    }
+    run(y);
+  };
   const skip = () => {
+    // MIX-1719: najpierw oddanie pozycji sprzed naszego przewinięcia listy (raz), synchronicznie w popstate,
+    // przed pierwszą malowaną klatką; błąd = pozycja zostaje, a pominięcie i oddanie routerowi idą dalej
+    const u = undo;
+    undo = null;
+    try {
+      u?.();
+    } catch {
+      /* nawigacja nie stoi */
+    }
     // MIX-1711 (A13): rzucające skipTransition nie zatrzymuje oddania cofnięcia routerowi
     try {
       t.skipTransition();
@@ -72,7 +111,7 @@ export function setBackSkip(
   const release = () => {
     if (skipActive === skip) skipActive = null;
   };
-  return { release, woken };
+  return { release, woken, restoring };
 }
 /**
  * Pomija przejście w toku. Zwraca obietnicę zwolnienia malowania (koniec wywołania zwrotnego przejścia albo
