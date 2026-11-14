@@ -25,10 +25,13 @@ swap() { # swap <dir with files> <files...>: copy originals to $OUT/orig, put th
 unswap() { for f in "$@"; do cp "$OUT/orig/$f" "$f"; cmp "$f" "$OUT/orig/$f" && echo "restored $f"; done; }
 build on 1
 OLD="utils/caseStudyBackSkip.ts utils/caseStudyBackTransition.ts"
+# d73cc9f versions are committed under .bieg/mix1719/base-1711 (the cloud snapshot has no history, round 2)
+BASE1711=.bieg/mix1719/base-1711
 mkdir -p "$OUT/d73cc9f/utils"
-for f in $OLD; do git show "d73cc9f:$f" > "$OUT/d73cc9f/$f" || bad "git show d73cc9f:$f"; done
+(cd "$BASE1711" && sha256sum -c SHA256SUMS) || bad "base-1711 checksum mismatch"
+for f in $OLD; do cp "$BASE1711/$f.d73cc9f" "$OUT/d73cc9f/$f" || bad "copy base-1711 $f"; done
 swap "$OUT/d73cc9f" $OLD
-echo "on1711 diff vs d73cc9f: $(git diff --stat d73cc9f -- $OLD | tail -n 1)"
+for f in $OLD; do cmp -s "$f" "$OUT/orig/$f" && bad "on1711 $f equals HEAD (swap did nothing)"; echo "on1711 $f blob $(git hash-object "$f")"; done
 build on1711 1
 unswap $OLD
 build off ''
