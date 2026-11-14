@@ -1,0 +1,10 @@
+// verifier MIX-1670: forms for extra hidden paths /modern-cloud-platform/ and /offline-profile-flow/ (run copy only)
+  ['W01 reverse rn->m and cl->d', 'R', '- Strona modem-doud-platform'],
+  ['W01t', 'A', '- Strona modem-doud-platforms'],
+  ['W02 forward m->rn twice', 'R', '- Strona rnodern-cloud-platforrn'],
+  ['W03 NFKC ligatures ffl fi fl', 'R', '- Strona oﬄine-proﬁle-ﬂow'],
+  ['W03t', 'A', '- Strona oﬄine-proﬁle-ﬂows'],
+  ['W04 capital I for l', 'R', '- Strona offline-profile-fIow'],
+  ['W05 reverse cl written d only', 'R', '- Strona modern-doud-platform'],
+  ['W05t', 'A', '- Strona modern-doud-plat'],
+  ['W07 english prose modern cloud platform', 'A', '- Modern cloud platforms for business'],
