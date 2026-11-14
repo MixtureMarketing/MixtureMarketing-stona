@@ -4,7 +4,7 @@
 # and on a missing file) and, with VITEST=1, vitest of tests/seo/llmsTxt.test.ts. A mutant is killed when
 # any number differs from the baseline. Restores exactly that file (git checkout -- <file>). From repo root.
 set -u
-OUT=.bieg/r/mix1689; mkdir -p "$OUT"; : > "$OUT/mutants.txt"
+OUT=.bieg/r/mix1689${R:-}; mkdir -p "$OUT"; : > "$OUT/mutants.txt"
 L=scripts/lib/llms.js; C=scripts/check-llms.mjs
 S() { echo "$*" | tee -a "$OUT/mutants.txt"; }
 T() { sed 's/\x1b\[[0-9;]*m//g' "$1" | grep -aE '^ +Tests ' | tail -n 1 | tr -s ' '; }
@@ -52,4 +52,11 @@ mut M6-error-accepted-cli-read "$C" "  process.exit(1);" "  process.exit(0);"
 mut M7-nfkc-skipped "$L" ".normalize('NFKC');" ";"
 mut M8-any-whitespace-soft "$L" "  if (SOFT_SEP.has(c)) return ' ';" "  if (SOFT_SEP.has(c) || /\\s/u.test(c)) return ' ';"
 mut M9-low-quote-removed "$L" "()\\u201E\\u201D" "()\\u201D"
+# r2 (WERDYKT-MIX-1689 F1, Recenzja L-SYS: znaki łączące i Cf = dżoker, nigdy nie znikają)
+mut M10-marks-dropped-again "$L" "    if (!LETTER_RE.test(ch)) {" "    if (false) {"
+mut M11-mark-to-separator "$L" "  if (SOFT_SEP.has(c)) return ' ';" "  if (SOFT_SEP.has(c) || /\\p{M}/u.test(c)) return ' ';"
+mut M12-cf-dropped "$L" "      out += skeletonChar(ch);" "      out += /\\p{Cf}/u.test(ch) ? '' : skeletonChar(ch);"
+mut M13-only-marks-dropped "$L" "      out += skeletonChar(ch);" "      out += /\\p{M}/u.test(ch) ? '' : skeletonChar(ch);"
+mut M14-cf-to-separator "$L" "      out += skeletonChar(ch);" "      out += /\\p{Cf}/u.test(ch) ? ' ' : skeletonChar(ch);"
+mut M15-nonletter-decomposed "$L" "      out += skeletonChar(ch);" "      out += [...noMarks(ch)].map(skeletonChar).join('');"
 S "summary: mutants=$N killed=$KILLED porcelain=$(git status --porcelain -- scripts tests | wc -l)"

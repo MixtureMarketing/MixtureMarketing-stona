@@ -2,7 +2,7 @@
 # MIX-1689: bieg celowany (npm ci, prettier, eslint zmienionych, tsc, vitest related, probe + harness form
 # ataku, check-llms na pliku z repo) i mutanty z vitest (VITEST=1 mut.sh). Z korzenia repo.
 set -u
-OUT=.bieg/r/mix1689; mkdir -p "$OUT"
+OUT=.bieg/r/mix1689${R:-}; mkdir -p "$OUT"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 F="scripts/lib/llms.js scripts/check-llms.mjs tests/seo/llmsTxt.test.ts"
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null) porcelain=$(git status --porcelain -- scripts tests | wc -l)"

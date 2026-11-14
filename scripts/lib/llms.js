@@ -125,7 +125,7 @@ export function linkProblem(url) {
 
 /**
  * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39; allowlista liter MIX-1684). Każdy znak
- * po norm() (sobowtóry przed NFKC, NFKC) → NFKD bez znaków łączących, potem:
+ * po norm() (sobowtóry przed NFKC, NFKC); tylko litera → NFKD bez znaków łączących, potem:
  *  1. tablica SKELETON_MAP (allowlista, wszystkie pisma, wielkie i małe litery osobno, BEZ małych
  *     liter przed nią): wartość = litera [a-z], cyfra albo WILDCARD (znak o dwóch odczytach, `Σ`);
  *  2. tylko litera łacińska (\p{Script=Latin}) spoza tablicy: małe litery, bez znaków łączących,
@@ -134,7 +134,8 @@ export function linkProblem(url) {
  *  4. separator tylko z allowlisty (MIX-1689): SOFT_SEP → ' ' (miękki), HARD_SEP → '/' (twardy);
  *     ASCII `|`, `@` i cyfra `3` nie są sobowtórami liter (decyzja projektu MIX-1684);
  *  5. KAŻDY inny znak (litera spoza tablicy, cyfra spoza ASCII, symbol, interpunkcja spoza listy:
- *     `¡` `।` `׀` `·` `‧` `‐` `。`, odstęp spoza ASCII `U+1680`, znak sterujący) → WILDCARD: dowolna
+ *     `¡` `।` `׀` `·` `‧` `‐` `。`, odstęp spoza ASCII `U+1680`, znak sterujący, znak łączący
+ *     pozostały po NFKC, znak niewidoczny Cf) → WILDCARD: dowolna
  *     jedna litera ścieżki albo separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy).
  */
 // Pary [sobowtór, szkielet ASCII]: cyrylica małe i wielkie, greka małe i wielkie, łacina rozszerzona
@@ -188,10 +189,22 @@ function skeletonChar(c) {
   return WILDCARD;
 }
 
-/** Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. */
+const LETTER_RE = /^\p{L}$/u;
+
+/**
+ * Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. Rozkład NFKD bez znaków łączących
+ * tylko dla litery po NFKC (`ą` → `a`); każdy inny znak idzie do skeletonChar bez rozkładu (MIX-1689
+ * r2): znak łączący pozostały po NFKC (Mn/Mc/Me: U+093E, U+20DD, U+0338, spacja+U+0301 z U+00B4)
+ * i niewidoczny (Cf: U+200B, U+00AD, U+2060, U+FEFF) to WILDCARD, nigdy nie znika; symbol
+ * z rozkładem (`≠` = `=` + U+0338) nie staje się separatorem z listy.
+ */
 export function skeletonText(s) {
   let out = '';
   for (const ch of norm(s)) {
+    if (!LETTER_RE.test(ch)) {
+      out += skeletonChar(ch);
+      continue;
+    }
     for (const c of noMarks(ch)) out += skeletonChar(c);
   }
   return out;
