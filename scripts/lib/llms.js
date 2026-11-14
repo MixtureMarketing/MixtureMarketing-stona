@@ -67,7 +67,7 @@ const TEXT_RULES = [
   [/%[0-9a-f]{2}/, 'kodowanie procentowe (%XX)'],
   [/\/[^\s/]+\/|(?:^|[^\p{L}\p{N}])\/[^\s/]/u, 'ścieżka adresu (/segment)'],
 ];
-const DOTTED_RE = /[\p{L}\p{N}_@+-]+(?:[.。｡][\p{L}\p{N}_@+-]+)+/gu;
+const DOTTED_RE = /[\p{L}\p{N}_@+-]+(?:[.\u3002\uff61][\p{L}\p{N}_@+-]+)+/gu;
 
 const LINK_LINE_RE = /^(?: {2})?- \[([^[\]]+)\]\(([^()\s]*)\)(?:: (.+))?$/u;
 const LIST_RE = /^(?: {2})?- (.+)$/u;
@@ -154,7 +154,7 @@ function charProblem(raw, lineNo) {
   const m = raw.match(BAD_CHAR_RE);
   if (!m) return null;
   if (m[0] === '\r') return 'znak CR (końce linii CRLF są odrzucane)';
-  if (m[0] === '﻿' && lineNo === 1 && m.index === 0) return 'BOM na początku pliku';
+  if (m[0] === '\uFEFF' && lineNo === 1 && m.index === 0) return 'BOM na początku pliku';
   const cp = m[0].codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
   return `znak niewidoczny albo sterujący U+${cp}`;
 }

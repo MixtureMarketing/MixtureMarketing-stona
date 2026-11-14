@@ -111,7 +111,7 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
       ['podwójny ukośnik (//): //'],
       'Uwaga： tekst',
     ],
-    ['r2: ZWSP', 'Zo​bacz', ['znak niewidoczny albo sterujący U+200B'], 'Zobacz'],
+    ['r2: ZWSP', 'Zo\u200bbacz', ['znak niewidoczny albo sterujący U+200B'], 'Zobacz'],
     ['r2: encja &#58;', 'Zobacz &#58; tu', ['encja HTML (&…): &#'], 'Zobacz & tu'],
     [
       'r2: srcset w prozie',
@@ -320,7 +320,7 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
     ['odstęp na końcu', 'tekst ', ['odstęp na końcu linii'], 'tekst'],
     // wejście: odstępy, końce linii, znaki sterujące (formy-ataku B7, B9, U5)
     ['linia z samymi spacjami', '   ', ['linia z samymi odstępami'], ''],
-    ['formy-ataku B7/B9: linia z samym NBSP', ' ', ['linia z samymi odstępami'], ''],
+    ['formy-ataku B7/B9: linia z samym NBSP', '\u00a0', ['linia z samymi odstępami'], ''],
     [
       'CRLF',
       `- [x](${B}/b/): o\r`,
@@ -328,12 +328,12 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
       `- [x](${B}/b/): o`,
     ],
     ['tabulator', '\tx', ['znak niewidoczny albo sterujący U+0009'], 'x'],
-    ['U+2060 word joiner', 'x⁠y', ['znak niewidoczny albo sterujący U+2060'], 'xy'],
-    ['U+FEFF w środku tekstu', 'x﻿y', ['znak niewidoczny albo sterujący U+FEFF'], 'xy'],
-    ['formy-ataku U5: RLO U+202E', 'x‮y', ['znak niewidoczny albo sterujący U+202E'], 'xy'],
+    ['U+2060 word joiner', 'x\u2060y', ['znak niewidoczny albo sterujący U+2060'], 'xy'],
+    ['U+FEFF w środku tekstu', 'x\ufeffy', ['znak niewidoczny albo sterujący U+FEFF'], 'xy'],
+    ['formy-ataku U5: RLO U+202E', 'x\u202ey', ['znak niewidoczny albo sterujący U+202E'], 'xy'],
     ['formy-ataku B9: kod ANSI', '\u001b[31mx', ['znak niewidoczny albo sterujący U+001B'], 'x'],
     ['formy-ataku B9: NUL', 'x\u0000', ['znak niewidoczny albo sterujący U+0000'], 'x'],
-    ['miękki dywiz U+00AD', 'x­y', ['znak niewidoczny albo sterujący U+00AD'], 'xy'],
+    ['miękki dywiz U+00AD', 'x\u00ady', ['znak niewidoczny albo sterujący U+00AD'], 'xy'],
     [
       'linia za długa',
       'a'.repeat(MAX_LINE + 1),
@@ -383,7 +383,7 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
   });
 
   it('BOM na początku pliku = odmowa; ten sam plik bez BOM przechodzi', () => {
-    const r = llmsReport(`﻿${base}`, sm, opts);
+    const r = llmsReport(`\ufeff${base}`, sm, opts);
     expect(r.problems).toEqual(['llms.txt linia 1: BOM na początku pliku: # T']);
     expect(llmsReport(base, sm, opts).ok).toBe(true);
   });
