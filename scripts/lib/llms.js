@@ -38,8 +38,8 @@ export const DOTTED_ALLOW = [
 /**
  * Strony kluczowe, które muszą być w llms.txt: dodane do sitemapy po 489c6b1 (hub branż,
  * dwie branże, kalkulator wyceny) oraz strony, które asystenci AI mają polecać (o nas,
- * lokalne SEO i agencja interaktywna, abonament). Ukryta strona usługi AI (MIX-1272)
- * NIE jest kluczowa: jest noindex i poza sitemapą.
+ * lokalne SEO i agencja interaktywna, abonament) oraz artykuł o aplikacjach z AI (MIX-1680, opublikowany).
+ * Ukryta strona usługi AI (MIX-1272) NIE jest kluczowa: jest noindex i poza sitemapą.
  */
 export const KEY_PATHS = [
   '/wycena/',
@@ -50,6 +50,7 @@ export const KEY_PATHS = [
   '/abonament/',
   '/agencja-seo-rzeszow/',
   '/agencja-interaktywna-rzeszow/',
+  '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
 ];
 
 /** Jedno miejsce normalizacji Unicode (NFKC: pełna szerokość, ligatury, indeksy górne → ASCII). */

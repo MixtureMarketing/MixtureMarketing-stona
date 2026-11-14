@@ -62,6 +62,8 @@ export const routes = [
   '/baza-wiedzy/google-ads-skalowanie-budzetu/',
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
   '/baza-wiedzy/audyt-ux-sklepu-internetowego/',
+  // MIX-1680: artykul "aplikacje dedykowane z AI" (MIX-1280) opublikowany 14.11.2026 (decyzja Jakuba, MIX-1280 opcja A).
+  '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
   '/baza-wiedzy/server-side-tracking-koniec-cookies/',
   '/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/',
   '/baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/',
@@ -101,7 +103,4 @@ export const prerenderOnlyRoutes = [
   // MIX-1272 (plan SEO A18): strona uslugi "systemy AI i aplikacje" ukryta do akceptacji Jakuba
   // (noindex, bez sitemapy i menu). Publikacja: przeniesc do `routes`, zdjac noindex w komponencie.
   '/web-development/systemy-ai-aplikacje/',
-  // MIX-1280 (plan SEO A34): artykul "aplikacje dedykowane z AI" ukryty do akceptacji Jakuba (noindex, bez sitemapy,
-  // listy Bazy wiedzy i menu). Publikacja: przeniesc do `routes`, zdjac `noindex`, dopisac do legacyArticles.ts.
-  '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
 ];

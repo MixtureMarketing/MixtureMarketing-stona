@@ -1,6 +1,7 @@
 // MIX-1280 b: warstwa wizualna artykułu „aplikacje dedykowane z AI”. Tekst bez zmian (zgodny ze szkicem
 // docs/tresci/MIX-1280.md), ≥ 12 sekcji z AnimateOnScroll, dokładnie 4 infografiki z aria-label, SVG z role="img",
-// fakty infografik tylko z tekstu, prefers-reduced-motion = brak ruchu, artykuł nadal ukryty.
+// fakty infografik tylko z tekstu (liczby, nazwy z dużej litery i każde słowo małą literą), prefers-reduced-motion = brak ruchu,
+// artykuł opublikowany (MIX-1680).
 import fs from 'node:fs';
 import path from 'node:path';
 import React from 'react';
@@ -206,6 +207,10 @@ describe('wizualnie: tekst bez zmian, fakty infografik z tekstu', () => {
 // pozycja z krótkiej jawnej listy NAZWY_DOZWOLONE (w środku zdania). Nazwa klienta albo nowa liczba = czerwono.
 // Początki etykiet (Porównanie, Schemat) i grzeczne formy (Twój, Twoim, Ciebie) są zwykłymi słowami, nie nazwami.
 const NAZWY_DOZWOLONE = new Set(['AI', 'B2B', 'Twój', 'Twoim', 'Ciebie', 'Porównanie', 'Schemat']);
+// MIX-1677 W6 (MIX-1680): słowa małą literą też z allowlisty. Każde słowo widocznego tekstu infografiki jest
+// słowem z tekstu artykułu (po zmniejszeniu liter) albo z tej krótkiej jawnej listy słów ogólnych (odmiany
+// i spójniki, których nie ma w artykule w tej formie). Nazwa klienta małą literą (`historia bibmot`) = czerwono.
+const SLOWA_DOZWOLONE = new Set<string>([]);
 /** Etykiety generowane kodem (numer kroku osi czasu), nie fakty. */
 const ETYKIETY_KODU = /^Krok [1-4]$/;
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim(); // \s w JS obejmuje też spację niełamliwą
@@ -215,7 +220,16 @@ const slowa = (s: string) =>
   norm(s)
     .toLowerCase()
     .match(/[\p{L}\p{N}-]+/gu) ?? [];
-const articleJson = () => JSON.stringify(CONTENT);
+/** Wszystkie teksty artykułu (liście obiektu treści, HTML bez znaczników), połączone spacją; bez nazw pól. */
+const liscie = (v: unknown): string[] =>
+  typeof v === 'string'
+    ? [v.replace(/<[^>]*>/g, ' ')]
+    : Array.isArray(v)
+      ? v.flatMap(liscie)
+      : v && typeof v === 'object'
+        ? Object.values(v).flatMap(liscie)
+        : [];
+const articleJson = () => liscie(CONTENT).join(' ');
 
 /** Cały widoczny tekst: węzły tekstowe (w tym SVG text/tspan/title) + aria-label, title, alt. */
 const visibleItems = (root: Element): string[] => {
@@ -251,6 +265,10 @@ const naruszenia = (items: string[], article: string): string[] => {
   const bad: string[] = [];
   for (const it of items) {
     for (const n of liczby(it)) if (!num.has(n)) bad.push(`liczba „${n}” w „${it}”`);
+    for (const w of slowa(it)) {
+      if (/^\d+$/.test(w) || words.has(w) || SLOWA_DOZWOLONE.has(w)) continue;
+      bad.push(`słowo „${w}” spoza tekstu artykułu w „${it}”`);
+    }
     const re = /\p{Lu}[\p{L}\p{N}-]*/gu;
     let m: RegExpExecArray | null;
     while ((m = re.exec(it))) {
@@ -302,6 +320,11 @@ describe('wizualnie: pełny skan tekstu infografik (MIX-1677)', () => {
     expect(naruszenia(['portal B2B Q-PLAST'], a)).toHaveLength(1);
     expect(naruszenia(['Q-PLAST bywa'], a)).toHaveLength(1);
     expect(naruszenia(['od 77 000 zł'], a)).toHaveLength(1);
+    // MIX-1677 W6: nazwa klienta małą literą (w środku i na początku etykiety) też jest czerwona
+    expect(naruszenia(['historia bibmot'], a).join()).toContain('bibmot');
+    expect(naruszenia(['bibmot historia'], a).join()).toContain('bibmot');
+    expect(naruszenia(['portal b2b q-plast'], a).join()).toContain('q-plast');
+    expect(naruszenia(['studentpi'], a).join()).toContain('studentpi');
     expect(naruszenia(['od 23 000 zł', 'aplikacje dedykowane z AI', '24 godziny'], a)).toEqual([]);
   });
 
@@ -355,11 +378,11 @@ describe('wizualnie: prefers-reduced-motion', () => {
   });
 });
 
-describe('wizualnie: artykuł nadal ukryty', () => {
-  it('noindex w komponencie, poza sitemapą i llms.txt', () => {
-    expect(read('components/articles/AiSystemsArticle.tsx')).toMatch(/^\s*noindex\s*$/m);
+describe('wizualnie: artykuł opublikowany (MIX-1680)', () => {
+  it('komponent bez `noindex`, adres w sitemapie i llms.txt', () => {
+    expect(read('components/articles/AiSystemsArticle.tsx')).not.toMatch(/^\s*noindex\s*$/m);
     for (const f of ['public/sitemap.xml', 'public/llms.txt', 'data/seo/lastmod.json']) {
-      expect(read(f)).not.toContain('aplikacje-dedykowane-z-ai');
+      expect(read(f), `${f} musi zawierać artykuł`).toContain('aplikacje-dedykowane-z-ai');
     }
   });
 });

@@ -1,7 +1,7 @@
 /**
  * Treść artykułu „Aplikacje dedykowane z AI: kiedy firma naprawdę ich potrzebuje” (MIX-1280, plan SEO A34).
- * ARTYKUŁ UKRYTY do akceptacji Jakuba: noindex, poza sitemapą, listą Bazy wiedzy i menu
- * (routes.js → prerenderOnlyRoutes, brak wpisu w services/cms/legacyArticles.ts).
+ * ARTYKUŁ OPUBLIKOWANY 14.11.2026 (MIX-1680, decyzja Jakuba w MIX-1280 opcja A): indeksowany, w sitemapie
+ * (routes.js → routes), na liście Bazy wiedzy (services/cms/legacyArticles.ts) i w public/llms.txt.
  * Ten sam tekst, do akceptacji, jest w docs/tresci/MIX-1280.md (test pilnuje zgodności).
  *
  * Fraza główna: „aplikacje dedykowane” (+ „aplikacje internetowe Rzeszów”; frazy z danych GSC planu SEO, S4:184, S5:63).
@@ -17,8 +17,8 @@
 
 export const AI_ARTICLE_SLUG = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
 export const AI_ARTICLE_ID = 'aplikacje-dedykowane-z-ai';
-/** Data szkicu; przy publikacji ustawić realną datę publikacji (patrz docs/tresci/MIX-1280.md). */
-export const AI_ARTICLE_PUBLISHED = '2026-11-13';
+/** Data publikacji (datePublished; bez osobnej daty zmiany dateModified = ta sama). Rejestr legacyArticles.ts ma tę samą datę (test). */
+export const AI_ARTICLE_PUBLISHED = '2026-11-14';
 
 export interface AiArticleSection {
   title: string;

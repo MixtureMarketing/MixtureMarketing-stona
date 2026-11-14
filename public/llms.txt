@@ -82,6 +82,7 @@ Mixture Marketing Sp. z o.o. is a Polish marketing agency and software house bas
 - Kluczowe artykuły:
   - [Core Web Vitals 2025](https://mixturemarketing.pl/baza-wiedzy/core-web-vitals-2025/): aktualne progi LCP, INP, CLS i jak je poprawić
   - [Audyt UX sklepu internetowego](https://mixturemarketing.pl/baza-wiedzy/audyt-ux-sklepu-internetowego/): metodologia audytu konwersji e-commerce
+  - [Aplikacje dedykowane z AI](https://mixturemarketing.pl/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/): kiedy dedykowana aplikacja z elementami AI się opłaca, a kiedy wystarczy gotowe narzędzie
   - [Server-side tracking — koniec cookies](https://mixturemarketing.pl/baza-wiedzy/server-side-tracking-koniec-cookies/): jak mierzyć konwersje po końcu third-party cookies
   - [Next.js — złoty standard aplikacji webowych](https://mixturemarketing.pl/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/)
   - [Headless WordPress — wydajność i bezpieczeństwo](https://mixturemarketing.pl/baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/)

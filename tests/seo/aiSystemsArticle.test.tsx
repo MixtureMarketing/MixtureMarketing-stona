@@ -1,7 +1,6 @@
-// MIX-1280 (plan SEO A34): artykuł „aplikacje dedykowane z AI” jest UKRYTY do akceptacji Jakuba
-// (noindex, poza sitemapą, listą Bazy wiedzy i menu), ma Article + FAQPage JSON-LD, ≥ 3 linki wewnętrzne
-// ze slashem, 1200–1800 słów i nie zawiera nazw klientów. Publikacja = świadoma zmiana tych testów
-// (patrz docs/tresci/MIX-1280.md).
+// MIX-1280 (plan SEO A34), publikacja MIX-1680 (14.11.2026, decyzja Jakuba): artykuł „aplikacje dedykowane
+// z AI” jest OPUBLIKOWANY (indeksowany, w sitemapie, rejestrze Bazy wiedzy i llms.txt, jak inne artykuły), ma
+// Article + FAQPage JSON-LD, ≥ 3 linki wewnętrzne ze slashem, 1200–1800 słów i nie zawiera nazw klientów.
 import fs from 'node:fs';
 import path from 'node:path';
 import React from 'react';
@@ -16,6 +15,7 @@ import UxAuditArticle from '../../components/articles/UxAuditArticle';
 import { appRoutes } from '../../config/routes';
 import { routes, prerenderOnlyRoutes } from '../../routes.js';
 import { LEGACY_ARTICLES } from '../../services/cms/legacyArticles';
+import ArticleShell from '../../components/articles/ArticleShell';
 import { TITLE_MAX } from '../../utils/seo/title';
 import {
   AI_ARTICLE_CONTENT as CONTENT,
@@ -95,68 +95,93 @@ describe('artykuł „aplikacje dedykowane z AI”: długość, FAQ, SEO tekstu'
     expect(CONTENT.header.title.toLowerCase()).toContain('aplikacje dedykowane');
   });
 
-  it('ślad w docs/tresci/MIX-1280.md: status do akceptacji, każdy nagłówek i pytanie z kodu', () => {
+  it('ślad w docs/tresci/MIX-1280.md: status opublikowany, każdy nagłówek i pytanie z kodu', () => {
     const doc = read('docs/tresci/MIX-1280.md');
-    expect(doc).toContain('do akceptacji Jakuba');
+    expect(doc).toContain('Status: **opublikowany 14.11.2026**');
+    expect(doc).not.toContain('do akceptacji Jakuba');
     expect(doc).toContain(CONTENT.header.title);
     for (const s of CONTENT.sections) expect(doc).toContain(`## ${s.title}`);
     for (const f of CONTENT.faq.items) expect(doc).toContain(f.q);
   });
 });
 
-describe('artykuł „aplikacje dedykowane z AI”: ukrycie do akceptacji', () => {
-  it('trasa istnieje w tabeli routingu', () => {
+describe('artykuł „aplikacje dedykowane z AI”: publikacja (MIX-1680)', () => {
+  const urlCount = (xml: string, slug: string) => xml.split(`<loc>https://mixturemarketing.pl${slug}</loc>`).length - 1;
+
+  it('trasa istnieje w tabeli routingu i jest w `routes` (sitemapa), nie w `prerenderOnlyRoutes`', () => {
     expect(appRoutes.map((r) => r.path)).toContain(SLUG_BARE);
+    expect(routes.filter((r) => r === AI_ARTICLE_SLUG)).toHaveLength(1);
+    expect(prerenderOnlyRoutes).not.toContain(AI_ARTICLE_SLUG);
   });
 
-  it('jest prerenderowana (prerenderOnlyRoutes), ale NIE jest w liście sitemapy', () => {
-    expect(prerenderOnlyRoutes).toContain(AI_ARTICLE_SLUG);
-    expect(routes).not.toContain(AI_ARTICLE_SLUG);
-    expect(routes).not.toContain(SLUG_BARE);
+  it('public/sitemap.xml ma adres dokładnie raz, z datą publikacji w lastmod; data/seo/lastmod.json też', () => {
+    const xml = read('public/sitemap.xml');
+    expect(urlCount(xml, AI_ARTICLE_SLUG)).toBe(1);
+    expect(xml).toMatch(
+      new RegExp(`${AI_ARTICLE_SLUG}</loc>\\s*<lastmod>${AI_ARTICLE_PUBLISHED}</lastmod>`),
+    );
+    expect(JSON.parse(read('data/seo/lastmod.json'))[AI_ARTICLE_SLUG]).toBe(AI_ARTICLE_PUBLISHED);
   });
 
-  it('nie ma jej w public/sitemap.xml ani w data/seo/lastmod.json', () => {
-    expect(read('public/sitemap.xml')).not.toContain('aplikacje-dedykowane-z-ai');
-    expect(read('data/seo/lastmod.json')).not.toContain('aplikacje-dedykowane-z-ai');
+  it('nogi ujemne: licznik adresów w sitemapie widzi brak i duplikat', () => {
+    const xml = read('public/sitemap.xml');
+    expect(urlCount(xml.replace(AI_ARTICLE_SLUG, '/x/'), AI_ARTICLE_SLUG)).toBe(0);
+    expect(urlCount(`${xml}${xml}`, AI_ARTICLE_SLUG)).toBe(2);
   });
 
-  it('nie ma jej w rejestrze Bazy wiedzy (lista, „Powiązane”)', () => {
-    expect(LEGACY_ARTICLES.some((a) => a.slug.includes('aplikacje-dedykowane-z-ai'))).toBe(false);
-    expect(LEGACY_ARTICLES.some((a) => a.id === AI_ARTICLE_ID)).toBe(false);
+  it('jest w rejestrze Bazy wiedzy z datą publikacji i kategorią; slug zgodny z trasą', () => {
+    const entries = LEGACY_ARTICLES.filter((a) => a.id === AI_ARTICLE_ID);
+    expect(entries).toHaveLength(1);
+    expect(entries[0].slug).toBe(SLUG_BARE);
+    expect(entries[0].date).toBe(AI_ARTICLE_PUBLISHED);
+    expect(entries[0].title).toBe(CONTENT.header.title);
+    expect(entries[0].updatedDate).toBeUndefined();
   });
 
-  it('żadne menu, stopka ani llms.txt nie linkują do artykułu', () => {
-    for (const f of [
-      'components/layout/navbarData.ts',
-      'components/layout/MegaMenu.tsx',
-      'components/common/WebDevSpokeFooter.tsx',
-      'components/pages/KnowledgeBase.tsx',
-      'components/pages/CustomWebApp.tsx',
-      'components/pages/Home.tsx',
-      'public/llms.txt',
-    ]) {
-      expect(read(f), `${f} nie może linkować do ukrytego artykułu`).not.toContain(
-        'aplikacje-dedykowane-z-ai',
-      );
-    }
-  });
-
-  it('render: noindex, kanoniczny adres ze slashem', async () => {
-    renderAt(<AiSystemsArticle />);
-    await waitFor(() => {
-      expect(document.head.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe(
-        'noindex, follow',
-      );
-    });
-    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
-      `https://mixturemarketing.pl${AI_ARTICLE_SLUG}`,
+  it('public/llms.txt ma wpis z adresem artykułu dokładnie raz', () => {
+    const llms = read('public/llms.txt');
+    expect(llms.split(`](https://mixturemarketing.pl${AI_ARTICLE_SLUG})`).length - 1).toBe(1);
+    expect(llms).toMatch(
+      new RegExp(`^ {2}- \\[[^\\]]+\\]\\(https://mixturemarketing.pl${AI_ARTICLE_SLUG}\\): \\S`, 'm'),
     );
   });
 
-  it('inne artykuły nie dostają noindex (domyślnie ArticleShell indeksuje)', async () => {
-    renderAt(<UxAuditArticle />, '/baza-wiedzy/audyt-ux-sklepu-internetowego/');
-    await waitFor(() => expect(document.title.toLowerCase()).toContain('audyt ux'));
+  it('komponent nie ustawia `noindex`', () => {
+    expect(read('components/articles/AiSystemsArticle.tsx')).not.toMatch(/^\s*noindex\b/m);
+  });
+
+  it('render: indeksowany (brak meta robots noindex), kanoniczny adres ze slashem', async () => {
+    renderAt(<AiSystemsArticle />);
+    await waitFor(() => {
+      expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+        `https://mixturemarketing.pl${AI_ARTICLE_SLUG}`,
+      );
+    });
     expect(document.head.querySelector('meta[name="robots"][content*="noindex"]')).toBeNull();
+  });
+
+  it('noga ujemna: wykrywacz widzi noindex, gdy artykuł ma go ustawionego (ArticleShell z `noindex`)', async () => {
+    renderAt(
+      <ArticleShell
+        id={AI_ARTICLE_ID}
+        title="x"
+        description="x"
+        category="tech"
+        categoryLabel="x"
+        image="/assets/images/backend.png"
+        accentColor="#3B82F6"
+        slug={AI_ARTICLE_SLUG}
+        publishedDate={AI_ARTICLE_PUBLISHED}
+        noindex
+      >
+        <p>x</p>
+      </ArticleShell>,
+    );
+    await waitFor(() => {
+      expect(
+        document.head.querySelector('meta[name="robots"][content*="noindex"]'),
+      ).not.toBeNull();
+    });
   });
 });
 

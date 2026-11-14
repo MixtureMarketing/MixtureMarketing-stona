@@ -58,11 +58,8 @@ const findArticleLd = async (): Promise<Ld> => {
 
 const staticArticleRoutes = (): string[] => {
   const src = fs.readFileSync(path.join(ROOT, 'config/routes.tsx'), 'utf-8');
-  // Ukryte artykuły (noindex, poza rejestrem do akceptacji, np. MIX-1280) nie należą do rejestru dat.
-  const hidden = new Set(['/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto']);
-  return Array.from(src.matchAll(/path: '(\/baza-wiedzy\/[a-z0-9-]+)'/g))
-    .map((m) => m[1])
-    .filter((r) => !hidden.has(r));
+  // Od MIX-1680 nie ma artykułów ukrytych: każdy statyczny artykuł z tras jest w rejestrze dat.
+  return Array.from(src.matchAll(/path: '(\/baza-wiedzy\/[a-z0-9-]+)'/g)).map((m) => m[1]);
 };
 
 beforeEach(() => {
@@ -70,10 +67,10 @@ beforeEach(() => {
 });
 
 describe('rejestr dat artykułów (legacyArticles)', () => {
-  it('29 artykułów, każdy statyczny artykuł z tras ma wpis w rejestrze', () => {
+  it('30 artykułów, każdy statyczny artykuł z tras ma wpis w rejestrze', () => {
     const routes = staticArticleRoutes();
-    expect(routes).toHaveLength(29);
-    expect(LEGACY_ARTICLES).toHaveLength(29);
+    expect(routes).toHaveLength(30);
+    expect(LEGACY_ARTICLES).toHaveLength(30);
     const slugs = new Set(LEGACY_ARTICLES.map((a) => a.slug));
     expect(routes.filter((r) => !slugs.has(r))).toEqual([]);
   });
@@ -101,6 +98,7 @@ describe('rejestr dat artykułów (legacyArticles)', () => {
     expect(byId['ile-kosztuje-strona-rzeszow-2026'].date).toBe('2026-05-19');
     expect(byId['ile-kosztuje-strona-rzeszow-2026'].updatedDate).toBe('2026-10-24');
     expect(byId['ux-audit'].updatedDate).toBe('2026-11-13'); // przebudowa pod frazę, MIX-1270
+    expect(byId['aplikacje-dedykowane-z-ai'].date).toBe('2026-11-14'); // publikacja, MIX-1680
     expect(LEGACY_ARTICLES.filter((a) => a.updatedDate).map((a) => a.id)).toEqual([
       'ile-kosztuje-strona-rzeszow-2026',
       'ux-audit',

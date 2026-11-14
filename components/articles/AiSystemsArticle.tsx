@@ -47,8 +47,9 @@ const ArticleSection = ({
 
 /**
  * Artykuł nr 1 pod kierunek „AI i systemy” (MIX-1280, plan SEO A34).
- * UKRYTY do akceptacji Jakuba: `noindex`, trasa tylko w `prerenderOnlyRoutes` (poza sitemapą),
- * brak w rejestrze Bazy wiedzy (lista, „Powiązane”, menu). Publikacja: docs/tresci/MIX-1280.md.
+ * OPUBLIKOWANY 14.11.2026 (MIX-1680, decyzja Jakuba w MIX-1280): jak inne artykuły Bazy wiedzy, czyli indeksowany,
+ * w `routes` (sitemapa), w rejestrze `services/cms/legacyArticles.ts` (lista Bazy wiedzy, „Powiązane”) i w public/llms.txt.
+ * Szkic i źródła faktów: docs/tresci/MIX-1280.md.
  * FAQPage JSON-LD emituje wyłącznie StandardFaq; Article JSON-LD emituje ArticleShell.
  */
 const AiSystemsArticle = () => (
@@ -64,7 +65,6 @@ const AiSystemsArticle = () => (
     accentColor="#3B82F6"
     slug={AI_ARTICLE_SLUG}
     publishedDate={AI_ARTICLE_PUBLISHED}
-    noindex
   >
     <AnimateOnScroll>
       <p className="lead text-2xl text-secondary mb-12 font-medium leading-relaxed border-l-4 border-primary pl-6 py-2 bg-blue-50/30 rounded-r-xl">

@@ -171,7 +171,7 @@ export const appRoutes: RouteObject[] = [
     element: <UxAuditArticle />,
   },
   {
-    // MIX-1280 (plan SEO A34): UKRYTY do akceptacji Jakuba: noindex, tylko prerenderOnlyRoutes, poza rejestrem i menu.
+    // MIX-1280 (plan SEO A34), opublikowany w MIX-1680: w `routes` (sitemapa) i w rejestrze legacyArticles.
     path: '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto',
     element: <AiSystemsArticle />,
   },
