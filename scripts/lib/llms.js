@@ -10,8 +10,10 @@
 //      także jako podpunkt z wcięciem 2 spacji
 //   5. punkt listy bez odnośnika `- tekst` (wcięcie 0 albo 2 spacje)
 //   6. akapit zaczynający się literą, cyfrą albo `*`
-// Do tego skan całego pliku (NFKC, małe litery, też po dekodowaniu %XX i bez odstępów) na każdą
-// ścieżkę z prerenderOnlyRoutes, ze slashem na końcu i bez.
+// Do tego skan całego pliku (NFKC, małe litery, sobowtóry `/` i `-` zamienione na ASCII, też po
+// dekodowaniu %XX, po złączeniu linii bez znaczników listy i bez odstępów) na każdą ścieżkę
+// z prerenderOnlyRoutes: ze slashem na początku (z `/` na końcu i bez), bez slasha na początku
+// (cały token, MIX-1662) i nazwę z myślnikiem (ostatni człon).
 
 export const BASE_URL = 'https://mixturemarketing.pl';
 export const HOST = 'mixturemarketing.pl';
@@ -108,16 +110,43 @@ export function linkProblem(url) {
   return { why: null, path: rest };
 }
 
-/** Warianty ścieżki ukrytej do skanu: z `/` na końcu, bez, i nazwa z myślnikiem (ostatni człon). */
+/**
+ * Sobowtóry ukośnika (U+2215 ∕, U+2044 ⁄, U+29F8 ⧸, U+FF0F ／, U+2571 ╱) → `/` i dywizu/myślnika
+ * (U+2010–U+2015, U+2212 −, U+FE58 ﹘, U+FE63 ﹣, U+FF0D －) → `-` (MIX-1662). Tylko do skanu stron
+ * ukrytych; gramatyka linii zostaje bez zmian.
+ */
+const LOOKALIKE_SLASH_RE = /[\u2215\u2044\u29f8\uff0f\u2571]/gu;
+const LOOKALIKE_HYPHEN_RE = /[\u2010-\u2015\u2212\ufe58\ufe63\uff0d]/gu;
+export const foldLookalikes = (s) =>
+  String(s).replace(LOOKALIKE_SLASH_RE, '/').replace(LOOKALIKE_HYPHEN_RE, '-');
+
+/** Znacznik na początku linii zdejmowany przed złączeniem linii (nagłówek, opis, punkt listy). */
+const LINE_MARK_RE = /^\s*(?:#{1,6}|>|[-*+]|\d+[.)])?\s*/u;
+
+/**
+ * Igły skanu stron ukrytych: [ścieżka, igła, token]. Ze slashem na początku (z `/` na końcu i bez)
+ * i nazwa z myślnikiem: podciąg (token=false). Bez slasha na początku (`abonament/dziekujemy`;
+ * strona jednoczłonowa jako `nazwa/`): cały token (token=true), żeby zwykłe słowo nie dawało odmowy.
+ */
 function hiddenNeedles(hiddenPaths) {
   const out = [];
   for (const p of hiddenPaths) {
-    const t = norm(p).toLowerCase().replace(/\/+$/, '');
-    out.push([p, `${t}/`], [p, t]);
+    const t = foldLookalikes(norm(p).toLowerCase()).replace(/\/+$/, '');
+    out.push([p, `${t}/`, false], [p, t, false]);
     const slug = t.split('/').pop() ?? '';
-    if (slug.includes('-')) out.push([p, slug]);
+    if (slug.includes('-')) out.push([p, slug, false]);
+    const rel = t.replace(/^\/+/, '');
+    if (rel !== '') out.push([p, rel.includes('/') ? rel : `${rel}/`, true]);
   }
   return out;
+}
+
+const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+
+/** Czy igła występuje w tekście: podciąg albo cały token (bez litery/cyfry przed i po). */
+function hasNeedle(s, needle, token) {
+  if (!token) return s.includes(needle);
+  return new RegExp(`(?<![\\p{L}\\p{N}])${escRe(needle)}(?![\\p{L}\\p{N}])`, 'u').test(s);
 }
 
 /** %XX dekodowane do skutku (podwójne kodowanie), najwyżej 5 przejść; bajt = znak latin1. */
@@ -241,20 +270,30 @@ export function llmsReport(llmsText, sitemapXml, opts = {}) {
         problems.push(`llms.txt linia ${n}: adres spoza sitemapy: ${v.path}`);
       }
     }
-    const low = norm(raw).toLowerCase();
-    const variants = [low, decodePct(low), low.replace(/\\/g, '/')];
-    for (const [p, needle] of needles) {
+    const low = foldLookalikes(norm(raw).toLowerCase());
+    const variants = [low, foldLookalikes(decodePct(low)), low.replace(/\\/g, '/')];
+    for (const [p, needle, token] of needles) {
       if (hitPaths.has(p)) continue;
-      if (variants.some((s) => s.includes(needle))) {
+      if (variants.some((s) => hasNeedle(s, needle, token))) {
         hitPaths.add(p);
         problems.push(`llms.txt linia ${n}: ścieżka strony ukrytej ${p} (${needle})`);
       }
     }
   });
-  // Skan całego pliku bez odstępów: ścieżka rozbita spacją albo końcem linii.
-  const flat = decodePct(norm(text).toLowerCase()).replace(/\s+/g, '');
-  for (const [p, needle] of needles) {
-    if (!hitPaths.has(p) && flat.includes(needle)) {
+  // Skan linii złączonych bez znaczników listy (`systemy-ai-` + `- aplikacje`), potem bez odstępów
+  // (ścieżka rozbita spacją). Igła-token bez `/` w środku nie idzie do skanu bez odstępów.
+  const unmarked = lines.map((l) => norm(l).replace(LINE_MARK_RE, '')).join('');
+  const joined = foldLookalikes(decodePct(foldLookalikes(unmarked.toLowerCase())));
+  const flat = joined.replace(/\s+/g, '');
+  for (const [p, needle, token] of needles) {
+    if (!hitPaths.has(p) && hasNeedle(joined, needle, token)) {
+      hitPaths.add(p);
+      problems.push(`llms.txt: ścieżka strony ukrytej ${p} (${needle}) po złączeniu linii`);
+    }
+  }
+  for (const [p, needle, token] of needles) {
+    if (hitPaths.has(p) || (token && !needle.slice(0, -1).includes('/'))) continue;
+    if (flat.includes(needle)) {
       hitPaths.add(p);
       problems.push(`llms.txt: ścieżka strony ukrytej ${p} (${needle}) po usunięciu odstępów`);
     }
