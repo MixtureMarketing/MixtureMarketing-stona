@@ -1,6 +1,69 @@
 import React, { useState } from 'react';
-import { Info, MousePointerClick, Settings, ShoppingBag } from 'lucide-react';
+import { Info, MousePointerClick, Settings, ShoppingBag, type LucideIcon } from 'lucide-react';
 import { GOOGLE_ADS_CONTENT as CONTENT } from '../../../data/content';
+
+type ResultTileProps = {
+  id: string;
+  label: string;
+  value: string;
+  unit?: string;
+  Icon?: LucideIcon;
+  wide?: boolean;
+  highlight?: boolean;
+};
+
+/**
+ * Kafelek wyniku (MIX-1678): etykieta do 2 linii, wartość razem z jednostką
+ * w jednym elemencie `whitespace-nowrap` (jednostka nie spada do nowej linii),
+ * rozmiar liczby rośnie z szerokością. Kafelki w rzędzie mają równą wysokość
+ * (grid rozciąga elementy).
+ */
+const ResultTile: React.FC<ResultTileProps> = ({
+  id,
+  label,
+  value,
+  unit,
+  Icon,
+  wide,
+  highlight,
+}) => (
+  <div
+    data-calc-tile={id}
+    className={[
+      'flex min-w-0 flex-col justify-between gap-2 rounded-xl border p-3.5 shadow-sm sm:p-4',
+      wide ? 'col-span-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4' : '',
+      highlight ? 'border-secondary bg-secondary text-white' : 'border-gray-200 bg-white text-dark',
+    ].join(' ')}
+  >
+    <div
+      data-calc-label
+      className={`text-xs font-bold uppercase leading-snug ${highlight ? 'text-white' : 'text-gray-600'}`}
+    >
+      {label}
+    </div>
+    <div
+      data-calc-value
+      className={[
+        'flex items-center gap-2 whitespace-nowrap font-black leading-none tabular-nums',
+        wide ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl',
+      ].join(' ')}
+    >
+      <span>
+        {value}
+        {unit && (
+          <span
+            className={`ml-1 text-base font-bold ${highlight ? 'text-white' : 'text-gray-600'}`}
+          >
+            {unit}
+          </span>
+        )}
+      </span>
+      {Icon && (
+        <Icon size={16} className="hidden shrink-0 text-secondary sm:block" aria-hidden="true" />
+      )}
+    </div>
+  </div>
+);
 
 /**
  * Kalkulator arytmetyki kampanii (przeróbka 2026-07-16, krytyka 13/40).
@@ -19,6 +82,8 @@ const GoogleAdsCalculator: React.FC = () => {
   const traffic = Math.floor(budget / cpc);
   const leads = Math.floor(traffic * (convRate / 100));
   const cpa = leads > 0 ? (budget / leads).toFixed(2) : '—';
+  const cpaValue = cpa === '—' ? cpa : cpa.replace('.', ',');
+  const cpaUnit = cpa === '—' ? undefined : 'zł';
   const orderValue = leads * avgOrderValue;
 
   const L = CONTENT.calculator.labels;
@@ -102,35 +167,29 @@ const GoogleAdsCalculator: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-col justify-center bg-light-gray p-8 lg:col-span-7">
-          <div className="mb-6 grid grid-cols-2 gap-4">
-            {[
-              {
-                label: L.traffic,
-                value: traffic.toLocaleString('pl-PL'),
-                Icon: MousePointerClick,
-              },
-              { label: L.leads, value: leads.toLocaleString('pl-PL'), Icon: ShoppingBag },
-            ].map(({ label, value, Icon }) => (
-              <div key={label} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-                <div className="mb-1 text-xs font-bold uppercase text-gray-600">{label}</div>
-                <div className="flex items-center gap-2 text-2xl font-black tabular-nums text-dark">
-                  {value} <Icon size={16} className="text-secondary" aria-hidden="true" />
-                </div>
-              </div>
-            ))}
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="mb-1 text-xs font-bold uppercase text-gray-600">{L.cpa}</div>
-              <div className="text-2xl font-black tabular-nums text-dark">
-                {typeof cpa === 'string' && cpa !== '—' ? `${cpa.replace('.', ',')} zł` : cpa}
-              </div>
-            </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="mb-1 text-xs font-bold uppercase text-gray-600">{L.revenue}</div>
-              <div className="text-2xl font-black tabular-nums text-dark">
-                {orderValue.toLocaleString('pl-PL')} zł
-              </div>
-            </div>
+        <div className="flex flex-col justify-center bg-light-gray p-5 sm:p-8 lg:col-span-7">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4">
+            <ResultTile
+              id="traffic"
+              label={L.traffic}
+              value={traffic.toLocaleString('pl-PL')}
+              Icon={MousePointerClick}
+            />
+            <ResultTile
+              id="leads"
+              label={L.leads}
+              value={leads.toLocaleString('pl-PL')}
+              Icon={ShoppingBag}
+            />
+            <ResultTile id="cpa" label={L.cpa} value={cpaValue} unit={cpaUnit} wide />
+            <ResultTile
+              id="revenue"
+              label={L.revenue}
+              value={orderValue.toLocaleString('pl-PL')}
+              unit="zł"
+              wide
+              highlight
+            />
           </div>
 
           {/* Zastrzeżenie jest częścią interfejsu — liczby to arytmetyka
