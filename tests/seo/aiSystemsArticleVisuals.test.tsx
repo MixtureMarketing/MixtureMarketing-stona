@@ -45,8 +45,25 @@ const sectionTexts = () =>
 const allText = () =>
   [CONTENT.lead.highlight, CONTENT.lead.text, ...sectionTexts()].map(strip).join(' ').toLowerCase();
 
+// NIE vi.unstubAllGlobals(): zdjęłoby też stuby z tests/setup.ts (matchMedia, IntersectionObserver), a hooki
+// motion-safe wywołałyby window.matchMedia, którego jsdom nie ma. Po każdym teście wracamy do ruchu dozwolonego.
+const mockMedia = (reduce: boolean) =>
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((query: string) => ({
+      matches: reduce && query.includes('prefers-reduced-motion'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  );
+
 afterEach(() => {
-  vi.unstubAllGlobals();
+  mockMedia(false);
 });
 
 describe('wizualnie: sekcje z animacją i infografiki', () => {
@@ -179,21 +196,6 @@ describe('wizualnie: tekst bez zmian, fakty infografik z tekstu', () => {
 });
 
 describe('wizualnie: prefers-reduced-motion', () => {
-  const mockMedia = (reduce: boolean) =>
-    vi.stubGlobal(
-      'matchMedia',
-      vi.fn((query: string) => ({
-        matches: reduce && query.includes('prefers-reduced-motion'),
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    );
-
   it('bez preferencji ruchu kontener infografiki dostaje --p (ruch działa)', async () => {
     mockMedia(false);
     const { container } = render(
