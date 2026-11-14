@@ -15,11 +15,11 @@ interface LocalRzeszowSectionProps {
 /**
  * Sekcja lokalna „Rzeszów” na stronach usług (MIX-1286, plan SEO A35). Za przełącznikiem
  * VITE_MM_RZESZOW_SEKCJE (domyślnie wyłączony do akceptacji tekstu przez Jakuba). Jeden <h2>,
- * bez <h1>; linki wewnętrzne ze slashem na końcu; dane adresowe z SITE_CONFIG (adres rejestrowy).
+ * bez <h1>; linki wewnętrzne ze slashem na końcu; telefon z SITE_CONFIG, bez adresu (decyzja Jakuba B, 14.11).
  */
 const LocalRzeszowSection: React.FC<LocalRzeszowSectionProps> = ({ content, onConsult }) => {
   if (!isRzeszowSectionsEnabled()) return null;
-  const { address, phone, phoneFull } = SITE_CONFIG.contact;
+  const { phone, phoneFull } = SITE_CONFIG.contact;
   const headingId = `${content.id}-heading`;
 
   return (
@@ -49,7 +49,7 @@ const LocalRzeszowSection: React.FC<LocalRzeszowSectionProps> = ({ content, onCo
             ))}
           </ul>
           <p className="mt-6 text-[15px] leading-relaxed text-gray-700">
-            Adres rejestrowy: {address.street}, {address.postalCode} {address.city}. Telefon:{' '}
+            Telefon:{' '}
             <a
               href={`tel:${phoneFull}`}
               className="font-bold text-secondary underline underline-offset-4"
