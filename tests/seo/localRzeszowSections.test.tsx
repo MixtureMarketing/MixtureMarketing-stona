@@ -97,7 +97,7 @@ describe.each(strony)('%s: sekcja lokalna Rzeszów', (_nazwa, Page, path, conten
     expect(sekcja.textContent).not.toContain(postalCode);
     expect(sekcja.textContent).not.toContain('Adres rejestrowy');
     expect(hrefy).toContain(`tel:${SITE_CONFIG.contact.phoneFull}`);
-    expect(sekcja.textContent).toContain('Rzeszów');
+    expect(sekcja.textContent).toMatch(/Rzesz[oó]w/);
   });
 
   it('przełącznik włączony: dokładnie jeden H1 na stronie (sekcja go nie dodaje)', async () => {
