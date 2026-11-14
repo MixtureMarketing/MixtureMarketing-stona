@@ -1366,3 +1366,47 @@ describe('CI: strażnik llms.txt jest wołany w workflow po buildzie i blokuje',
     expect(iDeploy).toBeGreaterThan(iLlms);
   });
 });
+
+describe('MIX-1695: znak łączący i niewidoczny spoza BMP = dżoker, nigdy nie znika', () => {
+  // WERDYKT-MIX-1689 mutant X6 (astralne Mn/Mc/Cf odrzucane zamiast dżokera) przeżył, bo zestaw
+  // miał tylko znaki z BMP. Znaki jako \u{…}. Bliźniak: ta sama linia z literą w miejscu znaku.
+  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const sm = xml('/a/');
+  const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
+  const run = (line: string) => llmsReport(`${base}${line}\n`, sm, opts);
+  const L = 'llms.txt linia 4: ';
+  const hitAB = `${L}ścieżka strony ukrytej /abonament/dziekujemy/ (szkielet abonamentdziekujemy)`;
+  const hitAI = `${L}ścieżka strony ukrytej /web-development/systemy-ai-aplikacje/ (szkielet systemyaiaplikacje)`;
+  const W = WILDCARD;
+  const forms: [string, string, 'dz' | 'ap'][] = [
+    ['A01 U+1D167 Mn (musical symbol)', '\u{1D167}', 'dz'],
+    ['A02 U+1D165 Mc (musical symbol)', '\u{1D165}', 'ap'],
+    ['A03 U+E0041 Cf (tag A)', '\u{E0041}', 'dz'],
+    ['A04 U+E0001 Cf (language tag)', '\u{E0001}', 'ap'],
+    ['A05 U+1BCA0 Cf (shorthand format)', '\u{1BCA0}', 'dz'],
+    ['A06 U+E0100 Mn (variation selector)', '\u{E0100}', 'ap'],
+  ];
+  for (const [name, c, f] of forms) {
+    const atk =
+      f === 'dz' ? `- Strona abonament/dz${c}ekujemy` : `- Nowość: systemy-ai-ap${c}ikacje`;
+    const twin = f === 'dz' ? '- Strona abonament/dzxekujemy' : '- Nowość: systemy-ai-apxikacje';
+    const cp = c.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0');
+    const isCf = /^\p{Cf}$/u.test(c);
+    it(`odmowa: ${name}`, () => {
+      const r = run(atk);
+      const scan = f === 'dz' ? hitAB : hitAI;
+      expect(r.problems).toEqual(
+        isCf ? [`${L}znak niewidoczny albo sterujący U+${cp}: ${atk}`, scan] : [scan],
+      );
+      expect(r.ok).toBe(false);
+    });
+    it(`OK (bliźniak z literą zamiast znaku): ${name}`, () => {
+      const r = run(twin);
+      expect(r.problems).toEqual([]);
+      expect(r.ok).toBe(true);
+    });
+    it(`szkielet = dżoker, nie pusty: ${name}`, () => {
+      expect(skeletonText(`a${c}b`)).toBe(`a${W}b`);
+    });
+  }
+});
