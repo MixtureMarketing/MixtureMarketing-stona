@@ -897,10 +897,8 @@ describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżo
   const L = 'llms.txt linia 4: ';
   const AB = '/abonament/dziekujemy/';
   const AI = '/web-development/systemy-ai-aplikacje/';
-  const ART = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
   const hitAB = [`${L}ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy)`];
   const hitAI = [`${L}ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje)`];
-  const hitART = [`${L}ścieżka strony ukrytej ${ART} (szkielet aplikacjededykowanezaikiedywarto)`];
   const ab = (id: string, attack: string, twin: string): [string, string, string[], string] => [
     id,
     `- Strona ${attack}`,
@@ -920,23 +918,19 @@ describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżo
     ab('H03 greckie Σ jako E (V19)', 'ABONAMΣNT/DZIEKUJEMY', 'ABONAMΣNT/CENNIK'),
     ai('H04 greckie Σ jako S', 'ΣYΣTEMY-AI-APLIKACJE', 'ΣYΣTEMY AI i APLIKACJE'),
     ab('H05 greckie Ω jako O (X03)', 'ABΩNAMENT/DZIEKUJEMY', 'ABΩNAMENT/CENNIK'),
-    [
-      'H06 greckie Γ (małe γ w tablicy = y) jako R',
-      '- Artykuł: APLIKACJE-DEDYKOWANE-Z-AI-KIEDY-WAΓTO',
-      hitART,
-      '- Artykuł: APLIKACJE-DEDYKOWANE-Z-AI-KIEDY-WAΓ',
-    ],
+    // Γ (poza tablicą) = dżoker za literę nazwy strony ukrytej; bliźniak: ta sama nazwa bez ostatniej litery.
+    ai('H06 greckie Γ jako T (dżoker za literę)', 'SYSΓEMY-AI-APLIKACJE', 'SYSΓEMY-AI-APLIKACJ'),
     ab('H07 cyrylickie wielkie Д spoza tablicy', 'ABONAMENT/ДZIEKUJEMY', 'CENNIK/ДZIEKUJEMY'),
     ab('H08 ukraińskie wielkie Є spoza tablicy', 'ABONAMЄNT/DZIEKUJEMY', 'ABONAMЄNT/CENNIK'),
     ab('H09 rn z dżokerem jako drugą literą', 'abonarօent/dziekujemy', 'abonarօent/cennik'),
     ab('H10 cl z dżokerem jako drugą literą', 'abonament/cօziekujemy', 'cennik/cօziekujemy'),
     ab('H11 rn z dżokerem jako pierwszą literą', 'abonaօnent/dziekujemy', 'abonaօnent/cennik'),
-    [
-      'H12 vv z dżokerem jako drugą literą',
-      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vօarto',
-      hitART,
-      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vօato',
-    ],
+    // Nazwa strony AI nie ma litery w, więc para rn (=m) z dżokerem jako drugą literą (jak H09, inna strona).
+    ai(
+      'H12 rn z dżokerem jako drugą literą (strona AI)',
+      'systerօy-ai-aplikacje',
+      'systerօy-ai-aplikacj',
+    ),
     ai(
       'H13 łacińskie wielkie Ł (małe litery tylko dla łaciny)',
       'SYSTEMY-AI-APŁIKACJE',
