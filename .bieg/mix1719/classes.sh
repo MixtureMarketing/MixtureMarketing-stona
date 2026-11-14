@@ -55,7 +55,7 @@ for m in on on1711; do
   cat "$OUT/cl-$m.txt"
 done
 node .bieg/mix1719/classes.mjs $VP neg 160 "$OUT/b-neg.txt" "$OUT/b-off.txt" "$OUT/b-base.txt"; CL[neg]=$?
-RED1711=$(grep -aE "^REDGAPS $VP on1711:" "$OUT/cl-on1711.txt" | sed -E 's/.*\[(.*)\].*/\1/' | tr ',' '\n' | awk '$1 >= 130' | paste -sd,)
+RED1711=$(grep -aE "^REDGAPS $VP on1711:" "$OUT/cl-on1711.txt" | tr -d '[]' | awk '{print $4}' | tr ',' '\n' | awk '$1 >= 130' | paste -sd,)
 echo "RESULT $VP: ON rc=${CL[on]} (0 = GREEN), neg rc=${CL[neg]} (must be 1), on1711 rc=${CL[on1711]} red gaps >= 130: [${RED1711}]"
 [ "${CL[on]}" -eq 0 ] || bad "$VP ON outside the OFF/base classes or a frame above OFF max + 4 at some gap"
 [ "${CL[neg]}" -eq 1 ] || bad "$VP negative control not detected (rc=${CL[neg]})"
