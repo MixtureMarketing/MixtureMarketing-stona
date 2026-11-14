@@ -4,7 +4,7 @@ import { MemoryRouter, Link, Route, Routes, useNavigate } from 'react-router-dom
 import ScrollToTop from '@/components/common/ScrollToTop';
 import { INSTANT_TOP } from '@/utils/caseStudyTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
-import { resetBackState } from '@/utils/caseStudyGeneration';
+import { ownBack, resetBackState } from '@/utils/caseStudyGeneration';
 
 function Nav() {
   const navigate = useNavigate();
@@ -139,6 +139,29 @@ describe('MIX-1675 switch on: restore without animation', () => {
     fireEvent.click(screen.getByText('card'));
     scrollTo.mockClear();
     browserBack('/portfolio/');
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('MIX-1707: the back transition owns the restore: ScrollToTop makes no scroll (no restore, no top)', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/portfolio/');
+    // the interceptor's transition takes the restore before the router renders the list
+    ownBack(true);
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('MIX-1707: allowed twin: a transition that failed to start gives the restore back to ScrollToTop', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/portfolio/');
+    ownBack(true);
+    ownBack(false);
+    fireEvent.click(screen.getByText('back'));
     expect(scrollTo).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
   });

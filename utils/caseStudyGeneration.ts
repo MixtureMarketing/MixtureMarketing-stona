@@ -1,6 +1,5 @@
 // Pokolenie nawigacji i lista źródłowa powrotu z realizacji (MIX-1675 r4, r6). Decyzje: utils/caseStudyBack.ts.
 import { listKey, revertManualRestoration } from './caseStudyBack';
-import * as undo from './caseStudyBackUndo';
 
 /**
  * Pokolenie nawigacji (MIX-1675 r4). Każde cofnięcie (popstate) i każde przejście linkiem (PUSH,
@@ -12,7 +11,6 @@ let generation = 0;
 
 export function bumpGeneration(): void {
   generation += 1;
-  undo.forgetOurScroll();
 }
 
 export function currentGeneration(): number {
@@ -42,7 +40,7 @@ function locationKey(read: () => BackLocation | null | undefined): string | null
  * `claim` = cofnięcie przyjęte w tym popstate (lista i jego pokolenie). Wszystko inne = przeglądarka.
  */
 let source: string | null = null;
-let claim: { key: string; gen: number } | null = null;
+let claim: { key: string; gen: number; owned: boolean } | null = null;
 
 /** Przejście linkiem (PUSH): cofnięcie z nowej strony wraca na `from`. */
 export function armSource(from: BackLocation | null | undefined): void {
@@ -57,9 +55,11 @@ export function armSource(from: BackLocation | null | undefined): void {
 export function claimBack(target: BackLocation | null | undefined): boolean {
   generation += 1;
   const at = locationKey(() => target);
-  claim = at !== null && at === source && !target?.hash ? { key: at, gen: generation } : null;
+  claim =
+    at !== null && at === source && !target?.hash
+      ? { key: at, gen: generation, owned: false }
+      : null;
   source = null;
-  undo.armUndo(claim !== null);
   if (claim === null) revertManualRestoration();
   return claim !== null;
 }
@@ -67,15 +67,20 @@ export function claimBack(target: BackLocation | null | undefined): boolean {
 /** Użytkownik sam przewija albo naciska klawisz: przyjęte cofnięcie już nic nie przewija. */
 export function dropClaim(): void {
   claim = null;
-  undo.forgetOurScroll();
 }
 
 /**
- * MIX-1699 r2: przewinięcie przyjętego cofnięcia (utils/caseStudyRestore.ts scrollInstant) idzie do zapisu
- * oddania (utils/caseStudyBackUndo.ts) tylko w pokoleniu przyjętego cofnięcia; inaczej nic.
+ * MIX-1707: przywrócenie przyjętego cofnięcia ma jednego właściciela. Przejście wstecz
+ * (utils/caseStudyBackTransition.ts) bierze je przed oddaniem zdarzenia routerowi i przewija listę dopiero po
+ * potwierdzeniu, że cofnięcie jest pojedyncze; ScrollToTop wtedy nie przewija. Przejście nieudane (brak API,
+ * błąd startu) oddaje je z powrotem. Tylko bieżące przyjęte cofnięcie (każdy popstate tworzy nowe albo
+ * żadne, ruch użytkownika je zdejmuje); brak = nic do wzięcia, ScrollToTop działa jak dotąd.
  */
-export function noteRestoreScroll(before: unknown, y: number): void {
-  if (claim !== null && claim.gen === generation) undo.noteOurScroll(before, y);
+export function ownBack(owned: boolean): void {
+  if (claim !== null) claim.owned = owned;
+}
+export function backOwned(): boolean {
+  return claim !== null && claim.owned;
 }
 
 /**
@@ -84,8 +89,8 @@ export function noteRestoreScroll(before: unknown, y: number): void {
  * drugie cofnięcie na "/" w trakcie przejścia) woła skipBackTransition: skipTransition, nazwy i atrybut
  * znikają od razu, zanim router wyrenderuje nową stronę, a dalej działa przeglądarka. Brak przejścia = nic.
  * r2: `woken` budzi wywołanie zwrotne przejścia od razu (sonda r1: koniec wywołania +72 ms po drugim
- * cofnięciu, za renderem nowej strony, z malowaniem wstrzymanym przez przejście), a pozycja sprzed naszego
- * przewinięcia listy wraca do przeglądarki (undoOurScroll).
+ * cofnięciu, za renderem nowej strony, z malowaniem wstrzymanym przez przejście). MIX-1707: bez żadnego
+ * przewinięcia z naszej strony (oddawanie pozycji z f431473 usunięte; listy nie przewijamy przed potwierdzeniem).
  */
 export interface BackSkip {
   release: () => void;
@@ -107,11 +112,10 @@ export function setBackSkip(t: { skipTransition: () => void }, cleanup: () => vo
   };
   return { release, woken };
 }
-export function skipBackTransition(win?: undo.ScrollWin): void {
+export function skipBackTransition(): void {
   const skip = skipActive;
   skipActive = null;
   skip?.();
-  undo.undoOurScroll(win);
 }
 
 /**
@@ -150,5 +154,4 @@ export function backTicket(read: () => BackLocation | null | undefined): () => b
 export function resetBackState(): void {
   source = null;
   claim = null;
-  undo.resetUndo();
 }

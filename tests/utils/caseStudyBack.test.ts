@@ -16,12 +16,14 @@ import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
 import {
   type BackLocation,
   armSource,
+  backOwned,
   backTicket,
   bumpGeneration,
   claimBack,
   currentGeneration,
   dropClaim,
   listenUserInput,
+  ownBack,
   resetBackState,
 } from '@/utils/caseStudyGeneration';
 
@@ -386,6 +388,27 @@ describe('claimBack: restore only on one exact back onto the source list (MIX-16
     armSource(list);
     expect(claimBack(target)).toBe(false);
     expect(backTicket(() => list)()).toBe(false);
+  });
+  it('MIX-1707: ownership: only the accepted back can be owned; a new popstate starts unowned', () => {
+    // no accepted back: nothing to own, no error
+    expect(() => ownBack(true)).not.toThrow();
+    expect(backOwned()).toBe(false);
+    armSource(list);
+    expect(claimBack(list)).toBe(true);
+    expect(backOwned()).toBe(false);
+    ownBack(true);
+    expect(backOwned()).toBe(true);
+    ownBack(false);
+    expect(backOwned()).toBe(false);
+    ownBack(true);
+    // the next popstate (refused) replaces the claim: not owned any more
+    expect(claimBack(list)).toBe(false);
+    expect(backOwned()).toBe(false);
+    armSource(list);
+    claimBack(list);
+    ownBack(true);
+    dropClaim();
+    expect(backOwned()).toBe(false);
   });
   it('refused: no source list (direct entry) or a broken one', () => {
     expect(claimBack(list)).toBe(false);

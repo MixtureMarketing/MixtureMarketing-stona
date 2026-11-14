@@ -1,5 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { runCaseStudyBackTransition, type BackRunOptions } from '@/utils/caseStudyBackTransition';
+import {
+  BACK_CONFIRM_MS,
+  runCaseStudyBackTransition,
+  type BackRunOptions,
+} from '@/utils/caseStudyBackTransition';
+import {
+  armSource,
+  backOwned,
+  claimBack,
+  resetBackState,
+  skipBackTransition,
+} from '@/utils/caseStudyGeneration';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
@@ -63,6 +74,8 @@ function options(over: Partial<BackRunOptions> = {}): BackRunOptions {
     restore: vi.fn(),
     doc: document,
     cardMs: 50,
+    // MIX-1707: the confirmation wait has its own tests below; the older ones run without it
+    confirmMs: 0,
     ...over,
   };
 }
@@ -283,5 +296,103 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     expect(o.redispatch).toHaveBeenCalledTimes(1);
     expect(names()).toEqual([]);
     expect(isTransitionActive()).toBe(false);
+  });
+});
+
+describe('MIX-1707: the list is scrolled only after the back is confirmed single', () => {
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  it('the confirmation window is 250 ms', () => expect(BACK_CONFIRM_MS).toBe(250));
+
+  it('list ready at once: no restore before the window ends, one restore after it', async () => {
+    installVT();
+    const o = options({ confirmMs: 120 });
+    await runCaseStudyBackTransition(o);
+    await wait(60);
+    expect(o.redispatch).toHaveBeenCalledTimes(1);
+    expect(o.restore).not.toHaveBeenCalled();
+    await wait(140);
+    expect(o.restore).toHaveBeenCalledTimes(1);
+    expect(o.restore).toHaveBeenCalledWith(1500);
+  });
+
+  it('refusal: a newer navigation inside the window = nothing restored, transition skipped', async () => {
+    const { skip } = installVT();
+    let alive = true;
+    const o = options({ confirmMs: 120, live: () => alive });
+    await runCaseStudyBackTransition(o);
+    await wait(60);
+    alive = false;
+    await wait(200);
+    expect(o.restore).not.toHaveBeenCalled();
+    expect(skip).toHaveBeenCalled();
+  });
+
+  it('refusal: a second back inside the window wakes the callback at once (no wait to the end)', async () => {
+    installVT();
+    let alive = true;
+    const o = options({ confirmMs: 400, live: () => alive });
+    await runCaseStudyBackTransition(o);
+    await wait(40);
+    const t = (document as unknown as { startViewTransition: ReturnType<typeof vi.fn> })
+      .startViewTransition.mock.results[0].value as { updateCallbackDone: Promise<void> };
+    let done = false;
+    void t.updateCallbackDone.then(() => (done = true));
+    alive = false;
+    skipBackTransition();
+    await wait(30);
+    expect(done).toBe(true);
+    expect(o.restore).not.toHaveBeenCalled();
+  });
+
+  it('allowed twin: the list ready later than the window = restore right when it is ready', async () => {
+    installVT();
+    let ready = false;
+    const o = options({ confirmMs: 40, cardMs: 400, listReady: () => ready });
+    await runCaseStudyBackTransition(o);
+    await wait(100);
+    expect(o.restore).not.toHaveBeenCalled();
+    ready = true;
+    await wait(60);
+    expect(o.restore).toHaveBeenCalledTimes(1);
+  });
+
+  // the accepted back (claimBack) is what the transition takes over (caseStudyGeneration.ownBack)
+  function acceptedBack() {
+    resetBackState();
+    const list = { pathname: '/portfolio/', search: '' };
+    armSource(list);
+    expect(claimBack(list)).toBe(true);
+    expect(backOwned()).toBe(false);
+  }
+
+  it('the transition takes the restore before the router gets the event and keeps it on success', async () => {
+    acceptedBack();
+    const { spy } = installVT();
+    const o = options();
+    const atRouter: boolean[] = [];
+    o.redispatch = vi.fn(() => atRouter.push(backOwned()));
+    await runCaseStudyBackTransition(o);
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(backOwned()).toBe(true);
+    await flush();
+    expect(atRouter).toEqual([true]);
+    expect(backOwned()).toBe(true);
+  });
+
+  it('start throws: the restore is given back before the router gets the event', async () => {
+    acceptedBack();
+    installVT({ throws: true });
+    const o = options();
+    const atRouter: boolean[] = [];
+    o.redispatch = vi.fn(() => atRouter.push(backOwned()));
+    expect(await runCaseStudyBackTransition(o)).toBe('plain');
+    expect(atRouter).toEqual([false]);
+  });
+
+  it('no API: the restore is never taken', async () => {
+    acceptedBack();
+    expect(await runCaseStudyBackTransition(options())).toBe('plain');
+    expect(backOwned()).toBe(false);
   });
 });

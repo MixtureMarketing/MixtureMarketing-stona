@@ -12,7 +12,7 @@ import {
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
 import { backTicket, claimBack, skipBackTransition } from './caseStudyGeneration';
-import { canReach, scrollInstant } from './caseStudyRestore';
+import { canReach, startRestore } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
   caseStudyPath,
@@ -66,8 +66,8 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // nowe pokolenie (każdy odroczony skutek poprzedniego cofnięcia gaśnie); r6: dalej tylko pierwsze
     // cofnięcie dokładnie na listę źródłową, każde inne = przeglądarka (jak przy wyłączonym przełączniku)
     // MIX-1699: nieprzyjęte cofnięcie kończy też nasze przejście w toku od razu (bez czekania na jego bilet)
-    // MIX-1699 r2: i oddaje przeglądarce pozycję sprzed naszego przewinięcia listy (ten sam stan co wyłączony)
-    if (!claimBack(win.location)) return skipBackTransition(win);
+    // MIX-1707: bez żadnego przewinięcia z naszej strony (lista nie jest przewijana przed potwierdzeniem)
+    if (!claimBack(win.location)) return skipBackTransition();
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
@@ -91,6 +91,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
+    const live = backTicket(() => win.location);
     void runCaseStudyBackTransition({
       y: plan.y,
       hero,
@@ -105,8 +106,10 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       },
       listReady: () => hasCard(doc, win, cardHref) && canReach(plan.y, { win, doc }),
       findCard: () => visibleCard(doc, win, cardHref),
-      live: backTicket(() => win.location),
-      restore: (y) => scrollInstant(y, win),
+      live,
+      // MIX-1707: jedyne przywrócenie tego cofnięcia (ScrollToTop nie przewija, backOwned); lista jeszcze
+      // niedość wysoka = czekanie na wzrost układu z tym samym biletem (jak dotąd w ScrollToTop)
+      restore: (y) => void startRestore(y, { win, doc, guard: live }),
     });
   };
 

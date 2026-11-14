@@ -1,16 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
-import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
+import { BACK_CARD_MAX_MS, BACK_CONFIRM_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
-import { scrollInstant, startRestore } from '@/utils/caseStudyRestore';
+import { startRestore } from '@/utils/caseStudyRestore';
 import {
   armSource,
+  backOwned,
   backTicket,
-  bumpGeneration,
   listenUserInput,
   resetBackState,
 } from '@/utils/caseStudyGeneration';
-import { UNDO_WINDOW_MS } from '@/utils/caseStudyBackUndo';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
 let uninstall: () => void;
@@ -103,7 +102,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     pop();
     expect(startVT).toHaveBeenCalledTimes(1);
     expect(router).not.toHaveBeenCalled();
-    await vi.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(300);
     expect(router).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
     expect(document.querySelector('.card img')?.getAttribute('style')).toContain(
@@ -198,7 +197,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
   it('F2: a popstate handed to the router by our own transition does not cancel its restore', async () => {
     page(true);
     pop();
-    await vi.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(300);
     expect(router).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
   });
@@ -256,7 +255,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     const img = document.querySelector('.card img') as HTMLElement;
     img.getBoundingClientRect = () => ({ ...r, height: 200, left: 0, right: 300 }) as DOMRect;
     pop();
-    await vi.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(300);
     expect(skip).toHaveBeenCalledTimes(1);
     expect(img.getAttribute('style') ?? '').not.toContain('realizacja-zdjecie');
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
@@ -423,7 +422,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(router).toHaveBeenCalledTimes(2);
   });
 
-  describe('MIX-1699 r2: fast second back after our list restore', () => {
+  describe('MIX-1699 r2 / MIX-1707: fast second back', () => {
     let y = 0;
     const setY = (v: unknown) =>
       Object.defineProperty(window, 'scrollY', { value: v, configurable: true, writable: true });
@@ -438,14 +437,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
       }) as never);
     });
     afterEach(() => setY(0));
-    async function acceptedBackRestored() {
-      page(true);
-      pop();
-      await vi.advanceTimersByTimeAsync(20);
-      expect(scrollTo).toHaveBeenLastCalledWith(instantTo(1500));
-      expect(window.scrollY).toBe(1500);
-      scrollTo.mockClear();
-    }
     function secondBack() {
       let atRouter: unknown[] = [];
       router.mockImplementationOnce(() => {
@@ -455,119 +446,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
       pop();
       return () => atRouter;
     }
-
-    it('the second back puts the page back where the browser had it before us, before the router runs', async () => {
-      await acceptedBackRestored();
-      const atRouter = secondBack();
-      expect(atRouter()).toEqual([instantTo(0)]);
-      expect(window.scrollY).toBe(0);
-      expect(scrollTo).toHaveBeenCalledTimes(1);
-      await vi.advanceTimersByTimeAsync(400);
-      // nothing more of ours on "/"
-      expect(scrollTo).toHaveBeenCalledTimes(1);
-    });
-
-    it('the position before the FIRST of our scrolls is given back (case study scrolled to 800)', async () => {
-      page(true);
-      setY(800);
-      pop();
-      await vi.advanceTimersByTimeAsync(20);
-      expect(window.scrollY).toBe(1500);
-      scrollTo.mockClear();
-      secondBack();
-      expect(scrollTo.mock.calls).toEqual([[instantTo(800)]]);
-    });
-
-    it('allowed twin: a single accepted back is not undone (no second back)', async () => {
-      await acceptedBackRestored();
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(scrollTo).not.toHaveBeenCalled();
-      expect(window.scrollY).toBe(1500);
-    });
-
-    it('the window is 300 ms', () => expect(UNDO_WINDOW_MS).toBe(300));
-
-    it('refusal: a second back later than 300 ms leaves the page to the browser', async () => {
-      await acceptedBackRestored();
-      await vi.advanceTimersByTimeAsync(301);
-      secondBack();
-      expect(scrollTo).not.toHaveBeenCalled();
-      expect(window.scrollY).toBe(1500);
-    });
-
-    it('allowed twin: a second back just inside 300 ms is undone', async () => {
-      await acceptedBackRestored();
-      await vi.advanceTimersByTimeAsync(270);
-      secondBack();
-      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
-    });
-
-    it('two scrolls of ours (restore, then a correction): the position before the FIRST one comes back', async () => {
-      await acceptedBackRestored();
-      scrollInstant(1600, window);
-      scrollTo.mockClear();
-      secondBack();
-      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
-    });
-
-    it('refusal: a scroll with no accepted back (claim gone) is never given back', async () => {
-      page(true);
-      resetBackState();
-      // no source: this back is not ours; a scrollInstant outside an accepted back is not recorded
-      pop();
-      scrollInstant(1500, window);
-      scrollTo.mockClear();
-      secondBack();
-      expect(scrollTo).not.toHaveBeenCalled();
-    });
-
-    it.each([
-      ['moved by the browser or the user (more than 4 px)', 1505],
-      ['not a number', 'x'],
-      ['not finite', Number.NaN],
-    ])('refusal: page %s: not ours, no scroll', async (_n, now) => {
-      await acceptedBackRestored();
-      setY(now);
-      secondBack();
-      expect(scrollTo).not.toHaveBeenCalled();
-    });
-
-    it('refusal: a record is used by one back only (a third back does not give it back)', async () => {
-      await acceptedBackRestored();
-      setY(1505);
-      secondBack();
-      expect(scrollTo).not.toHaveBeenCalled();
-      setY(1500);
-      window.history.pushState({}, '', '/kontakt/');
-      pop();
-      expect(scrollTo).not.toHaveBeenCalled();
-    });
-
-    it('allowed twin: page within 4 px of our position is still ours', async () => {
-      await acceptedBackRestored();
-      setY(1504);
-      secondBack();
-      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
-    });
-
-    it.each(['wheel', 'keydown', 'touchstart', 'mousedown'])(
-      'refusal: %s after our restore = the user owns the page, the second back does not undo',
-      async (type) => {
-        const unlisten = listenUserInput(window);
-        await acceptedBackRestored();
-        window.dispatchEvent(new Event(type));
-        secondBack();
-        expect(scrollTo).not.toHaveBeenCalled();
-        unlisten();
-      },
-    );
-
-    it('refusal: a link (PUSH, new generation) after our restore: a later back does not undo', async () => {
-      await acceptedBackRestored();
-      bumpGeneration();
-      secondBack();
-      expect(scrollTo).not.toHaveBeenCalled();
-    });
 
     it('refusal: no restore of ours yet (second back while waiting for the list): no scroll at all', async () => {
       page(true);
@@ -583,13 +461,88 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
       expect(scrollTo).not.toHaveBeenCalled();
     });
 
-    it('refusal: an accepted back is never undone by itself (only a back we do not take undoes)', async () => {
-      await acceptedBackRestored();
-      // a new source and an accepted back to it: the earlier scroll is not given back
-      armSource({ pathname: '/portfolio/', search: '' });
+    // MIX-1707: our code scrolls the list only after the back is confirmed single (BACK_CONFIRM_MS, no newer
+    // popstate); a second back before that = no scroll of ours at all (no restore, no compensating scroll)
+    it('refusal: a second back to "/" inside the window: no scroll of ours, ever', async () => {
+      page(true);
       pop();
-      expect(scrollTo).not.toHaveBeenCalledWith(instantTo(0));
+      await vi.advanceTimersByTimeAsync(100);
+      expect(router).toHaveBeenCalledTimes(1);
+      const atRouter = secondBack();
+      expect(atRouter()).toEqual([]);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(skip).toHaveBeenCalled();
+      expect(router).toHaveBeenCalledTimes(2);
     });
+
+    it('refusal: a second back just inside the window (240 ms): no scroll', async () => {
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(240);
+      secondBack();
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('allowed twin: a single back is restored once, right after the 250 ms window', async () => {
+      expect(BACK_CONFIRM_MS).toBe(250);
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(240);
+      expect(scrollTo).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(30);
+      expect(scrollTo).toHaveBeenCalledTimes(1);
+      expect(scrollTo).toHaveBeenCalledWith(instantTo(1500));
+    });
+
+    it('the transition owns the restore of the accepted back (ScrollToTop does not scroll)', async () => {
+      page(true);
+      expect(backOwned()).toBe(false);
+      pop();
+      expect(backOwned()).toBe(true);
+      secondBack();
+      expect(backOwned()).toBe(false);
+    });
+
+    it('allowed twin: no transition (reduced motion): the restore is not taken', () => {
+      page(true);
+      motion(false);
+      pop();
+      expect(backOwned()).toBe(false);
+    });
+
+    it('list still short after the card wait: waits for height with the same ticket, scrolls at the limit', async () => {
+      page(true);
+      Object.defineProperty(document.documentElement, 'scrollHeight', {
+        value: 1000,
+        configurable: true,
+      });
+      pop();
+      await vi.advanceTimersByTimeAsync(330);
+      // not clamped to the short page: nothing yet
+      expect(scrollTo).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1600);
+      expect(scrollTo).toHaveBeenCalledWith(instantTo(1500));
+    });
+
+    it.each(['wheel', 'keydown'])(
+      'refusal: %s while that restore waits for height: nothing scrolls at the limit',
+      async (type) => {
+        page(true);
+        Object.defineProperty(document.documentElement, 'scrollHeight', {
+          value: 1000,
+          configurable: true,
+        });
+        const unlisten = listenUserInput(window);
+        pop();
+        await vi.advanceTimersByTimeAsync(330);
+        window.dispatchEvent(new Event(type));
+        await vi.advanceTimersByTimeAsync(1600);
+        expect(scrollTo).not.toHaveBeenCalled();
+        unlisten();
+      },
+    );
 
     it('the second back ends the update callback at once (no 16 ms tick behind the new page)', async () => {
       page(true);

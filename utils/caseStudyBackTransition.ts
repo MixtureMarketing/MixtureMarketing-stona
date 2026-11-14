@@ -9,38 +9,19 @@ import {
   type VtDocument,
 } from './viewTransitions';
 import { setTransitionActive } from './caseStudyTransition';
-import { NO_SKIP, setBackSkip, type BackSkip } from './caseStudyGeneration';
+import { NO_SKIP, ownBack, setBackSkip, type BackSkip } from './caseStudyGeneration';
+import {
+  BACK_CARD_MAX_MS,
+  BACK_CONFIRM_MS,
+  SCROLL_TOLERANCE_PX,
+  type BackRunOptions,
+} from './caseStudyBackOptions';
+
+export { BACK_CARD_MAX_MS, BACK_CONFIRM_MS, SCROLL_TOLERANCE_PX, type BackRunOptions };
 
 const setName = (el: HTMLElement, name: string) =>
   el.style.setProperty('view-transition-name', name);
 const clearName = (el: HTMLElement) => el.style.removeProperty('view-transition-name');
-
-/** Ile czekamy na kartę na liście po cofnięciu, zanim zrezygnujemy z przejścia (MIX-1675). */
-export const BACK_CARD_MAX_MS = 300;
-/** Dopuszczalne odchylenie pozycji po powrocie (px). */
-export const SCROLL_TOLERANCE_PX = 4;
-
-export interface BackRunOptions {
-  /** Pozycja listy sprzed wejścia (px). */
-  y: number;
-  /** Zdjęcie (ramka) i tytuł otwartej realizacji, czyli źródło przejścia. */
-  hero: { image: HTMLElement; title: HTMLElement | null };
-  /** Oddaje cofnięcie routerowi (zdarzenie popstate wstrzymane przez nasz nasłuch). */
-  redispatch: () => void;
-  /** Czy lista jest już w DOM i dość wysoka, żeby stanąć na `y`. */
-  listReady: () => boolean;
-  /** Karta tej samej realizacji na liście (zdjęcie i tytuł) albo null; tylko widoczna. */
-  findCard: () => { image: HTMLElement; title: HTMLElement | null } | null;
-  /**
-   * Bilet tego cofnięcia (backTicket): to samo pokolenie nawigacji i nadal lista, dla której zapisano
-   * `y` (ścieżka i query). Fałsz = żaden odroczony skutek tego cofnięcia już nie działa.
-   */
-  live: () => boolean;
-  /** Przewinięcie do `y` bez animacji. */
-  restore: (y: number) => void;
-  doc: Document;
-  cardMs?: number;
-}
 
 /**
  * Przejście realizacja → lista (MIX-1675), odwrotność runCaseStudyTransition: zdjęcie i tytuł
@@ -52,7 +33,8 @@ export interface BackRunOptions {
 export async function runCaseStudyBackTransition(
   opts: BackRunOptions,
 ): Promise<'transition' | 'plain'> {
-  const { doc, hero, y, cardMs = BACK_CARD_MAX_MS } = opts;
+  const { doc, hero, y, cardMs = BACK_CARD_MAX_MS, confirmMs = BACK_CONFIRM_MS } = opts;
+  const acceptedAt = Date.now();
   setTransitionActive(true);
   const start = (doc as VtDocument).startViewTransition;
   if (typeof start !== 'function') {
@@ -85,6 +67,8 @@ export async function runCaseStudyBackTransition(
 
   let transition: ViewTransitionLike;
   try {
+    // MIX-1707: przywrócenie tego cofnięcia należy do przejścia (ScrollToTop nie przewija, backOwned)
+    ownBack(true);
     transition = start.call(doc, async () => {
       // Zdjęcie starej strony jest zrobione: nagłówek realizacji oddaje nazwy.
       clearName(hero.image);
@@ -97,6 +81,10 @@ export async function runCaseStudyBackTransition(
       opts.redispatch();
       // czekanie kończy się od razu przy nowszej nawigacji (renderowanie nie stoi 300 ms)
       const ready = await Promise.race([waitUntil(opts.listReady, cardMs, opts.live), skip.woken]);
+      // MIX-1707: lista przewija się dopiero po potwierdzeniu, że cofnięcie jest pojedyncze (BACK_CONFIRM_MS
+      // od przyjęcia bez nowszego popstate); drugie cofnięcie budzi czekanie od razu (skip.woken)
+      const left = confirmMs - (Date.now() - acceptedAt);
+      if (left > 0) await Promise.race([new Promise((r) => setTimeout(r, left)), skip.woken]);
       // szybkie drugie cofnięcie: lista nie jest już na ekranie, jej pozycji nie wolno stawiać na innej stronie
       if (!opts.live()) {
         transition.skipTransition();
@@ -112,6 +100,7 @@ export async function runCaseStudyBackTransition(
       if (card.title && hero.title) mark(card.title, VT_NAMES.title);
     });
   } catch {
+    ownBack(false);
     cleanup();
     opts.redispatch();
     return 'plain';
