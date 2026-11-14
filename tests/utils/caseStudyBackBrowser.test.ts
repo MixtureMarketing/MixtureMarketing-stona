@@ -9,6 +9,7 @@ let router: Mock<(e: PopStateEvent) => void>;
 let startVT: ReturnType<typeof vi.fn>;
 let scrollTo: ReturnType<typeof vi.spyOn>;
 let release: () => void = () => undefined;
+let skip: Mock = vi.fn();
 
 const rect = (top: number) =>
   ({ top, bottom: top + 200, width: 300, height: 200, left: 0, right: 300 }) as DOMRect;
@@ -52,12 +53,13 @@ beforeEach(() => {
   startVT = vi.fn((cb: () => Promise<void>) => {
     const done = Promise.resolve().then(cb);
     release = () => undefined;
+    skip = vi.fn();
     const finished = new Promise<void>((r) => (release = r));
     return {
       ready: Promise.resolve(),
       finished,
       updateCallbackDone: done,
-      skipTransition: vi.fn(),
+      skipTransition: skip,
     };
   });
   (document as unknown as Record<string, unknown>).startViewTransition = startVT;
@@ -191,7 +193,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     document.querySelector('.card')?.remove();
     pop();
     await vi.advanceTimersByTimeAsync(250);
-    const skip = startVT.mock.results[0].value.skipTransition as Mock;
     expect(skip).not.toHaveBeenCalled();
     expect(BACK_CARD_MAX_MS).toBe(300);
     await vi.advanceTimersByTimeAsync(150);
@@ -208,7 +209,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     img.getBoundingClientRect = () => ({ ...r, height: 200, left: 0, right: 300 }) as DOMRect;
     pop();
     await vi.advanceTimersByTimeAsync(100);
-    const skip = startVT.mock.results[0].value.skipTransition as Mock;
     expect(skip).toHaveBeenCalledTimes(1);
     expect(img.getAttribute('style') ?? '').not.toContain('realizacja-zdjecie');
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
