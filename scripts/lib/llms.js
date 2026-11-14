@@ -125,17 +125,18 @@ export function linkProblem(url) {
 
 /**
  * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39; allowlista liter MIX-1684). Każdy znak
- * po norm() (sobowtóry przed NFKC, NFKC) → NFKD bez znaków łączących, potem:
+ * po norm() (sobowtóry przed NFKC, NFKC); tylko litera → NFKD bez znaków łączących, potem:
  *  1. tablica SKELETON_MAP (allowlista, wszystkie pisma, wielkie i małe litery osobno, BEZ małych
  *     liter przed nią): wartość = litera [a-z], cyfra albo WILDCARD (znak o dwóch odczytach, `Σ`);
  *  2. tylko litera łacińska (\p{Script=Latin}) spoza tablicy: małe litery, bez znaków łączących,
  *     tablica jeszcze raz; wynik spoza [a-z0-9] (`ɛ`, `ƶ`, `ɨ`) → WILDCARD;
- *  3. cyfra ASCII zostaje; każda inna litera, cyfra albo symbol spoza ASCII (greckie `Δ`, `Ξ`,
- *     ormiańskie `օ`, gruzińskie, chińskie, `٥`, `∩`) → WILDCARD: dowolna jedna litera ścieżki albo
- *     separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy i nigdy nie jest małą literą);
- *  4. odstęp i interpunkcja zdania → ' ' (separator miękki), reszta ASCII (`|`, `@`, `/`, `-`, `*`)
- *     i interpunkcja spoza ASCII (`⸺`) → '/' (separator twardy). ASCII `|`, `@` i cyfra `3` nie są
- *     sobowtórami liter (decyzja projektu MIX-1684: zwykłe znaki tekstu, nie fałszywe odmowy).
+ *  3. cyfra ASCII zostaje;
+ *  4. separator tylko z allowlisty (MIX-1689): SOFT_SEP → ' ' (miękki), HARD_SEP → '/' (twardy);
+ *     ASCII `|`, `@` i cyfra `3` nie są sobowtórami liter (decyzja projektu MIX-1684);
+ *  5. KAŻDY inny znak (litera spoza tablicy, cyfra spoza ASCII, symbol, interpunkcja spoza listy:
+ *     `¡` `।` `׀` `·` `‧` `‐` `。`, odstęp spoza ASCII `U+1680`, znak sterujący, znak łączący
+ *     pozostały po NFKC, znak niewidoczny Cf) → WILDCARD: dowolna
+ *     jedna litera ścieżki albo separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy).
  */
 // Pary [sobowtór, szkielet ASCII]: cyrylica małe i wielkie, greka małe i wielkie, łacina rozszerzona
 // i kapitaliki; na końcu klasy mylone w ASCII (l i 1 → i, 0 → o). Wartości są końcowe.
@@ -161,13 +162,20 @@ const SKELETON_MAP = new Map([
 for (const [from, to] of SKELETON_PAIRS) {
   if ([...from].length !== to.length) throw new Error(`SKELETON_PAIRS: długość ${from}`);
 }
-const SOFT_SEP_RE = /[\s.,;:!?'"()„”«»…]/u;
+/**
+ * Separatory (allowlista, MIX-1689): po NFKC tylko te znaki rozdzielają litery szkieletu; każdy inny
+ * znak, który nie jest literą ani cyfrą ASCII, to WILDCARD. SOFT_SEP: odstęp, tab, koniec linii
+ * (skan złączonych linii) i interpunkcja zdania ASCII; spoza ASCII tylko cudzysłowy i apostrof prozy
+ * PL/DE/RU/UA (`„ ” “ ’ « »`). HARD_SEP: pozostała interpunkcja i symbole ASCII oraz pauza i półpauza
+ * (`— –`). `…` i NBSP nie są na liście, bo NFKC daje z nich `...` i spację.
+ */
+const SOFT_SEP = new Set(' \t\n.,;:!?\'"()\u201E\u201D\u201C\u2019\u00AB\u00BB');
+const HARD_SEP = new Set('#$%&*+-/<=>@[\\]^_`{|}~\u2014\u2013');
 const LATIN_RE = /^\p{Script=Latin}$/u;
 const noMarks = (s) => s.normalize('NFKD').replace(/\p{M}/gu, '');
 const fold = (s) => [...s].map((c) => SKELETON_MAP.get(c) ?? c).join('');
-const isWild = (c) => /[\p{L}\p{N}]/u.test(c) || (c > '\x7f' && /\p{S}/u.test(c));
 
-/** Szkielet jednego znaku (po NFKC i NFKD bez znaków łączących): kroki 1–4 z opisu wyżej. */
+/** Szkielet jednego znaku (po NFKC i NFKD bez znaków łączących): kroki 1–5 z opisu wyżej. */
 function skeletonChar(c) {
   const mapped = SKELETON_MAP.get(c);
   if (mapped !== undefined) return mapped;
@@ -176,14 +184,27 @@ function skeletonChar(c) {
     return /^[a-z0-9]+$/.test(m) ? m : WILDCARD;
   }
   if (/^[0-9]$/.test(c)) return c;
-  if (isWild(c)) return WILDCARD;
-  return SOFT_SEP_RE.test(c) ? ' ' : '/';
+  if (SOFT_SEP.has(c)) return ' ';
+  if (HARD_SEP.has(c)) return '/';
+  return WILDCARD;
 }
 
-/** Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. */
+const LETTER_RE = /^\p{L}$/u;
+
+/**
+ * Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. Rozkład NFKD bez znaków łączących
+ * tylko dla litery po NFKC (`ą` → `a`); każdy inny znak idzie do skeletonChar bez rozkładu (MIX-1689
+ * r2): znak łączący pozostały po NFKC (Mn/Mc/Me: U+093E, U+20DD, U+0338, spacja+U+0301 z U+00B4)
+ * i niewidoczny (Cf: U+200B, U+00AD, U+2060, U+FEFF) to WILDCARD, nigdy nie znika; symbol
+ * z rozkładem (`≠` = `=` + U+0338) nie staje się separatorem z listy.
+ */
 export function skeletonText(s) {
   let out = '';
   for (const ch of norm(s)) {
+    if (!LETTER_RE.test(ch)) {
+      out += skeletonChar(ch);
+      continue;
+    }
     for (const c of noMarks(ch)) out += skeletonChar(c);
   }
   return out;
