@@ -146,7 +146,7 @@ describe('MIX-1722: list card image is 16/9 like the hero (same crop box, no fix
         <PortfolioGrid projects={[]} loading />
       </MemoryRouter>,
     );
-    const block = container.querySelector('.animate-pulse > div')!;
+    const block = container.querySelector('.animate-pulse > div > div')!;
     expect(uniformAspect(block.className.replace('bg-gray-200', ''))).toBe('aspect-[16/9]');
     expect(container.innerHTML).not.toMatch(/h-\[500px\]|h-2\/3/);
   });
