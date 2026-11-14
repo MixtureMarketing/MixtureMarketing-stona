@@ -9,7 +9,7 @@ mut() {
   local id=$1 file=$2 from=$3 to=$4
   if ! grep -qF -- "$from" "$file"; then echo "MUT $id BLAD WZORCA"; return; fi
   FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");fs.writeFileSync(f,s.replace(process.env.FROM,process.env.TO));' "$file"
-  npx vitest run $T --maxWorkers=2 > ".bieg/r/mut-$id.log" 2>&1; local rc=$?
+  npx vitest run ${TESTS:-$T} --maxWorkers=2 > ".bieg/r/mut-$id.log" 2>&1; local rc=$?
   git checkout -- "$file"
   [ $rc -ne 0 ] && echo "MUT $id ZABITY ($file)" || echo "MUT $id PRZEZYL ($file)"
 }
@@ -31,5 +31,11 @@ mut S2-settle-only utils/caseStudyBackTransition.ts "Math.max(confirmMs - (Date.
 mut S3-window-250 utils/caseStudyBackOptions.ts "export const BACK_CONFIRM_MS = 90;" "export const BACK_CONFIRM_MS = 250;"
 mut S4-window-0 utils/caseStudyBackOptions.ts "export const BACK_CONFIRM_MS = 90;" "export const BACK_CONFIRM_MS = 0;"
 mut R1-enter-value utils/caseStudyBackTransition.ts "setAttribute(VT_ATTR, VT_BACK_VALUE)" "setAttribute(VT_ATTR, 'realizacja')"
+# MIX-1711 r2: title scroll reset before the old snapshot (utils/caseStudyTransition.ts), tests in viewTransitions.test.ts
+TV=tests/utils/viewTransitions.test.ts
+npx vitest run $TV --maxWorkers=2 > /dev/null 2>&1; echo "baseline-vt rc=$?"
+TESTS=$TV mut T1-no-scrolltop utils/caseStudyTransition.ts "parts.title.scrollTop = 0;" "void 0;"
+TESTS=$TV mut T2-no-scrollleft utils/caseStudyTransition.ts "parts.title.scrollLeft = 0;" "void 0;"
+TESTS=$TV mut T3-image-not-title utils/caseStudyTransition.ts "parts.title.scrollTop = 0;" "parts.image.scrollTop = 0;"
 echo "porcelain: $(git status --porcelain | grep -cv '^?? ')"
 echo "### end"

@@ -110,7 +110,16 @@ const INSTRUMENT = () => {
   const orig = Document.prototype.startViewTransition;
   if (!orig) return;
   Document.prototype.startViewTransition = function (cb) {
-    const t = orig.call(this, cb);
+    // old-state title (named realizacja-tytul when the transition starts): its scroll offset when the old
+    // snapshot is taken (start of the update callback); a line-clamp title scrolled by focus shows another line
+    const oldTitle = [...document.querySelectorAll('[style*="view-transition-name"]')].find(
+      (e) => getComputedStyle(e).viewTransitionName === 'realizacja-tytul',
+    );
+    vt.titleScroll = null;
+    const t = orig.call(this, async () => {
+      if (oldTitle) vt.titleScroll = [oldTitle.scrollTop, oldTitle.scrollLeft];
+      return cb();
+    });
     vt.calls++;
     vt.paused = false;
     vt.finished = false;
@@ -147,25 +156,50 @@ const INSTRUMENT = () => {
       ...new Set([...pseudos].map((p) => /\(([^)]+)\)/.exec(p)?.[1]).filter(Boolean)),
     ].sort();
     const num = (v) => (v === 'auto' || v === '' ? NaN : parseFloat(v));
-    const tr = (m) => {
-      if (!m || m === 'none') return [0, 0];
-      const v = /matrix\(([^)]+)\)/.exec(m)?.[1].split(',').map(Number);
-      return v && v.length === 6 ? [v[4], v[5]] : [NaN, NaN];
+    // 2D matrix of a computed style about its transform-origin: point -> point (scale of a hovered card included)
+    const mat = (cs) => {
+      const m = cs.transform;
+      const v =
+        !m || m === 'none'
+          ? [1, 0, 0, 1, 0, 0]
+          : /matrix\(([^)]+)\)/.exec(m)?.[1].split(',').map(Number);
+      const [ox, oy] = cs.transformOrigin.split(' ').map(parseFloat);
+      if (!v || v.length !== 6) return () => [NaN, NaN];
+      const [a, b, c, d, e, f] = v;
+      return ([px, py]) => [
+        a * (px - ox) + c * (py - oy) + ox + e,
+        b * (px - ox) + d * (py - oy) + oy + f,
+      ];
+    };
+    // visual bounding box of the pseudo-element: own box through its own matrix, then through the group matrix
+    // (old/new sit at 0,0 inside the group)
+    const rect = (cs, outer) => {
+      const w = num(cs.width);
+      const h = num(cs.height);
+      const own = mat(cs);
+      const pts = [
+        [0, 0],
+        [w, 0],
+        [0, h],
+        [w, h],
+      ].map((p) => (outer ? outer(own(p)) : own(p)));
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      const x = Math.min(...xs);
+      const y = Math.min(...ys);
+      return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y, sw: w, sh: h };
     };
     const out = {};
     for (const n of names) {
       const g = getComputedStyle(document.documentElement, `::view-transition-group(${n})`);
-      const [gx, gy] = tr(g.transform);
+      const gm = mat(g);
       for (const part of ['group', 'old', 'new']) {
         const p = `::view-transition-${part}(${n})`;
         if (!pseudos.has(p)) continue;
         const cs = part === 'group' ? g : getComputedStyle(document.documentElement, p);
-        const [ox, oy] = part === 'group' ? [0, 0] : tr(cs.transform);
         out[`${part}(${n})`] = {
-          x: gx + ox,
-          y: gy + oy,
-          w: num(cs.width),
-          h: num(cs.height),
+          ...rect(cs, part === 'group' ? null : gm),
+          tf: cs.transform,
           op: Number(cs.opacity),
           fit: part === 'group' ? cs.overflow : cs.objectFit,
           ease: cs.animationTimingFunction,
@@ -301,7 +335,7 @@ async function stepAll(page, dir) {
   }
   await page.evaluate(() => window.__finishVt());
   await page.waitForFunction(() => window.__vt.finished, { timeout: 10000 });
-  return { T: st.T, calls: st.calls, steps };
+  return { T: st.T, calls: st.calls, titleScroll: st.titleScroll, steps };
 }
 
 async function measure() {
@@ -570,6 +604,11 @@ try {
   if (m.enter.calls !== 1 || m.back.calls !== 1)
     errors.push(`transitions ENTER ${m.enter.calls} BACK ${m.back.calls} (want 1/1)`);
   result = { href: m.href, T: { E: m.enter.T, B: m.back.T }, ...compare(m.enter, m.back) };
+  result.titleScroll = { E: m.enter.titleScroll, B: m.back.titleScroll };
+  // the old title snapshot must show the title as drawn on the list (scroll 0,0), else the frame differs
+  for (const [d, s] of Object.entries(result.titleScroll))
+    if (!Array.isArray(s) || s.some((v) => v !== 0))
+      result.fails.push(`${d} old title scroll at snapshot ${JSON.stringify(s)} (want [0,0])`);
   for (const [dir, D] of [
     ['ENTER', m.enter],
     ['BACK', m.back],
@@ -608,7 +647,7 @@ if (result) {
       `REV ${vpTag} BACK ${r.kb} ~ ENTER ${r.ke}: max dpx=${r.dpx.toFixed(1)} (k=${r.dpxK}) max dop=${r.dop.toFixed(3)} (k=${r.dopK}) ease B=${r.easeB} E=${r.easeE} fit B=${r.fitB} E=${r.fitE} ${r.ok ? 'OK' : 'NO'}`,
     );
   console.log(
-    `REV ${vpTag} names ENTER=[${result.namesE}] BACK=[${result.namesB}] T ENTER=${result.T.E} BACK=${result.T.B}`,
+    `REV ${vpTag} names ENTER=[${result.namesE}] BACK=[${result.namesB}] T ENTER=${result.T.E} BACK=${result.T.B} titleScroll ENTER=${JSON.stringify(result.titleScroll.E)} BACK=${JSON.stringify(result.titleScroll.B)}`,
   );
   for (const f of result.fails) console.log(`FAIL ${vpTag} ${f}`);
 }

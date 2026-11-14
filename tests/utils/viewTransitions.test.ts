@@ -389,6 +389,54 @@ describe('runCaseStudyTransition', () => {
     expect(navigate).toHaveBeenCalledTimes(1);
     expect(namesInDom()).toEqual({});
   });
+
+  it('MIX-1711 r2: tytuł karty przewinięty w line-clamp (fokus po kliku) stoi na 0,0 przed zdjęciem starej strony', async () => {
+    const { spy } = installFakeVT();
+    const parts = sourceCard();
+    const pos = { top: 32, left: 7 };
+    Object.defineProperty(parts.title!, 'scrollTop', {
+      configurable: true,
+      get: () => pos.top,
+      set: (v: number) => (pos.top = v),
+    });
+    Object.defineProperty(parts.title!, 'scrollLeft', {
+      configurable: true,
+      get: () => pos.left,
+      set: (v: number) => (pos.left = v),
+    });
+    let atStart: { top: number; left: number } | null = null;
+    (document as unknown as Record<string, unknown>).startViewTransition = (
+      cb: () => Promise<void>,
+    ) => {
+      atStart = { ...pos };
+      return spy(cb);
+    };
+    const res = await runCaseStudyTransition({
+      path: '/portfolio/a/',
+      parts,
+      navigate: navigateToHero(),
+      preload: () => Promise.resolve(),
+      doc: document,
+      win,
+    });
+    expect(res).toBe('transition');
+    expect(atStart).toEqual({ top: 0, left: 0 });
+  });
+
+  it('MIX-1711 r2: karta bez tytułu: przejście bez zmian (brak tytułu nie rzuca)', async () => {
+    const { spy } = installFakeVT();
+    const parts = { ...sourceCard(), title: null };
+    const res = await runCaseStudyTransition({
+      path: '/portfolio/a/',
+      parts,
+      navigate: navigateToHero(),
+      preload: () => Promise.resolve(),
+      doc: document,
+      win,
+    });
+    expect(res).toBe('transition');
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('style przejścia (components/common/caseStudyTransitions.css)', () => {
