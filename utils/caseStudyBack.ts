@@ -77,14 +77,15 @@ export function releaseRecording(): void {
 export function manualRestorationFor(win: Window, ms = MANUAL_RESTORATION_MS): void {
   revertManualRestoration();
   try {
-    const previous = win.history.scrollRestoration;
+    // r6b (allowlista): zmieniamy tylko 'auto' na 'manual'; każdy inny tryb (już 'manual', nieznany) = nic naszego
+    if (win.history.scrollRestoration !== 'auto') return;
     win.history.scrollRestoration = 'manual';
     const timer = win.setTimeout(revertManualRestoration, ms);
     revertPending = () => {
       win.clearTimeout(timer);
       try {
-        // tylko gdy nasza zmiana jest widoczna na bieżącym wpisie (inny wpis: nic nie zapisujemy)
-        if (win.history.scrollRestoration !== previous) win.history.scrollRestoration = previous;
+        // tylko gdy nasza zmiana ('manual') jest widoczna na bieżącym wpisie; inny tryb: nic nie zapisujemy
+        if (win.history.scrollRestoration === 'manual') win.history.scrollRestoration = 'auto';
       } catch {
         /* wpis już nieaktualny */
       }

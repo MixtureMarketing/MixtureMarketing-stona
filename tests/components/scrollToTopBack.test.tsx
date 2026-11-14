@@ -227,6 +227,9 @@ describe('MIX-1675 switch on: restore without animation', () => {
     scrollTo.mockClear();
     popTo('/portfolio/'); // first popstate: accepted, the transition would hold it
     popTo('/'); // second popstate: not the source list
+    // r6b: the browser itself puts "/" back at 300 (as with the switch off); the click below only drives
+    // the router, and our click recorder (window.location = "/") must read that real position, not jsdom's 0
+    vi.spyOn(window, 'scrollY', 'get').mockReturnValue(300);
     fireEvent.click(screen.getByText('back2')); // the router sees only the jump to "/"
     expect(savedPosition('/')).toBe(300);
     expect(scrollTo.mock.calls).toEqual([[0, 0]]);

@@ -25,7 +25,9 @@ for m in on off base; do
     if [ $m = on ]; then PM=; else PM=observe; fi
     PROBE_MODE=$PM PROBE_ROOTY=300 PROBE_VP=$vp PROBE_TRACE=1 PROBE_GAPS=20,20,20,20,20,20,15,25,15,25 PROBE_CASE=double-back-20,double-back-15,double-back-25 \
       node $P dist-$m "$OUT/b-$m-$vp" > "$OUT/b-$m-$vp.txt" 2>&1; echo "probe-b $m $vp rc=$?"
-    grep -aE '^(ROOTY|NUM)' "$OUT/b-$m-$vp.txt" | cut -c1-160
+    grep -aE '^ROOTY' "$OUT/b-$m-$vp.txt" | sort | uniq -c
+    grep -aE '^NUM' "$OUT/b-$m-$vp.txt" | cut -c1-200
+    grep -aE '^ROOTDBG' "$OUT/b-$m-$vp.txt" | cut -c1-1400
     R=$(grep -aE '^NUM .*double-back' "$OUT/b-$m-$vp.txt" | grep -aoE ' rest=[0-9]+' | cut -d= -f2 | sort -n | uniq -c | tr -s ' ' | tr '\n' ';')
     C=$(grep -aE '^NUM .*double-back' "$OUT/b-$m-$vp.txt" | grep -aoE 'restoreCallsOnRoot=[0-9]+' | cut -d= -f2 | awk '{s+=$1} END {print s+0}')
     echo "SUMMARY $m $vp runs=$(grep -acE '^NUM .*double-back' "$OUT/b-$m-$vp.txt") rests=$R restoreCallsOnRoot=$C"

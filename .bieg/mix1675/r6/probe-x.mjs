@@ -243,7 +243,7 @@ const INSTRUMENT = () => {
     // page in a rAF callback of the same frame is part of what the visitor saw.
     const tick = () => {
       const t = Math.round(performance.now());
-      setTimeout(() => vt.frames.push([t, Math.round(scrollY), location.pathname, cardTop()]));
+      setTimeout(() => vt.frames.push([t, Math.round(scrollY), location.pathname, cardTop(), document.querySelectorAll('a[href*="/portfolio/"]').length]));
       if (vt.frames.length < 400) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -577,7 +577,9 @@ async function measureDouble(vp, c) {
       Math.round(x.tCbDone || 0),
     ]),
     sameDocument: !!window.__vt.clickY,
-    framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([, y]) => y),
+    framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([t, y, , , n]) => [t, y, n]),
+    headFrames: window.__vt.frames.slice(0, 8).map(([t, y, p, , n]) => [t, y, p, n]),
+    restLinks: document.querySelectorAll('a[href*="/portfolio/"]').length,
     namesAtRest: window.__vtNames(),
     listeners: window.__listeners,
     restoration: history.scrollRestoration,
@@ -594,7 +596,13 @@ async function measureDouble(vp, c) {
     scrollEvents: r.scrollEvents,
     otherScrolls: r.otherScrolls,
     records: r.records,
-    rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot) : null,
+    rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot.map((f) => f[1])) : null,
+    // r6b: frames on "/" away from 300 with the DOM fingerprint (portfolio links: list DOM vs home DOM), pops, scroll calls
+    rootOdd: r.framesOnRoot.filter((f) => Math.abs(f[1] - 300) > 4).slice(0, 8),
+    pops: (r.otherScrolls || []).filter((o) => o[1] === 'popstate').map((o) => [o[0], o[3], o[4]]),
+    callsBrief: (r.scrollCalls || []).slice(0, 8).map((c) => [c[0], callTop(c), c[3]]),
+    headFrames: r.headFrames,
+    restLinks: r.restLinks,
     namesAtRest: r.namesAtRest,
     listeners: r.listeners,
     restoration: r.restoration,
@@ -671,6 +679,9 @@ for (const [vpTag, vv] of Object.entries(report.viewports)) {
     if (name.startsWith('double-back')) {
       console.log(
         `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} sameDocument=${M.sameDocument} transitions=${M.calls} restoreCallsOnRoot=${restoreCallsOnRoot(M.scrollCalls)} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
+      );
+      console.log(
+        `ROOTDBG ${vpTag} ${name} rootOdd[t,y,links]=${JSON.stringify(M.rootOdd)} pops[t,y,path]=${JSON.stringify(M.pops)} calls[t,top,path]=${JSON.stringify(M.callsBrief)} head[t,y,path,links]=${JSON.stringify(M.headFrames)} restLinks=${M.restLinks}`,
       );
       continue;
     }

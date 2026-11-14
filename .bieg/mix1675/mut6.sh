@@ -103,7 +103,9 @@ mut R11-dropclaim-noop "$G" 'export function dropClaim(): void {
 mut R12-ticket-ignores-drop "$G" 'return () => claim === c && c.gen === generation' 'return () => c.gen === generation'
 mut R13-ticket-no-generation "$G" 'return () => claim === c && c.gen === generation && ' 'return () => claim === c && '
 mut R14-ticket-start-no-generation "$G" 'if (c === null || c.gen !== generation || locationKey' 'if (c === null || locationKey'
-mut R15-revert-writes-always "$B" 'if (win.history.scrollRestoration !== previous) win.history.scrollRestoration = previous;' 'win.history.scrollRestoration = previous;'
+mut R15-revert-writes-always "$B" "if (win.history.scrollRestoration === 'manual') win.history.scrollRestoration = 'auto';" "win.history.scrollRestoration = 'auto';"
+mut R19-sets-manual-from-any-mode "$B" "    if (win.history.scrollRestoration !== 'auto') return;" ''
+mut R20-skips-only-manual "$B" "if (win.history.scrollRestoration !== 'auto') return;" "if (win.history.scrollRestoration === 'manual') return;"
 mut R16-new-window-no-revert "$B" "export function manualRestorationFor(win: Window, ms = MANUAL_RESTORATION_MS): void {
   revertManualRestoration();" "export function manualRestorationFor(win: Window, ms = MANUAL_RESTORATION_MS): void {"
 mut R17-revert-keeps-timer "$B" '      win.clearTimeout(timer);' ''

@@ -470,6 +470,32 @@ describe('manualRestorationFor / revertManualRestoration (MIX-1675 r6)', () => {
     vi.advanceTimersByTime(1000);
     expect(h.value).toBe('auto');
   });
+  it('r6b: an entry already in manual mode (not set by us) is never touched, not even by the revert', () => {
+    const { h, win } = fakeWin();
+    h.value = 'manual';
+    manualRestorationFor(win, 1200);
+    h.value = 'auto'; // the browser moved to another entry in auto mode
+    revertManualRestoration();
+    vi.advanceTimersByTime(1300);
+    expect(h.value).toBe('auto');
+    expect(h.writes).toBe(0);
+  });
+  it('r6b: allowed twin: from auto our window sets manual and the revert ends it on the same entry', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    expect(h.value).toBe('manual');
+    revertManualRestoration();
+    expect(h.value).toBe('auto');
+    expect(h.writes).toBe(2);
+  });
+  it('r6b: an unknown mode (not auto) is left alone', () => {
+    const { h, win } = fakeWin();
+    h.value = 'weird' as ScrollRestoration;
+    manualRestorationFor(win, 1200);
+    vi.advanceTimersByTime(1300);
+    expect(h.value).toBe('weird');
+    expect(h.writes).toBe(0);
+  });
   it('a new window while one is open first ends the old one (never stuck on manual)', () => {
     const { h, win } = fakeWin();
     manualRestorationFor(win, 1200);
