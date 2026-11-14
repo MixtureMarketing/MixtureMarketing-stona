@@ -174,8 +174,13 @@ function hiddenNeedles(hiddenPaths) {
     if (full.length >= MIN_SKELETON) {
       out.push([p, shown, longRe(full)]);
     } else {
+      // Kilka członów: separator twardy między nimi wystarcza; jeden człon: `/nazwa` albo `nazwa/`.
       const body = segs.join('/+');
-      out.push([p, shown, new RegExp(`(?<![a-z0-9])(?:/+${body}|${body}/+)(?![a-z0-9])`)]);
+      const re =
+        segs.length > 1
+          ? `(?<![a-z0-9])${body}(?![a-z0-9])`
+          : `/+${body}(?![a-z0-9])|(?<![a-z0-9])${body}/+(?![a-z0-9])`;
+      out.push([p, shown, new RegExp(re)]);
     }
     const slugRaw = raw[raw.length - 1];
     const slug = skeletonOf(slugRaw);
