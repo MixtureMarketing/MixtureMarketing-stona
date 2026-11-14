@@ -1,6 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
+import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
+import { startRestore } from '@/utils/caseStudyRestore';
+import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { topScrollArgs } from '@/utils/caseStudyTransition';
 import { isViewTransitionsEnabled } from '@/utils/viewTransitions';
 
@@ -20,8 +23,35 @@ function findHashTarget(hash: string): HTMLElement | null {
 
 export default function ScrollToTop() {
   const { pathname, hash } = useLocation();
+  const navType = useNavigationType();
   const isFirst = useRef(true);
   const prevPathname = useRef(pathname);
+  const prevLayoutPath = useRef(pathname);
+  const restoredFor = useRef<string | null>(null);
+
+  // MIX-1675: zapis pozycji listy i przejęcie cofnięcia; layout effect dzieci wykonuje się przed
+  // efektem routera, więc nasłuch popstate (faza capture) jest pierwszy.
+  useLayoutEffect(() => installBackInterceptor(), []);
+
+  // MIX-1675: powrót z realizacji na stronę z zapisaną pozycją stoi na niej od pierwszej klatki
+  // (layout effect, bez animacji) zamiast przewijać od góry. Kotwice (#) zostają po staremu.
+  useLayoutEffect(() => {
+    const prev = prevLayoutPath.current;
+    prevLayoutPath.current = pathname;
+    noteLocation(pathname);
+    restoredFor.current = null;
+    if (prev === pathname || hash) return;
+    const y = backRestoreTarget({
+      from: prev,
+      to: pathname,
+      navType,
+      saved: savedPosition(pathname),
+    });
+    if (y === null) return;
+    restoredFor.current = pathname;
+    startRestore(y);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tylko zmiana ścieżki
+  }, [pathname]);
 
   useEffect(() => {
     // Pierwsze montowanie = wejście na stronę: NIE ruszamy pozycji. Użytkownik mógł
@@ -39,7 +69,7 @@ export default function ScrollToTop() {
     }
 
     if (!hash) {
-      if (pathChanged) {
+      if (pathChanged && restoredFor.current !== pathname) {
         const args = topScrollArgs(pathname, isViewTransitionsEnabled());
         if (args.length === 1) window.scrollTo(args[0]);
         else window.scrollTo(args[0], args[1]);
