@@ -55,6 +55,20 @@ describe('public/llms.txt (plik z repo) vs public/sitemap.xml i prerenderOnlyRou
     expect(llms).not.toContain('systemy-ai-aplikacje');
   });
 
+  it('artykuł o aplikacjach z AI (MIX-1680) jest opublikowany: strona kluczowa, nie na liście ukrytych; brak wpisu = odmowa', () => {
+    const ART = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
+    expect(KEY_PATHS).toContain(ART);
+    expect(prerenderOnlyRoutes).not.toContain(ART);
+    const bez = llms
+      .split('\n')
+      .filter((l) => !l.includes(ART))
+      .join('\n');
+    expect(bez).not.toBe(llms);
+    const r = llmsReport(bez, sitemap, { hiddenPaths: prerenderOnlyRoutes });
+    expect(r.ok).toBe(false);
+    expect(r.missingKey).toEqual([`${BASE_URL}${ART}`]);
+  });
+
   it('strony kluczowe mają w llms.txt wpis listy `- [nazwa](adres): opis`', () => {
     for (const p of KEY_PATHS) {
       const entry = new RegExp(`^\\s*- \\[[^\\]]+\\]\\(${BASE_URL}${p}\\): \\S`, 'm');
@@ -758,10 +772,11 @@ describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = d�
   const L = 'llms.txt linia 4: ';
   const AB = '/abonament/dziekujemy/';
   const AI = '/web-development/systemy-ai-aplikacje/';
-  const ART = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
   const hitAB = [`${L}ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy)`];
   const hitAI = [`${L}ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje)`];
-  const hitART = [`${L}ścieżka strony ukrytej ${ART} (szkielet aplikacjededykowanezaikiedywarto)`];
+  const hitAIfull = [
+    `${L}ścieżka strony ukrytej ${AI} (szkielet webdevelopmentsystemyaiaplikacje)`,
+  ];
   const joinAB = [
     `llms.txt: ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy) po złączeniu linii`,
   ];
@@ -797,10 +812,10 @@ describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = d�
     ab('F13 rn zamiast m', 'abonarnent/dziekujemy', 'abonarnent/cennik'),
     ab('F14 cl zamiast d', 'abonament/clziekujemy', 'cennik/clziekujemy'),
     [
-      'G01 vv zamiast w (nazwa artykułu)',
-      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vvarto',
-      hitART,
-      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vvato',
+      'G01 vv zamiast w (nazwa strony ukrytej, cała ścieżka)',
+      '- Strona: vveb-development/systemy-ai-aplikacje',
+      hitAIfull,
+      '- Strona: vveb-development/systemy-ai-aplikac',
     ],
     ab('G02 cyrylickie wielkie И jako N', 'ABOИAMEИT/DZIEKUJEMY', 'ABOИAMEИT/CENNIK'),
     ab('G03 symbol ∩ zamiast n', 'abo∩ament/dziekujemy', 'abo∩ament/cennik'),

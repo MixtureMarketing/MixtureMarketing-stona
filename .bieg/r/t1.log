@@ -1,0 +1,143 @@
+[bieg-na-stacji] wykluczono 1 plik(ow) wygladajacych na sekrety (lista w logu): /home/mixture/sesje/mixture-strona/logi/bieg-stacja-m1680t-261114081617-mixt-a8b2e5-20261114-091618.log
+BIEG:GIT-OK=1c50092
+[bieg-na-stacji] synchronizacja ok, start polecenia na stacji
+BIEG:SLOT=13 z 14
+BIEG:LIMIT_PROCESOW=4096
+HEAD=1c500922ee7c9e3815ed5c4ba51008a3315abe63
+npm-ci rc=0
+prettier rc=1
+Checking formatting...
+[[33mwarn[39m] tests/seo/aiSystemsArticle.test.tsx
+[[33mwarn[39m] Code style issues found in the above file. Run Prettier with --write to fix.
+eslint rc=1
+
+/dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/tests/seo/aiSystemsArticle.test.tsx
+   14:8   warning  'UxAuditArticle' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                   @typescript-eslint/no-unused-vars
+  109:50  error    Insert `⏎···`                                                                                                                                                                                                      prettier/prettier
+  145:18  error    Replace ``^·{2}-·\\[[^\\]]+\\]\\(https://mixturemarketing.pl${AI_ARTICLE_SLUG}\\):·\\S`,·'m'` with `⏎········`^·{2}-·\\[[^\\]]+\\]\\(https://mixturemarketing.pl${AI_ARTICLE_SLUG}\\):·\\S`,⏎········'m',⏎······`  prettier/prettier
+  181:14  error    Replace `⏎········document.head.querySelector('meta[name="robots"][content*="noindex"]'),⏎······` with `document.head.querySelector('meta[name="robots"][content*="noindex"]')`                                    prettier/prettier
+
+✖ 4 problems (3 errors, 1 warning)
+  3 errors and 0 warnings potentially fixable with the `--fix` option.
+
+tsc-root rc=0
+vitest-related rc=1
+     ✓ jeden element interaktywny prowadzący do /wycena/  990ms
+stderr | tests/components/ArticleTemplate.test.tsx > ArticleTemplate — błąd Sanity ≠ 404 > błąd pobrania → stan błędu z „Spróbuj ponownie”, bez NotFound i bez noindex
+CMS fetch failed (ok): CmsUnavailableError: getArticleBySlug: ok
+    at /dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/tests/components/ArticleTemplate.test.tsx:58:7
+    at file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///dane/lsys-pula/m1680t-261114081617-mixt-a8b2e5/repo/node_modules/@vitest/runner/dist/chunk-artifact.js:2956:64
+
+stderr | tests/components/ArticleTemplate.test.tsx > ArticleTemplate — adres artykułu w okruszkach i JSON-LD (MIX-1386) > slug z GROQ (tekst) daje prawdziwy adres, nigdy /undefined/
+An update to AmbientBackground inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+--
+
+ FAIL  tests/seo/aiSystemsArticleListing.test.tsx > Baza wiedzy: artykuł o aplikacjach z AI na liście > strona /baza-wiedzy/ renderuje kafel z linkiem do artykułu (ze slashem) i jego tytułem
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/seo/aiSystemsArticleListing.test.tsx:62:79
+     60|     const tile = container.querySelector(`a[href="${AI_ARTICLE_SLUG}"]…
+     61|     expect(tile.textContent).toContain(CONTENT.header.title);
+     62|     expect(container.querySelectorAll(`a[href="${AI_ARTICLE_SLUG}"]`).…
+       |                                                                               ^
+     63|   });
+     64| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/seo/aiSystemsArticleVisuals.test.tsx > wizualnie: pełny skan tekstu infografik (MIX-1677) > każda liczba i każda nazwa własna w widocznym tekście infografik pochodzi z tekstu artykułu albo z listy dozwolonych
+AssertionError: expected [ …(14) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "słowo „poważne” spoza tekstu artykułu w „Błędna odpowiedź AI ma poważne skutki i nikt jej nie sprawdza”",
++   "słowo „skutki” spoza tekstu artykułu w „Błędna odpowiedź AI ma poważne skutki i nikt jej nie sprawdza”",
++   "słowo „sprawdza” spoza tekstu artykułu w „Błędna odpowiedź AI ma poważne skutki i nikt jej nie sprawdza”",
++   "słowo „inżynieria” spoza tekstu artykułu w „Zwykła inżynieria”",
++   "słowo „czterech” spoza tekstu artykułu w „Przebieg projektu w czterech krokach: rozmowa, warsztat wymagań, wycena, wersja testowa”",
++   "słowo „krokach” spoza tekstu artykułu w „Przebieg projektu w czterech krokach: rozmowa, warsztat wymagań, wycena, wersja testowa”",
++   "słowo „liczbach” spoza tekstu artykułu w „Koszt i czas w liczbach: od 23 000 zł, od 19 000 zł, od około 3 miesięcy, widełki w 24 godziny”",
++   "słowo „porównanie” spoza tekstu artykułu w „Porównanie: kiedy dedykowany system z AI się opłaca, a kiedy wystarczy zwykła aplikacja lub gotowe narzędzie”",
++   "słowo „schemat” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++   "słowo „dedykowanej” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++   "słowo „jego” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++   "słowo „schemat” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++   "słowo „dedykowanej” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++   "słowo „jego” spoza tekstu artykułu w „Schemat aplikacji dedykowanej: dane, uprawnienia, testy, logowanie, historia zmian i raporty to większość systemu, a funkcja AI bywa jego najmniejszą częścią”",
++ ]
+
+--
+
+ FAIL  tests/seo/aiSystemsArticleVisuals.test.tsx > wizualnie: pełny skan tekstu infografik (MIX-1677) > wykrywacz działa: nowa liczba, nazwa klienta i nazwa w środku zdania są czerwone, tekst z artykułu nie
+AssertionError: expected [ …(2) ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ tests/seo/aiSystemsArticleVisuals.test.tsx:320:51
+    318|     const a = articleJson();
+    319|     expect(naruszenia(['bywa tylko 5% systemu'], a)).toHaveLength(1);
+    320|     expect(naruszenia(['portal B2B Q-PLAST'], a)).toHaveLength(1);
+       |                                                   ^
+    321|     expect(naruszenia(['Q-PLAST bywa'], a)).toHaveLength(1);
+    322|     expect(naruszenia(['od 77 000 zł'], a)).toHaveLength(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/seo/llmsTxt.test.ts > MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = dżoker, pary rn/cl/vv > odmowa: G01 vv zamiast w (nazwa artykułu)
+AssertionError: expected [] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+- [
+-   "llms.txt linia 4: ścieżka strony ukrytej /baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/ (szkielet aplikacjededykowanezaikiedywarto)",
+- ]
++ []
+
+ ❯ tests/seo/llmsTxt.test.ts:825:26
+    823|     it(`odmowa: ${name}`, () => {
+    824|       const r = llmsReport(`${base}${line}\n`, sm, opts);
+    825|       expect(r.problems).toEqual(whys);
+       |                          ^
+    826|       expect(r.ok).toBe(false);
+    827|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 41 passed (44)
+      Tests  4 failed | 1317 passed (1321)
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  3 failed | 41 passed (44)
+      Tests  4 failed | 1317 passed (1321)
+[bieg-na-stacji] rc=0, synchronizacja 13 s, bieg 219 s, log: /home/mixture/sesje/mixture-strona/logi/bieg-stacja-m1680t-261114081617-mixt-a8b2e5-20261114-091618.log

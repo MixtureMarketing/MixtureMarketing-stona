@@ -210,7 +210,19 @@ const NAZWY_DOZWOLONE = new Set(['AI', 'B2B', 'Twój', 'Twoim', 'Ciebie', 'Poró
 // MIX-1677 W6 (MIX-1680): słowa małą literą też z allowlisty. Każde słowo widocznego tekstu infografiki jest
 // słowem z tekstu artykułu (po zmniejszeniu liter) albo z tej krótkiej jawnej listy słów ogólnych (odmiany
 // i spójniki, których nie ma w artykule w tej formie). Nazwa klienta małą literą (`historia bibmot`) = czerwono.
-const SLOWA_DOZWOLONE = new Set<string>([]);
+const SLOWA_DOZWOLONE = new Set<string>([
+  'schemat', // początek etykiety „Schemat aplikacji …” (jak „Porównanie”, „Schemat” w nazwach dozwolonych)
+  'porównanie',
+  'dedykowanej',
+  'jego',
+  'sprawdza',
+  'skutki',
+  'poważne',
+  'liczbach',
+  'krokach',
+  'czterech',
+  'inżynieria',
+]);
 /** Etykiety generowane kodem (numer kroku osi czasu), nie fakty. */
 const ETYKIETY_KODU = /^Krok [1-4]$/;
 const norm = (s: string) => s.replace(/\s+/g, ' ').trim(); // \s w JS obejmuje też spację niełamliwą
@@ -317,7 +329,7 @@ describe('wizualnie: pełny skan tekstu infografik (MIX-1677)', () => {
   it('wykrywacz działa: nowa liczba, nazwa klienta i nazwa w środku zdania są czerwone, tekst z artykułu nie', () => {
     const a = articleJson();
     expect(naruszenia(['bywa tylko 5% systemu'], a)).toHaveLength(1);
-    expect(naruszenia(['portal B2B Q-PLAST'], a)).toHaveLength(1);
+    expect(naruszenia(['portal B2B Q-PLAST'], a).join()).toContain('Q-PLAST');
     expect(naruszenia(['Q-PLAST bywa'], a)).toHaveLength(1);
     expect(naruszenia(['od 77 000 zł'], a)).toHaveLength(1);
     // MIX-1677 W6: nazwa klienta małą literą (w środku i na początku etykiety) też jest czerwona

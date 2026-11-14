@@ -106,7 +106,8 @@ describe('artykuł „aplikacje dedykowane z AI”: długość, FAQ, SEO tekstu'
 });
 
 describe('artykuł „aplikacje dedykowane z AI”: publikacja (MIX-1680)', () => {
-  const urlCount = (xml: string, slug: string) => xml.split(`<loc>https://mixturemarketing.pl${slug}</loc>`).length - 1;
+  const urlCount = (xml: string, slug: string) =>
+    xml.split(`<loc>https://mixturemarketing.pl${slug}</loc>`).length - 1;
 
   it('trasa istnieje w tabeli routingu i jest w `routes` (sitemapa), nie w `prerenderOnlyRoutes`', () => {
     expect(appRoutes.map((r) => r.path)).toContain(SLUG_BARE);
@@ -142,7 +143,10 @@ describe('artykuł „aplikacje dedykowane z AI”: publikacja (MIX-1680)', () =
     const llms = read('public/llms.txt');
     expect(llms.split(`](https://mixturemarketing.pl${AI_ARTICLE_SLUG})`).length - 1).toBe(1);
     expect(llms).toMatch(
-      new RegExp(`^ {2}- \\[[^\\]]+\\]\\(https://mixturemarketing.pl${AI_ARTICLE_SLUG}\\): \\S`, 'm'),
+      new RegExp(
+        `^ {2}- \\[[^\\]]+\\]\\(https://mixturemarketing.pl${AI_ARTICLE_SLUG}\\): \\S`,
+        'm',
+      ),
     );
   });
 
@@ -157,6 +161,12 @@ describe('artykuł „aplikacje dedykowane z AI”: publikacja (MIX-1680)', () =
         `https://mixturemarketing.pl${AI_ARTICLE_SLUG}`,
       );
     });
+    expect(document.head.querySelector('meta[name="robots"][content*="noindex"]')).toBeNull();
+  });
+
+  it('inne artykuły nie dostają noindex (domyślnie ArticleShell indeksuje)', async () => {
+    renderAt(<UxAuditArticle />, '/baza-wiedzy/audyt-ux-sklepu-internetowego/');
+    await waitFor(() => expect(document.title.toLowerCase()).toContain('audyt ux'));
     expect(document.head.querySelector('meta[name="robots"][content*="noindex"]')).toBeNull();
   });
 
@@ -178,9 +188,7 @@ describe('artykuł „aplikacje dedykowane z AI”: publikacja (MIX-1680)', () =
       </ArticleShell>,
     );
     await waitFor(() => {
-      expect(
-        document.head.querySelector('meta[name="robots"][content*="noindex"]'),
-      ).not.toBeNull();
+      expect(document.head.querySelector('meta[name="robots"][content*="noindex"]')).not.toBeNull();
     });
   });
 });
