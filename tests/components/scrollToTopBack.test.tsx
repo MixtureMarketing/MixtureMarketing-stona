@@ -41,6 +41,7 @@ beforeEach(() => {
   scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 });
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
   resetPositions();
@@ -128,6 +129,37 @@ describe('MIX-1675 switch on: restore without animation', () => {
     scrollTo.mockClear();
     fireEvent.click(screen.getByText('back'));
     expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('F2: rapid double back: a restore still waiting for the list never scrolls the page left to', () => {
+    vi.useFakeTimers();
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back')); // to the list: restore waits for its height
+    fireEvent.click(screen.getByText('back')); // to "/" before the list grew
+    vi.advanceTimersByTime(3000);
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+    vi.useRealTimers();
+  });
+
+  it('F2: same without the second back: the waiting restore does scroll the list at the limit', () => {
+    vi.useFakeTimers();
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    vi.advanceTimersByTime(3000);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+    vi.useRealTimers();
   });
 
   it('installs the scroll, click and popstate listeners', () => {

@@ -11,7 +11,7 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
-import { canReach, scrollInstant } from './caseStudyRestore';
+import { cancelRestore, canReach, scrollInstant } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
   caseStudyPath,
@@ -63,6 +63,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
 
   const onPop = (e: PopStateEvent) => {
     if (passthrough) return;
+    cancelRestore(); // kolejne cofnięcie: oczekujące przywrócenie poprzedniego nie może ruszyć innej strony
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;

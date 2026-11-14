@@ -10,7 +10,7 @@ import {
   resetPositions,
   savedPosition,
 } from '@/utils/caseStudyBack';
-import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
+import { cancelRestore, canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -187,6 +187,43 @@ describe('startRestore: instant, waits for height', () => {
     expect(a.unwatch).toHaveBeenCalled();
     vi.advanceTimersByTime(2000);
     expect(a.win.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('F2: cancelRestore stops a pending restore: neither a later layout nor the timeout scrolls', () => {
+    const m = mk(900);
+    startRestore(1500, { doc: m.doc, win: m.win, watch: m.watch, maxMs: 1500 });
+    cancelRestore();
+    expect(m.unwatch).toHaveBeenCalled();
+    (m.doc.documentElement as unknown as { scrollHeight: number }).scrollHeight = 3000;
+    m.tick();
+    vi.advanceTimersByTime(2000);
+    expect(m.win.scrollTo).not.toHaveBeenCalled();
+    expect(() => cancelRestore()).not.toThrow();
+  });
+
+  it('F2: a failed guard stops the restore without scrolling (layout and timeout paths)', () => {
+    const m = mk(900);
+    let on = true;
+    startRestore(1500, { doc: m.doc, win: m.win, watch: m.watch, maxMs: 1500, guard: () => on });
+    on = false;
+    (m.doc.documentElement as unknown as { scrollHeight: number }).scrollHeight = 3000;
+    m.tick();
+    expect(m.win.scrollTo).not.toHaveBeenCalled();
+    expect(m.unwatch).toHaveBeenCalled();
+    const t = mk(900);
+    startRestore(1500, { doc: t.doc, win: t.win, watch: t.watch, maxMs: 1500, guard: () => false });
+    vi.advanceTimersByTime(2000);
+    expect(t.win.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('a passing guard does not stop the restore', () => {
+    const m = mk(3000);
+    startRestore(1500, { doc: m.doc, win: m.win, watch: m.watch, maxMs: 1500, guard: () => true });
+    expect(m.win.scrollTo).toHaveBeenCalledTimes(1);
+    const t = mk(900);
+    startRestore(1500, { doc: t.doc, win: t.win, watch: t.watch, maxMs: 1500, guard: () => true });
+    vi.advanceTimersByTime(1600);
+    expect(t.win.scrollTo).toHaveBeenCalledTimes(1);
   });
 
   it('lets recording resume after the restore ends', () => {

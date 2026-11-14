@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vite
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
+import { startRestore } from '@/utils/caseStudyRestore';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
 let uninstall: () => void;
@@ -156,6 +157,39 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     window.history.scrollRestoration = 'auto';
     pop();
     expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('F2: the next popstate cancels a restore still waiting for the list (it never scrolls another page)', () => {
+    page(false);
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    startRestore(1500, { maxMs: 1500 });
+    scrollTo.mockClear();
+    pop();
+    vi.advanceTimersByTime(2500);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('F2: without a following popstate the same waiting restore does scroll at the limit', () => {
+    page(false);
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    startRestore(1500, { maxMs: 1500 });
+    scrollTo.mockClear();
+    vi.advanceTimersByTime(1600);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+  });
+
+  it('F2: a popstate handed to the router by our own transition does not cancel its restore', async () => {
+    page(true);
+    pop();
+    await vi.advanceTimersByTimeAsync(100);
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
   });
 
   it('hero not in the DOM: plain handling', () => {

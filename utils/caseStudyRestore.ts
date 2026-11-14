@@ -7,6 +7,8 @@ export interface RestoreDeps {
   /** Wywołuje `cb` przy każdej możliwej zmianie układu; zwraca funkcję zatrzymującą. */
   watch: (cb: () => void) => () => void;
   maxMs: number;
+  /** Czy nadal wolno przewijać (np. lokalizacja nie zmieniła się); false = przerywamy bez przewijania. */
+  guard?: () => boolean;
 }
 
 /** Czy dokument jest dość wysoki, żeby przewinąć do `y`. */
@@ -54,6 +56,7 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
     doc: partial.doc ?? document,
     watch: partial.watch ?? defaultWatch,
     maxMs: partial.maxMs ?? RESTORE_MAX_MS,
+    guard: partial.guard,
   };
   cancelCurrent?.();
   holdRecording(deps.maxMs + 500);
@@ -73,17 +76,24 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
   cancelCurrent = stop;
   const timer = setTimeout(() => {
     if (finished) return;
-    scrollInstant(y, deps.win);
+    if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);
     stop();
   }, deps.maxMs);
   const attempt = () => {
-    if (finished || !canReach(y, deps)) return;
+    if (finished) return;
+    if (deps.guard && !deps.guard()) return stop();
+    if (!canReach(y, deps)) return;
     scrollInstant(y, deps.win);
     stop();
   };
   unwatch = deps.watch(attempt);
   attempt();
   return stop;
+}
+
+/** Przerywa oczekujące przywrócenie pozycji (zmiana trasy albo kolejne cofnięcie): nic już nie przewinie. */
+export function cancelRestore(): void {
+  cancelCurrent?.();
 }
 
 /** Czeka, aż `pred()` da prawdę (sprawdza co 16 ms), najdłużej `ms`; false po czasie. */

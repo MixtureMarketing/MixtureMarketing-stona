@@ -55,6 +55,19 @@ mut F2b-no-location-check-in-drift "$X" '      if (!opts.stillOnList()) return;'
 mut F2c-search-ignored "$W" 'win.location.pathname === to && win.location.search === toSearch' 'win.location.pathname === to'
 mut F2d-path-ignored "$W" 'win.location.pathname === to && win.location.search === toSearch' 'win.location.search === toSearch'
 mut F2e-always-on-list "$W" 'win.location.pathname === to && win.location.search === toSearch' 'true'
+mut F2f-cancelRestore-noop "$R" '  cancelCurrent?.();
+}
+
+/** Czeka' '  void 0;
+}
+
+/** Czeka'
+mut F2g-popstate-no-cancel "$W" '    cancelRestore(); // kolejne' '    void 0; // kolejne'
+mut F2h-layout-no-cancel "$S" '    cancelRestore();
+    noteLocation(pathname);' '    noteLocation(pathname);'
+mut F2i-restore-guard-ignored-timer "$R" 'if (!deps.guard || deps.guard()) scrollInstant(y, deps.win);' 'scrollInstant(y, deps.win);'
+mut F2j-restore-guard-ignored-layout "$R" "if (deps.guard && !deps.guard()) return stop();" ''
+mut F2k-both-cancel-and-guard-off "$S" 'startRestore(y, { guard: () => pathRef.current === pathname });' 'startRestore(y);'
 for f in utils/caseStudyBack.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
 git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | head
 echo "mutanty: $(grep -c zabity "$OUT/mutants.txt") zabite, $(grep -c PRZEZYL "$OUT/mutants.txt") przezylo, $(grep -c BLAD "$OUT/mutants.txt") bledne"
