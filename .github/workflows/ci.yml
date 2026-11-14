@@ -138,6 +138,11 @@ jobs:
           VITE_MM_VIEW_TRANSITIONS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build
 
+      # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,
+      # zero stron z prerenderOnlyRoutes). Blokuje: rc 1 zatrzymuje job przed wdrożeniem.
+      - name: 🤖 llms.txt guard
+        run: npm run audit:llms
+
       - name: 🩺 Health Audit (non-blocking)
         run: npm run audit:health
         continue-on-error: true
