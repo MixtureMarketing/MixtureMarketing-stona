@@ -70,7 +70,10 @@ beforeEach(() => {
   router = vi.fn<(e: PopStateEvent) => void>();
   window.addEventListener('popstate', router);
 });
-afterEach(() => {
+afterEach(async () => {
+  // end a transition left open by the test (otherwise the "active" flag leaks into the next test)
+  release();
+  await vi.advanceTimersByTimeAsync(10);
   window.removeEventListener('popstate', router);
   uninstall();
   vi.useRealTimers();
