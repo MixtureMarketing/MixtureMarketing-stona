@@ -1,7 +1,9 @@
 // MIX-1680: kryteria 1-5 na zbudowanym dist (po `npm run build`). Z korzenia repo; bez zaleznosci. rc 1 = jakies kryterium czerwone.
 import fs from 'node:fs';
 const SLUG = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
-const BEFORE = Number(process.env.SITEMAP_BEFORE || 81); // liczba <loc> w sitemap.xml na bazie 0d6d91c
+// liczba <loc> w sitemapie bez wpisu artykulu: wyliczona przez count.sh (SITEMAP_BEFORE), bez stalej; brak = BAD
+const BEFORE = Number(process.env.SITEMAP_BEFORE);
+if (!Number.isInteger(BEFORE) || BEFORE <= 0) { console.log('BAD SITEMAP_BEFORE brak lub nieliczba'); process.exit(1); }
 const html = (p) => fs.readFileSync(`dist${p}index.html`, 'utf8');
 const bad = [];
 const ok = (c, m) => { console.log(`${c ? 'OK ' : 'BAD'} ${m}`); if (!c) bad.push(m); };

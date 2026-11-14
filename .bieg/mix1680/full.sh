@@ -18,6 +18,9 @@ sed 's/\x1b\[[0-9;]*m//g' "$OUT/vitest.log" | grep -aE " FAIL |AssertionError" |
 step build npm run build
 step check-llms-built node scripts/check-llms.mjs
 tail -n 6 "$OUT/check-llms-built.log" | tee -a "$OUT/summary.txt"
+SKIP_NPM=1 bash .bieg/mix1680/count.sh > "$OUT/count.log" 2>&1; echo "count rc=$?" | tee -a "$OUT/summary.txt"
+grep -a SITEMAP_PRZED "$OUT/count.log" | tee -a "$OUT/summary.txt"
+SITEMAP_BEFORE=$(sed -n 's/.*SITEMAP_PRZED(bez wpisu)=\([0-9]*\) .*/\1/p' "$OUT/count.log"); export SITEMAP_BEFORE
 step kryteria node .bieg/mix1680/kryteria.mjs
 cat "$OUT/kryteria.log" | tee -a "$OUT/summary.txt"
 echo "porcelain: $(git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | wc -l)" | tee -a "$OUT/summary.txt"

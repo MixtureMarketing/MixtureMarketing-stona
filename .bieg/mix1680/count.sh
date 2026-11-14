@@ -4,7 +4,7 @@
 set -u
 OUT=.bieg/r/mix1680c; mkdir -p "$OUT"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
-npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm.log" 2>&1; echo "npm-ci rc=$?"
+if [ -z "${SKIP_NPM:-}" ]; then npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm.log" 2>&1; echo "npm-ci rc=$?"; fi
 cp routes.js "$OUT/routes.orig"; cp public/sitemap.xml "$OUT/sitemap.orig"
 node scripts/generate-sitemap.js > "$OUT/gen-z.log" 2>&1; echo "generator z artykulem rc=$?"
 Z=$(grep -c '<loc>' public/sitemap.xml); ZA=$(grep -c 'aplikacje-dedykowane-z-ai' public/sitemap.xml)
