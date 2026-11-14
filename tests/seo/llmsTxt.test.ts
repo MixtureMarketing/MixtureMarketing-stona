@@ -15,6 +15,7 @@ import {
   decodePct,
   skeletonText,
   MIN_SKELETON,
+  WILDCARD,
 } from '../../scripts/lib/llms.js';
 
 // MIX-1657 (przeprojektowanie MIX-1273 po regule 73): public/llms.txt przechodzi tylko wtedy, gdy KAŻDA
@@ -744,7 +745,131 @@ describe('MIX-1665: skan stron ukrytych po szkielecie (litery i cyfry), granica 
   });
 
   it('szkielet: NFKC, małe litery, bez znaków łączących, tablica sobowtórów, separatory miękkie i twarde', () => {
-    expect(skeletonText('Abаİę x.y/zノ1l0')).toBe('abaie x y/z/iio');
+    expect(skeletonText('Abаİę x.y/zノ1l0')).toBe(`abaie x y/z${WILDCARD}iio`);
+  });
+});
+
+describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = dżoker, pary rn/cl/vv', () => {
+  // Formy F z WERDYKT-MIX-1665 (uwaga 1: 14 przeszło) + własne G. Znaki spoza ASCII jako \u.
+  // Każda odmowa ma bliźniaka z tym samym znakiem, który przechodzi.
+  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const sm = xml('/a/');
+  const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
+  const L = 'llms.txt linia 4: ';
+  const AB = '/abonament/dziekujemy/';
+  const AI = '/web-development/systemy-ai-aplikacje/';
+  const ART = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
+  const hitAB = [`${L}ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy)`];
+  const hitAI = [`${L}ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje)`];
+  const hitART = [`${L}ścieżka strony ukrytej ${ART} (szkielet aplikacjededykowanezaikiedywarto)`];
+  const joinAB = [
+    `llms.txt: ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy) po złączeniu linii`,
+  ];
+  const ab = (id: string, attack: string, twin: string): [string, string, string[], string] => [
+    id,
+    `- Strona ${attack}`,
+    hitAB,
+    `- Strona ${twin}`,
+  ];
+  const forms: [string, string, string[], string][] = [
+    ab('F01 greckie wielkie Ν', 'ABOΝAMEΝT/DZIEKUJEMY', 'ABOΝAMEΝT/CENNIK'),
+    [
+      'F02 greckie wielkie Υ w nazwie z myślnikiem',
+      '- Nowość: SYSTEMΥ-AI-APLIKACJE',
+      hitAI,
+      '- Nowość: SYSTEMΥ AI i APLIKACJE',
+    ],
+    ab('F03 greckie wielkie Μ', 'ABONAΜENT/DZIEKUJEMY', 'ABONAΜENT/CENNIK'),
+    ab('F04 greckie wielkie Ζ', 'ABONAMENT/DΖIEKUJEMY', 'CENNIK/DΖIEKUJEMY'),
+    ab('F05 łacińskie ɛ (U+025B)', 'abonamɛnt/dziekujemy', 'abonamɛnt i podziękowanie'),
+    ab('F06 łacińskie ƶ (U+01B6)', 'abonament/dƶiekujemy', 'dƶiekujemy za abonament'),
+    [
+      'F07 łacińskie ɨ (U+0268) w nazwie z myślnikiem',
+      '- Nowość: systemy-aɨ-aplɨkacje',
+      hitAI,
+      '- Nowość: systemy aɨ oraz aplɨkacje',
+    ],
+    ab('F08 łacińskie ꞵ (U+A7B5)', 'aꞵonament/dziekujemy', 'aꞵonament/cennik'),
+    ab('F09 ormiańskie օ', 'abօnament/dziekujemy', 'abօnament/cennik'),
+    ab('F10 koptyjskie ⲟ', 'abⲟnament/dziekujemy', 'abⲟnament/cennik'),
+    ab('F11 lisu ꓮ', 'ꓮBONAMENT/DZIEKUJEMY', 'ꓮBONAMENT/CENNIK'),
+    ab('F12 czirokeskie Ꭺ', 'ᎪBONAMENT/DZIEKUJEMY', 'ᎪBONAMENT/CENNIK'),
+    ab('F13 rn zamiast m', 'abonarnent/dziekujemy', 'abonarnent/cennik'),
+    ab('F14 cl zamiast d', 'abonament/clziekujemy', 'cennik/clziekujemy'),
+    [
+      'G01 vv zamiast w (nazwa artykułu)',
+      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vvarto',
+      hitART,
+      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vvato',
+    ],
+    ab('G02 cyrylickie wielkie И jako N', 'ABOИAMEИT/DZIEKUJEMY', 'ABOИAMEИT/CENNIK'),
+    ab('G03 symbol ∩ zamiast n', 'abo∩ament/dziekujemy', 'abo∩ament/cennik'),
+    ab('G04 cyfra arabska ٥ zamiast o', 'ab٥nament/dziekujemy', 'ab٥nament/cennik'),
+    ab('G05 litera spoza tablicy na granicy', 'ξabonament/dziekujemy', 'xabonament/dziekujemy'),
+    [
+      'G06 litera spoza tablicy po złączeniu linii',
+      'abonament/\n> - dʑiekujemy',
+      joinAB,
+      'abonament/\n> - dʑiekuje',
+    ],
+  ];
+
+  it(`14 form F z WERDYKT-MIX-1665 + własne G (jest ${forms.length})`, () => {
+    expect(forms.filter(([n]) => n.startsWith('F')).length).toBe(14);
+    expect(forms.filter(([n]) => n.startsWith('G')).length).toBeGreaterThanOrEqual(6);
+  });
+
+  for (const [name, line, whys, twin] of forms) {
+    it(`odmowa: ${name}`, () => {
+      const r = llmsReport(`${base}${line}\n`, sm, opts);
+      expect(r.problems).toEqual(whys);
+      expect(r.ok).toBe(false);
+    });
+    it(`OK (bliźniak): ${name}`, () => {
+      const r = llmsReport(`${base}${twin}\n`, sm, opts);
+      expect(r.problems).toEqual([]);
+      expect(r.ok).toBe(true);
+    });
+  }
+
+  it('pary w drugą stronę: m w tekście za rn ścieżki, d za cl (szkielet ci)', () => {
+    const o = { keyPaths: ['/a/'], hiddenPaths: ['/kornel-club/'] };
+    const r = llmsReport(`${base}Zobacz Komel-dub tu\n`, sm, o);
+    expect(r.problems).toEqual([`${L}ścieżka strony ukrytej /kornel-club/ (szkielet kornelclub)`]);
+    const twin = llmsReport(`${base}Zobacz Komel-dubs tu\n`, sm, o);
+    expect(twin.problems).toEqual([]);
+  });
+
+  it('szkielet krótki: dżoker jako litera i jako separator twardy, para cl', () => {
+    const o = { keyPaths: ['/a/'], hiddenPaths: ['/hidden/'] };
+    for (const t of ['Zobacz hiddօn/ tu', 'Zobacz hiclden/ tu', 'Zobacz hiddenօ tu']) {
+      const r = llmsReport(`${base}${t}\n`, sm, o);
+      expect(r.problems, t).toEqual([`${L}ścieżka strony ukrytej /hidden/ (szkielet hidden)`]);
+    }
+    for (const t of ['Zobacz hiddօn tu', 'Zobacz hiclden tu', 'Zobacz hiddenօx tu']) {
+      const r = llmsReport(`${base}${t}\n`, sm, o);
+      expect(r.problems, t).toEqual([]);
+    }
+  });
+
+  it('wiersz w obcym alfabecie dłuższy niż nazwa = odmowa (fail-closed), krótki przechodzi', () => {
+    const r = llmsReport(`${base}${'ⲁ'.repeat(19)}\n`, sm, opts);
+    expect(r.problems).toEqual([...hitAB, ...hitAI]);
+    const twin = llmsReport(`${base}${'ⲁ'.repeat(5)}\n`, sm, opts);
+    expect(twin.problems).toEqual([]);
+  });
+
+  it('szkielet: tablica przed małymi literami, dżoker dla litery, cyfry i symbolu spoza tablicy', () => {
+    expect(skeletonText('ABOΝAMEΝT Ζɛ ノ∩° —')).toBe(
+      `abonament z${WILDCARD} ${WILDCARD.repeat(3)} /`,
+    );
+  });
+
+  it('public/llms.txt: 0 liter spoza tablicy (dżokerów z liter)', () => {
+    const letters = [...llms.normalize('NFKC')].filter(
+      (c) => /\p{L}/u.test(c) && skeletonText(c).includes(WILDCARD),
+    );
+    expect(letters).toEqual([]);
   });
 });
 
