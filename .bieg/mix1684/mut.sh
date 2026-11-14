@@ -25,6 +25,8 @@ case "$b" in *"probe-failed=0 v1662-got-through=0 v1670-got-through=3 v1670b-got
 if [ "${VITEST:-0}" = 1 ]; then case "$b" in *"vitest=rc=0"*) ;; *) S "baseline vitest red: mutants skipped"; exit 1;; esac; fi
 mut() {
   local name=$1 f=$2 from=$3 to=$4
+  # ONLY="N7 N8" runs just those mutants (local node passes split under 1 min); empty = all.
+  if [ -n "${ONLY:-}" ] && [[ " $ONLY " != *" ${name%%-*} "* ]]; then return; fi
   node .bieg/mix1657/mutate.mjs "$f" "$from" "$to" || { S "mutant $name: PATTERN-ERROR"; return; }
   if ! node --check "$f" > /dev/null 2>&1; then git checkout -- "$f"; S "mutant $name: INVALID (syntax)"; return; fi
   local d; d=$(git diff --numstat -- "$f" | tr '\t' ' ')
