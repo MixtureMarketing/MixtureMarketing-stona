@@ -36,7 +36,12 @@ vi.mock('../../services/cmsService', () => ({
     getIndustryList: (...a: unknown[]) => h.getIndustryList(...a),
     getTestimonials: () => Promise.resolve([]),
   },
-  urlFor: () => ({ width: () => ({ height: () => ({ url: () => 'https://example.com/i.jpg' }) }) }),
+  urlFor: () => {
+    // The card asks for width -> height -> fit('crop') (MIX-1722); the chain only returns a fixed URL.
+    const end = { url: () => 'https://example.com/i.jpg' };
+    const fit = { fit: () => end, url: end.url };
+    return { width: () => ({ height: () => fit }) };
+  },
 }));
 
 type Item = Record<string, unknown>;
