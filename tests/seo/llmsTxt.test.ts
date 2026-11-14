@@ -409,6 +409,117 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
   });
 });
 
+describe('MIX-1662: ścieżka ukryta bez slasha na początku, sobowtóry `/` i `-`, złączenie linii', () => {
+  // Prawdziwa lista ukrytych (prerenderOnlyRoutes). Formy A01–A55 z WERDYKT-MIX-1657 (przeszły w r1).
+  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const sm = xml('/a/');
+  const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
+  const L = 'llms.txt linia 4: ';
+  const AB = '/abonament/dziekujemy/';
+  const AI = '/web-development/systemy-ai-aplikacje/';
+  // [nazwa, treść od linii 4, oczekiwane problemy, bliźniak dozwolony]
+  const forms: [string, string, string[], string][] = [
+    [
+      'A01 bez slasha na początku, punkt listy',
+      '- Po płatności: abonament/dziekujemy',
+      [`${L}ścieżka strony ukrytej ${AB} (abonament/dziekujemy)`],
+      '- Po płatności: abonament i podziękowanie',
+    ],
+    [
+      'A55 bez slasha na początku, akapit od gwiazdki',
+      '**Ukryte**: abonament/dziekujemy',
+      [`${L}ścieżka strony ukrytej ${AB} (abonament/dziekujemy)`],
+      '**Ukryte**: abonament, dziekujemy',
+    ],
+    [
+      'A03 ukośnik dzielenia U+2215',
+      '- Strona: ∕abonament∕dziekujemy∕',
+      [`${L}ścieżka strony ukrytej ${AB} (${AB})`],
+      '- Strona: abonament ∕ cennik',
+    ],
+    [
+      'A04 ukośnik ułamkowy U+2044',
+      '- Strona: ⁄abonament⁄dziekujemy⁄',
+      [`${L}ścieżka strony ukrytej ${AB} (${AB})`],
+      '- Ułamek 1⁄2 ceny',
+    ],
+    [
+      'A06 dywiz U+2010 w nazwie',
+      '- Nowość: web‐development systemy‐ai‐aplikacje',
+      [`${L}ścieżka strony ukrytej ${AI} (systemy-ai-aplikacje)`],
+      '- Nowość: web‐development i systemy AI',
+    ],
+    [
+      'A48 półpauza U+2013 w nazwie',
+      '- Nowość: systemy–ai–aplikacje',
+      [`${L}ścieżka strony ukrytej ${AI} (systemy-ai-aplikacje)`],
+      '- Nowość: systemy AI – aplikacje',
+    ],
+    [
+      'A08 nazwa rozbita końcem linii i znacznikiem `- `',
+      '- Nowość: systemy-ai-\n- aplikacje',
+      [`llms.txt: ścieżka strony ukrytej ${AI} (systemy-ai-aplikacje) po złączeniu linii`],
+      '- Nowość: systemy AI\n- aplikacje',
+    ],
+    [
+      'A02 ukośnik z odstępami (bez odstępów = ścieżka)',
+      '- Po płatności: abonament / dziekujemy',
+      [`llms.txt: ścieżka strony ukrytej ${AB} (abonament/dziekujemy) po usunięciu odstępów`],
+      '- Po płatności: abonament / podziękowanie',
+    ],
+  ];
+
+  for (const [name, line, whys, twin] of forms) {
+    it(`odmowa: ${name}`, () => {
+      const r = llmsReport(`${base}${line}\n`, sm, opts);
+      expect(r.problems).toEqual(whys);
+      expect(r.ok).toBe(false);
+    });
+    it(`OK (bliźniak): ${name}`, () => {
+      const r = llmsReport(`${base}${twin}\n`, sm, opts);
+      expect(r.problems).toEqual([]);
+      expect(r.ok).toBe(true);
+    });
+  }
+
+  const slashes = ['∕', '⁄', '⧸', '／', '╱'];
+  const hyphens = [...['‐', '‑', '‒', '–', '—', '―'], ...['−', '﹘', '﹣', '－']];
+  for (const c of slashes) {
+    const cp = c.codePointAt(0)!.toString(16).toUpperCase();
+    it(`sobowtór ukośnika U+${cp}: odmowa; ten sam znak między słowami przechodzi`, () => {
+      const r = llmsReport(`${base}Strona: abonament${c}dziekujemy\n`, sm, opts);
+      expect(r.problems).toEqual([`${L}ścieżka strony ukrytej ${AB} (abonament/dziekujemy)`]);
+      expect(llmsReport(`${base}Strona: abonament ${c} cennik\n`, sm, opts).ok).toBe(true);
+    });
+  }
+  for (const h of hyphens) {
+    const cp = h.codePointAt(0)!.toString(16).toUpperCase();
+    it(`sobowtór dywizu U+${cp}: odmowa; ten sam znak jako myślnik w tekście przechodzi`, () => {
+      const r = llmsReport(`${base}Nowość: systemy${h}ai${h}aplikacje\n`, sm, opts);
+      expect(r.problems).toEqual([`${L}ścieżka strony ukrytej ${AI} (systemy-ai-aplikacje)`]);
+      expect(llmsReport(`${base}Nowość: systemy AI ${h} aplikacje\n`, sm, opts).ok).toBe(true);
+    });
+  }
+
+  it('strona jednoczłonowa bez slasha: `nazwa/` jako cały token; słowo i dłuższe słowo przechodzą', () => {
+    const o = { keyPaths: ['/a/'], hiddenPaths: ['/hidden/'] };
+    const r = llmsReport(`${base}Zobacz hidden/ tu\n`, sm, o);
+    expect(r.problems).toEqual([`${L}ścieżka strony ukrytej /hidden/ (hidden/)`]);
+    expect(llmsReport(`${base}Ukryte hidden w tekście\n`, sm, o).ok).toBe(true);
+    expect(llmsReport(`${base}Zobacz unhidden/ tu\n`, sm, o).ok).toBe(true);
+  });
+
+  it('złączenie linii zdejmuje znaczniki: nagłówek, opis `> `, podpunkt z wcięciem', () => {
+    for (const split of ['## Nowość: systemy-ai-\n> aplikacje', '- systemy-ai-\n  - aplikacje']) {
+      const r = llmsReport(`${base}${split}\n`, sm, opts);
+      expect(r.problems).toEqual([
+        `llms.txt: ścieżka strony ukrytej ${AI} (systemy-ai-aplikacje) po złączeniu linii`,
+      ]);
+    }
+    expect(llmsReport(`${base}- systemy AI\n  - aplikacje\n`, sm, opts).ok).toBe(true);
+  });
+});
+
 describe('llmsReport: wejście puste albo nieczytelne = odmowa (fail-closed)', () => {
   const opts = { keyPaths: ['/a/'], hiddenPaths: ['/hidden/'] };
   const ok = `- [a](${BASE_URL}/a/): opis\n`;
@@ -509,6 +620,15 @@ describe('scripts/check-llms.mjs: kod wyjścia i tekst odmowy', () => {
     expect(r.stdout).toContain(
       `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /abonament/dziekujemy/ (/abonament/dziekujemy)`,
     );
+    expect(r.status).toBe(1);
+  });
+
+  it('odmowa: ukryta strona bez slasha na początku i z ukośnikiem U+2215, rc 1 (MIX-1662)', () => {
+    const r = run(`${llms}- Po płatności: abonament\u2215dziekujemy\n`);
+    expect(r.stdout).toContain(
+      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /abonament/dziekujemy/ (abonament/dziekujemy)`,
+    );
+    expect(r.stdout).toContain('llms-check: BŁĄD');
     expect(r.status).toBe(1);
   });
 
