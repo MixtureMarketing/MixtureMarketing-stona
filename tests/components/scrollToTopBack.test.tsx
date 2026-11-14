@@ -122,6 +122,14 @@ describe('MIX-1675 switch on: restore without animation', () => {
     vi.unstubAllGlobals();
   });
 
+  it('V6: back (POP) to a list entry with a hash does not restore the saved position', () => {
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/#x', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('back'));
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+  });
+
   it('installs the scroll, click and popstate listeners', () => {
     const add = vi.spyOn(window, 'addEventListener');
     render(<Tree entries={['/portfolio/']} index={0} />);

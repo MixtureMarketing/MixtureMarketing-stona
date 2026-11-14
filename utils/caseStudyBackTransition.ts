@@ -30,6 +30,8 @@ export interface BackRunOptions {
   listReady: () => boolean;
   /** Karta tej samej realizacji na liście (zdjęcie i tytuł) albo null; tylko widoczna. */
   findCard: () => { image: HTMLElement; title: HTMLElement | null } | null;
+  /** Czy przeglądarka nadal jest na liście, dla której zapisano `y` (ścieżka i query); inaczej nic nie ruszamy. */
+  stillOnList: () => boolean;
   /** Przewinięcie do `y` bez animacji. */
   restore: (y: number) => void;
   doc: Document;
@@ -82,6 +84,11 @@ export async function runCaseStudyBackTransition(
       if (hero.title) clearName(hero.title);
       opts.redispatch();
       const ready = await waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS);
+      // szybkie drugie cofnięcie: lista nie jest już na ekranie, jej pozycji nie wolno stawiać na innej stronie
+      if (!opts.stillOnList()) {
+        transition.skipTransition();
+        return;
+      }
       opts.restore(y);
       const card = ready ? opts.findCard() : null;
       if (!card) {
@@ -98,15 +105,16 @@ export async function runCaseStudyBackTransition(
   }
   // Przeglądarka potrafi dosunąć przewinięcie tuż po zrobieniu nowego zdjęcia (pomiar: +24 do +221 px
   // przed pierwszą klatką, przyczyna nieustalona); rAF działa przed malowaniem pierwszej klatki.
-  transition.ready.then(
-    () => {
-      const win = doc.defaultView;
-      win?.requestAnimationFrame(() => {
-        if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) opts.restore(y);
-      });
-    },
-    () => undefined,
-  );
+  // Korekta na KAŻDEJ ścieżce: po pominięciu przejścia (brak karty) `ready` jest odrzucone, więc czekamy
+  // na rozstrzygnięcie `ready` i końca wywołania zwrotnego, nie tylko na `ready` spełnione.
+  const correctDrift = () => {
+    const win = doc.defaultView;
+    win?.requestAnimationFrame(() => {
+      if (!opts.stillOnList()) return;
+      if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) opts.restore(y);
+    });
+  };
+  void Promise.allSettled([transition.ready, transition.updateCallbackDone]).then(correctDrift);
   transition.updateCallbackDone.catch(() => undefined);
   transition.finished.catch(() => undefined).finally(cleanup);
   return 'transition';

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
+import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
@@ -183,6 +184,47 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(router).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
     expect(document.querySelector('.card')).toBeNull();
+  });
+
+  it('V5: the card is awaited for 300 ms, not shorter and not longer', async () => {
+    page(true);
+    document.querySelector('.card')?.remove();
+    pop();
+    await vi.advanceTimersByTimeAsync(250);
+    const skip = startVT.mock.results[0].value.skipTransition as Mock;
+    expect(skip).not.toHaveBeenCalled();
+    expect(BACK_CARD_MAX_MS).toBe(300);
+    await vi.advanceTimersByTimeAsync(150);
+    expect(skip).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['above the viewport', { top: -500, bottom: -300, width: 300 }],
+    ['below the viewport', { top: 5000, bottom: 5200, width: 300 }],
+    ['zero width', { top: 100, bottom: 300, width: 0 }],
+  ])('V9: a card %s is not matched: transition skipped, position still restored', async (_n, r) => {
+    page(true);
+    const img = document.querySelector('.card img') as HTMLElement;
+    img.getBoundingClientRect = () => ({ ...r, height: 200, left: 0, right: 300 }) as DOMRect;
+    pop();
+    await vi.advanceTimersByTimeAsync(100);
+    const skip = startVT.mock.results[0].value.skipTransition as Mock;
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(img.getAttribute('style') ?? '').not.toContain('realizacja-zdjecie');
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+    expect(router).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['another path', '/'],
+    ['same path, other query', '/portfolio/?q=1'],
+  ])('rapid second back (%s): the saved list position is not restored there', async (_n, url) => {
+    page(true);
+    pop();
+    window.history.pushState({}, '', url);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(scrollTo).not.toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+    expect(scrollTo).not.toHaveBeenCalled();
   });
 
   it('a click records the exact position even when the last scroll event has not fired yet', () => {

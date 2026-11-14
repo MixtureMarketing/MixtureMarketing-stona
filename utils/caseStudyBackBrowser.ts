@@ -83,6 +83,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
     holdRecording();
     manualRestorationFor(win);
+    const toSearch = win.location.search;
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
@@ -100,6 +101,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       },
       listReady: () => hasCard(doc, win, cardHref) && canReach(plan.y, { win, doc }),
       findCard: () => visibleCard(doc, win, cardHref),
+      stillOnList: () => win.location.pathname === to && win.location.search === toSearch,
       restore: (y) => scrollInstant(y, win),
     });
   };

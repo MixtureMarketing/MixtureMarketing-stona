@@ -18,6 +18,11 @@
  *   - scrollY on every animation frame on the list (first painted frame already at the saved
  *     position), scroll events after the first list frame (target 0), no smooth scroll,
  *   - no view-transition-name left after the transition.
+ * Round 3 (switch ON): extra cases "card-removed" (the card link is renamed so the list has no card:
+ * transition skipped after 300 ms, position must still be restored, F1) and "double-back" (two
+ * history.back() 40 ms apart from case study -> list -> "/", the list position must not be restored
+ * on "/", F2). PROBE_MODE=observe (switch OFF build or the base b95200e): no restore assertions,
+ * only the numbers (listeners, scrollRestoration, rest, first frame) so OFF can be compared with base.
  * Output: <out>/probe.json and <out>/shots/*.png. Exit 0 = every criterion met.
  */
 import http from 'node:http';
@@ -117,6 +122,23 @@ async function proxySanity(req) {
 
 // In-page instrument: view transitions (names on both sides), scroll events, scrollY per frame.
 const INSTRUMENT = () => {
+  const lc = {};
+  const origAdd = window.addEventListener;
+  window.addEventListener = function (t, ...r) {
+    lc[t] = (lc[t] || 0) + 1;
+    return origAdd.call(this, t, ...r);
+  };
+  window.__listeners = lc;
+  window.__hideCard = (h) => {
+    const hide = () =>
+      document.querySelectorAll(`a[href="${h}"]`).forEach((a) => a.setAttribute('href', '#hidden'));
+    new MutationObserver(hide).observe(document, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['href'],
+    });
+  };
   const vt = { calls: 0, records: [], frames: [], scrollEvents: [], scrollCalls: [], backT0: null };
   const origScrollTo = window.scrollTo.bind(window);
   window.scrollTo = (...a) => {
@@ -211,11 +233,14 @@ const VIEWPORTS = [
   { tag: '1280', width: 1280, height: 800, deviceScaleFactor: 1 },
 ];
 const ONLY = process.env.PROBE_CASE ? process.env.PROBE_CASE.split(',') : null;
+const OBSERVE = process.env.PROBE_MODE === 'observe';
 const CASES = [
   { name: 'transition', reduce: false, noApi: false },
   { name: 'reduced-motion', reduce: true, noApi: false },
   { name: 'no-api', reduce: false, noApi: true },
-];
+  { name: 'card-removed', reduce: false, noApi: false, hideCard: true },
+  { name: 'double-back', reduce: false, noApi: false, double: true },
+].filter((c) => !OBSERVE || ['transition', 'double-back'].includes(c.name));
 const UA =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36';
 const report = { source: remote ? 'preview' : 'local', viewports: {}, failures: [] };
@@ -329,11 +354,12 @@ async function measureBack(vp, c, pick) {
   await sleep(2000);
   const scrollBefore = scrollAtClick;
   const forwardScroll = await page.evaluate(() => Math.round(scrollY));
-  await page.evaluate(() => {
+  await page.evaluate((hide) => {
     window.__reset();
     window.__watchHref = location.pathname;
+    if (hide) window.__hideCard(location.pathname);
     window.__logFrames();
-  });
+  }, !!c.hideCard);
   await page.goBack({ waitUntil: 'load' }).catch(() => {});
   await page.waitForFunction(() => location.pathname === '/portfolio/', { timeout: 10000 });
   await sleep(2200);
@@ -348,6 +374,8 @@ async function measureBack(vp, c, pick) {
       scrollCalls: vt.scrollCalls,
       namesAtRest: window.__vtNames(),
       scrollNow: Math.round(scrollY),
+      listeners: window.__listeners,
+      restoration: history.scrollRestoration,
     };
   });
   const shot = `powrot-${c.name}-${vp.tag}.png`;
@@ -394,7 +422,65 @@ async function measureBack(vp, c, pick) {
       assetId(r.rec.oldImg) !== null &&
       assetId(r.rec.oldImg) === assetId(r.rec.nextImg),
     namesAtRest: r.namesAtRest,
+    listeners: r.listeners,
+    restoration: r.restoration,
     shot,
+  };
+}
+
+/** Rapid double back: case study -> list -> "/" (history: "/", list, case study). */
+async function measureDouble(vp, c) {
+  const page = await openPage(vp, c);
+  await page.goto(ORIGIN + '/', { waitUntil: 'networkidle2', timeout: 45000 });
+  await dismissConsent(page);
+  const hrefs = await gotoList(page);
+  const href = hrefs[Math.min(1, hrefs.length - 1)];
+  const card = await page.evaluateHandle((h) => document.querySelector(`a[href="${h}"]`), href);
+  await card.evaluate((a) => a.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await sleep(700);
+  const box = await card.evaluate((a) => {
+    const r = (a.closest('article, li, div') || a).getBoundingClientRect();
+    return {
+      x: r.x + r.width / 2,
+      y: Math.min(Math.max(r.y + r.height / 2, 120), innerHeight - 120),
+    };
+  });
+  await page.mouse.move(box.x, box.y);
+  await sleep(1200);
+  await page.mouse.click(box.x, box.y);
+  const scrollAtClick = await page.evaluate(() => window.__vt.clickY);
+  await page.waitForFunction((h) => location.pathname === h, { timeout: 10000 }, href);
+  await sleep(2000);
+  await page.evaluate(() => {
+    window.__reset();
+    window.__logFrames();
+    history.back();
+    setTimeout(() => history.back(), 40);
+  });
+  await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 });
+  await sleep(2500);
+  const r = await page.evaluate(() => ({
+    path: location.pathname,
+    scrollNow: Math.round(scrollY),
+    calls: window.__vt.calls,
+    scrollCalls: window.__vt.scrollCalls,
+    framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([, y]) => y),
+    namesAtRest: window.__vtNames(),
+    listeners: window.__listeners,
+    restoration: history.scrollRestoration,
+  }));
+  await page.close();
+  return {
+    href,
+    scrollBefore: scrollAtClick,
+    path: r.path,
+    scrollNow: r.scrollNow,
+    calls: r.calls,
+    scrollCalls: r.scrollCalls,
+    rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot) : null,
+    namesAtRest: r.namesAtRest,
+    listeners: r.listeners,
+    restoration: r.restoration,
   };
 }
 
@@ -403,9 +489,21 @@ const saveReport = () =>
 for (const vp of VIEWPORTS) {
   const v = (report.viewports[vp.tag] = {});
   for (const c of CASES.filter((x) => !ONLY || ONLY.includes(x.name))) {
-    const M = (v[c.name] = await measureBack(vp, c, 1));
     const id = `${vp.tag} ${c.name}`;
+    if (c.double) {
+      const D = (v[c.name] = await measureDouble(vp, c));
+      if (!OBSERVE) {
+        if (D.path !== '/') fail(`${id}: ended on ${D.path}`);
+        if (D.scrollNow > TOL) fail(`${id}: rest on "/" at ${D.scrollNow} (expected 0)`);
+        if (Object.keys(D.namesAtRest).length) fail(`${id}: names left`);
+        if (D.calls > 1) fail(`${id}: transitions ${D.calls}`);
+      }
+      await saveReport();
+      continue;
+    }
+    const M = (v[c.name] = await measureBack(vp, c, 1));
     const near = (y) => y !== null && Math.abs(y - M.scrollBefore) <= TOL;
+    if (OBSERVE) continue;
     if (M.scrollBefore < 100) fail(`${id}: list scroll before entry too small (${M.scrollBefore})`);
     if (M.forwardScroll !== 0) fail(`${id}: case study not at top (${M.forwardScroll})`);
     if (!near(M.scrollNow)) fail(`${id}: scroll at rest ${M.scrollNow} vs ${M.scrollBefore}`);
@@ -424,6 +522,8 @@ for (const vp of VIEWPORTS) {
         fail(`${id}: shared name not exactly once (old/new)`);
       if (!M.sameAsset) fail(`${id}: hero and card image are different assets`);
       if (!near(M.scrollAfterUpdate)) fail(`${id}: scroll after update ${M.scrollAfterUpdate}`);
+    } else if (c.hideCard) {
+      if (M.calls > 1) fail(`${id}: transitions ${M.calls}`);
     } else if (M.calls !== 0) fail(`${id}: ${M.calls} transitions, expected 0`);
     if (process.env.PROBE_TRACE === '1' || report.failures.some((f) => f.startsWith(id))) {
       console.log(`TRACE ${id} calls=${JSON.stringify(M.scrollCalls)}`);
@@ -441,11 +541,17 @@ if (verdict.length) report.failures.push(...verdict.map((p) => `prod-safe: ${p}`
 await saveReport();
 for (const [vpTag, vv] of Object.entries(report.viewports)) {
   for (const [name, M] of Object.entries(vv)) {
+    if (name === 'double-back') {
+      console.log(
+        `NUM ${vpTag} double-back path=${M.path} rest=${M.scrollNow} transitions=${M.calls} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
+      );
+      continue;
+    }
     console.log(
       `NUM ${vpTag} ${name} ${M.href} scrollY before/afterUpdate/end/rest=${M.scrollBefore}/${M.scrollAfterUpdate}/${M.scrollAtEnd}/${M.scrollNow}` +
         ` transitions=${M.calls} firstListFrameY=${M.firstListFrame?.[1]} frames min/max=${M.listFramesMinY}/${M.listFramesMaxY}` +
         ` scrollEvents total/afterFirstFrame/movingAfterFirstFrame=${M.scrollEventsTotal}/${M.scrollEventsAfterFirstListFrame}/${M.scrollEventsMovingAfterFirstListFrame}` +
-        ` sharedName old/new=${M.old?.['realizacja-zdjecie'] ?? null}/${M.next?.['realizacja-zdjecie'] ?? null} sameAsset=${M.sameAsset}`,
+        ` sharedName old/new=${M.old?.['realizacja-zdjecie'] ?? null}/${M.next?.['realizacja-zdjecie'] ?? null} sameAsset=${M.sameAsset} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
     );
   }
 }

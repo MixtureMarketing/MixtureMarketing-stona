@@ -17,8 +17,31 @@ function installVT(opts: { throws?: boolean } = {}) {
     let done!: () => void;
     const finished = new Promise<void>((r) => (done = r));
     release = done;
-    const updateCallbackDone = new Promise<void>((resolve) => setTimeout(() => resolve(cb()), 0));
-    return { ready: updateCallbackDone, finished, updateCallbackDone, skipTransition: skip };
+    // like the browser: skipTransition() makes `ready` reject (it never resolves after a skip)
+    let rejectReady!: (e: unknown) => void;
+    let resolveReady!: () => void;
+    const ready = new Promise<void>((res, rej) => {
+      resolveReady = res;
+      rejectReady = rej;
+    });
+    ready.catch(() => undefined);
+    let skipped = false;
+    skip.mockImplementation(() => {
+      skipped = true;
+      rejectReady(new DOMException('Skipped', 'AbortError'));
+    });
+    const updateCallbackDone = new Promise<void>((resolve) =>
+      setTimeout(
+        () =>
+          resolve(
+            cb().then(() => {
+              if (!skipped) resolveReady();
+            }),
+          ),
+        0,
+      ),
+    );
+    return { ready, finished, updateCallbackDone, skipTransition: skip };
   });
   (document as unknown as Record<string, unknown>).startViewTransition = spy;
   return { spy, skip };
@@ -36,6 +59,7 @@ function options(over: Partial<BackRunOptions> = {}): BackRunOptions {
     redispatch: vi.fn(),
     listReady: () => true,
     findCard: () => ({ image: cardImg, title: cardTitle }),
+    stillOnList: () => true,
     restore: vi.fn(),
     doc: document,
     cardMs: 50,
@@ -106,6 +130,63 @@ describe('runCaseStudyBackTransition (MIX-1675)', () => {
     const o = options();
     await runCaseStudyBackTransition(o);
     setScrollY(1503);
+    await flush();
+    expect(o.restore).toHaveBeenCalledTimes(1);
+  });
+
+  it('card not found (transition skipped, ready rejects): drift before the first frame is still corrected', async () => {
+    const { skip } = installVT();
+    const o = options({ findCard: () => null });
+    await runCaseStudyBackTransition(o);
+    setScrollY(1324);
+    await flush();
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(o.restore).toHaveBeenCalledTimes(2);
+    expect(o.restore).toHaveBeenLastCalledWith(1500);
+  });
+
+  it('list not ready (skipped): drift is corrected, and no drift means no second restore', async () => {
+    installVT();
+    const drifted = options({ listReady: () => false });
+    await runCaseStudyBackTransition(drifted);
+    setScrollY(6349);
+    await flush();
+    expect(drifted.restore).toHaveBeenCalledTimes(2);
+    release();
+    await flush();
+    setScrollY(1500);
+    installVT();
+    const still = options({ findCard: () => null });
+    await runCaseStudyBackTransition(still);
+    await flush();
+    expect(still.restore).toHaveBeenCalledTimes(1);
+  });
+
+  it('rapid second back (no longer on the list): nothing is restored, transition skipped, no card named', async () => {
+    const { skip } = installVT();
+    const o = options({ stillOnList: () => false });
+    await runCaseStudyBackTransition(o);
+    setScrollY(1335);
+    await flush();
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(o.restore).not.toHaveBeenCalled();
+    expect(cardImg.style.getPropertyValue('view-transition-name')).toBe('');
+    expect(o.redispatch).toHaveBeenCalledTimes(1);
+    release();
+    await flush();
+    expect(names()).toEqual([]);
+    expect(isTransitionActive()).toBe(false);
+  });
+
+  it('the list is left after the restore: the drift correction does not run on another page', async () => {
+    installVT();
+    let onList = true;
+    const o = options({ stillOnList: () => onList });
+    await runCaseStudyBackTransition(o);
+    await new Promise((r) => setTimeout(r, 30));
+    expect(o.restore).toHaveBeenCalledTimes(1);
+    onList = false;
+    setScrollY(1335);
     await flush();
     expect(o.restore).toHaveBeenCalledTimes(1);
   });
