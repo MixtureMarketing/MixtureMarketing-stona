@@ -1,0 +1,6 @@
+s#^  if (aspects.length !== 1) throw new Error(`expected exactly one aspect-\[16/9\], got: ${className}`);#  if (aspects.length !== 1)\n    throw new Error(`expected exactly one aspect-[16/9], got: ${className}`);#
+s#^    expect(uniformAspect('rounded aspect-\[16/9\] max-h-\[75vh\] mb-12', HERO_ALLOWED)).toBe('aspect-\[16/9\]');#    expect(uniformAspect('rounded aspect-[16/9] max-h-[75vh] mb-12', HERO_ALLOWED)).toBe(\n      'aspect-[16/9]',\n    );#
+s#^    expect(() => uniformAspect('aspect-\[16/9\] max-h-\[75vh\] md:max-h-\[50vh\]', HERO_ALLOWED)).toThrow(OUT);#    expect(() =>\n      uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED),\n    ).toThrow(OUT);#
+s#^    expect(uniformAspect('relative aspect-\[16/9\] overflow-hidden bg-gray-100')).toBe('aspect-\[16/9\]');#    expect(uniformAspect('relative aspect-[16/9] overflow-hidden bg-gray-100')).toBe(\n      'aspect-[16/9]',\n    );#
+s#^    expect(calls).toEqual(\[\['width', 800\], \['height', 450\], \['fit', 'crop'\]\]);#    expect(calls).toEqual([\n      ['width', 800],\n      ['height', 450],\n      ['fit', 'crop'],\n    ]);#
+s#^    expect(CARD_PHOTO.width / CARD_PHOTO.height).toBeCloseTo(HERO_PHOTO.width / HERO_PHOTO.height, 5);#    expect(CARD_PHOTO.width / CARD_PHOTO.height).toBeCloseTo(\n      HERO_PHOTO.width / HERO_PHOTO.height,\n      5,\n    );#
