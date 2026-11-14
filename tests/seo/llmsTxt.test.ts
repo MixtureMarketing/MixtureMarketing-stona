@@ -1103,7 +1103,7 @@ describe('MIX-1689: allowlista separatorów (interpunkcja spoza listy = dżoker)
 
 describe('MIX-1689 r2: znak łączący i niewidoczny po NFKC = dżoker, nigdy nie znika', () => {
   // WERDYKT-MIX-1689 F1: `noMarks` zdejmował znaki łączące z każdego znaku, więc samotny znak
-  // łączący w miejscu litery znikał (`apाikacje` → `apikacje`). Recenzja L-SYS: także Cf.
+  // łączący w miejscu litery znikał (`ap\u093Eikacje` → `apikacje`). Recenzja L-SYS: także Cf.
   const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
@@ -1119,11 +1119,11 @@ describe('MIX-1689 r2: znak łączący i niewidoczny po NFKC = dżoker, nigdy ni
   type Form = [string, string, 'dz' | 'ap', string];
   // [nazwa, znak, forma, szkielet znaku]; bliźniak: ten sam znak między wyrazami przechodzi.
   const marks: Form[] = [
-    ['M01 U+0338 Mn', '̸', 'ap', W],
-    ['M02 U+093E Mc', 'ा', 'ap', W],
-    ['M03 U+0A3E Mc', 'ਾ', 'dz', W],
-    ['M04 U+20DD Me', '⃝', 'ap', W],
-    ['M05 spacja+U+0323', ' ̣', 'dz', ` ${W}`],
+    ['M01 U+0338 Mn', '\u0338', 'ap', W],
+    ['M02 U+093E Mc', '\u093E', 'ap', W],
+    ['M03 U+0A3E Mc', '\u0A3E', 'dz', W],
+    ['M04 U+20DD Me', '\u20DD', 'ap', W],
+    ['M05 spacja+U+0323', ' \u0323', 'dz', ` ${W}`],
     ['M06 U+00B4 (NFKC: spacja+U+0301)', '´', 'ap', ` ${W}`],
     ['M07 U+02DC (NFKC: spacja+U+0303)', '˜', 'dz', ` ${W}`],
     ['M08 U+203E (NFKC: spacja+U+0305)', '‾', 'ap', ` ${W}`],
@@ -1167,18 +1167,18 @@ describe('MIX-1689 r2: znak łączący i niewidoczny po NFKC = dżoker, nigdy ni
   // Cf (i domyślnie ignorowane Mn): linia z takim znakiem to odmowa z linią powodu; niezależnie od
   // tego szkielet daje dżoker, więc skan stron ukrytych też trafia. Bliźniak: ta sama linia bez znaku.
   const invisible: [string, string, 'dz' | 'ap'][] = [
-    ['C01 ZWSP U+200B', '​', 'dz'],
-    ['C02 ZWNJ U+200C', '‌', 'ap'],
-    ['C03 ZWJ U+200D', '‍', 'dz'],
-    ['C04 word joiner U+2060', '⁠', 'ap'],
-    ['C05 BOM U+FEFF', '﻿', 'dz'],
-    ['C06 miękki dywiz U+00AD', '­', 'ap'],
-    ['C07 LRM U+200E', '‎', 'dz'],
-    ['C08 invisible separator U+2063', '⁣', 'ap'],
-    ['C09 ALM U+061C', '؜', 'dz'],
-    ['C10 mongolski U+180E', '᠎', 'ap'],
-    ['C11 CGJ U+034F (Mn)', '͏', 'dz'],
-    ['C12 selektor U+FE0F (Mn)', '️', 'ap'],
+    ['C01 ZWSP U+200B', '\u200B', 'dz'],
+    ['C02 ZWNJ U+200C', '\u200C', 'ap'],
+    ['C03 ZWJ U+200D', '\u200D', 'dz'],
+    ['C04 word joiner U+2060', '\u2060', 'ap'],
+    ['C05 BOM U+FEFF', '\uFEFF', 'dz'],
+    ['C06 miękki dywiz U+00AD', '\u00AD', 'ap'],
+    ['C07 LRM U+200E', '\u200E', 'dz'],
+    ['C08 invisible separator U+2063', '\u2063', 'ap'],
+    ['C09 ALM U+061C', '\u061C', 'dz'],
+    ['C10 mongolski U+180E', '\u180E', 'ap'],
+    ['C11 CGJ U+034F (Mn)', '\u034F', 'dz'],
+    ['C12 selektor U+FE0F (Mn)', '\uFE0F', 'ap'],
   ];
   for (const [name, c, f] of invisible) {
     const atk = f === 'dz' ? dz(c) : ap(c);
@@ -1200,15 +1200,14 @@ describe('MIX-1689 r2: znak łączący i niewidoczny po NFKC = dżoker, nigdy ni
   }
 
   it('litera złożona z liter i znaków łączących (NFKC składa) zostaje literą', () => {
-    expect(skeletonText('ą ę ż ó ą ł ö ß й ї ά')).toBe(
-      'a e z o a i o ss u i a',
-    );
+    const s = 'a\u0328 e\u0328 z\u0307 o\u0301 ą ł ö ß й ї ά';
+    expect(skeletonText(s)).toBe('a e z o a i o ss u i a');
   });
 
   const prose = [
-    '- Po polsku rozłożone: zażółć gęślą jaźń',
+    '- Po polsku rozłożone: zaz\u0307o\u0301łć ge\u0328s\u0301la\u0328 jaz\u0301n\u0301',
     '- Українською: їжак, ґанок, м’які — й усе…',
-    '- По-русски с ударением: доро́га, ёлка, йод',
+    '- По-русски с ударением: доро\u0301га, ёлка, йод',
     '- Ελληνικά: ΐ ΰ ϊ ϋ — άλφα, ἀρχή',
     '- Auf Deutsch: Größe, Übermaß – schön…',
   ];
