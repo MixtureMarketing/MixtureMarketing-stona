@@ -3,6 +3,7 @@ import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrows
 import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
 import { startRestore } from '@/utils/caseStudyRestore';
+import { armSource, listenUserInput, resetBackState } from '@/utils/caseStudyGeneration';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
 let uninstall: () => void;
@@ -50,6 +51,9 @@ beforeEach(() => {
   window.history.pushState({}, '', '/portfolio/');
   recordScroll('/portfolio/', 1500);
   noteLocation('/portfolio/alfa/');
+  // the visitor came to the case study by a link from the list (PUSH): the list is the source
+  resetBackState();
+  armSource({ pathname: '/portfolio/', search: '' });
   scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
   startVT = vi.fn((cb: () => Promise<void>) => {
     const done = Promise.resolve().then(cb);
@@ -291,6 +295,79 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     await vi.advanceTimersByTimeAsync(10);
     window.history.pushState({}, '', '/');
     window.history.scrollRestoration = 'auto';
+    pop();
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('R6: popstate onto a page other than the source list: no transition, no hold, restoration untouched', async () => {
+    page(true);
+    window.history.pushState({}, '', '/');
+    recordScroll('/', 900);
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+    recordScroll('/', 40); // not held: the browser's own scroll events are recorded as before
+    expect(savedPosition('/')).toBe(40);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('R6: popstate onto the list with a hash (#x): browser behaviour, nothing of ours', () => {
+    page(true);
+    window.history.pushState({}, '', '/portfolio/#x');
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('R6: no source list (direct entry, missing state): first popstate onto the list does nothing', () => {
+    page(true);
+    resetBackState();
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
+
+  it('R6: a second popstate onto the same list during the transition: skipped, plain navigation', async () => {
+    page(true);
+    pop();
+    pop(); // same location again (e.g. back + forward + back): not the first popstate any more
+    expect(startVT).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(skip).toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it.each(['wheel', 'keydown', 'touchstart', 'mousedown'])(
+    'R6: user input (%s) right after the back: the transition does not restore',
+    async (type) => {
+      page(true);
+      const unlisten = listenUserInput(window); // ScrollToTop installs it next to the interceptor
+      pop();
+      window.dispatchEvent(new Event(type));
+      unlisten();
+      await vi.advanceTimersByTimeAsync(400);
+      expect(skip).toHaveBeenCalled();
+      expect(scrollTo).not.toHaveBeenCalled();
+    },
+  );
+
+  it('R6: a popstate we do not take ends our manual restoration at once (browser restores that page)', () => {
+    page(true);
+    motion(false);
+    window.history.scrollRestoration = 'auto';
+    pop();
+    expect(window.history.scrollRestoration).toBe('manual');
+    vi.advanceTimersByTime(1000);
+    expect(window.history.scrollRestoration).toBe('manual');
+    window.history.replaceState(null, '', '/'); // same entry: only our revert can change it
     pop();
     expect(window.history.scrollRestoration).toBe('auto');
   });

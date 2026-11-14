@@ -5,22 +5,29 @@ import {
   isRecordingHeld,
   holdRecording,
   listKey,
+  manualRestorationFor,
   planBack,
   recordScroll,
   resetPositions,
+  revertManualRestoration,
   savedPosition,
 } from '@/utils/caseStudyBack';
 import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
 import {
   type BackLocation,
+  armSource,
   backTicket,
   bumpGeneration,
+  claimBack,
   currentGeneration,
+  dropClaim,
+  resetBackState,
 } from '@/utils/caseStudyGeneration';
 
 beforeEach(() => {
   vi.useFakeTimers();
   resetPositions();
+  resetBackState();
 });
 afterEach(() => {
   resetPositions();
@@ -290,11 +297,18 @@ describe('waitUntil', () => {
   });
 });
 
-describe('backTicket: one generation, one list location (fail-closed)', () => {
+describe('backTicket: one accepted back, one generation, one list location (fail-closed)', () => {
   const at = (pathname: unknown, search: unknown = '') => ({ pathname, search }) as BackLocation;
+  /** PUSH from `loc` to a case study, then the popstate back onto `loc`. */
+  const claimed = (loc: BackLocation) => {
+    armSource(loc);
+    bumpGeneration();
+    return claimBack(loc);
+  };
 
   it('alive while generation and path + query are unchanged (slash form ignored)', () => {
     let loc = at('/portfolio/', '?k=1');
+    expect(claimed(loc)).toBe(true);
     const live = backTicket(() => loc);
     expect(live()).toBe(true);
     loc = at('/portfolio', '?k=1');
@@ -302,20 +316,28 @@ describe('backTicket: one generation, one list location (fail-closed)', () => {
   });
   it('a popstate or link (new generation) ends it, also on the same location', () => {
     const loc = at('/portfolio/');
+    claimed(loc);
     const live = backTicket(() => loc);
     bumpGeneration();
     expect(live()).toBe(false);
-    expect(backTicket(() => loc)()).toBe(true);
+    expect(backTicket(() => loc)()).toBe(false);
   });
   it('another path or another query ends it', () => {
     let loc = at('/portfolio/');
+    claimed(loc);
     const live = backTicket(() => loc);
     loc = at('/');
     expect(live()).toBe(false);
     loc = at('/portfolio/', '?q=x');
     expect(live()).toBe(false);
   });
+  it('a ticket taken on another location than the accepted list is never alive', () => {
+    claimed(at('/portfolio/'));
+    expect(backTicket(() => at('/'))()).toBe(false);
+    expect(backTicket(() => at('/portfolio/', '?q=1'))()).toBe(false);
+  });
   it('unknown, missing or broken location = never alive', () => {
+    claimed(at('/portfolio/'));
     expect(backTicket(() => null)()).toBe(false);
     expect(backTicket(() => undefined)()).toBe(false);
     expect(backTicket(() => at(42))()).toBe(false);
@@ -331,6 +353,7 @@ describe('backTicket: one generation, one list location (fail-closed)', () => {
       if (broken) throw new Error('x');
       return at('/portfolio/');
     });
+    expect(live()).toBe(true);
     broken = true;
     expect(live()).toBe(false);
   });
@@ -338,5 +361,120 @@ describe('backTicket: one generation, one list location (fail-closed)', () => {
     const g = currentGeneration();
     bumpGeneration();
     expect(currentGeneration()).toBe(g + 1);
+  });
+});
+
+describe('claimBack: restore only on one exact back onto the source list (MIX-1675 r6)', () => {
+  const at = (pathname: unknown, search: unknown = '', hash = '') =>
+    ({ pathname, search, hash }) as BackLocation;
+  const list = at('/portfolio/');
+
+  it('allowed: first popstate onto the source list (slash form ignored)', () => {
+    armSource(list);
+    expect(claimBack(at('/portfolio'))).toBe(true);
+    expect(backTicket(() => list)()).toBe(true);
+  });
+  it.each([
+    ['another path', at('/')],
+    ['same path, other query', at('/portfolio/', '?q=1')],
+    ['same list with a hash', at('/portfolio/', '', '#x')],
+    ['missing target', null],
+    ['broken target', at(42)],
+    ['relative path', at('portfolio/')],
+  ])('refused: %s', (_n, target) => {
+    armSource(list);
+    expect(claimBack(target)).toBe(false);
+    expect(backTicket(() => list)()).toBe(false);
+  });
+  it('refused: no source list (direct entry) or a broken one', () => {
+    expect(claimBack(list)).toBe(false);
+    armSource(null);
+    expect(claimBack(list)).toBe(false);
+    armSource(at('portfolio/'));
+    expect(claimBack(at('portfolio/'))).toBe(false);
+  });
+  it('refused: the second popstate, also onto the same list (the first one uses the source up)', () => {
+    armSource(list);
+    expect(claimBack(at('/'))).toBe(false);
+    expect(claimBack(list)).toBe(false);
+    armSource(list);
+    expect(claimBack(list)).toBe(true);
+    bumpGeneration();
+    expect(claimBack(list)).toBe(false);
+    expect(backTicket(() => list)()).toBe(false);
+  });
+  it('user input (dropClaim) ends an accepted back, also for tickets already taken', () => {
+    armSource(list);
+    claimBack(list);
+    const live = backTicket(() => list);
+    dropClaim();
+    expect(live()).toBe(false);
+    expect(backTicket(() => list)()).toBe(false);
+  });
+});
+
+describe('manualRestorationFor / revertManualRestoration (MIX-1675 r6)', () => {
+  /** History whose scrollRestoration counts writes; `entry()` simulates the browser moving to another entry. */
+  function fakeWin() {
+    const h = {
+      value: 'auto' as ScrollRestoration,
+      writes: 0,
+      get scrollRestoration() {
+        return this.value;
+      },
+      set scrollRestoration(v: ScrollRestoration) {
+        this.writes += 1;
+        this.value = v;
+      },
+    };
+    const win = {
+      history: h,
+      setTimeout: (cb: () => void, ms: number) => setTimeout(cb, ms),
+      clearTimeout: (t: ReturnType<typeof setTimeout>) => clearTimeout(t),
+    } as unknown as Window;
+    return { h, win };
+  }
+
+  it('manual for the window, then back to the previous mode (one write each way)', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    expect(h.value).toBe('manual');
+    vi.advanceTimersByTime(1300);
+    expect(h.value).toBe('auto');
+    expect(h.writes).toBe(2);
+  });
+  it('revert now: previous mode at once, the timer does not write again', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    revertManualRestoration();
+    expect(h.value).toBe('auto');
+    vi.advanceTimersByTime(1300);
+    expect(h.writes).toBe(2);
+  });
+  it('another entry already in the previous mode: nothing is written (no change for the browser)', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    h.value = 'auto'; // browser moved to another entry, ours is not visible any more
+    revertManualRestoration();
+    vi.advanceTimersByTime(1300);
+    expect(h.writes).toBe(1);
+  });
+  it('the timer of a window ended early does not end a newer window', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    revertManualRestoration();
+    vi.advanceTimersByTime(1000);
+    manualRestorationFor(win, 1200);
+    vi.advanceTimersByTime(300); // the first timer would have fired at 1200
+    expect(h.value).toBe('manual');
+    vi.advanceTimersByTime(1000);
+    expect(h.value).toBe('auto');
+  });
+  it('a new window while one is open first ends the old one (never stuck on manual)', () => {
+    const { h, win } = fakeWin();
+    manualRestorationFor(win, 1200);
+    manualRestorationFor(win, 1200);
+    vi.advanceTimersByTime(1300);
+    expect(h.value).toBe('auto');
   });
 });

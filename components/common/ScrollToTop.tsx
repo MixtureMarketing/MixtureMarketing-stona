@@ -2,7 +2,12 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
 import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
-import { backTicket, bumpGeneration } from '@/utils/caseStudyGeneration';
+import {
+  armSource,
+  backTicket,
+  bumpGeneration,
+  listenUserInput,
+} from '@/utils/caseStudyGeneration';
 import { startRestore } from '@/utils/caseStudyRestore';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { topScrollArgs } from '@/utils/caseStudyTransition';
@@ -32,10 +37,15 @@ export default function ScrollToTop() {
   const locRef = useRef({ pathname, search });
 
   // MIX-1675: bieżąca lokalizacja routera dla biletu przywrócenia (zapis w efekcie, nie w renderze);
-  // przejście linkiem (PUSH/REPLACE) to nowe pokolenie: oczekujące przywrócenie listy gaśnie
+  // przejście linkiem (PUSH/REPLACE) to nowe pokolenie: oczekujące przywrócenie listy gaśnie.
+  // r6: PUSH zapisuje stronę, z której wyszliśmy (jedyny cel, na który cofnięcie przywraca pozycję);
+  // REPLACE (np. przekierowanie adresu realizacji) nie zmienia wpisu pod spodem, więc zapisu nie rusza.
   useLayoutEffect(() => {
+    const from = locRef.current;
     locRef.current = { pathname, search };
-    if (isViewTransitionsEnabled() && navType !== 'POP') bumpGeneration();
+    if (!isViewTransitionsEnabled() || navType === 'POP') return;
+    bumpGeneration();
+    if (navType === 'PUSH') armSource(from);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- każda nawigacja (klucz wpisu)
   }, [key]);
 
@@ -43,6 +53,8 @@ export default function ScrollToTop() {
   // efektem routera, więc nasłuch popstate (faza capture) jest pierwszy.
   // Przełącznik wyłączony = nic nie nasłuchuje i nic nie przywraca (zachowanie jak przed MIX-1675).
   useLayoutEffect(() => (isViewTransitionsEnabled() ? installBackInterceptor() : undefined), []);
+  // r6: przewinięcie, klawisz albo dotyk po cofnięciu = nasze oczekujące przywrócenie gaśnie
+  useLayoutEffect(() => (isViewTransitionsEnabled() ? listenUserInput(window) : undefined), []);
 
   // MIX-1675: powrót z realizacji na stronę z zapisaną pozycją stoi na niej od pierwszej klatki
   // (layout effect, bez animacji) zamiast przewijać od góry. Kotwice (#) zostają po staremu.
@@ -60,9 +72,12 @@ export default function ScrollToTop() {
       saved: savedPosition(pathname),
     });
     if (y === null) return;
+    // r6: tylko cofnięcie przyjęte w popstate (pierwsze, dokładnie na listę źródłową); inaczej jak wyłączony
+    const live = backTicket(() => locRef.current);
+    if (!live()) return;
     restoredFor.current = pathname;
-    // bilet: inne pokolenie albo inna ścieżka/query = oczekujące przywrócenie nic nie przewija
-    startRestore(y, { guard: backTicket(() => locRef.current) });
+    // bilet: inne pokolenie, inna ścieżka/query albo ruch użytkownika = oczekujące przywrócenie nic nie przewija
+    startRestore(y, { guard: live });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- tylko zmiana ścieżki
   }, [pathname]);
 

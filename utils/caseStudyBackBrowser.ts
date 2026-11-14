@@ -11,7 +11,7 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
-import { backTicket, bumpGeneration } from './caseStudyGeneration';
+import { backTicket, claimBack } from './caseStudyGeneration';
 import { canReach, scrollInstant } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
@@ -63,8 +63,9 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
 
   const onPop = (e: PopStateEvent) => {
     if (passthrough) return; // nasze własne oddanie zdarzenia routerowi: to samo cofnięcie
-    // nowe pokolenie: każdy odroczony skutek poprzedniego cofnięcia (czekanie, timer, rAF) gaśnie
-    bumpGeneration();
+    // nowe pokolenie (każdy odroczony skutek poprzedniego cofnięcia gaśnie); r6: dalej tylko pierwsze
+    // cofnięcie dokładnie na listę źródłową, każde inne = przeglądarka (jak przy wyłączonym przełączniku)
+    if (!claimBack(win.location)) return;
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;

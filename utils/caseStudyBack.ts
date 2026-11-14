@@ -22,6 +22,7 @@ const MAX_ENTRIES = 50;
 const positions = new Map<string, number>();
 let holding = false;
 let holdTimer: ReturnType<typeof setTimeout> | undefined;
+let revertPending: (() => void) | null = null;
 
 /** Ile najdłużej czekamy, aż lista urośnie do zapisanej pozycji. */
 export const RESTORE_MAX_MS = 1500;
@@ -49,6 +50,7 @@ export function savedPosition(pathname: string): number | null {
 export function resetPositions(): void {
   positions.clear();
   holding = false;
+  revertPending = null;
   if (holdTimer) clearTimeout(holdTimer);
 }
 
@@ -73,19 +75,30 @@ export function releaseRecording(): void {
  * Potem wraca poprzedni tryb (przeładowanie strony działa jak dotąd).
  */
 export function manualRestorationFor(win: Window, ms = MANUAL_RESTORATION_MS): void {
+  revertManualRestoration();
   try {
     const previous = win.history.scrollRestoration;
     win.history.scrollRestoration = 'manual';
-    win.setTimeout(() => {
+    const timer = win.setTimeout(revertManualRestoration, ms);
+    revertPending = () => {
+      win.clearTimeout(timer);
       try {
-        win.history.scrollRestoration = previous;
+        // tylko gdy nasza zmiana jest widoczna na bieżącym wpisie (inny wpis: nic nie zapisujemy)
+        if (win.history.scrollRestoration !== previous) win.history.scrollRestoration = previous;
       } catch {
         /* wpis już nieaktualny */
       }
-    }, ms);
+    };
   } catch {
     /* brak obsługi: zostaje zachowanie przeglądarki */
   }
+}
+
+/** Koniec okna `manual` teraz (MIX-1675 r6: cofnięcie, którego nie przyjęliśmy, ma tryb przeglądarki). */
+export function revertManualRestoration(): void {
+  const revert = revertPending;
+  revertPending = null;
+  revert?.();
 }
 
 export function isRecordingHeld(): boolean {

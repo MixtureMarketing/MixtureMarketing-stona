@@ -4,12 +4,17 @@ import { MemoryRouter, Link, Route, Routes, useNavigate } from 'react-router-dom
 import ScrollToTop from '@/components/common/ScrollToTop';
 import { INSTANT_TOP } from '@/utils/caseStudyTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
+import { resetBackState } from '@/utils/caseStudyGeneration';
 
 function Nav() {
   const navigate = useNavigate();
   return (
     <>
       <button onClick={() => navigate(-1)}>back</button>
+      <button onClick={() => navigate(-2)}>back2</button>
+      <button onClick={() => navigate('/portfolio/alfa/?r=1', { replace: true })}>replace</button>
+      <button onClick={() => navigate('/portfolio/', { replace: true })}>replace-list</button>
+      <Link to="/portfolio/alfa/">card</Link>
       <Link to="/portfolio/">menu-list</Link>
       <Link to="/abonament/#pricing">pricing</Link>
     </>
@@ -31,8 +36,27 @@ function Tree({ entries, index }: { entries: string[]; index: number }) {
 const INSTANT = (y: number) => ({ top: y, left: 0, behavior: 'instant' });
 let scrollTo: ReturnType<typeof vi.spyOn>;
 
+/** Lista, potem link do realizacji (PUSH): lista staje się listą źródłową (MIX-1675 r6). */
+function enterCase(entries = ['/', '/portfolio/']) {
+  render(<Tree entries={entries} index={entries.length - 1} />);
+  fireEvent.click(screen.getByText('card'));
+}
+
+/** Cofnięcie jak w przeglądarce: popstate na `url` (nasz nasłuch, faza capture), potem router. */
+function popTo(url: string) {
+  window.history.replaceState(null, '', url);
+  window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+}
+function browserBack(url: string, button = 'back') {
+  popTo(url);
+  fireEvent.click(screen.getByText(button));
+}
+
 beforeEach(() => {
   resetPositions();
+  resetBackState();
+  // the click listener records the position of window.location: keep it off the list while entering
+  window.history.replaceState(null, '', '/neutral/');
   // jsdom has no layout: report a tall document so the restore is possible at once
   Object.defineProperty(document.documentElement, 'scrollHeight', {
     value: 10000,
@@ -41,6 +65,7 @@ beforeEach(() => {
   scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 });
 afterEach(() => {
+  window.history.replaceState(null, '', '/');
   vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
@@ -94,9 +119,9 @@ describe('MIX-1675 switch on: restore without animation', () => {
 
   it('back (POP) from a case study restores the saved list position, instantly, no scroll to top', () => {
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    enterCase();
     scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back'));
+    browserBack('/portfolio/');
     expect(scrollTo).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
     expect(scrollTo).not.toHaveBeenCalledWith(0, 0);
@@ -115,9 +140,9 @@ describe('MIX-1675 switch on: restore without animation', () => {
       })),
     );
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    enterCase();
     scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back'));
+    browserBack('/portfolio/');
     expect(scrollTo).toHaveBeenCalledTimes(1);
     expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
     vi.unstubAllGlobals();
@@ -125,9 +150,10 @@ describe('MIX-1675 switch on: restore without animation', () => {
 
   it('V6: back (POP) to a list entry with a hash does not restore the saved position', () => {
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/portfolio/#x', '/portfolio/alfa/']} index={1} />);
+    enterCase(['/', '/portfolio/#x']);
     scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back'));
+    // the popstate itself is accepted (same list); only the router location carries the hash
+    browserBack('/portfolio/');
     expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
   });
 
@@ -138,10 +164,10 @@ describe('MIX-1675 switch on: restore without animation', () => {
       configurable: true,
     });
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
+    enterCase();
     scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back')); // to the list: restore waits for its height
-    fireEvent.click(screen.getByText('back')); // to "/" before the list grew
+    browserBack('/portfolio/'); // to the list: restore waits for its height
+    browserBack('/'); // to "/" before the list grew
     vi.advanceTimersByTime(3000);
     expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
     vi.useRealTimers();
@@ -154,9 +180,9 @@ describe('MIX-1675 switch on: restore without animation', () => {
       configurable: true,
     });
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
+    enterCase();
     scrollTo.mockClear();
-    fireEvent.click(screen.getByText('back'));
+    browserBack('/portfolio/');
     vi.advanceTimersByTime(3000);
     expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
     vi.useRealTimers();
@@ -169,8 +195,8 @@ describe('MIX-1675 switch on: restore without animation', () => {
       configurable: true,
     });
     recordScroll('/portfolio/', 1800);
-    render(<Tree entries={['/', '/portfolio/', '/portfolio/alfa/']} index={2} />);
-    fireEvent.click(screen.getByText('back')); // to the list: restore waits for its height
+    enterCase();
+    browserBack('/portfolio/'); // to the list: restore waits for its height
     scrollTo.mockClear();
     // same path and query: only the generation tells the restore that the visitor moved on
     fireEvent.click(screen.getByText('menu-list'));
@@ -178,6 +204,78 @@ describe('MIX-1675 switch on: restore without animation', () => {
     expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
     vi.useRealTimers();
   });
+
+  it('G8b: a REPLACE onto the same list while the restore waits: new generation, no restore', () => {
+    vi.useFakeTimers();
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 100,
+      configurable: true,
+    });
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    browserBack('/portfolio/');
+    scrollTo.mockClear();
+    fireEvent.click(screen.getByText('replace-list'));
+    vi.advanceTimersByTime(3000);
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+    vi.useRealTimers();
+  });
+
+  it('R6: double back that lands on "/" (pre-scrolled, saved 300): our code does nothing there, as switch off', () => {
+    recordScroll('/', 300);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/portfolio/'); // first popstate: accepted, the transition would hold it
+    popTo('/'); // second popstate: not the source list
+    fireEvent.click(screen.getByText('back2')); // the router sees only the jump to "/"
+    expect(savedPosition('/')).toBe(300);
+    expect(scrollTo.mock.calls).toEqual([[0, 0]]);
+  });
+
+  it('R6: only the FIRST popstate after leaving the list counts (a later one onto the list does nothing)', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    scrollTo.mockClear();
+    popTo('/'); // e.g. history jumped elsewhere first: uses up the source
+    browserBack('/portfolio/');
+    expect(scrollTo.mock.calls).toEqual([[0, 0]]);
+  });
+
+  it('R6: no link from the list (direct entry on the case study): back to the list does nothing', () => {
+    recordScroll('/portfolio/', 1800);
+    render(<Tree entries={['/portfolio/', '/portfolio/alfa/']} index={1} />);
+    scrollTo.mockClear();
+    browserBack('/portfolio/');
+    expect(scrollTo.mock.calls).toEqual([[0, 0]]);
+  });
+
+  it('R6: a REPLACE on the case study (address redirect) keeps the source list: back still restores', () => {
+    recordScroll('/portfolio/', 1800);
+    enterCase();
+    fireEvent.click(screen.getByText('replace'));
+    scrollTo.mockClear();
+    browserBack('/portfolio/');
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it.each(['wheel', 'keydown', 'touchstart', 'mousedown'])(
+    'R6: user input (%s) after the back cancels a restore still waiting for the list',
+    (type) => {
+      vi.useFakeTimers();
+      Object.defineProperty(document.documentElement, 'scrollHeight', {
+        value: 100,
+        configurable: true,
+      });
+      recordScroll('/portfolio/', 1800);
+      enterCase();
+      scrollTo.mockClear();
+      browserBack('/portfolio/');
+      window.dispatchEvent(new Event(type));
+      vi.advanceTimersByTime(3000);
+      expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(1800));
+      vi.useRealTimers();
+    },
+  );
 
   it('installs the scroll, click and popstate listeners', () => {
     const add = vi.spyOn(window, 'addEventListener');
