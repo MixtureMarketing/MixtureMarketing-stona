@@ -35,6 +35,11 @@ export function isTransitionActive(): boolean {
   return active;
 }
 
+/** Flaga „przejście w toku” dla przejścia wstecz (utils/caseStudyBackTransition.ts). */
+export function setTransitionActive(value: boolean): void {
+  active = value;
+}
+
 export interface RunOptions {
   path: string;
   parts: { image: HTMLElement; title: HTMLElement | null };
