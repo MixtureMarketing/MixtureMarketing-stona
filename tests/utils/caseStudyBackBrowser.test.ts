@@ -3,7 +3,12 @@ import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrows
 import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
 import { startRestore } from '@/utils/caseStudyRestore';
-import { armSource, listenUserInput, resetBackState } from '@/utils/caseStudyGeneration';
+import {
+  armSource,
+  backTicket,
+  listenUserInput,
+  resetBackState,
+} from '@/utils/caseStudyGeneration';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
 let uninstall: () => void;
@@ -371,6 +376,72 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     pop();
     expect(window.history.scrollRestoration).toBe('auto');
   });
+
+  it('MIX-1699: a second back to "/" during our transition skips it before the router renders "/"', async () => {
+    page(true);
+    // the list is not tall enough yet: the transition is still waiting for it when the second back comes
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      value: 1000,
+      configurable: true,
+    });
+    pop();
+    await vi.advanceTimersByTimeAsync(20);
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    expect(skip).not.toHaveBeenCalled();
+    const firstSkip = skip;
+    let atRouter: unknown = null;
+    router.mockImplementationOnce(() => {
+      atRouter = [
+        firstSkip.mock.calls.length,
+        document.documentElement.hasAttribute(VT_ATTR),
+        document.querySelector('[style*="view-transition-name"]') !== null,
+      ];
+    });
+    window.history.pushState({}, '', '/');
+    pop();
+    // skipped, attribute and every name gone, all before the router sees the second back
+    expect(atRouter).toEqual([1, false, false]);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(router).toHaveBeenCalledTimes(2);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('MIX-1699: allowed twin: a finished transition is not skipped again by a later back we do not take', async () => {
+    page(true);
+    pop();
+    await vi.advanceTimersByTimeAsync(400);
+    release();
+    await vi.advanceTimersByTimeAsync(10);
+    const done = skip;
+    expect(done).not.toHaveBeenCalled();
+    window.history.pushState({}, '', '/');
+    pop();
+    expect(done).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    ['mousedown', false],
+    ['touchstart', false],
+    ['keydown', false],
+    ['click', true],
+  ])(
+    'MIX-1699: %s in the manual window ends it on the list entry at once (before a link can push)',
+    (type, claimKept) => {
+      page(true);
+      motion(false);
+      window.history.scrollRestoration = 'auto';
+      const unlisten = listenUserInput(window);
+      pop();
+      expect(window.history.scrollRestoration).toBe('manual');
+      window.dispatchEvent(new Event(type));
+      expect(window.history.scrollRestoration).toBe('auto');
+      // a click only ends the window; the accepted back stays (wheel, touch, key, mouse button drop it)
+      expect(backTicket(() => window.location)()).toBe(claimKept);
+      unlisten();
+    },
+  );
 
   it('a click records the exact position even when the last scroll event has not fired yet', () => {
     page(true);

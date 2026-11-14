@@ -9,6 +9,7 @@ import {
   type VtDocument,
 } from './viewTransitions';
 import { setTransitionActive } from './caseStudyTransition';
+import { setBackSkip } from './caseStudyGeneration';
 
 const setName = (el: HTMLElement, name: string) =>
   el.style.setProperty('view-transition-name', name);
@@ -73,10 +74,12 @@ export async function runCaseStudyBackTransition(
   }
   doc.documentElement.setAttribute(VT_ATTR, VT_ATTR_VALUE);
 
+  let releaseSkip: () => void = () => undefined;
   const cleanup = () => {
     named.forEach(clearName);
     doc.documentElement.removeAttribute(VT_ATTR);
     setTransitionActive(false);
+    releaseSkip();
   };
 
   let transition: ViewTransitionLike;
@@ -112,6 +115,8 @@ export async function runCaseStudyBackTransition(
     opts.redispatch();
     return 'plain';
   }
+  // MIX-1699: nieprzyjęte cofnięcie w trakcie = pominięcie od razu (utils/caseStudyGeneration.ts)
+  releaseSkip = setBackSkip(transition, cleanup);
   // Przeglądarka potrafi dosunąć przewinięcie tuż po zrobieniu nowego zdjęcia (pomiar: +24 do +221 px
   // przed pierwszą klatką, przyczyna nieustalona); rAF działa przed malowaniem pierwszej klatki.
   // Korekta na KAŻDEJ ścieżce: po pominięciu przejścia (brak karty) `ready` jest odrzucone, więc czekamy

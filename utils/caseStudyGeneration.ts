@@ -66,12 +66,48 @@ export function dropClaim(): void {
   claim = null;
 }
 
-/** Ruch użytkownika po cofnięciu (kółko, dotyk, klawisz, przycisk myszy) = dropClaim; zwraca zdjęcie nasłuchu. */
-const USER_INPUT = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
-export function listenUserInput(win: Window): () => void {
-  for (const t of USER_INPUT) win.addEventListener(t, dropClaim, { capture: true, passive: true });
+/**
+ * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
+ * (utils/caseStudyBackTransition.ts, zwrot = wyrejestrowanie przy końcu); nieprzyjęte cofnięcie (np. drugie
+ * cofnięcie na "/" w trakcie przejścia) woła skipBackTransition: skipTransition, nazwy i atrybut znikają od
+ * razu, zanim router wyrenderuje nową stronę, a dalej działa przeglądarka. Brak przejścia w toku = nic.
+ */
+let skipActive: (() => void) | null = null;
+export function setBackSkip(t: { skipTransition: () => void }, cleanup: () => void): () => void {
+  const skip = () => {
+    t.skipTransition();
+    cleanup();
+  };
+  skipActive = skip;
   return () => {
-    for (const t of USER_INPUT) win.removeEventListener(t, dropClaim, true);
+    if (skipActive === skip) skipActive = null;
+  };
+}
+export function skipBackTransition(): void {
+  const skip = skipActive;
+  skipActive = null;
+  skip?.();
+}
+
+/**
+ * Ruch użytkownika po cofnięciu (kółko, dotyk, klawisz, przycisk myszy) = dropClaim i od razu koniec okna
+ * `manual`. MIX-1699: PUSH (link) kopiuje tryb bieżącego wpisu na nowy wpis, a wycofanie z timera pisze już
+ * tylko na nowy; okno kończymy więc na wpisie listy, zanim router zrobi PUSH (mousedown, touchstart, keydown
+ * przed kliknięciem; `click` w fazie capture przed routerem, gdy przycisku nie było, np. czytnik ekranu).
+ * `click` tylko kończy okno, przyjętego cofnięcia nie zdejmuje. Zwraca zdjęcie nasłuchu.
+ */
+const USER_INPUT = ['wheel', 'touchstart', 'keydown', 'mousedown'] as const;
+function onUserInput(): void {
+  dropClaim();
+  revertManualRestoration();
+}
+export function listenUserInput(win: Window): () => void {
+  for (const t of USER_INPUT)
+    win.addEventListener(t, onUserInput, { capture: true, passive: true });
+  win.addEventListener('click', revertManualRestoration, true);
+  return () => {
+    for (const t of USER_INPUT) win.removeEventListener(t, onUserInput, true);
+    win.removeEventListener('click', revertManualRestoration, true);
   };
 }
 

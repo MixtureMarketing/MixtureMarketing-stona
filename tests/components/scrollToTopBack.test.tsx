@@ -131,6 +131,27 @@ describe('MIX-1675 switch on: restore without animation', () => {
     }
   });
 
+  it('MIX-1699 (G8c): mounted on "/", link to the list, card, back: the list position is restored', () => {
+    // the list is reached by a link, not mounted: the source must be the page before the card, not the mount page
+    render(<Tree entries={['/']} index={0} />);
+    fireEvent.click(screen.getByText('menu-list'));
+    recordScroll('/portfolio/', 1800);
+    fireEvent.click(screen.getByText('card'));
+    scrollTo.mockClear();
+    browserBack('/portfolio/');
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(INSTANT(1800));
+  });
+
+  it('MIX-1699 (G8c): allowed twin: back from the list to "/" (mount page) is left to the browser', () => {
+    recordScroll('/', 500);
+    render(<Tree entries={['/']} index={0} />);
+    fireEvent.click(screen.getByText('menu-list'));
+    scrollTo.mockClear();
+    browserBack('/');
+    expect(scrollTo).not.toHaveBeenCalledWith(INSTANT(500));
+  });
+
   it('switch on + reduced motion: the saved position is still restored instantly', () => {
     vi.stubGlobal(
       'matchMedia',
