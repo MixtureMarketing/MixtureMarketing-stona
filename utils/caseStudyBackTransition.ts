@@ -9,7 +9,7 @@ import {
   type VtDocument,
 } from './viewTransitions';
 import { setTransitionActive } from './caseStudyTransition';
-import { setBackSkip } from './caseStudyGeneration';
+import { NO_SKIP, setBackSkip, type BackSkip } from './caseStudyGeneration';
 
 const setName = (el: HTMLElement, name: string) =>
   el.style.setProperty('view-transition-name', name);
@@ -52,7 +52,7 @@ export interface BackRunOptions {
 export async function runCaseStudyBackTransition(
   opts: BackRunOptions,
 ): Promise<'transition' | 'plain'> {
-  const { doc, hero, y } = opts;
+  const { doc, hero, y, cardMs = BACK_CARD_MAX_MS } = opts;
   setTransitionActive(true);
   const start = (doc as VtDocument).startViewTransition;
   if (typeof start !== 'function') {
@@ -74,12 +74,13 @@ export async function runCaseStudyBackTransition(
   }
   doc.documentElement.setAttribute(VT_ATTR, VT_ATTR_VALUE);
 
-  let releaseSkip: () => void = () => undefined;
+  // MIX-1699 r2: pominięcie (nieprzyjęte cofnięcie) budzi czekanie na listę od razu (skip.woken)
+  let skip: BackSkip = NO_SKIP;
   const cleanup = () => {
     named.forEach(clearName);
     doc.documentElement.removeAttribute(VT_ATTR);
     setTransitionActive(false);
-    releaseSkip();
+    skip.release();
   };
 
   let transition: ViewTransitionLike;
@@ -95,7 +96,7 @@ export async function runCaseStudyBackTransition(
       }
       opts.redispatch();
       // czekanie kończy się od razu przy nowszej nawigacji (renderowanie nie stoi 300 ms)
-      const ready = await waitUntil(opts.listReady, opts.cardMs ?? BACK_CARD_MAX_MS, opts.live);
+      const ready = await Promise.race([waitUntil(opts.listReady, cardMs, opts.live), skip.woken]);
       // szybkie drugie cofnięcie: lista nie jest już na ekranie, jej pozycji nie wolno stawiać na innej stronie
       if (!opts.live()) {
         transition.skipTransition();
@@ -116,7 +117,7 @@ export async function runCaseStudyBackTransition(
     return 'plain';
   }
   // MIX-1699: nieprzyjęte cofnięcie w trakcie = pominięcie od razu (utils/caseStudyGeneration.ts)
-  releaseSkip = setBackSkip(transition, cleanup);
+  skip = setBackSkip(transition, cleanup);
   // Przeglądarka potrafi dosunąć przewinięcie tuż po zrobieniu nowego zdjęcia (pomiar: +24 do +221 px
   // przed pierwszą klatką, przyczyna nieustalona); rAF działa przed malowaniem pierwszej klatki.
   // Korekta na KAŻDEJ ścieżce: po pominięciu przejścia (brak karty) `ready` jest odrzucone, więc czekamy

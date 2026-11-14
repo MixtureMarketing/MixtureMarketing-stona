@@ -1,6 +1,7 @@
 // Przywrócenie pozycji przewinięcia bez animacji po powrocie z realizacji (MIX-1675).
 import { RESTORE_MAX_MS, holdRecording, releaseRecording } from './caseStudyBack';
-import { currentGeneration } from './caseStudyGeneration';
+import type { ScrollWin } from './caseStudyBackUndo';
+import { currentGeneration, noteRestoreScroll } from './caseStudyGeneration';
 
 export interface RestoreDeps {
   win: Pick<Window, 'scrollTo' | 'innerHeight'>;
@@ -17,8 +18,12 @@ export function canReach(y: number, deps: Pick<RestoreDeps, 'win' | 'doc'>): boo
   return deps.doc.documentElement.scrollHeight - deps.win.innerHeight >= y - 1;
 }
 
-/** Przewinięcie bez animacji (`html { scroll-behavior: smooth }` nie ma tu wpływu). */
-export function scrollInstant(y: number, win: Pick<Window, 'scrollTo'>): void {
+/**
+ * Przewinięcie bez animacji (`html { scroll-behavior: smooth }` nie ma tu wpływu). MIX-1699 r2: zapis pozycji
+ * sprzed przewinięcia dla szybkiego drugiego cofnięcia (utils/caseStudyGeneration.ts noteRestoreScroll).
+ */
+export function scrollInstant(y: number, win: ScrollWin): void {
+  noteRestoreScroll(win.scrollY, y);
   win.scrollTo({ top: y, left: 0, behavior: 'instant' });
 }
 

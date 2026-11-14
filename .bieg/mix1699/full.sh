@@ -5,7 +5,7 @@ OUT=.bieg/r/mix1699f; mkdir -p "$OUT"; : > "$OUT/summary.txt"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)" | tee -a "$OUT/summary.txt"
 step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "$n rc=$rc" | tee -a "$OUT/summary.txt"; if [ $rc -ne 0 ]; then sed "s/\x1b\[[0-9;]*m//g" "$OUT/$n.log" | tail -n 40 | tee -a "$OUT/summary.txt"; fi; }
-F="utils/caseStudyGeneration.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts tests/utils/caseStudyBackBrowser.test.ts tests/utils/caseStudyBack.test.ts tests/components/scrollToTopBack.test.tsx"
+F="utils/caseStudyGeneration.ts utils/caseStudyBackUndo.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts tests/utils/caseStudyBackBrowser.test.ts tests/utils/caseStudyBack.test.ts tests/components/scrollToTopBack.test.tsx"
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
 step prettier npx prettier --check $F

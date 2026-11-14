@@ -49,12 +49,15 @@ for m in on off base; do
   done
 done
 for vp in 1280 375; do
-  eval "on=\$MAX_on_$vp; off=\$MAX_off_$vp; calls=\$CALLS_on_$vp; other=\$OTHER_off_$vp"
+  eval "on=\$MAX_on_$vp; off=\$MAX_off_$vp; calls=\$CALLS_on_$vp; other=\$OTHER_off_$vp; otheron=\$OTHER_on_$vp"
   for m in on off base; do eval "n=\$RUNS_${m}_$vp"; [ "$n" -eq 8 ] || bad "$m $vp runs=$n (expected 8)"; done
   echo "COMPARE $vp: ON rootFramesMaxY_max=$on OFF rootFramesMaxY_max=$off (rule ON <= OFF + 4)"
   [ "$on" -le $((off + 4)) ] || bad "$vp ON max $on > OFF max $off + 4"
   [ "$calls" -eq 0 ] || bad "$vp ON restoreCallsOnRoot=$calls"
   [ "$other" -eq 0 ] || bad "$vp OFF rest outside browser classes: $other"
+  # r2: ON rests in the same classes as OFF (top/kept); "other" = a change made by our code
+  echo "CLASSES $vp: ON other=$otheron OFF other=$other (rule: both 0)"
+  [ "$otheron" -eq 0 ] || bad "$vp ON rest outside browser classes: $otheron"
 done
 echo "porcelain: $(git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | grep -v '^?? dist-' | wc -l)"
 echo "PROBE-MIX1699 failchecks=$FAILS"

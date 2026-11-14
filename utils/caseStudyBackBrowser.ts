@@ -66,7 +66,8 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // nowe pokolenie (każdy odroczony skutek poprzedniego cofnięcia gaśnie); r6: dalej tylko pierwsze
     // cofnięcie dokładnie na listę źródłową, każde inne = przeglądarka (jak przy wyłączonym przełączniku)
     // MIX-1699: nieprzyjęte cofnięcie kończy też nasze przejście w toku od razu (bez czekania na jego bilet)
-    if (!claimBack(win.location)) return skipBackTransition();
+    // MIX-1699 r2: i oddaje przeglądarce pozycję sprzed naszego przewinięcia listy (ten sam stan co wyłączony)
+    if (!claimBack(win.location)) return skipBackTransition(win);
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;

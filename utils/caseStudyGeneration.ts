@@ -1,5 +1,6 @@
 // Pokolenie nawigacji i lista źródłowa powrotu z realizacji (MIX-1675 r4, r6). Decyzje: utils/caseStudyBack.ts.
 import { listKey, revertManualRestoration } from './caseStudyBack';
+import * as undo from './caseStudyBackUndo';
 
 /**
  * Pokolenie nawigacji (MIX-1675 r4). Każde cofnięcie (popstate) i każde przejście linkiem (PUSH,
@@ -11,6 +12,7 @@ let generation = 0;
 
 export function bumpGeneration(): void {
   generation += 1;
+  undo.forgetOurScroll();
 }
 
 export function currentGeneration(): number {
@@ -57,6 +59,7 @@ export function claimBack(target: BackLocation | null | undefined): boolean {
   const at = locationKey(() => target);
   claim = at !== null && at === source && !target?.hash ? { key: at, gen: generation } : null;
   source = null;
+  undo.armUndo(claim !== null);
   if (claim === null) revertManualRestoration();
   return claim !== null;
 }
@@ -64,29 +67,51 @@ export function claimBack(target: BackLocation | null | undefined): boolean {
 /** Użytkownik sam przewija albo naciska klawisz: przyjęte cofnięcie już nic nie przewija. */
 export function dropClaim(): void {
   claim = null;
+  undo.forgetOurScroll();
+}
+
+/**
+ * MIX-1699 r2: przewinięcie przyjętego cofnięcia (utils/caseStudyRestore.ts scrollInstant) idzie do zapisu
+ * oddania (utils/caseStudyBackUndo.ts) tylko w pokoleniu przyjętego cofnięcia; inaczej nic.
+ */
+export function noteRestoreScroll(before: unknown, y: number): void {
+  if (claim !== null && claim.gen === generation) undo.noteOurScroll(before, y);
 }
 
 /**
  * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
- * (utils/caseStudyBackTransition.ts, zwrot = wyrejestrowanie przy końcu); nieprzyjęte cofnięcie (np. drugie
- * cofnięcie na "/" w trakcie przejścia) woła skipBackTransition: skipTransition, nazwy i atrybut znikają od
- * razu, zanim router wyrenderuje nową stronę, a dalej działa przeglądarka. Brak przejścia w toku = nic.
+ * (utils/caseStudyBackTransition.ts, `release` = wyrejestrowanie przy końcu); nieprzyjęte cofnięcie (np.
+ * drugie cofnięcie na "/" w trakcie przejścia) woła skipBackTransition: skipTransition, nazwy i atrybut
+ * znikają od razu, zanim router wyrenderuje nową stronę, a dalej działa przeglądarka. Brak przejścia = nic.
+ * r2: `woken` budzi wywołanie zwrotne przejścia od razu (sonda r1: koniec wywołania +72 ms po drugim
+ * cofnięciu, za renderem nowej strony, z malowaniem wstrzymanym przez przejście), a pozycja sprzed naszego
+ * przewinięcia listy wraca do przeglądarki (undoOurScroll).
  */
+export interface BackSkip {
+  release: () => void;
+  woken: Promise<false>;
+}
+export const NO_SKIP: BackSkip = { release: () => undefined, woken: new Promise(() => undefined) };
 let skipActive: (() => void) | null = null;
-export function setBackSkip(t: { skipTransition: () => void }, cleanup: () => void): () => void {
+export function setBackSkip(t: { skipTransition: () => void }, cleanup: () => void): BackSkip {
+  let wake: (v: false) => void = () => undefined;
+  const woken = new Promise<false>((resolve) => (wake = resolve));
   const skip = () => {
     t.skipTransition();
     cleanup();
+    wake(false);
   };
   skipActive = skip;
-  return () => {
+  const release = () => {
     if (skipActive === skip) skipActive = null;
   };
+  return { release, woken };
 }
-export function skipBackTransition(): void {
+export function skipBackTransition(win?: undo.ScrollWin): void {
   const skip = skipActive;
   skipActive = null;
   skip?.();
+  undo.undoOurScroll(win);
 }
 
 /**
@@ -125,4 +150,5 @@ export function backTicket(read: () => BackLocation | null | undefined): () => b
 export function resetBackState(): void {
   source = null;
   claim = null;
+  undo.resetUndo();
 }

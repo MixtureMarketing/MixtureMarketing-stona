@@ -2,13 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vite
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { BACK_CARD_MAX_MS } from '@/utils/caseStudyBackTransition';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
-import { startRestore } from '@/utils/caseStudyRestore';
+import { scrollInstant, startRestore } from '@/utils/caseStudyRestore';
 import {
   armSource,
   backTicket,
+  bumpGeneration,
   listenUserInput,
   resetBackState,
 } from '@/utils/caseStudyGeneration';
+import { UNDO_WINDOW_MS } from '@/utils/caseStudyBackUndo';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
 let uninstall: () => void;
@@ -419,6 +421,206 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     pop();
     expect(done).not.toHaveBeenCalled();
     expect(router).toHaveBeenCalledTimes(2);
+  });
+
+  describe('MIX-1699 r2: fast second back after our list restore', () => {
+    let y = 0;
+    const setY = (v: unknown) =>
+      Object.defineProperty(window, 'scrollY', { value: v, configurable: true, writable: true });
+    const instantTo = (top: number) => ({ top, left: 0, behavior: 'instant' });
+    beforeEach(() => {
+      y = 0;
+      setY(0);
+      // the page really moves on our scrollTo (window.scrollY follows), like a browser
+      scrollTo.mockImplementation(((a: ScrollToOptions) => {
+        y = Number(a.top);
+        setY(y);
+      }) as never);
+    });
+    afterEach(() => setY(0));
+    async function acceptedBackRestored() {
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      expect(scrollTo).toHaveBeenLastCalledWith(instantTo(1500));
+      expect(window.scrollY).toBe(1500);
+      scrollTo.mockClear();
+    }
+    function secondBack() {
+      let atRouter: unknown[] = [];
+      router.mockImplementationOnce(() => {
+        atRouter = scrollTo.mock.calls.map((c: unknown[]) => c[0]);
+      });
+      window.history.pushState({}, '', '/');
+      pop();
+      return () => atRouter;
+    }
+
+    it('the second back puts the page back where the browser had it before us, before the router runs', async () => {
+      await acceptedBackRestored();
+      const atRouter = secondBack();
+      expect(atRouter()).toEqual([instantTo(0)]);
+      expect(window.scrollY).toBe(0);
+      expect(scrollTo).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(400);
+      // nothing more of ours on "/"
+      expect(scrollTo).toHaveBeenCalledTimes(1);
+    });
+
+    it('the position before the FIRST of our scrolls is given back (case study scrolled to 800)', async () => {
+      page(true);
+      setY(800);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      expect(window.scrollY).toBe(1500);
+      scrollTo.mockClear();
+      secondBack();
+      expect(scrollTo.mock.calls).toEqual([[instantTo(800)]]);
+    });
+
+    it('allowed twin: a single accepted back is not undone (no second back)', async () => {
+      await acceptedBackRestored();
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(window.scrollY).toBe(1500);
+    });
+
+    it('the window is 300 ms', () => expect(UNDO_WINDOW_MS).toBe(300));
+
+    it('refusal: a second back later than 300 ms leaves the page to the browser', async () => {
+      await acceptedBackRestored();
+      await vi.advanceTimersByTimeAsync(301);
+      secondBack();
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(window.scrollY).toBe(1500);
+    });
+
+    it('allowed twin: a second back just inside 300 ms is undone', async () => {
+      await acceptedBackRestored();
+      await vi.advanceTimersByTimeAsync(270);
+      secondBack();
+      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
+    });
+
+    it('two scrolls of ours (restore, then a correction): the position before the FIRST one comes back', async () => {
+      await acceptedBackRestored();
+      scrollInstant(1600, window);
+      scrollTo.mockClear();
+      secondBack();
+      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
+    });
+
+    it('refusal: a scroll with no accepted back (claim gone) is never given back', async () => {
+      page(true);
+      resetBackState();
+      // no source: this back is not ours; a scrollInstant outside an accepted back is not recorded
+      pop();
+      scrollInstant(1500, window);
+      scrollTo.mockClear();
+      secondBack();
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['moved by the browser or the user (more than 4 px)', 1505],
+      ['not a number', 'x'],
+      ['not finite', Number.NaN],
+    ])('refusal: page %s: not ours, no scroll', async (_n, now) => {
+      await acceptedBackRestored();
+      setY(now);
+      secondBack();
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('refusal: a record is used by one back only (a third back does not give it back)', async () => {
+      await acceptedBackRestored();
+      setY(1505);
+      secondBack();
+      expect(scrollTo).not.toHaveBeenCalled();
+      setY(1500);
+      window.history.pushState({}, '', '/kontakt/');
+      pop();
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('allowed twin: page within 4 px of our position is still ours', async () => {
+      await acceptedBackRestored();
+      setY(1504);
+      secondBack();
+      expect(scrollTo.mock.calls).toEqual([[instantTo(0)]]);
+    });
+
+    it.each(['wheel', 'keydown', 'touchstart', 'mousedown'])(
+      'refusal: %s after our restore = the user owns the page, the second back does not undo',
+      async (type) => {
+        const unlisten = listenUserInput(window);
+        await acceptedBackRestored();
+        window.dispatchEvent(new Event(type));
+        secondBack();
+        expect(scrollTo).not.toHaveBeenCalled();
+        unlisten();
+      },
+    );
+
+    it('refusal: a link (PUSH, new generation) after our restore: a later back does not undo', async () => {
+      await acceptedBackRestored();
+      bumpGeneration();
+      secondBack();
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('refusal: no restore of ours yet (second back while waiting for the list): no scroll at all', async () => {
+      page(true);
+      Object.defineProperty(document.documentElement, 'scrollHeight', {
+        value: 1000,
+        configurable: true,
+      });
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      expect(scrollTo).not.toHaveBeenCalled();
+      secondBack();
+      await vi.advanceTimersByTimeAsync(400);
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('refusal: an accepted back is never undone by itself (only a back we do not take undoes)', async () => {
+      await acceptedBackRestored();
+      // a new source and an accepted back to it: the earlier scroll is not given back
+      armSource({ pathname: '/portfolio/', search: '' });
+      pop();
+      expect(scrollTo).not.toHaveBeenCalledWith(instantTo(0));
+    });
+
+    it('the second back ends the update callback at once (no 16 ms tick behind the new page)', async () => {
+      page(true);
+      Object.defineProperty(document.documentElement, 'scrollHeight', {
+        value: 1000,
+        configurable: true,
+      });
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      const t = startVT.mock.results[0].value as { updateCallbackDone: Promise<void> };
+      let done = false;
+      void t.updateCallbackDone.then(() => (done = true));
+      secondBack();
+      for (let i = 0; i < 10; i += 1) await Promise.resolve();
+      expect(done).toBe(true);
+    });
+
+    it('allowed twin: without a second back the update callback still waits for the list', async () => {
+      page(true);
+      Object.defineProperty(document.documentElement, 'scrollHeight', {
+        value: 1000,
+        configurable: true,
+      });
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      const t = startVT.mock.results[0].value as { updateCallbackDone: Promise<void> };
+      let done = false;
+      void t.updateCallbackDone.then(() => (done = true));
+      for (let i = 0; i < 10; i += 1) await Promise.resolve();
+      expect(done).toBe(false);
+    });
   });
 
   it.each([
