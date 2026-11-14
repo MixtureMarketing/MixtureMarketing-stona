@@ -1391,7 +1391,8 @@ describe('MIX-1695: znak łączący i niewidoczny spoza BMP = dżoker, nigdy nie
       f === 'dz' ? `- Strona abonament/dz${c}ekujemy` : `- Nowość: systemy-ai-ap${c}ikacje`;
     const twin = f === 'dz' ? '- Strona abonament/dzxekujemy' : '- Nowość: systemy-ai-apxikacje';
     const cp = c.codePointAt(0)!.toString(16).toUpperCase().padStart(4, '0');
-    const isCf = /^\p{Cf}$/u.test(c);
+    // Cf albo Default_Ignorable (U+E0100 jest Mn, ale BAD_CHAR_RE odrzuca go jako niewidoczny)
+    const isCf = /^[\p{Cf}\p{Default_Ignorable_Code_Point}]$/u.test(c);
     it(`odmowa: ${name}`, () => {
       const r = run(atk);
       const scan = f === 'dz' ? hitAB : hitAI;
