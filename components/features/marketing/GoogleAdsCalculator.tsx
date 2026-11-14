@@ -51,9 +51,8 @@ const ResultTile: React.FC<ResultTileProps> = ({
       <span>
         {value}
         {unit && (
-          <span
-            className={`ml-1 text-base font-bold ${highlight ? 'text-white' : 'text-gray-600'}`}
-          >
+          <span className={`text-base font-bold ${highlight ? 'text-white' : 'text-gray-600'}`}>
+            {' '}
             {unit}
           </span>
         )}

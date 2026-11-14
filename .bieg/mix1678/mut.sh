@@ -24,11 +24,6 @@ mut M3-revenue-unit-off "$C" 'unit="zł"
 mut M4-floor-to-round "$C" 'Math.floor(budget / cpc)' 'Math.round(budget / cpc)'
 mut M5-revenue-formula "$C" 'leads * avgOrderValue' 'traffic * avgOrderValue'
 mut M6-label-swap "$C" 'label={L.leads}' 'label={L.traffic}'
-mut M7-unit-outside "$C" '        {unit && (
-          <span className={`ml-1 text-base font-bold ${highlight ? '"'"'text-white'"'"' : '"'"'text-gray-600'"'"'}`}>
-            {unit}
-          </span>
-        )}
-      </span>' '      </span>
-      {unit && <span>{unit}</span>}'
+mut M7-unit-space-off "$C" "            {' '}
+            {unit}" "            {unit}"
 echo "after: porcelain=$(git status --porcelain -- components tests | wc -l)"

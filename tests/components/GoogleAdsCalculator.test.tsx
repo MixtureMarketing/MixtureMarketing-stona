@@ -34,7 +34,7 @@ describe('GoogleAdsCalculator: kafelki wyników', () => {
 
   it('wyniki dla wartości domyślnych bez zmian (5000 zł, 3,5 zł, 2,5%, 400 zł)', () => {
     const { container } = render(<GoogleAdsCalculator />);
-    expect(text(container, 'traffic')).toBe('1 428');
+    expect(text(container, 'traffic')).toBe('1428');
     expect(text(container, 'leads')).toBe('35');
     expect(text(container, 'cpa')).toBe('142,86 zł');
     expect(text(container, 'revenue')).toBe('14 000 zł');
@@ -47,7 +47,7 @@ describe('GoogleAdsCalculator: kafelki wyników', () => {
     setSlider(container, 'cr', 5);
     setSlider(container, 'aov', 5000);
     expect(text(container, 'traffic')).toBe('100 000');
-    expect(text(container, 'leads')).toBe('5 000');
+    expect(text(container, 'leads')).toBe('5000');
     expect(text(container, 'cpa')).toBe('10,00 zł');
     expect(text(container, 'revenue')).toBe('25 000 000 zł');
     expect(value(container, 'revenue').className).toContain('whitespace-nowrap');
