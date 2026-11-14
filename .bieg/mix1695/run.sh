@@ -7,7 +7,7 @@ OUT=.bieg/mix1695/out
 mkdir -p "$OUT"
 SRC=scripts/lib/llms.js
 LINE=189
-CMD="npx vitest run tests/seo/llmsTxt.test.ts --maxWorkers=2"
+CMD="env NO_COLOR=1 FORCE_COLOR=0 npx vitest run tests/seo/llmsTxt.test.ts --maxWorkers=2"
 
 echo "sha=$(git rev-parse HEAD)"
 
