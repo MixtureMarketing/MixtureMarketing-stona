@@ -48,7 +48,8 @@ function uniformAspect(className: string, allowed: string[] = CARD_ALLOWED): str
   const stray = tokens.filter((t) => SHAPE_TOKEN.test(t) && !allowed.includes(t));
   if (stray.length) throw new Error(`class outside the allowlist: ${stray.join(' ')}`);
   const aspects = tokens.filter((t) => t === 'aspect-[16/9]');
-  if (aspects.length !== 1) throw new Error(`expected exactly one aspect-[16/9], got: ${className}`);
+  if (aspects.length !== 1)
+    throw new Error(`expected exactly one aspect-[16/9], got: ${className}`);
   return aspects[0];
 }
 
@@ -83,12 +84,18 @@ describe('MIX-1722: the checker itself (negative leg, allowlist)', () => {
     expect(() => uniformAspect('aspect-[16/9] aspect-[16/9]')).toThrow(/expected exactly one/);
   });
   it('hero allowlist: the viewport cap is allowed, a variant cap or height is not', () => {
-    expect(uniformAspect('rounded aspect-[16/9] max-h-[75vh] mb-12', HERO_ALLOWED)).toBe('aspect-[16/9]');
-    expect(() => uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED)).toThrow(OUT);
+    expect(uniformAspect('rounded aspect-[16/9] max-h-[75vh] mb-12', HERO_ALLOWED)).toBe(
+      'aspect-[16/9]',
+    );
+    expect(() =>
+      uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED),
+    ).toThrow(OUT);
     expect(() => uniformAspect('aspect-[16/9] md:h-96', HERO_ALLOWED)).toThrow(OUT);
   });
   it('accepts exactly the allowed token and unrelated classes', () => {
-    expect(uniformAspect('relative aspect-[16/9] overflow-hidden bg-gray-100')).toBe('aspect-[16/9]');
+    expect(uniformAspect('relative aspect-[16/9] overflow-hidden bg-gray-100')).toBe(
+      'aspect-[16/9]',
+    );
     expect(uniformAspect('w-full aspect-[16/9]')).toBe('aspect-[16/9]');
   });
 });
@@ -136,8 +143,15 @@ describe('MIX-1722: list card image is 16/9 like the hero (same crop box, no fix
         <PortfolioGrid projects={[PROJECT]} loading={false} />
       </MemoryRouter>,
     );
-    expect(calls).toEqual([['width', 800], ['height', 450], ['fit', 'crop']]);
-    expect(CARD_PHOTO.width / CARD_PHOTO.height).toBeCloseTo(HERO_PHOTO.width / HERO_PHOTO.height, 5);
+    expect(calls).toEqual([
+      ['width', 800],
+      ['height', 450],
+      ['fit', 'crop'],
+    ]);
+    expect(CARD_PHOTO.width / CARD_PHOTO.height).toBeCloseTo(
+      HERO_PHOTO.width / HERO_PHOTO.height,
+      5,
+    );
   });
 
   it('loading skeleton reserves a 16/9 image block, not a fixed card height', () => {
