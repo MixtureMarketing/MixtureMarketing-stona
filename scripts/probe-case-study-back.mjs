@@ -142,7 +142,12 @@ const INSTRUMENT = () => {
   const vt = { calls: 0, records: [], frames: [], scrollEvents: [], scrollCalls: [], backT0: null };
   const origScrollTo = window.scrollTo.bind(window);
   window.scrollTo = (...a) => {
-    vt.scrollCalls.push([Math.round(performance.now()), JSON.stringify(a), Math.round(scrollY)]);
+    vt.scrollCalls.push([
+      Math.round(performance.now()),
+      JSON.stringify(a),
+      Math.round(scrollY),
+      location.pathname,
+    ]);
     return origScrollTo(...a);
   };
   window.__vt = vt;
@@ -322,8 +327,15 @@ async function cardHrefs(page) {
   });
 }
 
-async function gotoList(page) {
-  await page.goto(ORIGIN + '/portfolio/', { waitUntil: 'networkidle2', timeout: 45000 });
+async function gotoList(page, spa = false) {
+  if (spa) {
+    // in-app link click: "/" and the list stay in ONE document (a router navigation, not a page load)
+    await page.evaluate(() => document.querySelector('a[href="/portfolio/"]')?.click());
+    await page.waitForFunction(() => location.pathname === '/portfolio/', { timeout: 10000 });
+    await sleep(1500);
+  } else {
+    await page.goto(ORIGIN + '/portfolio/', { waitUntil: 'networkidle2', timeout: 45000 });
+  }
   await dismissConsent(page);
   for (let i = 0; i < 30; i++) {
     const hrefs = await cardHrefs(page);
@@ -440,7 +452,7 @@ async function measureDouble(vp, c) {
   const page = await openPage(vp, c);
   await page.goto(ORIGIN + '/', { waitUntil: 'networkidle2', timeout: 45000 });
   await dismissConsent(page);
-  const hrefs = await gotoList(page);
+  const hrefs = await gotoList(page, true);
   const href = hrefs[Math.min(1, hrefs.length - 1)];
   const card = await page.evaluateHandle((h) => document.querySelector(`a[href="${h}"]`), href);
   await card.evaluate((a) => a.scrollIntoView({ block: 'center', behavior: 'instant' }));
@@ -471,6 +483,7 @@ async function measureDouble(vp, c) {
     scrollNow: Math.round(scrollY),
     calls: window.__vt.calls,
     scrollCalls: window.__vt.scrollCalls,
+    sameDocument: !!window.__vt.clickY,
     framesOnRoot: window.__vt.frames.filter(([, , p]) => p === '/').map(([, y]) => y),
     namesAtRest: window.__vtNames(),
     listeners: window.__listeners,
@@ -484,6 +497,7 @@ async function measureDouble(vp, c) {
     scrollNow: r.scrollNow,
     calls: r.calls,
     scrollCalls: r.scrollCalls,
+    sameDocument: r.sameDocument,
     rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot) : null,
     namesAtRest: r.namesAtRest,
     listeners: r.listeners,
@@ -504,6 +518,9 @@ for (const vp of VIEWPORTS) {
         if (D.scrollNow > TOL) fail(`${id}: rest on "/" at ${D.scrollNow} (expected 0)`);
         if (Object.keys(D.namesAtRest).length) fail(`${id}: names left`);
         if (D.calls > 1) fail(`${id}: transitions ${D.calls}`);
+        if (!D.sameDocument) fail(`${id}: "/" and the list are not in one document (probe invalid)`);
+        const onRoot = D.scrollCalls.filter((x) => x[3] === '/' && !x[1].startsWith('[0')).length;
+        if (onRoot) fail(`${id}: ${onRoot} scrollTo to a saved position while on "/"`);
       }
       await saveReport();
       continue;
@@ -550,7 +567,7 @@ for (const [vpTag, vv] of Object.entries(report.viewports)) {
   for (const [name, M] of Object.entries(vv)) {
     if (name.startsWith('double-back')) {
       console.log(
-        `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} transitions=${M.calls} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
+        `NUM ${vpTag} ${name} path=${M.path} rest=${M.scrollNow} sameDocument=${M.sameDocument} transitions=${M.calls} restoreCallsOnRoot=${M.scrollCalls.filter((c) => c[3] === '/' && !c[1].startsWith('[0')).length} rootFramesMaxY=${M.rootFramesMaxY} listeners=${JSON.stringify(M.listeners)} restoration=${M.restoration}`,
       );
       continue;
     }
