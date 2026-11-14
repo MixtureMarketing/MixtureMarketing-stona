@@ -1,10 +1,6 @@
 // Przywrócenie pozycji przewinięcia bez animacji po powrocie z realizacji (MIX-1675).
-import {
-  RESTORE_MAX_MS,
-  currentGeneration,
-  holdRecording,
-  releaseRecording,
-} from './caseStudyBack';
+import { RESTORE_MAX_MS, holdRecording, releaseRecording } from './caseStudyBack';
+import { currentGeneration } from './caseStudyGeneration';
 
 export interface RestoreDeps {
   win: Pick<Window, 'scrollTo' | 'innerHeight'>;
@@ -103,11 +99,7 @@ export function startRestore(y: number, partial: Partial<RestoreDeps> = {}): () 
  * Czeka, aż `pred()` da prawdę (sprawdza co 16 ms), najdłużej `ms`; false po czasie albo od razu,
  * gdy `alive()` da fałsz (nowsze pokolenie nawigacji).
  */
-export function waitUntil(
-  pred: () => boolean,
-  ms: number,
-  alive: () => boolean = () => true,
-): Promise<boolean> {
+export function waitUntil(pred: () => boolean, ms: number, alive = () => true): Promise<boolean> {
   return new Promise((resolve) => {
     const started = Date.now();
     const step = () => {

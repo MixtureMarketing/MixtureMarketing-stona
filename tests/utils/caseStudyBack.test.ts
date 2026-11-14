@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  type BackLocation,
   backRestoreTarget,
-  backTicket,
-  bumpGeneration,
-  currentGeneration,
   isCaseStudyRoute,
   isRecordingHeld,
   holdRecording,
@@ -15,6 +11,12 @@ import {
   savedPosition,
 } from '@/utils/caseStudyBack';
 import { canReach, startRestore, waitUntil } from '@/utils/caseStudyRestore';
+import {
+  type BackLocation,
+  backTicket,
+  bumpGeneration,
+  currentGeneration,
+} from '@/utils/caseStudyGeneration';
 
 beforeEach(() => {
   vi.useFakeTimers();

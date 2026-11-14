@@ -1,12 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
-import {
-  backRestoreTarget,
-  backTicket,
-  bumpGeneration,
-  savedPosition,
-} from '@/utils/caseStudyBack';
+import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
+import { backTicket, bumpGeneration } from '@/utils/caseStudyGeneration';
 import { startRestore } from '@/utils/caseStudyRestore';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { topScrollArgs } from '@/utils/caseStudyTransition';

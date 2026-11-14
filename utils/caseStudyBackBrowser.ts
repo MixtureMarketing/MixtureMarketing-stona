@@ -3,8 +3,6 @@
 // listy i przywrócenie jej bez animacji; przejście (zmniejszenie zdjęcia do karty) dodatkowo przy
 // wszystkich warunkach z planBack(). Wyłączony = brak nasłuchów i zmian (zachowanie jak dawniej).
 import {
-  backTicket,
-  bumpGeneration,
   holdRecording,
   manualRestorationFor,
   isCaseStudyRoute,
@@ -13,6 +11,7 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
+import { backTicket, bumpGeneration } from './caseStudyGeneration';
 import { canReach, scrollInstant } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
@@ -86,7 +85,6 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
     holdRecording();
     manualRestorationFor(win);
-    const live = backTicket(() => win.location);
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
@@ -104,7 +102,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       },
       listReady: () => hasCard(doc, win, cardHref) && canReach(plan.y, { win, doc }),
       findCard: () => visibleCard(doc, win, cardHref),
-      live,
+      live: backTicket(() => win.location),
       restore: (y) => scrollInstant(y, win),
     });
   };

@@ -7,9 +7,9 @@ OUT=.bieg/r/mix1675m; mkdir -p "$OUT"; : > "$OUT/mutants.txt"
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)"
 [ -d node_modules ] || npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm-ci.log" 2>&1
 PR="$OUT/pristine"; mkdir -p "$PR"
-for f in utils/caseStudyBack.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do mkdir -p "$PR/$(dirname $f)"; cp "$f" "$PR/$f"; done
+for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do mkdir -p "$PR/$(dirname $f)"; cp "$f" "$PR/$f"; done
 T="tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackTransition.test.ts tests/utils/caseStudyBackBrowser.test.ts tests/components/scrollToTopBack.test.tsx tests/components/scrollToTopCaseStudy.test.tsx tests/components/caseStudyTransitions.test.tsx"
-B=utils/caseStudyBack.ts; R=utils/caseStudyRestore.ts; X=utils/caseStudyBackTransition.ts; W=utils/caseStudyBackBrowser.ts; S=components/common/ScrollToTop.tsx
+B=utils/caseStudyBack.ts; G=utils/caseStudyGeneration.ts; R=utils/caseStudyRestore.ts; X=utils/caseStudyBackTransition.ts; W=utils/caseStudyBackBrowser.ts; S=components/common/ScrollToTop.tsx
 mut() {
   local name=$1 f=$2 from=$3 to=$4
   cmp -s "$f" "$PR/$f" || { echo "mutant $name: BLAD, plik nie jest wzorcem przed mutantem" | tee -a "$OUT/mutants.txt"; return; }
@@ -55,9 +55,9 @@ mut F2a-no-live-check-after-wait "$X" 'na innej stronie
       if (!opts.live()) {' 'na innej stronie
       if (false) {'
 mut F2b-no-live-check-in-drift "$X" '      if (!opts.live()) return;' ''
-mut F2c-search-ignored "$B" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return listKey(loc.pathname);'
-mut F2d-path-ignored "$B" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return loc.search;'
-mut F2e-always-on-list "$W" '      live,' '      live: () => true,'
+mut F2c-search-ignored "$G" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return listKey(loc.pathname);'
+mut F2d-path-ignored "$G" 'return `${listKey(loc.pathname)}\n${loc.search}`;' 'return loc.search;'
+mut F2e-always-on-list "$W" 'live: backTicket(() => win.location),' 'live: () => true,'
 mut F2i-restore-live-ignored-timer "$R" 'if (live()) scrollInstant(y, deps.win);' 'scrollInstant(y, deps.win);'
 mut F2j-restore-live-ignored-layout "$R" 'if (!live()) return stop();' ''
 mut F2k-scrolltotop-no-ticket "$S" 'startRestore(y, { guard: backTicket(() => locRef.current) });' 'startRestore(y);'
@@ -70,13 +70,13 @@ mut G4-restore-timer-no-generation "$R" 'if (live()) scrollInstant(y, deps.win);
 mut G5-wait-alive-ignored "$R" '      if (!alive()) return resolve(false);' ''
 mut G6-popstate-no-bump "$W" '    bumpGeneration();
     const from = trackedPath;' '    const from = trackedPath;'
-mut G7-ticket-no-generation "$B" 'return () => gen === generation && locationKey(read) === at;' 'return () => locationKey(read) === at;'
-mut G7b-ticket-unknown-alive "$B" 'if (at === null) return () => false;' 'if (at === null) return () => true;'
-mut G7c-ticket-search-type-unchecked "$B" " || typeof loc.search !== 'string') return null;" ') return null;'
-mut G7d-ticket-relative-path-ok "$B" "    if (!loc.pathname.startsWith('/')) return null;" ''
+mut G7-ticket-no-generation "$G" 'return () => gen === generation && locationKey(read) === at;' 'return () => locationKey(read) === at;'
+mut G7b-ticket-unknown-alive "$G" 'if (at === null) return () => false;' 'if (at === null) return () => true;'
+mut G7c-ticket-search-type-unchecked "$G" " || typeof loc.search !== 'string') return null;" ') return null;'
+mut G7d-ticket-relative-path-ok "$G" "    if (!loc.pathname.startsWith('/')) return null;" ''
 mut G8-link-no-bump "$S" "    if (isViewTransitionsEnabled() && navType !== 'POP') bumpGeneration();" ''
 mut G8b-only-push-bumps "$S" "navType !== 'POP') bumpGeneration();" "navType === 'PUSH') bumpGeneration();"
 mut G8c-locref-not-updated "$S" '    locRef.current = { pathname, search };' ''
-for f in utils/caseStudyBack.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
+for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
 git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | head
 echo "mutanty: $(grep -c zabity "$OUT/mutants.txt") zabite, $(grep -c PRZEZYL "$OUT/mutants.txt") przezylo, $(grep -c BLAD "$OUT/mutants.txt") bledne"
