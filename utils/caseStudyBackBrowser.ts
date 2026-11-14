@@ -11,7 +11,8 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
-import { backTicket, claimBack, skipBackTransition } from './caseStudyGeneration';
+import { skipAndHandOver } from './caseStudyBackSkip';
+import { backTicket, claimBack } from './caseStudyGeneration';
 import { canReach, startRestore } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
 import {
@@ -61,13 +62,22 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
 
   // Ten sam zapis przy kliknięciu (pozycja w chwili kliknięcia): zdarzenie `scroll` z ostatniej klatki mogłoby nie zdążyć przed nawigacją.
 
+  // oddanie wstrzymanego popstate routerowi (nasłuch routera w fazie bąbelkowania); dispatchEvent nie rzuca
+  // wyjątków nasłuchów (zgłasza je przeglądarka), więc flaga zawsze wraca
+  const handToRouter = () => {
+    passthrough = true;
+    win.dispatchEvent(new PopStateEvent('popstate', { state: win.history.state }));
+    passthrough = false;
+  };
+
   const onPop = (e: PopStateEvent) => {
     if (passthrough) return; // nasze własne oddanie zdarzenia routerowi: to samo cofnięcie
     // nowe pokolenie (każdy odroczony skutek poprzedniego cofnięcia gaśnie); r6: dalej tylko pierwsze
     // cofnięcie dokładnie na listę źródłową, każde inne = przeglądarka (jak przy wyłączonym przełączniku)
     // MIX-1699: nieprzyjęte cofnięcie kończy też nasze przejście w toku od razu (bez czekania na jego bilet)
     // MIX-1707: bez żadnego przewinięcia z naszej strony (lista nie jest przewijana przed potwierdzeniem)
-    if (!claimBack(win.location)) return skipBackTransition();
+    // MIX-1707 r2: nasze przejście w toku = router dostaje je po zwolnieniu malowania (utils/caseStudyBackSkip.ts)
+    if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
@@ -96,14 +106,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       y: plan.y,
       hero,
       doc,
-      redispatch: () => {
-        passthrough = true;
-        try {
-          win.dispatchEvent(new PopStateEvent('popstate', { state: win.history.state }));
-        } finally {
-          passthrough = false;
-        }
-      },
+      redispatch: handToRouter,
       listReady: () => hasCard(doc, win, cardHref) && canReach(plan.y, { win, doc }),
       findCard: () => visibleCard(doc, win, cardHref),
       live,

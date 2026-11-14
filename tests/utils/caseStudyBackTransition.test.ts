@@ -4,13 +4,8 @@ import {
   runCaseStudyBackTransition,
   type BackRunOptions,
 } from '@/utils/caseStudyBackTransition';
-import {
-  armSource,
-  backOwned,
-  claimBack,
-  resetBackState,
-  skipBackTransition,
-} from '@/utils/caseStudyGeneration';
+import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
+import { skipBackTransition } from '@/utils/caseStudyBackSkip';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
 

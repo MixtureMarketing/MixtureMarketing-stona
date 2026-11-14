@@ -7,9 +7,9 @@ OUT=.bieg/r/mix1707m; mkdir -p "$OUT"; : > "$OUT/mutants.txt"
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)"
 [ -d node_modules ] || npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm-ci.log" 2>&1
 PR="$OUT/pristine"; mkdir -p "$PR"
-for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackOptions.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do mkdir -p "$PR/$(dirname $f)"; cp "$f" "$PR/$f"; done
+for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackOptions.ts utils/caseStudyBackBrowser.ts utils/caseStudyBackSkip.ts components/common/ScrollToTop.tsx; do mkdir -p "$PR/$(dirname $f)"; cp "$f" "$PR/$f"; done
 T="tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackTransition.test.ts tests/utils/caseStudyBackBrowser.test.ts tests/components/scrollToTopBack.test.tsx tests/components/scrollToTopCaseStudy.test.tsx tests/components/caseStudyTransitions.test.tsx"
-O=utils/caseStudyBackOptions.ts; B=utils/caseStudyBack.ts; G=utils/caseStudyGeneration.ts; R=utils/caseStudyRestore.ts; X=utils/caseStudyBackTransition.ts; W=utils/caseStudyBackBrowser.ts; S=components/common/ScrollToTop.tsx
+O=utils/caseStudyBackOptions.ts; B=utils/caseStudyBack.ts; G=utils/caseStudyGeneration.ts; R=utils/caseStudyRestore.ts; X=utils/caseStudyBackTransition.ts; W=utils/caseStudyBackBrowser.ts; S=components/common/ScrollToTop.tsx; K=utils/caseStudyBackSkip.ts
 mut() {
   local name=$1 f=$2 from=$3 to=$4
   cmp -s "$f" "$PR/$f" || { echo "mutant $name: BLAD, plik nie jest wzorcem przed mutantem" | tee -a "$OUT/mutants.txt"; return; }
@@ -94,7 +94,7 @@ mut R5-replace-arms "$S" "    if (navType === 'PUSH') armSource(from);" '    arm
 mut R6-arm-current-not-previous "$S" "armSource(from);" 'armSource({ pathname, search });'
 mut R7-scrolltotop-no-claim-check "$S" '    if (!live()) return;
     restoredFor.current = pathname;' '    restoredFor.current = pathname;'
-mut R8-unclaimed-pop-handled "$W" '    if (!claimBack(win.location)) return skipBackTransition();' '    claimBack(win.location);'
+mut R8-unclaimed-pop-handled "$W" '    if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);' '    claimBack(win.location);'
 mut R9-no-revert-on-unclaimed "$G" '  if (claim === null) revertManualRestoration();' ''
 mut R10-no-user-input-listener "$S" '  useLayoutEffect(() => (isViewTransitionsEnabled() ? listenUserInput(window) : undefined), []);' ''
 mut R11-dropclaim-noop "$G" 'export function dropClaim(): void {
@@ -111,7 +111,7 @@ mut R16-new-window-no-revert "$B" "export function manualRestorationFor(win: Win
 mut R17-revert-keeps-timer "$B" '      win.clearTimeout(timer);' ''
 mut R18-input-listener-wrong-target "$G" 'win.addEventListener(t, onUserInput, { capture: true, passive: true })' 'win.document.body?.addEventListener(t, onUserInput, { capture: true, passive: true })'
 # MIX-1699: N = pominiecie przejscia przy nieprzyjetym cofnieciu, P = koniec okna manual przy ruchu uzytkownika
-mut N1-unclaimed-pop-no-skip "$W" '    if (!claimBack(win.location)) return skipBackTransition();' '    if (!claimBack(win.location)) return;'
+mut N1-unclaimed-pop-no-skip "$W" '    if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);' '    if (!claimBack(win.location)) return;'
 mut N2-skip-no-cleanup "$G" '    t.skipTransition();
     cleanup();' '    t.skipTransition();'
 mut N3-skip-no-skiptransition "$G" '    t.skipTransition();
@@ -119,7 +119,7 @@ mut N3-skip-no-skiptransition "$G" '    t.skipTransition();
 mut N4-skip-not-released-at-end "$X" '    setTransitionActive(false);
     skip.release();' '    setTransitionActive(false);'
 mut N5-skip-never-registered "$X" '  skip = setBackSkip(transition, cleanup);' ''
-mut N6-release-ignores-identity "$G" '    if (skipActive === skip) skipActive = null;' '    skipActive = null;'
+mut N6-release-ignores-identity "$K" '    if (skipActive === skip) skipActive = null;' '    skipActive = null;'
 mut P1-input-no-revert "$G" '  dropClaim();
   revertManualRestoration();
 }' '  dropClaim();
@@ -131,7 +131,7 @@ mut P4-click-drops-claim "$G" "  win.addEventListener('click', revertManualResto
 # MIX-1699 r2: K = budzenie wywolania zwrotnego (U1-U16 usuniete razem z utils/caseStudyBackUndo.ts, MIX-1707)
 mut K1-no-wake "$G" '    wake(false);' ''
 mut K2-race-removed "$X" 'await Promise.race([waitUntil(opts.listReady, cardMs, opts.live), skip.woken]);' 'await waitUntil(opts.listReady, cardMs, opts.live);'
-mut K3-woken-at-once "$G" 'const woken = new Promise<false>((resolve) => (wake = resolve));' 'const woken = Promise.resolve(false as const);'
+mut K3-woken-at-once "$K" 'const woken = new Promise<false>((resolve) => (wake = resolve));' 'const woken = Promise.resolve(false as const);'
 # MIX-1707: C = przywrocenie listy dopiero po potwierdzeniu pojedynczego cofniecia (okno, bilet, jeden wlasciciel)
 mut C1-no-confirm-wait "$X" '      if (left > 0) await Promise.race([new Promise((r) => setTimeout(r, left)), skip.woken]);' ''
 mut C2-wait-not-woken "$X" 'if (left > 0) await Promise.race([new Promise((r) => setTimeout(r, left)), skip.woken]);' 'if (left > 0) await new Promise((r) => setTimeout(r, left));'
@@ -154,6 +154,20 @@ mut C13-new-claim-owned "$G" '{ key: at, gen: generation, owned: false }' '{ key
 mut C14-own-without-claim "$G" '  if (claim !== null) claim.owned = owned;' '  claim!.owned = owned;'
 mut C15-restore-not-waiting "$W" "      restore: (y) => void startRestore(y, { win, doc, guard: live })," "      restore: (y) => win.scrollTo({ top: y, left: 0, behavior: 'instant' }),"
 mut C16-restore-guard-removed "$W" '      restore: (y) => void startRestore(y, { win, doc, guard: live }),' '      restore: (y) => void startRestore(y, { win, doc }),'
-for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackOptions.ts utils/caseStudyBackBrowser.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
+# MIX-1707 r2: the router gets an unclaimed popstate only after the skipped callback released paint
+mut D1-no-defer "$K" '  e.stopImmediatePropagation();
+  const gen' '  const gen'
+mut D2-no-generation-check "$K" '    if (currentGeneration() === gen) handToRouter();' '    handToRouter();'
+mut D3-generation-inverted "$K" '    if (currentGeneration() === gen) handToRouter();' '    if (currentGeneration() !== gen) handToRouter();'
+mut D4-no-release-cap "$K" '      const timer = setTimeout(resolve, releaseMs);' '      const timer = setTimeout(() => undefined, releaseMs);'
+mut D5-release-cap-0 "$O" 'export const BACK_RELEASE_MAX_MS = 100;' 'export const BACK_RELEASE_MAX_MS = 0;'
+mut D6-release-on-success-only "$K" '      t.updateCallbackDone.then(done, done);' '      t.updateCallbackDone.then(done);'
+mut D7-no-transition-deferred "$K" '  if (released === null) return false;' '  if (released === null) {
+    e.stopImmediatePropagation();
+    return false;
+  }'
+mut D8-hand-over-twice "$K" '    if (currentGeneration() === gen) handToRouter();' '    if (currentGeneration() === gen) handToRouter();
+    handToRouter();'
+for f in utils/caseStudyBack.ts utils/caseStudyGeneration.ts utils/caseStudyRestore.ts utils/caseStudyBackTransition.ts utils/caseStudyBackOptions.ts utils/caseStudyBackBrowser.ts utils/caseStudyBackSkip.ts components/common/ScrollToTop.tsx; do cmp "$f" "$PR/$f" || echo "NIEZGODNE z wzorcem: $f"; done
 git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | head
 echo "mutanty: $(grep -c zabity "$OUT/mutants.txt") zabite, $(grep -c PRZEZYL "$OUT/mutants.txt") przezylo, $(grep -c BLAD "$OUT/mutants.txt") bledne"

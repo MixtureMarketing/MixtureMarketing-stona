@@ -9,7 +9,8 @@ import {
   type VtDocument,
 } from './viewTransitions';
 import { setTransitionActive } from './caseStudyTransition';
-import { NO_SKIP, ownBack, setBackSkip, type BackSkip } from './caseStudyGeneration';
+import { ownBack } from './caseStudyGeneration';
+import { NO_SKIP, setBackSkip, type BackSkip } from './caseStudyBackSkip';
 import {
   BACK_CARD_MAX_MS,
   BACK_CONFIRM_MS,

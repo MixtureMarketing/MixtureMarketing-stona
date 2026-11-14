@@ -84,41 +84,6 @@ export function backOwned(): boolean {
 }
 
 /**
- * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
- * (utils/caseStudyBackTransition.ts, `release` = wyrejestrowanie przy końcu); nieprzyjęte cofnięcie (np.
- * drugie cofnięcie na "/" w trakcie przejścia) woła skipBackTransition: skipTransition, nazwy i atrybut
- * znikają od razu, zanim router wyrenderuje nową stronę, a dalej działa przeglądarka. Brak przejścia = nic.
- * r2: `woken` budzi wywołanie zwrotne przejścia od razu (sonda r1: koniec wywołania +72 ms po drugim
- * cofnięciu, za renderem nowej strony, z malowaniem wstrzymanym przez przejście). MIX-1707: bez żadnego
- * przewinięcia z naszej strony (oddawanie pozycji z f431473 usunięte; listy nie przewijamy przed potwierdzeniem).
- */
-export interface BackSkip {
-  release: () => void;
-  woken: Promise<false>;
-}
-export const NO_SKIP: BackSkip = { release: () => undefined, woken: new Promise(() => undefined) };
-let skipActive: (() => void) | null = null;
-export function setBackSkip(t: { skipTransition: () => void }, cleanup: () => void): BackSkip {
-  let wake: (v: false) => void = () => undefined;
-  const woken = new Promise<false>((resolve) => (wake = resolve));
-  const skip = () => {
-    t.skipTransition();
-    cleanup();
-    wake(false);
-  };
-  skipActive = skip;
-  const release = () => {
-    if (skipActive === skip) skipActive = null;
-  };
-  return { release, woken };
-}
-export function skipBackTransition(): void {
-  const skip = skipActive;
-  skipActive = null;
-  skip?.();
-}
-
-/**
  * Ruch użytkownika po cofnięciu (kółko, dotyk, klawisz, przycisk myszy) = dropClaim i od razu koniec okna
  * `manual`. MIX-1699: PUSH (link) kopiuje tryb bieżącego wpisu na nowy wpis, a wycofanie z timera pisze już
  * tylko na nowy; okno kończymy więc na wpisie listy, zanim router zrobi PUSH (mousedown, touchstart, keydown

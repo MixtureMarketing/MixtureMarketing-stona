@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { BACK_CARD_MAX_MS, BACK_CONFIRM_MS } from '@/utils/caseStudyBackTransition';
+import { BACK_RELEASE_MAX_MS } from '@/utils/caseStudyBackOptions';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
 import { startRestore } from '@/utils/caseStudyRestore';
 import {
@@ -394,15 +395,18 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     let atRouter: unknown = null;
     router.mockImplementationOnce(() => {
       atRouter = [
-        firstSkip.mock.calls.length,
+        firstSkip.mock.calls.length > 0,
         document.documentElement.hasAttribute(VT_ATTR),
         document.querySelector('[style*="view-transition-name"]') !== null,
       ];
     });
     window.history.pushState({}, '', '/');
     pop();
+    // MIX-1707 r2: the router gets the second back only after the skipped callback ended
+    expect(atRouter).toBeNull();
+    await vi.advanceTimersByTimeAsync(1);
     // skipped, attribute and every name gone, all before the router sees the second back
-    expect(atRouter).toEqual([1, false, false]);
+    expect(atRouter).toEqual([true, false, false]);
     await vi.advanceTimersByTimeAsync(400);
     expect(router).toHaveBeenCalledTimes(2);
     expect(scrollTo).not.toHaveBeenCalled();
@@ -420,6 +424,93 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     pop();
     expect(done).not.toHaveBeenCalled();
     expect(router).toHaveBeenCalledTimes(2);
+  });
+
+  // MIX-1707 r2 (lead decision): a newer popstate while our back is pending ends the transition at once and
+  // the router gets it only after the paint hold is released (update callback settled, at most
+  // BACK_RELEASE_MAX_MS); a newer popstate meanwhile = our hand-over is dropped; no transition = router at once
+  describe('MIX-1707 r2: second back waits for the released paint hold', () => {
+    let endCb: (ok: boolean) => void = () => undefined;
+    // the update callback runs as usual, but its end (updateCallbackDone) is under the test's control
+    function heldVT(settles = true) {
+      startVT.mockImplementation((cb: () => Promise<void>) => {
+        void Promise.resolve().then(cb);
+        skip = vi.fn();
+        const finished = new Promise<void>((r) => (release = r));
+        const updateCallbackDone = new Promise<void>((resolve, reject) => {
+          endCb = (ok) => (settles ? (ok ? resolve() : reject(new Error('cb'))) : undefined);
+        });
+        updateCallbackDone.catch(() => undefined);
+        return { ready: Promise.resolve(), finished, updateCallbackDone, skipTransition: skip };
+      });
+    }
+    function toRoot() {
+      window.history.pushState({}, '', '/');
+      pop();
+    }
+
+    it('refusal: the router does not get the second back while the skipped callback still holds paint', async () => {
+      expect(BACK_RELEASE_MAX_MS).toBe(100);
+      heldVT();
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      expect(router).toHaveBeenCalledTimes(1);
+      toRoot();
+      expect(skip).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(50);
+      expect(router).toHaveBeenCalledTimes(1);
+      endCb(true);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(router).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(500);
+      expect(router).toHaveBeenCalledTimes(2);
+      expect(scrollTo).not.toHaveBeenCalled();
+    });
+
+    it('refusal: a callback that never ends does not stop the navigation (router at 100 ms, not before)', async () => {
+      heldVT(false);
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      toRoot();
+      await vi.advanceTimersByTimeAsync(BACK_RELEASE_MAX_MS - 5);
+      expect(router).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(10);
+      expect(router).toHaveBeenCalledTimes(2);
+    });
+
+    it('refusal: a callback that fails releases the second back at once (no wait to the limit)', async () => {
+      heldVT();
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      toRoot();
+      endCb(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(router).toHaveBeenCalledTimes(2);
+    });
+
+    it('refusal: a newer popstate during the wait drops our hand-over (router gets only the newer one)', async () => {
+      heldVT(false);
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      toRoot();
+      window.history.pushState({}, '', '/kontakt/');
+      pop(); // no transition of ours any more: straight to the router
+      expect(router).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(500);
+      expect(router).toHaveBeenCalledTimes(2);
+    });
+
+    it('allowed twin: no transition of ours in progress = the router gets the popstate synchronously', () => {
+      page(true);
+      window.history.pushState({}, '', '/');
+      pop();
+      expect(startVT).not.toHaveBeenCalled();
+      expect(router).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('MIX-1699 r2 / MIX-1707: fast second back', () => {

@@ -9,6 +9,12 @@ export const BACK_CARD_MAX_MS = 300;
  * 32–193 ms przy wyłączonym i w bazie; 250 = najdłuższy zmierzony + zapas, w granicy BACK_CARD_MAX_MS.
  */
 export const BACK_CONFIRM_MS = 250;
+/**
+ * MIX-1707 r2: najdłużej tyle ms nieprzyjęte cofnięcie (np. drugie na "/") w trakcie naszego przejścia czeka na
+ * koniec wywołania zwrotnego pominiętego przejścia (zwolnienie wstrzymanego malowania), zanim router je dostanie;
+ * brak rozstrzygnięcia w tym czasie = router dostaje je i tak (nawigacja nigdy nie stoi).
+ */
+export const BACK_RELEASE_MAX_MS = 100;
 /** Dopuszczalne odchylenie pozycji po powrocie (px). */
 export const SCROLL_TOLERANCE_PX = 4;
 
