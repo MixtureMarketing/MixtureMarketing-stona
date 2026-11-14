@@ -1,17 +1,23 @@
 // MIX-1280 b: warstwa wizualna artykułu „aplikacje dedykowane z AI”. Tekst bez zmian (zgodny ze szkicem
-// docs/tresci/MIX-1280.md), ≥ 12 sekcji z AnimateOnScroll, ≥ 3 infografiki z aria-label, SVG z role="img",
+// docs/tresci/MIX-1280.md), ≥ 12 sekcji z AnimateOnScroll, dokładnie 4 infografiki z aria-label, SVG z role="img",
 // fakty infografik tylko z tekstu, prefers-reduced-motion = brak ruchu, artykuł nadal ukryty.
 import fs from 'node:fs';
 import path from 'node:path';
 import React from 'react';
 import { act, render, waitFor } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ModalProvider } from '../../context/ModalContext';
 import { NotificationProvider } from '../../context/NotificationContext';
 import AiSystemsArticle from '../../components/articles/AiSystemsArticle';
-import { AiProcessTimeline } from '../../components/articles/visuals/AiSystemsVisuals';
+import {
+  AiCompare,
+  AiProcessTimeline,
+  AiStackDiagram,
+  AiStatCards,
+} from '../../components/articles/visuals/AiSystemsVisuals';
 import {
   AI_ARTICLE_CONTENT as CONTENT,
   AI_ARTICLE_SLUG,
@@ -93,11 +99,11 @@ describe('wizualnie: sekcje z animacją i infografiki', () => {
     }
   });
 
-  it('ma ≥ 3 infografiki, każda z niepustym aria-label po polsku', async () => {
+  it('ma dokładnie 4 infografiki, każda z niepustym aria-label po polsku', async () => {
     const { container } = renderArticle();
     await waitFor(() => expect(container.querySelector('h1')).not.toBeNull());
     const infos = Array.from(container.querySelectorAll('[data-infographic]'));
-    expect(infos.length).toBeGreaterThanOrEqual(3);
+    expect(infos).toHaveLength(4);
     for (const el of infos) {
       const label = el.getAttribute('aria-label') ?? '';
       expect(label.length, `${el.getAttribute('data-infographic')} bez aria-label`).toBeGreaterThan(
@@ -192,6 +198,124 @@ describe('wizualnie: tekst bez zmian, fakty infografik z tekstu', () => {
     expect(titles).toHaveLength(4);
     const bullets = 'bullets' in section && section.bullets ? section.bullets : [];
     titles.forEach((t, i) => expect(bullets[i].startsWith(`${t}.`)).toBe(true));
+  });
+});
+
+// MIX-1677: pełny skan widocznego tekstu infografik (allowlista, nie denylista). Każda liczba musi być
+// liczbą z tekstu artykułu; każde słowo z dużej litery to albo słowo z tekstu (początek zdania), albo
+// pozycja z krótkiej jawnej listy NAZWY_DOZWOLONE (w środku zdania). Nazwa klienta albo nowa liczba = czerwono.
+// Początki etykiet (Porównanie, Schemat) i grzeczne formy (Twój, Twoim, Ciebie) są zwykłymi słowami, nie nazwami.
+const NAZWY_DOZWOLONE = new Set(['AI', 'B2B', 'Twój', 'Twoim', 'Ciebie', 'Porównanie', 'Schemat']);
+/** Etykiety generowane kodem (numer kroku osi czasu), nie fakty. */
+const ETYKIETY_KODU = /^Krok [1-4]$/;
+const norm = (s: string) => s.replace(/\s+/g, ' ').trim(); // \s w JS obejmuje też spację niełamliwą
+const liczby = (s: string) =>
+  norm(s).match(/(?<![\p{L}\p{N}])\d+(?:\s\d{3})*(?![\p{L}\p{N}])/gu) ?? [];
+const slowa = (s: string) =>
+  norm(s)
+    .toLowerCase()
+    .match(/[\p{L}\p{N}-]+/gu) ?? [];
+const articleJson = () => JSON.stringify(CONTENT);
+
+/** Cały widoczny tekst: węzły tekstowe (w tym SVG text/tspan/title) + aria-label, title, alt. */
+const visibleItems = (root: Element): string[] => {
+  const out: string[] = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const t = norm(walker.currentNode.textContent ?? '');
+    if (t) out.push(t);
+  }
+  root.querySelectorAll('[aria-label],[title],[alt]').forEach((el) => {
+    for (const a of ['aria-label', 'title', 'alt']) {
+      const v = norm(el.getAttribute(a) ?? '');
+      if (v) out.push(v);
+    }
+  });
+  return out.filter((t) => !ETYKIETY_KODU.test(t));
+};
+
+const renderAllVisuals = () =>
+  render(
+    <MemoryRouter>
+      <AiProcessTimeline />
+      <AiStatCards />
+      <AiCompare />
+      <AiStackDiagram />
+    </MemoryRouter>,
+  );
+
+/** Naruszenia: liczby spoza tekstu artykułu i nazwy własne spoza listy. Puste = czysto. */
+const naruszenia = (items: string[], article: string): string[] => {
+  const num = new Set(liczby(article));
+  const words = new Set(slowa(article));
+  const bad: string[] = [];
+  for (const it of items) {
+    for (const n of liczby(it)) if (!num.has(n)) bad.push(`liczba „${n}” w „${it}”`);
+    const re = /\p{Lu}[\p{L}\p{N}-]*/gu;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(it))) {
+      const w = m[0];
+      const pocz = /^$|[.!?:]\s+$/.test(it.slice(0, m.index));
+      if (NAZWY_DOZWOLONE.has(w)) continue;
+      if (pocz && words.has(w.toLowerCase())) continue;
+      bad.push(`nazwa „${w}” w „${it}”`);
+    }
+  }
+  return bad;
+};
+
+describe('wizualnie: pełny skan tekstu infografik (MIX-1677)', () => {
+  it('skan obejmuje stack (aiNote, frame, engineering), tytuły i punkty „nie”, podpisy, moduły i etykiety', () => {
+    const { container } = renderAllVisuals();
+    const all = visibleItems(container);
+    const items = all.join(' | ');
+    const S = VISUALS.stack;
+    const expected = [
+      ...S.aiNote.split(' '),
+      S.frame,
+      S.engineering,
+      S.ai,
+      ...S.modules,
+      VISUALS.compare.yes.title,
+      VISUALS.compare.no.title,
+      ...VISUALS.compare.no.items,
+      ...VISUALS.compare.yes.items,
+      ...VISUALS.stats.items.flatMap((i) => [i.value, i.caption]),
+      VISUALS.process.label,
+      VISUALS.stats.label,
+      VISUALS.compare.label,
+      S.label,
+    ];
+    expect(all.length).toBeGreaterThan(30);
+    for (const e of expected) expect(items, `skan nie widzi „${e}”`).toContain(e);
+    expect(container.querySelectorAll('svg text').length).toBeGreaterThan(8);
+  });
+
+  it('każda liczba i każda nazwa własna w widocznym tekście infografik pochodzi z tekstu artykułu albo z listy dozwolonych', () => {
+    const { container } = renderAllVisuals();
+    expect(naruszenia(visibleItems(container), articleJson())).toEqual([]);
+  });
+
+  it('wykrywacz działa: nowa liczba, nazwa klienta i nazwa w środku zdania są czerwone, tekst z artykułu nie', () => {
+    const a = articleJson();
+    expect(naruszenia(['bywa tylko 5% systemu'], a)).toHaveLength(1);
+    expect(naruszenia(['portal B2B Q-PLAST'], a)).toHaveLength(1);
+    expect(naruszenia(['Q-PLAST bywa'], a)).toHaveLength(1);
+    expect(naruszenia(['od 77 000 zł'], a)).toHaveLength(1);
+    expect(naruszenia(['od 23 000 zł', 'aplikacje dedykowane z AI', '24 godziny'], a)).toEqual([]);
+  });
+
+  it('domyślna wartość ruchu: bez --p z hooka (prerender, brak JS) markup ma var(--p, 1), nigdy var(--p, 0) ani var(--p) bez wartości', () => {
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <AiProcessTimeline />
+        <AiStackDiagram />
+      </MemoryRouter>,
+    );
+    const wszystkie = html.match(/var\(--p[^)]*\)/g) ?? [];
+    expect(wszystkie.length).toBeGreaterThan(10);
+    for (const w of wszystkie) expect(w).toBe('var(--p, 1)');
+    expect(html).not.toContain('--p:');
   });
 });
 
