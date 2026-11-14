@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { BACK_CARD_MAX_MS, BACK_CONFIRM_MS } from '@/utils/caseStudyBackTransition';
-import { BACK_RELEASE_MAX_MS } from '@/utils/caseStudyBackOptions';
+import { BACK_RELEASE_MAX_MS, BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { recordScroll, resetPositions, savedPosition } from '@/utils/caseStudyBack';
 import { startRestore } from '@/utils/caseStudyRestore';
 import {
@@ -109,7 +109,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(document.querySelector('.card img')?.getAttribute('style')).toContain(
       'realizacja-zdjecie',
     );
-    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja-powrot');
     release();
     await vi.advanceTimersByTimeAsync(10);
     expect(document.querySelector('[style*="view-transition-name"]')).toBeNull();
@@ -389,7 +389,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     pop();
     await vi.advanceTimersByTimeAsync(20);
     expect(router).toHaveBeenCalledTimes(1);
-    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja-powrot');
     expect(skip).not.toHaveBeenCalled();
     const firstSkip = skip;
     let atRouter: unknown = null;
@@ -513,6 +513,100 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     });
   });
 
+  // MIX-1711 (verdict MIX-1707, A12/A13): a transition object whose updateCallbackDone is missing, not a promise,
+  // or throws on read, or whose skipTransition throws, never holds the second back: the router always gets it
+  describe('MIX-1711: a broken transition object never stops the held second back (A12, A13)', () => {
+    type Shape = 'missing' | 'not-a-promise' | 'getter-throws' | 'then-throws' | 'skip-throws';
+    function brokenVT(shape: Shape) {
+      startVT.mockImplementation((cb: () => Promise<void>) => {
+        // the callback calls skipTransition itself (newer navigation): a throwing one rejects it, as in a browser
+        Promise.resolve()
+          .then(cb)
+          .catch(() => undefined);
+        skip = vi.fn(() => {
+          if (shape === 'skip-throws') throw new Error('skip');
+        });
+        const finished = new Promise<void>((r) => (release = r));
+        const t: Record<string, unknown> = {
+          ready: Promise.resolve(),
+          finished,
+          skipTransition: skip,
+        };
+        if (shape === 'not-a-promise') t.updateCallbackDone = 42;
+        if (shape === 'getter-throws')
+          Object.defineProperty(t, 'updateCallbackDone', {
+            get() {
+              throw new Error('getter');
+            },
+          });
+        if (shape === 'then-throws')
+          t.updateCallbackDone = {
+            then() {
+              throw new Error('then');
+            },
+          };
+        // skip-throws: the callback never ends, so only the 100 ms cap releases the second back
+        if (shape === 'skip-throws') t.updateCallbackDone = new Promise<void>(() => undefined);
+        return t;
+      });
+    }
+    function toRoot() {
+      window.history.pushState({}, '', '/');
+      pop();
+    }
+
+    for (const shape of ['missing', 'not-a-promise', 'getter-throws', 'then-throws'] as const)
+      it(`refusal to hold: updateCallbackDone ${shape} = the router gets the second back at once, once`, async () => {
+        brokenVT(shape);
+        page(true);
+        pop();
+        await vi.advanceTimersByTimeAsync(20);
+        expect(router).toHaveBeenCalledTimes(1);
+        toRoot();
+        expect(skip).toHaveBeenCalledTimes(1);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(router).toHaveBeenCalledTimes(2);
+        expect(router.mock.calls[1][0].type).toBe('popstate');
+        await vi.advanceTimersByTimeAsync(500);
+        expect(router).toHaveBeenCalledTimes(2);
+        expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+      });
+
+    it('refusal to hold: skipTransition throws = names cleared and the router gets the second back by the cap', async () => {
+      brokenVT('skip-throws');
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      toRoot();
+      expect(skip).toHaveBeenCalledTimes(1);
+      expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+      await vi.advanceTimersByTimeAsync(BACK_RELEASE_MAX_MS - 5);
+      expect(router).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(10);
+      expect(router).toHaveBeenCalledTimes(2);
+    });
+
+    it('allowed twin: a proper updateCallbackDone still holds the second back until the callback ends', async () => {
+      let end: () => void = () => undefined;
+      startVT.mockImplementation((cb: () => Promise<void>) => {
+        void Promise.resolve().then(cb);
+        skip = vi.fn();
+        const finished = new Promise<void>((r) => (release = r));
+        const updateCallbackDone = new Promise<void>((r) => (end = r));
+        return { ready: Promise.resolve(), finished, updateCallbackDone, skipTransition: skip };
+      });
+      page(true);
+      pop();
+      await vi.advanceTimersByTimeAsync(20);
+      toRoot();
+      await vi.advanceTimersByTimeAsync(30);
+      expect(router).toHaveBeenCalledTimes(1);
+      end();
+      await vi.advanceTimersByTimeAsync(1);
+      expect(router).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('MIX-1699 r2 / MIX-1707: fast second back', () => {
     let y = 0;
     const setY = (v: unknown) =>
@@ -557,7 +651,7 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     it('refusal: a second back to "/" inside the window: no scroll of ours, ever', async () => {
       page(true);
       pop();
-      await vi.advanceTimersByTimeAsync(100);
+      await vi.advanceTimersByTimeAsync(60);
       expect(router).toHaveBeenCalledTimes(1);
       const atRouter = secondBack();
       expect(atRouter()).toEqual([]);
@@ -567,22 +661,24 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
       expect(router).toHaveBeenCalledTimes(2);
     });
 
-    it('refusal: a second back just inside the window (240 ms): no scroll', async () => {
+    it('refusal: a second back just inside the window (85 ms): no scroll', async () => {
       page(true);
       pop();
-      await vi.advanceTimersByTimeAsync(240);
+      await vi.advanceTimersByTimeAsync(85);
       secondBack();
       await vi.advanceTimersByTimeAsync(2000);
       expect(scrollTo).not.toHaveBeenCalled();
     });
 
-    it('allowed twin: a single back is restored once, right after the 250 ms window', async () => {
-      expect(BACK_CONFIRM_MS).toBe(250);
+    // MIX-1711: the window is 90 ms from the accepted back (was 250: +190 ms of frozen screen before frame 1)
+    it('allowed twin: a single back is restored once, right after the 90 ms window', async () => {
+      expect(BACK_CONFIRM_MS).toBe(90);
+      expect(BACK_SETTLE_MS).toBe(32);
       page(true);
       pop();
-      await vi.advanceTimersByTimeAsync(240);
+      await vi.advanceTimersByTimeAsync(85);
       expect(scrollTo).not.toHaveBeenCalled();
-      await vi.advanceTimersByTimeAsync(30);
+      await vi.advanceTimersByTimeAsync(10);
       expect(scrollTo).toHaveBeenCalledTimes(1);
       expect(scrollTo).toHaveBeenCalledWith(instantTo(1500));
     });

@@ -7,8 +7,15 @@ export const BACK_CARD_MAX_MS = 300;
  * zanim przewinie listę: drugie cofnięcie w tym czasie = nasz kod nic nie przewija. Pomiar sondy r2 (chmura,
  * odstępy history.back() 12–30 ms): drugi popstate 17–152 ms po pierwszym przy włączonym przełączniku,
  * 32–193 ms przy wyłączonym i w bazie; 250 = najdłuższy zmierzony + zapas, w granicy BACK_CARD_MAX_MS.
+ * MIX-1711: 250 ms dawało +190 ms zamrożonego ekranu przed pierwszą klatką powrotu (wejście startuje po 63–84 ms;
+ * sonda .bieg/mix1711/smooth.sh). Drugie cofnięcie spóźnia się, bo stoi za renderem listy (zegar history.back()
+ * czeka na wolny wątek), więc okno ma dwie części: co najmniej BACK_CONFIRM_MS od przyjęcia ORAZ co najmniej
+ * BACK_SETTLE_MS od chwili, gdy lista jest gotowa (wątek wolny, zaległe cofnięcie zdąży dojść). Sonda MIX-1707 r2
+ * (chmura): drugi popstate 14–48 ms po pierwszym; 90 = 2 × 48 bez dwóch klatek.
  */
-export const BACK_CONFIRM_MS = 250;
+export const BACK_CONFIRM_MS = 90;
+/** MIX-1711: najkrótsze czekanie po gotowości listy, zanim ją przewiniemy (dwie klatki 60 Hz). */
+export const BACK_SETTLE_MS = 32;
 /**
  * MIX-1707 r2: najdłużej tyle ms nieprzyjęte cofnięcie (np. drugie na "/") w trakcie naszego przejścia czeka na
  * koniec wywołania zwrotnego pominiętego przejścia (zwolnienie wstrzymanego malowania), zanim router je dostanie;
@@ -39,4 +46,5 @@ export interface BackRunOptions {
   doc: Document;
   cardMs?: number;
   confirmMs?: number;
+  settleMs?: number;
 }

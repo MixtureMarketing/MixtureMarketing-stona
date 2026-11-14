@@ -1,0 +1,2167 @@
+{
+  "result": {
+    "href": "/portfolio/try-dive-szkola-nurkowania/",
+    "T": {
+      "E": 300,
+      "B": 300
+    },
+    "namesE": [
+      "realizacja-tytul",
+      "realizacja-zdjecie",
+      "root"
+    ],
+    "namesB": [
+      "realizacja-tytul",
+      "realizacja-zdjecie",
+      "root"
+    ],
+    "rows": [
+      {
+        "kb": "group(realizacja-tytul)",
+        "ke": "group(realizacja-tytul)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "visible",
+        "fitE": "visible"
+      },
+      {
+        "kb": "old(realizacja-tytul)",
+        "ke": "new(realizacja-tytul)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "fill",
+        "fitE": "fill"
+      },
+      {
+        "kb": "new(realizacja-tytul)",
+        "ke": "old(realizacja-tytul)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "fill",
+        "fitE": "fill"
+      },
+      {
+        "kb": "group(realizacja-zdjecie)",
+        "ke": "group(realizacja-zdjecie)",
+        "dpx": 0.014999999999986358,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "hidden",
+        "fitE": "hidden"
+      },
+      {
+        "kb": "old(realizacja-zdjecie)",
+        "ke": "new(realizacja-zdjecie)",
+        "dpx": 0.014999999999986358,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "cover",
+        "fitE": "cover"
+      },
+      {
+        "kb": "new(realizacja-zdjecie)",
+        "ke": "old(realizacja-zdjecie)",
+        "dpx": 0.014999999999986358,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "cover",
+        "fitE": "cover"
+      },
+      {
+        "kb": "group(root)",
+        "ke": "group(root)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "visible",
+        "fitE": "visible"
+      },
+      {
+        "kb": "old(root)",
+        "ke": "new(root)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "fill",
+        "fitE": "fill"
+      },
+      {
+        "kb": "new(root)",
+        "ke": "old(root)",
+        "dpx": 0,
+        "dpxK": 0,
+        "dop": 0,
+        "dopK": 0,
+        "ok": true,
+        "easeB": "cubic-bezier(0.82, 0, 0.68, 0.28)",
+        "easeE": "cubic-bezier(0.32, 0.72, 0.18, 1)",
+        "fitB": "fill",
+        "fitE": "fill"
+      }
+    ],
+    "fails": [],
+    "stepsE": [
+      {
+        "k": 0,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 64,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 64,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 150,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 1,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 0,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 1,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 166.5,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 98.6875,
+            "op": 0.753574,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 231.312,
+            "op": 0.246426,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 0.753574,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 0.246426,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.753574,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.246426,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 2,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 283.5,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 138.281,
+            "op": 0.472355,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 324.109,
+            "op": 0.527645,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 0.472355,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 0.527645,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.472355,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.527645,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 3,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 376.219,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 169.672,
+            "op": 0.249452,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 397.672,
+            "op": 0.750548,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 0.249452,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 0.750548,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.249452,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.750548,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 4,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 424.828,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 186.125,
+            "op": 0.13262,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 436.219,
+            "op": 0.86738,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 0.13262,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 0.86738,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.13262,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.86738,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 5,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 450.078,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 194.672,
+            "op": 0.0719134,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 456.25,
+            "op": 0.928087,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 0.0719134,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 0.928087,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0719134,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.928087,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 6,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 464.266,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 199.469,
+            "op": 0.0378179,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 467.516,
+            "op": 0.962182,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 0.0378179,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 0.962182,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0378179,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.962182,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 7,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 472.469,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 202.25,
+            "op": 0.0180783,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 474.016,
+            "op": 0.981922,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 0.0180783,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 0.981922,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0180783,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.981922,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 8,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 477.078,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 203.812,
+            "op": 0.00699093,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 477.688,
+            "op": 0.993009,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 0.00699093,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 0.993009,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.00699093,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.993009,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 9,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 479.344,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 204.578,
+            "op": 0.00154724,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 479.484,
+            "op": 0.998453,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 0.00154724,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 0.998453,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.00154724,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.998453,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      },
+      {
+        "k": 10,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 480,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 204.797,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 480,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.969,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.969,
+            "op": 0,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.969,
+            "op": 1,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.32, 0.72, 0.18, 1)"
+          }
+        }
+      }
+    ],
+    "stepsB": [
+      {
+        "k": 0,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 480,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 480,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 128,
+            "y": 806,
+            "w": 1024,
+            "h": 204.797,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.984,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.984,
+            "op": 1,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 107,
+            "y": 92,
+            "w": 1066.64,
+            "h": 599.984,
+            "op": 0,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 1,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 479.344,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 479.484,
+            "op": 0.998453,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 128.545,
+            "y": 805.384,
+            "w": 1022.91,
+            "h": 204.578,
+            "op": 0.00154724,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 0.998453,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 107.528,
+            "y": 91.9938,
+            "w": 1065.59,
+            "h": 599.5,
+            "op": 0.00154724,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.998453,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.00154724,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 2,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 477.078,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 477.688,
+            "op": 0.993009,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 130.461,
+            "y": 803.218,
+            "w": 1019.08,
+            "h": 203.812,
+            "op": 0.00699093,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 0.993009,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 109.384,
+            "y": 91.972,
+            "w": 1061.88,
+            "h": 597.797,
+            "op": 0.00699093,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.993009,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.00699093,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 3,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 472.469,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 474.016,
+            "op": 0.981922,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 134.364,
+            "y": 798.805,
+            "w": 1011.27,
+            "h": 202.25,
+            "op": 0.0180783,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 0.981922,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 113.165,
+            "y": 91.9277,
+            "w": 1054.31,
+            "h": 594.344,
+            "op": 0.0180783,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.981922,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0180783,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 4,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 464.266,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 467.516,
+            "op": 0.962182,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 141.312,
+            "y": 790.948,
+            "w": 997.375,
+            "h": 199.469,
+            "op": 0.0378179,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 0.962182,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 119.896,
+            "y": 91.8487,
+            "w": 1040.83,
+            "h": 588.172,
+            "op": 0.0378179,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.962182,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0378179,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 5,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 450.078,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 456.25,
+            "op": 0.928087,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 153.314,
+            "y": 777.378,
+            "w": 973.359,
+            "h": 194.672,
+            "op": 0.0719134,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 0.928087,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 131.522,
+            "y": 91.7123,
+            "w": 1017.56,
+            "h": 577.547,
+            "op": 0.0719134,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.928087,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.0719134,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 6,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 424.828,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 436.219,
+            "op": 0.86738,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 174.682,
+            "y": 753.217,
+            "w": 930.625,
+            "h": 186.125,
+            "op": 0.13262,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 0.86738,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 152.223,
+            "y": 91.4695,
+            "w": 976.109,
+            "h": 558.594,
+            "op": 0.13262,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.86738,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.13262,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 7,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 376.219,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 397.672,
+            "op": 0.750548,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 215.807,
+            "y": 706.718,
+            "w": 848.375,
+            "h": 169.672,
+            "op": 0.249452,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 0.750548,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 192.063,
+            "y": 91.0022,
+            "w": 896.359,
+            "h": 522.156,
+            "op": 0.249452,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.750548,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.249452,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 8,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 283.5,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 324.109,
+            "op": 0.527645,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 294.269,
+            "y": 618.003,
+            "w": 691.453,
+            "h": 138.281,
+            "op": 0.472355,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 0.527645,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 268.073,
+            "y": 90.1106,
+            "w": 744.188,
+            "h": 452.609,
+            "op": 0.472355,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.527645,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.472355,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 9,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 166.5,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 231.312,
+            "op": 0.246426,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 393.258,
+            "y": 506.078,
+            "w": 493.469,
+            "h": 98.6875,
+            "op": 0.753574,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 0.246426,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 363.969,
+            "y": 88.9857,
+            "w": 552.219,
+            "h": 364.875,
+            "op": 0.753574,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.246426,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0.753574,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      },
+      {
+        "k": 10,
+        "names": [
+          "realizacja-tytul",
+          "realizacja-zdjecie",
+          "root"
+        ],
+        "rec": {
+          "group(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 64,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 150,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-tytul)": {
+            "x": 480,
+            "y": 408,
+            "w": 320,
+            "h": 64,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 1,
+            "fit": "hidden",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 0,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(realizacja-zdjecie)": {
+            "x": 448,
+            "y": 88,
+            "w": 384,
+            "h": 288,
+            "op": 1,
+            "fit": "cover",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "group(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "visible",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "old(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 0,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          },
+          "new(root)": {
+            "x": 0,
+            "y": 0,
+            "w": 1280,
+            "h": 800,
+            "op": 1,
+            "fit": "fill",
+            "ease": "cubic-bezier(0.82, 0, 0.68, 0.28)"
+          }
+        }
+      }
+    ]
+  },
+  "strip": {
+    "file": "/dane/lsys-pula/m1711r2rev-261114212028-mixt-07bf75/repo/.bieg/mix1711/out/strip-1280.png",
+    "pix": [
+      1.3,
+      2.3,
+      2.4,
+      1.3,
+      0.8,
+      0.5,
+      0.4,
+      0.4,
+      0.4,
+      0.4,
+      0.1
+    ]
+  },
+  "video": {
+    "file": "/dane/lsys-pula/m1711r2rev-261114212028-mixt-07bf75/repo/.bieg/mix1711/out/video-1280.webm",
+    "bytes": 252693,
+    "frames": "ENTER=10 BACK=10"
+  },
+  "errors": []
+}
