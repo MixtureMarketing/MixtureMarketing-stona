@@ -17,6 +17,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const WIDTHS = [360, 375, 390, 412, 768, 1280];
 const MAX = { budget: 50000, cpc: 0.5, cr: 5, aov: 5000 };
 let bad = 0;
+const axeBase = new Map();
 
 async function measure(page) {
   return page.evaluate(() => {
@@ -34,7 +35,8 @@ async function measure(page) {
         r.selectNodeContents(n);
         for (const rect of r.getClientRects()) {
           if (rect.height < 1) continue;
-          if (!tops.some((t) => Math.abs(t - rect.top) < rect.height * 0.5)) tops.push(rect.top);
+          const mid = rect.top + rect.height / 2;
+          if (!tops.some((t) => Math.abs(t - mid) < rect.height * 0.5)) tops.push(mid);
         }
       }
       return tops.length;
@@ -126,8 +128,8 @@ async function run(which, w, state) {
       (fail.length ? ` => ${which === 'after' ? 'NIE' : 'ref'}: ${fail.join('; ')}` : ' => OK'),
   );
   if (fail.length && which === 'after') bad++;
-  // axe: tylko po zmianie, 375 i 1280 w obu stanach
-  if (which === 'after' && (w === 375 || w === 1280)) {
+  // axe: przed i po (375 i 1280); błąd = serious/critical po zmianie, którego nie było przed zmianą (ten sam id i cel)
+  if (w === 375 || w === 1280) {
     await page.addScriptTag({ content: axeSrc });
     const res = await page.evaluate(() =>
       window.axe.run(document, {
@@ -135,10 +137,16 @@ async function run(which, w, state) {
       }),
     );
     const sc = res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    const keys = sc.map((v) => `${v.id} ${v.nodes[0]?.target?.join(' ')}`);
     console.log(`axe ${tag}: naruszen ${res.violations.length}, serious/critical ${sc.length}`);
-    for (const v of res.violations)
-      console.log(`  axe ${v.impact} ${v.id} (${v.nodes.length}) ${v.nodes[0]?.target?.join(' ')}`);
-    if (sc.length) bad++;
+    for (const k of keys) console.log(`  axe serious/critical ${k}`);
+    const base = `${w}-${state}`;
+    if (which === 'before') axeBase.set(base, new Set(keys));
+    else {
+      const novel = keys.filter((k) => !axeBase.get(base)?.has(k));
+      console.log(`axe ${tag}: nowych wzgledem przed zmiana ${novel.length}`);
+      if (novel.length) bad++;
+    }
   }
   // zrzut panelu wyników (bez lepkich pasków i banera)
   await page.addStyleTag({
