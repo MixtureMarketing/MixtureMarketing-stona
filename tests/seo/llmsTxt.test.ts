@@ -888,6 +888,119 @@ describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = d�
   });
 });
 
+describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżoker dla reszty), pary z dżokerem', () => {
+  // Formy V17/V19/X01–X03 z WERDYKT-MIX-1670 (przeszły) + własne H. Znaki spoza ASCII jako \u, bo
+  // greckie Ϲ/Σ i łacińskie C/E wyglądają w kodzie tak samo. Każda odmowa ma bliźniaka, który przechodzi.
+  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const sm = xml('/a/');
+  const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
+  const L = 'llms.txt linia 4: ';
+  const AB = '/abonament/dziekujemy/';
+  const AI = '/web-development/systemy-ai-aplikacje/';
+  const ART = '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/';
+  const hitAB = [`${L}ścieżka strony ukrytej ${AB} (szkielet abonamentdziekujemy)`];
+  const hitAI = [`${L}ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje)`];
+  const hitART = [`${L}ścieżka strony ukrytej ${ART} (szkielet aplikacjededykowanezaikiedywarto)`];
+  const ab = (id: string, attack: string, twin: string): [string, string, string[], string] => [
+    id,
+    `- Strona ${attack}`,
+    hitAB,
+    `- Strona ${twin}`,
+  ];
+  const ai = (id: string, attack: string, twin: string): [string, string, string[], string] => [
+    id,
+    `- Nowość: ${attack}`,
+    hitAI,
+    `- Nowość: ${twin}`,
+  ];
+  const forms: [string, string, string[], string][] = [
+    // Ϲ U+03F9 → NFKC Σ; zamiana na C przed NFKC (bliźniak: Ϲ zamiast K = aplicacje, przechodzi).
+    ai('H01 greckie Ϲ U+03F9 (V17, X02)', 'SYSTEMY-AI-APLIKAϹJE', 'SYSTEMY-AI-APLIϹACJE'),
+    ai('H02 greckie ϲ U+03F2 (X01)', 'systemy-ai-aplikaϲje', 'systemy-ai-apliϲacje'),
+    ab('H03 greckie Σ jako E (V19)', 'ABONAMΣNT/DZIEKUJEMY', 'ABONAMΣNT/CENNIK'),
+    ai('H04 greckie Σ jako S', 'ΣYΣTEMY-AI-APLIKACJE', 'ΣYΣTEMY AI i APLIKACJE'),
+    ab('H05 greckie Ω jako O (X03)', 'ABΩNAMENT/DZIEKUJEMY', 'ABΩNAMENT/CENNIK'),
+    [
+      'H06 greckie Γ (małe γ w tablicy = y) jako R',
+      '- Artykuł: APLIKACJE-DEDYKOWANE-Z-AI-KIEDY-WAΓTO',
+      hitART,
+      '- Artykuł: APLIKACJE-DEDYKOWANE-Z-AI-KIEDY-WAΓ',
+    ],
+    ab('H07 cyrylickie wielkie Д spoza tablicy', 'ABONAMENT/ДZIEKUJEMY', 'CENNIK/ДZIEKUJEMY'),
+    ab('H08 ukraińskie wielkie Є spoza tablicy', 'ABONAMЄNT/DZIEKUJEMY', 'ABONAMЄNT/CENNIK'),
+    ab('H09 rn z dżokerem jako drugą literą', 'abonarօent/dziekujemy', 'abonarօent/cennik'),
+    ab('H10 cl z dżokerem jako drugą literą', 'abonament/cօziekujemy', 'cennik/cօziekujemy'),
+    ab('H11 rn z dżokerem jako pierwszą literą', 'abonaօnent/dziekujemy', 'abonaօnent/cennik'),
+    [
+      'H12 vv z dżokerem jako drugą literą',
+      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vօarto',
+      hitART,
+      '- Artykuł: aplikacje-dedykowane-z-ai-kiedy-vօato',
+    ],
+    ai(
+      'H13 łacińskie wielkie Ł (małe litery tylko dla łaciny)',
+      'SYSTEMY-AI-APŁIKACJE',
+      'SYSTEMY AI i APŁIKACJE',
+    ),
+    ab(
+      'H14 cyrylickie wielkie А В О М Е Т (wiersz wielkich liter)',
+      'АВОNAМЕNТ/DZIEKUJEMY',
+      'АВОNAМЕNТ/CENNIK',
+    ),
+  ];
+
+  it(`co najmniej 10 form H (jest ${forms.length})`, () => {
+    expect(forms.length).toBeGreaterThanOrEqual(10);
+  });
+
+  for (const [name, line, whys, twin] of forms) {
+    it(`odmowa: ${name}`, () => {
+      const r = llmsReport(`${base}${line}\n`, sm, opts);
+      expect(r.problems).toEqual(whys);
+      expect(r.ok).toBe(false);
+    });
+    it(`OK (bliźniak): ${name}`, () => {
+      const r = llmsReport(`${base}${twin}\n`, sm, opts);
+      expect(r.problems).toEqual([]);
+      expect(r.ok).toBe(true);
+    });
+  }
+
+  it('Ϲ rozbite końcem linii: odmowa po złączeniu; bliźniak przechodzi', () => {
+    const r = llmsReport(`${base}- Nowość: systemy-ai-\n> - aplikaϹje\n`, sm, opts);
+    expect(r.problems).toEqual([
+      `llms.txt: ścieżka strony ukrytej ${AI} (szkielet systemyaiaplikacje) po złączeniu linii`,
+    ]);
+    const twin = llmsReport(`${base}- Nowość: systemy-ai-\n> - apliϹacje\n`, sm, opts);
+    expect(twin.problems).toEqual([]);
+  });
+
+  // Proza w innych językach przechodzi (pisma spoza łaciny: tylko tablica albo dżoker, bez długiego
+  // ciągu dżokerów); długi wiersz w piśmie spoza tablicy zostaje odmową (AV19, test MIX-1670).
+  const prose = [
+    '- Zażółć gęślą jaźń: ĄĆĘŁŃÓŚŹŻ ąćęłńóśźż',
+    '- Українською: ми створюємо сайти, системи штучного інтелекту та застосунки для бізнесу',
+    '- По-русски: мы делаем сайты, системы искусственного интеллекта и приложения для бизнеса',
+    '- Ελληνικά: κατασκευή ιστοσελίδων και εφαρμογών τεχνητής νοημοσύνης για επιχειρήσεις',
+    '- ΣΥΣΤΗΜΑΤΑ ΤΕΧΝΗΤΗΣ ΝΟΗΜΟΣΥΝΗΣ ΓΙΑ ΕΠΙΧΕΙΡΗΣΕΙΣ',
+    '- Auf Deutsch: Webentwicklung, Systeme für künstliche Intelligenz, Größe und Qualität',
+  ];
+  for (const t of prose) {
+    it(`proza przechodzi: ${t.slice(2, 14)}`, () => {
+      const r = llmsReport(`${base}${t}\n`, sm, opts);
+      expect(r.problems).toEqual([]);
+    });
+  }
+
+  it('szkielet: tablica dla wszystkich pism bez małych liter, łacina z małymi literami, reszta = dżoker', () => {
+    const W = WILDCARD;
+    expect(skeletonText('ΑΒΩ Σ Ϲϲ ΓДЄ')).toBe(`abo ${W} cc ${W}${W}${W}`);
+    expect(skeletonText('ŁÓĐƐ ßẞ')).toBe(`iod${W} ssss`);
+    expect(skeletonText('АВЕКМНОРСТУХ')).toBe('abekmhopctyx');
+    expect(skeletonText('a|b @c 3 ١')).toBe(`a/b /c 3 ${W}`);
+  });
+});
+
 describe('llmsReport: wejście puste albo nieczytelne = odmowa (fail-closed)', () => {
   const opts = { keyPaths: ['/a/'], hiddenPaths: ['/hidden/'] };
   const ok = `- [a](${BASE_URL}/a/): opis\n`;

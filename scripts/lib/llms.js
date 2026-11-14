@@ -53,8 +53,21 @@ export const KEY_PATHS = [
   '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
 ];
 
+/**
+ * Sobowtóry, które NFKC zamienia na literę o innym wyglądzie (MIX-1684): `Ϲ` U+03F9 → `Σ`,
+ * `ϲ` U+03F2 → `ς`. Zamieniane na łaciński odpowiednik PRZED NFKC, w każdym miejscu użycia norm().
+ */
+const PRE_NFKC = new Map([
+  ['\u03F9', 'C'],
+  ['\u03F2', 'c'],
+]);
+
 /** Jedno miejsce normalizacji Unicode (NFKC: pełna szerokość, ligatury, indeksy górne → ASCII). */
-export const norm = (s) => String(s).normalize('NFKC');
+export const norm = (s) =>
+  [...String(s)]
+    .map((c) => PRE_NFKC.get(c) ?? c)
+    .join('')
+    .normalize('NFKC');
 
 /** Znaki odrzucane wszędzie: sterujące (też CR i tab), formatujące (ZWSP, ZWJ, BOM, RLO, miękki
  * dywiz), prywatne, nieprzypisane, surogaty, separatory linii/akapitu, domyślnie ignorowane. */
@@ -111,49 +124,67 @@ export function linkProblem(url) {
 }
 
 /**
- * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39; MIX-1670): każdy znak po NFKC → NFKD,
- * bez znaków łączących (ogonek, kropka nad İ), sobowtór z SKELETON_MAP → ASCII PRZED małymi
- * literami (greckie `Ν`, `Υ`, `Η` po małych literach dawały v, u, n), potem małe litery i tablica
- * jeszcze raz; litera albo cyfra [a-z0-9] zostaje. Każda inna litera, cyfra albo symbol spoza ASCII
- * (Μ, ɛ, Armenian օ, Coptic ⲟ, `ノ`, `⟋`, `∩`) → WILDCARD: dowolna jedna litera ścieżki albo
- * separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy). Odstęp i interpunkcja zdania →
- * ' ' (separator miękki), reszta ASCII i interpunkcja spoza ASCII (ukośnik, myślnik, `*`, `_`, `⸺`)
- * → '/' (separator twardy).
+ * Szkielet do skanu stron ukrytych (MIX-1665, idea UTS #39; allowlista liter MIX-1684). Każdy znak
+ * po norm() (sobowtóry przed NFKC, NFKC) → NFKD bez znaków łączących, potem:
+ *  1. tablica SKELETON_MAP (allowlista, wszystkie pisma, wielkie i małe litery osobno, BEZ małych
+ *     liter przed nią): wartość = litera [a-z], cyfra albo WILDCARD (znak o dwóch odczytach, `Σ`);
+ *  2. tylko litera łacińska (\p{Script=Latin}) spoza tablicy: małe litery, bez znaków łączących,
+ *     tablica jeszcze raz; wynik spoza [a-z0-9] (`ɛ`, `ƶ`, `ɨ`) → WILDCARD;
+ *  3. cyfra ASCII zostaje; każda inna litera, cyfra albo symbol spoza ASCII (greckie `Δ`, `Ξ`,
+ *     ormiańskie `օ`, gruzińskie, chińskie, `٥`, `∩`) → WILDCARD: dowolna jedna litera ścieżki albo
+ *     separator (fail-closed, nieznany znak nigdy nie rozrywa nazwy i nigdy nie jest małą literą);
+ *  4. odstęp i interpunkcja zdania → ' ' (separator miękki), reszta ASCII (`|`, `@`, `/`, `-`, `*`)
+ *     i interpunkcja spoza ASCII (`⸺`) → '/' (separator twardy). ASCII `|`, `@` i cyfra `3` nie są
+ *     sobowtórami liter (decyzja projektu MIX-1684: zwykłe znaki tekstu, nie fałszywe odmowy).
  */
-// Pary [sobowtór, szkielet ASCII]: cyrylica, greka, łacina rozszerzona, kapitaliki, wielkie litery
-// greckie i cyrylickie `И` (sprawdzane przed małymi literami); na końcu klasy mylone w ASCII (l i 1
-// → i, 0 → o), wspólne dla tekstu i ścieżki. Wartości są końcowe (bez drugiego przejścia).
+// Pary [sobowtór, szkielet ASCII]: cyrylica małe i wielkie, greka małe i wielkie, łacina rozszerzona
+// i kapitaliki; na końcu klasy mylone w ASCII (l i 1 → i, 0 → o). Wartości są końcowe.
 const SKELETON_PAIRS = [
   ['авгезикмнопрстухьѕіјԁԛԝүһӏꙇ', 'abre3ukmhonpctyxbsijdqwyhii'],
-  ['αβγεηικνορστυχω', 'abyenikvopotuxw'],
-  ['ΑΒΕΖΗΙΚΜΝΟΡΤΥΧИ', 'abezhikmnoptyxn'],
+  ['АВЕЅІЈКМНОРСТУХЬҮҺӀԚԜИ', 'abesijkmhopctyxbyhiqwn'],
+  ['αβγεηικνορστυχωϳ', 'abyenikvopotuxwj'],
+  ['ΑΒΕΖΗΙΚΜΝΟΡΤΥΧΩ', 'abezhikmnoptyxo'],
   ['ıȷłđħŧøɑɡɩɪʟᴀʙᴄᴅᴇɢʜᴊᴋᴍɴᴏᴘʀꜱᴛᴜᴠᴡʏᴢ', 'ijidhtoagiiiabcdeghjkmnoprstuvwyz'],
   ['l10', 'iio'],
 ];
+
+/** Znak szkieletu dla litery, cyfry albo symbolu spoza tablicy (dowolna litera albo separator). */
+export const WILDCARD = '?';
 const SKELETON_MAP = new Map([
   ...SKELETON_PAIRS.flatMap(([from, to]) => [...from].map((c, i) => [c, to[i]])),
   ['ß', 'ss'],
   ['æ', 'ae'],
   ['œ', 'oe'],
+  // Σ: wygląda jak E, czyta się S (i jest NFKC-postacią Ϲ) = dowolna litera.
+  ['Σ', WILDCARD],
 ]);
+for (const [from, to] of SKELETON_PAIRS) {
+  if ([...from].length !== to.length) throw new Error(`SKELETON_PAIRS: długość ${from}`);
+}
 const SOFT_SEP_RE = /[\s.,;:!?'"()„”«»…]/u;
-
-/** Znak szkieletu dla litery, cyfry albo symbolu spoza tablicy (dowolna litera albo separator). */
-export const WILDCARD = '?';
+const LATIN_RE = /^\p{Script=Latin}$/u;
 const noMarks = (s) => s.normalize('NFKD').replace(/\p{M}/gu, '');
 const fold = (s) => [...s].map((c) => SKELETON_MAP.get(c) ?? c).join('');
 const isWild = (c) => /[\p{L}\p{N}]/u.test(c) || (c > '\x7f' && /\p{S}/u.test(c));
+
+/** Szkielet jednego znaku (po NFKC i NFKD bez znaków łączących): kroki 1–4 z opisu wyżej. */
+function skeletonChar(c) {
+  const mapped = SKELETON_MAP.get(c);
+  if (mapped !== undefined) return mapped;
+  if (LATIN_RE.test(c)) {
+    const m = fold(noMarks(c.toLowerCase()));
+    return /^[a-z0-9]+$/.test(m) ? m : WILDCARD;
+  }
+  if (/^[0-9]$/.test(c)) return c;
+  if (isWild(c)) return WILDCARD;
+  return SOFT_SEP_RE.test(c) ? ' ' : '/';
+}
 
 /** Szkielet ze znacznikami: znaki tylko z [a-z0-9 /] i WILDCARD. */
 export function skeletonText(s) {
   let out = '';
   for (const ch of norm(s)) {
-    for (const c of noMarks(ch)) {
-      const m = SKELETON_MAP.get(c) ?? fold(noMarks(c.toLowerCase()));
-      if (/^[a-z0-9]+$/.test(m)) out += m;
-      else if (isWild(c)) out += WILDCARD;
-      else out += SOFT_SEP_RE.test(c) ? ' ' : '/';
-    }
+    for (const c of noMarks(ch)) out += skeletonChar(c);
   }
   return out;
 }
@@ -395,7 +426,7 @@ export function llmsReport(llmsText, sitemapXml, opts = {}) {
         problems.push(`llms.txt linia ${n}: adres spoza sitemapy: ${v.path}`);
       }
     }
-    const sk = [skeletonText(raw), skeletonText(decodePct(norm(raw).toLowerCase()))];
+    const sk = [skeletonText(raw), skeletonText(decodePct(norm(raw)))];
     for (const [p, k, re] of needles) {
       if (hitPaths.has(p)) continue;
       if (sk.some((s) => re.test(s))) {
