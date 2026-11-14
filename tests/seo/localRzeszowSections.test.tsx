@@ -91,7 +91,12 @@ describe.each(strony)('%s: sekcja lokalna Rzeszów', (_nazwa, Page, path, conten
     const hrefy = Array.from(sekcja.querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(hrefy).toContain('/contact/');
     expect(hrefy).toContain(localPath);
-    expect(sekcja.textContent).toContain(SITE_CONFIG.contact.address.postalCode);
+    // Decyzja Jakuba B (14.11): telefon tak, adresu rejestrowego w sekcji nie ma.
+    const { street, postalCode } = SITE_CONFIG.contact.address;
+    expect(sekcja.textContent).not.toContain(street);
+    expect(sekcja.textContent).not.toContain(postalCode);
+    expect(sekcja.textContent).not.toContain('Adres rejestrowy');
+    expect(hrefy).toContain(`tel:${SITE_CONFIG.contact.phoneFull}`);
     expect(sekcja.textContent).toContain('Rzeszów');
   });
 
