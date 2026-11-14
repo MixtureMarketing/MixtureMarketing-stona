@@ -1,0 +1,13 @@
+[bieg-na-stacji] wykluczono 1 plik(ow) wygladajacych na sekrety (lista w logu): /home/mixture/sesje/mixture-strona/logi/bieg-stacja-m1680m-261114082513-mixt-5f74d6-20261114-092513.log
+BIEG:OSTRZEZENIE=sprzatanie sieroty niepelne: BIEG:INFO=pominięto 14 (inny sid) BIEG:POMINIETO=1 environ nieczytelne: pid 61 BIEG:ZATRZYMANO=0
+BIEG:GIT-OK=8709757
+[bieg-na-stacji] synchronizacja ok, start polecenia na stacji
+BIEG:SLOT=11 z 14
+BIEG:LIMIT_PROCESOW=4096
+npm-ci rc=0
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files 1 failed | 6 passed (7)
+ Tests 1 failed | 430 passed (431)
+baseline rc=1
+baseline NIE zielony
+[bieg-na-stacji] rc=1, synchronizacja 13 s, bieg 66 s, log: /home/mixture/sesje/mixture-strona/logi/bieg-stacja-m1680m-261114082513-mixt-5f74d6-20261114-092513.log

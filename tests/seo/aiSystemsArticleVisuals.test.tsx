@@ -336,7 +336,7 @@ describe('wizualnie: pełny skan tekstu infografik (MIX-1677)', () => {
     expect(naruszenia(['historia bibmot'], a).join()).toContain('bibmot');
     expect(naruszenia(['bibmot historia'], a).join()).toContain('bibmot');
     expect(naruszenia(['portal b2b q-plast'], a).join()).toContain('q-plast');
-    expect(naruszenia(['studentpi'], a).join()).toContain('studentpi');
+    expect(naruszenia(['allegro'], a).join()).toContain('allegro');
     expect(naruszenia(['od 23 000 zł', 'aplikacje dedykowane z AI', '24 godziny'], a)).toEqual([]);
   });
 
