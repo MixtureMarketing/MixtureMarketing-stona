@@ -38,7 +38,8 @@ const PROJECT = {
 // (aspect-*, h-*, min-h-*, max-h-*, size-*, aspect-ratio / height arbitrary properties, with or without a
 // variant or important prefix) must be exactly one of the allowed tokens; anything else fails. The card
 // allows only `aspect-[16/9]`; the hero also keeps its unprefixed `max-h-[75vh]` viewport cap.
-const SHAPE_TOKEN = /(^|:|!)(aspect|h|min-h|max-h|size|basis)-|aspect-ratio|(^|\[)(min-|max-)?height/;
+const SHAPE_TOKEN =
+  /(^|:|!)(aspect|h|min-h|max-h|size|basis)-|aspect-ratio|(^|\[)(min-|max-)?height/;
 const CARD_ALLOWED = ['aspect-[16/9]'];
 const HERO_ALLOWED = ['aspect-[16/9]', 'max-h-[75vh]'];
 
@@ -87,9 +88,9 @@ describe('MIX-1722: the checker itself (negative leg, allowlist)', () => {
     expect(uniformAspect('rounded aspect-[16/9] max-h-[75vh] mb-12', HERO_ALLOWED)).toBe(
       'aspect-[16/9]',
     );
-    expect(() =>
-      uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED),
-    ).toThrow(OUT);
+    expect(() => uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED)).toThrow(
+      OUT,
+    );
     expect(() => uniformAspect('aspect-[16/9] md:h-96', HERO_ALLOWED)).toThrow(OUT);
   });
   it('accepts exactly the allowed token and unrelated classes', () => {
