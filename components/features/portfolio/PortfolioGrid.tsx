@@ -7,6 +7,9 @@ import BaseCard from '../../common/BaseCard';
 import { urlFor } from '../../../services/cmsService';
 import { isTransitionActive } from '../../../utils/caseStudyTransition';
 
+/** MIX-1722: the card photo has the same 16:9 crop as the case-study hero (HERO_PHOTO, 1600x900), at half the size. */
+export const CARD_PHOTO = { width: 800, height: 450 } as const;
+
 interface PortfolioGridProps {
   projects: SanityCaseStudy[];
   loading: boolean;
@@ -34,9 +37,9 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
             key={i}
             variant="solid"
             padding="none"
-            className="h-[500px] animate-pulse flex flex-col overflow-hidden"
+            className="animate-pulse flex flex-col overflow-hidden"
           >
-            <div className="h-2/3 bg-gray-200 w-full" />
+            <div className="aspect-[16/9] bg-gray-200 w-full" />
             <div className="p-8 space-y-4">
               <div className="h-4 bg-gray-200 rounded w-1/3" />
               <div className="h-8 bg-gray-200 rounded w-3/4" />
@@ -71,13 +74,17 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               className="h-full flex flex-col border-gray-100 relative"
             >
               {/* Image Container */}
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+              <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                 {project.mainImage ? (
                   <img
-                    src={urlFor(project.mainImage).width(800).height(600).url()}
+                    src={urlFor(project.mainImage)
+                      .width(CARD_PHOTO.width)
+                      .height(CARD_PHOTO.height)
+                      .fit('crop')
+                      .url()}
                     alt={project.title}
-                    width={800}
-                    height={600}
+                    width={CARD_PHOTO.width}
+                    height={CARD_PHOTO.height}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />
