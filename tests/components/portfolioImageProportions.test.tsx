@@ -85,6 +85,21 @@ function assertAllowlist(className: string | null | undefined, allowed: string[]
   return tokens;
 }
 
+/**
+ * MIX-1732: the frame carries no inline style except viewTransitionName (U4: style={{ height: 240 }} on the
+ * card frame passed the className allowlist). Fail closed: any other property is a refusal naming it.
+ * `extra`: the entrance animation of the OFF hero frame (framer-motion writes opacity and transform).
+ */
+function assertFrameStyle(el: Element, extra: string[] = []): void {
+  const attr = el.getAttribute('style') ?? '';
+  const props = attr
+    .split(';')
+    .map((d) => d.split(':')[0].trim().toLowerCase())
+    .filter(Boolean);
+  const stray = props.filter((p) => p !== 'view-transition-name' && !extra.includes(p));
+  if (stray.length) throw new Error(`inline style outside the allowlist: ${stray.join(' ')}`);
+}
+
 /** Returns the aspect class; throws on a token outside the allowlist or a missing/doubled aspect. */
 function uniformAspect(className: string, allowed: string[] = CARD_FRAME): string {
   const tokens = assertAllowlist(className, allowed);
@@ -97,6 +112,69 @@ function uniformAspect(className: string, allowed: string[] = CARD_FRAME): strin
 afterEach(() => vi.unstubAllEnvs());
 
 const OUT = /class outside the allowlist/;
+
+describe('MIX-1732: whole-token matching of the checker (prefix, suffix, case, variants)', () => {
+  const base = 'relative aspect-[16/9] overflow-hidden bg-gray-100';
+  // Each refused form is a near-miss of an allowed token or of a forbidden one; the checker compares
+  // the WHOLE token (startsWith / endsWith / includes mutants accept some of them). Twin = allowed token.
+  it.each([
+    ['relative-x', 'prefix of an allowed token', 'relative'],
+    ['xrelative', 'suffix of an allowed token', 'relative'],
+    ['xrelativex', 'allowed token inside', 'relative'],
+    ['relative-', 'allowed token plus a dash', 'relative'],
+    ['aspect-[16/9]x', 'allowed aspect plus a suffix', 'overflow-hidden'],
+    ['xaspect-[16/9]', 'allowed aspect with a prefix', 'overflow-hidden'],
+    ['bg-gray-100x', 'allowed colour plus a suffix', 'bg-gray-100'],
+    ['Relative', 'case differs', 'relative'],
+    ['xflex-1', 'prefix on a forbidden token', 'bg-gray-100'],
+    ['flex-1x', 'suffix on a forbidden token', 'bg-gray-100'],
+    ['md:flex-1/2', 'variant and a fraction', 'relative'],
+    ['flex-1/2', 'fraction', 'relative'],
+  ])('refuses the whole token %s (%s), the twin %s passes', (token, _why, twin) => {
+    expect(() => uniformAspect(`${base} ${token}`)).toThrow(OUT);
+    expect(() => uniformAspect(`${base} ${token}`)).toThrow(token);
+    expect(uniformAspect(`${base} ${twin}`)).toBe('aspect-[16/9]');
+  });
+  it('a token that is only a prefix of the allowed list entry is refused (no startsWith)', () => {
+    expect(() => assertAllowlist('rel', ['relative'])).toThrow(/outside the allowlist: rel$/);
+    expect(() => assertAllowlist('tive', ['relative'])).toThrow(/outside the allowlist: tive$/);
+    expect(assertAllowlist('relative', ['relative'])).toEqual(['relative']);
+  });
+});
+
+describe('MIX-1732: frame inline style (viewTransitionName only), negative leg and twins', () => {
+  const frame = (style?: string) => {
+    const el = document.createElement('div');
+    if (style !== undefined) el.setAttribute('style', style);
+    return el;
+  };
+  it.each([
+    ['height: 240px', /inline style outside the allowlist: height/],
+    ['height:240px', /: height$/],
+    ['aspect-ratio: 4 / 3', /: aspect-ratio/],
+    ['min-height: 200px', /min-height/],
+    ['view-transition-name: x; height: 10px', /: height$/],
+    ['HEIGHT: 240px', /: height$/],
+    ['flex: 1', /: flex/],
+  ])('refuses the style %s', (style, text) => {
+    expect(() => assertFrameStyle(frame(style))).toThrow(text);
+  });
+  it('the animation allowance is only opacity and transform (a size still refused)', () => {
+    const ok = ['opacity', 'transform'];
+    expect(() => assertFrameStyle(frame('opacity: 0; transform: none'), ok)).not.toThrow();
+    expect(() => assertFrameStyle(frame('opacity: 0; height: 240px'), ok)).toThrow(/: height$/);
+    expect(() => assertFrameStyle(frame('transform: none; aspect-ratio: 4 / 3'), ok)).toThrow(
+      /aspect-ratio/,
+    );
+    expect(() => assertFrameStyle(frame('opacity: 0'))).toThrow(/: opacity$/);
+  });
+  it.each([undefined, '', '  ', 'view-transition-name: vt-image', 'view-transition-name:x;'])(
+    'accepts the style %j (twin)',
+    (style) => {
+      expect(() => assertFrameStyle(frame(style))).not.toThrow();
+    },
+  );
+});
 
 describe('MIX-1724: the checker itself (negative leg, allowlist, refusal text)', () => {
   // The 10 forms that passed the old shape-token checker, each with an allowed twin (an allowed token of
@@ -173,11 +251,6 @@ describe('MIX-1724: the checker itself (negative leg, allowlist, refusal text)',
   });
 });
 
-/** The three crop calls of one render: width, height, fit. */
-function cropCalls(): Array<[string, unknown]> {
-  return calls.filter(([k]) => ['width', 'height', 'fit'].includes(k));
-}
-
 describe('MIX-1722/1724: hero (photo at the top) has 16/9 on every width, switch ON and OFF', () => {
   it.each<[string, string | undefined, string[]]>([
     ['ON', '1', HERO_FRAME_ON],
@@ -200,8 +273,13 @@ describe('MIX-1722/1724: hero (photo at the top) has 16/9 on every width, switch
     // Reserved space intact: the intrinsic size is 16:9 as well.
     expect(photo.getAttribute('width')).toBe('1600');
     expect(photo.getAttribute('height')).toBe('900');
-    // Same crop request as the card: width, height, fit crop (a deleted .fit('crop') turns this red).
-    expect(cropCalls()).toEqual([
+    // OFF: the frame is a motion.div, its entrance animation writes opacity + transform (never a size).
+    expect(() =>
+      assertFrameStyle(frame, _label === 'OFF' ? ['opacity', 'transform'] : []),
+    ).not.toThrow();
+    // Same crop request as the card, the WHOLE call list (MIX-1732): a deleted .fit('crop') and an extra
+    // .crop('top') or .auto(..) both turn this red (U1, U6).
+    expect(calls).toEqual([
       ['width', 1600],
       ['height', 900],
       ['fit', 'crop'],
@@ -234,6 +312,7 @@ describe('MIX-1722/1724: list card image is 16/9 like the hero (same crop box, n
     const photo = screen.getByRole('img', { name: 'Alfa' });
     const frame = photo.parentElement!;
     expect(uniformAspect(frame.className)).toBe('aspect-[16/9]');
+    expect(() => assertFrameStyle(frame)).not.toThrow();
     expect(() => assertAllowlist(photo.className, CARD_IMG)).not.toThrow();
     expect(photo.getAttribute('width')).toBe('800');
     expect(photo.getAttribute('height')).toBe('450');
@@ -270,6 +349,7 @@ describe('MIX-1722/1724: list card image is 16/9 like the hero (same crop box, n
     );
     const block = container.querySelector('.animate-pulse > div > div')!;
     expect(uniformAspect(block.className, SKELETON_FRAME)).toBe('aspect-[16/9]');
+    expect(() => assertFrameStyle(block)).not.toThrow();
     expect(container.innerHTML).not.toMatch(/h-\[500px\]|h-2\/3/);
   });
 });

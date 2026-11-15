@@ -20,6 +20,7 @@
     "audit:a11y": "node scripts/audit-a11y.js",
     "audit:seo": "node scripts/audit-seo.js",
     "audit:llms": "node scripts/check-llms.mjs",
+    "audit:proportions": "node scripts/audit-proportions.mjs dist",
     "audit:health": "node scripts/audit-health.js",
     "audit:perf": "node scripts/audit-performance.js",
     "preview": "vite preview",
