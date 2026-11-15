@@ -111,14 +111,20 @@ try {
       let hero = null;
       if (first.href) {
         await page.goto(ORIGIN + first.href, { waitUntil: 'networkidle2', timeout: 45000 });
-        await page.waitForSelector('header img[fetchpriority="high"]', { timeout: 20000 });
+        // Stable hook: the hero photo is the non-SVG image whose alt equals the page H1 (the case-study title).
+        // Never "the first img" (the nav logo is an SVG). Not found = unmeasured (exit 2).
+        const pick = () => {
+          const h1 = document.querySelector('h1');
+          const t = h1 && h1.textContent.trim();
+          return t ? [...document.images].find((x) => x.alt.trim() === t && !/\.svg(\?|$)/i.test(x.currentSrc || x.src)) || null : null;
+        };
+        await page.waitForFunction(`(${pick.toString()})() !== null`, { timeout: 20000 });
         await sleep(1200);
-        hero = await page.evaluate(() => {
-          const i = document.querySelector('header img[fetchpriority="high"]');
-          const f = i.parentElement.getBoundingClientRect();
-          const cs = getComputedStyle(i.parentElement);
-          return { w: f.width, h: f.height, ratio: f.width / f.height, attr: i.getAttribute('width') + 'x' + i.getAttribute('height'), ar: cs.aspectRatio, maxH: cs.maxHeight, src: i.currentSrc || i.src };
-        });
+        hero = await page.evaluate(`(() => { const pick = ${pick.toString()}; const i = pick(); if (!i) return null;
+          const f = i.parentElement.getBoundingClientRect(); const cs = getComputedStyle(i.parentElement);
+          return { w: f.width, h: f.height, ratio: f.width / f.height, attr: i.getAttribute('width') + 'x' + i.getAttribute('height'), ar: cs.aspectRatio, maxH: cs.maxHeight, src: i.currentSrc || i.src }; })()`);
+        // Instrument check: a hero that is an SVG (logo) or missing means the measure is wrong, not the product.
+        if (!hero || /\.svg(\?|$)/i.test(hero.src)) throw new Error('INSTRUMENT: hero not found or is an SVG: ' + (hero && hero.src));
       }
       const ratios = list.cards.map((c) => c.ratio);
       const cardMin = Math.min(...ratios);
