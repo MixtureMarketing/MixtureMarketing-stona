@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // MIX-1741: grid class of components/features/portfolio/PortfolioGrid.tsx for a probe variant (footer.sh).
-//   node .bieg/mix1741/variant.mjs <bug|fixa|nocv>   (run from the repo root; the file is restored by footer.sh)
+//   node .bieg/mix1741/variant.mjs <bug|fixa|nocv|m2|m3|m5>   (run from the repo root; the file is restored by the caller)
 // bug  = the class of 3febcb0 (contain-intrinsic-size without `auto`: a skipped grid collapses to 1500 px),
 // fixa = contain-intrinsic-size with `auto` (last remembered size), nocv = no content-visibility on the grid.
 // Exit 1 when the class is not found or the result does not hold (fail-closed).
@@ -18,6 +18,10 @@ const to = {
   bug: ' [content-visibility:auto] [contain-intrinsic-size:1px_1500px]',
   fixa: ' [content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_1500px]',
   nocv: '',
+  // mutants of the fix line (mut.sh): auto on the inline axis only, auto on the block axis only, a second size class
+  m2: ' [content-visibility:auto] [contain-intrinsic-size:auto_1px_1500px]',
+  m3: ' [content-visibility:auto] [contain-intrinsic-size:1px_auto_1500px]',
+  m5: ' [content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_1500px] [contain-intrinsic-size:1px_1500px]',
 }[v];
 if (to === undefined) {
   console.error(`unknown variant ${v}`);
