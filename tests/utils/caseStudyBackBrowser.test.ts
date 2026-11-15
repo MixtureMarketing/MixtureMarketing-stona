@@ -412,47 +412,6 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
-  it('MIX-1739 (K3): after the held second back reaches the router, a late jump off the top goes back to 0', async () => {
-    page(true);
-    Object.defineProperty(document.documentElement, 'scrollHeight', {
-      value: 1000,
-      configurable: true,
-    });
-    pop();
-    await vi.advanceTimersByTimeAsync(20);
-    const frames: FrameRequestCallback[] = [];
-    const raf = vi
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation((cb) => frames.push(cb));
-    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true, writable: true });
-    window.history.pushState({}, '', '/');
-    pop();
-    const ticks = () => frames.filter((cb) => cb.name === 'tick').length;
-    expect(ticks()).toBe(0);
-    await vi.advanceTimersByTimeAsync(400);
-    expect(router).toHaveBeenCalledTimes(2);
-    expect(ticks()).toBe(1);
-    scrollTo.mockClear();
-    const runFrames = () => frames.splice(0).forEach((cb) => cb(0));
-    runFrames();
-    expect(scrollTo).not.toHaveBeenCalled();
-    Object.defineProperty(window, 'scrollY', { value: 153, configurable: true, writable: true });
-    runFrames();
-    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
-    raf.mockRestore();
-    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true, writable: true });
-  });
-
-  it('MIX-1739 (K3) twin: a back we take (no transition in progress) starts no pin', async () => {
-    const raf = vi.spyOn(window, 'requestAnimationFrame');
-    window.history.pushState({}, '', '/');
-    pop();
-    await vi.advanceTimersByTimeAsync(400);
-    expect(router).toHaveBeenCalledTimes(1);
-    expect(raf).not.toHaveBeenCalled();
-    raf.mockRestore();
-  });
-
   it('MIX-1699: allowed twin: a finished transition is not skipped again by a later back we do not take', async () => {
     page(true);
     pop();

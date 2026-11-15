@@ -12,7 +12,6 @@ import {
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
 import { skipAndHandOver } from './caseStudyBackSkip';
-import { withTopPin } from './caseStudyRootScroll';
 import { backTicket, claimBack } from './caseStudyGeneration';
 import { canReach, startRestore } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
@@ -77,9 +76,8 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // cofnięcie dokładnie na listę źródłową, każde inne = przeglądarka (jak przy wyłączonym przełączniku)
     // MIX-1699: nieprzyjęte cofnięcie kończy też nasze przejście w toku od razu (bez czekania na jego bilet)
     // MIX-1707: bez żadnego przewinięcia z naszej strony (lista nie jest przewijana przed potwierdzeniem)
-    // MIX-1707 r2: nasze przejście w toku = router dostaje je po zwolnieniu malowania (utils/caseStudyBackSkip.ts);
-    // MIX-1739 (K3): po oddaniu pilnowanie góry strony (withTopPin)
-    if (!claimBack(win.location)) return void skipAndHandOver(e, withTopPin(win, handToRouter));
+    // MIX-1707 r2: nasze przejście w toku = router dostaje je po zwolnieniu malowania (utils/caseStudyBackSkip.ts)
+    if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);
     const from = trackedPath;
     const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
