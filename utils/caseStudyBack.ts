@@ -132,6 +132,8 @@ interface PlanInput extends Omit<BackInput, 'navType'> {
   motion: boolean;
   active: boolean;
   hero: boolean;
+  /** MIX-1759: przeglądarka sama pokazała już przejście wstecz (np. gest od lewej krawędzi w Chrome Android). */
+  uaTransition: boolean;
 }
 
 /**
@@ -143,6 +145,7 @@ export function planBack(i: PlanInput): BackPlan {
   if (!i.enabled) return { kind: 'none' };
   const y = backRestoreTarget({ from: i.from, to: i.to, navType: 'POP', saved: i.saved });
   if (y === null) return { kind: 'none' };
-  const ok = i.supported && i.motion && !i.active && i.hero;
+  // MIX-1759: własne przejście przeglądarki (hasUAVisualTransition) = bez naszego, inaczej dwie animacje po sobie
+  const ok = i.supported && i.motion && !i.active && i.hero && !i.uaTransition;
   return ok ? { kind: 'transition', y } : { kind: 'restore', y };
 }

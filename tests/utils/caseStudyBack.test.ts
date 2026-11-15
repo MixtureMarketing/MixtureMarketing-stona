@@ -122,6 +122,7 @@ describe('planBack: allowlist, fail-closed', () => {
     motion: true,
     active: false,
     hero: true,
+    uaTransition: false,
   };
   it('every condition met = transition', () => {
     expect(planBack(ok)).toEqual({ kind: 'transition', y: 700 });
@@ -131,6 +132,7 @@ describe('planBack: allowlist, fail-closed', () => {
     ['reduced motion', { motion: false }],
     ['another transition active', { active: true }],
     ['no hero in the DOM', { hero: false }],
+    ['the browser already played its own back transition (MIX-1759)', { uaTransition: true }],
   ])('%s = restore without animation', (_n, over) => {
     expect(planBack({ ...ok, ...over })).toEqual({ kind: 'restore', y: 700 });
   });

@@ -52,6 +52,13 @@ function pop() {
   window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
 }
 
+/** MIX-1759: popstate as Chrome Android sends it after its own back transition (left-edge swipe). */
+function popUA(value: unknown) {
+  const e = new PopStateEvent('popstate', { state: null });
+  Object.defineProperty(e, 'hasUAVisualTransition', { value, configurable: true });
+  window.dispatchEvent(e);
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   resetPositions();
@@ -95,6 +102,50 @@ afterEach(async () => {
   delete (document as unknown as Record<string, unknown>).startViewTransition;
   window.history.pushState({}, '', '/');
   resetPositions();
+});
+
+describe('MIX-1759: the browser already played its own back transition (hasUAVisualTransition)', () => {
+  it('true: no view transition, the router gets the original event at once, list restored without animation', () => {
+    page(true);
+    window.history.scrollRestoration = 'auto';
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect((router.mock.calls[0][0] as PopStateEvent).hasUAVisualTransition).toBe(true);
+    // no MIX-1745 jump of the case study to the top (the browser shows the list already)
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(document.querySelector('[style*="view-transition-name"]')).toBeNull();
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    // restore plan: manual restoration and the saved list position kept for ScrollToTop
+    expect(window.history.scrollRestoration).toBe('manual');
+    recordScroll('/portfolio/', 0);
+    expect(savedPosition('/portfolio/')).toBe(1500);
+  });
+
+  it.each([
+    ['false', false],
+    ['missing (older browser)', undefined],
+    ['truthy non-boolean 1', 1],
+    ['truthy non-boolean "true"', 'true'],
+  ])('%s: our transition runs exactly as before', async (_n, value) => {
+    page(true);
+    popUA(value);
+    expect(startVT).toHaveBeenCalledTimes(1);
+    expect(router).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+  });
+
+  it('true with the switch off: popstate left alone (as before)', () => {
+    page(true);
+    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    window.history.scrollRestoration = 'auto';
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+  });
 });
 
 describe('installBackInterceptor popstate handling (MIX-1675)', () => {

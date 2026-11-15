@@ -78,8 +78,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // MIX-1707: bez żadnego przewinięcia z naszej strony (lista nie jest przewijana przed potwierdzeniem)
     // MIX-1707 r2: nasze przejście w toku = router dostaje je po zwolnieniu malowania (utils/caseStudyBackSkip.ts)
     if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);
-    const from = trackedPath;
-    const to = win.location.pathname;
+    const [from, to] = [trackedPath, win.location.pathname];
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
     const saved = savedPosition(to);
     if (saved === null) return; // wejście bez zapisu: zachowanie przeglądarki
@@ -93,6 +92,8 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       motion: motionAllowed(win),
       active: isTransitionActive(),
       hero: hero !== null,
+      // MIX-1759: tylko jawne true (starsza przeglądarka bez pola = undefined = jak dotąd)
+      uaTransition: e.hasUAVisualTransition === true,
     });
     if (plan.kind === 'none') return; // przełącznik wyłączony: bez żadnych zmian
     // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
