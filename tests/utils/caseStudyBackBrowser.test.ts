@@ -196,6 +196,26 @@ describe('MIX-1759: the browser already played its own back transition (hasUAVis
     expect(vtWrites(sa)).toEqual([]);
   });
 
+  // MIX-1785 (W3 of verdict MIX-1759): no hero element on the page = still a plain back (flag is not true), so
+  // the list hold must not start; "no hero" alone must never write data-vt (only the UA flag does).
+  it.each([
+    ['false', false],
+    ['missing', undefined],
+  ])('plain back, field %s, no hero element: no list hold, no data-vt write', (_n, value) => {
+    page(false);
+    window.history.scrollRestoration = 'auto';
+    const sa = vi.spyOn(document.documentElement, 'setAttribute');
+    popUA(value);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(vtWrites(sa)).toEqual([]);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    // the 1ebc9f0 preparation still runs
+    expect(window.history.scrollRestoration).toBe('manual');
+    vi.advanceTimersByTime(UA_HOLD_MS + 10);
+    expect(vtWrites(sa)).toEqual([]);
+  });
+
   it('browser transition, restore plan (reduced motion): our value written once, removed after the hold', () => {
     page(true);
     motion(false);
