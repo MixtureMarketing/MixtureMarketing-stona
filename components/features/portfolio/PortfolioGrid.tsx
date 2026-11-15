@@ -53,7 +53,10 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
 
   return (
     // vt-lista: w trakcie przejścia bez content-visibility (components/common/caseStudyTransitions.css, MIX-1711)
-    <div className="vt-lista grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
+    // MIX-1741: `auto` = ostatni zmierzony rozmiar. Bez niego po przejściu wstecz (powrót content-visibility:auto)
+    // lista bywała na klatkę pominięta i miała 1500 px zamiast swojej wysokości (375: 4820 px), strona się skracała,
+    // przewinięcie spadało na stopkę, a lista nad ekranem zostawała pominięta (sonda .bieg/mix1741/footer.mjs).
+    <div className="vt-lista grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_1500px]">
       <AnimatePresence mode="popLayout">
         {projects.map((project) => (
           <motion.div

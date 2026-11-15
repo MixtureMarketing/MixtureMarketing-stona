@@ -98,3 +98,74 @@ describe('W7: content-visibility of the list during a transition', () => {
     expect(list!.className.split(/\s+/)).toContain('[content-visibility:auto]');
   });
 });
+
+describe('MIX-1741: a skipped list keeps its height (back from a case study never lands on the footer)', () => {
+  /**
+   * Block-axis value of `contain-intrinsic-size` in a Tailwind arbitrary class of the list, or null when the list has
+   * no content-visibility:auto (nothing to guard). Allowlist: with content-visibility:auto the block axis must start
+   * with `auto` (last remembered size); one class, two axes; anything else (missing, one value, no `auto`) = refusal.
+   */
+  function blockAxis(className: string): { ok: boolean; why: string } {
+    const cls = className.split(/\s+/);
+    if (!cls.includes('[content-visibility:auto]'))
+      return { ok: true, why: 'no content-visibility:auto' };
+    const cis = cls.filter((c) => c.startsWith('[contain-intrinsic-size:'));
+    if (cis.length !== 1)
+      return { ok: false, why: `contain-intrinsic-size classes: ${cis.length}` };
+    const words = cis[0].slice('[contain-intrinsic-size:'.length, -1).split('_');
+    // axes: each `[auto] <length>`; exactly two axes (inline, block), block = the second one
+    const axes: { auto: boolean; len: string }[] = [];
+    for (let i = 0; i < words.length; i++) {
+      const auto = words[i] === 'auto';
+      const len = auto ? words[++i] : words[i];
+      if (!len || !/^\d+(\.\d+)?px$/.test(len)) return { ok: false, why: `unreadable: ${cis[0]}` };
+      axes.push({ auto, len });
+    }
+    if (axes.length !== 2) return { ok: false, why: `axes: ${axes.length} in ${cis[0]}` };
+    if (!axes[1].auto) return { ok: false, why: `block axis without auto: ${cis[0]}` };
+    return { ok: true, why: `block axis auto ${axes[1].len}` };
+  }
+
+  it('the checker refuses a block axis without auto, a missing size and two size classes; allows auto', () => {
+    const cv = '[content-visibility:auto]';
+    expect(blockAxis(`${cv} [contain-intrinsic-size:1px_1500px]`)).toEqual({
+      ok: false,
+      why: 'block axis without auto: [contain-intrinsic-size:1px_1500px]',
+    });
+    // one axis only (both axes 1500 px, block axis read as missing), auto on the inline axis only
+    expect(blockAxis(`${cv} [contain-intrinsic-size:auto_1500px]`).why).toBe(
+      'axes: 1 in [contain-intrinsic-size:auto_1500px]',
+    );
+    expect(blockAxis(`${cv} [contain-intrinsic-size:auto_1px_1500px]`).why).toBe(
+      'block axis without auto: [contain-intrinsic-size:auto_1px_1500px]',
+    );
+    expect(blockAxis(`${cv} [contain-intrinsic-size:auto_auto]`).why).toBe(
+      'unreadable: [contain-intrinsic-size:auto_auto]',
+    );
+    expect(blockAxis(`${cv} [contain-intrinsic-size:1px_1500px_9px]`).ok).toBe(false);
+    expect(blockAxis(cv)).toEqual({ ok: false, why: 'contain-intrinsic-size classes: 0' });
+    expect(
+      blockAxis(
+        `${cv} [contain-intrinsic-size:auto_1px_auto_1500px] [contain-intrinsic-size:1px_1500px]`,
+      ).ok,
+    ).toBe(false);
+    // allowed twins: auto on the block axis (with or without auto on the inline axis), no content-visibility at all
+    expect(blockAxis(`${cv} [contain-intrinsic-size:auto_1px_auto_1500px]`)).toEqual({
+      ok: true,
+      why: 'block axis auto 1500px',
+    });
+    expect(blockAxis(`${cv} [contain-intrinsic-size:1px_auto_1500px]`).ok).toBe(true);
+    expect(blockAxis('grid gap-8').ok).toBe(true);
+  });
+
+  it('the list with content-visibility:auto remembers its last size on both axes (contain-intrinsic-size auto)', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <PortfolioGrid projects={[PROJECT]} loading={false} />
+      </MemoryRouter>,
+    );
+    const list = container.querySelector<HTMLElement>('.vt-lista');
+    expect(list).not.toBeNull();
+    expect(blockAxis(list!.className)).toEqual({ ok: true, why: 'block axis auto 1500px' });
+  });
+});
