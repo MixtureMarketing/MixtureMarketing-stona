@@ -4,7 +4,9 @@ set -u
 OUT=.bieg/r/mix1745f; mkdir -p "$OUT"; : > "$OUT/summary.txt"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)" | tee -a "$OUT/summary.txt"
-step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "$n rc=$rc" | tee -a "$OUT/summary.txt"; if [ $rc -ne 0 ]; then sed "s/\x1b\[[0-9;]*m//g" "$OUT/$n.log" | tail -n 40 | tee -a "$OUT/summary.txt"; fi; }
+# MIX-1758: fail-closed: kazdy krok z rc != 0 zapisuje sie w RED, a skrypt konczy sie rc 1 (dotad rc 0 mimo czerwonego kroku)
+RED=""
+step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "$n rc=$rc" | tee -a "$OUT/summary.txt"; if [ $rc -ne 0 ]; then RED="$RED $n"; sed "s/\x1b\[[0-9;]*m//g" "$OUT/$n.log" | tail -n 40 | tee -a "$OUT/summary.txt"; fi; }
 F=".bieg/mix1745/cond.mjs .bieg/mix1745/condcmp.mjs utils/caseStudyBackBrowser.ts utils/caseStudyBackSkip.ts utils/caseStudyRootScroll.ts tests/utils/caseStudyBackBrowser.test.ts tests/utils/caseStudyToTop.test.ts"
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
@@ -18,3 +20,5 @@ sed 's/\x1b\[[0-9;]*m//g' "$OUT/vitest.log" | grep -aE "Test Files|Tests " | tee
 sed 's/\x1b\[[0-9;]*m//g' "$OUT/vitest.log" | grep -aE " FAIL |AssertionError" | head -n 20 | tee -a "$OUT/summary.txt"
 step build npm run build
 echo "porcelain: $(git status --porcelain | grep -v '^?? .bieg/' | wc -l)" | tee -a "$OUT/summary.txt"
+if [ -n "$RED" ]; then echo "RED:$RED" | tee -a "$OUT/summary.txt"; exit 1; fi
+exit 0

@@ -851,4 +851,26 @@ describe('MIX-1745: BACK starts from the case-study header at the top of the pag
     expect(startVT).not.toHaveBeenCalled();
     expect(scrollTo).not.toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
   });
+
+  // MIX-1758 (WERDYKT-MIX-1745 O7): production runs with the switch off; a scrolled case study there
+  // must get no scroll of ours at all (the browser and the router alone handle BACK)
+  it('switch off (production), case study read further down: no scroll of ours, router gets it once', async () => {
+    page(true);
+    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    caseY(1200);
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('allowed twin: switch on, same scrolled case study = one scroll to the top', () => {
+    page(true);
+    caseY(1200);
+    pop();
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+  });
 });
