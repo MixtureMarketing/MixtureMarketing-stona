@@ -92,24 +92,45 @@ async function proxySanity(req) {
 // In-page instrument (before the app). Pause/step as .bieg/mix1711/reverse.mjs; plus a real-time sampler armed by the
 // first popstate after __armRt(href).
 const INSTRUMENT = () => {
-  const vt = { pause: false, calls: 0, paused: false, T: null, skipped: false, finished: false, readyErr: false };
+  const vt = {
+    pause: false,
+    calls: 0,
+    paused: false,
+    T: null,
+    skipped: false,
+    finished: false,
+    readyErr: false,
+  };
   window.__vt = vt;
   const vtAnims = () =>
-    document.getAnimations().filter((a) => String(a.effect?.pseudoElement || '').startsWith('::view-transition'));
+    document
+      .getAnimations()
+      .filter((a) => String(a.effect?.pseudoElement || '').startsWith('::view-transition'));
   const num = (v) => (v === 'auto' || v === '' ? NaN : parseFloat(v));
   const mat = (cs) => {
     const m = cs.transform;
-    const v = !m || m === 'none' ? [1, 0, 0, 1, 0, 0] : /matrix\(([^)]+)\)/.exec(m)?.[1].split(',').map(Number);
+    const v =
+      !m || m === 'none'
+        ? [1, 0, 0, 1, 0, 0]
+        : /matrix\(([^)]+)\)/.exec(m)?.[1].split(',').map(Number);
     const [ox, oy] = cs.transformOrigin.split(' ').map(parseFloat);
     if (!v || v.length !== 6) return () => [NaN, NaN];
     const [a, b, c, d, e, f] = v;
-    return ([px, py]) => [a * (px - ox) + c * (py - oy) + ox + e, b * (px - ox) + d * (py - oy) + oy + f];
+    return ([px, py]) => [
+      a * (px - ox) + c * (py - oy) + ox + e,
+      b * (px - ox) + d * (py - oy) + oy + f,
+    ];
   };
   const rect = (cs, outer) => {
     const w = num(cs.width);
     const h = num(cs.height);
     const own = mat(cs);
-    const pts = [[0, 0], [w, 0], [0, h], [w, h]].map((p) => (outer ? outer(own(p)) : own(p)));
+    const pts = [
+      [0, 0],
+      [w, 0],
+      [0, h],
+      [w, h],
+    ].map((p) => (outer ? outer(own(p)) : own(p)));
     const xs = pts.map((p) => p[0]);
     const ys = pts.map((p) => p[1]);
     const x = Math.min(...xs);
@@ -119,7 +140,9 @@ const INSTRUMENT = () => {
   const geometry = () => {
     const an = vtAnims();
     const pseudos = new Set(an.map((a) => String(a.effect.pseudoElement)));
-    const names = [...new Set([...pseudos].map((p) => /\(([^)]+)\)/.exec(p)?.[1]).filter(Boolean))].sort();
+    const names = [
+      ...new Set([...pseudos].map((p) => /\(([^)]+)\)/.exec(p)?.[1]).filter(Boolean)),
+    ].sort();
     const out = {};
     for (const n of names) {
       const g = getComputedStyle(document.documentElement, `::view-transition-group(${n})`);
@@ -128,7 +151,10 @@ const INSTRUMENT = () => {
         const p = `::view-transition-${part}(${n})`;
         if (!pseudos.has(p)) continue;
         const cs = part === 'group' ? g : getComputedStyle(document.documentElement, p);
-        out[`${part}(${n})`] = { ...rect(cs, part === 'group' ? null : gm), op: Number(cs.opacity) };
+        out[`${part}(${n})`] = {
+          ...rect(cs, part === 'group' ? null : gm),
+          op: Number(cs.opacity),
+        };
       }
     }
     return { names, pseudos: [...pseudos].sort(), rec: out };
@@ -270,12 +296,17 @@ async function openPage() {
 async function dismissConsent(page) {
   await page.evaluate(() => {
     const region = document.querySelector('[role="region"][aria-label="Baner plików cookies"]');
-    [...(region?.querySelectorAll('button') ?? [])].find((b) => b.textContent.trim() === 'Odrzuć opcjonalne')?.click();
+    [...(region?.querySelectorAll('button') ?? [])]
+      .find((b) => b.textContent.trim() === 'Odrzuć opcjonalne')
+      ?.click();
   });
   await page
-    .waitForFunction(() => !document.querySelector('[role="region"][aria-label="Baner plików cookies"]'), {
-      timeout: 3000,
-    })
+    .waitForFunction(
+      () => !document.querySelector('[role="region"][aria-label="Baner plików cookies"]'),
+      {
+        timeout: 3000,
+      },
+    )
     .catch(() => {});
 }
 
@@ -348,7 +379,9 @@ async function loadAll(page) {
 
 async function centre(page, href) {
   await page.evaluate((h) => {
-    document.querySelector(`a[href="${h}"]`)?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    document
+      .querySelector(`a[href="${h}"]`)
+      ?.scrollIntoView({ block: 'center', behavior: 'instant' });
   }, href);
   await sleep(700);
 }
@@ -360,7 +393,6 @@ function classify(s, y0) {
   if (Math.abs(s.y - y0) <= 4 && seen) return 'OK';
   return 'OTHER';
 }
-
 
 const r1 = (v) => (Number.isFinite(v) ? Math.round(v * 10) / 10 : 'NaN');
 const fr = (r) => (r ? `${r1(r.x)},${r1(r.y)},${r1(r.w)},${r1(r.h)}` : '-');
@@ -379,12 +411,17 @@ async function enter(page, href) {
   const box = await page.evaluate((h) => {
     const a = document.querySelector(`a[href="${h}"]`);
     const r = (a.closest('.group') || a).getBoundingClientRect();
-    return { x: r.x + r.width / 2, y: Math.min(Math.max(r.y + r.height / 2, 120), innerHeight - 120) };
+    return {
+      x: r.x + r.width / 2,
+      y: Math.min(Math.max(r.y + r.height / 2, 120), innerHeight - 120),
+    };
   }, href);
   if (vp.hasTouch) await page.touchscreen.tap(box.x, box.y);
   else await page.mouse.click(box.x, box.y);
   await page.waitForFunction((h) => location.pathname === h, { timeout: 10000 }, href);
-  await page.waitForFunction(() => window.__vt.finished || window.__vt.calls === 0, { timeout: 10000 });
+  await page.waitForFunction(() => window.__vt.finished || window.__vt.calls === 0, {
+    timeout: 10000,
+  });
   await sleep(1500);
 }
 
@@ -392,7 +429,10 @@ async function enter(page, href) {
 async function shot(page, name) {
   const buf = await page.screenshot({ type: 'png' });
   const file = path.join(OUT, 'frames', `${name}.png`);
-  await sharp(buf).resize(Math.round(vp.width / 2)).png({ palette: true, compressionLevel: 9 }).toFile(file);
+  await sharp(buf)
+    .resize(Math.round(vp.width / 2))
+    .png({ palette: true, compressionLevel: 9 })
+    .toFile(file);
   return file;
 }
 
@@ -419,7 +459,13 @@ for (const choice of CARDS) {
     const rows = await page.evaluate(() => window.__rt.rows);
     const st = await page.evaluate(() => ({ ...window.__vt }));
     const after = await listState(page, f.href);
-    rec.rt = { rows, calls: st.calls, skipped: st.skipped, rest: after.y, cls: classify(after, rec.y0) };
+    rec.rt = {
+      rows,
+      calls: st.calls,
+      skipped: st.skipped,
+      rest: after.y,
+      cls: classify(after, rec.y0),
+    };
     let prev = '';
     for (const r of rows) {
       const line = `vt=${r.vt ?? '-'} names=${r.names.join('+') || '-'} img=${fr(r.img)} tit=${fr(r.tit)} sy=${r.sy} docH=${r.docH} grid=${r.grid} card=${fr(r.card)} skip=${r.cardSkipped}`;
@@ -433,7 +479,10 @@ for (const choice of CARDS) {
     console.log(
       `RTSUM ${vpTag} ${TAG} ${choice} frames=${rows.length} vtFrames=${vtRows.length} calls=${st.calls} skipped=${st.skipped} names=${names.join('+') || '-'} y0=${rec.y0} rest=${after.y} cls=${rec.rt.cls} footerTop=${after.footerTop} grid=${after.grid}`,
     );
-    if (!(st.calls >= 1) || !vtRows.length) errors.push(`${choice} rt: no BACK transition (calls=${st.calls}, vtFrames=${vtRows.length})`);
+    if (!(st.calls >= 1) || !vtRows.length)
+      errors.push(
+        `${choice} rt: no BACK transition (calls=${st.calls}, vtFrames=${vtRows.length})`,
+      );
   } catch (e) {
     errors.push(`${choice} rt: ${String(e.message).slice(0, 160)}`);
   } finally {
@@ -450,9 +499,13 @@ for (const choice of CARDS) {
       window.__vt.pause = true;
     });
     await page.goBack({ waitUntil: 'load' }).catch(() => {});
-    await page.waitForFunction(() => window.__vt.paused || window.__vt.skipped || window.__vt.readyErr, { timeout: 10000 });
+    await page.waitForFunction(
+      () => window.__vt.paused || window.__vt.skipped || window.__vt.readyErr,
+      { timeout: 10000 },
+    );
     const st = await page.evaluate(() => ({ ...window.__vt }));
-    if (!st.paused) throw new Error(`BACK not paused (skipped=${st.skipped} readyErr=${st.readyErr})`);
+    if (!st.paused)
+      throw new Error(`BACK not paused (skipped=${st.skipped} readyErr=${st.readyErr})`);
     rec.T = st.T;
     rec.steps = [];
     for (let k = 0; k <= STEPS; k++) {
@@ -470,7 +523,9 @@ for (const choice of CARDS) {
     await sleep(1000);
     await shot(page, `${vpTag}-${TAG}-${choice}-after`);
     const after = await listState(page, f.href);
-    console.log(`REST ${vpTag} ${TAG} ${choice} T=${st.T} y=${after.y} cardTop=${after.cardTop} footerTop=${after.footerTop} grid=${after.grid}`);
+    console.log(
+      `REST ${vpTag} ${TAG} ${choice} T=${st.T} y=${after.y} cardTop=${after.cardTop} footerTop=${after.footerTop} grid=${after.grid}`,
+    );
   } catch (e) {
     errors.push(`${choice} step: ${String(e.message).slice(0, 160)}`);
   } finally {
@@ -484,6 +539,9 @@ result.errors = errors;
 await fs.writeFile(path.join(OUT, `frames-${vpTag}-${TAG}.json`), JSON.stringify(result, null, 2));
 for (const e of errors) console.log(`ERROR ${e}`);
 const measured =
-  errors.length === 0 && CARDS.every((c) => result.cards[c]?.rt?.vtFrames > 0 && result.cards[c]?.steps?.length === STEPS + 1);
+  errors.length === 0 &&
+  CARDS.every(
+    (c) => result.cards[c]?.rt?.vtFrames > 0 && result.cards[c]?.steps?.length === STEPS + 1,
+  );
 console.log(`FRAMES ${vpTag} ${TAG} measured=${measured} errors=${errors.length}`);
 process.exit(measured ? 0 : 2);

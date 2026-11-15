@@ -36,7 +36,9 @@ for (const card of ['second', 'last']) {
   const a = A.cards?.[card];
   const b = B.cards?.[card];
   if (!a?.steps || !b?.steps || a.steps.length !== STEPS + 1 || b.steps.length !== STEPS + 1) {
-    console.log(`CMP ${tag} ${card} not comparable (steps ${a?.steps?.length ?? 0}/${b?.steps?.length ?? 0})`);
+    console.log(
+      `CMP ${tag} ${card} not comparable (steps ${a?.steps?.length ?? 0}/${b?.steps?.length ?? 0})`,
+    );
     broken++;
     continue;
   }
@@ -52,14 +54,18 @@ for (const card of ['second', 'last']) {
   for (let k = 0; k <= STEPS; k++) {
     const sa = a.steps[k];
     const sb = b.steps[k];
-    if (sa.names.join('+') !== sb.names.join('+')) fails.push(`k=${k} names ${sa.names.join('+')} vs ${sb.names.join('+')}`);
-    if (sa.pseudos.join('+') !== sb.pseudos.join('+')) fails.push(`k=${k} pseudos ${sa.pseudos.length} vs ${sb.pseudos.length}`);
+    if (sa.names.join('+') !== sb.names.join('+'))
+      fails.push(`k=${k} names ${sa.names.join('+')} vs ${sb.names.join('+')}`);
+    if (sa.pseudos.join('+') !== sb.pseudos.join('+'))
+      fails.push(`k=${k} pseudos ${sa.pseudos.length} vs ${sb.pseudos.length}`);
     const di = d(sa.rec['group(realizacja-zdjecie)'], sb.rec['group(realizacja-zdjecie)']);
     const dt = d(sa.rec['group(realizacja-tytul)'], sb.rec['group(realizacja-tytul)']);
     maxImg = Math.max(maxImg, di);
     maxTit = Math.max(maxTit, dt);
-    if (!(di <= MAX_PX)) fails.push(`k=${k} image rect +${Number.isFinite(di) ? di.toFixed(1) : 'missing'} px`);
-    if (!(dt <= MAX_PX)) fails.push(`k=${k} title rect +${Number.isFinite(dt) ? dt.toFixed(1) : 'missing'} px`);
+    if (!(di <= MAX_PX))
+      fails.push(`k=${k} image rect +${Number.isFinite(di) ? di.toFixed(1) : 'missing'} px`);
+    if (!(dt <= MAX_PX))
+      fails.push(`k=${k} title rect +${Number.isFinite(dt) ? dt.toFixed(1) : 'missing'} px`);
   }
   const rna = (a.rt?.names ?? []).join('+');
   const rnb = (b.rt?.names ?? []).join('+');
