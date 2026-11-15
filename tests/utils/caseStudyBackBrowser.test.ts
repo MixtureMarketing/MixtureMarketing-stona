@@ -163,6 +163,52 @@ describe('MIX-1759: the browser already played its own back transition (hasUAVis
     expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
   });
 
+  // O4 (verdict r1): the hold is only for the browser-transition path; a plain back runs exactly as 1ebc9f0
+  // (no data-vt written by us at any moment), on both plans that reach the restore code.
+  const vtWrites = (sa: ReturnType<typeof vi.spyOn>) =>
+    sa.mock.calls.filter((c: unknown[]) => c[0] === VT_ATTR).map((c: unknown[]) => c[1]);
+
+  it.each([
+    ['restore plan (reduced motion), field false', () => motion(false), false],
+    ['restore plan (reduced motion), field missing', () => motion(false), undefined],
+    [
+      'restore plan (no API), field false',
+      () => {
+        delete (document as unknown as Record<string, unknown>).startViewTransition;
+      },
+      false,
+    ],
+  ])('plain back, %s: no data-vt written, 1ebc9f0 preparation only', (_n, setup, value) => {
+    page(true);
+    setup();
+    window.history.scrollRestoration = 'auto';
+    const sa = vi.spyOn(document.documentElement, 'setAttribute');
+    popUA(value);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(vtWrites(sa)).toEqual([]);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    // the 1ebc9f0 preparation still runs: manual restoration and the saved position kept
+    expect(window.history.scrollRestoration).toBe('manual');
+    recordScroll('/portfolio/', 0);
+    expect(savedPosition('/portfolio/')).toBe(1500);
+    vi.advanceTimersByTime(UA_HOLD_MS + 10);
+    expect(vtWrites(sa)).toEqual([]);
+  });
+
+  it('browser transition, restore plan (reduced motion): our value written once, removed after the hold', () => {
+    page(true);
+    motion(false);
+    const sa = vi.spyOn(document.documentElement, 'setAttribute');
+    popUA(true);
+    expect(vtWrites(sa)).toEqual([VT_UA_VALUE]);
+    vi.advanceTimersByTime(UA_HOLD_MS - 1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(1);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    expect(vtWrites(sa)).toEqual([VT_UA_VALUE]);
+  });
+
   it('true with the switch off: popstate left alone (as before)', () => {
     page(true);
     vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');

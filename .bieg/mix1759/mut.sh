@@ -47,11 +47,17 @@ mutant M5-no-condition "$CB" 's/ \&\& i.hero \&\& !i.uaTransition;/ \&\& i.hero;
 mutant M6-inverted-condition "$CB" 's/ \&\& i.hero \&\& !i.uaTransition;/ \&\& i.hero \&\& i.uaTransition;/'
 mutant M7-none-plan "$CB" "s/^  const ok = i.supported/  if (i.uaTransition) return { kind: 'none' };\n  const ok = i.supported/"
 mutant M8-flag-not-wired "$BB" 's/^      uaTransition: ua,/      uaTransition: false,/'
-mutant M9-hold-inverted "$UA" 's/^  if (ua) holdListRendered(win, doc);/  if (!ua) holdListRendered(win, doc);/'
-mutant M10-no-hold "$UA" '/^  if (ua) holdListRendered(win, doc);/d'
+mutant M9-hold-inverted "$BB" 's/^    if (ua) holdListRendered(win, doc);/    if (!ua) holdListRendered(win, doc);/'
+mutant M10-no-hold "$BB" '/^    if (ua) holdListRendered(win, doc);/d'
 mutant M11-hold-overwrites "$UA" '/^  if (root.hasAttribute(VT_ATTR)) return;/d'
 mutant M12-remove-any-value "$UA" 's/^    if (root.getAttribute(VT_ATTR) === VT_UA_VALUE) root.removeAttribute(VT_ATTR);/    root.removeAttribute(VT_ATTR);/'
 mutant M13-hold-too-short "$UA" 's/^export const UA_HOLD_MS = RESTORE_MAX_MS + 500;/export const UA_HOLD_MS = RESTORE_MAX_MS - 500;/'
+# r2: the plain path (no browser transition) must stay the 1ebc9f0 path: the hold only behind `if (ua)` (O4 of verdict r1)
+mutant M14-hold-always "$BB" 's/^    if (ua) holdListRendered(win, doc);/    holdListRendered(win, doc);/'
+mutant M15-hold-on-restore "$BB" "s/^    if (ua) holdListRendered(win, doc);/    if (ua || plan.kind === 'restore') holdListRendered(win, doc);/"
+mutant M16-hold-missing-field "$BB" 's/^    const ua = browserPlayedBack(e);/    const ua = (e as PopStateEvent).hasUAVisualTransition !== false;/'
+mutant M17-plain-no-holdRecording "$BB" '/^    holdRecording();/d'
+mutant M18-plain-no-manual "$BB" '/^    manualRestorationFor(win);/d'
 echo "porcelain: $(git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | wc -l)"
 echo "MUT-MIX1759 failchecks=$FAILS"
 echo "### end"
