@@ -259,7 +259,10 @@ describe('MIX-1736: page errors become a refusal (applyPageErrors)', () => {
 });
 
 describe('MIX-1736: the script uses the pure functions (wiring)', () => {
-  const src = fs.readFileSync(path.resolve(__dirname, '../../scripts/audit-proportions.mjs'), 'utf8');
+  const src = fs.readFileSync(
+    path.resolve(__dirname, '../../scripts/audit-proportions.mjs'),
+    'utf8',
+  );
   it('imports and calls applyPageErrors and exitCode, no inline exit decision', () => {
     expect(src).toMatch(
       /import \{[^}]*applyPageErrors[^}]*exitCode[^}]*\} from '\.\/lib\/proportions\.mjs'/,
