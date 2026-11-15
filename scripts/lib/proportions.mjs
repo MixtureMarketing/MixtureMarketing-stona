@@ -92,3 +92,23 @@ export function evaluate(rows, expectedVps) {
   }
   return bad;
 }
+
+/**
+ * Page errors seen while measuring a viewport turn the row into "not measured" (a refusal, never a pass).
+ * Returns the row (mutated) so the caller can push it. Twin: no page errors leaves the row untouched.
+ */
+export function applyPageErrors(row, pageErrors) {
+  if (Array.isArray(pageErrors) && pageErrors.length) row.error = `page error: ${pageErrors[0]}`;
+  return row;
+}
+
+/**
+ * Exit code of the gate: 0 = pass (empty reasons AND every viewport measured), 1 = criterion fails,
+ * 2 = could not measure. Fail-closed: a row with an error, a wrong row count or a non-array input is never 0.
+ */
+export function exitCode(reasons, rows, expectedCount) {
+  if (!Array.isArray(reasons) || !Array.isArray(rows)) return 2;
+  const unmeasured = rows.some((r) => !r || r.error) || rows.length !== expectedCount;
+  if (reasons.length) return unmeasured ? 2 : 1;
+  return unmeasured ? 2 : 0;
+}

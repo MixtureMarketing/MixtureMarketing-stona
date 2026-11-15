@@ -13,7 +13,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { createProdSafe } from './lib/prod-safe.mjs';
-import { evaluate } from './lib/proportions.mjs';
+import { evaluate, applyPageErrors, exitCode } from './lib/proportions.mjs';
 
 const DIST = path.resolve(process.argv[2] || 'dist');
 const VPS = [
@@ -170,7 +170,7 @@ try {
       } else if (cards.length) {
         row.error = 'cards found but none links to /portfolio/<slug> (hero not reachable)';
       }
-      if (pageErrors.length) row.error = `page error: ${pageErrors[0]}`;
+      applyPageErrors(row, pageErrors);
     } catch (e) {
       row.error = `not measured: ${String(e.message).slice(0, 160)}`;
     }
@@ -194,5 +194,4 @@ if (!verdict.ok) reasons.push(`prod-safe: ${verdict.problems.join('; ')}`);
 console.log(`layout=${[...layouts].join('+') || 'unknown'} (16:9 required in both layouts)`);
 for (const r of reasons) console.log(`FAIL: ${r}`);
 console.log(reasons.length ? `PROPORTIONS NIE: ${reasons.length} reason(s)` : 'PROPORTIONS OK');
-const unmeasured = rows.some((r) => r.error) || rows.length !== VPS.length;
-process.exit(reasons.length ? (unmeasured ? 2 : 1) : 0);
+process.exit(exitCode(reasons, rows, VPS.length));

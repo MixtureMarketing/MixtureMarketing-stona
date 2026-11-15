@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { parse } from 'yaml';
-import { evaluate, cropBox } from '../../scripts/lib/proportions.mjs';
+import { evaluate, cropBox, applyPageErrors, exitCode } from '../../scripts/lib/proportions.mjs';
 
 // MIX-1732: the decision logic of the 16:9 gate (scripts/audit-proportions.mjs) is fail-closed: only an
 // empty reason list is a pass. Every refusal below has a legitimate twin that passes.
@@ -209,5 +209,69 @@ describe('MIX-1732: the gate is wired as a blocking CI step after the build', ()
     };
     expect(pkg.scripts['audit:proportions']).toBe('node scripts/audit-proportions.mjs dist');
     expect(fs.existsSync(path.join(root, 'scripts/audit-proportions.mjs'))).toBe(true);
+  });
+});
+
+// MIX-1736 (W7/W8 of the MIX-1732 verdict): the exit-code mapping and the page-error mapping are pure
+// functions with tests, and the script is checked to use them (a wiring regression cannot pass CI).
+describe('MIX-1736: exit code of the gate (exitCode)', () => {
+  it('pass: no reasons and every viewport measured is rc 0', () => {
+    expect(exitCode([], good(), 2)).toBe(0);
+  });
+  it('criterion fails with everything measured is rc 1 (twin of rc 2)', () => {
+    expect(exitCode(['x: card ratio 1.3333 outside'], good(), 2)).toBe(1);
+  });
+  it('not measured is rc 2, never rc 0 (W7): reasons present and an errored row', () => {
+    const rows = [row('375x812', { error: 'not measured: timeout' }), row('1280x800')];
+    expect(exitCode(['375x812: not measured: timeout'], rows, 2)).toBe(2);
+  });
+  it('an errored row is rc 2 even if the reason list were empty', () => {
+    expect(exitCode([], [row('375x812', { error: 'page error: x' }), row('1280x800')], 2)).toBe(2);
+  });
+  it('missing viewport row (count mismatch) is rc 2, also with empty reasons', () => {
+    expect(exitCode([], [row('375x812')], 2)).toBe(2);
+    expect(exitCode(['1280x800: viewport not measured'], [row('375x812')], 2)).toBe(2);
+  });
+  it('empty rows or a null row is rc 2', () => {
+    expect(exitCode(['no measurement rows (nothing measured)'], [], 2)).toBe(2);
+    expect(exitCode([], [null, row('1280x800')] as never, 2)).toBe(2);
+  });
+  it('non-array input is rc 2', () => {
+    expect(exitCode(undefined as never, good(), 2)).toBe(2);
+    expect(exitCode([], null as never, 2)).toBe(2);
+  });
+});
+
+describe('MIX-1736: page errors become a refusal (applyPageErrors)', () => {
+  it('a page error sets row.error and evaluate refuses with the text (W8)', () => {
+    const r = applyPageErrors(row('375x812'), ['boom']);
+    expect(r.error).toBe('page error: boom');
+    expect(evaluate([r, row('1280x800')], VPS).join(' | ')).toMatch(/375x812: page error: boom/);
+  });
+  it('twin: no page errors leaves the row untouched and passing', () => {
+    const r = applyPageErrors(row('375x812'), []);
+    expect(r.error).toBeNull();
+    expect(evaluate([r, row('1280x800')], VPS)).toEqual([]);
+  });
+  it('non-array page errors do not throw and do not invent an error', () => {
+    expect(applyPageErrors(row('375x812'), undefined as never).error).toBeNull();
+  });
+});
+
+describe('MIX-1736: the script uses the pure functions (wiring)', () => {
+  const src = fs.readFileSync(path.resolve(__dirname, '../../scripts/audit-proportions.mjs'), 'utf8');
+  it('imports and calls applyPageErrors and exitCode, no inline exit decision', () => {
+    expect(src).toMatch(
+      /import \{[^}]*applyPageErrors[^}]*exitCode[^}]*\} from '\.\/lib\/proportions\.mjs'/,
+    );
+    expect(src).toMatch(/applyPageErrors\(row, pageErrors\);/);
+    expect(src).toMatch(/process\.exit\(exitCode\(reasons, rows, VPS\.length\)\);/);
+    expect(src).not.toMatch(/unmeasured/);
+    expect(src).not.toMatch(/false\s*&&/);
+  });
+  it('the exit call is the last statement and runs after the reasons are printed', () => {
+    const exitAt = src.lastIndexOf('process.exit(exitCode(');
+    expect(exitAt).toBeGreaterThan(src.indexOf('PROPORTIONS NIE'));
+    expect(src.slice(exitAt).trim().split('\n')).toHaveLength(1);
   });
 });
