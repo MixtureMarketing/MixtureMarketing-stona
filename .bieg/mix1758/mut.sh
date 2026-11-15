@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # MIX-1758 mutanty (z korzenia repo, na zatwierdzonym drzewie). Kazdy mutant: sed, grep linii mutanta,
 # bieg, przywrocenie TEGO pliku przez git checkout. Wynik: linia "MUT <id> <zabity|przezyl> ..." na mutant.
-# Vitest idzie przez zamek: ciezki-bieg --krotki m1758-mut-<id>.
+# Vitest idzie przez zamek: ciezki-bieg --krotki m1758-mut-<id>; MUT_DIRECT=1 = bez zamka (caly skrypt juz w zamku,
+# .bieg/mix1758/reszta.sh). MUT_IDS="O7b O7c" = tylko te mutanty (puste = wszystkie).
 set -u
+wanted() { [ -z "${MUT_IDS:-}" ] || case " $MUT_IDS " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
 OUT=.bieg/r/mix1758m; mkdir -p "$OUT"
 BB=utils/caseStudyBackBrowser.ts
 FS=.bieg/mix1745/full.sh
@@ -13,9 +15,14 @@ grep -qxF "$NONE" "$BB" || { echo "STOP: linia none nie znaleziona"; exit 2; }
 
 ts_mut() { # id, zamiennik linii none
   local id=$1 repl=$2
+  wanted "$id" || return 0
   REPL="$repl" NONE="$NONE" perl -i -pe 'if ($_ eq "$ENV{NONE}\n") { $_ = "$ENV{REPL}\n" }' "$BB"
   if ! grep -qxF "$repl" "$BB"; then echo "MUT $id NIEZASTOSOWANY"; git checkout -- "$BB"; return; fi
-  ciezki-bieg --krotki "m1758-mut-$id" npx vitest run $TESTS --maxWorkers=2 > "$OUT/$id.log" 2>&1
+  if [ "${MUT_DIRECT:-0}" = 1 ]; then
+    npx vitest run $TESTS --maxWorkers=2 > "$OUT/$id.log" 2>&1
+  else
+    ciezki-bieg --krotki "m1758-mut-$id" npx vitest run $TESTS --maxWorkers=2 > "$OUT/$id.log" 2>&1
+  fi
   local rc=$?
   local t; t=$(sed 's/\x1b\[[0-9;]*m//g' "$OUT/$id.log" | grep -aE '^ +Tests ' | tr -s ' ')
   if [ $rc -ne 0 ]; then echo "MUT $id zabity rc=$rc $t"; else echo "MUT $id przezyl rc=$rc $t"; fi
@@ -28,6 +35,7 @@ ts_mut O7c "    if (plan.kind === 'none') { setTimeout(() => caseStudyToTop(win)
 
 sh_mut() { # id, sed wyrazenie, oczekiwana linia kontrolna
   local id=$1 expr=$2 probe=$3
+  wanted "$id" || return 0
   sed -i -e "$expr" "$FS"
   if git diff --quiet -- "$FS"; then echo "MUT $id NIEZASTOSOWANY"; return; fi
   bash .bieg/mix1758/full-rc.sh > "$OUT/$id-green.txt" 2>&1; local g=$?
