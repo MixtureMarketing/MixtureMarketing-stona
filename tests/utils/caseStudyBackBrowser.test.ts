@@ -12,6 +12,7 @@ import {
   resetBackState,
 } from '@/utils/caseStudyGeneration';
 import { VT_ATTR } from '@/utils/viewTransitions';
+import { UA_HOLD_MS, VT_UA_VALUE } from '@/utils/caseStudyBackUa';
 
 let uninstall: () => void;
 let router: Mock<(e: PopStateEvent) => void>;
@@ -50,6 +51,13 @@ function motion(v: boolean) {
 
 function pop() {
   window.dispatchEvent(new PopStateEvent('popstate', { state: null }));
+}
+
+/** MIX-1759: popstate as Chrome Android sends it after its own back transition (left-edge swipe). */
+function popUA(value: unknown) {
+  const e = new PopStateEvent('popstate', { state: null });
+  Object.defineProperty(e, 'hasUAVisualTransition', { value, configurable: true });
+  window.dispatchEvent(e);
 }
 
 beforeEach(() => {
@@ -95,6 +103,122 @@ afterEach(async () => {
   delete (document as unknown as Record<string, unknown>).startViewTransition;
   window.history.pushState({}, '', '/');
   resetPositions();
+});
+
+describe('MIX-1759: the browser already played its own back transition (hasUAVisualTransition)', () => {
+  it('true: no view transition, the router gets the original event at once, list restored without animation', () => {
+    page(true);
+    window.history.scrollRestoration = 'auto';
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect((router.mock.calls[0][0] as PopStateEvent).hasUAVisualTransition).toBe(true);
+    // no MIX-1745 jump of the case study to the top (the browser shows the list already)
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(document.querySelector('[style*="view-transition-name"]')).toBeNull();
+    // restore plan: manual restoration and the saved list position kept for ScrollToTop
+    expect(window.history.scrollRestoration).toBe('manual');
+    recordScroll('/portfolio/', 0);
+    expect(savedPosition('/portfolio/')).toBe(1500);
+    // the list is drawn whole during the restore (content-visibility placeholder = footer landing), then released
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(UA_HOLD_MS - 1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(1);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+  });
+
+  it('true while the attribute is taken by another transition: left untouched and not removed by us', () => {
+    page(true);
+    document.documentElement.setAttribute(VT_ATTR, 'realizacja');
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    vi.advanceTimersByTime(UA_HOLD_MS + 10);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    document.documentElement.removeAttribute(VT_ATTR);
+  });
+
+  it('true without a saved list position: nothing held (browser behaviour)', () => {
+    page(true);
+    resetPositions();
+    popUA(true);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    expect(router).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ['false', false],
+    ['missing (older browser)', undefined],
+    ['truthy non-boolean 1', 1],
+    ['truthy non-boolean "true"', 'true'],
+  ])('%s: our transition runs exactly as before', async (_n, value) => {
+    page(true);
+    popUA(value);
+    expect(startVT).toHaveBeenCalledTimes(1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja-powrot');
+    expect(router).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(300);
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+  });
+
+  // O4 (verdict r1): the hold is only for the browser-transition path; a plain back runs exactly as 1ebc9f0
+  // (no data-vt written by us at any moment), on both plans that reach the restore code.
+  const vtWrites = (sa: ReturnType<typeof vi.spyOn>) =>
+    sa.mock.calls.filter((c: unknown[]) => c[0] === VT_ATTR).map((c: unknown[]) => c[1]);
+
+  it.each([
+    ['restore plan (reduced motion), field false', () => motion(false), false],
+    ['restore plan (reduced motion), field missing', () => motion(false), undefined],
+    [
+      'restore plan (no API), field false',
+      () => {
+        delete (document as unknown as Record<string, unknown>).startViewTransition;
+      },
+      false,
+    ],
+  ])('plain back, %s: no data-vt written, 1ebc9f0 preparation only', (_n, setup, value) => {
+    page(true);
+    setup();
+    window.history.scrollRestoration = 'auto';
+    const sa = vi.spyOn(document.documentElement, 'setAttribute');
+    popUA(value);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(vtWrites(sa)).toEqual([]);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    // the 1ebc9f0 preparation still runs: manual restoration and the saved position kept
+    expect(window.history.scrollRestoration).toBe('manual');
+    recordScroll('/portfolio/', 0);
+    expect(savedPosition('/portfolio/')).toBe(1500);
+    vi.advanceTimersByTime(UA_HOLD_MS + 10);
+    expect(vtWrites(sa)).toEqual([]);
+  });
+
+  it('browser transition, restore plan (reduced motion): our value written once, removed after the hold', () => {
+    page(true);
+    motion(false);
+    const sa = vi.spyOn(document.documentElement, 'setAttribute');
+    popUA(true);
+    expect(vtWrites(sa)).toEqual([VT_UA_VALUE]);
+    vi.advanceTimersByTime(UA_HOLD_MS - 1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(1);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    expect(vtWrites(sa)).toEqual([VT_UA_VALUE]);
+  });
+
+  it('true with the switch off: popstate left alone (as before)', () => {
+    page(true);
+    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', '');
+    window.history.scrollRestoration = 'auto';
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(router).toHaveBeenCalledTimes(1);
+    expect(window.history.scrollRestoration).toBe('auto');
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+  });
 });
 
 describe('installBackInterceptor popstate handling (MIX-1675)', () => {
