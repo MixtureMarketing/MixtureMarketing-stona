@@ -9,6 +9,8 @@
 set -u
 EXPECT=${1:?expect same|diff|any}
 case $EXPECT in same|diff|any) ;; *) echo "expect $EXPECT not allowed"; exit 2 ;; esac
+WIDTHS=${FR_WIDTHS:-375 1280}   # FR_WIDTHS: subset of 375 412 1280 (412 = phone-like, DPR 2.625)
+for w in $WIDTHS; do case $w in 375|412|1280) ;; *) echo "width $w not allowed"; exit 2 ;; esac; done
 OUT=.bieg/r/mix1745; mkdir -p "$OUT"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null) expect=$EXPECT"
@@ -27,7 +29,7 @@ for v in old head; do
   mv dist "dist-$v"
 done
 cp "$OUT/grid.orig" "$GRID"
-for vp in 375 1280; do
+for vp in $WIDTHS; do
   for v in old head; do
     [ -d "dist-$v" ] || continue
     FR_VP=$vp FR_TAG=$v node .bieg/mix1745/frames.mjs "dist-$v" "$OUT" > "$OUT/fr-$v-$vp.txt" 2>&1; prc=$?

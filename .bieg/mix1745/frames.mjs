@@ -2,7 +2,7 @@
 /**
  * MIX-1745: BACK (case study -> list) frame by frame, for a comparison of two builds (3febcb0 grid class vs this tree).
  *
- *   node .bieg/mix1745/frames.mjs <dist-dir> <out-dir>     env FR_VP=375|1280, FR_TAG (label), FR_CARDS (default second,last)
+ *   node .bieg/mix1745/frames.mjs <dist-dir> <out-dir>     env FR_VP=375|412|1280, FR_TAG (label), FR_CARDS (default second,last)
  *
  * Server, Sanity proxy and prod-safe as .bieg/mix1741/footer.mjs (all cards loaded first: the list scrolled to its end).
  * Per card (second = card 2, last = last card) two passes on a fresh page each:
@@ -231,12 +231,14 @@ const INSTRUMENT = () => {
 
 const VPS = {
   375: { width: 375, height: 800, isMobile: true, hasTouch: true, deviceScaleFactor: 1 },
+  // phone-like (Android, DPR 2.625): the owner watches on a phone
+  412: { width: 412, height: 915, isMobile: true, hasTouch: true, deviceScaleFactor: 2.625 },
   1280: { width: 1280, height: 800, deviceScaleFactor: 1 },
 };
 const vpTag = process.env.FR_VP || '375';
 const vp = VPS[vpTag];
 if (!vp) {
-  console.error(`FR_VP must be 375 or 1280 (got ${vpTag})`);
+  console.error(`FR_VP must be 375, 412 or 1280 (got ${vpTag})`);
   process.exit(2);
 }
 const UA =
