@@ -654,8 +654,9 @@ describe('MIX-1719: BackSkip.restoring keeps the position from before the FIRST 
 describe('MIX-1729: a history traverse during our back transition gets no browser scroll restore', () => {
   const setNav = (nav: unknown) =>
     Object.defineProperty(window, 'navigation', { value: nav, configurable: true });
+  /** Navigation with the list entry (index 2) current: the second back goes to index 1. */
   const fakeNav = () => {
-    const nav = new EventTarget();
+    const nav = Object.assign(new EventTarget(), { currentEntry: { index: 2 } });
     setNav(nav);
     return nav;
   };
@@ -667,6 +668,9 @@ describe('MIX-1729: a history traverse during our back transition gets no browse
       navigationType: 'traverse',
       canIntercept: true,
       hashChange: false,
+      downloadRequest: null,
+      formData: null,
+      destination: { index: 1 },
       intercept,
       ...over,
     };
@@ -722,6 +726,21 @@ describe('MIX-1729: a history traverse during our back transition gets no browse
     ['canIntercept not a boolean', { canIntercept: 'true' }],
     ['fragment change', { hashChange: true }],
     ['hashChange unknown', { hashChange: undefined }],
+    // MIX-1739 (K2): only a plain one-step back is intercepted
+    ['download (downloadRequest set)', { downloadRequest: 'raport.pdf' }],
+    ['downloadRequest empty string', { downloadRequest: '' }],
+    ['downloadRequest unknown', { downloadRequest: undefined }],
+    ['form submission (formData set)', { formData: new FormData() }],
+    ['formData unknown', { formData: undefined }],
+    ['forward traverse (destination after the current entry)', { destination: { index: 3 } }],
+    ['traverse to the current entry', { destination: { index: 2 } }],
+    ['back by two entries', { destination: { index: 0 } }],
+    ['destination missing', { destination: undefined }],
+    ['destination null', { destination: null }],
+    ['destination index unknown', { destination: {} }],
+    ['destination index not a number', { destination: { index: '1' } }],
+    ['destination index not an integer', { destination: { index: 1.5 } }],
+    ['destination index negative', { destination: { index: -1 } }],
   ])('refusal: %s = no intercept (browser restore stays)', (_name, over) => {
     const nav = fakeNav();
     setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
@@ -731,6 +750,56 @@ describe('MIX-1729: a history traverse during our back transition gets no browse
     // allowed twin: the same skip intercepts a same-document traverse
     const twin = navEvent();
     nav.dispatchEvent(twin.e);
+    expect(twin.intercept).toHaveBeenCalledWith(MANUAL);
+  });
+
+  it.each([
+    ['current entry missing', undefined],
+    ['current entry null', null],
+    ['current entry index unknown', {}],
+    ['current entry index not a number', { index: '2' }],
+  ])(
+    'refusal: %s = no intercept (the step cannot be told), allowed twin with the list entry',
+    (_name, entry) => {
+      const nav = fakeNav();
+      setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+      nav.currentEntry = entry as { index: number };
+      const { e, intercept } = navEvent();
+      nav.dispatchEvent(e);
+      expect(intercept).not.toHaveBeenCalled();
+      nav.currentEntry = { index: 2 };
+      const twin = navEvent();
+      nav.dispatchEvent(twin.e);
+      expect(twin.intercept).toHaveBeenCalledWith(MANUAL);
+    },
+  );
+
+  it('a one-step back from any list entry index is intercepted (index 1 -> 0)', () => {
+    const nav = fakeNav();
+    nav.currentEntry = { index: 1 };
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    const { e, intercept } = navEvent({ destination: { index: 0 } });
+    nav.dispatchEvent(e);
+    expect(intercept).toHaveBeenCalledWith(MANUAL);
+  });
+
+  it('N12: an error thrown by intercept never leaves the listener (listener called directly)', () => {
+    // the dispatcher in between would swallow the throw (window 'error' never sees it), so the listener is
+    // taken from addEventListener and called by hand: a rethrowing catch turns this test red
+    const add = vi.fn();
+    setNav({ addEventListener: add, removeEventListener: vi.fn(), currentEntry: { index: 2 } });
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    expect(add).toHaveBeenCalledTimes(1);
+    expect(add.mock.calls[0][0]).toBe('navigate');
+    const listener = add.mock.calls[0][1] as (e: Event) => void;
+    const thrower = vi.fn(() => {
+      throw new DOMException('no', 'SecurityError');
+    });
+    expect(() => listener(navEvent({ intercept: thrower }).e)).not.toThrow();
+    expect(thrower).toHaveBeenCalledTimes(1);
+    // allowed twin: the same listener intercepts a plain one-step back
+    const twin = navEvent();
+    listener(twin.e);
     expect(twin.intercept).toHaveBeenCalledWith(MANUAL);
   });
 

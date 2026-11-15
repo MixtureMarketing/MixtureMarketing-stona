@@ -317,6 +317,7 @@ for (const r of rows)
   console.log(
     `TABLE ${vpTag} | ${pad(r.k, 3)} | ${pad(r.enter.start)}${pad(r.enter.dur, 5)}${pad(r.enter.long, 5)}${pad(r.enter.maxGap, 7)} | ${pad(r.back.start)}${pad(r.back.dur, 5)}${pad(r.back.long, 5)}${pad(r.back.maxGap, 7)} |`,
   );
+const C2_TOL_FRAMES = 0.5;
 const med = (xs) => {
   const v = xs.filter(Number.isFinite).sort((a, b) => a - b);
   return v.length ? (v.length % 2 ? v[(v.length - 1) / 2] : (v[v.length / 2 - 1] + v[v.length / 2]) / 2) : NaN;
@@ -332,6 +333,7 @@ for (const dir of ['enter', 'back'])
     durMin: Math.min(...col(dir, 'dur').filter(Number.isFinite)),
     durMax: Math.max(...col(dir, 'dur').filter(Number.isFinite)),
     long: sum(col(dir, 'long')),
+    longMed: med(col(dir, 'long')),
     loaf: sum(col(dir, 'loaf')),
     cssOk: rows.every((r) => Number.isFinite(r[dir].css) && Math.abs(r[dir].css - 300) <= 20),
     css: [...new Set(col(dir, 'css'))].join('/'),
@@ -343,7 +345,11 @@ for (const dir of ['enter', 'back'])
 const measured = rows.length === RUNS && rows.every((r) => r.enter.ok && r.back.ok);
 const crit = [
   ['C1 BACK start median <= ENTER start median + 50', S.back.start <= S.enter.start + 50, `${S.back.start} <= ${S.enter.start + 50}`],
-  ['C2 BACK long frames total <= ENTER total', S.back.long <= S.enter.long, `${S.back.long} <= ${S.enter.long}`],
+  // MIX-1739 (K4): C2 on the per-run MEDIAN of long frames, tolerance C2_TOL_FRAMES. The old form (8-run totals,
+  // no tolerance) was red on the MIX-1711 code itself at 375 (39 vs 38, v1729sb); the median ignores one odd run
+  // (BACK 2 or ENTER 7 in a row of 4-6). Tolerance = the largest BACK - ENTER median measured on base-1711
+  // (sb 5 vs 4.5 = +0.5, 7a2485 6.5 vs 7 = -0.5); not wider. The totals stay printed (C2-total, not a criterion).
+  ['C2 BACK long frames per-run median <= ENTER median + 0.5', S.back.longMed <= S.enter.longMed + C2_TOL_FRAMES, `${S.back.longMed} <= ${S.enter.longMed + C2_TOL_FRAMES}`],
   // declared duration of the image group (CSS 0.3 s) at every run, both directions; wall time is frame-bound on
   // the cloud (software rendering), so BACK wall time may not exceed ENTER wall time by more than 20 ms
   ['C3 declared image-group duration 300 +-20 (every run, ENTER and BACK)', S.enter.cssOk && S.back.cssOk, `ENTER ${S.enter.css} BACK ${S.back.css}`],
@@ -351,6 +357,7 @@ const crit = [
   ['C3 BACK wall dur median <= ENTER wall median + 20', S.back.dur <= S.enter.dur + 20, `${S.back.dur} <= ${S.enter.dur + 20}`],
 ];
 for (const [name, ok, val] of crit) console.log(`CRIT ${vpTag} ${name}: ${val} ${ok ? 'OK' : 'NO'}`);
+console.log(`INFO ${vpTag} C2-total BACK long frames total vs ENTER total (old form, not a criterion): ${S.back.long} vs ${S.enter.long}`);
 for (const e of errors) console.log(`ERROR ${e}`);
 const green = measured && errors.length === 0 && crit.every(([, ok]) => ok);
 console.log(`SMOOTH ${vpTag} measured=${measured} errors=${errors.length} verdict=${green ? 'GREEN' : 'RED'}`);
