@@ -95,7 +95,8 @@ export async function runCaseStudyBackTransition(
         transition.skipTransition();
         return;
       }
-      opts.restore(y);
+      // MIX-1719: spóźnione drugie cofnięcie (po tym przewinięciu) oddaje korzeniowi pozycję sprzed niego
+      skip.restoring(doc.defaultView, y, opts.restore);
       const card = ready ? opts.findCard() : null;
       if (!card) {
         transition.skipTransition();
@@ -111,7 +112,8 @@ export async function runCaseStudyBackTransition(
     return 'plain';
   }
   // MIX-1699: nieprzyjęte cofnięcie w trakcie = pominięcie od razu (utils/caseStudyGeneration.ts)
-  skip = setBackSkip(transition, cleanup);
+  // MIX-1729: przejście po historii w trakcie = bez przywrócenia przeglądarki (suppressTraverseRestore)
+  skip = setBackSkip(transition, cleanup, undefined, doc.defaultView);
   // Przeglądarka potrafi dosunąć przewinięcie tuż po zrobieniu nowego zdjęcia (pomiar: +24 do +221 px
   // przed pierwszą klatką, przyczyna nieustalona); rAF działa przed malowaniem pierwszej klatki.
   // Korekta na KAŻDEJ ścieżce: po pominięciu przejścia (brak karty) `ready` jest odrzucone, więc czekamy

@@ -1,6 +1,9 @@
 // Pominięcie przejścia wstecz w toku (MIX-1699, MIX-1707 r2); wydzielone z utils/caseStudyGeneration.ts.
 import { BACK_RELEASE_MAX_MS } from './caseStudyBackOptions';
+import { suppressTraverseRestore, undoListScroll } from './caseStudyRootScroll';
 import { currentGeneration } from './caseStudyGeneration';
+
+type Restore = (y: number) => void;
 
 /**
  * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
@@ -14,8 +17,14 @@ import { currentGeneration } from './caseStudyGeneration';
 export interface BackSkip {
   release: () => void;
   woken: Promise<false>;
+  /** MIX-1719: przewinięcie listy na `y` przez `run`; pierwsze zapamiętuje pozycję korzenia sprzed niego. */
+  restoring: (win: Window | null, y: number, run: Restore) => void;
 }
-export const NO_SKIP: BackSkip = { release: () => undefined, woken: new Promise(() => undefined) };
+export const NO_SKIP: BackSkip = {
+  release: () => undefined,
+  woken: new Promise(() => undefined),
+  restoring: (_win, y, run) => run(y),
+};
 let skipActive: (() => Promise<void>) | null = null;
 
 /**
@@ -46,10 +55,31 @@ export function setBackSkip(
   t: { skipTransition: () => void; readonly updateCallbackDone?: unknown },
   cleanup: () => void,
   releaseMs: number = BACK_RELEASE_MAX_MS,
+  host: Window | null = null,
 ): BackSkip {
+  // MIX-1729: przejście po historii w trakcie = bez przywrócenia przeglądarki (utils/caseStudyRootScroll.ts)
+  const unsuppress = suppressTraverseRestore(host);
   let wake: (v: false) => void = () => undefined;
   const woken = new Promise<false>((resolve) => (wake = resolve));
+  let undo: (() => void) | null = null;
+  const restoring = (win: Window | null, y: number, run: Restore) => {
+    // tylko pierwsze przewinięcie: późniejsza korekta dryfu (ten sam cel) nie nadpisuje pozycji sprzed
+    if (win && !undo) {
+      const before = win.scrollY;
+      undo = () => undoListScroll(win, before, y);
+    }
+    run(y);
+  };
   const skip = () => {
+    // MIX-1719: najpierw oddanie pozycji sprzed naszego przewinięcia listy (raz), synchronicznie w popstate,
+    // przed pierwszą malowaną klatką; błąd = pozycja zostaje, a pominięcie i oddanie routerowi idą dalej
+    const u = undo;
+    undo = null;
+    try {
+      u?.();
+    } catch {
+      /* nawigacja nie stoi */
+    }
     // MIX-1711 (A13): rzucające skipTransition nie zatrzymuje oddania cofnięcia routerowi
     try {
       t.skipTransition();
@@ -70,9 +100,10 @@ export function setBackSkip(
   };
   skipActive = skip;
   const release = () => {
+    unsuppress();
     if (skipActive === skip) skipActive = null;
   };
-  return { release, woken };
+  return { release, woken, restoring };
 }
 /**
  * Pomija przejście w toku. Zwraca obietnicę zwolnienia malowania (koniec wywołania zwrotnego przejścia albo
