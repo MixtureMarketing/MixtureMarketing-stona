@@ -123,6 +123,13 @@ describe('sitemap: lastmod — nogi ujemne', () => {
     expect(formatLastmod('2026-11-15T23:00:00Z')).toBe('2026-11-16');
   });
 
+  it('formatLastmod uwzględnia czas letni (CEST = UTC+2), nie stałe +1 h', () => {
+    expect(formatLastmod('2026-07-14T22:30:00Z')).toBe('2026-07-15');
+    expect(formatLastmod('2026-07-14T21:30:00Z')).toBe('2026-07-14');
+    expect(formatLastmod('2026-07-14T21:59:59Z')).toBe('2026-07-14');
+    expect(formatLastmod('2026-07-14T22:00:00Z')).toBe('2026-07-15');
+  });
+
   it('formatLastmod: brak/niepoprawna data → null, nigdy „dzisiaj”', () => {
     expect(formatLastmod(undefined)).toBeNull();
     expect(formatLastmod('nie-data')).toBeNull();
