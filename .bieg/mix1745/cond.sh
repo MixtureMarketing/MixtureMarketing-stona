@@ -33,7 +33,7 @@ for vp in $WIDTHS; do
     [ -d "dist-$v" ] || continue
     FR_VP=$vp FR_TAG=$v node .bieg/mix1745/cond.mjs "dist-$v" "$OUT" > "$OUT/c-$v-$vp.txt" 2>&1; prc=$?
     grep -aE '^(B|LOOK|ERROR|COND) ' "$OUT/c-$v-$vp.txt" | cut -c1-420
-    echo "probe $v $vp rc=$prc"; [ $prc -eq 0 ] || bad "probe $v $vp rc=$prc"
+    echo "probe $v $vp rc=$prc"; [ $prc -eq 0 ] || { bad "probe $v $vp rc=$prc"; grep -av '^B ' "$OUT/c-$v-$vp.txt" | tail -n 25 | cut -c1-300; }
   done
   node .bieg/mix1745/condcmp.mjs "$OUT/cond-$vp-old.json" "$OUT/cond-$vp-head.json"; crc=$?
   echo "compare $vp rc=$crc expect=$EXPECT"
