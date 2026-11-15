@@ -12,6 +12,7 @@ import {
   resetBackState,
 } from '@/utils/caseStudyGeneration';
 import { VT_ATTR } from '@/utils/viewTransitions';
+import { UA_HOLD_MS, VT_UA_VALUE } from '@/utils/caseStudyBackUa';
 
 let uninstall: () => void;
 let router: Mock<(e: PopStateEvent) => void>;
@@ -115,11 +116,35 @@ describe('MIX-1759: the browser already played its own back transition (hasUAVis
     // no MIX-1745 jump of the case study to the top (the browser shows the list already)
     expect(scrollTo).not.toHaveBeenCalled();
     expect(document.querySelector('[style*="view-transition-name"]')).toBeNull();
-    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
     // restore plan: manual restoration and the saved list position kept for ScrollToTop
     expect(window.history.scrollRestoration).toBe('manual');
     recordScroll('/portfolio/', 0);
     expect(savedPosition('/portfolio/')).toBe(1500);
+    // the list is drawn whole during the restore (content-visibility placeholder = footer landing), then released
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(UA_HOLD_MS - 1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe(VT_UA_VALUE);
+    vi.advanceTimersByTime(1);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+  });
+
+  it('true while the attribute is taken by another transition: left untouched and not removed by us', () => {
+    page(true);
+    document.documentElement.setAttribute(VT_ATTR, 'realizacja');
+    popUA(true);
+    expect(startVT).not.toHaveBeenCalled();
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    vi.advanceTimersByTime(UA_HOLD_MS + 10);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja');
+    document.documentElement.removeAttribute(VT_ATTR);
+  });
+
+  it('true without a saved list position: nothing held (browser behaviour)', () => {
+    page(true);
+    resetPositions();
+    popUA(true);
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
+    expect(router).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -131,6 +156,7 @@ describe('MIX-1759: the browser already played its own back transition (hasUAVis
     page(true);
     popUA(value);
     expect(startVT).toHaveBeenCalledTimes(1);
+    expect(document.documentElement.getAttribute(VT_ATTR)).toBe('realizacja-powrot');
     expect(router).not.toHaveBeenCalled();
     await vi.advanceTimersByTimeAsync(300);
     expect(router).toHaveBeenCalledTimes(1);
@@ -145,6 +171,7 @@ describe('MIX-1759: the browser already played its own back transition (hasUAVis
     expect(startVT).not.toHaveBeenCalled();
     expect(router).toHaveBeenCalledTimes(1);
     expect(window.history.scrollRestoration).toBe('auto');
+    expect(document.documentElement.hasAttribute(VT_ATTR)).toBe(false);
   });
 });
 

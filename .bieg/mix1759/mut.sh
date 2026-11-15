@@ -8,9 +8,10 @@ OUT=.bieg/r/mix1759m; mkdir -p "$OUT"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)"
 [ -d node_modules ] || { npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm-ci.log" 2>&1; echo "npm-ci rc=$?"; }
-T="tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackBrowser.test.ts"
+T="tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackBrowser.test.ts tests/utils/caseStudyBackUa.test.ts"
 BB=utils/caseStudyBackBrowser.ts
 CB=utils/caseStudyBack.ts
+UA=utils/caseStudyBackUa.ts
 FAILS=0
 vt() { npx vitest run $T --maxWorkers=2 > "$OUT/$1.log" 2>&1; local rc=$?; sed 's/\x1b\[[0-9;]*m//g' "$OUT/$1.log" | grep -aE "Tests " | tail -n 1 | sed "s/^/$1: /"; return $rc; }
 vt baseline; brc=$?; echo "BASELINE vitest-rc=$brc"; [ $brc -eq 0 ] || FAILS=$((FAILS + 1))
@@ -38,14 +39,19 @@ mutant() {
   cp "$OUT/$id.orig" "$f"
   cmp -s "$f" "$OUT/$id.orig" || { echo "RESTORE FAILED $f"; FAILS=$((FAILS + 1)); }
 }
-mutant M1-loose-eq "$BB" 's/uaTransition: e.hasUAVisualTransition === true,/uaTransition: e.hasUAVisualTransition == true,/'
-mutant M2-truthy "$BB" 's/uaTransition: e.hasUAVisualTransition === true,/uaTransition: !!e.hasUAVisualTransition,/'
-mutant M3-const-false "$BB" 's/uaTransition: e.hasUAVisualTransition === true,/uaTransition: false,/'
-mutant M4-inverted-flag "$BB" 's/uaTransition: e.hasUAVisualTransition === true,/uaTransition: e.hasUAVisualTransition !== true,/'
+mutant M1-loose-eq "$UA" 's/hasUAVisualTransition === true;/hasUAVisualTransition == true;/'
+mutant M2-truthy "$UA" 's/return (e as PopStateEvent).hasUAVisualTransition === true;/return !!(e as PopStateEvent).hasUAVisualTransition;/'
+mutant M3-const-false "$UA" 's/return (e as PopStateEvent).hasUAVisualTransition === true;/return false;/'
+mutant M4-inverted-flag "$UA" 's/hasUAVisualTransition === true;/hasUAVisualTransition !== true;/'
 mutant M5-no-condition "$CB" 's/ \&\& i.hero \&\& !i.uaTransition;/ \&\& i.hero;/'
 mutant M6-inverted-condition "$CB" 's/ \&\& i.hero \&\& !i.uaTransition;/ \&\& i.hero \&\& i.uaTransition;/'
 mutant M7-none-plan "$CB" "s/^  const ok = i.supported/  if (i.uaTransition) return { kind: 'none' };\n  const ok = i.supported/"
-mutant M8-only-hero-check "$BB" 's/uaTransition: e.hasUAVisualTransition === true,/uaTransition: e.hasUAVisualTransition === true \&\& hero === null,/'
+mutant M8-flag-not-wired "$BB" 's/^      uaTransition: ua,/      uaTransition: false,/'
+mutant M9-hold-inverted "$UA" 's/^  if (ua) holdListRendered(win, doc);/  if (!ua) holdListRendered(win, doc);/'
+mutant M10-no-hold "$UA" '/^  if (ua) holdListRendered(win, doc);/d'
+mutant M11-hold-overwrites "$UA" '/^  if (root.hasAttribute(VT_ATTR)) return;/d'
+mutant M12-remove-any-value "$UA" 's/^    if (root.getAttribute(VT_ATTR) === VT_UA_VALUE) root.removeAttribute(VT_ATTR);/    root.removeAttribute(VT_ATTR);/'
+mutant M13-hold-too-short "$UA" 's/^export const UA_HOLD_MS = RESTORE_MAX_MS + 500;/export const UA_HOLD_MS = RESTORE_MAX_MS - 500;/'
 echo "porcelain: $(git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | wc -l)"
 echo "MUT-MIX1759 failchecks=$FAILS"
 echo "### end"

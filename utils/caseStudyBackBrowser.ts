@@ -2,15 +2,9 @@
 // Montuje to ScrollToTop TYLKO przy włączonym przełączniku VITE_MM_VIEW_TRANSITIONS: zapis pozycji
 // listy i przywrócenie jej bez animacji; przejście (zmniejszenie zdjęcia do karty) dodatkowo przy
 // wszystkich warunkach z planBack(). Wyłączony = brak nasłuchów i zmian (zachowanie jak dawniej).
-import {
-  holdRecording,
-  manualRestorationFor,
-  isCaseStudyRoute,
-  planBack,
-  recordScroll,
-  savedPosition,
-} from './caseStudyBack';
+import { isCaseStudyRoute, planBack, recordScroll, savedPosition } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
+import { browserPlayedBack, prepareBackRestore } from './caseStudyBackUa';
 import { caseStudyToTop, skipAndHandOver } from './caseStudyBackSkip';
 import { backTicket, claimBack } from './caseStudyGeneration';
 import { canReach, startRestore } from './caseStudyRestore';
@@ -78,11 +72,13 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     // MIX-1707: bez żadnego przewinięcia z naszej strony (lista nie jest przewijana przed potwierdzeniem)
     // MIX-1707 r2: nasze przejście w toku = router dostaje je po zwolnieniu malowania (utils/caseStudyBackSkip.ts)
     if (!claimBack(win.location)) return void skipAndHandOver(e, handToRouter);
-    const [from, to] = [trackedPath, win.location.pathname];
+    const from = trackedPath;
+    const to = win.location.pathname;
     if (!from || !isCaseStudyRoute(from) || isCaseStudyRoute(to)) return;
     const saved = savedPosition(to);
     if (saved === null) return; // wejście bez zapisu: zachowanie przeglądarki
     const hero = findHeroParts(doc);
+    const ua = browserPlayedBack(e); // MIX-1759: tylko jawne true (brak pola = jak dotąd)
     const plan = planBack({
       from,
       to,
@@ -92,13 +88,10 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
       motion: motionAllowed(win),
       active: isTransitionActive(),
       hero: hero !== null,
-      // MIX-1759: tylko jawne true (starsza przeglądarka bez pola = undefined = jak dotąd)
-      uaTransition: e.hasUAVisualTransition === true,
+      uaTransition: ua,
     });
     if (plan.kind === 'none') return; // przełącznik wyłączony: bez żadnych zmian
-    // zdarzenia przewinięcia od samej przeglądarki nie mogą nadpisać zapisanej pozycji
-    holdRecording();
-    manualRestorationFor(win);
+    prepareBackRestore(win, doc, ua); // MIX-1759: po przejściu przeglądarki lista rysowana cała
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();

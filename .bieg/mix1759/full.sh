@@ -8,7 +8,7 @@ export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null)" | tee -a "$OUT/summary.txt"
 RED=0
 step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "$n rc=$rc" | tee -a "$OUT/summary.txt"; if [ $rc -ne 0 ]; then RED=$((RED + 1)); sed "s/\x1b\[[0-9;]*m//g" "$OUT/$n.log" | tail -n 40 | tee -a "$OUT/summary.txt"; fi; }
-F=".bieg/mix1759/ua.mjs utils/caseStudyBack.ts utils/caseStudyBackBrowser.ts tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackBrowser.test.ts"
+F=".bieg/mix1759/ua.mjs utils/caseStudyBack.ts utils/caseStudyBackBrowser.ts utils/caseStudyBackUa.ts tests/utils/caseStudyBack.test.ts tests/utils/caseStudyBackBrowser.test.ts tests/utils/caseStudyBackUa.test.ts"
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 step eslint npx eslint . --report-unused-disable-directives --max-warnings 0
 step prettier npx prettier --check $F
