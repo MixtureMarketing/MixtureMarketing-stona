@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MIX-1741: back from a case study landing on the footer (.bieg/mix1741/footer.mjs) at 375 and 1280.
 # Usage: bash .bieg/mix1741/footer.sh <variants csv> <cases csv> <runs> [expect csv]
-#   variants: head (this tree), f536917 (this tree with utils/caseStudyRootScroll.ts of f536917 = the owner's Preview),
+#   variants: head (this tree), f536917 (this tree with utils/caseStudyRootScroll.ts and the grid class of f536917 = the owner's Preview),
 #             bug (this tree with the grid class of 3febcb0: contain-intrinsic-size without `auto`),
 #             nocv (this tree without content-visibility on the grid; diagnosis only)
 #   cases: back,toggle; runs per width and case; expect per variant: fixed (0 FOOTER/OTHER) | bug (>= 1 FOOTER) | any
@@ -28,7 +28,8 @@ for v in "${VS[@]}"; do
   case $v in
     head) ;;
     f536917) (cd .bieg/mix1741/base-f536917 && sha256sum -c --quiet SHA256SUMS) || bad "base-f536917 checksum"
-             cp .bieg/mix1741/base-f536917/caseStudyRootScroll.ts "$RS"; cmp -s "$RS" "$OUT/rs.orig" && echo "note: $RS equals f536917" ;;
+             cp .bieg/mix1741/base-f536917/caseStudyRootScroll.ts "$RS"; cmp -s "$RS" "$OUT/rs.orig" && bad "f536917: $RS equals this tree"
+             node .bieg/mix1741/variant.mjs bug || bad "f536917: grid class of f536917 not applied" ;;
     bug|fixa|nocv) node .bieg/mix1741/variant.mjs "$v" || bad "variant $v not applied" ;;
     *) bad "unknown variant $v"; continue ;;
   esac
@@ -39,7 +40,8 @@ for v in "${VS[@]}"; do
   mv dist "dist-$v"
   for vp in 375 1280; do
     for c in $(echo "$CASES" | tr ',' ' '); do
-      FOOT_VP=$vp FOOT_CASE=$c FOOT_RUNS=$RUNS FOOT_TAG=$v node .bieg/mix1741/footer.mjs "dist-$v" "$OUT" > "$OUT/f-$v-$vp-$c.txt" 2>&1; prc=$?
+      CL=0; [ "$vp" = 1280 ] && CL=18   # 1280: 9 real cards = 3 rows, too short for the bug; 18 copies in front (footer.mjs)
+      FOOT_CLONES=$CL FOOT_VP=$vp FOOT_CASE=$c FOOT_RUNS=$RUNS FOOT_TAG=$v node .bieg/mix1741/footer.mjs "dist-$v" "$OUT" > "$OUT/f-$v-$vp-$c.txt" 2>&1; prc=$?
       grep -aE '^(CARDS|RUN|SUMMARY|ERROR)' "$OUT/f-$v-$vp-$c.txt" | cut -c1-330
       echo "probe $v $vp $c rc=$prc expect=$ex"
       case "$ex:$prc" in

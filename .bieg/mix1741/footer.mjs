@@ -76,10 +76,40 @@ const ORIGIN = `http://127.0.0.1:${server.address().port}`;
 const safe = createProdSafe(ORIGIN);
 const SANITY = /^https:\/\/([a-z0-9]+\.api\.sanity\.io|cdn\.sanity\.io)\//;
 const SANITY_API = /^https:\/\/[a-z0-9]+\.api\.sanity\.io\//;
+/**
+ * FOOT_CLONES=N: the case-study LIST answer (query `_type == "caseStudy"` without a slug filter) gets N copies of its
+ * items in front (unique _id and slug), so the real cards are the last ones and the list is as tall at 1280 as at 375
+ * (9 real cards = 3 rows at 1280, too short for the bug). Case-study pages (slug filter) are untouched.
+ */
+const CLONES = Number(process.env.FOOT_CLONES || 0);
+let clonedAnswers = 0;
+function withClones(url, body) {
+  if (!(CLONES > 0)) return body;
+  let q = '';
+  try {
+    q = new URL(url).searchParams.get('query') || '';
+  } catch {
+    return body;
+  }
+  if (!q.includes('_type == "caseStudy"') || q.includes('slug.current ==') || !q.includes('order(date desc)')) return body;
+  try {
+    const json = JSON.parse(body.toString('utf8'));
+    if (!Array.isArray(json.result) || !json.result.length || !json.result.every((x) => x && x.slug)) return body;
+    const real = json.result;
+    const copies = [];
+    for (let i = 1; copies.length < CLONES; i++)
+      for (const x of real) if (copies.length < CLONES) copies.push({ ...x, _id: `${x._id}-kopia-${i}`, slug: `${x.slug}-kopia-${i}` });
+    json.result = [...copies, ...real];
+    clonedAnswers += 1;
+    return Buffer.from(JSON.stringify(json));
+  } catch {
+    return body;
+  }
+}
 async function proxySanity(req) {
   try {
     const res = await fetch(req.url(), { headers: { accept: 'application/json' } });
-    const body = Buffer.from(await res.arrayBuffer());
+    const body = withClones(req.url(), Buffer.from(await res.arrayBuffer()));
     await req.respond({
       status: res.status,
       headers: {
@@ -235,8 +265,10 @@ async function centre(page, href) {
 }
 
 function classify(s, y0) {
-  if (s.footerOn && !s.cardOn) return 'FOOTER';
-  if (Math.abs(s.y - y0) <= 4 && s.cardOn) return 'OK';
+  // a card skipped by content-visibility:auto is not painted: on screen only when rendered (MIX-1741 run m1741a: FBX)
+  const seen = s.cardOn && s.skipped === false;
+  if (s.footerOn && !seen) return 'FOOTER';
+  if (Math.abs(s.y - y0) <= 4 && seen) return 'OK';
   return 'OTHER';
 }
 
@@ -248,7 +280,7 @@ try {
 } catch (e) {
   errors.push(`load: ${String(e.message).slice(0, 160)}`);
 }
-console.log(`CARDS ${vpTag} ${TAG} n=${hrefs.length} last=${hrefs.at(-1) ?? '-'}`);
+console.log(`CARDS ${vpTag} ${TAG} n=${hrefs.length} clones=${CLONES} clonedAnswers=${clonedAnswers} last=${hrefs.at(-1) ?? '-'}`);
 // order: last, second to last, then from the end backwards (cards near the footer first), cyclic
 const order = hrefs.slice().reverse();
 for (let k = 1; k <= RUNS && order.length; k++) {
