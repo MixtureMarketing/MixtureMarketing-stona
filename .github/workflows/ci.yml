@@ -143,6 +143,11 @@ jobs:
       - name: 🤖 llms.txt guard
         run: npm run audit:llms
 
+      # MIX-1732: proporcje 16:9 karty i zdjecia realizacji w prawdziwej przegladarce na zbudowanym dist
+      # (375 i 1280 px, ten sam kadr). Blokuje: rc != 0 zatrzymuje job przed wdrozeniem (fail-closed).
+      - name: 📐 Proportions 16:9 (browser, blocking)
+        run: npm run audit:proportions
+
       - name: 🩺 Health Audit (non-blocking)
         run: npm run audit:health
         continue-on-error: true
