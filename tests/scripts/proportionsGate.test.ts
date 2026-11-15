@@ -1,8 +1,10 @@
+import { execFile } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import { parse } from 'yaml';
-import { evaluate, cropBox } from '../../scripts/lib/proportions.mjs';
+import { evaluate, cropBox, applyPageErrors, exitCode } from '../../scripts/lib/proportions.mjs';
 
 // MIX-1732: the decision logic of the 16:9 gate (scripts/audit-proportions.mjs) is fail-closed: only an
 // empty reason list is a pass. Every refusal below has a legitimate twin that passes.
@@ -209,5 +211,143 @@ describe('MIX-1732: the gate is wired as a blocking CI step after the build', ()
     };
     expect(pkg.scripts['audit:proportions']).toBe('node scripts/audit-proportions.mjs dist');
     expect(fs.existsSync(path.join(root, 'scripts/audit-proportions.mjs'))).toBe(true);
+  });
+});
+
+// MIX-1736 (W7/W8 of the MIX-1732 verdict): the exit-code mapping and the page-error mapping are pure
+// functions with tests, and the script is checked to use them (a wiring regression cannot pass CI).
+describe('MIX-1736: exit code of the gate (exitCode)', () => {
+  it('pass: no reasons and every viewport measured is rc 0', () => {
+    expect(exitCode([], good(), 2)).toBe(0);
+  });
+  it('criterion fails with everything measured is rc 1 (twin of rc 2)', () => {
+    expect(exitCode(['x: card ratio 1.3333 outside'], good(), 2)).toBe(1);
+  });
+  it('not measured is rc 2, never rc 0 (W7): reasons present and an errored row', () => {
+    const rows = [row('375x812', { error: 'not measured: timeout' }), row('1280x800')];
+    expect(exitCode(['375x812: not measured: timeout'], rows, 2)).toBe(2);
+  });
+  it('an errored row is rc 2 even if the reason list were empty', () => {
+    expect(exitCode([], [row('375x812', { error: 'page error: x' }), row('1280x800')], 2)).toBe(2);
+  });
+  it('missing viewport row (count mismatch) is rc 2, also with empty reasons', () => {
+    expect(exitCode([], [row('375x812')], 2)).toBe(2);
+    expect(exitCode(['1280x800: viewport not measured'], [row('375x812')], 2)).toBe(2);
+  });
+  it('empty rows or a null row is rc 2', () => {
+    expect(exitCode(['no measurement rows (nothing measured)'], [], 2)).toBe(2);
+    expect(exitCode([], [null, row('1280x800')] as never, 2)).toBe(2);
+  });
+  it('non-array input is rc 2', () => {
+    expect(exitCode(undefined as never, good(), 2)).toBe(2);
+    expect(exitCode([], null as never, 2)).toBe(2);
+  });
+});
+
+describe('MIX-1736: page errors become a refusal (applyPageErrors)', () => {
+  it('a page error sets row.error and evaluate refuses with the text (W8)', () => {
+    const r = applyPageErrors(row('375x812'), ['boom']);
+    expect(r.error).toBe('page error: boom');
+    expect(evaluate([r, row('1280x800')], VPS).join(' | ')).toMatch(/375x812: page error: boom/);
+  });
+  it('twin: no page errors leaves the row untouched and passing', () => {
+    const r = applyPageErrors(row('375x812'), []);
+    expect(r.error).toBeNull();
+    expect(evaluate([r, row('1280x800')], VPS)).toEqual([]);
+  });
+  it('non-array page errors do not throw and do not invent an error', () => {
+    expect(applyPageErrors(row('375x812'), undefined as never).error).toBeNull();
+  });
+});
+
+// Behavioural test of the real script: scripts/audit-proportions.mjs runs as a child process with the
+// bare import 'puppeteer' redirected to a fake driver (fixtures/fake-puppeteer), against a tiny static dist.
+// The server, the viewport loop, evaluate() and the exit code are the script's own code.
+describe('MIX-1736: the real script main path (fake browser driver, exit codes)', () => {
+  const root = path.resolve(__dirname, '../..');
+  const dist = fs.mkdtempSync(path.join(os.tmpdir(), 'proportions-dist-'));
+  fs.writeFileSync(path.join(dist, 'index.html'), '<!doctype html><title>x</title>');
+  afterAll(() => fs.rmSync(dist, { recursive: true, force: true }));
+  const gate = (scenario: Record<string, unknown>, distDir = dist) =>
+    new Promise<{ rc: number | null; out: string }>((resolve) => {
+      execFile(
+        process.execPath,
+        [
+          '--import',
+          path.join(root, 'tests/scripts/fixtures/fake-puppeteer/register.mjs'),
+          path.join(root, 'scripts/audit-proportions.mjs'),
+          distDir,
+        ],
+        {
+          env: { ...process.env, FAKE_PUPPETEER: JSON.stringify(scenario) },
+          encoding: 'utf8',
+          timeout: 60000,
+        },
+        (err, stdout, stderr) => {
+          const code = err ? (err as { code?: unknown }).code : 0;
+          resolve({ rc: typeof code === 'number' ? code : null, out: `${stdout}${stderr}` });
+        },
+      );
+    });
+  const T = 40000;
+
+  it.concurrent('all viewports measured and 16:9: rc 0', { timeout: T }, async () => {
+    const r = await gate({});
+    expect(r.out).toContain('PROPORTIONS OK');
+    expect(r.rc).toBe(0);
+  });
+  it.concurrent(
+    'card ratio wrong on every viewport: rc 1 with the value',
+    { timeout: T },
+    async () => {
+      const r = await gate({ cardRatio: 1.3333 });
+      expect(r.out).toMatch(/FAIL: 375x812: card ratio 1\.3333 outside/);
+      expect(r.out).toContain('PROPORTIONS NIE');
+      expect(r.rc).toBe(1);
+    },
+  );
+  it.concurrent('hero ratio wrong: rc 1', { timeout: T }, async () => {
+    const r = await gate({ heroRatio: 1.5 });
+    expect(r.out).toMatch(/FAIL: 1280x800: hero ratio 1\.5000 outside/);
+    expect(r.rc).toBe(1);
+  });
+  it.concurrent('page error on the first viewport only: rc 2 (W8)', { timeout: T }, async () => {
+    const r = await gate({ errorOn: ['375x812'] });
+    expect(r.out).toMatch(/FAIL: 375x812: page error: boom 375x812/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('page error on the second viewport only: rc 2 (W8)', { timeout: T }, async () => {
+    const r = await gate({ errorOn: ['1280x800'] });
+    expect(r.out).toMatch(/FAIL: 1280x800: page error: boom 1280x800/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('page errors on both viewports: rc 2', { timeout: T }, async () => {
+    expect((await gate({ errorOn: ['375x812', '1280x800'] })).rc).toBe(2);
+  });
+  it.concurrent(
+    'page error together with a wrong ratio is still rc 2 (not 1)',
+    { timeout: T },
+    async () => {
+      expect((await gate({ errorOn: ['375x812'], cardRatio: 1.3333 })).rc).toBe(2);
+    },
+  );
+  it.concurrent(
+    'the second viewport cannot be opened (missing row): rc 2',
+    { timeout: T },
+    async () => {
+      const r = await gate({ newPageFailsAt: 2 });
+      expect(r.out).toMatch(/FAIL: 1280x800: viewport not measured/);
+      expect(r.rc).toBe(2);
+    },
+  );
+  it.concurrent('no viewport can be opened (no rows): rc 2', { timeout: T }, async () => {
+    const r = await gate({ newPageFailsAt: 1 });
+    expect(r.out).toMatch(/FAIL: no measurement rows/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('dist without index.html: rc 2 with the reason line', { timeout: T }, async () => {
+    const r = await gate({}, path.join(dist, 'missing'));
+    expect(r.out).toMatch(/FAIL: dist not found or has no index\.html/);
+    expect(r.rc).toBe(2);
   });
 });

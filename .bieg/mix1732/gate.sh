@@ -28,9 +28,10 @@ gate_on=$?
 node scripts/audit-proportions.mjs no-such-dist > "$OUT/form-nodist.log" 2>&1; echo "FORM nodist rc=$? $(head -n 1 $OUT/form-nodist.log | cut -c1-160)"
 mkdir -p "$OUT/stub"; echo '<!doctype html><title>x</title><div id=root></div>' > "$OUT/stub/index.html"
 node scripts/audit-proportions.mjs "$OUT/stub" > "$OUT/form-stub.log" 2>&1; echo "FORM stub(0 cards) rc=$? $(grep -a FAIL "$OUT/form-stub.log" | head -n 2 | cut -c1-200 | tr '\n' '|')"
-env -u VITE_MM_VIEW_TRANSITIONS step build-off npm run build; tail -n 3 "$OUT/build-off.log" | cut -c1-160
+( unset VITE_MM_VIEW_TRANSITIONS; step build-off npm run build ); tail -n 3 "$OUT/build-off.log" | cut -c1-160
 gate off
 gate_off=$?
+grep -aq "layout=classic" "$OUT/audit-off.log" || { echo "ASSERT FAIL: GATE off is not the classic (production) layout"; exit 2; }; echo "ASSERT off layout=classic ok"
 git status --porcelain -- . ':!.bieg' | cut -c1-100
 git checkout -- public/sitemap.xml 2>/dev/null
 [ -z "$(git status --porcelain -- . ':!.bieg')" ] || { echo "tree not clean before mutants: stop"; git status --porcelain -- . ':!.bieg'; exit 2; }
