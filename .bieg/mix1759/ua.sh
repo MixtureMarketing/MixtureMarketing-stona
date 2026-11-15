@@ -40,7 +40,8 @@ for vp in $WIDTHS; do
     [ -d "dist-ua$v" ] || { bad "$v $vp ua=$ua: no build"; continue; }
     FOOT_CLONES=$CL FOOT_VP=$vp FOOT_CASE=back FOOT_RUNS=$RUNS FOOT_TAG=$v UA_FLAG=$ua UA_EXPECT=$ex \
       node .bieg/mix1759/ua.mjs "dist-ua$v" "$OUT" > "$OUT/u-$v-$vp-$ua.txt" 2>&1; prc=$?
-    grep -aE '^(CARDS|RUN|SUMMARY|ERROR)' "$OUT/u-$v-$vp-$ua.txt" | sed -E 's/ gridBefore=.* minY=/ minY=/' | cut -c1-260
+    grep -aE '^(CARDS|SUMMARY|ERROR)' "$OUT/u-$v-$vp-$ua.txt" | cut -c1-330
+    grep -aE '^RUN ' "$OUT/u-$v-$vp-$ua.txt" | awk '{ o = $1 " " $2 " " $3 " " $5 " " $6 " " $7 " " $8 " " $9; for (i = 10; i <= NF; i++) if ($i ~ /^(ua|vt|pops|flagOk|vtOk)=/) o = o " " $i; print o }'
     echo "LEG $v $vp ua=$ua expect=$ex rc=$prc"
     [ $prc -eq 0 ] || bad "$v $vp ua=$ua expect=$ex rc=$prc"
   done
