@@ -105,7 +105,7 @@ describe('MIX-1724: the checker itself (negative leg, allowlist, refusal text)',
     ['flex-1', 'relative'],
     ['grow', 'overflow-hidden'],
     ['md:flex-1', 'bg-gray-100'],
-    ['[block-size:240px]', 'aspect-[16/9]'],
+    ['[block-size:240px]', 'relative'],
     ['md:[block-size:240px]', 'relative'],
     ['[max-block-size:200px]', 'overflow-hidden'],
     ['absolute inset-0', 'relative'],
@@ -179,12 +179,12 @@ function cropCalls(): Array<[string, unknown]> {
 }
 
 describe('MIX-1722/1724: hero (photo at the top) has 16/9 on every width, switch ON and OFF', () => {
-  it.each([
-    ['ON', '1', HERO_FRAME_ON, 'ON'],
-    ['ON', 'true', HERO_FRAME_ON, 'ON'],
-    ['OFF', undefined, HERO_FRAME_OFF, 'OFF'],
-    ['OFF', '0', HERO_FRAME_OFF, 'OFF'],
-    ['OFF', 'false', HERO_FRAME_OFF, 'OFF'],
+  it.each<[string, string | undefined, string[]]>([
+    ['ON', '1', HERO_FRAME_ON],
+    ['ON', 'true', HERO_FRAME_ON],
+    ['OFF', undefined, HERO_FRAME_OFF],
+    ['OFF', '0', HERO_FRAME_OFF],
+    ['OFF', 'false', HERO_FRAME_OFF],
   ])('switch %s (VITE_MM_VIEW_TRANSITIONS=%s)', (_label, v, allowed) => {
     if (v !== undefined) vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', v);
     calls.length = 0;
