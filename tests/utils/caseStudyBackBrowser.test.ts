@@ -806,3 +806,49 @@ describe('installBackInterceptor popstate handling (MIX-1675)', () => {
     uninstall = installBackInterceptor();
   });
 });
+
+describe('MIX-1745: BACK starts from the case-study header at the top of the page', () => {
+  const caseY = (v: number) =>
+    Object.defineProperty(window, 'scrollY', { value: v, configurable: true, writable: true });
+  afterEach(() => caseY(0));
+
+  it('case study read further down: to the top, instantly, BEFORE the old snapshot (startViewTransition)', async () => {
+    page(true);
+    caseY(1200);
+    pop();
+    expect(startVT).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+    // the browser takes the old snapshot after startViewTransition: the page is already at the top
+    expect(scrollTo.mock.invocationCallOrder[0]).toBeLessThan(startVT.mock.invocationCallOrder[0]);
+    caseY(0);
+    await vi.advanceTimersByTimeAsync(300);
+    // then the list goes to its saved position as before
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 1500, left: 0, behavior: 'instant' });
+  });
+
+  it('allowed twin: case study already at the top = no scroll of ours before the snapshot', () => {
+    page(true);
+    caseY(0);
+    pop();
+    expect(startVT).toHaveBeenCalledTimes(1);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('no transition (reduced motion, plain restore plan): the case study is not moved to the top', () => {
+    page(true);
+    motion(false);
+    caseY(1200);
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(scrollTo).not.toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+  });
+
+  it('no hero (no transition): the case study is not moved to the top', () => {
+    page(false);
+    caseY(1200);
+    pop();
+    expect(startVT).not.toHaveBeenCalled();
+    expect(scrollTo).not.toHaveBeenCalledWith({ top: 0, left: 0, behavior: 'instant' });
+  });
+});
