@@ -45,7 +45,7 @@ describe('MIX-1471: switch OFF = production layout unchanged', () => {
     (value) => {
       if (value !== undefined) vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', value);
       const { container } = renderHero();
-      // Snapshot recorded on the unchanged production component (base 4953c82).
+      // Snapshot of the production hero; re-recorded in MIX-1724 (photo frame 16/9, crop 1600x900); everything else unchanged since base 4953c82.
       expect(container.innerHTML).toMatchSnapshot();
     },
   );
