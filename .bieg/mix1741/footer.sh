@@ -9,6 +9,7 @@
 # Exit 0 only when every build is 0 and every variant meets its expectation at both widths (fail-closed:
 # a probe rc 2 = not measured = failure).
 set -u
+for w in ${FOOT_WIDTHS:-375 1280}; do case $w in 375|1280) ;; *) echo "width $w not allowed"; exit 2 ;; esac; done
 VARIANTS=${1:?variants}; CASES=${2:?cases}; RUNS=${3:?runs}; EXPECT=${4:-}
 OUT=.bieg/r/mix1741; mkdir -p "$OUT"
 export VITE_SANITY_PROJECT_ID=azuef2ua VITE_SANITY_DATASET=production
@@ -38,12 +39,16 @@ for v in "${VS[@]}"; do
   VITE_MM_VIEW_TRANSITIONS=1 npm run build > "$OUT/build-$v.log" 2>&1; rc=$?; echo "build-$v rc=$rc"
   [ $rc -eq 0 ] || { bad "build-$v rc=$rc"; tail -n 20 "$OUT/build-$v.log"; continue; }
   mv dist "dist-$v"
-  for vp in 375 1280; do
+  for vp in ${FOOT_WIDTHS:-375 1280}; do   # FOOT_WIDTHS: subset of 375 1280 (rerun of one width)
     for c in $(echo "$CASES" | tr ',' ' '); do
       CL=0; [ "$vp" = 1280 ] && CL=18   # 1280: 9 real cards = 3 rows, too short for the bug; 18 copies in front (footer.mjs)
       FOOT_CLONES=$CL FOOT_VP=$vp FOOT_CASE=$c FOOT_RUNS=$RUNS FOOT_TAG=$v node .bieg/mix1741/footer.mjs "dist-$v" "$OUT" > "$OUT/f-$v-$vp-$c.txt" 2>&1; prc=$?
       grep -aE '^(CARDS|RUN|SUMMARY|ERROR)' "$OUT/f-$v-$vp-$c.txt" | cut -c1-330
       echo "probe $v $vp $c rc=$prc expect=$ex"
+      if [ "$CL" -gt 0 ]; then   # copies requested: the list must carry them (fail-closed, run m1741b had none)
+        n=$(awk '/^CARDS / { for (i = 1; i <= NF; i++) if (substr($i, 1, 2) == "n=") print substr($i, 3) }' "$OUT/f-$v-$vp-$c.txt" | head -n 1); grep -aqF "clonedAnswers=0 " "$OUT/f-$v-$vp-$c.txt" && bad "$v $vp $c: no copies in the list"
+        [ "${n:-0}" -gt "$CL" ] || bad "$v $vp $c: list has ${n:-0} cards, copies $CL"
+      fi
       case "$ex:$prc" in
         fixed:0|any:0|any:1|bug:1) ;;
         *) bad "$v $vp $c rc=$prc expect=$ex" ;;

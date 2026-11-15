@@ -64,7 +64,7 @@ const server = http.createServer(async (req, res) => {
     file = path.join(DIST, 'index.html');
   }
   try {
-    const body = await fs.readFile(file);
+    const body = cloneSnapshot(file, await fs.readFile(file));
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' });
     res.end(body);
   } catch {
@@ -83,6 +83,34 @@ const SANITY_API = /^https:\/\/[a-z0-9]+\.api\.sanity\.io\//;
  */
 const CLONES = Number(process.env.FOOT_CLONES || 0);
 let clonedAnswers = 0;
+/**
+ * The list on /portfolio/ comes from the CMS snapshot in the prerendered HTML (hooks/useCmsDocument.ts, no Sanity
+ * request): with FOOT_CLONES the entry `caseStudyList|list` of <script id="cms-snapshot"> gets the same copies in front.
+ */
+function cloneSnapshot(file, body) {
+  if (!(CLONES > 0) || !file.endsWith('.html')) return body;
+  const html = body.toString('utf8');
+  const re = /(<script type="application\/json" id="cms-snapshot">)([\s\S]*?)(<\/script>)/;
+  const m = re.exec(html);
+  if (!m) return body;
+  try {
+    const snap = JSON.parse(m[2]);
+    const real = snap['caseStudyList|list'];
+    if (!Array.isArray(real) || !real.length || !real.every((x) => x && x.slug)) return body;
+    snap['caseStudyList|list'] = withCopies(real);
+    clonedAnswers += 1;
+    const json = JSON.stringify(snap).replace(/</g, '\\u003c'); // U+2028/2029 are valid in JSON and in a script since ES2019
+    return Buffer.from(html.replace(re, () => `${m[1]}${json}${m[3]}`));
+  } catch {
+    return body;
+  }
+}
+function withCopies(real) {
+  const copies = [];
+  for (let i = 1; copies.length < CLONES; i++)
+    for (const x of real) if (copies.length < CLONES) copies.push({ ...x, _id: `${x._id}-kopia-${i}`, slug: `${x.slug}-kopia-${i}` });
+  return [...copies, ...real];
+}
 function withClones(url, body) {
   if (!(CLONES > 0)) return body;
   let q = '';
@@ -96,10 +124,7 @@ function withClones(url, body) {
     const json = JSON.parse(body.toString('utf8'));
     if (!Array.isArray(json.result) || !json.result.length || !json.result.every((x) => x && x.slug)) return body;
     const real = json.result;
-    const copies = [];
-    for (let i = 1; copies.length < CLONES; i++)
-      for (const x of real) if (copies.length < CLONES) copies.push({ ...x, _id: `${x._id}-kopia-${i}`, slug: `${x.slug}-kopia-${i}` });
-    json.result = [...copies, ...real];
+    json.result = withCopies(real);
     clonedAnswers += 1;
     return Buffer.from(JSON.stringify(json));
   } catch {
