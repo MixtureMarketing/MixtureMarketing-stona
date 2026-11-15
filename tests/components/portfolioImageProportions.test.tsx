@@ -19,8 +19,8 @@ import CaseStudyHero, { HERO_PHOTO } from '@/components/templates/case-study/Cas
 import PortfolioGrid, { CARD_PHOTO } from '@/components/features/portfolio/PortfolioGrid';
 import type { SanityCaseStudy } from '@/types';
 
-// MIX-1651/1722: the portfolio card and the hero photo are 16/9 on every width (no phone square,
-// no fixed card height).
+// MIX-1651/1722/1724: the portfolio card and the hero photo are 16/9 on every width, with the switch ON
+// and OFF (no phone square, no fixed card height, no natural-ratio hero).
 const IMG = { _type: 'image', asset: { _ref: 'image-Tb9Ew8CXIwaY6R1kjMvI0uRR-2000x3000-jpg' } };
 const PROJECT = {
   _id: 'id-alfa',
@@ -34,20 +34,60 @@ const PROJECT = {
   mainImage: IMG,
 } as unknown as SanityCaseStudy;
 
-// MIX-1722: the card and the hero frame are an ALLOWLIST. Every class that can change the frame's shape
-// (aspect-*, h-*, min-h-*, max-h-*, size-*, aspect-ratio / height arbitrary properties, with or without a
-// variant or important prefix) must be exactly one of the allowed tokens; anything else fails. The card
-// allows only `aspect-[16/9]`; the hero also keeps its unprefixed `max-h-[75vh]` viewport cap.
-const SHAPE_TOKEN =
-  /(^|:|!)(aspect|h|min-h|max-h|size|basis)-|aspect-ratio|(^|\[)(min-|max-)?height/;
-const CARD_ALLOWED = ['aspect-[16/9]'];
-const HERO_ALLOWED = ['aspect-[16/9]', 'max-h-[75vh]'];
+// MIX-1724: the frame and image checkers are a fail-closed ALLOWLIST (Z3). Every class token of a frame
+// must be exactly one of the listed tokens; ANY other token (flex-1, grow, [block-size:..], absolute,
+// self-stretch, row-span-2, py-[28%], any variant or important prefix) is a refusal with the token named.
+// A legitimate new class means a deliberate edit of the list here, after a browser measurement.
+const CARD_FRAME = ['relative', 'aspect-[16/9]', 'overflow-hidden', 'bg-gray-100'];
+const HERO_FRAME_ON = [
+  'max-w-[1600px]',
+  'mx-auto',
+  'rounded-3xl',
+  'md:rounded-[2.5rem]',
+  'overflow-hidden',
+  'shadow-2xl',
+  'border-4',
+  'border-white',
+  'bg-gray-100',
+  'aspect-[16/9]',
+  'max-h-[75vh]',
+  'mb-12',
+];
+const HERO_FRAME_OFF = [
+  'max-w-[1600px]',
+  'mx-auto',
+  'rounded-[2.5rem]',
+  'overflow-hidden',
+  'shadow-2xl',
+  'border-4',
+  'border-white',
+  'bg-gray-100',
+  'aspect-[16/9]',
+  'max-h-[75vh]',
+];
+const SKELETON_FRAME = ['aspect-[16/9]', 'bg-gray-200', 'w-full'];
+const CARD_IMG = [
+  'w-full',
+  'h-full',
+  'object-cover',
+  'transition-transform',
+  'duration-700',
+  'group-hover:scale-110',
+];
+const HERO_IMG = ['w-full', 'h-full', 'object-cover'];
 
-/** Returns the aspect class; throws on a shape token outside the allowlist or a missing/doubled aspect. */
-function uniformAspect(className: string, allowed: string[] = CARD_ALLOWED): string {
-  const tokens = className.split(/\s+/).filter(Boolean);
-  const stray = tokens.filter((t) => SHAPE_TOKEN.test(t) && !allowed.includes(t));
+/** Throws on a token outside the allowlist or on an empty class (fail closed). */
+function assertAllowlist(className: string | null | undefined, allowed: string[]): string[] {
+  const tokens = (className ?? '').split(/\s+/).filter(Boolean);
+  if (!tokens.length) throw new Error('class outside the allowlist: empty class (refused)');
+  const stray = tokens.filter((t) => !allowed.includes(t));
   if (stray.length) throw new Error(`class outside the allowlist: ${stray.join(' ')}`);
+  return tokens;
+}
+
+/** Returns the aspect class; throws on a token outside the allowlist or a missing/doubled aspect. */
+function uniformAspect(className: string, allowed: string[] = CARD_FRAME): string {
+  const tokens = assertAllowlist(className, allowed);
   const aspects = tokens.filter((t) => t === 'aspect-[16/9]');
   if (aspects.length !== 1)
     throw new Error(`expected exactly one aspect-[16/9], got: ${className}`);
@@ -56,8 +96,29 @@ function uniformAspect(className: string, allowed: string[] = CARD_ALLOWED): str
 
 afterEach(() => vi.unstubAllEnvs());
 
-describe('MIX-1722: the checker itself (negative leg, allowlist)', () => {
-  const OUT = /class outside the allowlist/;
+const OUT = /class outside the allowlist/;
+
+describe('MIX-1724: the checker itself (negative leg, allowlist, refusal text)', () => {
+  // The 10 forms that passed the old shape-token checker, each with an allowed twin (an allowed token of
+  // the same kind) that must pass.
+  it.each([
+    ['flex-1', 'relative'],
+    ['grow', 'overflow-hidden'],
+    ['md:flex-1', 'bg-gray-100'],
+    ['[block-size:240px]', 'aspect-[16/9]'],
+    ['md:[block-size:240px]', 'relative'],
+    ['[max-block-size:200px]', 'overflow-hidden'],
+    ['absolute inset-0', 'relative'],
+    ['py-[28%]', 'bg-gray-100'],
+    ['self-stretch', 'relative'],
+    ['row-span-2', 'overflow-hidden'],
+  ])('refuses %s (names it) while the allowed twin %s passes', (form, twin) => {
+    const base = 'relative aspect-[16/9] overflow-hidden bg-gray-100';
+    expect(() => uniformAspect(`${base} ${form}`)).toThrow(OUT);
+    for (const t of form.split(' ')) expect(() => uniformAspect(`${base} ${form}`)).toThrow(t);
+    expect(uniformAspect(`${base} ${twin}`)).toBe('aspect-[16/9]');
+  });
+
   it.each([
     'aspect-square sm:aspect-[4/3] md:aspect-[16/9]',
     'aspect-[16/9] md:aspect-[4/3]',
@@ -70,40 +131,63 @@ describe('MIX-1722: the checker itself (negative leg, allowlist)', () => {
     'aspect-[16/9] [aspect-ratio:4/3]',
     'aspect-[16/9] h-72',
     'aspect-[16/9] max-h-[75vh]',
+    'aspect-[16/9] basis-1/2',
+    'aspect-[16/9] w-1/2',
+    'aspect-[16/9] p-4',
+    'aspect-[16/9] [writing-mode:vertical-rl]',
     'aspect-[4/3]',
     'aspect-video',
-  ])('rejects a shape class outside the allowlist: %s', (cls) => {
+  ])('refuses a class outside the allowlist: %s', (cls) => {
     expect(() => uniformAspect(cls)).toThrow(/class outside the allowlist|expected exactly one/);
   });
-  it('names the stray token in the refusal text', () => {
-    expect(() => uniformAspect('aspect-[16/9] md:h-96')).toThrow(OUT);
+
+  it('refusal text names the stray token', () => {
     expect(() => uniformAspect('aspect-[16/9] md:h-96')).toThrow(/md:h-96/);
     expect(() => uniformAspect('aspect-[16/9] max-h-[75vh]')).toThrow(/max-h-\[75vh\]/);
+    expect(() => uniformAspect('aspect-[16/9] flex-1')).toThrow(/outside the allowlist: flex-1/);
+  });
+  it('fails closed on empty, whitespace-only or missing class (refusal line)', () => {
+    for (const c of ['', '   ', null, undefined]) {
+      expect(() => assertAllowlist(c as string, CARD_FRAME)).toThrow(/empty class \(refused\)/);
+    }
   });
   it('rejects a missing or doubled aspect class', () => {
     expect(() => uniformAspect('relative bg-gray-100')).toThrow(/expected exactly one/);
     expect(() => uniformAspect('aspect-[16/9] aspect-[16/9]')).toThrow(/expected exactly one/);
   });
   it('hero allowlist: the viewport cap is allowed, a variant cap or height is not', () => {
-    expect(uniformAspect('rounded aspect-[16/9] max-h-[75vh] mb-12', HERO_ALLOWED)).toBe(
+    expect(uniformAspect('rounded-3xl aspect-[16/9] max-h-[75vh] mb-12', HERO_FRAME_ON)).toBe(
       'aspect-[16/9]',
     );
-    expect(() => uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_ALLOWED)).toThrow(
-      OUT,
-    );
-    expect(() => uniformAspect('aspect-[16/9] md:h-96', HERO_ALLOWED)).toThrow(OUT);
+    expect(() =>
+      uniformAspect('aspect-[16/9] max-h-[75vh] md:max-h-[50vh]', HERO_FRAME_ON),
+    ).toThrow(OUT);
+    expect(() => uniformAspect('aspect-[16/9] md:h-96', HERO_FRAME_ON)).toThrow(OUT);
+    expect(() => uniformAspect('aspect-[16/9] h-auto', HERO_FRAME_OFF)).toThrow(/h-auto/);
   });
-  it('accepts exactly the allowed token and unrelated classes', () => {
+  it('accepts exactly the allowed tokens', () => {
     expect(uniformAspect('relative aspect-[16/9] overflow-hidden bg-gray-100')).toBe(
       'aspect-[16/9]',
     );
-    expect(uniformAspect('w-full aspect-[16/9]')).toBe('aspect-[16/9]');
+    expect(uniformAspect('bg-gray-100 aspect-[16/9] relative')).toBe('aspect-[16/9]');
   });
 });
 
-describe('MIX-1722: hero (photo at the top) has 16/9 on every width', () => {
-  it.each(['1', 'true'])('VITE_MM_VIEW_TRANSITIONS=%s', (v) => {
-    vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', v);
+/** The three crop calls of one render: width, height, fit. */
+function cropCalls(): Array<[string, unknown]> {
+  return calls.filter(([k]) => ['width', 'height', 'fit'].includes(k));
+}
+
+describe('MIX-1722/1724: hero (photo at the top) has 16/9 on every width, switch ON and OFF', () => {
+  it.each([
+    ['ON', '1', HERO_FRAME_ON, 'ON'],
+    ['ON', 'true', HERO_FRAME_ON, 'ON'],
+    ['OFF', undefined, HERO_FRAME_OFF, 'OFF'],
+    ['OFF', '0', HERO_FRAME_OFF, 'OFF'],
+    ['OFF', 'false', HERO_FRAME_OFF, 'OFF'],
+  ])('switch %s (VITE_MM_VIEW_TRANSITIONS=%s)', (_label, v, allowed) => {
+    if (v !== undefined) vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', v);
+    calls.length = 0;
     render(
       <MemoryRouter initialEntries={['/portfolio/alfa/']}>
         <CaseStudyHero project={PROJECT} />
@@ -111,14 +195,36 @@ describe('MIX-1722: hero (photo at the top) has 16/9 on every width', () => {
     );
     const photo = screen.getByRole('img', { name: 'Alfa' });
     const frame = photo.parentElement!;
-    expect(uniformAspect(frame.className, HERO_ALLOWED)).toBe('aspect-[16/9]');
+    expect(uniformAspect(frame.className, allowed)).toBe('aspect-[16/9]');
+    expect(() => assertAllowlist(photo.className, HERO_IMG)).not.toThrow();
     // Reserved space intact: the intrinsic size is 16:9 as well.
     expect(photo.getAttribute('width')).toBe('1600');
     expect(photo.getAttribute('height')).toBe('900');
+    // Same crop request as the card: width, height, fit crop (a deleted .fit('crop') turns this red).
+    expect(cropCalls()).toEqual([
+      ['width', 1600],
+      ['height', 900],
+      ['fit', 'crop'],
+    ]);
+  });
+
+  it('switch OFF keeps the production structure: header pt-32, text above the photo', () => {
+    const { container } = render(
+      <MemoryRouter initialEntries={['/portfolio/alfa/']}>
+        <CaseStudyHero project={PROJECT} />
+      </MemoryRouter>,
+    );
+    const header = container.querySelector('header')!;
+    expect(header.getAttribute('data-hero-layout')).toBeNull();
+    expect(header.className.split(' ')).toContain('pt-32');
+    const h1 = screen.getByRole('heading', { level: 1 });
+    expect(h1.compareDocumentPosition(screen.getByRole('img', { name: 'Alfa' }))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
 });
 
-describe('MIX-1722: list card image is 16/9 like the hero (same crop box, no fixed height)', () => {
+describe('MIX-1722/1724: list card image is 16/9 like the hero (same crop box, no fixed height)', () => {
   it('16/9 frame, img keeps width/height 800x450, crop fit', () => {
     render(
       <MemoryRouter>
@@ -128,6 +234,7 @@ describe('MIX-1722: list card image is 16/9 like the hero (same crop box, no fix
     const photo = screen.getByRole('img', { name: 'Alfa' });
     const frame = photo.parentElement!;
     expect(uniformAspect(frame.className)).toBe('aspect-[16/9]');
+    expect(() => assertAllowlist(photo.className, CARD_IMG)).not.toThrow();
     expect(photo.getAttribute('width')).toBe('800');
     expect(photo.getAttribute('height')).toBe('450');
     // 800/450 = 1600/900: the card and the hero photo have the same ratio.
@@ -162,7 +269,7 @@ describe('MIX-1722: list card image is 16/9 like the hero (same crop box, no fix
       </MemoryRouter>,
     );
     const block = container.querySelector('.animate-pulse > div > div')!;
-    expect(uniformAspect(block.className.replace('bg-gray-200', ''))).toBe('aspect-[16/9]');
+    expect(uniformAspect(block.className, SKELETON_FRAME)).toBe('aspect-[16/9]');
     expect(container.innerHTML).not.toMatch(/h-\[500px\]|h-2\/3/);
   });
 });
