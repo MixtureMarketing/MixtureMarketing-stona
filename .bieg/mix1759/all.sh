@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # MIX-1759: one run on one machine (fixed ports: one at a time), steps in order, each on a tree without dist dirs:
-#   full (.bieg/mix1759/full.sh), mut (.bieg/mix1759/mut.sh), ua (.bieg/mix1759/ua.sh),
+#   ua (.bieg/mix1759/ua.sh), mut (.bieg/mix1759/mut.sh), full (.bieg/mix1759/full.sh),
 #   footer (.bieg/mix1741/footer.sh head back 20 fixed), cond (.bieg/mix1745/cond.sh fixed),
 #   classes375 / classes1280 (.bieg/mix1719/classes.sh; 100 ms gap = known residual, judged per gap from RESULT/REDGAPS).
 # Optional ALL_STEPS="ua mut ..." (subset, allowlist). Lines: STEP <name> rc=<rc>. Exit 1 when full, mut, ua, footer
 # or cond is not 0 (classes are judged per gap by the reader); 2 = unknown step.
 set -u
-STEPS=${ALL_STEPS:-full mut ua footer cond classes375 classes1280}
+STEPS=${ALL_STEPS:-ua mut full footer cond classes375 classes1280}
 for s in $STEPS; do case $s in full|mut|ua|footer|cond|classes375|classes1280) ;; *) echo "step $s not allowed"; exit 2 ;; esac; done
 echo "HEAD=$(git rev-parse HEAD 2>/dev/null) steps=$STEPS"
 RED=0
