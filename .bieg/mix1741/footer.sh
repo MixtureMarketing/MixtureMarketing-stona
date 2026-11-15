@@ -29,14 +29,10 @@ for v in "${VS[@]}"; do
     head) ;;
     f536917) (cd .bieg/mix1741/base-f536917 && sha256sum -c --quiet SHA256SUMS) || bad "base-f536917 checksum"
              cp .bieg/mix1741/base-f536917/caseStudyRootScroll.ts "$RS"; cmp -s "$RS" "$OUT/rs.orig" && echo "note: $RS equals f536917" ;;
-    bug) sed -i -E 's/\[contain-intrinsic-size:[^]]*\]/[contain-intrinsic-size:1px_1500px]/' "$GRID"
-         grep -q 'contain-intrinsic-size:1px_1500px' "$GRID" || bad "bug variant: class not set" ;;
-    fixa) sed -i -E 's/\[contain-intrinsic-size:[^]]*\]/[contain-intrinsic-size:auto_1px_auto_1500px]/' "$GRID" ;;
-    nocv) sed -i -E 's/ \[content-visibility:auto\] \[contain-intrinsic-size:[^]]*\]//' "$GRID"
-          grep -q 'content-visibility:auto' "$GRID" && bad "nocv variant: class still there" ;;
+    bug|fixa|nocv) node .bieg/mix1741/variant.mjs "$v" || bad "variant $v not applied" ;;
     *) bad "unknown variant $v"; continue ;;
   esac
-  echo "variant $v grid: $(grep -oE '\[content-visibility[^"]*' "$GRID" | head -n 1 || echo none)"
+  echo "variant $v grid class: $(grep -c content-visibility "$GRID") content-visibility line(s)"
   rm -rf dist "dist-$v"
   VITE_MM_VIEW_TRANSITIONS=1 npm run build > "$OUT/build-$v.log" 2>&1; rc=$?; echo "build-$v rc=$rc"
   [ $rc -eq 0 ] || { bad "build-$v rc=$rc"; tail -n 20 "$OUT/build-$v.log"; continue; }
