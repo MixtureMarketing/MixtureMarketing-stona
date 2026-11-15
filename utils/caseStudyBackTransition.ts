@@ -112,7 +112,8 @@ export async function runCaseStudyBackTransition(
     return 'plain';
   }
   // MIX-1699: nieprzyjęte cofnięcie w trakcie = pominięcie od razu (utils/caseStudyGeneration.ts)
-  skip = setBackSkip(transition, cleanup);
+  // MIX-1719 r3: nieprzyjęte cofnięcie przewija korzeń bez animacji (utils/caseStudyBackSkip.ts, holdInstantScroll)
+  skip = setBackSkip(transition, cleanup, undefined, doc.documentElement);
   // Przeglądarka potrafi dosunąć przewinięcie tuż po zrobieniu nowego zdjęcia (pomiar: +24 do +221 px
   // przed pierwszą klatką, przyczyna nieustalona); rAF działa przed malowaniem pierwszej klatki.
   // Korekta na KAŻDEJ ścieżce: po pominięciu przejścia (brak karty) `ready` jest odrzucone, więc czekamy

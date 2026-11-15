@@ -1,21 +1,9 @@
 // Pominięcie przejścia wstecz w toku (MIX-1699, MIX-1707 r2); wydzielone z utils/caseStudyGeneration.ts.
-import { BACK_RELEASE_MAX_MS, SCROLL_TOLERANCE_PX } from './caseStudyBackOptions';
+import { BACK_RELEASE_MAX_MS } from './caseStudyBackOptions';
+import { holdInstantScroll, undoListScroll } from './caseStudyRootScroll';
 import { currentGeneration } from './caseStudyGeneration';
 
 type Restore = (y: number) => void;
-
-/**
- * MIX-1719: cofnięcie naszego przewinięcia listy przy spóźnionym drugim cofnięciu (człowiek: 100–250 ms, po
- * potwierdzeniu okna MIX-1711): korzeń wraca na pozycję sprzed przewinięcia, jak przy drugim cofnięciu w oknie
- * (wtedy nic nie przewijamy). Allowlista: korzeń nadal stoi na naszej pozycji (±4 px; ruch użytkownika,
- * przeglądarki albo innego kodu = nic) i pozycja sprzed jest liczbą ≥ 0 różną od naszej.
- */
-function undoListScroll(win: Window, before: number, y: number): void {
-  if (!(before >= 0)) return;
-  if (Math.abs(win.scrollY - y) > SCROLL_TOLERANCE_PX) return;
-  if (Math.abs(before - y) <= SCROLL_TOLERANCE_PX) return;
-  win.scrollTo({ top: before, left: win.scrollX, behavior: 'instant' });
-}
 
 /**
  * MIX-1699 (kontrakt r6, pkt 2): pominięcie przejścia wstecz w toku. Rejestruje je przejście
@@ -67,6 +55,7 @@ export function setBackSkip(
   t: { skipTransition: () => void; readonly updateCallbackDone?: unknown },
   cleanup: () => void,
   releaseMs: number = BACK_RELEASE_MAX_MS,
+  root: HTMLElement | null = null,
 ): BackSkip {
   let wake: (v: false) => void = () => undefined;
   const woken = new Promise<false>((resolve) => (wake = resolve));
@@ -80,6 +69,8 @@ export function setBackSkip(
     run(y);
   };
   const skip = () => {
+    // MIX-1719 r3: przywrócenie przeglądarki po tym cofnięciu bez animacji (nie staje w połowie; nigdy nie rzuca)
+    holdInstantScroll(root);
     // MIX-1719: najpierw oddanie pozycji sprzed naszego przewinięcia listy (raz), synchronicznie w popstate,
     // przed pierwszą malowaną klatką; błąd = pozycja zostaje, a pominięcie i oddanie routerowi idą dalej
     const u = undo;

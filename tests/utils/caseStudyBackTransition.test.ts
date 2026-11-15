@@ -9,7 +9,8 @@ import {
 } from '@/utils/caseStudyBackTransition';
 import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
 import { setBackSkip, skipBackTransition } from '@/utils/caseStudyBackSkip';
-import { BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
+import { holdInstantScroll } from '@/utils/caseStudyRootScroll';
+import { BACK_INSTANT_HOLD_MS, BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
@@ -648,5 +649,89 @@ describe('MIX-1719: BackSkip.restoring keeps the position from before the FIRST 
     expect(run).toHaveBeenCalledWith(1500);
     skipBackTransition();
     expect(scrollTo).not.toHaveBeenCalled();
+  });
+});
+
+describe('MIX-1719 r3: an unaccepted back during our transition makes the root scroll instant for a while', () => {
+  const sb = () => document.documentElement.style.getPropertyValue('scroll-behavior');
+  // earlier tests skip transitions too (their real 1 s holds may still be open)
+  beforeEach(() => document.documentElement.style.removeProperty('scroll-behavior'));
+  afterEach(() => {
+    vi.useRealTimers();
+    document.documentElement.style.removeProperty('scroll-behavior');
+  });
+
+  it('the transition hands <html> to the skip: second back sets auto at once, smooth CSS is back after the hold', async () => {
+    installVT();
+    const o = options({ restore: vi.fn() });
+    await runCaseStudyBackTransition(o);
+    await flush();
+    vi.useFakeTimers();
+    expect(sb()).toBe('');
+    expect(skipBackTransition()).not.toBeNull();
+    expect(sb()).toBe('auto');
+    vi.advanceTimersByTime(BACK_INSTANT_HOLD_MS - 1);
+    expect(sb()).toBe('auto');
+    vi.advanceTimersByTime(1);
+    expect(sb()).toBe('');
+  });
+
+  it('the hold is set before skipTransition runs (the browser restore after the skip is already instant)', () => {
+    const seen: string[] = [];
+    setBackSkip({ skipTransition: () => seen.push(sb()) }, vi.fn(), 100, document.documentElement);
+    vi.useFakeTimers();
+    skipBackTransition();
+    expect(seen).toEqual(['auto']);
+  });
+
+  it('a previous inline value comes back, not an empty one', () => {
+    vi.useFakeTimers();
+    document.documentElement.style.setProperty('scroll-behavior', 'smooth');
+    holdInstantScroll(document.documentElement, 50);
+    expect(sb()).toBe('auto');
+    vi.advanceTimersByTime(50);
+    expect(sb()).toBe('smooth');
+  });
+
+  it('a second hold extends the window and keeps the original value', () => {
+    vi.useFakeTimers();
+    holdInstantScroll(document.documentElement, 100);
+    vi.advanceTimersByTime(60);
+    holdInstantScroll(document.documentElement, 100);
+    vi.advanceTimersByTime(60);
+    expect(sb()).toBe('auto');
+    vi.advanceTimersByTime(40);
+    expect(sb()).toBe('');
+  });
+
+  it('a value someone else set during the hold stays', () => {
+    vi.useFakeTimers();
+    holdInstantScroll(document.documentElement, 100);
+    document.documentElement.style.setProperty('scroll-behavior', 'smooth');
+    vi.advanceTimersByTime(100);
+    expect(sb()).toBe('smooth');
+  });
+
+  it('refusal: no root = no style change, the skip still runs; a throwing style does not stop the skip', () => {
+    vi.useFakeTimers();
+    const skip = vi.fn();
+    setBackSkip({ skipTransition: skip }, vi.fn());
+    expect(skipBackTransition()).not.toBeNull();
+    expect(skip).toHaveBeenCalledTimes(1);
+    expect(sb()).toBe('');
+    const bad = {
+      get style(): CSSStyleDeclaration {
+        throw new Error('no style');
+      },
+    } as unknown as HTMLElement;
+    const skip2 = vi.fn();
+    setBackSkip({ skipTransition: skip2 }, vi.fn(), 100, bad);
+    expect(skipBackTransition()).not.toBeNull();
+    expect(skip2).toHaveBeenCalledTimes(1);
+  });
+
+  it('no accepted transition in progress = nothing to skip and no hold', () => {
+    expect(skipBackTransition()).toBeNull();
+    expect(sb()).toBe('');
   });
 });
