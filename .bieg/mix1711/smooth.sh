@@ -15,7 +15,7 @@ FAILS=0
 for vp in 1280 375; do
   SMOOTH_VP=$vp node .bieg/mix1711/smooth.mjs dist-sm "$OUT" > "$OUT/smooth-$vp.txt" 2>&1; rc=$?
   echo "smooth $vp rc=$rc"; [ $rc -eq 0 ] || FAILS=$((FAILS + 1))
-  grep -aE '^(RUN|TABLE|MEDIAN|CRIT|ERROR|SMOOTH)' "$OUT/smooth-$vp.txt" | cut -c1-260
+  grep -aE '^(RUN|TABLE|MEDIAN|CRIT|INFO|ERROR|SMOOTH)' "$OUT/smooth-$vp.txt" | cut -c1-260
 done
 echo "porcelain: $(git status --porcelain 2>/dev/null | grep -v '^?? .bieg/' | grep -v '^?? dist-' | wc -l)"
 echo "SMOOTH-MIX1711 failed widths=$FAILS"

@@ -22,6 +22,21 @@ interface NavigateLike {
   readonly hashChange?: unknown;
   readonly defaultPrevented?: unknown;
   readonly intercept?: unknown;
+  readonly downloadRequest?: unknown;
+  readonly formData?: unknown;
+  readonly destination?: unknown;
+}
+
+/**
+ * MIX-1739: cofnięcie dokładnie o jeden wpis (z listy na wpis przed nią), jedyny krok, który przechwytujemy.
+ * Obie pozycje muszą być liczbami całkowitymi; brak wpisu, brak pozycji albo krok do przodu = nie.
+ */
+function isOneStepBack(nav: unknown, destination: unknown): boolean {
+  const from = (nav as { currentEntry?: { index?: unknown } | null }).currentEntry?.index;
+  const to = (destination as { index?: unknown } | null | undefined)?.index;
+  if (typeof from !== 'number' || typeof to !== 'number') return false;
+  if (!Number.isInteger(from) || !Number.isInteger(to)) return false;
+  return to >= 0 && to === from - 1;
 }
 
 const NOTHING = () => undefined;
@@ -33,7 +48,9 @@ const NOTHING = () => undefined;
  * więc "/" staje w połowie animacji albo na starej pozycji; przy wyłączonym przełączniku ScrollToTop jest
  * ostatni i "/" kończy na górze. Bez przywrócenia przeglądarki pozycję ustawia tylko strona (undoListScroll,
  * ScrollToTop), jak przy wyłączonym. Allowlista: `traverse`, `canIntercept === true`, `hashChange === false`,
- * zdarzenie nieodrzucone, `intercept` jest funkcją; wszystko inne (brak Navigation API, inny typ, błąd)
+ * zdarzenie nieodrzucone, MIX-1739: `downloadRequest === null` i `formData === null` (pobranie, formularz albo
+ * wartość nieznana = nie) oraz cofnięcie dokładnie o jeden wpis (krok do przodu, o kilka wpisów albo nieznany = nie),
+ * `intercept` jest funkcją; wszystko inne (brak Navigation API, inny typ, błąd)
  * = nic, przeglądarka działa jak dotąd. Zwraca zdjęcie nasłuchu (wielokrotne wywołanie = nic); nigdy nie rzuca.
  */
 export function suppressTraverseRestore(win: Window | null): () => void {
@@ -45,6 +62,8 @@ export function suppressTraverseRestore(win: Window | null): () => void {
         const n = e as unknown as NavigateLike;
         if (n.navigationType !== 'traverse' || n.canIntercept !== true) return;
         if (n.hashChange !== false || n.defaultPrevented !== false) return;
+        if (n.downloadRequest !== null || n.formData !== null) return;
+        if (!isOneStepBack(nav, n.destination)) return;
         if (typeof n.intercept !== 'function') return;
         n.intercept.call(e, { scroll: 'manual', focusReset: 'manual' });
       } catch {
