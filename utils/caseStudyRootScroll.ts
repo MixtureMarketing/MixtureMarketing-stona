@@ -85,3 +85,58 @@ export function suppressTraverseRestore(win: Window | null): () => void {
     return NOTHING;
   }
 }
+
+/** MIX-1739 (K3): ile klatek po oddaniu cofnięcia routerowi pilnujemy góry strony (ok. 200 ms przy 60 Hz). */
+export const PIN_TOP_FRAMES = 12;
+const USER_INPUT = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+/** MIX-1739 (K3): oddanie cofnięcia routerowi, po nim pilnowanie góry strony (pinTopAfterHandOver). */
+export function withTopPin(win: Window | null, handOver: () => void): () => void {
+  return () => {
+    handOver();
+    pinTopAfterHandOver(win);
+  };
+}
+
+/**
+ * MIX-1739 (K3, próba): drugie cofnięcie ok. 100 ms po pierwszym (sonda m1729c: "/" staje na 90–252 px bez
+ * żadnego przewinięcia ze strony) dostaje po oddaniu routerowi spóźnione przewinięcie przeglądarki, gdy malowanie
+ * rusza po pominiętym przejściu. Przez PIN_TOP_FRAMES klatek po oddaniu: jeśli w pierwszej klatce korzeń stoi na
+ * górze (±4 px), każde późniejsze odejście od góry bez ruchu użytkownika wraca na górę (jak przy wyłączonym
+ * przełączniku, gdzie ScrollToTop jest ostatni). Allowlista: tylko pozycja startowa = góra, adres bez kotwicy, brak
+ * ruchu użytkownika (kółko, dotyk, klawisz, wskaźnik); cokolwiek innego albo błąd = koniec pilnowania, nic nie
+ * przewijamy. Nigdy nie rzuca.
+ */
+export function pinTopAfterHandOver(win: Window | null, frames: number = PIN_TOP_FRAMES): void {
+  try {
+    if (!win || typeof win.requestAnimationFrame !== 'function' || !(frames > 0)) return;
+    if (win.location.hash) return;
+    let stopped = false;
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+      for (const t of USER_INPUT) win.removeEventListener(t, stop, true);
+    };
+    for (const t of USER_INPUT) win.addEventListener(t, stop, { capture: true, passive: true });
+    let left = frames;
+    let first = true;
+    const tick = () => {
+      if (stopped) return;
+      try {
+        if (win.location.hash) return stop();
+        const away = Math.abs(win.scrollY) > SCROLL_TOLERANCE_PX;
+        // pierwsza klatka: korzeń poza górą = pozycję ustawił ktoś inny (strona, kotwica), nie pilnujemy
+        if (first && away) return stop();
+        first = false;
+        if (away) win.scrollTo({ top: 0, left: win.scrollX, behavior: 'instant' });
+        left -= 1;
+        if (left <= 0) return stop();
+        win.requestAnimationFrame(tick);
+      } catch {
+        stop();
+      }
+    };
+    win.requestAnimationFrame(tick);
+  } catch {
+    /* brak okna albo przeglądarka odmawia: nic nie pilnujemy */
+  }
+}

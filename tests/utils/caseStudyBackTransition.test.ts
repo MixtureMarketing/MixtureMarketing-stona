@@ -9,6 +9,7 @@ import {
 } from '@/utils/caseStudyBackTransition';
 import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
 import { setBackSkip, skipBackTransition } from '@/utils/caseStudyBackSkip';
+import { PIN_TOP_FRAMES, pinTopAfterHandOver } from '@/utils/caseStudyRootScroll';
 import { BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
@@ -892,5 +893,133 @@ describe('MIX-1729: a history traverse during our back transition gets no browse
     const s = setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
     expect(() => s.release()).not.toThrow();
     expect(skipBackTransition()).toBeNull();
+  });
+});
+
+describe('MIX-1739 (K3 attempt): after the hand-over a late browser scroll does not take "/" off the top', () => {
+  /** A window whose frames run only when the test says so. */
+  const fakeWin = (y = 0, hash = '') => {
+    const target = new EventTarget();
+    const frames: Array<() => void> = [];
+    const scrollTo = vi.fn((o: { top: number }) => void (win.scrollY = o.top));
+    const win = Object.assign(target, {
+      scrollY: y,
+      scrollX: 0,
+      location: { hash },
+      requestAnimationFrame: vi.fn((cb: () => void) => frames.push(cb)),
+      scrollTo,
+    });
+    const frame = () => frames.shift()?.();
+    return { win, frame, frames, scrollTo };
+  };
+  const asWin = (w: unknown) => w as Window;
+  const TOP = { top: 0, left: 0, behavior: 'instant' };
+
+  it('top at the first frame, then a jump without user input = back to the top', () => {
+    const { win, frame, scrollTo } = fakeWin();
+    pinTopAfterHandOver(asWin(win));
+    frame();
+    win.scrollY = 153;
+    frame();
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+    expect(scrollTo).toHaveBeenCalledWith(TOP);
+    expect(win.scrollY).toBe(0);
+  });
+
+  it('refusal: the first frame is not at the top (page or anchor put it there) = nothing is pinned', () => {
+    const { win, frame, frames, scrollTo } = fakeWin(300);
+    pinTopAfterHandOver(asWin(win));
+    frame();
+    expect(frames).toHaveLength(0);
+    win.scrollY = 153;
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('tolerance 4 px: a 4 px drift stays, 5 px goes back (allowed twin)', () => {
+    const { win, frame, scrollTo } = fakeWin(4);
+    pinTopAfterHandOver(asWin(win));
+    frame();
+    frame();
+    expect(scrollTo).not.toHaveBeenCalled();
+    win.scrollY = 5;
+    frame();
+    expect(scrollTo).toHaveBeenCalledWith(TOP);
+  });
+
+  it.each(['wheel', 'touchstart', 'keydown', 'pointerdown'])(
+    'refusal: user input (%s) ends the pin',
+    (type) => {
+      const { win, frame, frames, scrollTo } = fakeWin();
+      pinTopAfterHandOver(asWin(win));
+      frame();
+      win.dispatchEvent(new Event(type));
+      win.scrollY = 600;
+      frame();
+      expect(scrollTo).not.toHaveBeenCalled();
+      expect(frames).toHaveLength(0);
+    },
+  );
+
+  it('refusal: other events (scroll, click) do not count as user input: the pin goes on (twin)', () => {
+    const { win, frame, scrollTo } = fakeWin();
+    pinTopAfterHandOver(asWin(win));
+    frame();
+    win.dispatchEvent(new Event('scroll'));
+    win.scrollY = 600;
+    frame();
+    expect(scrollTo).toHaveBeenCalledWith(TOP);
+  });
+
+  it('the pin ends after PIN_TOP_FRAMES frames: a jump in the last frame goes back, after it stays', () => {
+    const a = fakeWin();
+    pinTopAfterHandOver(asWin(a.win));
+    for (let i = 0; i < PIN_TOP_FRAMES - 1; i++) a.frame();
+    a.win.scrollY = 200;
+    a.frame();
+    expect(a.scrollTo).toHaveBeenCalledTimes(1);
+    expect(a.frames).toHaveLength(0);
+    const b = fakeWin();
+    pinTopAfterHandOver(asWin(b.win));
+    for (let i = 0; i < PIN_TOP_FRAMES; i++) b.frame();
+    b.win.scrollY = 200;
+    b.frame();
+    expect(b.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('refusal: an address with an anchor (at the start or later) = no pin', () => {
+    const a = fakeWin(0, '#kontakt');
+    pinTopAfterHandOver(asWin(a.win));
+    expect(a.frames).toHaveLength(0);
+    const b = fakeWin();
+    pinTopAfterHandOver(asWin(b.win));
+    b.frame();
+    b.win.location.hash = '#kontakt';
+    b.win.scrollY = 900;
+    b.frame();
+    expect(b.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it('refusal: no window, no requestAnimationFrame, frames 0 or NaN = nothing, no error', () => {
+    expect(() => pinTopAfterHandOver(null)).not.toThrow();
+    expect(() => pinTopAfterHandOver(asWin({ location: { hash: '' } }))).not.toThrow();
+    for (const n of [0, Number.NaN, -1]) {
+      const { win, frames } = fakeWin();
+      pinTopAfterHandOver(asWin(win), n);
+      expect(frames).toHaveLength(0);
+    }
+  });
+
+  it('a throwing scrollY getter or scrollTo ends the pin without an error and removes the input listeners', () => {
+    const { win, frame, frames } = fakeWin();
+    const remove = vi.spyOn(win, 'removeEventListener');
+    pinTopAfterHandOver(asWin(win));
+    Object.defineProperty(win, 'scrollY', {
+      get() {
+        throw new Error('scrollY');
+      },
+    });
+    expect(() => frame()).not.toThrow();
+    expect(frames).toHaveLength(0);
+    expect(remove).toHaveBeenCalledTimes(4);
   });
 });

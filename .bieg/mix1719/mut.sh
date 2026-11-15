@@ -6,6 +6,7 @@
 set -u
 TB=tests/utils/caseStudyBackTransition.test.ts
 TG=tests/components/portfolioGridTransition.test.tsx
+TBB=tests/utils/caseStudyBackBrowser.test.ts
 [ -d node_modules ] || npm ci --legacy-peer-deps --no-audit --no-fund > /dev/null 2>&1
 mkdir -p .bieg/r
 echo "HEAD=$(git rev-parse HEAD)"
@@ -56,6 +57,37 @@ mut N15-nav-getter-error-escapes $TB $R "  } catch {
     throw new Error('nav');"
 mut N16-no-nav-guard $TB $R "    if (!nav || typeof nav.addEventListener !== 'function') return NOTHING;" ""
 mut N17-no-intercept-type-guard $TB $R "        if (typeof n.intercept !== 'function') return;" ""
+# MIX-1739 K2: only a plain one-step back (no download, no form data, no forward/multi-step/unknown step)
+mut M1-no-download-form-guard $TB $R "        if (n.downloadRequest !== null || n.formData !== null) return;" ""
+mut M2-download-unknown-allowed $TB $R "if (n.downloadRequest !== null ||" "if ((n.downloadRequest !== null && n.downloadRequest !== undefined) ||"
+mut M3-no-formdata-guard $TB $R " || n.formData !== null) return;" ") return;"
+mut M4-no-step-guard $TB $R "        if (!isOneStepBack(nav, n.destination)) return;" ""
+mut M5-any-back-step $TB $R "return to >= 0 && to === from - 1;" "return to >= 0 && to < from;"
+mut M6-forward-allowed $TB $R "return to >= 0 && to === from - 1;" "return to >= 0 && to !== from;"
+mut M7-fractional-allowed $TB $R "  if (!Number.isInteger(from) || !Number.isInteger(to)) return false;" ""
+mut M8-no-number-type-guard $TB $R "  if (typeof from !== 'number' || typeof to !== 'number') return false;" ""
+mut M9-negative-allowed $TB $R "return to >= 0 && to === from - 1;" "return to === from - 1;"
+# MIX-1739 K3 attempt: pin the top after the hand-over (utils/caseStudyRootScroll.ts withTopPin/pinTopAfterHandOver, caseStudyBackBrowser.ts)
+mut P1-handover-without-pin "$TB $TBB" $R "    pinTopAfterHandOver(win);
+  };" "    void win;
+  };"
+mut P2-browser-no-pin "$TB $TBB" utils/caseStudyBackBrowser.ts "withTopPin(win, handToRouter)" "handToRouter"
+mut P3-no-first-frame-guard $TB $R "        if (first && away) return stop();" ""
+mut P4-tolerance-zero $TB $R "const away = Math.abs(win.scrollY) > SCROLL_TOLERANCE_PX;" "const away = Math.abs(win.scrollY) > 0;"
+mut P5-user-input-ignored $TB $R "win.addEventListener(t, stop, { capture: true, passive: true });" "void t;"
+mut P6-no-frame-limit $TB $R "        if (left <= 0) return stop();" ""
+mut P7-no-start-hash-guard $TB $R "    if (win.location.hash) return;
+    let stopped" "    let stopped"
+mut P8-no-tick-hash-guard $TB $R "        if (win.location.hash) return stop();" ""
+mut P9-tick-error-escapes $TB $R "      } catch {
+        stop();
+      }" "      } catch (err) {
+        stop();
+        throw err;
+      }"
+mut P10-no-frames-guard $TB $R " || !(frames > 0)) return;" ") return;"
+mut P11-listeners-kept $TB $R "      for (const t of USER_INPUT) win.removeEventListener(t, stop, true);" ""
+mut P12-scroll-elsewhere $TB $R "if (away) win.scrollTo({ top: 0, left: win.scrollX, behavior: 'instant' });" "if (away) win.scrollTo({ top: 1, left: win.scrollX, behavior: 'instant' });"
 mut W6-grid-entrance-always $TG components/features/portfolio/PortfolioGrid.tsx "const entrance = !reducedMotion && !isTransitionActive();" "const entrance = !reducedMotion;"
 mut W7-cv-auto $TG components/common/caseStudyTransitions.css "content-visibility: visible;" "content-visibility: auto;"
 echo "porcelain: $(git status --porcelain | grep -cv '^?? ')"
