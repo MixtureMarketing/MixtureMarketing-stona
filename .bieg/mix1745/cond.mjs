@@ -18,6 +18,7 @@
  * Lines B (one per back), LOOK (distinct looks per condition). JSON <out>/cond-<vp>-<tag>.json.
  * Exit 0 = every back measured; 2 = a back not measured / probe error (fail-closed).
  */
+import http from 'node:http';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
