@@ -1,6 +1,6 @@
 // Pominięcie przejścia wstecz w toku (MIX-1699, MIX-1707 r2); wydzielone z utils/caseStudyGeneration.ts.
 import { BACK_RELEASE_MAX_MS } from './caseStudyBackOptions';
-import { holdInstantScroll, undoListScroll } from './caseStudyRootScroll';
+import { suppressTraverseRestore, undoListScroll } from './caseStudyRootScroll';
 import { currentGeneration } from './caseStudyGeneration';
 
 type Restore = (y: number) => void;
@@ -55,8 +55,10 @@ export function setBackSkip(
   t: { skipTransition: () => void; readonly updateCallbackDone?: unknown },
   cleanup: () => void,
   releaseMs: number = BACK_RELEASE_MAX_MS,
-  root: HTMLElement | null = null,
+  host: Window | null = null,
 ): BackSkip {
+  // MIX-1729: przejście po historii w trakcie = bez przywrócenia przeglądarki (utils/caseStudyRootScroll.ts)
+  const unsuppress = suppressTraverseRestore(host);
   let wake: (v: false) => void = () => undefined;
   const woken = new Promise<false>((resolve) => (wake = resolve));
   let undo: (() => void) | null = null;
@@ -69,8 +71,6 @@ export function setBackSkip(
     run(y);
   };
   const skip = () => {
-    // MIX-1719 r3: przywrócenie przeglądarki po tym cofnięciu bez animacji (nie staje w połowie; nigdy nie rzuca)
-    holdInstantScroll(root);
     // MIX-1719: najpierw oddanie pozycji sprzed naszego przewinięcia listy (raz), synchronicznie w popstate,
     // przed pierwszą malowaną klatką; błąd = pozycja zostaje, a pominięcie i oddanie routerowi idą dalej
     const u = undo;
@@ -100,6 +100,7 @@ export function setBackSkip(
   };
   skipActive = skip;
   const release = () => {
+    unsuppress();
     if (skipActive === skip) skipActive = null;
   };
   return { release, woken, restoring };

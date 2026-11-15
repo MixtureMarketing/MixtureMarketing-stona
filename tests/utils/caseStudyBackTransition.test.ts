@@ -9,8 +9,7 @@ import {
 } from '@/utils/caseStudyBackTransition';
 import { armSource, backOwned, claimBack, resetBackState } from '@/utils/caseStudyGeneration';
 import { setBackSkip, skipBackTransition } from '@/utils/caseStudyBackSkip';
-import { holdInstantScroll } from '@/utils/caseStudyRootScroll';
-import { BACK_INSTANT_HOLD_MS, BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
+import { BACK_SETTLE_MS } from '@/utils/caseStudyBackOptions';
 import { isTransitionActive } from '@/utils/caseStudyTransition';
 import { VT_ATTR } from '@/utils/viewTransitions';
 
@@ -652,86 +651,165 @@ describe('MIX-1719: BackSkip.restoring keeps the position from before the FIRST 
   });
 });
 
-describe('MIX-1719 r3: an unaccepted back during our transition makes the root scroll instant for a while', () => {
-  const sb = () => document.documentElement.style.getPropertyValue('scroll-behavior');
-  // earlier tests skip transitions too (their real 1 s holds may still be open)
-  beforeEach(() => document.documentElement.style.removeProperty('scroll-behavior'));
+describe('MIX-1729: a history traverse during our back transition gets no browser scroll restore', () => {
+  const setNav = (nav: unknown) =>
+    Object.defineProperty(window, 'navigation', { value: nav, configurable: true });
+  const fakeNav = () => {
+    const nav = new EventTarget();
+    setNav(nav);
+    return nav;
+  };
+  /** A `navigate` event as Chrome sends it for history.back() within the same document. */
+  const navEvent = (over: Record<string, unknown> = {}) => {
+    const e = new Event('navigate', { cancelable: true });
+    const intercept = vi.fn();
+    const props = {
+      navigationType: 'traverse',
+      canIntercept: true,
+      hashChange: false,
+      intercept,
+      ...over,
+    };
+    for (const [k, v] of Object.entries(props)) Object.defineProperty(e, k, { value: v });
+    return { e, intercept };
+  };
+  const MANUAL = { scroll: 'manual', focusReset: 'manual' };
   afterEach(() => {
-    vi.useRealTimers();
-    document.documentElement.style.removeProperty('scroll-behavior');
-  });
-
-  it('the transition hands <html> to the skip: second back sets auto at once, smooth CSS is back after the hold', async () => {
-    installVT();
-    const o = options({ restore: vi.fn() });
-    await runCaseStudyBackTransition(o);
-    await flush();
-    vi.useFakeTimers();
-    expect(sb()).toBe('');
-    expect(skipBackTransition()).not.toBeNull();
-    expect(sb()).toBe('auto');
-    vi.advanceTimersByTime(BACK_INSTANT_HOLD_MS - 1);
-    expect(sb()).toBe('auto');
-    vi.advanceTimersByTime(1);
-    expect(sb()).toBe('');
-  });
-
-  it('the hold is set before skipTransition runs (the browser restore after the skip is already instant)', () => {
-    const seen: string[] = [];
-    setBackSkip({ skipTransition: () => seen.push(sb()) }, vi.fn(), 100, document.documentElement);
-    vi.useFakeTimers();
+    delete (window as unknown as Record<string, unknown>).navigation;
     skipBackTransition();
-    expect(seen).toEqual(['auto']);
   });
 
-  it('a previous inline value comes back, not an empty one', () => {
-    vi.useFakeTimers();
-    document.documentElement.style.setProperty('scroll-behavior', 'smooth');
-    holdInstantScroll(document.documentElement, 50);
-    expect(sb()).toBe('auto');
-    vi.advanceTimersByTime(50);
-    expect(sb()).toBe('smooth');
+  it('the transition hands its window to the skip: the second back is intercepted with scroll manual', async () => {
+    const nav = fakeNav();
+    installVT();
+    await runCaseStudyBackTransition(options());
+    const { e, intercept } = navEvent();
+    nav.dispatchEvent(e);
+    expect(intercept).toHaveBeenCalledTimes(1);
+    expect(intercept).toHaveBeenCalledWith(MANUAL);
+    // the intercept is called on the event itself (Chrome throws "Illegal invocation" otherwise)
+    expect(intercept.mock.instances[0]).toBe(e);
   });
 
-  it('a second hold extends the window and keeps the original value', () => {
-    vi.useFakeTimers();
-    holdInstantScroll(document.documentElement, 100);
-    vi.advanceTimersByTime(60);
-    holdInstantScroll(document.documentElement, 100);
-    vi.advanceTimersByTime(60);
-    expect(sb()).toBe('auto');
-    vi.advanceTimersByTime(40);
-    expect(sb()).toBe('');
+  it('the skip (second back handled) ends the suppression: a later traverse keeps the browser restore', async () => {
+    const nav = fakeNav();
+    installVT();
+    await runCaseStudyBackTransition(options());
+    expect(skipBackTransition()).not.toBeNull();
+    const { e, intercept } = navEvent();
+    nav.dispatchEvent(e);
+    expect(intercept).not.toHaveBeenCalled();
   });
 
-  it('a value someone else set during the hold stays', () => {
-    vi.useFakeTimers();
-    holdInstantScroll(document.documentElement, 100);
-    document.documentElement.style.setProperty('scroll-behavior', 'smooth');
-    vi.advanceTimersByTime(100);
-    expect(sb()).toBe('smooth');
+  it('the end of the transition (finished) ends the suppression', async () => {
+    const nav = fakeNav();
+    installVT();
+    await runCaseStudyBackTransition(options());
+    await flush();
+    release();
+    await flush();
+    const { e, intercept } = navEvent();
+    nav.dispatchEvent(e);
+    expect(intercept).not.toHaveBeenCalled();
   });
 
-  it('refusal: no root = no style change, the skip still runs; a throwing style does not stop the skip', () => {
-    vi.useFakeTimers();
+  it.each([
+    ['push', { navigationType: 'push' }],
+    ['replace', { navigationType: 'replace' }],
+    ['reload', { navigationType: 'reload' }],
+    ['no navigationType', { navigationType: undefined }],
+    ['cross-document (canIntercept false)', { canIntercept: false }],
+    ['canIntercept not a boolean', { canIntercept: 'true' }],
+    ['fragment change', { hashChange: true }],
+    ['hashChange unknown', { hashChange: undefined }],
+  ])('refusal: %s = no intercept (browser restore stays)', (_name, over) => {
+    const nav = fakeNav();
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    const { e, intercept } = navEvent(over);
+    nav.dispatchEvent(e);
+    expect(intercept).not.toHaveBeenCalled();
+    // allowed twin: the same skip intercepts a same-document traverse
+    const twin = navEvent();
+    nav.dispatchEvent(twin.e);
+    expect(twin.intercept).toHaveBeenCalledWith(MANUAL);
+  });
+
+  it('refusal: an event already cancelled by another listener is left alone', () => {
+    const nav = fakeNav();
+    nav.addEventListener('navigate', (ev) => ev.preventDefault());
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    const { e, intercept } = navEvent();
+    nav.dispatchEvent(e);
+    expect(e.defaultPrevented).toBe(true);
+    expect(intercept).not.toHaveBeenCalled();
+  });
+
+  it('refusal: intercept missing or throwing = no error, the skip still runs and hands over', () => {
+    const nav = fakeNav();
     const skip = vi.fn();
-    setBackSkip({ skipTransition: skip }, vi.fn());
+    setBackSkip({ skipTransition: skip }, vi.fn(), 100, window);
+    expect(() => nav.dispatchEvent(navEvent({ intercept: 'x' }).e)).not.toThrow();
+    const thrower = vi.fn(() => {
+      throw new DOMException('no', 'SecurityError');
+    });
+    const errors = vi.fn();
+    window.addEventListener('error', errors);
+    nav.dispatchEvent(navEvent({ intercept: thrower }).e);
+    window.removeEventListener('error', errors);
+    expect(thrower).toHaveBeenCalledTimes(1);
+    expect(errors).not.toHaveBeenCalled();
     expect(skipBackTransition()).not.toBeNull();
     expect(skip).toHaveBeenCalledTimes(1);
-    expect(sb()).toBe('');
-    const bad = {
-      get style(): CSSStyleDeclaration {
-        throw new Error('no style');
-      },
-    } as unknown as HTMLElement;
-    const skip2 = vi.fn();
-    setBackSkip({ skipTransition: skip2 }, vi.fn(), 100, bad);
-    expect(skipBackTransition()).not.toBeNull();
-    expect(skip2).toHaveBeenCalledTimes(1);
   });
 
-  it('no accepted transition in progress = nothing to skip and no hold', () => {
+  it('refusal: no Navigation API (missing, null, no addEventListener, throwing getter) = no listener, skip works', () => {
+    const navs: unknown[] = [undefined, null, {}, { addEventListener: 'x' }];
+    for (const nav of navs) {
+      setNav(nav);
+      const skip = vi.fn();
+      setBackSkip({ skipTransition: skip }, vi.fn(), 100, window);
+      expect(skipBackTransition()).not.toBeNull();
+      expect(skip).toHaveBeenCalledTimes(1);
+    }
+    Object.defineProperty(window, 'navigation', {
+      get() {
+        throw new Error('getter');
+      },
+      configurable: true,
+    });
+    const skip = vi.fn();
+    expect(() => setBackSkip({ skipTransition: skip }, vi.fn(), 100, window)).not.toThrow();
+    expect(skipBackTransition()).not.toBeNull();
+    expect(skip).toHaveBeenCalledTimes(1);
+  });
+
+  it('no window given = nothing is listened to', () => {
+    const nav = fakeNav();
+    const add = vi.spyOn(nav, 'addEventListener');
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn());
+    expect(add).not.toHaveBeenCalled();
+  });
+
+  it('release removes exactly its own listener, once; a newer skip keeps intercepting', () => {
+    const nav = fakeNav();
+    const remove = vi.spyOn(nav, 'removeEventListener');
+    const older = setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    older.release();
+    older.release();
+    expect(remove).toHaveBeenCalledTimes(1);
+    const { e, intercept } = navEvent();
+    nav.dispatchEvent(e);
+    expect(intercept).toHaveBeenCalledTimes(1);
+  });
+
+  it('a throwing removeEventListener does not stop the release', () => {
+    const nav = fakeNav();
+    vi.spyOn(nav, 'removeEventListener').mockImplementation(() => {
+      throw new Error('remove');
+    });
+    const s = setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    expect(() => s.release()).not.toThrow();
     expect(skipBackTransition()).toBeNull();
-    expect(sb()).toBe('');
   });
 });

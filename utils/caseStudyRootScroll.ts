@@ -1,6 +1,6 @@
-// Przewinięcie korzenia przy nieprzyjętym (drugim) cofnięciu w trakcie przejścia wstecz (MIX-1719); wydzielone z
-// utils/caseStudyBackSkip.ts.
-import { BACK_INSTANT_HOLD_MS, SCROLL_TOLERANCE_PX } from './caseStudyBackOptions';
+// Przewinięcie korzenia przy nieprzyjętym (drugim) cofnięciu w trakcie przejścia wstecz (MIX-1719, MIX-1729);
+// wydzielone z utils/caseStudyBackSkip.ts.
+import { SCROLL_TOLERANCE_PX } from './caseStudyBackOptions';
 
 /**
  * MIX-1719: cofnięcie naszego przewinięcia listy przy spóźnionym drugim cofnięciu (człowiek: 100–250 ms, po
@@ -15,39 +15,54 @@ export function undoListScroll(win: Window, before: number, y: number): void {
   win.scrollTo({ top: before, left: win.scrollX, behavior: 'instant' });
 }
 
-let instantHold: { root: HTMLElement; prev: string; timer: ReturnType<typeof setTimeout> } | null =
-  null;
+/** Zdarzenie `navigate` (Navigation API): tylko pola, które czytamy; każde może nie istnieć. */
+interface NavigateLike {
+  readonly navigationType?: unknown;
+  readonly canIntercept?: unknown;
+  readonly hashChange?: unknown;
+  readonly defaultPrevented?: unknown;
+  readonly intercept?: unknown;
+}
+
+const NOTHING = () => undefined;
 
 /**
- * MIX-1719 r3: przez `ms` korzeń przewija się bez animacji (inline `scroll-behavior: auto`), potem wraca poprzednia
- * wartość inline (zwykle brak = `html { scroll-behavior: smooth }` z index.css). Przywrócenie pozycji przez
- * przeglądarkę po nieprzyjętym cofnięciu jest wtedy jednym skokiem na cel, którego nie da się przerwać w połowie.
- * Kolejne wywołanie w tym czasie przedłuża okno i zachowuje pierwotną wartość. Brak korzenia albo stylu = nic;
- * błąd stylu = nic (nigdy nie rzuca: nawigacja nie stoi).
+ * MIX-1729: dopóki trwa nasze przejście wstecz, przejście po historii (drugie cofnięcie) nie dostaje
+ * przywrócenia pozycji przez przeglądarkę. Ślad MIX-1719 (m1719d, m1719c r3): przeglądarka przywraca "/"
+ * dopiero po wznowieniu malowania (po pominiętym przejściu), czyli PO przewinięciu na górę przez ScrollToTop,
+ * więc "/" staje w połowie animacji albo na starej pozycji; przy wyłączonym przełączniku ScrollToTop jest
+ * ostatni i "/" kończy na górze. Bez przywrócenia przeglądarki pozycję ustawia tylko strona (undoListScroll,
+ * ScrollToTop), jak przy wyłączonym. Allowlista: `traverse`, `canIntercept === true`, `hashChange === false`,
+ * zdarzenie nieodrzucone, `intercept` jest funkcją; wszystko inne (brak Navigation API, inny typ, błąd)
+ * = nic, przeglądarka działa jak dotąd. Zwraca zdjęcie nasłuchu (wielokrotne wywołanie = nic); nigdy nie rzuca.
  */
-export function holdInstantScroll(
-  root: HTMLElement | null,
-  ms: number = BACK_INSTANT_HOLD_MS,
-): void {
+export function suppressTraverseRestore(win: Window | null): () => void {
   try {
-    const style = root?.style;
-    if (!root || !style) return;
-    const held = instantHold;
-    const now = style.getPropertyValue('scroll-behavior');
-    // nasze okno nadal trwa (ten sam korzeń, nadal auto): pierwotna wartość jest w nim, nie w stylu
-    const prev = held && held.root === root && now === 'auto' ? held.prev : now;
-    if (held) clearTimeout(held.timer);
-    style.setProperty('scroll-behavior', 'auto');
-    const timer = setTimeout(() => {
-      if (instantHold?.timer !== timer) return;
-      instantHold = null;
-      // ktoś inny zmienił wartość w tym czasie: zostaje jego
-      if (style.getPropertyValue('scroll-behavior') !== 'auto') return;
-      if (prev) style.setProperty('scroll-behavior', prev);
-      else style.removeProperty('scroll-behavior');
-    }, ms);
-    instantHold = { root, prev, timer };
+    const nav = (win as unknown as { navigation?: EventTarget | null } | null)?.navigation;
+    if (!nav || typeof nav.addEventListener !== 'function') return NOTHING;
+    const onNavigate = (e: Event) => {
+      try {
+        const n = e as unknown as NavigateLike;
+        if (n.navigationType !== 'traverse' || n.canIntercept !== true) return;
+        if (n.hashChange !== false || n.defaultPrevented !== false) return;
+        if (typeof n.intercept !== 'function') return;
+        n.intercept.call(e, { scroll: 'manual', focusReset: 'manual' });
+      } catch {
+        /* przeglądarka odmawia: zostaje jej przywrócenie */
+      }
+    };
+    nav.addEventListener('navigate', onNavigate);
+    let on = true;
+    return () => {
+      if (!on) return;
+      on = false;
+      try {
+        nav.removeEventListener('navigate', onNavigate);
+      } catch {
+        /* nic do zdjęcia */
+      }
+    };
   } catch {
-    /* korzeń bez stylu albo styl rzuca: przewijanie zostaje, jakie było */
+    return NOTHING;
   }
 }

@@ -22,13 +22,6 @@ export const BACK_SETTLE_MS = 32;
  * brak rozstrzygnięcia w tym czasie = router dostaje je i tak (nawigacja nigdy nie stoi).
  */
 export const BACK_RELEASE_MAX_MS = 100;
-/**
- * MIX-1719 r3: tyle ms po nieprzyjętym cofnięciu w trakcie naszego przejścia korzeń przewija się bez animacji
- * (inline `scroll-behavior: auto` na <html>). Ślad m1719d (375, 1280): przeglądarka przywraca "/" (300 px)
- * animacją z `html { scroll-behavior: smooth }`, a po pominiętym przejściu ta animacja staje w połowie
- * (49–531 px). Przy wyłączonym przełączniku ta sama animacja kończy się do 470 ms po cofnięciu; 1000 = z zapasem.
- */
-export const BACK_INSTANT_HOLD_MS = 1000;
 /** Dopuszczalne odchylenie pozycji po powrocie (px). */
 export const SCROLL_TOLERANCE_PX = 4;
 

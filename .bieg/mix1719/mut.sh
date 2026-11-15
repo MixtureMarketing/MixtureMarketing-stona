@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MIX-1719: mutants of the late-second-back undo (utils/caseStudyBackSkip.ts, utils/caseStudyBackTransition.ts) and
+# MIX-1719/MIX-1729: mutants of the late-second-back undo, the traverse restore suppression (N*) (utils/caseStudyBackSkip.ts, utils/caseStudyBackTransition.ts) and
 # of the two MIX-1711 rules without a test (W6 PortfolioGrid entrance, W7 content-visibility). One file at a time,
 # restored with `git checkout -- <file>`. Mutant runs its test file(s); rc != 0 = ZABITY. Pattern not found = BLAD WZORCA.
 # MUTANT-APPLIED <file> diff-lines=<n> proves the mutant was in the tree when the tests ran. From the repo root.
@@ -35,17 +35,27 @@ mut U6-undo-unguarded $TB $S "    try {
     }" "    u?.();"
 mut U7-undo-to-our-y $TB $R "win.scrollTo({ top: before, left: win.scrollX, behavior: 'instant' });" "win.scrollTo({ top: y, left: win.scrollX, behavior: 'instant' });"
 mut U8-transition-bypasses-restoring $TB utils/caseStudyBackTransition.ts "skip.restoring(doc.defaultView, y, opts.restore);" "opts.restore(y);"
-# MIX-1719 r3: instant-scroll hold on an unaccepted back (utils/caseStudyRootScroll.ts, caseStudyBackSkip.ts, caseStudyBackTransition.ts)
-mut H1-hold-not-called $TB $S "    holdInstantScroll(root);" "    void root;"
-mut H2-transition-no-root $TB utils/caseStudyBackTransition.ts "setBackSkip(transition, cleanup, undefined, doc.documentElement)" "setBackSkip(transition, cleanup)"
-mut H3-value-smooth $TB $R "    style.setProperty('scroll-behavior', 'auto');" "    style.setProperty('scroll-behavior', 'smooth');"
-mut H4-not-removed $TB $R "      else style.removeProperty('scroll-behavior');" "      else void 0;"
-mut H5-prev-not-restored $TB $R "      if (prev) style.setProperty('scroll-behavior', prev);" "      if (prev) void 0;"
-mut H6-stale-timer-acts $TB $R "      if (instantHold?.timer !== timer) return;" ""
-mut H7-prev-from-style $TB $R "    const prev = held && held.root === root && now === 'auto' ? held.prev : now;" "    const prev = now;"
-mut H8-overwrites-other $TB $R "      if (style.getPropertyValue('scroll-behavior') !== 'auto') return;" ""
-mut H9-hold-throws $TB $R "    /* korzeń bez stylu albo styl rzuca: przewijanie zostaje, jakie było */" "    throw new Error('hold');"
-mut H10-hold-zero-ms $TB $R "  ms: number = BACK_INSTANT_HOLD_MS," "  ms: number = 0,"
+# MIX-1729: no browser scroll restore for a history traverse during our back transition
+# (utils/caseStudyRootScroll.ts suppressTraverseRestore, caseStudyBackSkip.ts setBackSkip/release, caseStudyBackTransition.ts)
+mut N1-skip-no-window $TB $S "  const unsuppress = suppressTraverseRestore(host);" "  const unsuppress = suppressTraverseRestore(null);"
+mut N2-transition-no-window $TB utils/caseStudyBackTransition.ts "setBackSkip(transition, cleanup, undefined, doc.defaultView)" "setBackSkip(transition, cleanup)"
+mut N3-release-keeps-listener $TB $S "    unsuppress();" "    void unsuppress;"
+mut N4-any-navigation-type $TB $R "if (n.navigationType !== 'traverse' || n.canIntercept !== true) return;" "if (n.canIntercept !== true) return;"
+mut N5-canIntercept-truthy $TB $R "n.canIntercept !== true) return;" "!n.canIntercept) return;"
+mut N6-no-hash-guard $TB $R "if (n.hashChange !== false || n.defaultPrevented !== false) return;" "if (n.defaultPrevented !== false) return;"
+mut N7-hash-unknown-allowed $TB $R "if (n.hashChange !== false ||" "if (n.hashChange === true ||"
+mut N8-no-prevented-guard $TB $R " || n.defaultPrevented !== false) return;" ") return;"
+mut N9-scroll-after-transition $TB $R "{ scroll: 'manual', focusReset: 'manual' }" "{ scroll: 'after-transition', focusReset: 'manual' }"
+mut N10-focus-reset-default $TB $R "{ scroll: 'manual', focusReset: 'manual' }" "{ scroll: 'manual' }"
+mut N11-intercept-detached $TB $R "n.intercept.call(e, {" "n.intercept.call(undefined, {"
+mut N12-intercept-error-escapes $TB $R "        /* przeglądarka odmawia: zostaje jej przywrócenie */" "        throw new Error('intercept');"
+mut N13-double-remove $TB $R "      if (!on) return;" ""
+mut N14-remove-error-escapes $TB $R "        /* nic do zdjęcia */" "        throw new Error('remove');"
+mut N15-nav-getter-error-escapes $TB $R "  } catch {
+    return NOTHING;" "  } catch {
+    throw new Error('nav');"
+mut N16-no-nav-guard $TB $R "    if (!nav || typeof nav.addEventListener !== 'function') return NOTHING;" ""
+mut N17-no-intercept-type-guard $TB $R "        if (typeof n.intercept !== 'function') return;" ""
 mut W6-grid-entrance-always $TG components/features/portfolio/PortfolioGrid.tsx "const entrance = !reducedMotion && !isTransitionActive();" "const entrance = !reducedMotion;"
 mut W7-cv-auto $TG components/common/caseStudyTransitions.css "content-visibility: visible;" "content-visibility: auto;"
 echo "porcelain: $(git status --porcelain | grep -cv '^?? ')"
