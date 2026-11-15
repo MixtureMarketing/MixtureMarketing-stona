@@ -188,6 +188,9 @@ const reasons = evaluate(
   rows,
   VPS.map((v) => v.name),
 );
+// prod-safe verdict (analytics leak, unprotected page): a violation is a failure like any other.
+const verdict = safe.finish();
+if (!verdict.ok) reasons.push(`prod-safe: ${verdict.problems.join('; ')}`);
 console.log(`layout=${[...layouts].join('+') || 'unknown'} (16:9 required in both layouts)`);
 for (const r of reasons) console.log(`FAIL: ${r}`);
 console.log(reasons.length ? `PROPORTIONS NIE: ${reasons.length} reason(s)` : 'PROPORTIONS OK');

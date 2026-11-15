@@ -88,14 +88,15 @@ function assertAllowlist(className: string | null | undefined, allowed: string[]
 /**
  * MIX-1732: the frame carries no inline style except viewTransitionName (U4: style={{ height: 240 }} on the
  * card frame passed the className allowlist). Fail closed: any other property is a refusal naming it.
+ * `extra`: the entrance animation of the OFF hero frame (framer-motion writes opacity and transform).
  */
-function assertFrameStyle(el: Element): void {
+function assertFrameStyle(el: Element, extra: string[] = []): void {
   const attr = el.getAttribute('style') ?? '';
   const props = attr
     .split(';')
     .map((d) => d.split(':')[0].trim().toLowerCase())
     .filter(Boolean);
-  const stray = props.filter((p) => p !== 'view-transition-name');
+  const stray = props.filter((p) => p !== 'view-transition-name' && !extra.includes(p));
   if (stray.length) throw new Error(`inline style outside the allowlist: ${stray.join(' ')}`);
 }
 
@@ -157,6 +158,15 @@ describe('MIX-1732: frame inline style (viewTransitionName only), negative leg a
     ['flex: 1', /: flex/],
   ])('refuses the style %s', (style, text) => {
     expect(() => assertFrameStyle(frame(style))).toThrow(text);
+  });
+  it('the animation allowance is only opacity and transform (a size still refused)', () => {
+    const ok = ['opacity', 'transform'];
+    expect(() => assertFrameStyle(frame('opacity: 0; transform: none'), ok)).not.toThrow();
+    expect(() => assertFrameStyle(frame('opacity: 0; height: 240px'), ok)).toThrow(/: height$/);
+    expect(() => assertFrameStyle(frame('transform: none; aspect-ratio: 4 / 3'), ok)).toThrow(
+      /aspect-ratio/,
+    );
+    expect(() => assertFrameStyle(frame('opacity: 0'))).toThrow(/: opacity$/);
   });
   it.each([undefined, '', '  ', 'view-transition-name: vt-image', 'view-transition-name:x;'])(
     'accepts the style %j (twin)',
@@ -263,7 +273,10 @@ describe('MIX-1722/1724: hero (photo at the top) has 16/9 on every width, switch
     // Reserved space intact: the intrinsic size is 16:9 as well.
     expect(photo.getAttribute('width')).toBe('1600');
     expect(photo.getAttribute('height')).toBe('900');
-    expect(() => assertFrameStyle(frame)).not.toThrow();
+    // OFF: the frame is a motion.div, its entrance animation writes opacity + transform (never a size).
+    expect(() =>
+      assertFrameStyle(frame, _label === 'OFF' ? ['opacity', 'transform'] : []),
+    ).not.toThrow();
     // Same crop request as the card, the WHOLE call list (MIX-1732): a deleted .fit('crop') and an extra
     // .crop('top') or .auto(..) both turn this red (U1, U6).
     expect(calls).toEqual([
