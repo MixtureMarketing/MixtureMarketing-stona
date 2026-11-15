@@ -180,6 +180,9 @@ try {
     );
     await page.close();
   }
+} catch (e) {
+  // A viewport that cannot even be opened: rows measured so far stay, evaluate() reports the missing viewport (rc 2).
+  console.log(`FAIL: measurement aborted: ${String(e && e.message).slice(0, 160)}`);
 } finally {
   await browser.close().catch(() => {});
   server.close();

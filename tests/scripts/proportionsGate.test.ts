@@ -1,6 +1,8 @@
+import { execFile } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import { parse } from 'yaml';
 import { evaluate, cropBox, applyPageErrors, exitCode } from '../../scripts/lib/proportions.mjs';
 
@@ -258,23 +260,94 @@ describe('MIX-1736: page errors become a refusal (applyPageErrors)', () => {
   });
 });
 
-describe('MIX-1736: the script uses the pure functions (wiring)', () => {
-  const src = fs.readFileSync(
-    path.resolve(__dirname, '../../scripts/audit-proportions.mjs'),
-    'utf8',
-  );
-  it('imports and calls applyPageErrors and exitCode, no inline exit decision', () => {
-    expect(src).toMatch(
-      /import \{[^}]*applyPageErrors[^}]*exitCode[^}]*\} from '\.\/lib\/proportions\.mjs'/,
-    );
-    expect(src).toMatch(/applyPageErrors\(row, pageErrors\);/);
-    expect(src).toMatch(/process\.exit\(exitCode\(reasons, rows, VPS\.length\)\);/);
-    expect(src).not.toMatch(/unmeasured/);
-    expect(src).not.toMatch(/false\s*&&/);
+// Behavioural test of the real script: scripts/audit-proportions.mjs runs as a child process with the
+// bare import 'puppeteer' redirected to a fake driver (fixtures/fake-puppeteer), against a tiny static dist.
+// The server, the viewport loop, evaluate() and the exit code are the script's own code.
+describe('MIX-1736: the real script main path (fake browser driver, exit codes)', () => {
+  const root = path.resolve(__dirname, '../..');
+  const dist = fs.mkdtempSync(path.join(os.tmpdir(), 'proportions-dist-'));
+  fs.writeFileSync(path.join(dist, 'index.html'), '<!doctype html><title>x</title>');
+  afterAll(() => fs.rmSync(dist, { recursive: true, force: true }));
+  const gate = (scenario: Record<string, unknown>, distDir = dist) =>
+    new Promise<{ rc: number | null; out: string }>((resolve) => {
+      execFile(
+        process.execPath,
+        [
+          '--import',
+          path.join(root, 'tests/scripts/fixtures/fake-puppeteer/register.mjs'),
+          path.join(root, 'scripts/audit-proportions.mjs'),
+          distDir,
+        ],
+        {
+          env: { ...process.env, FAKE_PUPPETEER: JSON.stringify(scenario) },
+          encoding: 'utf8',
+          timeout: 60000,
+        },
+        (err, stdout, stderr) => {
+          const code = err ? (err as { code?: unknown }).code : 0;
+          resolve({ rc: typeof code === 'number' ? code : null, out: `${stdout}${stderr}` });
+        },
+      );
+    });
+  const T = 40000;
+
+  it.concurrent('all viewports measured and 16:9: rc 0', { timeout: T }, async () => {
+    const r = await gate({});
+    expect(r.out).toContain('PROPORTIONS OK');
+    expect(r.rc).toBe(0);
   });
-  it('the exit call is the last statement and runs after the reasons are printed', () => {
-    const exitAt = src.lastIndexOf('process.exit(exitCode(');
-    expect(exitAt).toBeGreaterThan(src.indexOf('PROPORTIONS NIE'));
-    expect(src.slice(exitAt).trim().split('\n')).toHaveLength(1);
+  it.concurrent(
+    'card ratio wrong on every viewport: rc 1 with the value',
+    { timeout: T },
+    async () => {
+      const r = await gate({ cardRatio: 1.3333 });
+      expect(r.out).toMatch(/FAIL: 375x812: card ratio 1\.3333 outside/);
+      expect(r.out).toContain('PROPORTIONS NIE');
+      expect(r.rc).toBe(1);
+    },
+  );
+  it.concurrent('hero ratio wrong: rc 1', { timeout: T }, async () => {
+    const r = await gate({ heroRatio: 1.5 });
+    expect(r.out).toMatch(/FAIL: 1280x800: hero ratio 1\.5000 outside/);
+    expect(r.rc).toBe(1);
+  });
+  it.concurrent('page error on the first viewport only: rc 2 (W8)', { timeout: T }, async () => {
+    const r = await gate({ errorOn: ['375x812'] });
+    expect(r.out).toMatch(/FAIL: 375x812: page error: boom 375x812/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('page error on the second viewport only: rc 2 (W8)', { timeout: T }, async () => {
+    const r = await gate({ errorOn: ['1280x800'] });
+    expect(r.out).toMatch(/FAIL: 1280x800: page error: boom 1280x800/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('page errors on both viewports: rc 2', { timeout: T }, async () => {
+    expect((await gate({ errorOn: ['375x812', '1280x800'] })).rc).toBe(2);
+  });
+  it.concurrent(
+    'page error together with a wrong ratio is still rc 2 (not 1)',
+    { timeout: T },
+    async () => {
+      expect((await gate({ errorOn: ['375x812'], cardRatio: 1.3333 })).rc).toBe(2);
+    },
+  );
+  it.concurrent(
+    'the second viewport cannot be opened (missing row): rc 2',
+    { timeout: T },
+    async () => {
+      const r = await gate({ newPageFailsAt: 2 });
+      expect(r.out).toMatch(/FAIL: 1280x800: viewport not measured/);
+      expect(r.rc).toBe(2);
+    },
+  );
+  it.concurrent('no viewport can be opened (no rows): rc 2', { timeout: T }, async () => {
+    const r = await gate({ newPageFailsAt: 1 });
+    expect(r.out).toMatch(/FAIL: no measurement rows/);
+    expect(r.rc).toBe(2);
+  });
+  it.concurrent('dist without index.html: rc 2 with the reason line', { timeout: T }, async () => {
+    const r = await gate({}, path.join(dist, 'missing'));
+    expect(r.out).toMatch(/FAIL: dist not found or has no index\.html/);
+    expect(r.rc).toBe(2);
   });
 });
