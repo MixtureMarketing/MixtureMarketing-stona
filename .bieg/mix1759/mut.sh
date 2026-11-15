@@ -27,6 +27,8 @@ cmp -s "$BB" "$OUT/bb.orig" && cmp -s "$CB" "$OUT/cb.orig" || { echo "RESTORE FA
 # mutant <id> <file> <sed program>
 mutant() {
   local id=$1 f=$2 prog=$3
+  # optional MUT_ONLY="M9-hold-inverted M14-hold-always ..." (exact ids): only those mutants run
+  if [ -n "${MUT_ONLY:-}" ]; then case " $MUT_ONLY " in *" $id "*) ;; *) return 0 ;; esac; fi
   cp "$f" "$OUT/$id.orig"
   sed -i "$prog" "$f"
   if cmp -s "$f" "$OUT/$id.orig"; then
