@@ -11,7 +11,7 @@ import {
   savedPosition,
 } from './caseStudyBack';
 import { runCaseStudyBackTransition } from './caseStudyBackTransition';
-import { skipAndHandOver } from './caseStudyBackSkip';
+import { caseStudyToTop, skipAndHandOver } from './caseStudyBackSkip';
 import { backTicket, claimBack } from './caseStudyGeneration';
 import { canReach, startRestore } from './caseStudyRestore';
 import { isTransitionActive } from './caseStudyTransition';
@@ -101,6 +101,7 @@ export function installBackInterceptor(win: Window = window, doc: Document = doc
     const cardHref = from.endsWith('/') ? from : `${from}/`;
     if (plan.kind !== 'transition' || !hero) return; // router działa, ScrollToTop przywróci pozycję
     e.stopImmediatePropagation();
+    caseStudyToTop(win); // MIX-1745: przed zdjęciem starej strony (utils/caseStudyRootScroll.ts)
     const live = backTicket(() => win.location);
     void runCaseStudyBackTransition({
       y: plan.y,

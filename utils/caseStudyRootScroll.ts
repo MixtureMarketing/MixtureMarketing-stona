@@ -85,3 +85,18 @@ export function suppressTraverseRestore(win: Window | null): () => void {
     return NOTHING;
   }
 }
+
+/**
+ * MIX-1745: powrót zawsze startuje od nagłówka realizacji na górze strony (wygląd przyjęty na 3febcb0). Realizacja
+ * przewinięta w dół (nagłówek nad ekranem) dawała inny powrót: zdjęcie wlatywało spoza ekranu (sonda
+ * .bieg/mix1745/cond.mjs `scrolled`, 375: grupa zdjęcia od y=-1108 do karty, poza ekranem przez 3/4 z 300 ms).
+ * Strona idzie na górę przed zdjęciem starej strony, więc pierwsza klatka przejścia to nagłówek na górze.
+ * Pozycja 0 albo błąd przewinięcia = nic (przejście rusza z miejsca, w którym strona stoi).
+ */
+export function caseStudyToTop(win: Window | null): void {
+  try {
+    if (win && win.scrollY > 0) win.scrollTo({ top: 0, left: win.scrollX, behavior: 'instant' });
+  } catch {
+    /* bez przewinięcia: przejście i tak rusza */
+  }
+}

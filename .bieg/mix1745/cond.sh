@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # MIX-1745 round 2: BACK per condition (.bieg/mix1745/cond.mjs) for two builds, compared (.bieg/mix1745/condcmp.mjs).
-# Usage: bash .bieg/mix1745/cond.sh <expect: same|diff|any>
-#   builds: old = this tree with the grid class of 3febcb0 (.bieg/mix1741/variant.mjs bug), head = this tree.
+# Usage: bash .bieg/mix1745/cond.sh <expect: same|diff|any|fixed>
+#   builds: old = this tree as 3febcb0: grid class of 3febcb0 (.bieg/mix1741/variant.mjs bug) and without the MIX-1745
+#           call caseStudyToTop(win) in utils/caseStudyBackBrowser.ts (the only app-code changes 3febcb0..HEAD); head = this tree.
+#   expect fixed: head in every condition but quick matches old in condition fresh (CC_REF=fresh, the accepted look),
+#           and old against its own fresh differs (control: the probe sees the scrolled look).
 #   env FR_WIDTHS (subset of 375 412 1280), CD_RUNS (backs per condition), CD_CONDS (csv, see cond.mjs).
 # JSON printed as "B64 <file> <chunk>" with "SHA256 <file> <hash>" (rebuild: .bieg/mix1745/wyciagnij.sh <log> <dir>).
 # Exit 0 only when both builds are 0, every probe measured (rc 0) and every comparison meets expect (fail-closed).
 set -u
-EXPECT=${1:?expect same|diff|any}
-case $EXPECT in same|diff|any) ;; *) echo "expect $EXPECT not allowed"; exit 2 ;; esac
+EXPECT=${1:?expect same|diff|any|fixed}
+case $EXPECT in same|diff|any|fixed) ;; *) echo "expect $EXPECT not allowed"; exit 2 ;; esac
 WIDTHS=${FR_WIDTHS:-375 1280}
 for w in $WIDTHS; do case $w in 375|412|1280) ;; *) echo "width $w not allowed"; exit 2 ;; esac; done
 OUT=.bieg/r/mix1745c; mkdir -p "$OUT"
@@ -18,16 +21,22 @@ for d in dist dist-old dist-head; do [ -e "$d" ] && { echo "$d exists: tree not 
 FAILS=0
 bad() { echo "FAILCHECK $*"; FAILS=$((FAILS + 1)); }
 GRID=components/features/portfolio/PortfolioGrid.tsx
+BB=utils/caseStudyBackBrowser.ts
 cp "$GRID" "$OUT/grid.orig"
 for v in old head; do
-  cp "$OUT/grid.orig" "$GRID"
-  if [ $v = old ]; then node .bieg/mix1741/variant.mjs bug || bad "old: grid class not applied"; fi
+  cp "$OUT/grid.orig" "$GRID"; [ -f "$OUT/bb.orig" ] && cp "$OUT/bb.orig" "$BB"
+  if [ $v = old ]; then
+    node .bieg/mix1741/variant.mjs bug || bad "old: grid class not applied"
+    cp "$BB" "$OUT/bb.orig"; sed -i "/^    caseStudyToTop(win);/d" "$BB"
+    grep -q "caseStudyToTop(win)" "$BB" && bad "old: caseStudyToTop call still in $BB"
+    cmp -s "$BB" "$OUT/bb.orig" && bad "old: $BB unchanged (the MIX-1745 call not removed)"
+  fi
   echo "build $v: $(grep -o '\[contain-intrinsic-size:[^]]*\]' "$GRID" | tr '\n' ' ')"
   VITE_MM_VIEW_TRANSITIONS=1 npm run build > "$OUT/build-$v.log" 2>&1; rc=$?; echo "build-$v rc=$rc"
   [ $rc -eq 0 ] || { bad "build-$v rc=$rc"; tail -n 20 "$OUT/build-$v.log"; continue; }
   mv dist "dist-$v"
 done
-cp "$OUT/grid.orig" "$GRID"
+cp "$OUT/grid.orig" "$GRID"; [ -f "$OUT/bb.orig" ] && cp "$OUT/bb.orig" "$BB"
 for vp in $WIDTHS; do
   for v in old head; do
     [ -d "dist-$v" ] || continue
@@ -37,7 +46,13 @@ for vp in $WIDTHS; do
   done
   node .bieg/mix1745/condcmp.mjs "$OUT/cond-$vp-old.json" "$OUT/cond-$vp-head.json"; crc=$?
   echo "compare $vp rc=$crc expect=$EXPECT"
-  case "$EXPECT:$crc" in same:0|diff:1|any:0|any:1) ;; *) bad "compare $vp rc=$crc expect=$EXPECT" ;; esac
+  case "$EXPECT:$crc" in same:0|diff:1|any:0|any:1|fixed:0|fixed:1) ;; *) bad "compare $vp rc=$crc expect=$EXPECT" ;; esac
+  if [ "$EXPECT" = fixed ]; then
+    CC_REF=fresh node .bieg/mix1745/condcmp.mjs "$OUT/cond-$vp-old.json" "$OUT/cond-$vp-head.json"; xrc=$?
+    echo "accepted-look head $vp rc=$xrc (0 = every condition like old fresh)"; [ $xrc -eq 0 ] || bad "head $vp not like old fresh rc=$xrc"
+    CC_REF=fresh node .bieg/mix1745/condcmp.mjs "$OUT/cond-$vp-old.json" "$OUT/cond-$vp-old.json" > "$OUT/ctl-$vp.txt"; orc=$?
+    grep -aE "^CCSUM" "$OUT/ctl-$vp.txt"; echo "control old $vp rc=$orc (1 = probe sees the scrolled look)"; [ $orc -eq 1 ] || bad "control old $vp rc=$orc"
+  fi
 done
 for f in "$OUT"/cond-*.json; do
   [ -f "$f" ] || continue

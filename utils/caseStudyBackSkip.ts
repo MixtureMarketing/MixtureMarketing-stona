@@ -1,6 +1,8 @@
 // Pominięcie przejścia wstecz w toku (MIX-1699, MIX-1707 r2); wydzielone z utils/caseStudyGeneration.ts.
 import { BACK_RELEASE_MAX_MS } from './caseStudyBackOptions';
 import { suppressTraverseRestore, undoListScroll } from './caseStudyRootScroll';
+// MIX-1745: powrót startuje od nagłówka realizacji na górze (utils/caseStudyBackBrowser.ts)
+export { caseStudyToTop } from './caseStudyRootScroll';
 import { currentGeneration } from './caseStudyGeneration';
 
 type Restore = (y: number) => void;

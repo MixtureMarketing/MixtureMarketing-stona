@@ -8,6 +8,8 @@
  * sampled fractions, image group and title group rect within 4 px at each fraction (x, y, w, h), same loaded state
  * of the target image. Also FOOTER landings of B. Lines CC (one per differing back), CCSUM per condition, CCALL.
  * Exit 0 = B matches A in every back, 1 = measured and different, 2 = not comparable (fail-closed).
+ * CC_REF=<condition> (allowlist: a condition of A): every condition of B except quick (a race with the entry transition
+ * in both builds) is compared with that one condition of A (the accepted look: CC_REF=fresh).
  */
 import fs from 'node:fs';
 
@@ -29,10 +31,17 @@ const dr = (ra, rb) => {
 };
 let diff = 0;
 let broken = 0;
-const conds = Object.keys(A.conds || {});
+const REF = process.env.CC_REF || '';
+if (REF && !Object.keys(A.conds || {}).includes(REF)) {
+  console.log(`CCALL not comparable: CC_REF ${REF} not a condition of A`);
+  process.exit(2);
+}
+const conds = REF
+  ? Object.keys(B.conds || {}).filter((c) => c !== 'quick')
+  : Object.keys(A.conds || {});
 if (!conds.length) broken++;
 for (const c of conds) {
-  const xa = A.conds[c] || [];
+  const xa = A.conds[REF || c] || [];
   const xb = B.conds?.[c] || [];
   let cd = 0;
   let maxPx = 0;
@@ -76,7 +85,7 @@ for (const c of conds) {
   }
   const foot = xb.filter((b) => b.cls === 'FOOTER').length;
   console.log(
-    `CCSUM ${B.vp} ${c} ${A.tag}->${B.tag} backs=${xa.length} diff=${cd} maxPx=${Number.isFinite(maxPx) ? Math.round(maxPx * 10) / 10 : 'inf'} footer${B.tag}=${foot}`,
+    `CCSUM ${B.vp} ${c} ${A.tag}${REF ? `:${REF}` : ''}->${B.tag} backs=${xa.length} diff=${cd} maxPx=${Number.isFinite(maxPx) ? Math.round(maxPx * 10) / 10 : 'inf'} footer${B.tag}=${foot}`,
   );
   diff += cd;
 }
