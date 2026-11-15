@@ -47,7 +47,7 @@ for v in "${VS[@]}"; do
         *) bad "$v $vp $c rc=$prc expect=$ex" ;;
       esac
       if [ "$ex" = bug ] && [ $prc -eq 1 ]; then
-        grep -aq "^SUMMARY .* footer=0 " "$OUT/f-$v-$vp-$c.txt" && bad "$v $vp $c: not OK but no FOOTER landing"
+        grep -aqF " footer=0 " "$OUT/f-$v-$vp-$c.txt" && bad "$v $vp $c: not OK but no FOOTER landing"
       fi
     done
   done
