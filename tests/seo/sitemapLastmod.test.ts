@@ -9,6 +9,7 @@ import {
   buildSitemapXml,
   formatLastmod,
   lastmodProblems,
+  localDay,
   parseSitemap,
   retiredImageFieldCount,
   sitemapStats,
@@ -27,7 +28,7 @@ const ROOT = path.resolve(__dirname, '../..');
 const manifest: Record<string, string> = JSON.parse(
   fs.readFileSync(path.join(ROOT, 'data/seo/lastmod.json'), 'utf8'),
 );
-const TODAY = new Date().toISOString().split('T')[0];
+const TODAY = localDay(new Date());
 
 describe('data/seo/lastmod.json — daty tras statycznych', () => {
   it('ma wpis dla każdej trasy z routes.js (i żadnego ponad nie)', () => {
@@ -92,6 +93,34 @@ describe('sitemap: lastmod — nogi ujemne', () => {
     const now = new Date('2026-10-31T10:00:00Z');
     expect(lastmodProblems([ok, { url: 'u', lastmod: '2026-10-31' }], now)).toEqual([]);
     expect(() => assertLastmod([ok], now)).not.toThrow();
+  });
+
+  it('MIX-1725: strefa Europe/Warsaw w generatorze i bramce (zegar wstrzyknięty, bez zegara ściany)', () => {
+    // 00:30 czasu warszawskiego 15.11 = 23:30 UTC 14.11 (zima, CET = UTC+1)
+    const now = new Date('2026-11-14T23:30:00Z');
+    expect(localDay(now)).toBe('2026-11-15');
+    // data treści = ten sam dzień lokalny: zielone (przed poprawką: „z przyszłości”)
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-11-15' }], now)).toEqual([]);
+    expect(() => assertLastmod([{ url: 'u', lastmod: '2026-11-15' }], now)).not.toThrow();
+    // następny dzień lokalny: czerwone, z tekstem powodu
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-11-16' }], now)).toEqual([
+      'u: lastmod z przyszłości (2026-11-16)',
+    ]);
+    // brzeg 23:30 lokalnie (22:30 UTC) tego samego dnia: dzień nadal 15.11, 16.11 odrzucone
+    const late = new Date('2026-11-15T22:30:00Z');
+    expect(localDay(late)).toBe('2026-11-15');
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-11-15' }], late)).toEqual([]);
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-11-16' }], late)).toHaveLength(1);
+    // lato (CEST = UTC+2): 00:30 lokalnie 15.07 = 22:30 UTC 14.07
+    const summer = new Date('2026-07-14T22:30:00Z');
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-07-15' }], summer)).toEqual([]);
+    expect(lastmodProblems([{ url: 'u', lastmod: '2026-07-16' }], summer)).toHaveLength(1);
+  });
+
+  it('formatLastmod liczy dzień lokalnie: znacznik Sanity 23:30 UTC = następny dzień w Warszawie', () => {
+    expect(formatLastmod('2026-11-14T23:30:00Z')).toBe('2026-11-15');
+    expect(formatLastmod('2026-11-15T22:30:00Z')).toBe('2026-11-15');
+    expect(formatLastmod('2026-11-15T23:00:00Z')).toBe('2026-11-16');
   });
 
   it('formatLastmod: brak/niepoprawna data → null, nigdy „dzisiaj”', () => {
