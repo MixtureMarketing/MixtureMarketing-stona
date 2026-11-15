@@ -774,6 +774,18 @@ describe('MIX-1729: a history traverse during our back transition gets no browse
     },
   );
 
+  it.each([
+    ['both indexes fractional (2.5 -> 1.5)', 2.5, 1.5],
+    ['before the first entry (0 -> -1)', 0, -1],
+  ])('refusal: %s = no intercept, even one apart', (_name, from, to) => {
+    const nav = fakeNav();
+    nav.currentEntry = { index: from };
+    setBackSkip({ skipTransition: vi.fn() }, vi.fn(), 100, window);
+    const { e, intercept } = navEvent({ destination: { index: to } });
+    nav.dispatchEvent(e);
+    expect(intercept).not.toHaveBeenCalled();
+  });
+
   it('a one-step back from any list entry index is intercepted (index 1 -> 0)', () => {
     const nav = fakeNav();
     nav.currentEntry = { index: 1 };
