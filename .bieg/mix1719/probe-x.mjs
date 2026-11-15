@@ -618,7 +618,7 @@ async function measureDouble(vp, c) {
     rootFramesMaxY: r.framesOnRoot.length ? Math.max(...r.framesOnRoot.map((f) => f[1])) : null,
     // r6b: frames on "/" away from 300 with the DOM fingerprint (portfolio links: list DOM vs home DOM), pops, scroll calls
     rootOdd: r.framesOnRoot.filter((f) => Math.abs(f[1] - 300) > 4).slice(0, 8),
-    pops: (r.otherScrolls || []).filter((o) => o[1] === 'popstate').map((o) => [o[0], o[3], o[4]]),
+    pops: (r.otherScrolls || []).filter((o) => o[1] === 'popstate').map((o) => [o[0], o[3], o[4], o[2]]),
     // MIX-1707: ms from the first popstate to the one onto "/", scrollY there, our scrollTo away from 0 on the list
     ...(() => {
       const ps = (r.otherScrolls || []).filter((o) => o[1] === 'popstate');

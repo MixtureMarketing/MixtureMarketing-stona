@@ -51,6 +51,8 @@ for m in on on1711 off base neg; do
   echo "probe $m $VP rc=$rc"; [ $m = on ] && [ $rc -ne 0 ] && bad "probe on $VP rc=$rc"
   grep -aE '^(FAIL|PROBE)' "$OUT/b-$m.txt" | sort | uniq -c | head -n 20
   grep -aE '^NUM .*double-back' "$OUT/b-$m.txt" | sed -E 's/ listeners=.*//; s/^/['"$m"'] /'
+  # round 3: per-run trace (pops [t,y,path,restoration], scroll calls, odd root frames) for ON and OFF at the short gaps
+  case $m in on|off) grep -aE '^ROOTDBG .*double-back-(100|130|160)-' "$OUT/b-$m.txt" | cut -c1-1600 | sed -E 's/^/['"$m"'] /' ;; esac
 done
 declare -A CL
 for m in on on1711; do
