@@ -72,20 +72,28 @@ describe('lista artykułów z odnośnikiem do /cennik/ (docs: artykuly.md)', () 
   });
 });
 
+// Bez NotificationProvidera (jego kontener powiadomień też jest w DOM): sprawdzamy sam komponent.
+const renderLink = () =>
+  render(
+    <MemoryRouter initialEntries={['/x/']}>
+      <CennikLink />
+    </MemoryRouter>,
+  );
+
 describe('CennikLink: przełącznik VITE_MM_CENNIK', () => {
   it('wyłączony: nic w DOM', () => {
     vi.stubEnv('VITE_MM_CENNIK', '');
-    const { container } = renderAt('/x/', <CennikLink />);
+    const { container } = renderLink();
     expect(container.innerHTML).toBe('');
   });
   it.each([['0'], ['true'], [' 1'], ['yes']])('VITE_MM_CENNIK=%p: nic w DOM', (v) => {
     vi.stubEnv('VITE_MM_CENNIK', v);
-    const { container } = renderAt('/x/', <CennikLink />);
+    const { container } = renderLink();
     expect(container.innerHTML).toBe('');
   });
   it('włączony: akapit z linkiem do /cennik/ (ze slashem) i niepustym tekstem', () => {
     vi.stubEnv('VITE_MM_CENNIK', '1');
-    const { container } = renderAt('/x/', <CennikLink />);
+    const { container } = renderLink();
     const a = container.querySelector('a[href="/cennik/"]');
     expect(a?.textContent).toBe('cenniku Mixture Marketing');
     expect(container.querySelectorAll('[data-cennik-link]')).toHaveLength(1);
