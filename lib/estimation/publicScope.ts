@@ -19,19 +19,35 @@ export const SCOPE_DESCRIPTION_MAX = 500;
 /** Najwięcej pozycji listy w jednej odpowiedzi. */
 export const SCOPE_MAX_ITEMS = 30;
 
-// Znaki, które nie są widoczne: miękki dywiz, spacje zerowej szerokości, znaczniki kierunku, BOM,
-// znaki sterujące kierunkiem tekstu (bidi: U+202A–U+202E, U+2066–U+2069, U+061C) oraz znaki
-// sterujące C0 i C1 (NUL, BEL, ESC, DEL, U+0080–U+009F). Tabulacja i nowa linia zostają (brzegi
-// czyści `trim()`), żeby wielolinijkowy opis nie sklejał słów (MIX-1799, uwaga Z6).
-// Zapis przez sekwencje \uXXXX, nie przez same znaki: plik ma być czytelny w przeglądzie.
+// Znaki niewidoczne (MIX-1799, MIX-1808): ścisły, opisany zbiór, jedna kopia dla serwera
+// (toPublicScope) i klienta (parseScope w pricePreviewService używa tej samej cleanClientText).
+//  - \p{Cf} (formatujące: miękki dywiz, ZWSP/ZWJ, znaczniki kierunku, bidi, BOM, U+E0001 i znaczniki),
+//  - \p{Cc} (sterujące C0/C1, DEL) OPRÓCZ tabulacji i nowej linii (U+0009, U+000A, U+000D: brzegi
+//    czyści `trim()`, a wielolinijkowy opis nie skleja słów),
+//  - \p{Cs} (samotny surogat; poprawna para, np. emoji, to jeden znak i zostaje),
+//  - Default_Ignorable_Code_Point spoza Cf: U+034F, U+115F, U+1160, U+17B4–U+17B5, U+3164, U+FFA0,
+//    U+180B–U+180F, U+FFF0–U+FFF8, U+E0000–U+E0FFF; do tego U+206A–U+206F i U+FFF9–U+FFFB.
+// Selektory wariantów U+FE00–U+FE0F osobno (VARIATION_SELECTOR): zostają tylko za znakiem
+// piktograficznym albo cyfrą/#/* (emoji „❤️”, „1️⃣”), poza tym są niewidoczne.
+// Zapis przez sekwencje \uXXXX / \u{XXXXX}, nie przez same znaki: plik ma być czytelny w przeglądzie.
+// Bez lookbehind (starsze Safari nie wczyta modułu z lookbehind).
 const INVISIBLE =
-  // eslint-disable-next-line no-control-regex
-  /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u00AD\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]/g;
+  // eslint-disable-next-line no-misleading-character-class -- zbiór pojedynczych znaków, nie sekwencje
+  /(?![\t\n\r])\p{Cc}|[\p{Cf}\p{Cs}\u034F\u115F\u1160\u17B4\u17B5\u180B-\u180F\u206A-\u206F\u3164\uFFA0\uFFF0-\uFFFB\u{E0000}-\u{E0FFF}]/gu;
+const VARIATION_SELECTOR = /(\p{Extended_Pictographic}|[0-9#*])?[\uFE00-\uFE0F]/gu;
+
+/** Tekst bez znaków niewidocznych (zbiór wyżej) i bez białych znaków na brzegach. */
+export function stripInvisible(raw: string): string {
+  return raw
+    .replace(INVISIBLE, '')
+    .replace(VARIATION_SELECTOR, (m, base: string | undefined) => (base ? m : ''))
+    .trim();
+}
 
 /** Tekst do pokazania albo null: tylko string, bez znaków niewidocznych, niepusty, ≤ max. */
 export function cleanClientText(raw: unknown, max: number): string | null {
   if (typeof raw !== 'string') return null;
-  const t = raw.replace(INVISIBLE, '').trim();
+  const t = stripInvisible(raw);
   if (t === '' || t.length > max) return null;
   return t;
 }
