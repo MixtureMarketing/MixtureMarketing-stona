@@ -140,6 +140,7 @@ jobs:
           # jest wlaczona w Preview (build dla dev), a na produkcji i w PR wylaczona do `TAK <SHA>`.
           # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
           # Tu zostaje konfigurator wyceny w budowie (MIX-1377).
+          VITE_MM_CALC_NEW_UI: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1867: nowy wyglad kalkulatora
           VITE_MM_CONFIG_LINK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_CENNIK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1855: strona /cennik/
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
