@@ -8,6 +8,7 @@ import { buildLibraryData, toEngineRules, type RawLibrary } from './toLibraryDat
 import { toPublicOffer, pickPublicArchetype, type PublicPriceRange } from './publicOffer';
 import type { Answers } from './types';
 import { toPublicScope, type PublicScopeItem } from './publicScope';
+import { PUBLIC_NUMBER_RANGES, PUBLIC_TEXT_ALLOWED, PUBLIC_TEXT_MAX } from './publicLimits';
 
 /** Ostateczny fallback archetypu (kontrakt §5) — najbardziej ogólny; hit tylko przy braku
  *  rekomendacji reguł ORAZ celu spoza mapy. Część specyfikacji publicznego endpointu. */
@@ -50,19 +51,9 @@ export interface PublicQuestionDef {
   options_json?: string | null;
 }
 
-/** Limit długości odpowiedzi tekstowej (SPEC-MIX-1320 §6 A9). */
-export const PUBLIC_TEXT_MAX = 200;
-
-/** Zakresy pól liczbowych (SPEC-MIX-1320 §6 A10): tylko liczby całkowite w przedziale [min, max].
- *  Pole liczbowe spoza tej listy = odmowa (fail-closed), nie domyślny zakres. */
-export const PUBLIC_NUMBER_RANGES: Readonly<Record<string, readonly [number, number]>> = {
-  views_count: [1, 500],
-  languages: [1, 20],
-};
-
-/** Allowlista znaków tekstu: litery, cyfry, spacja i zwykła interpunkcja; bez `<`, `>`, `\`,
- *  znaków sterujących i nowych linii (A9: zero HTML w leadzie, panelu i mailach). */
-const TEXT_ALLOWED = /^[\p{L}\p{N} .,;:!?()'"%&+\-/@#*_]*$/u;
+// MIX-1791: limity A9/A10 żyją w publicLimits.ts (używa ich też klient przy linku `?k=`).
+export { PUBLIC_TEXT_MAX, PUBLIC_NUMBER_RANGES };
+const TEXT_ALLOWED = PUBLIC_TEXT_ALLOWED;
 
 /** Wartości opcji z JSON kolumny; zły JSON, brak listy albo wartość nie-string = null. */
 function optionValues(raw: string | null | undefined): Set<string> | null {

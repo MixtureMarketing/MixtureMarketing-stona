@@ -36,6 +36,8 @@ interface CalculatorFormProps {
   liveBar?: React.ReactNode;
   /** Podgląd konfiguracji (MIX-1790): POD przyciskami, więc pasek sticky go nie zasłania. */
   configPreview?: React.ReactNode;
+  /** Link do konfiguracji (MIX-1791): pod przyciskami Wstecz/Dalej, nad podglądem. */
+  configLink?: React.ReactNode;
 }
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({
@@ -52,6 +54,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
   onSubmit,
   liveBar,
   configPreview,
+  configLink,
 }) => {
   // Uporządkowane, unikalne grupy widocznych pytań + krok kontaktowy na końcu.
   const groups = useMemo(() => {
@@ -239,6 +242,8 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           </button>
         )}
       </div>
+
+      {configLink}
 
       {isContact && <RodoKlauzulaKrotka variant="calculator" tone="dark" />}
 
