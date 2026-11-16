@@ -195,7 +195,12 @@ describe('PortfolioPage — kolejność realizacji (MIX-1829)', () => {
     await screen.findByText('Nowy Sklep');
     fireEvent.click(screen.getByRole('button', { name: /Web Development/ }));
     await waitFor(() => expect(screen.queryByText('Try Dive')).toBeNull());
-    expect(titles()).toEqual(['Fundacja Niepodzielni', 'Impackt Edu', 'Nowy Sklep', 'Stara Strona']);
+    expect(titles()).toEqual([
+      'Fundacja Niepodzielni',
+      'Impackt Edu',
+      'Nowy Sklep',
+      'Stara Strona',
+    ]);
   });
 });
 
