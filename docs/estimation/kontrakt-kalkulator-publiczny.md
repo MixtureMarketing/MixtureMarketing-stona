@@ -36,6 +36,7 @@ Zwraca pytania publiczne do zbudowania formularza. Bez auth, bez efektów uboczn
 cache’owalny. Bez Turnstile (brak zapisu/compute).
 
 **Response 200:**
+
 ```json
 {
   "contractVersion": 1,
@@ -53,6 +54,7 @@ cache’owalny. Bez Turnstile (brak zapisu/compute).
   ]
 }
 ```
+
 Pola: **wyłącznie** `code, text, help_text, answer_type, options (value+label), visible_if,
 group, sort_order`. NIE wychodzą: `unknown_weight`, `visibility`, żadne dane reguł/biblioteki.
 Zwracane są tylko wiersze `est_questions` z `visibility='public' AND is_active=1`, w kolejności
@@ -68,6 +70,7 @@ Liczy wycenę, zapisuje leada + draft, zwraca sanityzowane widełki. Chroniony (
 honeypot + rate-limit).
 
 **Request (application/json):**
+
 ```json
 {
   "answers": { "project_goal": "sklep", "languages": 2, "sensitive_data": true },
@@ -76,6 +79,7 @@ honeypot + rate-limit).
   "website_verify": ""
 }
 ```
+
 - `answers` — mapa `kod → wartość`. Akceptowane **wyłącznie kody z zestawu publicznego**;
   klucze spoza niego są odrzucane (ignorowane, nie liczą się). Typy walidowane wg `answer_type`
   (bool/number/select/multiselect). `project_goal` jest **wymagane** (steruje archetypem i
@@ -86,6 +90,7 @@ honeypot + rate-limit).
 - `website_verify` — honeypot. Niepuste → 403 (bot).
 
 **Przepływ serwera (kolejność):**
+
 1. Honeypot (`website_verify` niepuste → 403).
 2. Turnstile `verifyTurnstile(captcha_token, TURNSTILE_SECRET, ip)` → 403 przy porażce.
 3. Rate-limit KV (per IP, §6) → 429 po przekroczeniu.
@@ -95,13 +100,15 @@ honeypot + rate-limit).
 6. `loadRawLibrary(DB)` → `buildLibraryData(rawLib, archetyp, project_goal)` → `computeQuote`.
 7. `toPublicOffer(computeQuote().totals, params)` → poszerzone/zaokrąglone widełki (§4).
 8. Zapis (z retry/backoff D1, §6): lead (`source='calculator'`, odpowiedzi + widełki w `details`)
-   + draft `est_quote` (§7) + `est_quote_answers`. Zapis best-effort nie blokuje odpowiedzi z ceną.
+   - draft `est_quote` (§7) + `est_quote_answers`. Zapis best-effort nie blokuje odpowiedzi z ceną.
 9. E-mail potwierdzający do klienta + powiadomienie do agencji (Resend, best-effort, §7).
 
 **Response 200:**
+
 ```json
 { "priceRange": { "min": 27500, "max": 53000 }, "currency": "PLN", "status": "ok" }
 ```
+
 **Wyłącznie** `priceRange` (+ `currency`, `status`). Zero godzin, zero id, zero platformy.
 
 **Błędy:** `400` (walidacja: email/project_goal/typy), `403` (honeypot/captcha), `429` (rate-limit),
@@ -112,6 +119,7 @@ honeypot + rate-limit).
 ## 4. Transform publiczny — `toPublicOffer(totals, params)`
 
 Wejście: `totals.offer = { min, max }` (zawężone widełki ofertowe silnika). Kroki:
+
 1. **Poszerzenie** o `public_widen_k`: `wMin = offer.min × (1 − k)`, `wMax = offer.max × (1 + k)`.
 2. **Zaokrąglenie** do `public_round_pln`: `min` w **dół**, `max` w **górę**.
 
@@ -178,11 +186,12 @@ finalizowany** — bez snapshotu obszarów/itemów/totals; Jakub otwiera w panel
 dociąga do pełnej (walidacja + finalize).
 
 **E-mail (Resend, best-effort — porażka nie blokuje odpowiedzi):**
+
 - do klienta: potwierdzenie z widełkami (`priceRange`);
 - do agencji (`NOTIFY_EMAIL`): powiadomienie o nowym leadzie z kalkulatora.
-Decyzja L2 (Jakub, rekomendacja: wymagany): status e-mail **wysyłany** w wersji 1.
-**Degradacja łagodna (architekt):** brak `RESEND_API_KEY` = **ciche pominięcie wysyłki, nigdy 500**;
-lead i draft zapisują się **zawsze**, niezależnie od maila (mail jest efektem ubocznym, nie warunkiem).
+  Decyzja L2 (Jakub, rekomendacja: wymagany): status e-mail **wysyłany** w wersji 1.
+  **Degradacja łagodna (architekt):** brak `RESEND_API_KEY` = **ciche pominięcie wysyłki, nigdy 500**;
+  lead i draft zapisują się **zawsze**, niezależnie od maila (mail jest efektem ubocznym, nie warunkiem).
 
 ---
 
@@ -206,17 +215,21 @@ lead i draft zapisują się **zawsze**, niezależnie od maila (mail jest efektem
 - **Stary kalkulator `/offers`** — zostaje do f4b.
 
 ## 10. Wersjonowanie
+
 `contractVersion` w odpowiedzi GET. Zmiana kształtu pól = bump wersji + aktualizacja tego
 dokumentu przed kodem. Zmiana wartości seedów (progi, zestaw pytań) NIE bumpuje wersji kontraktu
 (to treść), ale jest odnotowana w §8.
 
 ## 11. `POST /api/estimation/public-preview`, wersja 2: „Twój zakres" (MIX-1790)
+
 Podgląd widełek na żywo (MIX-1476, `functions/api/estimation/public-preview.ts`) zwraca od
 wersji 2 obok `priceRange` (i `preview_token`) opcjonalne pole `scope`:
 
 ```json
-{ "priceRange": { "min": 27500, "max": 53000, "currency": "PLN" },
-  "scope": [ { "client_name": "Koszyk i płatności", "client_description": "Zakupy bez konta." } ] }
+{
+  "priceRange": { "min": 27500, "max": 53000, "currency": "PLN" },
+  "scope": [{ "client_name": "Koszyk i płatności", "client_description": "Zakupy bez konta." }]
+}
 ```
 
 - Pozycje tylko dla obszarów, które wchodzą do projektu (godziny > 0, jak zakres oferty), w kolejności
