@@ -210,13 +210,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           <h2 ref={headingRef} tabIndex={newUi ? -1 : undefined} className={headingCls}>
             {CONTACT_LABEL}
           </h2>
-          <div
-            className={
-              newUi
-                ? 'space-y-3'
-                : 'space-y-2'
-            }
-          >
+          <div className={newUi ? 'space-y-3' : 'space-y-2'}>
             <label htmlFor="calc-email" className={ui.label}>
               Twój e-mail
             </label>
