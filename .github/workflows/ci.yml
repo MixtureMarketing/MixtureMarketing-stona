@@ -146,6 +146,7 @@ jobs:
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LEAD_CONFIG: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_NEW_CLIENT_TIMELINE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           # MIX-1873: filmy w portfolio (lista i strona realizacji) do akceptacji Jakuba na Preview.
           VITE_MM_PORTFOLIO_VIDEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build

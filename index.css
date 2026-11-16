@@ -633,3 +633,10 @@ body[data-config-link-cookie='true'] .cookie-floating-btn {
   visibility: hidden;
   pointer-events: none;
 }
+
+/* MIX-1816: to samo dla osi czasu na ekranie wyniku (znacznik ustawia NewClientTimeline). */
+body[data-timeline-cookie='true'] .cookie-floating-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

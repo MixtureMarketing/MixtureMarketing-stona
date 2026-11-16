@@ -14,9 +14,15 @@ interface CalculatorResultProps {
   priceRange: PriceRange;
   onReset: () => void;
   newUi?: boolean;
+  /** Oś czasu nowego klienta (MIX-1816); brak = ekran bez zmian. */
+  timeline?: React.ReactNode;
 }
 
-const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({ priceRange, onReset }) => {
+const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
+  priceRange,
+  onReset,
+  timeline,
+}) => {
   const ui = calcUi(true);
   const headRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
@@ -50,12 +56,18 @@ const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({ priceRange,
           Policz jeszcze raz
         </button>
       </div>
+      {timeline}
     </div>
   );
 };
 
-const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset, newUi }) => {
-  if (newUi) return <NewResult priceRange={priceRange} onReset={onReset} />;
+const CalculatorResult: React.FC<CalculatorResultProps> = ({
+  priceRange,
+  onReset,
+  newUi,
+  timeline,
+}) => {
+  if (newUi) return <NewResult priceRange={priceRange} onReset={onReset} timeline={timeline} />;
   return (
     <div className="text-center space-y-6">
       <p className="text-sm uppercase tracking-wider text-primary/80">Orientacyjne widełki</p>
@@ -81,6 +93,7 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset
           Policz jeszcze raz
         </button>
       </div>
+      {timeline}
     </div>
   );
 };

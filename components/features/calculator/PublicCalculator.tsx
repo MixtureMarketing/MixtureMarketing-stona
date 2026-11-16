@@ -17,7 +17,9 @@ import {
   isConfigPreviewEnabled,
   isLeadConfigEnabled,
   isLivePriceBarEnabled,
+  isNewClientTimelineEnabled,
 } from './livePrice';
+import NewClientTimeline from './NewClientTimeline';
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
@@ -87,7 +89,12 @@ const PublicCalculator: React.FC = () => {
       )}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} newUi={newUi} />
+        <CalculatorResult
+          priceRange={c.result.priceRange}
+          onReset={c.reset}
+          newUi={newUi}
+          timeline={isNewClientTimelineEnabled() ? <NewClientTimeline /> : null}
+        />
       )}
 
       {(c.phase === 'ready' || c.phase === 'submitting') && (

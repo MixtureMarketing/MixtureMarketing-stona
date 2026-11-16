@@ -42,6 +42,19 @@ export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFI
 }
 
 /**
+ * MIX-1816 (Z13): oś czasu dla nowego klienta na ekranie wyniku wyceny za przełącznikiem
+ * `VITE_MM_NEW_CLIENT_TIMELINE`: włącza tylko dokładnie `1` (jak MIX-1846; `true` już nie).
+ * Wyłączony = ekran wyniku identyczny jak wcześniej (żadnego dodatkowego elementu).
+ */
+export function isNewClientTimelineEnabled(
+  raw: unknown = import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE,
+): boolean {
+  // Bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny parametr,
+  // czyli wartość VITE_MM_LIVE_PRICE_BAR (mutant V4 z werdyktu MIX-1816).
+  return raw === '1';
+}
+
+/**
  * MIX-1813 (Z10): „Wyślij i umów rozmowę” z opcjonalnym telefonem za przełącznikiem budowy
  * `VITE_MM_LEAD_CONFIG`, ten sam parser: tylko `1` albo `true` włącza. Konfigurację w leadzie
  * zapisuje serwer dopiero przy `LEAD_CONFIG_CRM=1` (functions/api/estimation/_leadConfig.ts).
