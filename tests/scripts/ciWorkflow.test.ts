@@ -58,6 +58,7 @@ const WLACZONE_NA_PROD = new Set([
 const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_CONFIG_LINK',
   'VITE_MM_CONFIG_PREVIEW',
+  'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
   'VITE_MM_LIVE_PRICE_BAR',
 ];
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */

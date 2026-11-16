@@ -17,6 +17,7 @@ import {
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { trackEvent } from '../utils/analytics';
+import { isLeadConfigEnabled } from '../components/features/calculator/livePrice';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
@@ -30,6 +31,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(''); // MIX-1813, tylko przy VITE_MM_LEAD_CONFIG
   const [websiteVerify, setWebsiteVerify] = useState(''); // honeypot
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -141,6 +143,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         email: email.trim(),
         captcha_token: token,
         website_verify: websiteVerify,
+        ...(isLeadConfigEnabled() && phone.trim() !== '' ? { phone: phone.trim() } : {}),
       });
       if (res.ok) {
         setResult(res.result);
@@ -154,7 +157,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     } finally {
       submittingRef.current = false;
     }
-  }, [questions, answers, email, websiteVerify, turnstileRef, nextToken]);
+  }, [questions, answers, email, phone, websiteVerify, turnstileRef, nextToken]);
 
   const reset = useCallback(() => {
     setResult(null);
@@ -171,6 +174,8 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     setAnswer,
     email,
     setEmail: setEmailAndClear,
+    phone,
+    setPhone,
     websiteVerify,
     setWebsiteVerify,
     errors,
