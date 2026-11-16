@@ -33,7 +33,11 @@ describe('bramka prerenderu (scripts/prerender-gate.js)', () => {
   it('prerenderOnlyRoutes mogą mieć noindex, ale nie mogą być stroną 404', () => {
     const opts = { prerenderOnlyRoutes };
     expect(
-      checkPrerenderedPage('/web-development/systemy-ai-aplikacje/', { ...ok, noindex: true }, opts),
+      checkPrerenderedPage(
+        '/web-development/systemy-ai-aplikacje/',
+        { ...ok, noindex: true },
+        opts,
+      ),
     ).toBeNull();
     expect(
       checkPrerenderedPage('/web-development/systemy-ai-aplikacje', { ...ok, noindex: true }, opts),

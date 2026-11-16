@@ -283,7 +283,7 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     const mainCount = probe.mainScreen().querySelectorAll('a').length;
     const offerCount = probe.offerScreen().querySelectorAll('a').length;
     probe.unmount();
-    expect(mainCount).toBe(5);
+    expect(mainCount).toBe(4); // MIX-1849: bez kafla promo
     expect(offerCount).toBe(15);
 
     const targets: Array<['main' | 'offer', number]> = [

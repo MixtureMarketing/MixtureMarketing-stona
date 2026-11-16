@@ -8,7 +8,7 @@ import { prerenderOnlyRoutes } from '../../routes.js';
 
 // MIX-1849: /abonament/dziekujemy/ wypadła z prerenderOnlyRoutes razem z usługą. Formy ataku
 // (MIX-1657…1689) dalej ćwiczą skan na tej dwusegmentowej ścieżce, więc dostają ją jako dane testu.
-const HIDDEN_FORMS = [...prerenderOnlyRoutes, '/abonament/dziekujemy/'];
+const HIDDEN_FORMS = ['/abonament/dziekujemy/', ...prerenderOnlyRoutes];
 import {
   BASE_URL,
   KEY_PATHS,

@@ -14,7 +14,7 @@ import { TITLE_MAX } from '../../utils/seo/title';
 import UxAuditArticle from '../../components/articles/UxAuditArticle';
 import WebDevRzeszow from '../../components/pages/WebDevRzeszow';
 import WycenaCalculator from '../../components/pages/WycenaCalculator';
-import WebDevelopment from '../../components/pages/WebDevelopment';
+import Offers from '../../components/sections/Offers';
 
 vi.setConfig({ testTimeout: 20_000 });
 vi.mock('../../utils/analytics', () => ({ trackEvent: vi.fn() }));
@@ -41,8 +41,8 @@ describe('artykuł o cenie strony: 3 linki wewnętrzne z innych stron (A13)', ()
   it.each([
     ['/web-development/rzeszow/', () => <WebDevRzeszow />],
     ['/wycena/', () => <WycenaCalculator />],
-    // MIX-1849: /abonament/ usunięta; trzecie źródło to strona usługi /web-development/.
-    ['/web-development/', () => <WebDevelopment />],
+    // MIX-1849: /abonament/ usunięta; trzecie źródło to strona oferty /offers/ (link w hero).
+    ['/offers/', () => <Offers />],
   ])(
     '%s: wyrenderowana strona ma kotwicę <a> do artykułu o cenie (ze slashem)',
     async (route, page) => {

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { routes, prerenderOnlyRoutes } from '../../routes.js';
+import { SERVICES_SECTION_DATA } from '../../data/content/services';
 
 const ROOT = path.resolve(__dirname, '../..');
 const read = (rel: string) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -71,16 +72,19 @@ describe('MIX-1849: bez „Strony w abonamencie”', () => {
     expect(fs.existsSync(path.join(ROOT, 'components/pages/abonament'))).toBe(false);
   });
 
-  it.each(DAWNE)('_redirects: %s (z i bez slasha) → 301 /web-development/ przed catch-allem', (p) => {
-    const catchAll = rules.findIndex((r) => r.from === '/*');
-    expect(catchAll).toBe(rules.length - 1);
-    for (const from of [p, `${p}/`]) {
-      const idx = rules.findIndex((r) => r.from === from);
-      expect(idx, from).toBeGreaterThanOrEqual(0);
-      expect(rules[idx]).toEqual({ from, to: CEL, status: '301' });
-      expect(idx).toBeLessThan(catchAll);
-    }
-  });
+  it.each(DAWNE)(
+    '_redirects: %s (z i bez slasha) → 301 /web-development/ przed catch-allem',
+    (p) => {
+      const catchAll = rules.findIndex((r) => r.from === '/*');
+      expect(catchAll).toBe(rules.length - 1);
+      for (const from of [p, `${p}/`]) {
+        const idx = rules.findIndex((r) => r.from === from);
+        expect(idx, from).toBeGreaterThanOrEqual(0);
+        expect(rules[idx]).toEqual({ from, to: CEL, status: '301' });
+        expect(idx).toBeLessThan(catchAll);
+      }
+    },
+  );
 
   it('_redirects: reszta /abonament/* też 301 na /web-development/, żadna reguła nie celuje w /abonament', () => {
     const splat = rules.findIndex((r) => r.from === '/abonament/*');
@@ -118,6 +122,13 @@ describe('MIX-1849: bez „Strony w abonamencie”', () => {
     expect(read('components/layout/MobileMenuB.tsx')).not.toMatch(/mmb-promo/);
     expect(read('data/content/pages/home.ts')).not.toMatch(/key: 'saas'/);
     expect(read('components/templates/pseo/PseoLocationContent.tsx')).not.toMatch(/179 zł/);
+  });
+
+  it('strona główna: sekcja usług ma dokładnie 3 kompetencje, każda z kluczem i ścieżką (bez pustego 4. wpisu)', () => {
+    // Prerender / wywracał się na ErrorBoundary, gdy services.ts mapował usunięty 4. kafel.
+    expect(SERVICES_SECTION_DATA.map((s) => s.key)).toEqual(['web', 'marketing', 'design']);
+    for (const s of SERVICES_SECTION_DATA)
+      expect(s.path).toMatch(/^\/(web-development|marketing|design)\/$/);
   });
 
   it('CSP: hub zapisu (api.mixturemarketing.pl) nie jest już źródłem connect-src', () => {
