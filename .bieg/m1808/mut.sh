@@ -6,6 +6,7 @@ NM=0
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1808/mut
 mkdir -p "$OUT"
+[ -d node_modules ] || npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm-ci.log" 2>&1
 T="lib/estimation/publicScope.test.ts lib/estimation/publicScope.invisible.test.ts services/pricePreviewService.scope.test.ts"
 echo "MUT HEAD $(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' | wc -l)"
 clean() { sed 's/\x1b\[[0-9;]*m//g' "$1"; }
