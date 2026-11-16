@@ -90,6 +90,8 @@ describe('normalizePhone', () => {
       '48060070080',
       '0048 060 070 080',
       '+480600700800',
+      '022 123 456',
+      '+48 012 345 678',
     ])
       expect(normalizePhone(v)).toEqual({ ok: false, reason: PHONE_REFUSAL.plZero });
     const ok: [string, string][] = [
