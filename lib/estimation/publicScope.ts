@@ -27,14 +27,23 @@ export const SCOPE_MAX_ITEMS = 30;
 //  - \p{Cs} (samotny surogat; poprawna para, np. emoji, to jeden znak i zostaje),
 //  - Default_Ignorable_Code_Point spoza Cf: U+034F, U+115F, U+1160, U+17B4–U+17B5, U+3164, U+FFA0,
 //    U+180B–U+180F, U+FFF0–U+FFF8, U+E0000–U+E0FFF; do tego U+206A–U+206F i U+FFF9–U+FFFB.
-// Selektory wariantów U+FE00–U+FE0F osobno (VARIATION_SELECTOR): zostają tylko za znakiem
-// piktograficznym albo cyfrą/#/* (emoji „❤️”, „1️⃣”), poza tym są niewidoczne.
+// Selektory wariantów U+FE00–U+FE0F osobno (VARIATION_SELECTOR): zostają tylko za symbolem
+// (\p{S}: emoji „❤️”, „©️”), za U+203C, U+2049, U+2139, U+3030, U+303D (piktogramy emoji spoza \p{S})
+// albo za cyfrą/#/* (keycap „1️⃣”), poza tym są niewidoczne. Same kategorie ogólne zamiast własności
+// Extended_Pictographic (MIX-1810): kategorie ogólne działają od Safari 11.1, a domyślny cel
+// budowy Vite 7 to safari16/chrome107/firefox104.
 // Zapis przez sekwencje \uXXXX / \u{XXXXX}, nie przez same znaki: plik ma być czytelny w przeglądzie.
 // Bez lookbehind (starsze Safari nie wczyta modułu z lookbehind).
 const INVISIBLE =
   // eslint-disable-next-line no-misleading-character-class -- zbiór pojedynczych znaków, nie sekwencje
   /(?![\t\n\r])\p{Cc}|[\p{Cf}\p{Cs}\u034F\u115F\u1160\u17B4\u17B5\u180B-\u180F\u206A-\u206F\u3164\uFFA0\uFFF0-\uFFFB\u{E0000}-\u{E0FFF}]/gu;
-const VARIATION_SELECTOR = /(\p{Extended_Pictographic}|[0-9#*])?[\uFE00-\uFE0F]/gu;
+const VARIATION_SELECTOR = /(\p{S}|[\u203C\u2049\u2139\u3030\u303D]|[0-9#*])?[\uFE00-\uFE0F]/gu;
+// Znak widoczny (MIX-1810), lista dozwolona: litera, cyfra, interpunkcja albo symbol (emoji to \p{S}),
+// OPRÓCZ symboli o pustym glifie: U+2800 (pusty wzór brajla), U+FFFC (zastępczy obiekt),
+// U+1D159 (pusta główka nuty). Tekst bez żadnego takiego znaku po oczyszczeniu = pominięty; dzięki
+// temu znak spoza zbioru INVISIBLE (np. nieprzypisany U+2065, samotny znak łączący, U+16FE4,
+// prywatny U+E000) nie zrobi pustej nazwy. Bez flagi g: test() nie trzyma lastIndex.
+const VISIBLE = /(?![\u2800\uFFFC\u{1D159}])[\p{L}\p{N}\p{P}\p{S}]/u;
 
 /** Tekst bez znaków niewidocznych (zbiór wyżej) i bez białych znaków na brzegach. */
 export function stripInvisible(raw: string): string {
@@ -44,11 +53,11 @@ export function stripInvisible(raw: string): string {
     .trim();
 }
 
-/** Tekst do pokazania albo null: tylko string, bez znaków niewidocznych, niepusty, ≤ max. */
+/** Tekst do pokazania albo null: tylko string, bez znaków niewidocznych, z ≥ 1 znakiem widocznym, ≤ max. */
 export function cleanClientText(raw: unknown, max: number): string | null {
   if (typeof raw !== 'string') return null;
   const t = stripInvisible(raw);
-  if (t === '' || t.length > max) return null;
+  if (t === '' || t.length > max || !VISIBLE.test(t)) return null;
   return t;
 }
 
