@@ -57,6 +57,9 @@ const INNE_ZNACZENIE: Record<string, number> = {
   'components/pages/AgencjaInteraktywnaRzeszow.tsx': 1,
   'data/content/services/local-rzeszow.ts': 1,
   'data/content/services/web-development/ecommerce.ts': 5,
+  // MIX-1888: tylko zaprzeczenie w komentarzu nagłówka cennika (MIX-1855: „bez żadnej oferty
+  // w modelu miesięcznym …”), nie treść strony; treść /cennik/ pilnuje cennikTresc.test.ts.
+  'data/content/pages/cennik.ts': 1,
 };
 const SLOWO = /abonament|abonamenc/gi;
 
