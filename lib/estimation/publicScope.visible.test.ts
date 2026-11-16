@@ -102,6 +102,16 @@ describe('MIX-1810: jedna klasa znaku widocznego wystarcza, tekst bez zmian', ()
     expect(stripInvisible(cp(0x41, 0xfe0f))).toBe('A');
   });
 
+  it('zbiór niewidocznych dalej usuwa znaki Mn obok litery (U+180B..180D, U+180F, U+034F, U+17B4/5)', () => {
+    // Sam wymóg znaku widocznego pomija takie znaki tylko, gdy stoją same; obok litery znikają
+    // dzięki zbiorowi INVISIBLE (zabija mutant M9 z MIX-1808, który po MIX-1810 przeżywał).
+    for (const c of [0x180b, 0x180c, 0x180d, 0x180f, 0x34f, 0x17b4, 0x17b5]) {
+      const t = `${cp(c)}g${cp(c)}`;
+      expect(stripInvisible(t)).toBe('g');
+      expect(both(t)).toEqual([one('g'), one('g')]);
+    }
+  });
+
   it('wynik nie zależy od poprzedniego wywołania (brak stanu lastIndex)', () => {
     for (let i = 0; i < 4; i++) {
       expect(cleanClientText('Ab', 120)).toBe('Ab');
