@@ -16,12 +16,15 @@ interface CalculatorResultProps {
   newUi?: boolean;
   /** Oś czasu nowego klienta (MIX-1816); brak = ekran bez zmian. */
   timeline?: React.ReactNode;
+  /** MIX-1814 (Z9): harmonogram rozmów pod wynikiem; brak = ekran wyniku jak dotąd. */
+  booking?: React.ReactNode;
 }
 
 const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
   priceRange,
   onReset,
   timeline,
+  booking,
 }) => {
   const ui = calcUi(true);
   const headRef = useRef<HTMLHeadingElement>(null);
@@ -56,6 +59,7 @@ const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
           Policz jeszcze raz
         </button>
       </div>
+      {booking}
       {timeline}
     </div>
   );
@@ -66,8 +70,12 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({
   onReset,
   newUi,
   timeline,
+  booking,
 }) => {
-  if (newUi) return <NewResult priceRange={priceRange} onReset={onReset} timeline={timeline} />;
+  if (newUi)
+    return (
+      <NewResult priceRange={priceRange} onReset={onReset} timeline={timeline} booking={booking} />
+    );
   return (
     <div className="text-center space-y-6">
       <p className="text-sm uppercase tracking-wider text-primary/80">Orientacyjne widełki</p>
@@ -93,6 +101,7 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({
           Policz jeszcze raz
         </button>
       </div>
+      {booking}
       {timeline}
     </div>
   );
