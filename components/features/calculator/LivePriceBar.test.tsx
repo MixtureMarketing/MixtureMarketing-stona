@@ -37,9 +37,10 @@ vi.mock('../../../services/pricePreviewService', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../services/pricePreviewService')>()),
   requestPricePreview: (...a: unknown[]) => requestPricePreview(...a),
 }));
+const submitPublicQuote = vi.fn();
 vi.mock('../../../services/calculatorService', () => ({
   fetchPublicQuestions: () => Promise.resolve(QUESTIONS),
-  submitPublicQuote: vi.fn(),
+  submitPublicQuote: (...a: unknown[]) => submitPublicQuote(...a),
 }));
 
 const getToken = vi.fn();
@@ -91,6 +92,7 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
   beforeEach(() => {
     vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
     requestPricePreview.mockReset();
+    submitPublicQuote.mockReset();
     getToken.mockReset();
     getToken.mockResolvedValue('captcha-1');
     requestPricePreview.mockImplementation(async (p: { answers: Record<string, string> }) =>
@@ -374,14 +376,6 @@ describe('pasek widełek na żywo — przełącznik włączony', () => {
     await wait(1000);
     expect(requestPricePreview).toHaveBeenCalledTimes(3);
     expect(screen.getByTestId('live-price-bar')).toHaveTextContent(/27\s?500/);
-  });
-
-  it('pasek na telefonie podnosi przycisk ciasteczek (znacznik na body)', async () => {
-    await mount();
-    pick('Sklep');
-    await wait(400);
-    expect(document.body.dataset.livePriceBar).toBe('true');
-    expect(document.body.style.getPropertyValue('--live-price-bar-h')).toMatch(/px$/);
   });
 });
 

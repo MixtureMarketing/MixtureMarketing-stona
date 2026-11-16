@@ -89,3 +89,24 @@ describe('QuestionField — render per answer_type', () => {
     expect(screen.getByText('wymagane')).toBeInTheDocument();
   });
 });
+
+describe('QuestionField — cel dotyku (MIX-1412)', () => {
+  // jsdom nie liczy wysokości; 44 px mierzy próba scripts/probe-live-price-bar.mjs. Tu pilnujemy
+  // klasy min-h-11 (44 px) na każdym przycisku opcji: select, multiselect i bool.
+  it.each([
+    ['select', [{ value: 'a', label: 'A' }]],
+    ['multiselect', [{ value: 'a', label: 'A' }]],
+    ['bool', null],
+  ] as const)('%s: każdy przycisk ma min-h-11', (answer_type, options) => {
+    render(
+      <QuestionField
+        question={Q({ answer_type, options: options ? [...options] : null })}
+        value={undefined}
+        onChange={() => {}}
+      />,
+    );
+    const buttons = screen.getAllByRole(answer_type === 'select' ? 'radio' : 'button');
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const b of buttons) expect(b.className.split(/\s+/)).toContain('min-h-11');
+  });
+});

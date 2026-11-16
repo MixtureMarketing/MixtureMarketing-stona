@@ -27,7 +27,9 @@ const WycenaCalculator: React.FC = () => (
       breadcrumbs={getPathBreadcrumbs('/wycena/')}
     />
 
-    <section className="relative py-16 md:py-24 overflow-hidden">
+    {/* overflow-clip, nie hidden: hidden robi z sekcji kontener przewijania i psuje sticky paska
+        widełek na telefonie (MIX-1412); przycina tak samo. */}
+    <section className="relative py-16 md:py-24 overflow-clip">
       <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none" />
       <Container className="relative z-10">
         <div className="max-w-3xl mb-10">
