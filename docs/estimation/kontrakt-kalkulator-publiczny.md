@@ -26,7 +26,7 @@ jako zatwierdzone dla wersji 1.
    i `options_json.label` są promise-safe), więc front renderuje istniejący `text`. Treść
    kliencka obszarów/poziomów (`client_name`/`client_description`, migracja 0007) NIE wychodzi
    w wersji 1 (najwęższa polityka = tylko widełki); rezerwujemy ją pod ewentualny „zakres
-   słowami" w przyszłej wersji kontraktu.
+   słowami" w przyszłej wersji kontraktu. Wersja 2 podglądu (§11, MIX-1790) wysyła je w `public-preview`.
 
 ---
 
@@ -209,3 +209,24 @@ lead i draft zapisują się **zawsze**, niezależnie od maila (mail jest efektem
 `contractVersion` w odpowiedzi GET. Zmiana kształtu pól = bump wersji + aktualizacja tego
 dokumentu przed kodem. Zmiana wartości seedów (progi, zestaw pytań) NIE bumpuje wersji kontraktu
 (to treść), ale jest odnotowana w §8.
+
+## 11. `POST /api/estimation/public-preview`, wersja 2: „Twój zakres" (MIX-1790)
+Podgląd widełek na żywo (MIX-1476, `functions/api/estimation/public-preview.ts`) zwraca od
+wersji 2 obok `priceRange` (i `preview_token`) opcjonalne pole `scope`:
+
+```json
+{ "priceRange": { "min": 27500, "max": 53000, "currency": "PLN" },
+  "scope": [ { "client_name": "Koszyk i płatności", "client_description": "Zakupy bez konta." } ] }
+```
+
+- Pozycje tylko dla obszarów, które wchodzą do projektu (godziny > 0, jak zakres oferty), w kolejności
+  biblioteki, najwyżej 30. Każda pozycja ma DOKŁADNIE dwa pola: `client_name` (`est_aspects.client_name`)
+  i `client_description` (`est_levels.client_description` wybranego poziomu albo `null`).
+- Bez fallbacku na treść wewnętrzną: obszar bez nazwy klienckiej (null, pusta, same znaki niewidoczne,
+  > 120 znaków) jest pomijany; opis spoza reguł (nie-tekst, > 500 znaków) = `null`.
+- Pusta lista = brak pola `scope` (odpowiedź jak w wersji 1). Godziny, poziomy, nazwy wewnętrzne
+  i ceny obszarów nie wychodzą (§1 pkt 1 nadal obowiązuje dla wszystkiego poza tymi dwoma polami).
+- Klient (`services/pricePreviewService.ts`, `parseScope`) przyjmuje te same reguły jeszcze raz
+  i renderuje tekst jako tekst (React), nigdy jako HTML. Front pokazuje listę za przełącznikiem
+  budowy `VITE_MM_CONFIG_PREVIEW` (`1`/`true`).
+- `contractVersion` GET `public-questions` bez zmian: kształt tamtej odpowiedzi się nie zmienia.

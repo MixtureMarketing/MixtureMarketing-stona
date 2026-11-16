@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { isPreviewUnavailable, requestPricePreview } from '../services/pricePreviewService';
 import type { PriceRange } from '../services/calculatorService';
+import type { ScopeItem } from '../services/pricePreviewService';
 import {
   LIVE_PRICE_DEBOUNCE_MS,
   LIVE_PRICE_MIN_GAP_MS,
@@ -22,6 +23,11 @@ export interface LivePriceState {
    * przekroczeniu czasu albo 429 = null, bo stara cena nie pasuje już do nowych odpowiedzi.
    */
   priceRange: PriceRange | null;
+  /**
+   * MIX-1790: lista „Twój zakres" z tej samej odpowiedzi podglądu (kontrakt v2). Brak = serwer v1,
+   * błąd albo jeszcze nic; jak widełki zostaje w trakcie liczenia i znika po błędzie.
+   */
+  scope?: ScopeItem[];
 }
 
 interface Options {
@@ -36,7 +42,7 @@ const IDLE: LivePriceState = { status: 'idle', priceRange: null };
 
 export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options): LivePriceState {
   const [state, setState] = useState<LivePriceState>(IDLE);
-  const memo = useRef(new Map<string, PriceRange>());
+  const memo = useRef(new Map<string, { priceRange: PriceRange; scope?: ScopeItem[] }>());
   const previewToken = useRef<string | undefined>(undefined);
   // MIX-1466: endpoint podglądu nie istnieje na tym wdrożeniu (404/405/501): do przeładowania
   // strony już nie pytamy (ani serwera, ani Turnstile), pasek pokazuje komunikat zastępczy.
@@ -57,7 +63,7 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
     if (!enabled || !hasAnswers) return;
     const cached = memo.current.get(hash);
     if (cached) {
-      setState({ status: 'ok', priceRange: cached });
+      setState({ status: 'ok', priceRange: cached.priceRange, scope: cached.scope });
       return;
     }
     if (unavailable.current) {
@@ -69,7 +75,7 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
     let gapTimer: ReturnType<typeof setTimeout> | undefined;
     const controller = new AbortController();
     const timer = setTimeout(async () => {
-      setState((s) => ({ status: 'loading', priceRange: s.priceRange }));
+      setState((s) => ({ status: 'loading', priceRange: s.priceRange, scope: s.scope }));
       const send = async (withCaptcha: boolean) => {
         const gap = lastSent.current + LIVE_PRICE_MIN_GAP_MS - Date.now();
         if (gap > 0) await new Promise<void>((resolve) => (gapTimer = setTimeout(resolve, gap)));
@@ -91,8 +97,8 @@ export function useLivePriceRange({ enabled, answers, getCaptchaToken }: Options
         if (cancelled) return;
         if (res.ok) {
           if (res.previewToken) previewToken.current = res.previewToken;
-          memo.current.set(hash, res.priceRange);
-          setState({ status: 'ok', priceRange: res.priceRange });
+          memo.current.set(hash, { priceRange: res.priceRange, scope: res.scope });
+          setState({ status: 'ok', priceRange: res.priceRange, scope: res.scope });
         } else {
           if (isPreviewUnavailable(res.status)) unavailable.current = true;
           const status = res.status === 429 ? 'rateLimited' : 'error';
