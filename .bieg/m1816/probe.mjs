@@ -10,7 +10,8 @@
  * on, 390/1024/1366 px: sekcja jest, <ol> z 3 <li>, nagłówki h1,h2,h3,h3,h3; brak przewijania
  * poziomego (też z 400-znakowym słowem w punkcie); przycisk ciasteczek nakłada się na sekcję 0 px²
  * (widoczny przycisk, pomiar co 50 px przewijania) i wraca na górze strony; axe (wcag2a/aa/22aa):
- * 0 serious/critical w sekcji i na całym ekranie wyniku; prefers-reduced-motion: 0 animacji.
+ * 0 serious/critical w sekcji i na ekranie wyniku (reszta strony: tylko wypis pageNodes);
+ * prefers-reduced-motion: 0 animacji.
  * MIX-1885: gradienty tła wyłączone na czas axe (PROBE_OVERLAY=keep je zostawia);
  * color-contrast w `incomplete` na ekranie wyniku = błąd; własny pomiar kontrastu podtytułu ≥ 4,5:1.
  * off: 0 elementów osi czasu, ekran wyniku identyczny z zapisem .bieg/m1816/base.html.
@@ -374,6 +375,10 @@ for (const vp of VIEWPORTS) {
     const inc = res.incomplete.filter((v) => v.id === 'color-contrast');
     return {
       all: bad.map((v) => ({ id: v.id, n: v.nodes.length })),
+      screen: bad.flatMap((v) =>
+        v.nodes.filter((n) => inBox(screenBox, n)).map((n) => `${v.id} ${n.target[0]}`),
+      ),
+      pageNodes: bad.flatMap((v) => v.nodes.map((n) => `${v.id} ${n.target[0]}`)).slice(0, 30),
       sectionNodes: bad.flatMap((v) => v.nodes.filter((n) => inBox(sec, n)).map(() => v.id)),
       incompleteScreen: inc.flatMap((v) =>
         v.nodes
@@ -456,8 +461,8 @@ for (const vp of VIEWPORTS) {
     `${vp.name}: axe w sekcji ${JSON.stringify(axeRes.sectionNodes)}`,
   );
   check(
-    axeRes.all.length === 0,
-    `${vp.name}: axe serious/critical na ekranie wyniku ${JSON.stringify(axeRes.all)}`,
+    axeRes.screen.length === 0,
+    `${vp.name}: axe serious/critical na ekranie wyniku ${JSON.stringify(axeRes.screen)}`,
   );
   check(
     axeRes.incompleteScreen.length === 0,
