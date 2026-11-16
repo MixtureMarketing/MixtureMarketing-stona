@@ -215,7 +215,8 @@ try {
       await page.waitForFunction(() => /orientacyjne widełki/i.test(document.body.innerText), {
         timeout: 15000,
       });
-      if (BK) await page.waitForSelector('[data-testid="booking-embed"] iframe', { timeout: 10000 });
+      if (BK)
+        await page.waitForSelector('[data-testid="booking-embed"] iframe', { timeout: 10000 });
       await new Promise((res) => setTimeout(res, 800));
       Object.assign(
         r,
@@ -259,26 +260,41 @@ try {
         fullPage: true,
       });
 
-      check(r.calendarBeforeClick === 0, `żądania kalendarza przed kliknięciem ${r.calendarBeforeClick}`);
+      check(
+        r.calendarBeforeClick === 0,
+        `żądania kalendarza przed kliknięciem ${r.calendarBeforeClick}`,
+      );
       check(r.iframesBeforeClick === 0, `ramki przed kliknięciem ${r.iframesBeforeClick}`);
       check(r.quotePosts === 1, `POST public-quote ${r.quotePosts}`);
       check(UI ? r.newScreen && !r.oldScreen : r.oldScreen && !r.newScreen, 'zły wygląd wyniku');
       check(r.scrollWidth <= vp.w, `poziomy przewijacz ${r.scrollWidth}`);
       if (BK) {
-        check(r.bookingCount === 1 && r.bookingInBox, `terminy: ${r.bookingCount}, w ekranie ${r.bookingInBox}`);
+        check(
+          r.bookingCount === 1 && r.bookingInBox,
+          `terminy: ${r.bookingCount}, w ekranie ${r.bookingInBox}`,
+        );
         check(r.iframes === 1, `ramki po kliknięciu ${r.iframes}`);
         check(r.bookingOpen === 1, `calculator_booking_open ${r.bookingOpen}`);
         check(r.calendarAfterClick > 0, 'brak żądania do kalendarza po kliknięciu');
         check(r.bookingWidth > 0 && r.bookingWidth <= vp.w, `szerokość terminów ${r.bookingWidth}`);
       } else {
-        check(r.bookingCount === 0 && r.iframes === 0, `terminy przy wyłączonym ${r.bookingCount}/${r.iframes}`);
+        check(
+          r.bookingCount === 0 && r.iframes === 0,
+          `terminy przy wyłączonym ${r.bookingCount}/${r.iframes}`,
+        );
         check(r.bookingOpen === 0, `calculator_booking_open przy wyłączonym ${r.bookingOpen}`);
         check(r.calendarAfterClick === 0, `kalendarz przy wyłączonym ${r.calendarAfterClick}`);
       }
       if (TL) {
-        check(r.timelineCount === 1 && r.timelineLast, `oś: ${r.timelineCount}, ostatnia ${r.timelineLast}`);
+        check(
+          r.timelineCount === 1 && r.timelineLast,
+          `oś: ${r.timelineCount}, ostatnia ${r.timelineLast}`,
+        );
         if (BK) {
-          check(r.bookingIdx === r.timelineIdx - 1, `terminy nie tuż przed osią ${r.bookingIdx}/${r.timelineIdx}`);
+          check(
+            r.bookingIdx === r.timelineIdx - 1,
+            `terminy nie tuż przed osią ${r.bookingIdx}/${r.timelineIdx}`,
+          );
           check(r.bookingAboveTimeline, 'terminy nie nad osią na ekranie');
         }
       } else {

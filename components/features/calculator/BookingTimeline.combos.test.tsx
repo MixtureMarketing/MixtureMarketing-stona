@@ -97,7 +97,7 @@ describe('MIX-1897 terminy × oś czasu × nowy wygląd: 8 kombinacji przełącz
       const box = combo.ui === '1' ? newBox : oldBox;
       expect(box, 'ekran wyniku we właściwym wyglądzie').not.toBeNull();
       expect(combo.ui === '1' ? oldBox : newBox).toBeNull();
-      expect(box!.textContent).toContain('27 500 – 53 000 zł');
+      expect(box!.textContent!.replace(/\s/g, ' ')).toContain('27 500 – 53 000 zł');
 
       const booking = screen.queryAllByTestId('booking-embed');
       const timeline = screen.queryAllByTestId('new-client-timeline');
