@@ -28,6 +28,15 @@ clean eslint | grep -aE 'error|warning|problem|^/' | head -20 | sed 's/^/  eslin
 # shellcheck disable=SC2086
 step prettier npx prettier --check $CHANGED
 clean prettier | tail -3 | sed 's/^/  prettier: /'
+# Dokument: co prettier zmieniłby w wersji bazowej (5d81d76) i obecnej; linie spoza zmiany = stan sprzed karty.
+DOC=docs/estimation/kontrakt-kalkulator-publiczny.md
+for w in 5d81d76 HEAD; do
+  git show "$w:$DOC" > "$OUT/doc-$w.md"
+  npx prettier --stdin-filepath "$DOC" < "$OUT/doc-$w.md" > "$OUT/doc-$w.fmt.md" 2>&1
+  diff "$OUT/doc-$w.md" "$OUT/doc-$w.fmt.md" > "$OUT/doc-$w.diff"
+  echo "  prettier-doc $w: hunks=$(grep -cE '^[0-9]' "$OUT/doc-$w.diff") lines=$(grep -E '^[0-9]' "$OUT/doc-$w.diff" | tr '\n' ' ')"
+done
+diff "$OUT/doc-5d81d76.diff" "$OUT/doc-HEAD.diff" | head -20 | sed 's/^/  prettier-doc delta: /'
 step tsc-root npx tsc --noEmit -p tsconfig.json
 echo "  tsc-root errors: $(grep -c 'error TS' "$OUT/tsc-root.log")"
 grep -a 'error TS' "$OUT/tsc-root.log" | head -10 | sed 's/^/  tsc-root: /'

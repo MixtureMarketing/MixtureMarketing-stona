@@ -58,11 +58,14 @@ describe.each(PRZELACZNIKI)('MIX-1898 %s (%s)', (_nazwa, zmienna, fn) => {
   it.each([
     ["new String('1')", new String('1')],
     ["['1']", ['1']],
-  ] as [string, unknown][])('forma obiektowa %s → false (także przy LIVE_PRICE_BAR="1")', (_opis, v) => {
-    expect(v == '1').toBe(true); // świadek: luźne porównanie uznałoby tę formę za '1'
-    vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
-    expect(fn(v)).toBe(false);
-  });
+  ] as [string, unknown][])(
+    'forma obiektowa %s → false (także przy LIVE_PRICE_BAR="1")',
+    (_opis, v) => {
+      expect(v == '1').toBe(true); // świadek: luźne porównanie uznałoby tę formę za '1'
+      vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
+      expect(fn(v)).toBe(false);
+    },
+  );
 
   it('zmienna środowiska "true" / "" → false', () => {
     vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
