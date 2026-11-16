@@ -21,6 +21,8 @@ export interface PortfolioVideoVariant {
   /** Wymiary pliku (metadane) — z nich proporcje ramki, bez przycięcia i bez przeskoku układu. */
   width: number;
   height: number;
+  /** Plakat (WebP, klatka filmu): statyczne tło ramki telefonu, gdy filmu nie ma albo nie gra (MIX-1884). */
+  poster?: string;
 }
 
 /** Komplet wariantów poziomych: kafelek listy i hero strony realizacji. */
@@ -44,6 +46,9 @@ export const VIDEO_BYTE_LIMITS = {
   portrait: 512 * 1024,
 } as const;
 
+/** Limit wagi plakatu wariantu pionowego (WebP, 540×960). */
+export const POSTER_BYTE_LIMIT = 60 * 1024;
+
 const variant = (base: string, width: number, height: number): PortfolioVideoVariant => ({
   webm: `/portfolio/video/${base}-${width}.webm`,
   mp4: `/portfolio/video/${base}-${width}.mp4`,
@@ -66,7 +71,10 @@ export const PORTFOLIO_VIDEOS: Readonly<Record<string, PortfolioVideo>> = {
   },
   // Impackt: tylko film pionowy (ramka telefonu na stronie realizacji); bez filmu na liście i w hero.
   'impackt-edu': {
-    portrait: variant('impackt-edu', 540, 960),
+    portrait: {
+      ...variant('impackt-edu', 540, 960),
+      poster: '/portfolio/video/impackt-edu-540.webp',
+    },
   },
 };
 

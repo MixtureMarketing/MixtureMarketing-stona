@@ -9,6 +9,7 @@ import path from 'node:path';
 import { describe, it, expect } from 'vitest';
 import {
   PORTFOLIO_VIDEOS,
+  POSTER_BYTE_LIMIT,
   VIDEO_BYTE_LIMITS,
   landscapeVideoFor,
   portraitVideoFor,
@@ -83,6 +84,28 @@ describe('pliki filmów portfolio', () => {
     expect(i.portrait?.mp4).toBe('/portfolio/video/impackt-edu-540.mp4');
     expect(portraitVideoFor('impackt-edu')).toBe(i.portrait);
     expect(landscapeVideoFor('impackt-edu')).toBeNull();
+  });
+
+  it('Impackt: plakat WebP 540×960 istnieje i ≤ 60 kB (statyczne tło ramki telefonu)', () => {
+    const poster = PORTFOLIO_VIDEOS['impackt-edu'].portrait?.poster;
+    expect(poster).toBe('/portfolio/video/impackt-edu-540.webp');
+    expect(POSTER_BYTE_LIMIT).toBe(60 * 1024);
+    const buf = fs.readFileSync(file(poster!));
+    expect(buf.length).toBeGreaterThan(1024);
+    expect(buf.length).toBeLessThanOrEqual(POSTER_BYTE_LIMIT);
+    expect(buf.subarray(0, 4).toString('latin1')).toBe('RIFF');
+    expect(buf.subarray(8, 12).toString('latin1')).toBe('WEBP');
+    // VP8 (stratny): szerokość i wysokość (14 bitów, little endian) po znaczniku startu 9d 01 2a
+    expect(buf.subarray(12, 16).toString('latin1')).toBe('VP8 ');
+    expect(buf.subarray(23, 26).equals(Buffer.from([0x9d, 0x01, 0x2a]))).toBe(true);
+    expect([buf.readUInt16LE(26) & 0x3fff, buf.readUInt16LE(28) & 0x3fff]).toEqual([540, 960]);
+  });
+
+  it('plakat ma tylko wariant pionowy (lista i hero bez plakatu)', () => {
+    for (const [slug, v] of Object.entries(PORTFOLIO_VIDEOS)) {
+      for (const kind of ['preview', 'desktop', 'mobile'] as const)
+        expect(v[kind]?.poster, `${slug} ${kind}`).toBeUndefined();
+    }
   });
 
   it('każdy wpis ma komplet poziomy albo żaden; inne slugi i klucze prototypu = null', () => {

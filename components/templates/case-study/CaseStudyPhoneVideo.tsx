@@ -18,20 +18,22 @@ const CaseStudyPhoneVideo: React.FC<{ slug: string | undefined }> = ({ slug }) =
 };
 
 /**
- * - Ramka telefonu (Tailwind: zaokrąglona obudowa) rezerwuje miejsce przez `aspect-ratio: width / height`
- *   z mapy, więc film nie przesuwa układu (CLS 0); tło ramki to statyczny szary ekran.
- * - `<video muted loop playsinline preload="none">` bez `src` do `load` + idle; potem
- *   IntersectionObserver na ramce; po wejściu w pole widzenia `src` (WebM, inaczej MP4), start na
- *   `canplay`, widoczny od `playing`. Ten sam plik 540 px na telefonie i komputerze.
- * - Prerender, `prefers-reduced-motion`, `Save-Data`, wolne łącze, brak IntersectionObserver albo błąd
- *   pliku: sekcja w ogóle się nie renderuje (bez pustej ramki i bez komunikatu).
- * - Film jest dekoracyjny (`aria-hidden`); nagłówek h2 sekcji opisuje, co widać.
+ * - Sekcja (h2 + ramka telefonu) jest zawsze, także w HTML-u prerenderu i bez filmu: ramka rezerwuje
+ *   miejsce przez `aspect-ratio: width / height` z mapy, więc nic się nie przesuwa (CLS 0), także po
+ *   błędzie pliku i przy reduced-motion / Save-Data / wolnym łączu / braku IntersectionObserver.
+ * - Tło ramki to plakat (`<img loading="lazy" decoding="async" alt="">`, WebP, klatka filmu); leży
+ *   pod hero, jest leniwy, więc nie przejmuje LCP.
+ * - `<video muted loop playsinline preload="none">` tylko na kliencie i tylko gdy `canPreloadVideo()` +
+ *   IntersectionObserver; bez `src` do `load` + idle; potem IntersectionObserver na ekranie ramki, po
+ *   wejściu w pole widzenia `src` (WebM, inaczej MP4), start na `canplay`, widoczny od `playing`.
+ *   Ten sam plik 540 px na telefonie i komputerze. Błąd pliku: `<video>` znika, plakat zostaje.
+ * - Film i obudowa są dekoracyjne (`aria-hidden`); nagłówek h2 sekcji opisuje, co widać.
  */
 const PhoneVideoSection: React.FC<{ video: PortfolioVideoVariant }> = ({ video }) => {
   const headingId = useId();
   const screenRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  // Raz przy montowaniu (prerender = false, więc w HTML-u sekcji nie ma).
+  // Raz przy montowaniu (prerender = false, więc w HTML-u jest sama ramka z plakatem, bez `<video>`).
   const [allowed] = useState(
     () => canPreloadVideo() && typeof IntersectionObserver !== 'undefined',
   );
@@ -64,8 +66,6 @@ const PhoneVideoSection: React.FC<{ video: PortfolioVideoVariant }> = ({ video }
     if (src) videoRef.current?.load();
   }, [src]);
 
-  if (!allowed || failed) return null;
-
   return (
     <section
       aria-labelledby={headingId}
@@ -90,25 +90,39 @@ const PhoneVideoSection: React.FC<{ video: PortfolioVideoVariant }> = ({ video }
           className="relative w-full overflow-hidden rounded-[2rem] bg-gray-100"
           style={{ aspectRatio: `${video.width} / ${video.height}` }}
         >
-          <video
-            ref={videoRef}
-            data-case-study-phone-video=""
-            muted
-            loop
-            playsInline
-            preload={src ? 'auto' : 'none'}
-            src={src ?? undefined}
-            aria-hidden="true"
-            tabIndex={-1}
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-500 ${
-              showing ? 'opacity-100' : 'opacity-0'
-            }`}
-            onCanPlay={(e) => {
-              e.currentTarget.play()?.catch(() => {});
-            }}
-            onPlaying={() => setShowing(true)}
-            onError={() => setFailed(true)}
-          />
+          {video.poster && (
+            <img
+              src={video.poster}
+              alt=""
+              width={video.width}
+              height={video.height}
+              loading="lazy"
+              decoding="async"
+              data-case-study-phone-poster=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          {allowed && !failed && (
+            <video
+              ref={videoRef}
+              data-case-study-phone-video=""
+              muted
+              loop
+              playsInline
+              preload={src ? 'auto' : 'none'}
+              src={src ?? undefined}
+              aria-hidden="true"
+              tabIndex={-1}
+              className={`absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-500 ${
+                showing ? 'opacity-100' : 'opacity-0'
+              }`}
+              onCanPlay={(e) => {
+                e.currentTarget.play()?.catch(() => {});
+              }}
+              onPlaying={() => setShowing(true)}
+              onError={() => setFailed(true)}
+            />
+          )}
         </div>
       </div>
     </section>

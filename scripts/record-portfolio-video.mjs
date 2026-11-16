@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Nagranie filmu realizacji do portfolio (MIX-1831/MIX-1873).
  *
@@ -25,6 +24,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 import puppeteer from 'puppeteer';
 import { createProdSafe } from './lib/prod-safe.mjs';
 
@@ -48,9 +48,71 @@ export const VARIANTS = [
 /** Wariant pionowy (ramka telefonu): 540 px szerokości, ≤ 0,5 MB. */
 export const PORTRAIT_VARIANTS = [{ width: 540, limit: 512 * 1024, crf: { webm: 40, mp4: 30 } }];
 
+/** Wybór wariantów: pion = jeden wariant 540 px, poziom = 960/1280/720. */
+export function variantsFor(orient) {
+  return orient === 'portrait' ? PORTRAIT_VARIANTS : VARIANTS;
+}
+
+/** Surowe nagranie kasujemy tylko, gdy zrobił je skrypt; plik SRC (dostarczony) zostaje. */
+export function shouldRemoveRaw(src) {
+  return !src;
+}
+
+/** Przeglądarka nagrywa stronę tylko bez SRC; z SRC nie ma przeglądarki ani żądań sieciowych. */
+export function shouldRecord(src) {
+  return !src;
+}
+
+/**
+ * Argumenty ffmpeg jednego pliku. `-ss START` stoi PRZED `-i` (szybkie cięcie) i tylko w trybie SRC
+ * przy START > 0; `-t SECONDS` ogranicza długość, `-an` usuwa dźwięk.
+ * @param {{ raw: string, out: string, codec: 'webm' | 'mp4', width: number, crf: number,
+ *   seconds: number, src?: string, start?: number }} o
+ */
+export function encodeArgs({ raw, out, codec, width, crf, seconds, src = '', start = 0 }) {
+  const seek = src && start > 0 ? ['-ss', String(start)] : [];
+  const common = ['-y', '-loglevel', 'error', ...seek, '-i', raw, '-t', String(seconds), '-an'];
+  const vf = ['-vf', `scale=${width}:-2:flags=lanczos,setsar=1,fps=25`, '-pix_fmt', 'yuv420p'];
+  if (codec === 'webm') {
+    return [
+      ...common,
+      ...vf,
+      '-c:v',
+      'libvpx-vp9',
+      '-b:v',
+      '0',
+      '-crf',
+      String(crf),
+      '-row-mt',
+      '1',
+      '-deadline',
+      'good',
+      '-cpu-used',
+      '2',
+      out,
+    ];
+  }
+  return [
+    ...common,
+    ...vf,
+    '-c:v',
+    'libx264',
+    '-preset',
+    'slow',
+    '-crf',
+    String(crf),
+    '-profile:v',
+    'high',
+    '-movflags',
+    '+faststart',
+    out,
+  ];
+}
+
 async function ffmpegPath() {
   if (process.env.FFMPEG) return process.env.FFMPEG;
-  const mod = await import('ffmpeg-static');
+  const name = 'ffmpeg-static'; // zmienna: Vite w testach nie rozwiązuje pakietu, którego nie instalujemy na stałe
+  const mod = await import(/* @vite-ignore */ name);
   return mod.default;
 }
 
@@ -64,43 +126,16 @@ async function assertInSitemap(url) {
 }
 
 function encode(ffmpeg, raw, out, codec, width, crf) {
-  const seek = SRC && START > 0 ? ['-ss', String(START)] : [];
-  const common = ['-y', '-loglevel', 'error', ...seek, '-i', raw, '-t', String(SECONDS), '-an'];
-  const vf = ['-vf', `scale=${width}:-2:flags=lanczos,setsar=1,fps=25`, '-pix_fmt', 'yuv420p'];
-  const args =
-    codec === 'webm'
-      ? [
-          ...common,
-          ...vf,
-          '-c:v',
-          'libvpx-vp9',
-          '-b:v',
-          '0',
-          '-crf',
-          String(crf),
-          '-row-mt',
-          '1',
-          '-deadline',
-          'good',
-          '-cpu-used',
-          '2',
-          out,
-        ]
-      : [
-          ...common,
-          ...vf,
-          '-c:v',
-          'libx264',
-          '-preset',
-          'slow',
-          '-crf',
-          String(crf),
-          '-profile:v',
-          'high',
-          '-movflags',
-          '+faststart',
-          out,
-        ];
+  const args = encodeArgs({
+    raw,
+    out,
+    codec,
+    width,
+    crf,
+    seconds: SECONDS,
+    src: SRC,
+    start: START,
+  });
   execFileSync(ffmpeg, args, { stdio: 'inherit' });
   return fs.statSync(out).size;
 }
@@ -202,9 +237,9 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   if (SRC && !fs.existsSync(SRC)) throw new Error(`brak pliku SRC: ${SRC}`);
   const raw = SRC || path.join(os.tmpdir(), `${NAME}-raw-${process.pid}.webm`);
-  if (!SRC) await recordRaw(ffmpeg, raw);
+  if (shouldRecord(SRC)) await recordRaw(ffmpeg, raw);
 
-  const variants = ORIENT === 'portrait' ? PORTRAIT_VARIANTS : VARIANTS;
+  const variants = variantsFor(ORIENT);
   for (const v of variants) {
     for (const codec of ['webm', 'mp4']) {
       const out = path.join(OUT, `${NAME}-${v.width}.${codec}`);
@@ -221,10 +256,13 @@ async function main() {
     }
   }
   // plik źródłowy (SRC) zostaje; kasujemy tylko własne surowe nagranie
-  if (!SRC) fs.rmSync(raw, { force: true });
+  if (shouldRemoveRaw(SRC)) fs.rmSync(raw, { force: true });
 }
 
-main().catch((e) => {
-  console.error(`record-portfolio-video: ${e && e.message ? e.message : e}`);
-  process.exit(1);
-});
+// Uruchomienie tylko wprost (`node scripts/record-portfolio-video.mjs`); import w testach nic nie robi.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => {
+    console.error(`record-portfolio-video: ${e && e.message ? e.message : e}`);
+    process.exit(1);
+  });
+}

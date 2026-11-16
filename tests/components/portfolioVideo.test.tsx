@@ -592,6 +592,20 @@ describe('strona realizacji: film w ramce zdjęcia hero', () => {
     expect(container.querySelector('img')!.parentElement!.className).not.toMatch(/\brelative\b/);
   });
 
+  it('hero: IntersectionObserver obserwuje ramkę zdjęcia, nie body', () => {
+    const { container } = renderHero();
+    fireLoad();
+    const frame = container.querySelector('img')!.parentElement;
+    expect(observers.flatMap((o) => o.targets)).toEqual([frame]);
+  });
+
+  it('hero: odmontowanie przed load + idle: po load brak obserwatora', () => {
+    const { unmount } = renderHero();
+    unmount();
+    fireLoad();
+    expect(observers.length).toBe(0);
+  });
+
   // MIX-1879 (zalecenie weryfikatora): kolejność load → IntersectionObserver.
   it('przed load ramka w polu widzenia: 0 żądań (brak src, brak load())', () => {
     const { container } = renderHero();
@@ -718,36 +732,85 @@ describe('strona realizacji: film pionowy w ramce telefonu', () => {
     expect(a).toBe('/portfolio/video/impackt-edu-540.webm');
   });
 
+  /** Ramka bez filmu: h2, ekran z proporcją z mapy i plakat (to, co ma być w HTML-u bez `<video>`). */
+  const expectFrameWithoutVideo = (container: HTMLElement) => {
+    expect(container.querySelector('video')).toBeNull();
+    expect(container.querySelector('section[data-case-study-phone] h2')!.textContent).toBe(
+      PHONE_VIDEO_HEADING,
+    );
+    expect(phoneScreen(container)!.style.aspectRatio.replace(/\s/g, '')).toBe('540/960');
+    expect(
+      phoneScreen(container)!.querySelector('img[data-case-study-phone-poster]'),
+    ).not.toBeNull();
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  };
+
   it.each([
     ['prefers-reduced-motion', () => (media[REDUCED] = true)],
     ['Save-Data', () => (conn = { saveData: true })],
     ['łącze 3g', () => (conn = { effectiveType: '3g' })],
     ['łącze 2g', () => (conn = { effectiveType: '2g' })],
     ['prerender', () => ((window as unknown as { isPrerendering: boolean }).isPrerendering = true)],
-  ])('%s: sekcja się nie renderuje (bez <video> i bez pustej ramki)', (_n, setup) => {
+  ])('%s: jest ramka z nagłówkiem i plakatem, bez <video>', (_n, setup) => {
     setup();
     const { container } = renderPhone();
+    expectFrameWithoutVideo(container);
     loadAndIntersect();
-    expect(container.querySelector('video')).toBeNull();
-    expect(container.querySelector('section')).toBeNull();
-    expect(container.querySelector('h2')).toBeNull();
-    expect(container.innerHTML).toBe('');
+    expectFrameWithoutVideo(container);
+    expect(load).not.toHaveBeenCalled();
+    expect(observers.every((o) => o.targets.length === 0)).toBe(true);
   });
 
-  it('brak IntersectionObserver: sekcja się nie renderuje', () => {
+  it('brak IntersectionObserver: ramka z plakatem, bez <video>', () => {
     vi.stubGlobal('IntersectionObserver', undefined);
     const { container } = renderPhone();
-    expect(container.innerHTML).toBe('');
+    expectFrameWithoutVideo(container);
   });
 
-  it('błąd pliku: cała sekcja znika, bez komunikatu', () => {
+  it('plakat: WebP z mapy, lazy, decoding async, pusty alt, wymiary 540×960, wypełnia ekran ramki', () => {
+    const { container } = renderPhone();
+    const img = container.querySelector<HTMLImageElement>('img[data-case-study-phone-poster]')!;
+    expect(img.getAttribute('src')).toBe('/portfolio/video/impackt-edu-540.webp');
+    expect(img.getAttribute('loading')).toBe('lazy');
+    expect(img.getAttribute('decoding')).toBe('async');
+    expect(img.getAttribute('alt')).toBe('');
+    expect(img.getAttribute('width')).toBe('540');
+    expect(img.getAttribute('height')).toBe('960');
+    expect(img.hasAttribute('fetchpriority')).toBe(false);
+    expect(img.className).toContain('absolute inset-0');
+    expect(img.parentElement).toBe(phoneScreen(container));
+    // plakat jest pod filmem w kolejności DOM (film go przykrywa po `playing`)
+    expect(img.nextElementSibling).toBe(phoneVideo(container));
+  });
+
+  it('błąd pliku: <video> znika, ramka z plakatem zostaje (bez przesunięcia układu)', () => {
     const { container } = renderPhone();
     loadAndIntersect();
+    const before = phoneScreen(container)!;
+    const styleBefore = before.getAttribute('style');
     fireEvent.error(phoneVideo(container)!);
-    expect(container.querySelector('video')).toBeNull();
-    expect(container.querySelector('section')).toBeNull();
-    expect(container.querySelector('[role="alert"]')).toBeNull();
-    expect(container.textContent).toBe('');
+    expectFrameWithoutVideo(container);
+    expect(phoneScreen(container)).toBe(before); // ten sam element, nie przebudowany
+    expect(phoneScreen(container)!.getAttribute('style')).toBe(styleBefore);
+    expect(container.textContent).toBe(PHONE_VIDEO_HEADING);
+  });
+
+  it('IntersectionObserver obserwuje ekran ramki, nie body ani sekcję', () => {
+    const { container } = renderPhone();
+    fireLoad();
+    const targets = observers.flatMap((o) => o.targets);
+    expect(targets).toEqual([phoneScreen(container)]);
+    expect(targets[0]).toHaveAttribute('data-case-study-phone-screen');
+  });
+
+  it('odmontowanie przed load + idle: po load brak obserwatora i brak src', () => {
+    const { container, unmount } = renderPhone();
+    const v = phoneVideo(container)!;
+    unmount();
+    fireLoad();
+    expect(observers.length).toBe(0);
+    expect(v.getAttribute('src')).toBeNull();
+    expect(load).not.toHaveBeenCalled();
   });
 
   it('przełącznik wyłączony: nic się nie renderuje', () => {
