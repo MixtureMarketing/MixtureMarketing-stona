@@ -1,6 +1,7 @@
 // MIX-1855: lead z przycisku „Chcesz podobny projekt?” w realizacji (CaseStudyTemplate).
 // Nazwa realizacji idzie do leada (temat zadania w Linearze), a do GA4 tylko stała nazwa
 // źródła i typ strony: bez nazwy klienta, bez danych osobowych (utils/ga4Allowlist.ts).
+import { trackEvent } from './analytics';
 
 /** Stała nazwa źródła: `form_id` zdarzenia generate_lead oraz `leadSource` w danych modala. */
 export const CASE_STUDY_SIMILAR = 'case_study_similar';
@@ -25,3 +26,7 @@ export const similarProjectOf = (data: Record<string, unknown> | null | undefine
 /** Czy formularz pochodzi z przycisku w realizacji (jedyne źródło zdarzenia generate_lead). */
 export const isCaseStudyLead = (data: Record<string, unknown> | null | undefined): boolean =>
   data?.leadSource === CASE_STUDY_SIMILAR;
+
+/** GA4 generate_lead (słownik P4) po sukcesie formularza z przycisku w realizacji: same stałe. */
+export const trackCaseStudyLead = (): void =>
+  trackEvent('generate_lead', { form_id: CASE_STUDY_SIMILAR, page_type: 'case_study' });

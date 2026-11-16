@@ -13,7 +13,7 @@ import {
   CAPTCHA_CLIENT_ERROR_MESSAGE,
 } from '../utils/contactFormHelpers';
 import { trackEvent } from '../utils/analytics';
-import { CASE_STUDY_SIMILAR, isCaseStudyLead, similarProjectOf } from '../utils/caseStudyLead';
+import { isCaseStudyLead, similarProjectOf, trackCaseStudyLead } from '../utils/caseStudyLead';
 
 export const useContactForm = (
   type: ContactType,
@@ -184,8 +184,7 @@ export const useContactForm = (
       }
       setIsSubmitted(true);
       // GA4 generate_lead (słownik P4): sukces formularza z przycisku w realizacji, bez nazwy klienta.
-      if (isCaseStudyLead(additionalData))
-        trackEvent('generate_lead', { form_id: CASE_STUDY_SIMILAR, page_type: 'case_study' });
+      if (isCaseStudyLead(additionalData)) trackCaseStudyLead();
       resetCaptcha();
     } catch (error) {
       setSubmitError(describeLeadError(error));

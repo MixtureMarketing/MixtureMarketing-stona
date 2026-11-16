@@ -115,10 +115,7 @@ export const GA4_EVENTS: Readonly<Record<string, Readonly<Record<string, ParamSp
     // MIX-1855, slownik P4 (generate_lead: form_id, department, page_type): sukces formularza z
     // przycisku w realizacji. Tylko stale (enum), bez nazwy klienta; `department` pomijamy, bo
     // strona nie ma dzialow (jak przy click_phone).
-    generate_lead: {
-      form_id: oneOf(['case_study_similar']),
-      page_type: oneOf(['case_study']),
-    },
+    generate_lead: { form_id: oneOf(['case_study_similar']), page_type: oneOf(['case_study']) },
     view_pricing: { source: PATH },
     open_modal: { tier: oneOf(TIERS), price_pln: int(0, MAX_NUM), source: oneOf(['deep_link']) },
     click_tier_button: {

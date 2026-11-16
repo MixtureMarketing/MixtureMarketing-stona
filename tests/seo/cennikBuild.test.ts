@@ -91,11 +91,11 @@ describe('stripCennikRedirects (czysta funkcja na tekście)', () => {
 describe('addCennikToLlms (czysta funkcja na tekście)', () => {
   it('dopisuje jedną linię /cennik/ tuż po wpisie „Oferty i cennik orientacyjny”', () => {
     const po = addCennikToLlms(llms);
-    const l = po.split('\n');
+    const l: string[] = po.split('\n');
     const i = l.indexOf(CENNIK_LLMS_ANCHOR);
     expect(i).toBeGreaterThan(0);
     expect(l[i + 1]).toBe(CENNIK_LLMS_LINE);
-    expect(l.filter((x) => x.includes('/cennik/'))).toHaveLength(1);
+    expect(l.filter((x: string) => x.includes('/cennik/'))).toHaveLength(1);
     expect(po.split('\n')).toHaveLength(llms.split('\n').length + 1);
     // oryginał poza tą jedną linią bez zmian
     expect(po.replace(`${CENNIK_LLMS_LINE}\n`, '')).toBe(llms);

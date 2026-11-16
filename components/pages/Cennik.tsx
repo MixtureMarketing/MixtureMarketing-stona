@@ -6,6 +6,7 @@ import Button, { buttonClassName } from '../common/Button';
 import { useModal } from '../../context/ModalContext';
 import { isConfigLinkEnabled } from '../features/calculator/livePrice';
 import { getPathBreadcrumbs } from '../../config/breadcrumbs';
+import { buildFaqSchema } from '../../utils/seo/commonSchemas';
 import { CENNIK_CONTENT as CONTENT, CENNIK_PATH } from '../../data/content/pages/cennik';
 
 /**
@@ -27,7 +28,11 @@ const Cennik: React.FC = () => {
         canonical={CENNIK_PATH}
         image={CONTENT.seo.image}
         breadcrumbs={getPathBreadcrumbs(CENNIK_PATH)}
-        faq={CONTENT.faqs.map((f) => ({ question: f.q, answer: f.a }))}
+        // Bez speakable: selektory itemprop wskazywałyby w próżnię (jak na /web-development/rzeszow/).
+        jsonLd={buildFaqSchema(
+          CONTENT.faqs.map((f) => ({ question: f.q, answer: f.a })),
+          { speakable: null },
+        )}
       />
 
       <div className="bg-deep-dark text-white pt-40 pb-16">
