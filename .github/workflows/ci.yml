@@ -130,6 +130,7 @@ jobs:
           # jest wlaczona w Preview (build dla dev), a na produkcji i w PR wylaczona do `TAK <SHA>`.
           # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
           VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_COOKIE_BANNER_STATIC: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_POWIAZANE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
