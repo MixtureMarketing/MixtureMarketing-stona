@@ -73,7 +73,7 @@ run M25-css-rule-missing index.css "body[data-result-cookie='true'] .cookie-floa
 # r2 (NIE weryfikatora r1): przycisk ciasteczek nad opcjami formularza + mutanty V4/V6/V8/V9 weryfikatora
 U=components/features/calculator/useHideCookieOver.ts
 run R1-form-hook-off $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, false, 'formCookie', FORM_CONTROLS);"
-run R2-form-hook-whole-box $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, resultOn && filling, 'formCookie');"
+run R2-form-hook-whole-box $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, filling, 'formCookie');"
 run R3-selector-ignored $U "const targets = selector ? Array.from(box.querySelectorAll(selector)) : [box];" "const targets = [box];"
 run R4-form-hook-always-active $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, true, 'formCookie', FORM_CONTROLS);"
 run R11-form-box-always $P "        (resultOn ? (" "        (true ? ("
