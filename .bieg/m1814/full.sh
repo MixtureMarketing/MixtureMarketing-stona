@@ -47,10 +47,10 @@ restore_generated
 echo "  bundle on: files with 'Wybierz termin rozmowy'=$(grep -l 'Wybierz termin rozmowy' "$D"/dist-on/assets/*.js 2>/dev/null | wc -l); js bytes=$(cat "$D"/dist-on/assets/*.js | wc -c)"
 echo "  bundle off: files with 'Wybierz termin rozmowy'=$(grep -l 'Wybierz termin rozmowy' "$D"/dist-off/assets/*.js 2>/dev/null | wc -l); js bytes=$(cat "$D"/dist-off/assets/*.js | wc -c)"
 step probe-on node .bieg/m1814/probe.mjs "$D/dist-on" "$D/probe-on" on
-grep -a '^PROBE\|^prod-safe\|PROD-SAFE' "$OUT/probe-on.log" | cut -c1-1500
+grep -a '^PROBE\|^prod-safe\|PROD-SAFE' "$OUT/probe-on.log" | cut -c1-3000
 grep -a 'pageerror' "$OUT/probe-on.log" | head -5
 step probe-off node .bieg/m1814/probe.mjs "$D/dist-off" "$D/probe-off" off
-grep -a '^PROBE\|^prod-safe\|PROD-SAFE' "$OUT/probe-off.log" | cut -c1-1500
+grep -a '^PROBE\|^prod-safe\|PROD-SAFE' "$OUT/probe-off.log" | cut -c1-3000
 grep -a 'pageerror' "$OUT/probe-off.log" | head -5
 for f in "$D"/probe-on/shots/*.jpg "$D"/probe-off/shots/*-po.jpg; do
   [ -f "$f" ] || continue

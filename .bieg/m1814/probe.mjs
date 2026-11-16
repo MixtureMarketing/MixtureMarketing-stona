@@ -257,24 +257,59 @@ try {
     await frameEl.evaluate((e) =>
       e.closest('section').scrollIntoView({ block: 'start', behavior: 'instant' }),
     );
-    // Wolne terminy: godziny HH:MM w tekście ramki Google (do 25 s, sieć chmury bywa wolna).
+    // Harmonogram załadowany: nagłówek wyboru terminu w tekście ramki Google (do 25 s).
+    // Godziny liczymy bez przesunięcia strefy („GMT+01:00” to nie termin).
+    const LOADED = /appointment time|wybierz (godzin|termin)|zarezerwuj/i;
+    const hours = (t) => [
+      ...new Set(t.replace(/GMT[+-]\d{1,2}:\d{2}/g, '').match(/\b\d{1,2}:\d{2}\b/g) ?? []),
+    ];
+    const calFrame = () => page.frames().find((f) => /calendar\.google\.com/.test(f.url()));
+    const frameTextNow = async () => {
+      try {
+        return (await calFrame()?.evaluate(() => document.body?.innerText ?? '')) ?? '';
+      } catch {
+        return '';
+      }
+    };
     let frameText = '';
     const t1 = Date.now();
     while (Date.now() - t1 < 25000) {
-      const fr = page.frames().find((f) => /calendar\.google\.com/.test(f.url()));
-      if (fr) {
-        try {
-          frameText = await fr.evaluate(() => document.body?.innerText ?? '');
-        } catch {
-          frameText = '';
-        }
-        if (/\b\d{1,2}:\d{2}\b/.test(frameText)) break;
-      }
+      frameText = await frameTextNow();
+      if (LOADED.test(frameText)) break;
       await new Promise((r) => setTimeout(r, 500));
     }
-    result.slotTimes = [...new Set(frameText.match(/\b\d{1,2}:\d{2}\b/g) ?? [])].slice(0, 12);
+    result.calendarLoaded = LOADED.test(frameText);
+    result.loadedMs = result.calendarLoaded ? now() - log.clicked : null;
     result.frameTextChars = frameText.length;
-    result.slotsMs = result.slotTimes.length ? now() - log.clicked : null;
+    // Wolne dni = aktywne przyciski z numerem dnia; klik w pierwszy pokazuje godziny terminów
+    // (tylko podgląd: nic nie rezerwujemy, formularz rezerwacji się nie otwiera).
+    result.freeDays = [];
+    result.slotTimes = hours(frameText);
+    if (result.calendarLoaded && result.slotTimes.length === 0) {
+      try {
+        result.freeDays = await calFrame().evaluate(() => {
+          const days = [...document.querySelectorAll('button, [role="button"]')].filter(
+            (b) =>
+              /^\d{1,2}$/.test(b.textContent.trim()) &&
+              !b.disabled &&
+              b.getAttribute('aria-disabled') !== 'true',
+          );
+          const free = days.map((b) => b.textContent.trim());
+          const pick = days.find((b) => b.getAttribute('aria-selected') !== 'true') ?? days[0];
+          pick?.click();
+          return free;
+        });
+      } catch (e) {
+        result.freeDaysError = String(e?.message || e).slice(0, 200);
+      }
+      const t2 = Date.now();
+      while (Date.now() - t2 < 10000) {
+        result.slotTimes = hours(await frameTextNow());
+        if (result.slotTimes.length) break;
+        await new Promise((r) => setTimeout(r, 500));
+      }
+    }
+    result.slotTimes = result.slotTimes.slice(0, 12);
     await new Promise((r) => setTimeout(r, 1000));
   } else {
     await new Promise((r) => setTimeout(r, 2000));
@@ -315,7 +350,15 @@ try {
     check(result.iframesAfter === 1, `ramki po kliknięciu: ${result.iframesAfter}`);
     check(result.calendarAfterClick > 0, 'brak żądania do kalendarza po kliknięciu');
     check(result.postBeforeCalendar, 'kalendarz przed zapisem leada');
-    check(result.slotTimes.length > 0, 'brak godzin wolnych terminów w ramce');
+    check(result.calendarLoaded, 'harmonogram Google się nie załadował');
+    check(
+      result.slotTimes.length > 0 || result.freeDays.length > 0,
+      'brak wolnych terminów (ani dni, ani godzin) w ramce',
+    );
+    check(
+      JSON.stringify(result.bookingOpenParams) === '[{"source":"wycena","variant":"a"}]',
+      `parametry calculator_booking_open: ${JSON.stringify(result.bookingOpenParams)}`,
+    );
   } else {
     check(
       result.bookingOpen === 0,

@@ -17,6 +17,7 @@ import {
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { trackEvent } from '../utils/analytics';
+import { trackCalculatorBookingOpen } from '../utils/calculatorTracking';
 import {
   isBookingEmbedEnabled,
   isLeadConfigEnabled,
@@ -150,10 +151,8 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
       });
       if (res.ok) {
         // MIX-1814 (Z9): lead zapisany, pod wynikiem otwiera się harmonogram rozmów. Jedno
-        // zdarzenie na jedno udane kliknięcie; bez e-maila i telefonu, tylko ścieżka strony.
-        if (isBookingEmbedEnabled()) {
-          trackEvent('calculator_booking_open', { source: window.location.pathname });
-        }
+        // zdarzenie na jedno udane kliknięcie, parametry z allowlisty GA4 (source=wycena, variant=a).
+        if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });
         setResult(res.result);
         setPhase('done');
       } else {

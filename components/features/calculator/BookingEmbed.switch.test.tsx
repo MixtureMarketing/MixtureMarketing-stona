@@ -135,7 +135,9 @@ describe('K1/K2 włączony: harmonogram dopiero po kliknięciu i zapisie leada',
     expect(price.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(submitPublicQuote).toHaveBeenCalledTimes(1);
-    expect(bookingOpens()).toEqual([['calculator_booking_open', { source: '/' }]]);
+    expect(bookingOpens()).toEqual([
+      ['calculator_booking_open', { source: 'wycena', variant: 'a' }],
+    ]);
     // lead (POST) zapisany przed zdarzeniem i ramką
     const postOrder = submitPublicQuote.mock.invocationCallOrder[0];
     const evIdx = trackEvent.mock.calls.findIndex((c) => c[0] === 'calculator_booking_open');

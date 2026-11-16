@@ -41,13 +41,12 @@ run M1-flag-or $P "return raw === '1' && isLeadConfigEnabled(leadConfig);" "retu
 run M2-flag-any-truthy $P "return raw === '1' && isLeadConfigEnabled(leadConfig);" "return Boolean(raw) && isLeadConfigEnabled(leadConfig);"
 run M3-flag-no-lead-config $P "return raw === '1' && isLeadConfigEnabled(leadConfig);" "return raw === '1';"
 # zdarzenie calculator_booking_open
-run M4-event-always $H "        if (isBookingEmbedEnabled()) {
-          trackEvent('calculator_booking_open'" "        if (true) {
-          trackEvent('calculator_booking_open'"
-run M5-event-dropped $H "trackEvent('calculator_booking_open', { source: window.location.pathname });" "void 0;"
-run M6-event-with-email $H "trackEvent('calculator_booking_open', { source: window.location.pathname });" "trackEvent('calculator_booking_open', { source: window.location.pathname, email });"
+run M4-event-always $H "if (isBookingEmbedEnabled()) trackCalculatorBookingOpen" "if (true) trackCalculatorBookingOpen"
+run M5-event-dropped $H "if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });" "if (isBookingEmbedEnabled()) void 0;"
+run M6-event-with-email $H "if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });" "if (isBookingEmbedEnabled()) trackEvent('calculator_booking_open', { source: 'wycena', variant: 'a', email });"
 run M7-event-before-post $H "      trackEvent('calculator_submit', { source: window.location.pathname });" "      trackEvent('calculator_submit', { source: window.location.pathname });
-      if (isBookingEmbedEnabled()) trackEvent('calculator_booking_open', {});"
+      if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });"
+run M14-event-variant-b $H "trackCalculatorBookingOpen({ variant: 'a' })" "trackCalculatorBookingOpen({ variant: 'b' })"
 # ramka
 run M8-frame-always $C "booking={isBookingEmbedEnabled() ? <BookingEmbed /> : null}" "booking={<BookingEmbed />}"
 run M9-frame-before-click $C "{c.phase === 'loading' && <CalculatorLoading />}" "{c.phase === 'loading' && <CalculatorLoading />}
