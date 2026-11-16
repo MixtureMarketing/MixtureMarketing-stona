@@ -29,7 +29,9 @@ export function isLivePriceBarEnabled(
 export function isConfigPreviewEnabled(
   raw: unknown = import.meta.env.VITE_MM_CONFIG_PREVIEW,
 ): boolean {
-  return isLivePriceBarEnabled(raw);
+  // MIX-1898: bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny
+  // parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
 }
 
 /**
@@ -38,7 +40,9 @@ export function isConfigPreviewEnabled(
  * Wyłączony = brak przycisków i parametr `k` w adresie nie jest czytany.
  */
 export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFIG_LINK): boolean {
-  return isLivePriceBarEnabled(raw);
+  // MIX-1898: bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny
+  // parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
 }
 
 /**

@@ -2,11 +2,12 @@
 // produkcja pusta, ten sam parser co pasek ceny: tylko `1` włącza, MIX-1846). Wyłączony = stary
 // wygląd bez zmian. Tu WYŁĄCZNIE wygląd (klasy) i teksty stanów; logika liczenia i kontrakty API
 // zostają w hookach i formLogic.
-import { isLivePriceBarEnabled } from './livePrice';
 
 /** Włączony tylko dla `1`; brak, puste, `true` i cokolwiek innego = stary wygląd. */
 export function isCalcNewUiEnabled(raw: unknown = import.meta.env.VITE_MM_CALC_NEW_UI): boolean {
-  return isLivePriceBarEnabled(raw);
+  // MIX-1898: bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny
+  // parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
 }
 
 /** Komunikat, gdy Turnstile nie oddał tokenu (zabezpieczenie nie wystartowało). */
