@@ -10,7 +10,7 @@ import Seo from '../common/Seo';
 import Container from '../common/Container';
 import PublicCalculator from '../features/calculator/PublicCalculator';
 import { CalculatorLoading } from '../features/calculator/CalculatorStates';
-import { isCalcNewUiEnabled } from '../features/calculator/calcUi';
+import { NEW_UI_SHELL, isCalcNewUiEnabled } from '../features/calculator/calcUi';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const isPrerendering =
@@ -83,7 +83,7 @@ const WycenaCalculator: React.FC = () => {
           <div className="max-w-2xl">
             {isPrerendering ? (
               newUi ? (
-                <div className="rounded-3xl border border-white/10 bg-[#0d1529] p-6 shadow-sm md:p-10">
+                <div className={NEW_UI_SHELL}>
                   <CalculatorLoading newUi />
                 </div>
               ) : (

@@ -188,7 +188,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
       )}
 
       {!isContact && (
-        <div className={newUi ? 'space-y-4' : 'space-y-6'}>
+        <div className={newUi ? 'space-y-8' : 'space-y-6'}>
           <h2 ref={headingRef} tabIndex={newUi ? -1 : undefined} className={headingCls}>
             {stepLabel(step)}
           </h2>
@@ -213,11 +213,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           <div
             className={
               newUi
-                ? `space-y-3 rounded-2xl border p-5 md:p-6 ${
-                    errors.email
-                      ? 'border-red-400/50 bg-red-500/[0.06]'
-                      : 'border-white/10 bg-white/[0.03]'
-                  }`
+                ? 'space-y-3'
                 : 'space-y-2'
             }
           >

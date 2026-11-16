@@ -81,3 +81,15 @@ export const calcUi = (newUi: boolean): CalcUi => (newUi ? NEW : OLD);
  */
 export const NEW_UI_CONTRAST =
   '[&_.text-gray-400]:text-white/75 [&_.text-gray-500]:text-white/75 [&_.text-gray-300]:text-white/90';
+
+/**
+ * MIX-1894 (uwaga Jakuba „za dużo zagłębień bloczków”): karta kroku nowego wyglądu to JEDYNA ramka
+ * wokół odpowiedzi; pytania, e-mail i wynik nie mają już własnych ramek ani tła.
+ * Telefon (< 640 px): karta bez ramki i zaokrągleń, tło na całą szerokość ekranu (-mx-4 znosi
+ * px-4 Containera), odstęp wewnętrzny 16 px, więc opcje mają 390 − 2·16 = 358 px (91,8 %).
+ * Tło zostaje pełne (#0d1529), żeby kontrast tekstu był liczalny (axe bez „incomplete”).
+ * Pasek ceny ma -mx-6 pod p-6 karty; na telefonie dostaje -mx-4 pod nowy odstęp.
+ * Ta sama klasa w prerenderze (WycenaCalculator): szkielet i kalkulator mają tę samą szerokość (CLS).
+ */
+export const NEW_UI_SHELL =
+  '-mx-4 bg-[#0d1529] p-4 sm:mx-0 sm:rounded-3xl sm:border sm:border-white/10 sm:p-6 sm:shadow-sm md:p-10 max-sm:[&_[data-testid=live-price-bar]]:-mx-4';

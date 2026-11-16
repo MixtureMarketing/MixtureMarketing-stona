@@ -196,16 +196,11 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
     );
   }
 
-  // Nowy wygląd: każde pytanie to osobna karta; błąd = czerwona ramka karty + komunikat ze znakiem.
-  // Nazwę pola/grupy niesie aria-label (jak w starym wyglądzie), tytuł karty jest tekstem.
+  // Nowy wygląd: pytanie BEZ własnej ramki i tła (MIX-1894: jedyna ramka to karta kroku);
+  // błąd = komunikat ze znakiem pod opcjami. Nazwę pola/grupy niesie aria-label (jak w starym
+  // wyglądzie), tytuł pytania jest tekstem.
   return (
-    <div
-      data-testid="calc-question"
-      data-invalid={error ? 'true' : undefined}
-      className={`space-y-4 rounded-2xl border p-5 md:p-6 ${
-        error ? 'border-red-400/50 bg-red-500/[0.06]' : 'border-white/10 bg-white/[0.03]'
-      }`}
-    >
+    <div data-testid="calc-question" data-invalid={error ? 'true' : undefined} className="space-y-4">
       <div className="space-y-1.5">
         <p className={ui.label}>{text}</p>
         {help_text && (
