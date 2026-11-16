@@ -1308,7 +1308,8 @@ describe('scripts/check-llms.mjs: kod wyjścia i tekst odmowy', () => {
   });
 
   it('odmowa: ukryta strona (prerenderOnlyRoutes) w prozie, rc 1 i linia PROBLEM', () => {
-    const line = 'Strona mixturemarketing.pl/web-development/systemy-ai-aplikacje/ przed publikacją';
+    const line =
+      'Strona mixturemarketing.pl/web-development/systemy-ai-aplikacje/ przed publikacją';
     const r = run(`${llms}${line}\n`);
     expect(r.stdout).toContain(
       `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /web-development/systemy-ai-aplikacje/ (szkielet `,
