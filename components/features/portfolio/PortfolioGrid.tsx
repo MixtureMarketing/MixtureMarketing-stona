@@ -17,7 +17,9 @@ const cardPhotoUrl = (project: SanityCaseStudy) =>
 const CardVideo: React.FC<{ project: SanityCaseStudy }> = ({ project }) => {
   if (!isPortfolioVideoEnabled() || !project.mainImage) return null;
   const video = portfolioVideoFor(project.slug);
-  return video ? <PortfolioCardVideo video={video.preview} poster={cardPhotoUrl(project)} /> : null;
+  return video?.preview ? (
+    <PortfolioCardVideo video={video.preview} poster={cardPhotoUrl(project)} />
+  ) : null;
 };
 
 /** MIX-1722: the card photo has the same 16:9 crop as the case-study hero (HERO_PHOTO, 1600x900), at half the size. */
