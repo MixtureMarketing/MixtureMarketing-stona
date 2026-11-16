@@ -17,6 +17,7 @@ import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
+import { isCalcNewUiEnabled } from './calcUi';
 
 const PublicCalculator: React.FC = () => {
   const turnstileRef = useRef<TurnstileWidgetHandle>(null);
@@ -24,6 +25,8 @@ const PublicCalculator: React.FC = () => {
   // Turnstile (api.js ~85 kB) dopiero przy pierwszej interakcji z kalkulatorem, nie przy
   // wejściu na stronę; submit i tak poczeka na skrypt (getToken w trybie defer).
   const prepareCaptcha = () => turnstileRef.current?.prepare?.();
+  // MIX-1867: nowy wygląd za przełącznikiem VITE_MM_CALC_NEW_UI (wyłączony = stary wygląd).
+  const newUi = isCalcNewUiEnabled();
 
   // Pasek widełek na żywo (MIX-1385): za przełącznikiem, domyślnie wyłączony; tylko w trakcie
   // wypełniania (na ekranie wyniku widełki pokazuje CalculatorResult).
@@ -56,7 +59,12 @@ const PublicCalculator: React.FC = () => {
 
   return (
     <div
-      className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl"
+      className={
+        newUi
+          ? 'rounded-3xl border border-white/10 bg-[#0d1529] p-6 shadow-sm md:p-10'
+          : 'rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl'
+      }
+      data-calc-ui={newUi ? 'new' : 'old'}
       onFocusCapture={prepareCaptcha}
       onPointerDownCapture={prepareCaptcha}
     >
@@ -67,12 +75,14 @@ const PublicCalculator: React.FC = () => {
         defer
       />
 
-      {c.phase === 'loading' && <CalculatorLoading />}
+      {c.phase === 'loading' && <CalculatorLoading newUi={newUi} />}
 
-      {c.phase === 'loadError' && <CalculatorLoadError onRetry={() => window.location.reload()} />}
+      {c.phase === 'loadError' && (
+        <CalculatorLoadError newUi={newUi} onRetry={() => window.location.reload()} />
+      )}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} />
+        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} newUi={newUi} />
       )}
 
       {(c.phase === 'ready' || c.phase === 'submitting') && (
@@ -86,6 +96,8 @@ const PublicCalculator: React.FC = () => {
           websiteVerify={c.websiteVerify}
           setWebsiteVerify={c.setWebsiteVerify}
           submitError={c.submitError}
+          submitErrorKind={c.submitErrorKind}
+          newUi={newUi}
           submitting={c.phase === 'submitting'}
           onSubmit={c.submit}
           liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}

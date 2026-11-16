@@ -1,11 +1,16 @@
 // Strona /wycena/ — publiczny kalkulator wyceny (f4b). Intro jest PRERENDEROWANE (SEO/pSEO);
 // interaktywny kalkulator montuje się wyłącznie w przeglądarce (guard isPrerendering — w Puppeteerze
 // nie ma żywego API, więc nie renderujemy stanu błędu do statycznego HTML).
+// MIX-1867: przy VITE_MM_CALC_NEW_UI tekst intro na granacie ≥ text-white/75 (gray-400/500 są w
+// index.css przyciemnione pod jasne tło i na granacie nie trzymają AA), a zamiast prerenderowanego
+// napisu stoi szkielet w kształcie kalkulatora (ta sama wysokość, mniej przesunięć układu).
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
 import PublicCalculator from '../features/calculator/PublicCalculator';
+import { CalculatorLoading } from '../features/calculator/CalculatorStates';
+import { isCalcNewUiEnabled } from '../features/calculator/calcUi';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 
 const isPrerendering =
@@ -18,61 +23,82 @@ const TRUST = [
   'Kilka pytań, kilka minut.',
 ];
 
-const WycenaCalculator: React.FC = () => (
-  <div className="bg-deep-dark text-white pt-20 min-h-screen font-sans">
-    <Seo
-      title="Kalkulator wyceny strony i aplikacji — Mixture Marketing"
-      description="Policz orientacyjny koszt strony internetowej lub aplikacji w kilka minut. Widełki na podstawie realnego modelu wyceny — bez zobowiązań."
-      canonical="/wycena/"
-      breadcrumbs={getPathBreadcrumbs('/wycena/')}
-    />
+const WycenaCalculator: React.FC = () => {
+  const newUi = isCalcNewUiEnabled();
+  return (
+    <div className="bg-deep-dark text-white pt-20 min-h-screen font-sans">
+      <Seo
+        title="Kalkulator wyceny strony i aplikacji — Mixture Marketing"
+        description="Policz orientacyjny koszt strony internetowej lub aplikacji w kilka minut. Widełki na podstawie realnego modelu wyceny — bez zobowiązań."
+        canonical="/wycena/"
+        breadcrumbs={getPathBreadcrumbs('/wycena/')}
+      />
 
-    {/* overflow-clip, nie hidden: hidden robi z sekcji kontener przewijania i psuje sticky paska
+      {/* overflow-clip, nie hidden: hidden robi z sekcji kontener przewijania i psuje sticky paska
         widełek na telefonie (MIX-1412); przycina tak samo. */}
-    <section className="relative py-16 md:py-24 overflow-clip">
-      <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none" />
-      <Container className="relative z-10">
-        <div className="max-w-3xl mb-10">
-          <p className="text-sm uppercase tracking-wider text-primary/80 mb-3">Kalkulator wyceny</p>
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Ile kosztuje <span className="text-primary">Twój projekt?</span>
-          </h1>
-          <p className="text-gray-300 text-lg mb-8">
-            Odpowiedz na kilka pytań o stronie lub aplikacji, którą masz w głowie — pokażemy
-            orientacyjne widełki kosztu. To zgrubny przedział na start, nie wiążąca oferta.
-          </p>
-          <p className="text-gray-400 text-sm mb-6">
-            Chcesz najpierw zrozumieć, z czego składa się cena strony? Przeczytaj{' '}
-            <Link
-              to="/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/"
-              className="text-primary font-semibold hover:underline"
+      <section className="relative py-16 md:py-24 overflow-clip">
+        <div className="absolute inset-0 bg-tech-grid opacity-10 pointer-events-none" />
+        <Container className="relative z-10">
+          <div className={newUi ? 'max-w-3xl mb-8 md:mb-10' : 'max-w-3xl mb-10'}>
+            <p className="text-sm uppercase tracking-wider text-primary/80 mb-3">
+              Kalkulator wyceny
+            </p>
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              Ile kosztuje <span className="text-primary">Twój projekt?</span>
+            </h1>
+            <p
+              className={
+                newUi
+                  ? 'text-white/75 text-lg leading-relaxed mb-6 max-w-2xl'
+                  : 'text-gray-300 text-lg mb-8'
+              }
             >
-              artykuł o kosztach strony internetowej w 2026 roku
-            </Link>
-            .
-          </p>
-          <ul className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-gray-400">
-            {TRUST.map((t) => (
-              <li key={t} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                {t}
-              </li>
-            ))}
-          </ul>
-        </div>
+              Odpowiedz na kilka pytań o stronie lub aplikacji, którą masz w głowie — pokażemy
+              orientacyjne widełki kosztu. To zgrubny przedział na start, nie wiążąca oferta.
+            </p>
+            <p className={newUi ? 'text-white/75 text-sm mb-6' : 'text-gray-400 text-sm mb-6'}>
+              Chcesz najpierw zrozumieć, z czego składa się cena strony? Przeczytaj{' '}
+              <Link
+                to="/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/"
+                className="text-primary font-semibold hover:underline"
+              >
+                artykuł o kosztach strony internetowej w 2026 roku
+              </Link>
+              .
+            </p>
+            <ul
+              className={`flex flex-wrap gap-x-8 gap-y-3 text-sm ${
+                newUi ? 'text-white/75' : 'text-gray-400'
+              }`}
+            >
+              {TRUST.map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div className="max-w-2xl">
-          {isPrerendering ? (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-10 text-center text-gray-400">
-              Kalkulator uruchomi się w Twojej przeglądarce.
-            </div>
-          ) : (
-            <PublicCalculator />
-          )}
-        </div>
-      </Container>
-    </section>
-  </div>
-);
+          <div className="max-w-2xl">
+            {isPrerendering ? (
+              newUi ? (
+                <div className="rounded-3xl border border-white/10 bg-[#0d1529] p-6 shadow-sm md:p-10">
+                  <CalculatorLoading newUi />
+                </div>
+              ) : (
+                <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-10 text-center text-gray-400">
+                  Kalkulator uruchomi się w Twojej przeglądarce.
+                </div>
+              )
+            ) : (
+              <PublicCalculator />
+            )}
+          </div>
+        </Container>
+      </section>
+    </div>
+  );
+};
 
 export default WycenaCalculator;

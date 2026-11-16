@@ -33,6 +33,8 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
   const [websiteVerify, setWebsiteVerify] = useState(''); // honeypot
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // MIX-1867: rodzaj błędu wysyłki dla nowego wyglądu (`captcha` = brak tokenu Turnstile).
+  const [submitErrorKind, setSubmitErrorKind] = useState<'captcha' | 'server' | null>(null);
   const [result, setResult] = useState<PublicQuoteResult | null>(null);
   // Wyścig Turnstile (MIX-1412): jeden widżet obsługuje wysyłkę i podgląd widełek, a każde
   // getToken() robi reset + execute. Pobrania tokenu idą więc po kolei (łańcuch obietnic),
@@ -117,6 +119,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     // Druga wysyłka w trakcie pierwszej: nic nie robimy (jedno POST na jedno kliknięcie).
     if (submittingRef.current) return null;
     setSubmitError(null);
+    setSubmitErrorKind(null);
     const v = validate(questions, answers, email);
     setErrors(v.errors);
     if (!v.valid) return v.errors;
@@ -129,6 +132,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         token = await nextToken(false);
       } catch {
         setSubmitError(humanError(403));
+        setSubmitErrorKind('captcha');
         setPhase('ready');
         return null;
       }
@@ -147,6 +151,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         setPhase('done');
       } else {
         setSubmitError(humanError(res.status));
+        setSubmitErrorKind('server');
         setPhase('ready');
         turnstileRef.current?.reset();
       }
@@ -159,6 +164,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
   const reset = useCallback(() => {
     setResult(null);
     setSubmitError(null);
+    setSubmitErrorKind(null);
     setErrors({});
     setPhase('ready');
   }, []);
@@ -175,6 +181,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     setWebsiteVerify,
     errors,
     submitError,
+    submitErrorKind,
     result,
     submit,
     reset,
