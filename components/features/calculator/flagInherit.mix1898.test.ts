@@ -13,7 +13,20 @@ const PRZELACZNIKI: [string, string, (raw?: unknown) => boolean][] = [
 ];
 
 // Formy ataku Z3 (fail-closed): każda = wyłączony; dozwolony bliźniak: dokładnie '1'.
-const ATAKI: unknown[] = [undefined, null, '', ' 1', '1 ', 'true', 'TRUE', 'yes', 1, '01', true, '0'];
+const ATAKI: unknown[] = [
+  undefined,
+  null,
+  '',
+  ' 1',
+  '1 ',
+  'true',
+  'TRUE',
+  'yes',
+  1,
+  '01',
+  true,
+  '0',
+];
 
 describe.each(PRZELACZNIKI)('MIX-1898 %s (%s)', (_nazwa, zmienna, fn) => {
   it('własna zmienna undefined, LIVE_PRICE_BAR="1" → false (bez dziedziczenia)', () => {
