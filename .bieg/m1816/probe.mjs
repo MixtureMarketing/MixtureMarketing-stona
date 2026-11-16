@@ -172,7 +172,7 @@ async function openResult(vp, reducedMotion = false) {
   await page.type('#calc-email', 'jan@firma.pl');
   await clickText('Poznaj widełki');
   try {
-    await page.waitForFunction(() => document.body.innerText.includes('Orientacyjne widełki'), {
+    await page.waitForFunction(() => /orientacyjne widełki/i.test(document.body.innerText), {
       timeout: 8000,
     });
   } catch (e) {
@@ -229,7 +229,7 @@ for (const vp of VIEWPORTS) {
     const page = await openResult(vp);
     const info = await page.evaluate(() => ({
       sections: document.querySelectorAll('[data-testid="new-client-timeline"]').length,
-      text: document.body.innerText.includes('Co dostajesz i kiedy'),
+      text: /co dostajesz i kiedy/i.test(document.body.innerText),
       html: document.querySelector('div.text-center.space-y-6')?.outerHTML ?? null,
       flag: document.body.dataset.timelineCookie ?? null,
     }));
