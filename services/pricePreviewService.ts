@@ -7,6 +7,12 @@
 // Endpoint (Z4) jeszcze nie istnieje; w testach ten moduł jest atrapą, a Z4 podłącza się tu.
 // TODO(MIX-1384): po scaleniu GA4 wywołać trackCalculatorPreview przy udanym podglądzie.
 import type { PriceRange } from './calculatorService';
+import {
+  cleanClientText,
+  SCOPE_DESCRIPTION_MAX,
+  SCOPE_MAX_ITEMS,
+  SCOPE_NAME_MAX,
+} from '../lib/estimation/publicScope';
 
 export const PREVIEW_URL = '/api/estimation/public-preview';
 
@@ -16,9 +22,42 @@ export interface PreviewPayload {
   preview_token?: string;
 }
 
-/** Sukces: widełki (+ nowy token podglądu, gdy serwer go wydał); błąd: status HTTP (0 = sieć). */
+/** Pozycja listy „Twój zakres" (kontrakt v2, MIX-1790): nazwa i opis obszaru dla klienta. */
+export interface ScopeItem {
+  client_name: string;
+  client_description: string | null;
+}
+
+/**
+ * Sukces: widełki (+ nowy token podglądu, gdy serwer go wydał; + `scope`, gdy serwer v2 zwrócił
+ * zakres); błąd: status HTTP (0 = sieć).
+ */
 export type PreviewResult =
-  { ok: true; priceRange: PriceRange; previewToken?: string } | { ok: false; status: number };
+  | { ok: true; priceRange: PriceRange; previewToken?: string; scope?: ScopeItem[] }
+  | { ok: false; status: number };
+
+/**
+ * MIX-1790, lista dozwolona (fail-closed): z odpowiedzi bierzemy tylko tablicę obiektów i z każdego
+ * tylko `client_name` (tekst, niepusty, ≤ 120 znaków; inaczej pozycja pominięta) i
+ * `client_description` (tekst ≤ 500 znaków albo null). Każde inne pole (godziny, ceny) jest
+ * odrzucane; nie-tablica = pusta lista; najwyżej 30 pozycji.
+ */
+export function parseScope(raw: unknown): ScopeItem[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ScopeItem[] = [];
+  for (const it of raw) {
+    if (out.length >= SCOPE_MAX_ITEMS) break;
+    if (!it || typeof it !== 'object' || Array.isArray(it)) continue;
+    const rec = it as Record<string, unknown>;
+    const name = cleanClientText(rec.client_name, SCOPE_NAME_MAX);
+    if (name === null) continue;
+    out.push({
+      client_name: name,
+      client_description: cleanClientText(rec.client_description, SCOPE_DESCRIPTION_MAX),
+    });
+  }
+  return out;
+}
 
 /** Górna granica widełek, które pokażemy (zł). Więcej = odpowiedź uznana za błędną. */
 export const MAX_PREVIEW_PLN = 10_000_000;
@@ -74,11 +113,14 @@ export async function requestPricePreview(
       data && typeof data === 'object' ? (data as Record<string, unknown>).priceRange : undefined,
     );
     if (!priceRange) return { ok: false, status: 500 };
-    const token = (data as Record<string, unknown>).preview_token;
+    const rec = data as Record<string, unknown>;
+    const token = rec.preview_token;
     return {
       ok: true,
       priceRange,
       previewToken: typeof token === 'string' && token !== '' ? token : undefined,
+      // v1 (bez pola) = undefined; v2 = lista po allowliście (może być pusta).
+      scope: 'scope' in rec ? parseScope(rec.scope) : undefined,
     };
   } catch {
     return { ok: false, status: 0 };

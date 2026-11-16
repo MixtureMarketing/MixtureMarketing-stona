@@ -34,6 +34,8 @@ interface CalculatorFormProps {
   /** Pasek widełek na żywo (MIX-1412): stoi TUŻ PRZED przyciskami Wstecz/Dalej, bo na telefonie
    *  jest `sticky` i nie może ich zasłonić (sticky przesuwa się tylko w górę). */
   liveBar?: React.ReactNode;
+  /** Podgląd konfiguracji (MIX-1790): POD przyciskami, więc pasek sticky go nie zasłania. */
+  configPreview?: React.ReactNode;
 }
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({
@@ -49,6 +51,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
   submitting,
   onSubmit,
   liveBar,
+  configPreview,
 }) => {
   // Uporządkowane, unikalne grupy widocznych pytań + krok kontaktowy na końcu.
   const groups = useMemo(() => {
@@ -238,6 +241,8 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
       </div>
 
       {isContact && <RodoKlauzulaKrotka variant="calculator" tone="dark" />}
+
+      {configPreview}
     </div>
   );
 };

@@ -195,10 +195,17 @@ export async function handlePreview(request: Request, env: Env, nowMs: number): 
   if (checked.errors.length > 0) return deny(ray, 400, checked.reasons[0], BAD);
 
   // 6. Widełki (bez zapisu, bez e-maila); wynik tylko {min, max, currency} (+ token).
+  // Kontrakt v2 (MIX-1790): `scope` = lista „Twój zakres", każda pozycja to WYŁĄCZNIE
+  // {client_name, client_description} (publicScope.ts); pusta lista = bez pola `scope`.
   const rawLib = await loadRawLibrary(env.DB);
   const result = computePublicQuote(rawLib, checked.answers, parsePublicConfig(rawLib.params));
   const priceRange = { min: result.priceRange.min, max: result.priceRange.max, currency: 'PLN' };
-  if (!issue) return json({ priceRange });
+  const scope = result.scope.map((s) => ({
+    client_name: s.client_name,
+    client_description: s.client_description,
+  }));
+  const out = scope.length > 0 ? { priceRange, scope } : { priceRange };
+  if (!issue) return json(out);
   const { token } = await issueToken(key, ip.key, nowMs);
-  return json({ priceRange, preview_token: token });
+  return json({ ...out, preview_token: token });
 }

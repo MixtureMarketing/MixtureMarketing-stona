@@ -11,7 +11,8 @@ import { PUBLIC_QUOTE_TURNSTILE_ACTION } from '../../../lib/estimation/turnstile
 import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
-import { isLivePriceBarEnabled } from './livePrice';
+import ConfigPreview from './ConfigPreview';
+import { isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
 import CalculatorResult from './CalculatorResult';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
 
@@ -24,9 +25,13 @@ const PublicCalculator: React.FC = () => {
 
   // Pasek widełek na żywo (MIX-1385): za przełącznikiem, domyślnie wyłączony; tylko w trakcie
   // wypełniania (na ekranie wyniku widełki pokazuje CalculatorResult).
-  const liveEnabled = isLivePriceBarEnabled() && (c.phase === 'ready' || c.phase === 'submitting');
+  const filling = c.phase === 'ready' || c.phase === 'submitting';
+  const liveEnabled = isLivePriceBarEnabled() && filling;
+  // Podgląd konfiguracji (MIX-1790): osobny przełącznik; lista „Twój zakres" przychodzi w tej
+  // samej odpowiedzi podglądu, więc zapytania idą, gdy włączony jest którykolwiek z dwóch.
+  const configEnabled = isConfigPreviewEnabled() && filling;
   const live = useLivePriceRange({
-    enabled: liveEnabled,
+    enabled: liveEnabled || configEnabled,
     answers: pickAnswers(c.questions, c.answers),
     // Token po kolei z wysyłką; w trakcie wysyłki odmowa (wyścig Turnstile, MIX-1412).
     getCaptchaToken: c.getPreviewToken,
@@ -67,6 +72,11 @@ const PublicCalculator: React.FC = () => {
           submitting={c.phase === 'submitting'}
           onSubmit={c.submit}
           liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
+          configPreview={
+            configEnabled ? (
+              <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
+            ) : null
+          }
         />
       )}
     </div>

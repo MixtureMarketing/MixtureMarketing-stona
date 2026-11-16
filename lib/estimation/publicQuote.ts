@@ -7,6 +7,7 @@ import { computeQuote } from './quote';
 import { buildLibraryData, toEngineRules, type RawLibrary } from './toLibraryData';
 import { toPublicOffer, pickPublicArchetype, type PublicPriceRange } from './publicOffer';
 import type { Answers } from './types';
+import { toPublicScope, type PublicScopeItem } from './publicScope';
 
 /** Ostateczny fallback archetypu (kontrakt §5) — najbardziej ogólny; hit tylko przy braku
  *  rekomendacji reguł ORAZ celu spoza mapy. Część specyfikacji publicznego endpointu. */
@@ -206,6 +207,9 @@ export function sanitizePublicAnswers(raw: unknown, defs: PublicQuestionDef[]): 
 export interface PublicQuoteResult {
   priceRange: PublicPriceRange;
   archetype: { code: string; reason: string };
+  /** MIX-1790: „Twój zakres" (tylko client_name/client_description). Wysyła go wyłącznie
+   *  public-preview (kontrakt v2); public-quote go nie zwraca. */
+  scope: PublicScopeItem[];
 }
 
 /**
@@ -243,5 +247,5 @@ export function computePublicQuote(
     roundPln: config.roundPln,
   });
 
-  return { priceRange, archetype };
+  return { priceRange, archetype, scope: toPublicScope(c.aspects) };
 }
