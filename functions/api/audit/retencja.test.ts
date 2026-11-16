@@ -116,7 +116,9 @@ function miesiaceTemu(n: number, plusMs = 0) {
   return d.getTime() + plusMs;
 }
 
-async function zadanie(o: { body?: string; sekret?: string; prefiks?: string; metoda?: string } = {}) {
+async function zadanie(
+  o: { body?: string; sekret?: string; prefiks?: string; metoda?: string } = {},
+) {
   const czas = String(Math.floor(Date.now() / 1000));
   const nonce = crypto.randomUUID();
   const podpis = await podpiszZapytanie(
@@ -172,13 +174,16 @@ describe('retencja PDF: granica 29/30/31 dni', () => {
     expect([...pliki.keys()]).toEqual(['audit/p9-nowy.pdf']);
   });
 
-  it('(+) limit plików na przebieg: najwyżej MAKS_PDF kluczy', async () => {
-    const { env, pliki } = srodowisko();
-    for (let i = 0; i < MAKS_PDF + 3; i++)
-      pliki.set(`audit/x${String(i).padStart(5, '0')}.pdf`, TERAZ - 40 * DZIEN);
-    const w = await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
-    expect(w.pdf.usuniete).toBe(MAKS_PDF);
-    expect(pliki.size).toBe(3);
+  it('(+) limit plików na przebieg: najwyżej MAKS_PDF kluczy, także gdy strona R2 kończy się za limitem', async () => {
+    for (const strona of [1000, 600]) {
+      const { DB } = d1Sqlite(MIGRACJE);
+      const { r2, pliki } = atrapaR2(strona);
+      for (let i = 0; i < MAKS_PDF + 3; i++)
+        pliki.set(`audit/x${String(i).padStart(5, '0')}.pdf`, TERAZ - 40 * DZIEN);
+      const w = await wykonajRetencje({ DB, FILES: r2 } as never, { proba: false, teraz: TERAZ });
+      expect(w.pdf.usuniete).toBe(MAKS_PDF);
+      expect(pliki.size).toBe(3);
+    }
   });
 
   it('(+) brak FILES: część PDF pominięta, leady dalej sprawdzane', async () => {
@@ -206,9 +211,12 @@ describe('retencja leadów z audytu: granica 11/12/13 miesięcy, klient chronion
 
   it('(−) klient nie jest kasowany: status converted, user_id albo konto z tym adresem (inna wielkość liter)', async () => {
     const { env, db } = srodowisko();
-    db.prepare(`INSERT INTO users (email, name, role) VALUES ('Klient@Firma.pl', 'K', 'client')`).run();
+    db.prepare(
+      `INSERT INTO users (email, name, role) VALUES ('Klient@Firma.pl', 'K', 'client')`,
+    ).run();
     const uid = Number(
-      (db.prepare(`SELECT id FROM users WHERE email = 'Klient@Firma.pl'`).get() as { id: number }).id,
+      (db.prepare(`SELECT id FROM users WHERE email = 'Klient@Firma.pl'`).get() as { id: number })
+        .id,
     );
     const stary = miesiaceTemu(14);
     const a = lead(db, { zmiana: stary, status: 'converted' });
@@ -241,6 +249,8 @@ describe('retencja leadów z audytu: granica 11/12/13 miesięcy, klient chronion
 
   it('(+) usuwa też wiersz kolejki Lineara usuwanego leada; wiersz chronionego zostaje', async () => {
     const { env, db } = srodowisko();
+    // Bez kaskady klucza obcego: usunięcie wiersza kolejki ma wynikać z kodu, nie z ustawienia bazy.
+    db.exec('PRAGMA foreign_keys = OFF');
     const stary = lead(db, { zmiana: miesiaceTemu(13), kolejka: true });
     const klient = lead(db, { zmiana: miesiaceTemu(13), status: 'converted', kolejka: true });
     await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
@@ -279,8 +289,10 @@ describe('tryb próbny i log', () => {
   it('(−) log i odpowiedź bez adresu e-mail i nazwy leada: tylko liczby, id i klucze', async () => {
     const { env, db } = srodowisko();
     lead(db, { zmiana: miesiaceTemu(13), email: 'tajny.adres@przyklad-firmy.pl' });
+    // Najpierw próba (lead jeszcze jest w bazie), potem kasowanie.
+    const proba = await wywolaj(await zadanie({ body: '{"proba":true}' }), env);
     const odp = await wywolaj(await zadanie(), env);
-    const tekst = await odp.text();
+    const tekst = (await proba.text()) + (await odp.text());
     const wszystko = [tekst, ...logi].join('\n');
     expect(wszystko).not.toContain('tajny.adres');
     expect(wszystko).not.toContain('@');
@@ -312,7 +324,11 @@ describe('POST /api/audit/retencja', () => {
     const odp = await wywolaj(await zadanie(), env);
     expect(odp.status).toBe(200);
     expect(odp.headers.get('Cache-Control')).toBe('no-store');
-    const dane = (await odp.json()) as { tryb: string; pdf: { usuniete: number }; leady: { usuniete: number } };
+    const dane = (await odp.json()) as {
+      tryb: string;
+      pdf: { usuniete: number };
+      leady: { usuniete: number };
+    };
     expect(dane.tryb).toBe('kasowanie');
     expect(dane.pdf.usuniete).toBe(1);
     expect(dane.leady.usuniete).toBe(1);
