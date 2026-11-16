@@ -258,7 +258,8 @@ for (const vp of VIEWPORTS) {
     check(info.html !== null, `${vp.name} off: brak ekranu wyniku w wyglądzie ${ui}`);
     check(info.newScreen === (ui === 'new'), `${vp.name} off: wygląd wyniku inny niż ${ui}`);
     // stary wygląd bez osi: DOM wyniku dosłownie jak przed MIX-1816 (zrzut base.html)
-    if (ui === 'old') check(info.html === BASE_HTML, `${vp.name} off: DOM wyniku inny niż przed zmianą`);
+    if (ui === 'old')
+      check(info.html === BASE_HTML, `${vp.name} off: DOM wyniku inny niż przed zmianą`);
     check(info.flag === null, `${vp.name} off: znacznik ciasteczek`);
     if (info.html !== BASE_HTML) console.error(`off html: ${info.html}`);
     await page.close();
@@ -392,6 +393,23 @@ for (const vp of VIEWPORTS) {
     };
     const bad = res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
     const inc = res.incomplete.filter((v) => v.id === 'color-contrast');
+    // MIX-1892: jedyny wyjątek od „incomplete = błąd”: axe nie mierzy kontrastu znaku spoza BMP /
+    // symbolu (messageKey nonBmp) — tu strzałka „→” w CTA nowego wyglądu (MIX-1867). Wyjątek
+    // TYLKO dla elementu aria-hidden="true", którego cały tekst to jeden znak niebędący literą
+    // ani cyfrą (ozdobnik niewidoczny dla czytnika). Każdy inny powód (np. bgGradient) i każdy
+    // inny element = błąd jak w MIX-1885.
+    const decor = (n) => {
+      const el = document.querySelector(n.target[0]);
+      const t = el?.textContent?.trim() ?? '';
+      return (
+        n.any[0]?.data?.messageKey === 'nonBmp' &&
+        el?.getAttribute('aria-hidden') === 'true' &&
+        [...t].length === 1 &&
+        !/[\p{L}\p{N}]/u.test(t)
+      );
+    };
+    const incNodes = inc.flatMap((v) => v.nodes.filter((n) => inBox(screenBox, n)));
+    const label = (n) => `${n.target[0]} ${(n.any[0]?.data?.messageKey ?? '').slice(0, 20)}`;
     return {
       all: bad.map((v) => ({ id: v.id, n: v.nodes.length })),
       screen: bad.flatMap((v) =>
@@ -399,11 +417,8 @@ for (const vp of VIEWPORTS) {
       ),
       pageNodes: bad.flatMap((v) => v.nodes.map((n) => `${v.id} ${n.target[0]}`)).slice(0, 30),
       sectionNodes: bad.flatMap((v) => v.nodes.filter((n) => inBox(sec, n)).map(() => v.id)),
-      incompleteScreen: inc.flatMap((v) =>
-        v.nodes
-          .filter((n) => inBox(screenBox, n))
-          .map((n) => `${n.target[0]} ${(n.any[0]?.data?.messageKey ?? '').slice(0, 20)}`),
-      ),
+      incompleteScreen: incNodes.filter((n) => !decor(n)).map(label),
+      incompleteDecor: incNodes.filter(decor).map(label),
       incompletePage: inc.reduce((k, v) => k + v.nodes.length, 0),
     };
   });

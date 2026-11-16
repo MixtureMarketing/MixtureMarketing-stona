@@ -81,6 +81,21 @@ FROM='onReset={onReset} timeline={timeline} />' TO='onReset={onReset} />' node -
   if grep -aq 'brak sekcji' "$OUT/probe-pm1.log"; then echo "  probe-mut pm1: zabity (brak sekcji)"; else echo "  probe-mut pm1: PRZEZYL"; fi
 } || echo "  probe-mut pm1 NOMATCH"
 
+# pm2: the CTA arrow WITHOUT aria-hidden must FAIL (the nonBmp exception is only for hidden symbols).
+FROM='<span aria-hidden="true">→</span>' TO='<span>→</span>' node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");if(!s.includes(process.env.FROM)){process.exit(3)}fs.writeFileSync(f,s.replace(process.env.FROM,process.env.TO))' "$R" && {
+  step build-pm2 env VITE_MM_NEW_CLIENT_TIMELINE=1 VITE_MM_CALC_NEW_UI=1 npx vite build --outDir "$B/dist-pm2"
+  git checkout -- "$R"
+  restore_generated
+  step probe-pm2 node .bieg/m1892/probe.mjs "$B/dist-pm2" "$B/probe-pm2" on new
+  grep -aE '^PROBE [a-z-]+ fails' "$OUT/probe-pm2.log" | cut -c1-400
+  if grep -aq 'incomplete color-contrast na ekranie wyniku' "$OUT/probe-pm2.log"; then echo "  probe-mut pm2: zabity (incomplete)"; else echo "  probe-mut pm2: PRZEZYL"; fi
+} || echo "  probe-mut pm2 NOMATCH"
+
+# pm3: gradients kept (PROBE_OVERLAY=keep) on the good t1-u1 build must FAIL (bgGradient is still an error).
+step probe-pm3 env PROBE_OVERLAY=keep node .bieg/m1892/probe.mjs "$B/dist-t1-u1" "$B/probe-pm3" on new
+grep -aE '^PROBE [a-z-]+ fails' "$OUT/probe-pm3.log" | cut -c1-400
+if grep -aq 'bgGradient' "$OUT/probe-pm3.log" && grep -aq 'incomplete color-contrast na ekranie wyniku' "$OUT/probe-pm3.log"; then echo "  probe-mut pm3: zabity (bgGradient)"; else echo "  probe-mut pm3: PRZEZYL"; fi
+
 bash .bieg/m1892/mut.sh
 restore_generated
 echo DONE

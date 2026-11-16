@@ -63,6 +63,7 @@ beforeEach(() => {
   });
 });
 afterEach(() => vi.unstubAllEnvs());
+vi.setConfig({ testTimeout: 30_000 });
 
 const COMBOS = [
   { timeline: '', ui: '' },
@@ -118,7 +119,7 @@ describe('MIX-1892 oś czasu × nowy wygląd: 4 kombinacje przełączników', ()
         expect(document.body.dataset.timelineCookie).toBeUndefined();
       }
       unmount();
-    }, 30_000);
+    });
   }
 
   it('„Policz jeszcze raz” w nowym wyglądzie z osią wraca do formularza i zdejmuje oś', async () => {
@@ -129,5 +130,5 @@ describe('MIX-1892 oś czasu × nowy wygląd: 4 kombinacje przełączników', ()
     fireEvent.click(screen.getByRole('button', { name: 'Policz jeszcze raz' }));
     await screen.findByText('Jaki jest cel projektu?');
     expect(screen.queryByTestId('new-client-timeline')).not.toBeInTheDocument();
-  }, 30_000);
+  });
 });
