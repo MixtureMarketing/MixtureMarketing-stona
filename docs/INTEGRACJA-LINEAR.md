@@ -158,13 +158,22 @@ Pomijane pola: nazwy pasujące do `token|secret|captcha|passw|haslo|^ip$|agent` 
 
 | miejsce | okres | stan |
 |---|---|---|
-| leady w D1 i zadania w Linearze | 12 miesięcy od ostatniego kontaktu | **do zatwierdzenia przez Jakuba**; tekst klauzuli: `data/content/common.ts:253@b5517dc`; w kodzie brak mechanizmu usuwania (żadnego `DELETE FROM leads` w `functions/`) |
-| PDF audytu w R2 | 90 dni | **do zatwierdzenia przez Jakuba**; `data/content/common.ts:254@b5517dc`; brak mechanizmu usuwania w kodzie |
-| `linear_leady` | razem z leadem (kaskada) | `migrations/0010_linear_leady.sql:8` |
+| leady z audytu w D1 (`source='audit'`) | 12 miesięcy od ostatniej zmiany (`updated_at`), jeśli lead nie został klientem | MIX-1371 A; kasowanie: `functions/api/audit/_retencja.ts` przez `POST /api/audit/retencja` (MIX-1820) |
+| leady z formularza i kalkulatora w D1, zadania w Linearze | 12 miesięcy od ostatniego kontaktu | tekst klauzuli `data/content/common.ts`; mechanizmu usuwania w kodzie jeszcze nie ma (MIX-1820 obejmuje tylko audyt; zadania w Linearze poza repo) |
+| PDF audytu w R2 (`audit/…`) | 30 dni od wgrania | MIX-1371 A (zastępuje 90 dni z MIX-627); kasowanie: `functions/api/audit/_retencja.ts` (MIX-1820) |
+| `linear_leady` | razem z leadem (retencja usuwa wiersz jawnie przed leadem) | `migrations/0010_linear_leady.sql:8` |
 | KV: dedup adresu / blokada kroku / licznik odbiorcy audytu / powiadomienia | 1 h / 24 h / 24 h / 30 dni | `functions/api/_linear.ts:62`, `functions/api/_linear.ts:64`, `functions/api/audit/capture-lead.ts:148`, `functions/api/contact-submit.ts:420` |
 | rejestr podpisów `crm_zapytania` | ok. 10 minut | `functions/api/crm/_podpis.ts:116` |
 
-Decyzja Jakuba z 02.11 (MIX-627): 12 miesięcy dla leadów i 90 dni dla PDF z audytu, zgodnie z rekomendacją. Do ustalenia, jak ta retencja jest wykonywana (pytanie O2).
+Decyzja Jakuba z 02.11 (MIX-627): 12 miesięcy dla leadów i 90 dni dla PDF z audytu. Nowsza decyzja z 16.11 (MIX-1371 A): PDF z audytu 30 dni, dane kontaktowe leada z audytu 12 miesięcy, jeśli nie został klientem.
+
+#### 6.2.1 Wykonanie retencji audytu (MIX-1820)
+
+- `POST /api/audit/retencja` (`functions/api/audit/retencja.ts`), podpis HMAC jak `leady/ponow`, ale osobny sekret `AUDIT_RETENCJA_SECRET` (≥ 32 znaki) i prefiks `audyt-retencja:v1:`. Wywołanie: `scripts/audit-retencja.mjs` (env `RETENCJA_URL`, `RETENCJA_SECRET`), timer na serwerze firmy raz na dobę (poza repo, obok `leady-ponow.timer`).
+- Klient (nie kasowany): `status='converted'`, ustawione `user_id` albo konto w `users` z tym samym adresem.
+- Tryb próbny jest domyślny. Kasowanie tylko przy `AUDIT_RETENCJA_KASUJ=tak`, bez `"proba": true` w body, a na Preview (`SRODOWISKO=preview`) dodatkowo z jawnym `"proba": false`.
+- Na przebieg najwyżej 1000 plików i 200 leadów; reszta w kolejnym dniu. Odpowiedź i log `[audyt:retencja]`: liczby, id leadów, klucze plików.
+- Nie obejmuje: zadań i Customerów w Linearze, kopii w skrzynce agencji (mail z PDF) ani kopii zapasowych D1.
 
 ### 6.3 Usuwanie na żądanie osoby
 

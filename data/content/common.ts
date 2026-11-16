@@ -247,11 +247,12 @@ export const TERMS_CONTENT = {
 
 const RODO_ADRES = `${ADRES_ULICA}, ${ADRES_KOD} ${ADRES_MIASTO}`;
 
-// Okresy przechowywania (decyzja właściciela MIX-627 A): to samo brzmienie w pkt 6 klauzuli
-// formularzy i w pkt 3 polityki prywatności przy włączonej fladze.
+// Okresy przechowywania (decyzje właściciela MIX-627 A i MIX-1371 A z 16.11: PDF 30 dni): to samo brzmienie
+// w pkt 6 klauzuli formularzy i w pkt 3 polityki prywatności przy włączonej fladze. Automatyczne kasowanie
+// (PDF po 30 dniach, lead z audytu po 12 miesiącach bez statusu klienta): functions/api/audit/_retencja.ts.
 const RODO_RETENCJA_LEADY =
   'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy.';
-const RODO_RETENCJA_PDF = 'Raport PDF z audytu strony przechowujemy 90 dni.';
+const RODO_RETENCJA_PDF = 'Raport PDF z audytu strony przechowujemy 30 dni.';
 
 // Klauzula informacyjna RODO formularzy (MIX-844). Pokazywana tylko przy włączonej fladze
 // VITE_RODO_KLAUZULA=1 (config/flags.ts). Tekst wg dodatku RODO MIX-627, odpowiedzi właściciela 2.11.
