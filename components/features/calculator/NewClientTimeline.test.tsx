@@ -213,3 +213,37 @@ describe('K3 przycisk ciasteczek (fixed) nie zasłania sekcji', () => {
     expect(SRC).toContain("'timelineCookie'");
   });
 });
+
+describe('MIX-1885 kontrast podtytułu', () => {
+  // WCAG 2.x: luminancja względna i stosunek kontrastu; tło sekcji to #101624 (ekran wyniku).
+  const lum = (hex: string) =>
+    [1, 3, 5]
+      .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+      .reduce((a, v, k) => a + v * [0.2126, 0.7152, 0.0722][k], 0);
+  const ratio = (a: string, b: string) => {
+    const [l1, l2] = [lum(a), lum(b)].sort((m, n) => n - m);
+    return (l1 + 0.05) / (l2 + 0.05);
+  };
+  const CSS = fs.readFileSync(path.join(HERE, '../../../index.css'), 'utf8');
+  const SZARE_Z_CSS = Object.fromEntries(
+    [...CSS.matchAll(/--color-(gray-\d00):\s*(#[0-9a-f]{6})/gi)].map((m) => [m[1], m[2]]),
+  );
+
+  it('ciemne szarości z index.css nie dają 4,5:1 na #101624 (dlatego nie wolno ich użyć)', () => {
+    expect(SZARE_Z_CSS['gray-400']).toBe('#4b5563');
+    expect(ratio(SZARE_Z_CSS['gray-400'], '#101624')).toBeLessThan(4.5);
+  });
+
+  it('podtytuł i punkty mają jasny kolor tekstu (≥ 4,5:1), nie text-gray-400 ani ciemniejszy', () => {
+    const { container } = render(<NewClientTimeline periods={DATA} />);
+    const p = container.querySelector('section h2 + p')!;
+    const ul = container.querySelector('section ol ul')!;
+    for (const el of [p, ul]) {
+      const kolor = [...el.classList].find((c) => /^text-(gray-\d00|white)$/.test(c));
+      expect(['text-white', 'text-gray-100', 'text-gray-200', 'text-gray-300']).toContain(kolor);
+      const nadpisany = kolor && SZARE_Z_CSS[kolor.slice('text-'.length)];
+      if (nadpisany) expect(ratio(nadpisany, '#101624')).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});

@@ -44,7 +44,7 @@ const NewClientTimeline: React.FC<{ periods?: TimelinePeriod[] }> = ({
       <h2 id="new-client-timeline-title" className="text-xl font-bold text-white">
         {NEW_CLIENT_TIMELINE_HEADING}
       </h2>
-      <p className="mt-2 text-sm text-gray-400">{NEW_CLIENT_TIMELINE_INTRO}</p>
+      <p className="mt-2 text-sm text-gray-300">{NEW_CLIENT_TIMELINE_INTRO}</p>
       <ol className="mt-5 space-y-5 border-s border-white/15 ps-5">
         {rows.map((p) => (
           <li key={p.period}>

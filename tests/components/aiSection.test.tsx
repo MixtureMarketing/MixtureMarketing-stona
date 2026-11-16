@@ -168,10 +168,11 @@ describe('/web-development/custom-app/', () => {
 });
 
 describe('Preview', () => {
-  it('ci.yml włącza przełącznik tylko dla celu preview (produkcja i PR: wyłączony)', () => {
+  it('ci.yml włącza przełącznik dla wszystkich celów (MIX-1838: Preview, produkcja i PR)', () => {
     const ci = fs.readFileSync(path.join(root, '.github/workflows/ci.yml'), 'utf8');
-    expect(ci).toContain(
-      "VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}",
-    );
+    const linie = ci.split('\n').filter((l) => /^\s*VITE_MM_AI_SECTION:/.test(l));
+    expect(linie).toHaveLength(1);
+    expect(linie[0]).toMatch(/^\s*VITE_MM_AI_SECTION: '1'(\s+#.*)?$/);
+    expect(ci).not.toContain("VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview'");
   });
 });

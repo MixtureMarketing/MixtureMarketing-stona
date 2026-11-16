@@ -12,16 +12,19 @@ export const LIVE_PRICE_DEBOUNCE_MS = 400;
  */
 export const LIVE_PRICE_MIN_GAP_MS = 1000;
 
-/** Włączony tylko dla wartości `1` albo `true`; brak, puste i cokolwiek innego = wyłączony. */
+/**
+ * Włączony tylko dla wartości dokładnie `1` (MIX-1846: `true` już nie włącza, tak jak strażnik
+ * ci.yml i przełączniki w config/flags.ts); brak, puste i cokolwiek innego = wyłączony.
+ */
 export function isLivePriceBarEnabled(
   raw: unknown = import.meta.env.VITE_MM_LIVE_PRICE_BAR,
 ): boolean {
-  return raw === '1' || raw === 'true';
+  return raw === '1';
 }
 
 /**
  * MIX-1790: podgląd konfiguracji (szkic typu strony + „Twój zakres") za osobnym przełącznikiem
- * `VITE_MM_CONFIG_PREVIEW`, ten sam parser: tylko `1` albo `true` włącza, reszta wyłącza.
+ * `VITE_MM_CONFIG_PREVIEW`, ten sam parser: tylko `1` włącza, reszta wyłącza.
  */
 export function isConfigPreviewEnabled(
   raw: unknown = import.meta.env.VITE_MM_CONFIG_PREVIEW,
@@ -31,7 +34,7 @@ export function isConfigPreviewEnabled(
 
 /**
  * MIX-1791: link do konfiguracji (`/wycena/?k=...`, przyciski „Skopiuj link" i „Udostępnij") za
- * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` albo `true` włącza.
+ * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` włącza.
  * Wyłączony = brak przycisków i parametr `k` w adresie nie jest czytany.
  */
 export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFIG_LINK): boolean {
@@ -40,13 +43,26 @@ export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFI
 
 /**
  * MIX-1816 (Z13): oś czasu dla nowego klienta na ekranie wyniku wyceny za przełącznikiem
- * `VITE_MM_NEW_CLIENT_TIMELINE`, ten sam parser: tylko `1` albo `true` włącza.
+ * `VITE_MM_NEW_CLIENT_TIMELINE`: włącza tylko dokładnie `1` (jak MIX-1846; `true` już nie).
  * Wyłączony = ekran wyniku identyczny jak wcześniej (żadnego dodatkowego elementu).
  */
 export function isNewClientTimelineEnabled(
   raw: unknown = import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE,
 ): boolean {
-  return isLivePriceBarEnabled(raw);
+  // Bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny parametr,
+  // czyli wartość VITE_MM_LIVE_PRICE_BAR (mutant V4 z werdyktu MIX-1816).
+  return raw === '1';
+}
+
+/**
+ * MIX-1813 (Z10): „Wyślij i umów rozmowę” z opcjonalnym telefonem za przełącznikiem budowy
+ * `VITE_MM_LEAD_CONFIG`, ten sam parser: tylko `1` albo `true` włącza. Konfigurację w leadzie
+ * zapisuje serwer dopiero przy `LEAD_CONFIG_CRM=1` (functions/api/estimation/_leadConfig.ts).
+ */
+export function isLeadConfigEnabled(raw: unknown = import.meta.env.VITE_MM_LEAD_CONFIG): boolean {
+  // Bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny parametr,
+  // czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1' || raw === 'true';
 }
 
 /**

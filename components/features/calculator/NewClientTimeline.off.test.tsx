@@ -1,6 +1,6 @@
 // MIX-1816 (Z13) K2: przełącznik VITE_MM_NEW_CLIENT_TIMELINE. Wyłączony = DOM ekranu wyniku
 // IDENTYCZNY jak przed zmianą (BASE_HTML to dosłowny zrzut z integracji 8933c5b), 0 elementów osi
-// czasu. Włączony (1 / true) = ten sam ekran plus sekcja osi czasu na jego końcu.
+// czasu. Włączony (tylko 1, MIX-1846) = ten sam ekran plus sekcja osi czasu na jego końcu.
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -71,16 +71,22 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs());
 
 describe('K2 parser przełącznika', () => {
-  it('tylko 1 i true włączają; reszta wyłącza (także wielkie litery, spacje, 0, yes, on)', () => {
-    for (const v of ['1', 'true']) expect(isNewClientTimelineEnabled(v)).toBe(true);
-    for (const v of [undefined, '', '0', 'TRUE', ' 1', 'yes', 'on', 'false', 1, true, null])
+  it('tylko 1 włącza; reszta wyłącza (także true, wielkie litery, spacje, 0, yes, on)', () => {
+    expect(isNewClientTimelineEnabled('1')).toBe(true);
+    for (const v of [undefined, '', '0', 'true', 'TRUE', ' 1', 'yes', 'on', 'false', 1, true, null])
       expect(isNewClientTimelineEnabled(v), String(v)).toBe(false);
+  });
+
+  it('brak zmiennej osi czasu nie dziedziczy VITE_MM_LIVE_PRICE_BAR (MIX-1885, mutant V4)', () => {
+    vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
+    expect(isNewClientTimelineEnabled(undefined)).toBe(false);
+    expect(isNewClientTimelineEnabled()).toBe(false);
   });
 });
 
 describe('K2 ekran wyniku', () => {
-  it('wyłączony (brak, pusty, "0", "TRUE", "yes"): DOM wyniku dosłownie jak przed zmianą, 0 osi czasu', async () => {
-    for (const v of ['', '0', 'TRUE', ' 1', 'yes', 'on']) {
+  it('wyłączony (brak, pusty, "0", "true", "TRUE", "yes"): DOM wyniku dosłownie jak przed zmianą, 0 osi czasu', async () => {
+    for (const v of ['', '0', 'true', 'TRUE', ' 1', 'yes', 'on']) {
       vi.stubEnv('VITE_MM_NEW_CLIENT_TIMELINE', v);
       const { container, unmount } = await reachResult();
       expect(resultHtml(container)).toBe(BASE_HTML);
@@ -91,8 +97,8 @@ describe('K2 ekran wyniku', () => {
     }
   }, 30_000);
 
-  it('włączony (1 i true): ten sam ekran plus sekcja osi czasu na końcu, ceny bez zmian', async () => {
-    for (const v of ['1', 'true']) {
+  it('włączony (1): ten sam ekran plus sekcja osi czasu na końcu, ceny bez zmian', async () => {
+    for (const v of ['1']) {
       vi.stubEnv('VITE_MM_NEW_CLIENT_TIMELINE', v);
       const { container, unmount } = await reachResult();
       const html = resultHtml(container);

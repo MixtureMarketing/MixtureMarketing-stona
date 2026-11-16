@@ -55,6 +55,7 @@ const ArticleSection = ({
 const AiSystemsArticle = () => (
   <ArticleShell
     id={AI_ARTICLE_ID}
+    cennikLink
     title={CONTENT.header.title}
     seoTitle={CONTENT.header.seoTitle}
     description={CONTENT.header.subtitle}

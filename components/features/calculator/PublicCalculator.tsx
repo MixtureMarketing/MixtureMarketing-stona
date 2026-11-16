@@ -15,6 +15,7 @@ import ConfigPreview from './ConfigPreview';
 import {
   isConfigLinkEnabled,
   isConfigPreviewEnabled,
+  isLeadConfigEnabled,
   isLivePriceBarEnabled,
   isNewClientTimelineEnabled,
 } from './livePrice';
@@ -98,6 +99,9 @@ const PublicCalculator: React.FC = () => {
           submitError={c.submitError}
           submitting={c.phase === 'submitting'}
           onSubmit={c.submit}
+          leadConfig={isLeadConfigEnabled()}
+          phone={c.phone}
+          setPhone={c.setPhone}
           liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
           configPreview={
             configEnabled ? (

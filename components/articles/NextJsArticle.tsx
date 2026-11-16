@@ -45,6 +45,7 @@ const NextJsArticle = () => {
   return (
     <ArticleShell
       id="nextjs-zloty-standard"
+      cennikLink
       title={joinTitleLines(
         content.header.title.line1,
         content.header.title.line2,

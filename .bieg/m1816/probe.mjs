@@ -11,6 +11,8 @@
  * poziomego (też z 400-znakowym słowem w punkcie); przycisk ciasteczek nakłada się na sekcję 0 px²
  * (widoczny przycisk, pomiar co 50 px przewijania) i wraca na górze strony; axe (wcag2a/aa/22aa):
  * 0 serious/critical w sekcji i na całym ekranie wyniku; prefers-reduced-motion: 0 animacji.
+ * MIX-1885: warstwa gradientu nad stroną schowana na czas axe (PROBE_OVERLAY=keep ją zostawia);
+ * color-contrast w `incomplete` na ekranie wyniku = błąd; własny pomiar kontrastu podtytułu ≥ 4,5:1.
  * off: 0 elementów osi czasu, ekran wyniku identyczny z zapisem .bieg/m1816/base.html.
  * Wynik: <out>/probe.json; kod 0 = progi spełnione, 1 = nie, 2 = złe wywołanie.
  */
@@ -299,25 +301,79 @@ for (const vp of VIEWPORTS) {
       quality: 70,
     });
   }
+  // MIX-1885: dekoracyjna warstwa z gradientem (`fixed inset-0`, pointer-events-none) nad stroną
+  // sprawia, że axe odkłada kontrast tekstów do `incomplete` (bgGradient) = fałszywe zero. Chowamy
+  // ją na czas pomiaru (PROBE_OVERLAY=keep zostawia ją, do testu sondy), a `incomplete`
+  // color-contrast na ekranie wyniku liczymy jako błąd.
+  const overlays = await page.evaluate((keep) => {
+    const found = [...document.querySelectorAll('body *')].filter((el) => {
+      const cs = getComputedStyle(el);
+      return (
+        cs.position === 'fixed' &&
+        cs.pointerEvents === 'none' &&
+        cs.backgroundImage !== 'none' &&
+        el.getBoundingClientRect().width >= window.innerWidth - 1 &&
+        el.getBoundingClientRect().height >= window.innerHeight - 1
+      );
+    });
+    if (!keep) for (const el of found) el.style.visibility = 'hidden';
+    return { found: found.length, hidden: keep ? 0 : found.length };
+  }, process.env.PROBE_OVERLAY === 'keep');
+  // własny pomiar kontrastu podtytułu (WCAG 2.x, próg 4,5:1 dla zwykłego tekstu)
+  const sub = await page.evaluate(() => {
+    const rgb = (css) => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 1;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      x.clearRect(0, 0, 1, 1);
+      x.fillStyle = css;
+      x.fillRect(0, 0, 1, 1);
+      return [...x.getImageData(0, 0, 1, 1).data];
+    };
+    const lum = ([r, g, b]) =>
+      [r, g, b]
+        .map((v) => v / 255)
+        .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+        .reduce((a, v, k) => a + v * [0.2126, 0.7152, 0.0722][k], 0);
+    const hex = (a) => '#' + a.slice(0, 3).map((v) => v.toString(16).padStart(2, '0')).join('');
+    const p = document.querySelector('[data-testid="new-client-timeline"] h2 + p');
+    if (!p) return null;
+    let bg = null;
+    for (let el = p; el && !bg; el = el.parentElement) {
+      const c = rgb(getComputedStyle(el).backgroundColor);
+      if (c[3] === 255) bg = c;
+    }
+    bg = bg ?? rgb(getComputedStyle(document.documentElement).backgroundColor);
+    if (bg[3] !== 255) bg = [255, 255, 255, 255];
+    const fg = rgb(getComputedStyle(p).color);
+    const a = fg[3] / 255;
+    const mix = fg.slice(0, 3).map((v, k) => Math.round(v * a + bg[k] * (1 - a)));
+    const [l1, l2] = [lum(mix), lum(bg)].sort((m, n) => n - m);
+    return { fg: hex(mix), bg: hex(bg), ratio: Math.round(((l1 + 0.05) / (l2 + 0.05)) * 100) / 100 };
+  });
   // axe w prawdziwej przeglądarce (z kontrastem), na całym ekranie wyniku i w samej sekcji
   await page.addScriptTag({ path: AXE_JS });
   const axeRes = await page.evaluate(async () => {
     const res = await window.axe.run(document, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] },
     });
+    const sec = document.querySelector('[data-testid="new-client-timeline"]');
+    const screenBox = sec?.parentElement ?? null;
+    const inBox = (box, n) => {
+      const el = document.querySelector(n.target[0]);
+      return !!(el && box?.contains(el));
+    };
     const bad = res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    const inc = res.incomplete.filter((v) => v.id === 'color-contrast');
     return {
       all: bad.map((v) => ({ id: v.id, n: v.nodes.length })),
-      sectionNodes: bad.flatMap((v) =>
+      sectionNodes: bad.flatMap((v) => v.nodes.filter((n) => inBox(sec, n)).map(() => v.id)),
+      incompleteScreen: inc.flatMap((v) =>
         v.nodes
-          .filter((n) => {
-            const el = document.querySelector(n.target[0]);
-            return (
-              el && document.querySelector('[data-testid="new-client-timeline"]')?.contains(el)
-            );
-          })
-          .map(() => v.id),
+          .filter((n) => inBox(screenBox, n))
+          .map((n) => `${n.target[0]} ${(n.any[0]?.data?.messageKey ?? '').slice(0, 20)}`),
       ),
+      incompletePage: inc.reduce((k, v) => k + v.nodes.length, 0),
     };
   });
   // długi tekst bez spacji w punkcie: bez przewijania poziomego
@@ -339,7 +395,18 @@ for (const vp of VIEWPORTS) {
   await rm.close();
   await page.close();
 
-  results[vp.name] = { structure, sw, swLong, atTop, sweep, axe: axeRes, anims, rmMatch };
+  results[vp.name] = {
+    structure,
+    sw,
+    swLong,
+    atTop,
+    sweep,
+    overlays,
+    sub,
+    axe: axeRes,
+    anims,
+    rmMatch,
+  };
   check(structure.present, `${vp.name}: brak sekcji`);
   check(
     JSON.stringify(structure.olItems) === '["LI","LI","LI"]',
@@ -384,6 +451,14 @@ for (const vp of VIEWPORTS) {
   check(
     axeRes.all.length === 0,
     `${vp.name}: axe serious/critical na ekranie wyniku ${JSON.stringify(axeRes.all)}`,
+  );
+  check(
+    axeRes.incompleteScreen.length === 0,
+    `${vp.name}: axe incomplete color-contrast na ekranie wyniku ${JSON.stringify(axeRes.incompleteScreen)}`,
+  );
+  check(
+    sub && sub.ratio >= 4.5,
+    `${vp.name}: kontrast podtytułu ${JSON.stringify(sub)} < 4.5`,
   );
   check(rmMatch && anims === 0, `${vp.name}: reduced-motion match=${rmMatch} animacji=${anims}`);
 }

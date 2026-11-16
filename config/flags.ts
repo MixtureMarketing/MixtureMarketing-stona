@@ -39,3 +39,22 @@ export const isAiSectionEnabled = (): boolean => import.meta.env.VITE_MM_AI_SECT
  */
 export const isRzeszowSectionsEnabled = (): boolean =>
   import.meta.env.VITE_MM_RZESZOW_SEKCJE === '1';
+
+/**
+ * Filmy w portfolio (MIX-1831/MIX-1873): lista `/portfolio/` (film po najechaniu, doczytany w tle
+ * po `load`) i strona realizacji (film w miejscu zdjęcia hero po `load`). Mapa filmów:
+ * `data/portfolioVideos.ts`. Wyłączony = brak `<video>` w DOM i zero żądań filmów (zasada MIX-1411:
+ * Preview `1`, produkcja i PR puste).
+ */
+export const isPortfolioVideoEnabled = (): boolean =>
+  import.meta.env.VITE_MM_PORTFOLIO_VIDEO === '1';
+
+/**
+ * Strona /cennik/ z widełkami cen (MIX-1855): trasa, adres w sitemap.xml i llms.txt, linki
+ * z artykułów bazy wiedzy i przycisk „Chcesz podobny projekt?” w realizacjach. Czeka na
+ * akceptację Jakuba. Wyłączony (domyślnie) = brak trasy, a /cennik i /cennik/ dostają 301 na
+ * /offers/ (public/_redirects), HTML pozostałych stron bez zmian. Preview buduje się z
+ * `VITE_MM_CENNIK=1` (ci.yml); w buildzie z włączonym przełącznikiem scripts/apply-cennik-build.mjs
+ * zdejmuje te 301 z dist/_redirects i dopisuje stronę do dist/llms.txt.
+ */
+export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
