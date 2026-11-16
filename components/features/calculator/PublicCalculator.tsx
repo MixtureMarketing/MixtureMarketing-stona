@@ -12,7 +12,13 @@ import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
-import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import {
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
+  isLivePriceBarEnabled,
+  isResultContactEnabled,
+} from './livePrice';
+import { buildHandoff, withP4Texts } from './calculatorHandoff';
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
@@ -54,6 +60,18 @@ const PublicCalculator: React.FC = () => {
   }, [linkOn, phase, questions, setAnswer]);
   const linkK = linkOn && filling ? encodeConfigLink(c.questions, c.answers) : null;
 
+  // Ekran wyniku z przejściem do kontaktu (MIX-1815): za przełącznikiem VITE_MM_RESULT_CONTACT.
+  // Włączony = pytania z tekstami P4 i „Umów rozmowę” niesie konfigurację (stan historii, nie
+  // adres) do /contact/; link ?k= tylko, gdy włączony jest też link do konfiguracji (Z7).
+  const resultOn = isResultContactEnabled();
+  const shownQuestions = resultOn ? withP4Texts(c.questions) : c.questions;
+  const handoff = (() => {
+    if (!resultOn || c.phase !== 'done' || !c.result) return null;
+    const k = linkOn ? encodeConfigLink(c.questions, c.answers) : null;
+    const link = k ? buildConfigLinkUrl(window.location.href, k) : null;
+    return buildHandoff(shownQuestions, c.answers, c.result.priceRange, c.email, link);
+  })();
+
   return (
     <div
       className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl"
@@ -72,12 +90,12 @@ const PublicCalculator: React.FC = () => {
       {c.phase === 'loadError' && <CalculatorLoadError onRetry={() => window.location.reload()} />}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} />
+        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} handoff={handoff} />
       )}
 
       {(c.phase === 'ready' || c.phase === 'submitting') && (
         <CalculatorForm
-          visible={c.visible}
+          visible={resultOn ? withP4Texts(c.visible) : c.visible}
           answers={c.answers}
           setAnswer={c.setAnswer}
           errors={c.errors}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   Mail,
   Phone,
@@ -17,9 +18,15 @@ import InlineContactForm from '../features/contact/InlineContactForm';
 import { SITE_CONFIG } from '../../config/site';
 import { CONTACT_PAGE_CONTENT as CONTENT } from '../../data/content';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
+import { readHandoff } from '../features/calculator/calculatorHandoff';
+import { isResultContactEnabled } from '../features/calculator/livePrice';
 
 const ContactPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
+  // MIX-1815: konfiguracja z ekranu wyniku /wycena/ (stan historii, allowlista); przełącznik
+  // wyłączony = stan nie jest czytany i formularz jest jak dziś.
+  const location = useLocation();
+  const calculatorConfig = isResultContactEnabled() ? readHandoff(location.state) : null;
 
   const handleCopyNip = () => {
     navigator.clipboard.writeText(CONTENT.invoiceData.nip);
@@ -100,7 +107,7 @@ const ContactPage: React.FC = () => {
             {/* LEFT: INLINE CONTACT FORM (BH2 — eliminuje "klik na modal" friction) */}
             <div className="lg:col-span-7">
               <AnimateOnScroll className="h-full">
-                <InlineContactForm type="general" />
+                <InlineContactForm type="general" calculatorConfig={calculatorConfig} />
               </AnimateOnScroll>
             </div>
 

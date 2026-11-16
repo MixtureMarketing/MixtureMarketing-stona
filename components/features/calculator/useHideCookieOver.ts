@@ -16,7 +16,7 @@ export const COOKIE_GAP_PX = 4;
 export function useHideCookieOver(
   ref: React.RefObject<HTMLElement | null>,
   active: boolean,
-  flag: 'configPreviewCookie' | 'configLinkCookie',
+  flag: 'configPreviewCookie' | 'configLinkCookie' | 'resultCookie',
 ) {
   useEffect(() => {
     const box = ref.current;
