@@ -840,6 +840,7 @@ describe('audit/run_audit — status PSI w logach i jedno ponowienie (MIX-1826)'
     await runKey();
     expect(errLog()).toContain('[run_audit] psi: TypeError: network error');
     expect(errLog()).not.toContain('przekroczony limit');
+    expect(psiCalls()).toHaveLength(1);
   });
 
   it('psiErrorReason: treść nie-JSON, pusta, długa (≤ 300 znaków)', () => {
@@ -848,6 +849,12 @@ describe('audit/run_audit — status PSI w logach i jedno ponowienie (MIX-1826)'
     expect(psiErrorReason('a'.repeat(1000), 'k1')).toHaveLength(300);
     expect(psiErrorReason(JSON.stringify({ error: { message: 'tylko komunikat' } }), '')).toBe(
       'tylko komunikat',
+    );
+  });
+
+  it('psiErrorReason: obcy klucz w ?key= i &key= wycięty w całości (MIX-1882, v1)', () => {
+    expect(psiErrorReason('url ?key=obcyKlucz123&x=1 &key=drugiKlucz456 koniec', 'k1')).toBe(
+      'url ?key=[klucz]&x=1 &key=[klucz] koniec',
     );
   });
 });
