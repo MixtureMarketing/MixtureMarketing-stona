@@ -322,7 +322,7 @@ describe('tytulZadania', () => {
       'Lead: firma.pl — kontakt',
     );
     expect(tytulZadania(baza({ package_name: 'Pakiet Start', details: d({ x: 1 }) }))).toBe(
-      'Lead: firma.pl — abonament: Pakiet Start',
+      'Lead: firma.pl — pakiet: Pakiet Start', // etykieta „pakiet” od MIX-1849
     );
   });
 
