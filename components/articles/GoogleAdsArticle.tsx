@@ -21,6 +21,7 @@ const GoogleAdsArticle = () => {
   return (
     <ArticleShell
       id="google-ads-skalowanie-budzetu"
+      cennikLink
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="marketing"

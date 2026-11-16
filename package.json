@@ -14,7 +14,7 @@
     "indexnow": "node scripts/indexnow-ping.js",
     "clean": "rimraf dist",
     "prebuild": "npm run clean && npm run images",
-    "build": "vite build && npm run sitemap && npm run prerender && npm run audit:gate && npx size-limit",
+    "build": "vite build && node scripts/apply-cennik-build.mjs && npm run sitemap && npm run prerender && npm run audit:gate && npx size-limit",
     "build:full": "npm run lint && vitest run && npm run build && npm run audit:health",
     "prerender": "node prerender.js",
     "audit:a11y": "node scripts/audit-a11y.js",

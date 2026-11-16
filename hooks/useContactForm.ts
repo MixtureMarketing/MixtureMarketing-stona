@@ -13,6 +13,7 @@ import {
   CAPTCHA_CLIENT_ERROR_MESSAGE,
 } from '../utils/contactFormHelpers';
 import { trackEvent } from '../utils/analytics';
+import { isCaseStudyLead, similarProjectOf, trackCaseStudyLead } from '../utils/caseStudyLead';
 
 export const useContactForm = (
   type: ContactType,
@@ -26,6 +27,8 @@ export const useContactForm = (
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { additionalData } = useModal();
   const isInitialized = useRef(false);
+  // MIX-1855: nazwa realizacji z przycisku „Chcesz podobny projekt?” (temat leada).
+  const similarProject = similarProjectOf(additionalData);
 
   const getCaptchaToken = async (): Promise<string> => {
     const handle = turnstileRef?.current;
@@ -84,6 +87,7 @@ export const useContactForm = (
           email: values.email,
           phone: values.phone,
           service_interest: type,
+          ...(similarProject && { similar_project: similarProject }),
         };
         if (leadId) {
           await leadService.updateLead(leadId, values, 1);
@@ -159,6 +163,7 @@ export const useContactForm = (
         ...data,
         captcha_token: token,
         package_name: additionalData?.package as string,
+        ...(similarProject && { similar_project: similarProject }),
       };
       if (leadId) {
         await leadService.updateLead(leadId, finalData, 3);
@@ -170,6 +175,7 @@ export const useContactForm = (
           phone: data.phone,
           service_interest: type,
           captcha_token: token,
+          ...(similarProject && { similar_project: similarProject }),
         });
         if (createdLead) {
           await leadService.updateLead(createdLead.id, finalData, 3);
@@ -177,6 +183,8 @@ export const useContactForm = (
         }
       }
       setIsSubmitted(true);
+      // GA4 generate_lead (słownik P4): sukces formularza z przycisku w realizacji, bez nazwy klienta.
+      if (isCaseStudyLead(additionalData)) trackCaseStudyLead();
       resetCaptcha();
     } catch (error) {
       setSubmitError(describeLeadError(error));
