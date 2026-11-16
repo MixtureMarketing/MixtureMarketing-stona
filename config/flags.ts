@@ -41,6 +41,15 @@ export const isRzeszowSectionsEnabled = (): boolean =>
   import.meta.env.VITE_MM_RZESZOW_SEKCJE === '1';
 
 /**
+ * Filmy w portfolio (MIX-1831/MIX-1873): lista `/portfolio/` (film po najechaniu, doczytany w tle
+ * po `load`) i strona realizacji (film w miejscu zdjęcia hero po `load`). Mapa filmów:
+ * `data/portfolioVideos.ts`. Wyłączony = brak `<video>` w DOM i zero żądań filmów (zasada MIX-1411:
+ * Preview `1`, produkcja i PR puste).
+ */
+export const isPortfolioVideoEnabled = (): boolean =>
+  import.meta.env.VITE_MM_PORTFOLIO_VIDEO === '1';
+
+/**
  * Strona /cennik/ z widełkami cen (MIX-1855): trasa, adres w sitemap.xml i llms.txt, linki
  * z artykułów bazy wiedzy i przycisk „Chcesz podobny projekt?” w realizacjach. Czeka na
  * akceptację Jakuba. Wyłączony (domyślnie) = brak trasy, a /cennik i /cennik/ dostają 301 na

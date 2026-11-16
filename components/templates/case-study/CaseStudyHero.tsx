@@ -6,6 +6,9 @@ import { SanityCaseStudy } from '@/types';
 import { urlFor } from '@/services/cmsService';
 import { VT_NAMES, isViewTransitionsEnabled } from '@/utils/viewTransitions';
 import { getArrivalPath, signalTargetReady, subscribeArrival } from '@/utils/caseStudyArrival';
+import { isPortfolioVideoEnabled } from '@/config/flags';
+import { portfolioVideoFor } from '@/data/portfolioVideos';
+import CaseStudyHeroVideo from './CaseStudyHeroVideo';
 import './caseStudyHero.css';
 
 interface CaseStudyHeroProps {
@@ -72,6 +75,9 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
   }, [named, pathname]);
 
   const titleStyle = named ? { viewTransitionName: VT_NAMES.title } : undefined;
+  // MIX-1873: film w ramce zdjęcia (za przełącznikiem); realizacja bez filmu = samo zdjęcie.
+  const video = isPortfolioVideoEnabled() ? portfolioVideoFor(project.slug) : null;
+  const heroVideo = video ? <CaseStudyHeroVideo video={video} /> : null;
 
   // MIX-1471: przy włączonym przełączniku zdjęcie (to samo co na karcie listy) stoi na samej
   // górze pod nagłówkiem strony, a kategoria, H1, opis i klient/data są pod nim — przejście
@@ -87,7 +93,7 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
             // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; MIX-1651: proporcja 16/9 na każdej szerokości (jak na desktopie);
             // bez kwadratu na telefonie, ramka rezerwuje miejsce (CLS 0).
             <div
-              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh] mb-12"
+              className={`${heroVideo ? 'relative ' : ''}max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh] mb-12`}
               style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
             >
               <img
@@ -102,6 +108,7 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
                 className="w-full h-full object-cover"
                 fetchPriority="high"
               />
+              {heroVideo}
             </div>
           )}
           <motion.div
@@ -157,7 +164,7 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
             initial={arrived ? false : { opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-[1600px] mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh]"
+            className={`${heroVideo ? 'relative ' : ''}max-w-[1600px] mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh]`}
             style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
           >
             {/* MIX-1724: ten sam kadr 16/9 (fit crop, 1600x900) co przy włączonym przełączniku i co karta listy,
@@ -174,6 +181,7 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
               className="w-full h-full object-cover"
               fetchPriority="high"
             />
+            {heroVideo}
           </motion.div>
         )}
       </div>

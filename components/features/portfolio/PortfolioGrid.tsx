@@ -6,6 +6,19 @@ import { SanityCaseStudy } from '../../../types';
 import BaseCard from '../../common/BaseCard';
 import { urlFor } from '../../../services/cmsService';
 import { isTransitionActive } from '../../../utils/caseStudyTransition';
+import { isPortfolioVideoEnabled } from '@/config/flags';
+import { portfolioVideoFor } from '@/data/portfolioVideos';
+import PortfolioCardVideo, { PORTFOLIO_CARD_ATTR } from './PortfolioCardVideo';
+
+const cardPhotoUrl = (project: SanityCaseStudy) =>
+  urlFor(project.mainImage!).width(CARD_PHOTO.width).height(CARD_PHOTO.height).fit('crop').url();
+
+/** MIX-1873: film kafelka za przełącznikiem; realizacja bez filmu (albo bez zdjęcia) = jak dotąd. */
+const CardVideo: React.FC<{ project: SanityCaseStudy }> = ({ project }) => {
+  if (!isPortfolioVideoEnabled() || !project.mainImage) return null;
+  const video = portfolioVideoFor(project.slug);
+  return video ? <PortfolioCardVideo video={video.preview} poster={cardPhotoUrl(project)} /> : null;
+};
 
 /** MIX-1722: the card photo has the same 16:9 crop as the case-study hero (HERO_PHOTO, 1600x900), at half the size. */
 export const CARD_PHOTO = { width: 800, height: 450 } as const;
@@ -67,6 +80,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
             exit={reducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
             transition={{ duration: reducedMotion ? 0 : 0.4 }}
             className="group h-full"
+            {...(isPortfolioVideoEnabled() ? { [PORTFOLIO_CARD_ATTR]: '' } : {})}
           >
             {/* Karta klikalna przez stretched-link na tytule (klawiatura + czytniki),
                 nie przez onClick na divie. */}
@@ -80,11 +94,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                 {project.mainImage ? (
                   <img
-                    src={urlFor(project.mainImage)
-                      .width(CARD_PHOTO.width)
-                      .height(CARD_PHOTO.height)
-                      .fit('crop')
-                      .url()}
+                    src={cardPhotoUrl(project)}
                     alt={project.title}
                     width={CARD_PHOTO.width}
                     height={CARD_PHOTO.height}
@@ -98,6 +108,8 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                     </span>
                   </div>
                 )}
+
+                <CardVideo project={project} />
 
                 {/* Overlay Tags */}
                 <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
