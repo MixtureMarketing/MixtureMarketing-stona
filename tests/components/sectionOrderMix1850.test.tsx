@@ -109,7 +109,8 @@ describe.each(strony)('%s: sekcja Rzeszów w pierwszej połowie', (nazwa, Page, 
     // Poprzednia sekcja = pierwsza sekcja z ofertą (jej nagłówek).
     expect(local.previousElementSibling!.querySelector('h2')!.textContent).toBe(oferta);
     // Przed FAQ (sekcja nie stoi już tuż przed stopką).
-    const faq = screen.getByRole('heading', { level: 2, name: /pytania/i });
+    const faq = screen.getByRole('heading', { level: 2, name: /^(Pytania o Google Ads|Najczęstsze pytania)$/,
+    });
     expect(local.compareDocumentPosition(faq) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
