@@ -124,7 +124,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
     image: [`${baseUrl}${image}`, `${baseUrl}/assets/images/sygnet.png`],
     author: {
       '@type': 'Person',
-      // Ta sama osoba co na /o-nas/ i /abonament/ (jedno @id w grafie).
+      // Ta sama osoba co na /o-nas/ (jedno @id w grafie).
       ...(isFounder && { '@id': FOUNDER_ID }),
       name: author.name,
       ...(author.role && { jobTitle: author.role }),

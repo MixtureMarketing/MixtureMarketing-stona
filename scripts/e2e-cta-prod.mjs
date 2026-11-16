@@ -9,8 +9,8 @@
  *   baseUrl                 domyślnie https://mixturemarketing.pl (może być http://localhost:3000)
  *   --only=cta,funnels      co uruchomić (domyślnie oba)
  *   --viewports=desktop,mobile
- *   --pages=<regex>         filtr ścieżek z sitemapy (np. --pages='^/(abonament|contact)/')
- *   --funnels=<regex>       filtr lejków po nazwie (np. --funnels=abonament)
+ *   --pages=<regex>         filtr ścieżek z sitemapy (np. --pages='^/(wycena|contact)/'|contact)/')
+ *   --funnels=<regex>       filtr lejków po nazwie (np. --funnels=wycena)
  *   --global=sample|all     CTA z nagłówka/stopki: na jednej stronie z każdej grupy (sample) albo wszędzie
  *   --concurrency=6         równoległe konteksty
  *   --paths=/a/,/b/         konkretne ścieżki zamiast sitemapy
@@ -1737,170 +1737,6 @@ async function auditFunnel(s, step) {
   );
 }
 
-// ---- lejek: /abonament/
-const TIER_PRICES = { starter: '179', standard: '249', premium: '349', professional: '549' };
-async function abonamentTierFunnel(s, step, tierLabel, tierId) {
-  await openUrl(s, `${BASE}/abonament/`);
-  let trig;
-  const ok = await step(
-    `klik „Wybierz ${tierLabel}” (świeża sesja, 1. klik)`,
-    'dialog zamówienia otwarty z tym pakietem',
-    async () => {
-      const tiers = await s.page.$$('main button');
-      for (const b of tiers) {
-        const l = await b.evaluate((e) => window.__e2e.label(e));
-        if (new RegExp(`^Wybierz ${tierLabel}\\b`, 'i').test(l)) {
-          trig = b;
-          break;
-        }
-      }
-      if (!trig) throw new StepFail(`brak przycisku „Wybierz ${tierLabel}”`);
-      const y = await trig.evaluate(
-        (e) => e.getBoundingClientRect().top + scrollY - innerHeight / 2,
-      );
-      await humanScrollTo(s, Math.max(0, Math.round(y)));
-      await trig.evaluate((e) => e.setAttribute('data-e2e-trigger', '1'));
-      await realClick(s, trig);
-      const d = await expectDialog(s, null, 4000);
-      const sel = await ev(s, () => document.getElementById('pb-tier')?.value);
-      if (sel !== tierId) throw new StepFail(`w modalu pakiet „${sel}” zamiast „${tierId}”`);
-      return `${d.heading} | pb-tier=${sel}`;
-    },
-  );
-  if (!ok) return;
-  await step('walidacja pól po blur (puste)', 'błędy pod polami widoczne', async () => {
-    const errs = [];
-    for (const id of ['pb-business', 'pb-email', 'pb-phone', 'pb-nip']) {
-      const el = await s.page.$(`#${id}`);
-      if (!el) continue;
-      await realClick(s, el, { allowCovered: true });
-      await s.page.keyboard.press('Tab');
-      await sleep(150);
-    }
-    for (const id of ['pb-business-err', 'pb-email-err', 'pb-phone-err', 'pb-nip-err'])
-      if (
-        await ev(
-          s,
-          (i) => {
-            const e = document.getElementById(i);
-            return !!e && window.__e2e.rendered(e);
-          },
-          id,
-        )
-      )
-        errs.push(id);
-    if (errs.length < 2)
-      throw warnStep(`tylko ${errs.length} komunikatów po blur: ${errs.join(',')}`);
-    return errs.join(', ');
-  });
-  await step(
-    'wypełnienie fikcyjnymi danymi + zgody',
-    'brak błędów, „Zapłać … kartą” aktywny (NIE klikamy)',
-    async () => {
-      for (const [id, v] of [
-        ['pb-business', FAKE.business],
-        ['pb-email', FAKE.email],
-        ['pb-phone', FAKE.phone],
-        ['pb-nip', FAKE.nip],
-      ]) {
-        const el = await s.page.$(`#${id}`);
-        if (!el) continue;
-        await el.evaluate(
-          (e) => ((e.value = ''), e.dispatchEvent(new Event('input', { bubbles: true }))),
-        );
-        await typeInto(s, el, v);
-      }
-      const boxes = await s.page.$$('dialog[open] input[type=checkbox]');
-      if (boxes[0]) await realClick(s, boxes[0], { allowCovered: true });
-      await s.page.keyboard.press('Tab');
-      await sleep(200);
-      const st = await ev(s, () => {
-        const errs = [...document.querySelectorAll('dialog[open] [id$="-err"]')]
-          .filter((e) => window.__e2e.rendered(e))
-          .map((e) => e.id + ': ' + e.innerText);
-        const b = document.querySelector('dialog[open] button[type=submit]');
-        b?.scrollIntoView({ block: 'center', behavior: 'instant' });
-        return {
-          errs,
-          label: b ? window.__e2e.label(b) : null,
-          disabled: b?.disabled,
-          hit: b ? window.__e2e.hitTest(b) : null,
-          consent: document.querySelector('dialog[open] input[type=checkbox]')?.checked,
-        };
-      });
-      if (st.errs.length) throw new StepFail(`błędy przy poprawnych danych: ${st.errs.join('; ')}`);
-      if (!st.label || st.disabled || !st.hit?.ok)
-        throw new StepFail(`przycisk płatności: ${JSON.stringify(st)}`);
-      if (!st.consent) throw new StepFail('zgoda nie zaznaczona');
-      if (!st.label.includes(TIER_PRICES[tierId]))
-        throw warnStep(`etykieta „${st.label}” bez ceny ${TIER_PRICES[tierId]}`);
-      return `„${st.label}” aktywny`;
-    },
-  );
-  await step('zamknięcie i fokus', 'modal zamknięty, fokus na „Wybierz …”', async () => {
-    if (s.isMobile)
-      await realClick(
-        s,
-        await findEl(s, 'button[aria-label="Zamknij okno"]', null, 'dialog[open]'),
-      );
-    else await s.page.keyboard.press('Escape');
-    await expectNoDialog(s);
-    await sleep(300);
-    const st = await state(s);
-    if (!st.activeIsTrigger) throw warnStep(`fokus na ${st.active}`);
-    return 'ok';
-  });
-  await step('ponowne otwarcie tym samym przyciskiem', 'dialog otwiera się ponownie', async () => {
-    await realClick(s, trig);
-    const d = await expectDialog(s, null, 4000);
-    return d.heading;
-  });
-}
-
-async function abonamentDeepLinkFunnel(s, step) {
-  await step('?tier=standard (świeża sesja)', 'dialog otwarty z pakietem Standard', async () => {
-    await openUrl(s, `${BASE}/abonament/?tier=standard`);
-    const d = await expectDialog(s, null, 6000);
-    const sel = await ev(s, () => document.getElementById('pb-tier')?.value);
-    if (sel !== 'standard') throw new StepFail(`pb-tier=${sel}`);
-    return d.heading;
-  });
-  await step('zmiana pakietu w select', 'nagłówek modala aktualizuje się', async () => {
-    await s.page.select('#pb-tier', 'premium');
-    await sleep(300);
-    const t = await ev(s, () => document.querySelector('dialog[open]')?.innerText.slice(0, 200));
-    if (!/Premium/i.test(t)) throw new StepFail(`modal po zmianie: ${t?.slice(0, 80)}`);
-    return 'Premium';
-  });
-}
-
-async function abonamentCanceledFunnel(s, step) {
-  await step(
-    '?stripe=canceled (świeża sesja)',
-    'baner „Anulowałeś płatność” widoczny',
-    async () => {
-      await openUrl(s, `${BASE}/abonament/?stripe=canceled`);
-      return expectVisibleText(s, /Anulowałeś płatność/, { scroll: true, timeout: 5000 });
-    },
-  );
-  await step('„Wróć do pakietów ↑” przewija do cennika', '#pricing w widoku', async () => {
-    const a = await findEl(s, 'a', /Wróć do pakietów/);
-    if (!a) throw new StepFail('brak linku');
-    await realClick(s, a);
-    await waitStable(s);
-    const ht = await ev(s, () => window.__e2e.hashTarget('pricing'));
-    if (!ht.found || ht.top > ht.vh * 0.6 || ht.bottom < 0)
-      throw new StepFail(`#pricing top=${ht.top}`);
-    return `top=${ht.top}`;
-  });
-  await step('wybór pakietu po anulowaniu', 'dialog otwiera się', async () => {
-    const b = await findEl(s, 'main button', /^Wybierz Standard/);
-    await realClick(s, b);
-    const d = await expectDialog(s, null, 4000);
-    return d.heading;
-  });
-}
-
 // ---- lejek: baner cookies
 async function cookieFunnel(s, step, variant) {
   await openUrl(s, `${BASE}/`);
@@ -2222,15 +2058,6 @@ async function runFunnels(browser) {
     add(vp, 'contact-page', contactPageFunnel, { mockContact: true });
     add(vp, 'wycena', wycenaFunnel);
     add(vp, 'audyt-360', auditFunnel);
-    for (const [label, id] of [
-      ['Starter', 'starter'],
-      ['Standard', 'standard'],
-      ['Premium', 'premium'],
-      ['Professional', 'professional'],
-    ])
-      add(vp, `abonament-${id}`, (s, st) => abonamentTierFunnel(s, st, label, id));
-    add(vp, 'abonament-deeplink', abonamentDeepLinkFunnel);
-    add(vp, 'abonament-canceled', abonamentCanceledFunnel);
     for (const v of ['accept', 'reject', 'settings'])
       add(vp, `cookies-${v}`, (s, st) => cookieFunnel(s, st, v));
     add(vp, 'portal', portalFunnel);

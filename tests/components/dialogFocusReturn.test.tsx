@@ -1,14 +1,10 @@
 // Regresja (E2E prod 2026-10-25): zamknięcie okna przyciskiem X (albo kliknięciem w tło)
 // odmontowywało otwarty <dialog> i fokus spadał na <body>; wracał na CTA tylko po Esc
-// (natywne zamknięcie). Dotyczyło modala kontaktowego i okna zamówienia /abonament/.
+// (natywne zamknięcie). Dotyczyło modala kontaktowego (okno zamówienia usunięte w MIX-1849).
 import React, { StrictMode, useState } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
 import Modal from '../../components/common/Modal';
-import PreonboardModal, {
-  type AbonamentTier,
-} from '../../components/pages/abonament/PreonboardModal';
 
 vi.mock('../../utils/analytics', () => ({ trackEvent: vi.fn() }));
 
@@ -24,16 +20,6 @@ const ContactLikeHarness = () => {
         </Modal>
       )}
     </>
-  );
-};
-
-const AbonamentHarness = () => {
-  const [tier, setTier] = useState<AbonamentTier | null>(null);
-  return (
-    <MemoryRouter>
-      <button onClick={() => setTier('standard')}>Wybierz Standard</button>
-      <PreonboardModal tier={tier} onClose={() => setTier(null)} />
-    </MemoryRouter>
   );
 };
 
@@ -74,14 +60,6 @@ describe('fokus wraca na CTA po zamknięciu okna', () => {
     );
     const { trigger, close } = openFrom(/Umów konsultację/);
     fireEvent.click(close);
-    expect(document.activeElement).toBe(trigger);
-  });
-
-  it('okno zamówienia /abonament/ — przycisk X', () => {
-    render(<AbonamentHarness />);
-    const { trigger, close } = openFrom(/Wybierz Standard/);
-    fireEvent.click(close);
-    expect(document.querySelector('dialog')).toBeNull();
     expect(document.activeElement).toBe(trigger);
   });
 });

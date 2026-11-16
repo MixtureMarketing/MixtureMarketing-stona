@@ -268,7 +268,7 @@ export function tematLeada(lead: LeadRow): string {
   const podobny = typeof d.similar_project === 'string' ? temat40(d.similar_project, lead) : '';
   if (podobny) return `podobny projekt: ${podobny}`;
   const pakiet = temat40(lead.package_name ?? '', lead);
-  if (pakiet) return `abonament: ${pakiet}`;
+  if (pakiet) return `pakiet: ${pakiet}`;
   const usluga = (lead.service_type ?? '').trim();
   if (Object.prototype.hasOwnProperty.call(TEMATY, usluga)) return TEMATY[usluga];
   return temat40(usluga, lead) || 'kontakt';

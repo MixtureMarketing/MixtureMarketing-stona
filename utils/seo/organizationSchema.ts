@@ -12,11 +12,11 @@ import { SITE_CONFIG } from '../../config/site';
  * odwołują się do niej przez `ORG_REF` (`{ '@id': ORG_ID }`).
  */
 export const ORG_ID = `${SITE_CONFIG.domain}/#organization`;
-/** Założyciel — ta sama osoba na /o-nas/ (dane z CMS) i /abonament/ (karta założyciela). */
+/** Założyciel — ta sama osoba na /o-nas/ (dane z CMS) i jako autor artykułów. */
 export const FOUNDER_ID = `${SITE_CONFIG.domain}/#founder`;
 export const FOUNDER_NAME = 'Jakub Niedziela';
 /**
- * Profil LinkedIn założyciela — JEDEN adres dla całej strony (karta założyciela, /abonament/,
+ * Profil LinkedIn założyciela — JEDEN adres dla całej strony (karta założyciela,
  * /o-nas/, autor artykułów w `sameAs`). Dane: MIX-783 / MIX-920 (Jakub, 04.11.2026).
  */
 export const FOUNDER_LINKEDIN = 'https://pl.linkedin.com/in/jakub-niedziela-9251a8254';

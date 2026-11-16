@@ -109,7 +109,7 @@ export default function ScrollToTop() {
       return;
     }
 
-    // Nawigacja SPA z kotwicą (np. „Zobacz pakiety” → /abonament/#pricing): przeglądarka
+    // Nawigacja SPA z kotwicą (np. link do sekcji #pricing innej strony): przeglądarka
     // nie przewija sama, bo docelowa strona renderuje się dopiero po zmianie URL-a.
     // Bez tego użytkownik lądował na górze strony zamiast w cenniku. Czekamy na element
     // (lazy chunk trasy) i przewijamy do niego; scroll-padding-top z index.css odsuwa

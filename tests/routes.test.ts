@@ -7,10 +7,11 @@ const root = path.resolve(__dirname, '..');
 const read = (rel: string) => fs.readFileSync(path.join(root, rel), 'utf8');
 
 describe('routes.js — trasy prerenderu vs sitemap', () => {
-  it('/abonament/dziekujemy/ jest prerenderowana, ale NIE ma jej w liście sitemapy', () => {
-    expect(prerenderOnlyRoutes).toContain('/abonament/dziekujemy/');
-    expect(routes).not.toContain('/abonament/dziekujemy/');
-    expect(routes).not.toContain('/abonament/dziekujemy');
+  it('ukryta strona usługi AI jest prerenderowana, ale NIE ma jej w liście sitemapy', () => {
+    // MIX-1849: dawny przykład (/abonament/dziekujemy/) usunięty razem z usługą.
+    expect(prerenderOnlyRoutes).toContain('/web-development/systemy-ai-aplikacje/');
+    expect(routes).not.toContain('/web-development/systemy-ai-aplikacje/');
+    expect(routes).not.toContain('/web-development/systemy-ai-aplikacje');
   });
 
   it('listy są rozłączne i mają trailing slash', () => {

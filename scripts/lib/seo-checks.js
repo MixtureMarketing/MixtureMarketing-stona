@@ -26,7 +26,7 @@ export function titleProblems(pages, max = TITLE_MAX) {
 /**
  * HTML → drzewo parse5 (parser zgodny ze specyfikacją, BEZ CSSOM). Wcześniej JSDOM parsował
  * każdy wstawiony przy prerenderze blok <style> (setki kB CSS) dwa razy na stronę, więc
- * /abonament/ kosztował 107 s CPU, a cała bramka dziesiątki minut. Teraz jeden przebieg na
+ * jedna strona kosztowała 107 s CPU, a cała bramka dziesiątki minut. Teraz jeden przebieg na
  * stronę. scriptingEnabled: false = zawartość <noscript> też jest sprawdzana.
  */
 function parseHtml(source) {

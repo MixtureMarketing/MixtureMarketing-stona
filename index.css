@@ -462,7 +462,7 @@
 }
 
 @layer utilities {
-  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny (np. /abonament/).
+  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny.
      MIX-1400: regula w warstwie utilities (nie base), bo klasa bottom-4 na przycisku jest
      w utilities i wygrywala z regula z base (przycisk zaslanial pasek na telefonie). */
   body[data-sticky-mobile-bar='true'] .cookie-floating-btn {

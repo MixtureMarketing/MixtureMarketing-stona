@@ -14,13 +14,8 @@ import { TITLE_MAX } from '../../utils/seo/title';
 import UxAuditArticle from '../../components/articles/UxAuditArticle';
 import WebDevRzeszow from '../../components/pages/WebDevRzeszow';
 import WycenaCalculator from '../../components/pages/WycenaCalculator';
-import Abonament from '../../components/pages/abonament/Abonament';
+import Offers from '../../components/sections/Offers';
 
-vi.hoisted(() => {
-  // PREONBOARD_KEY / HUB są czytane przy imporcie modala abonamentu (jak w tests/components/Abonament.test.tsx).
-  vi.stubEnv('VITE_MM_PREONBOARD_KEY', 'test-key');
-  vi.stubEnv('VITE_MM_HUB_URL', 'https://hub.mock.invalid');
-});
 vi.setConfig({ testTimeout: 20_000 });
 vi.mock('../../utils/analytics', () => ({ trackEvent: vi.fn() }));
 vi.mock('../../components/common/LazyMap', () => ({ default: () => null }));
@@ -46,7 +41,8 @@ describe('artykuł o cenie strony: 3 linki wewnętrzne z innych stron (A13)', ()
   it.each([
     ['/web-development/rzeszow/', () => <WebDevRzeszow />],
     ['/wycena/', () => <WycenaCalculator />],
-    ['/abonament/', () => <Abonament />],
+    // MIX-1849: /abonament/ usunięta; trzecie źródło to strona oferty /offers/ (link w hero).
+    ['/offers/', () => <Offers />],
   ])(
     '%s: wyrenderowana strona ma kotwicę <a> do artykułu o cenie (ze slashem)',
     async (route, page) => {

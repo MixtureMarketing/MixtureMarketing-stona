@@ -21,7 +21,7 @@ import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import { CountUp } from './abonament/shared';
+import { CountUp } from '../common/CountUp';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
@@ -46,7 +46,7 @@ const AgencjaInteraktywnaRzeszow: React.FC = () => {
     {
       question: 'Ile kosztuje współpraca z agencją interaktywną w Rzeszowie?',
       answer:
-        'Pojedynczy projekt (strona WWW + branding) — od 8 500 zł. Stała współpraca miesięczna (web + marketing + design) — od 3 200 zł/mies. (to nie jest abonament strony z /abonament/). Realizacja dedykowana z aplikacją webową — od 23 000 zł, portal B2B — od 19 000 zł. Bezpłatna wycena widełkowa — wysłana w 24h od briefu.',
+        'Pojedynczy projekt (strona WWW + branding) — od 8 500 zł. Stała współpraca miesięczna (web + marketing + design) — od 3 200 zł/mies.. Realizacja dedykowana z aplikacją webową — od 23 000 zł, portal B2B — od 19 000 zł. Bezpłatna wycena widełkowa — wysłana w 24h od briefu.',
     },
     {
       question: 'Jak długo trwa realizacja projektu strony WWW w Rzeszowie?',
