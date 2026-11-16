@@ -58,7 +58,7 @@ vi.mock('../contact/TurnstileWidget', async () => {
 
 import PublicCalculator from './PublicCalculator';
 import CalculatorForm from './CalculatorForm';
-import { CAPTCHA_START_ERROR, isCalcNewUiEnabled } from './calcUi';
+import { CAPTCHA_START_ERROR, NEW_UI_CONTRAST, isCalcNewUiEnabled } from './calcUi';
 
 const renderCalc = () =>
   render(
@@ -103,7 +103,8 @@ describe('MIX-1867 przełącznik VITE_MM_CALC_NEW_UI', () => {
     vi.stubEnv('VITE_MM_CALC_NEW_UI', '');
     const { container } = renderCalc();
     await screen.findByText('Jaki jest cel projektu?');
-    expect(container.querySelector('[data-calc-ui]')).toHaveAttribute('data-calc-ui', 'old');
+    // Stary DOM bez zmian (migawka MIX-847 w tests/components/RodoZgoda.test.tsx).
+    expect(container.querySelector('[data-calc-ui]')).toBeNull();
     expect(screen.queryByRole('progressbar')).toBeNull();
     expect(screen.queryByTestId('calc-question')).toBeNull();
     expect(screen.getByText(/Krok 1 z 3/)).toBeInTheDocument();
@@ -128,6 +129,17 @@ describe('MIX-1867 przełącznik VITE_MM_CALC_NEW_UI', () => {
 });
 
 describe('MIX-1867 nowy wygląd: kroki i pasek postępu', () => {
+  it('nowy wygląd: kontener podnosi kontrast szarych tekstów (AA na granacie), stary nie', async () => {
+    const { container, unmount } = renderCalc();
+    await screen.findByText('Jaki jest cel projektu?');
+    const box = container.querySelector('[data-calc-ui="new"]')!;
+    for (const c of NEW_UI_CONTRAST.split(' ')) expect(box.classList).toContain(c);
+    unmount();
+    vi.stubEnv('VITE_MM_CALC_NEW_UI', '');
+    const old = renderCalc();
+    await screen.findByText('Jaki jest cel projektu?');
+    expect(old.container.innerHTML).not.toContain('text-white/75');
+  });
   it('pasek postępu: numer i nazwa kroku, wypełnienie, bieżący krok na liście', async () => {
     const { container } = renderCalc();
     await screen.findByText('Jaki jest cel projektu?');

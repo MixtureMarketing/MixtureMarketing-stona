@@ -73,3 +73,11 @@ const NEW: CalcUi = {
 };
 
 export const calcUi = (newUi: boolean): CalcUi => (newUi ? NEW : OLD);
+
+/**
+ * Nowy wygląd: szare teksty podglądu konfiguracji, linku i paska ceny (gray-300/400/500 są w
+ * index.css przyciemnione pod jasne tło) dostają na granacie kontrast AA (text-white/75 i jaśniej).
+ * Klasa na kontenerze kalkulatora, więc działa tylko przy włączonym przełączniku.
+ */
+export const NEW_UI_CONTRAST =
+  '[&_.text-gray-400]:text-white/75 [&_.text-gray-500]:text-white/75 [&_.text-gray-300]:text-white/90';
