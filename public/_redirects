@@ -70,6 +70,14 @@
 /baze-wiedzy/:slug        /baza-wiedzy/:slug/     301
 /baze-wiedzy/:slug/       /baza-wiedzy/:slug/     301
 
+# MIX-1825 (GSC 16.11, „Nie znaleziono (404)”): dwie realizacje były kiedyś linkowane pod
+# /baza-wiedzy/<slug>; dziś są w /portfolio/<slug>/. MUSI stać przed /baza-wiedzy/:slug
+# (inaczej łańcuch 301 -> /baza-wiedzy/<slug>/ -> 404).
+/baza-wiedzy/glamspace     /portfolio/glamspace/   301
+/baza-wiedzy/glamspace/    /portfolio/glamspace/   301
+/baza-wiedzy/fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance     /portfolio/fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance/   301
+/baza-wiedzy/fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance/    /portfolio/fbx-redesign-aplikacji-ogloszeniowej-i-kampania-performance/   301
+
 # Trailing-slash 301 redirects (Quick Win #1 z GSC audit 2026-05-21):
 # Google indeksowal OBA warianty (/baza-wiedzy/foo + /baza-wiedzy/foo/) jako osobne
 # strony, rozdzielajac PageRank. Canonical = wersja z trailing slash (matchuje
@@ -83,6 +91,28 @@
 /marketing/:slug        /marketing/:slug/        301
 /design/:slug           /design/:slug/           301
 /abonament/:slug        /abonament/:slug/        301
+
+# MIX-1825 (GSC 16.11, „Strona zawiera przekierowanie”): strony pierwszego poziomu bez „/”
+# (/contact, /design, /portfolio …) dostawały od Pages 308. Jawne 301 jednym skokiem na
+# wersję z „/” (canonical, sitemap). Lista = trasy jednosegmentowe z routes.js; test
+# tests/seo/redirectLinks.test.ts pilnuje kompletności. Ogólnej reguły /:slug NIE ma:
+# łapałaby pliki (/robots.txt, /sitemap.xml, /favicon.ico).
+/offers                       /offers/                       301
+/contact                      /contact/                      301
+/wycena                       /wycena/                       301
+/o-nas                        /o-nas/                        301
+/privacy-policy               /privacy-policy/               301
+/terms                        /terms/                        301
+/audyt-360                    /audyt-360/                    301
+/web-development              /web-development/              301
+/marketing                    /marketing/                    301
+/agencja-interaktywna-rzeszow /agencja-interaktywna-rzeszow/ 301
+/agencja-seo-rzeszow          /agencja-seo-rzeszow/          301
+/abonament                    /abonament/                    301
+/design                       /design/                       301
+/baza-wiedzy                  /baza-wiedzy/                  301
+/portfolio                    /portfolio/                    301
+/branza                       /branza/                       301
 
 # Celowo BRAK SPA fallback dla prefiksow tresci (/baza-wiedzy/*, /branza/* itd.): prerender
 # pokrywa realne slugi, a rewrite tworzylby soft-404 bez noindex (smieciowy URL w prefiksie

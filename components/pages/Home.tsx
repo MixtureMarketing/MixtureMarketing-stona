@@ -49,11 +49,8 @@ const Home = () => {
           url: 'https://mixturemarketing.pl',
           inLanguage: 'pl-PL',
           publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
-            'query-input': 'required name=search_term_string',
-          },
+          // MIX-1825: bez potentialAction (wyszukiwarka). Baza wiedzy nie obsługuje ?q=, a Google
+          // crawlował szablon wyszukiwania /baza-wiedzy?q=… jako osobny adres (GSC 16.11).
         }}
       />
 
