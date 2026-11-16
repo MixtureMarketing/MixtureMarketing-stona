@@ -54,8 +54,9 @@ const WLACZONE_NA_PROD = new Set([
   'VITE_MM_RZESZOW_SEKCJE', // MIX-1286: sekcje Rzeszów
   'VITE_MM_AI_SECTION', // MIX-1276: sekcja o AI i systemach
 ]);
-/** Konfigurator wyceny w budowie (MIX-1377): Preview 1, produkcja i PR puste. */
+/** Konfigurator wyceny w budowie (MIX-1377) i nowy wygląd kalkulatora (MIX-1867): Preview 1, produkcja i PR puste. */
 const WYCENA_WYLACZONA_NA_PROD = [
+  'VITE_MM_CALC_NEW_UI', // MIX-1867: nowy wygląd kalkulatora /wycena/
   'VITE_MM_CONFIG_LINK',
   'VITE_MM_CONFIG_PREVIEW',
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
