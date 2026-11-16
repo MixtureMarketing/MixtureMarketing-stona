@@ -1,6 +1,7 @@
 // Kontrola workflow CI (.github/workflows/ci.yml): push na dev i ręczne uruchomienie na dev wdrażają
 // Preview, main tylko po push i po strażniku powtórek, pull requesty nigdy nie wdrażają, a Preview
-// buduje się ze WSZYSTKIMI przełącznikami VITE_MM_* włączonymi (MIX-1411), produkcja bez nich.
+// buduje się ze WSZYSTKIMI przełącznikami VITE_MM_* włączonymi (MIX-1411), produkcja tylko z tymi
+// z WLACZONE_NA_PROD (MIX-1465, MIX-1833, MIX-1838); konfigurator wyceny (MIX-1377) na produkcji wyłączony.
 // Cel wdrożenia wyznacza skrypt scripts/ci-deploy-guard.sh (czuły na wielkość liter; jego testy:
 // tests/scripts/ciDeployGuard.test.ts). Tu: prawdziwy plik YAML, też na wariantach psutych celowo
 // (każda odmowa ma swojego dozwolonego bliźniaka).
@@ -44,7 +45,20 @@ const NIE_PRZELACZNIKI = new Set(['VITE_MM_HUB_URL', 'VITE_MM_PREONBOARD_KEY']);
 const WLACZONE_NA_PROD = new Set([
   'VITE_MM_MOBILE_MENU_B', // MIX-1465: menu mobilne B
   'VITE_MM_VIEW_TRANSITIONS', // MIX-1311/MIX-1833: animacja przejść realizacji (akceptacja na Preview)
+  // MIX-1311/MIX-1838: gotowe funkcje włączone jednym wdrożeniem (decyzja Jakuba 16.11)
+  'VITE_MM_POWIAZANE', // MIX-1268: blok „Powiązane”
+  'VITE_MM_COOKIE_BANNER_STATIC', // MIX-1579: baner ciasteczek w HTML
+  'VITE_MM_TESTIMONIALS', // MIX-1326: opinie Google
+  'VITE_MM_RZESZOW_SEKCJE', // MIX-1286: sekcje Rzeszów
+  'VITE_MM_AI_SECTION', // MIX-1276: sekcja o AI i systemach
 ]);
+/** Konfigurator wyceny w budowie (MIX-1377): Preview 1, produkcja i PR puste. */
+const WYCENA_WYLACZONA_NA_PROD = [
+  'VITE_MM_CONFIG_LINK',
+  'VITE_MM_CONFIG_PREVIEW',
+  'VITE_MM_LIVE_PRICE_BAR',
+];
+const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 
 const wdrozenia = (w: Workflow) =>
   w.jobs.ci.steps.filter((k) => (k.uses ?? '').startsWith('cloudflare/wrangler-action'));
@@ -252,7 +266,7 @@ describe('ci.yml: wdrożenie Preview z gałęzi dev i produkcji z main', () => {
   });
 });
 
-describe('ci.yml: przełączniki VITE_MM_* (zasada MIX-1411: Preview włączone, produkcja wyłączona)', () => {
+describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produkcja = WLACZONE_NA_PROD)', () => {
   it('lista z kodu jest niepusta i zawiera znane przełączniki (kontrola grepa)', () => {
     const lista = przelacznikiZKodu();
     expect(lista.length).toBeGreaterThanOrEqual(5);
@@ -273,7 +287,7 @@ describe('ci.yml: przełączniki VITE_MM_* (zasada MIX-1411: Preview włączone,
       expect(wartoscFlagi(String(zmienne[f]), 'preview')).toBe('1');
   });
 
-  it('build produkcji i PR: puste poza WLACZONE_NA_PROD (MIX-1465, MIX-1833)', () => {
+  it('build produkcji i PR: puste poza WLACZONE_NA_PROD (MIX-1465, MIX-1833, MIX-1838)', () => {
     const zmienne = zmienneBuildu(wczytaj());
     for (const f of przelacznikiZKodu()) {
       const oczekiwane = WLACZONE_NA_PROD.has(f) ? '1' : '';
@@ -406,23 +420,58 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
   });
   it('przełącznik włączony na stałe (także na produkcji)', () => {
     const w = kopia();
-    zmienneBuildu(w).VITE_MM_TESTIMONIALS = '1';
-    expect(naruszenia(w).join('|')).toMatch(/VITE_MM_TESTIMONIALS: zła wartość na produkcji/);
+    zmienneBuildu(w).VITE_MM_LIVE_PRICE_BAR = '1';
+    expect(naruszenia(w).join('|')).toMatch(/VITE_MM_LIVE_PRICE_BAR: zła wartość na produkcji/);
   });
+  it.each(WYCENA_WYLACZONA_NA_PROD)(
+    'MIX-1838: %s (konfigurator wyceny, MIX-1377) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
+  it('MIX-1838: poza WLACZONE_NA_PROD zostaje dokładnie konfigurator wyceny', () => {
+    const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
+    expect(inne).toEqual(WYCENA_WYLACZONA_NA_PROD);
+    const zmienne = zmienneBuildu(wczytaj());
+    for (const f of WYCENA_WYLACZONA_NA_PROD) expect(zmienne[f]).toBe(WYRAZENIE_PREVIEW);
+  });
+  it.each([...WLACZONE_NA_PROD].sort())(
+    'MIX-1838: %s zdjęty z produkcji (wyrażenie tylko-Preview) = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = WYRAZENIE_PREVIEW;
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("")`);
+    },
+  );
   it('każdy przełącznik spoza WLACZONE_NA_PROD włączony na stałe jest wykrywany', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
-    expect(inne.length).toBeGreaterThanOrEqual(5);
+    expect(inne.length).toBeGreaterThanOrEqual(3);
     for (const f of inne) {
       const w = kopia();
       zmienneBuildu(w)[f] = '1';
       expect(naruszenia(w).join('|')).toContain(`${f}: zła wartość na produkcji`);
     }
   });
-  it('na produkcji włączone są dokładnie MOBILE_MENU_B i VIEW_TRANSITIONS', () => {
+  it('na produkcji włączone są dokładnie MOBILE_MENU_B, VIEW_TRANSITIONS i pięć z MIX-1838', () => {
     expect([...WLACZONE_NA_PROD].sort()).toEqual([
+      'VITE_MM_AI_SECTION',
+      'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_MOBILE_MENU_B',
+      'VITE_MM_POWIAZANE',
+      'VITE_MM_RZESZOW_SEKCJE',
+      'VITE_MM_TESTIMONIALS',
       'VITE_MM_VIEW_TRANSITIONS',
     ]);
+  });
+  it('MIX-1838: prawdziwy ci.yml ma siedem przełączników produkcji jako stałe 1', () => {
+    const zmienne = zmienneBuildu(wczytaj());
+    for (const f of WLACZONE_NA_PROD) expect(zmienne[f]).toBe('1');
   });
   it('VIEW_TRANSITIONS wyłączone na produkcji (MIX-1833 zdjęte)', () => {
     const w = kopia();

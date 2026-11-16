@@ -129,17 +129,20 @@ jobs:
           # MIX-1311/MIX-1833: animacja przejsc realizacji wlaczona na produkcji (akceptacja Jakuba na Preview);
           # wylaczenie = przywrocic wyrazenie z target == 'preview' jak nizej.
           VITE_MM_VIEW_TRANSITIONS: '1'
+          # MIX-1311/MIX-1838: gotowe funkcje wlaczone na produkcji jednym wdrozeniem (decyzja Jakuba 16.11);
+          # wylaczenie = przywrocic wyrazenie z target == 'preview' jak nizej.
+          VITE_MM_AI_SECTION: '1' # MIX-1276: sekcja o AI i systemach
+          VITE_MM_COOKIE_BANNER_STATIC: '1' # MIX-1579: baner ciasteczek w HTML
+          VITE_MM_POWIAZANE: '1' # MIX-1268: blok Powiazane
+          VITE_MM_RZESZOW_SEKCJE: '1' # MIX-1286: sekcje Rzeszow
+          VITE_MM_TESTIMONIALS: '1' # MIX-1326: opinie Google
           # MIX-1613 r2 (zasada wlasciciela MIX-1411): kazda scalona funkcja za przelacznikiem VITE_MM_*
           # jest wlaczona w Preview (build dla dev), a na produkcji i w PR wylaczona do `TAK <SHA>`.
           # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
-          VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          # Tu zostaje konfigurator wyceny w budowie (MIX-1377).
           VITE_MM_CONFIG_LINK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_COOKIE_BANNER_STATIC: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_POWIAZANE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_RZESZOW_SEKCJE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_TESTIMONIALS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build
 
       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,
