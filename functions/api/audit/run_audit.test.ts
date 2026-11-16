@@ -25,7 +25,7 @@ const PSI_OK = {
 // places:searchText (wyszukiwanie po nazwie firmy) zwraca listę
 const PLACES_OK = { places: [{ rating: 4.8, userRatingCount: 120 }] };
 
-type Behaviour = 'ok' | 'reject' | 'hang' | 'http500';
+type Behaviour = 'ok' | 'reject' | 'hang' | 'http500' | 'http403';
 let behaviour: Record<'scrape' | 'psi' | 'places', Behaviour>;
 let fetchMock: ReturnType<typeof vi.fn>;
 // DNS (DoH): host → adresy; brak wpisu = publiczny 93.184.216.34. 'FAIL' = awaria DNS.
@@ -37,6 +37,7 @@ function respond(kind: 'scrape' | 'psi' | 'places', init?: RequestInit): Promise
   const b = behaviour[kind];
   if (b === 'reject') return Promise.reject(new TypeError('network error (DNS/TLS)'));
   if (b === 'http500') return Promise.resolve(new Response('err', { status: 500 }));
+  if (b === 'http403') return Promise.resolve(new Response('forbidden', { status: 403 }));
   if (b === 'hang') {
     // Odpowiada dopiero na abort z AbortSignal.timeout — bez timeoutu wisiałby wiecznie.
     return new Promise((_, rej) => {
@@ -436,7 +437,8 @@ describe('audit/run_audit — bramka przed wynikiem „stale” (MIX-1324 × MIX
   });
 
   it('atak: limit IP tej samej /64 wyczerpany → stale nie wychodzi (429 limit IP)', async () => {
-    behaviour.psi = 'http500';
+    // 403 (bez ponowienia, MIX-1826): 11 audytów × przerwa 1 s przekroczyłoby limit testu.
+    behaviour.psi = 'http403';
     const kv = await kvStale(CACHED);
     for (let i = 0; i < 10; i++) {
       await run(kv, { url: `https://h${i}.pl/` }, { ip: `2a01:db9:7:7::${i + 1}` });
@@ -705,7 +707,7 @@ describe('audit/run_audit — status PSI w logach i jedno ponowienie (MIX-1826)'
   const psiCalls = () =>
     fetchMock.mock.calls.filter(([u]) => String(u).includes('pagespeedonline'));
   const errLog = () =>
-    (console.error as unknown as ReturnType<typeof vi.fn>).mock.calls.flat().map(String).join('\n');
+    (console.error as unknown as ReturnType<typeof vi.fn>).mock.calls.flat().map(String).join(' ');
   const googleErr = (code: number, status: string, reason: string, message: string) =>
     new Response(
       JSON.stringify({ error: { code, status, message, errors: [{ reason, message }] } }),
