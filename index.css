@@ -622,3 +622,14 @@ body[data-live-price-bar='true'] .cookie-floating-btn {
     bottom: 1rem;
   }
 }
+
+/* Przycisk ciasteczek chowa się, gdy przewijany podgląd konfiguracji albo przyciski linku
+   /wycena/ nachodzą na niego (MIX-1799; znaczniki ustawiają ConfigPreview i ConfigLinkButtons).
+   Poza warstwami, żeby wygrać z klasami utilities. Wraca po przewinięciu; `visibility` zdejmuje
+   go też z kolejności tabulatora na czas nałożenia. */
+body[data-config-preview-cookie='true'] .cookie-floating-btn,
+body[data-config-link-cookie='true'] .cookie-floating-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

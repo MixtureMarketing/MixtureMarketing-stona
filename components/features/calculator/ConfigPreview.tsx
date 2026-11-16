@@ -3,8 +3,9 @@
 // z odpowiedzi podglądu, kontrakt v2). Stoi POD przyciskami Wstecz/Dalej (CalculatorForm), więc
 // jest poniżej pierwszego ekranu, a pasek widełek (sticky przesuwa się tylko w górę) go nie zasłania.
 // Tekst z API idzie do Reacta jako tekst (nigdy jako HTML). Nic do pokazania = brak elementu.
-import React from 'react';
+import React, { useRef } from 'react';
 import { SiteSketch, sketchFor } from './configSketches';
+import { useHideCookieOver } from './useHideCookieOver';
 import type { ScopeItem } from '../../../services/pricePreviewService';
 
 interface ConfigPreviewProps {
@@ -17,10 +18,14 @@ interface ConfigPreviewProps {
 const ConfigPreview: React.FC<ConfigPreviewProps> = ({ goal, scope }) => {
   const sketch = sketchFor(goal);
   const items = scope ?? [];
-  if (!sketch && items.length === 0) return null;
+  const boxRef = useRef<HTMLElement>(null);
+  const shown = !(!sketch && items.length === 0);
+  useHideCookieOver(boxRef, shown, 'configPreviewCookie');
+  if (!shown) return null;
 
   return (
     <section
+      ref={boxRef}
       data-testid="config-preview"
       aria-label="Podgląd Twojego projektu"
       className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:flex-row md:p-5"

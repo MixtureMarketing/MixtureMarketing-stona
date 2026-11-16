@@ -338,3 +338,25 @@ describe('K2 pojedyncze odpowiedzi pomijane (allowlista typu i opcji), z bliźni
     );
   });
 });
+
+// MIX-1799 (uwaga Z7, mutant W4 z MIX-1791): zapis dłuższy niż CONFIG_LINK_MAX = null (nie link,
+// którego odczyt i tak odmówi). Pytania tekstowe po 200 znaków rozpychają `k` ponad limit.
+describe('encodeConfigLink: limit długości zapisu (W4)', () => {
+  const textQs = (n: number) =>
+    Array.from({ length: n }, (_, i) => q(`tekst_${i}`, 'text', null, i + 1));
+  const fill = (n: number): Answers =>
+    Object.fromEntries(
+      Array.from({ length: n }, (_, i) => [`tekst_${i}`, 'a'.repeat(PUBLIC_TEXT_MAX)]),
+    );
+
+  it(`za długi zapis (> ${CONFIG_LINK_MAX} znaków) = null; bliźniak: krótszy zestaw = link w limicie`, () => {
+    const over = encodeConfigLink(textQs(10), fill(10));
+    expect(over).toBeNull();
+    // Ten sam zestaw bez limitu miałby > CONFIG_LINK_MAX znaków (sprawdzenie, że to limit odmówił).
+    expect(kOf(fill(10)).length).toBeGreaterThan(CONFIG_LINK_MAX);
+    const ok = encodeConfigLink(textQs(3), fill(3));
+    expect(ok).not.toBeNull();
+    expect(ok!.length).toBeLessThanOrEqual(CONFIG_LINK_MAX);
+    expect(decodeConfigLink(ok, textQs(3))).toEqual({ ok: true, answers: fill(3), skipped: 0 });
+  });
+});

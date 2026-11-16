@@ -19,8 +19,14 @@ export const SCOPE_DESCRIPTION_MAX = 500;
 /** Najwięcej pozycji listy w jednej odpowiedzi. */
 export const SCOPE_MAX_ITEMS = 30;
 
-// Znaki, które nie są widoczne: miękki dywiz, spacje zerowej szerokości, znaczniki kierunku, BOM.
-const INVISIBLE = /[\u00AD\u200B-\u200F\u2060-\u2064\uFEFF]/g;
+// Znaki, które nie są widoczne: miękki dywiz, spacje zerowej szerokości, znaczniki kierunku, BOM,
+// znaki sterujące kierunkiem tekstu (bidi: U+202A–U+202E, U+2066–U+2069, U+061C) oraz znaki
+// sterujące C0 i C1 (NUL, BEL, ESC, DEL, U+0080–U+009F). Tabulacja i nowa linia zostają (brzegi
+// czyści `trim()`), żeby wielolinijkowy opis nie sklejał słów (MIX-1799, uwaga Z6).
+// Zapis przez sekwencje \uXXXX, nie przez same znaki: plik ma być czytelny w przeglądzie.
+const INVISIBLE =
+  // eslint-disable-next-line no-control-regex
+  /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u00AD\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]/g;
 
 /** Tekst do pokazania albo null: tylko string, bez znaków niewidocznych, niepusty, ≤ max. */
 export function cleanClientText(raw: unknown, max: number): string | null {
