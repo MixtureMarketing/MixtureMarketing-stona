@@ -30,11 +30,44 @@ describe('requestPricePreview — kontrakt', () => {
     expect(init.method).toBe('POST');
     expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
     expect(JSON.parse(init.body)).toEqual({ answers: { a: 1 }, captcha_token: 'c1' });
-    // MIX-1466: fetch dostaje własny sygnał (limit czasu) powiązany z sygnałem wywołującego.
+    // MIX-1466: fetch dostaje własny sygnał (limit czasu), nie sygnał wywołującego.
     expect(init.signal).toBeInstanceOf(AbortSignal);
+    expect(init.signal).not.toBe(ctrl.signal);
     expect(init.signal.aborted).toBe(false);
+  });
+
+  it('przerwanie sygnału wywołującego w trakcie zapytania przerywa sygnał fetch (powiązanie)', async () => {
+    let fetchSignal: AbortSignal | undefined;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init: { signal: AbortSignal }) => {
+        fetchSignal = init.signal;
+        return new Promise((_resolve, reject) => {
+          init.signal.addEventListener('abort', () => reject(new Error('aborted')));
+        });
+      }),
+    );
+    const ctrl = new AbortController();
+    const pending = requestPricePreview({ answers: {} }, ctrl.signal);
+    expect(fetchSignal?.aborted).toBe(false);
     ctrl.abort();
-    expect(init.signal.aborted).toBe(true);
+    expect(fetchSignal?.aborted).toBe(true);
+    expect(await pending).toEqual({ ok: false, status: 0 });
+  });
+
+  it('sygnał wywołującego przerwany przed wywołaniem: fetch dostaje od razu przerwany sygnał', async () => {
+    let fetchSignal: AbortSignal | undefined;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((_url: string, init: { signal: AbortSignal }) => {
+        fetchSignal = init.signal;
+        return Promise.reject(new Error('aborted'));
+      }),
+    );
+    const ctrl = new AbortController();
+    ctrl.abort();
+    expect(await requestPricePreview({ answers: {} }, ctrl.signal)).toEqual({ ok: false, status: 0 });
+    expect(fetchSignal?.aborted).toBe(true);
   });
 
   it('min/max mapowane wprost (nie zamienione), preview_token przekazany', async () => {

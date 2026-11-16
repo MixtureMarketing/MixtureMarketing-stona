@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# MIX-1412 r2 (after merging integracja e9d24c8), one run on the pool, from the repo root, relative paths only:
+# MIX-1412 r4 (after merging integracja 881de1f), one run on the pool, from the repo root, relative paths only:
 # npm ci; affected tests (vitest related); full check (eslint, tsc root, tsc functions, vitest run, build);
 # probe 390/1024/1280/1366 on a local build with VITE_MM_LIVE_PRICE_BAR=1; mutants (mut.sh, green baseline) last.
 # Every result line goes to stdout (the pool returns the log), details to .bieg/m1412/r2/ on the pool machine.
@@ -21,8 +21,8 @@ restore_generated() { git checkout -- public/sitemap.xml 2>/dev/null; git status
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 restore_generated
 
-# Files changed by MIX-1412 against integracja e9d24c8 (fixed list: the pool snapshot has no history).
-CHANGED="components/features/calculator/CalculatorForm.tsx components/features/calculator/LivePriceBar.tsx components/features/calculator/PublicCalculator.tsx components/features/calculator/QuestionField.tsx components/pages/WycenaCalculator.tsx hooks/usePublicCalculator.ts services/pricePreviewService.ts components/features/calculator/livePrice.ts"
+# Files changed by MIX-1412 against integracja 881de1f (fixed list: the pool snapshot has no history).
+CHANGED="components/features/calculator/CalculatorForm.tsx components/features/calculator/LivePriceBar.r1412.test.tsx components/features/calculator/LivePriceBar.test.tsx components/features/calculator/LivePriceBar.tsx components/features/calculator/PublicCalculator.tsx components/features/calculator/QuestionField.test.tsx components/features/calculator/QuestionField.tsx components/features/calculator/livePrice.test.ts components/pages/WycenaCalculator.tsx hooks/usePublicCalculator.race.test.ts hooks/usePublicCalculator.token.test.ts hooks/usePublicCalculator.ts services/pricePreviewService.test.ts services/pricePreviewService.ts"
 # shellcheck disable=SC2086
 step related npx vitest related $CHANGED --run --maxWorkers=2
 tests_line related
