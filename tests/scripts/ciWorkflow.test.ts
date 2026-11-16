@@ -58,6 +58,10 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_CONFIG_PREVIEW',
   'VITE_MM_LIVE_PRICE_BAR',
 ];
+/** MIX-1873: filmy w portfolio czekają na akceptację Jakuba na Preview: Preview 1, produkcja i PR puste. */
+const FILMY_PORTFOLIO_TYLKO_PREVIEW = ['VITE_MM_PORTFOLIO_VIDEO'];
+/** Wszystkie przełączniki tylko-Preview (posortowane jak lista z kodu). */
+const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD, ...FILMY_PORTFOLIO_TYLKO_PREVIEW].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 
 const wdrozenia = (w: Workflow) =>
@@ -276,6 +280,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_VIEW_TRANSITIONS',
       'VITE_MM_LIVE_PRICE_BAR',
       'VITE_MM_COOKIE_BANNER_STATIC',
+      'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
@@ -423,8 +428,8 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w).VITE_MM_LIVE_PRICE_BAR = '1';
     expect(naruszenia(w).join('|')).toMatch(/VITE_MM_LIVE_PRICE_BAR: zła wartość na produkcji/);
   });
-  it.each(WYCENA_WYLACZONA_NA_PROD)(
-    'MIX-1838: %s (konfigurator wyceny, MIX-1377) włączony na produkcji = naruszenie',
+  it.each(TYLKO_PREVIEW)(
+    'MIX-1838/MIX-1873: %s (tylko Preview) włączony na produkcji = naruszenie',
     (f) => {
       const w = kopia();
       zmienneBuildu(w)[f] = '1';
@@ -433,11 +438,11 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
     },
   );
-  it('MIX-1838: poza WLACZONE_NA_PROD zostaje dokładnie konfigurator wyceny', () => {
+  it('MIX-1838/MIX-1873: poza WLACZONE_NA_PROD zostaje dokładnie konfigurator wyceny i filmy portfolio', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
-    expect(inne).toEqual(WYCENA_WYLACZONA_NA_PROD);
+    expect(inne).toEqual(TYLKO_PREVIEW);
     const zmienne = zmienneBuildu(wczytaj());
-    for (const f of WYCENA_WYLACZONA_NA_PROD) expect(zmienne[f]).toBe(WYRAZENIE_PREVIEW);
+    for (const f of TYLKO_PREVIEW) expect(zmienne[f]).toBe(WYRAZENIE_PREVIEW);
   });
   it.each([...WLACZONE_NA_PROD].sort())(
     'MIX-1838: %s zdjęty z produkcji (wyrażenie tylko-Preview) = naruszenie',
