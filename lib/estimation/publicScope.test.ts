@@ -120,3 +120,40 @@ describe('cleanClientText', () => {
     expect(cleanClientText('abc', 2)).toBeNull();
   });
 });
+
+// MIX-1799 (uwaga Z6): nazwa / opis złożone TYLKO ze znaków sterujących kierunkiem tekstu (bidi)
+// albo C0/C1 wyglądają na puste. Każda forma: odmowa (pominięta / null) + bliźniak z literą.
+const BIDI_C0_FORMS: Array<[string, string]> = [
+  ['B1 sam U+202E (RLO)', '‮'],
+  ['B2 cały blok U+202A–U+202E', '‪‫‬‭‮'],
+  ['B3 sam U+2066 i U+2069', '⁦⁩'],
+  ['B4 cały blok U+2066–U+2069', '⁦⁧⁨⁩'],
+  ['B5 U+061C (znacznik arabski)', '؜'],
+  ['B6 sam NUL', '\u0000'],
+  ['B7 sam BEL i ESC', '\u0007\u001B'],
+  ['B8 sam DEL i C1 (U+007F, U+0085, U+009F)', '\u007F\u0085\u009F'],
+  ['B9 mieszanka NUL + bidi + ZWSP + spacje', ' \u0000‮​⁦ '],
+  ['B10 tabulacja i nowa linia otaczające sterujące', '\t\n\u0008‭\r'],
+];
+
+describe('MIX-1799: same znaki sterujące (bidi, C0/C1) = pominięty, z literą = jest', () => {
+  for (const [label, junk] of BIDI_C0_FORMS) {
+    it(`${label}: nazwa pominięta, opis null; bliźniak z literą`, () => {
+      expect(toPublicScope([asp({ clientName: junk })])).toEqual([]);
+      expect(cleanClientText(junk, 10)).toBeNull();
+      expect(
+        toPublicScope([asp({ levelClientDescription: junk })])[0].client_description,
+      ).toBeNull();
+      // Bliźniak: ten sam ciąg ze zwykłą literą w środku zostaje czytelnym tekstem, bez sterujących.
+      expect(toPublicScope([asp({ clientName: `${junk}SEO${junk}` })])[0].client_name).toBe('SEO');
+      expect(
+        toPublicScope([asp({ levelClientDescription: `${junk}Opis` })])[0].client_description,
+      ).toBe('Opis');
+    });
+  }
+
+  it('B11 sterujące w środku słowa znikają; nowa linia i tabulacja w środku zostają', () => {
+    expect(cleanClientText('SE‮O\u0000', 10)).toBe('SEO');
+    expect(cleanClientText('linia 1\nlinia 2', 40)).toBe('linia 1\nlinia 2');
+  });
+});

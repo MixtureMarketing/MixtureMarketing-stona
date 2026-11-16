@@ -91,3 +91,30 @@ describe('parseScope: formy ataku (odmowa + dozwolony bliźniak)', () => {
     expect(parseScope(many.slice(0, 3))).toHaveLength(3);
   });
 });
+
+// MIX-1799 (uwaga Z6): ta sama allowlista po stronie przeglądarki (parseScope z odpowiedzi API).
+describe('parseScope: same znaki sterujące (bidi, C0/C1) = pozycja pominięta; bliźniak z literą', () => {
+  const FORMS = [
+    '‮',
+    '‪‫‬‭‮',
+    '⁦⁩',
+    '⁦⁧⁨⁩',
+    '؜',
+    '\u0000',
+    '\u0007\u001B',
+    '\u007F\u0085\u009F',
+    ' \u0000‮​⁦ ',
+    '\t\n\u0008‭\r',
+  ];
+  it('10 form: nazwa = pominięta, opis = null', () => {
+    for (const junk of FORMS) {
+      expect(parseScope([{ client_name: junk, client_description: 'x' }])).toEqual([]);
+      expect(parseScope([{ client_name: 'SEO', client_description: junk }])).toEqual([
+        { client_name: 'SEO', client_description: null },
+      ]);
+      expect(
+        parseScope([{ client_name: `${junk}SEO`, client_description: `Opis${junk}` }]),
+      ).toEqual([{ client_name: 'SEO', client_description: 'Opis' }]);
+    }
+  });
+});

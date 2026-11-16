@@ -2,8 +2,9 @@
 // „Udostępnij" tylko tam, gdzie przeglądarka ma systemowe udostępnianie (Web Share).
 // GA4: jedno `calculator_share` na kliknięcie, tylko `method` (copy | native) i `source`;
 // bez odpowiedzi, e-maila i linku (allowlista utils/ga4Allowlist.ts i tak by je odrzuciła).
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { trackCalculatorShare } from '../../../utils/calculatorTracking';
+import { useHideCookieOver } from './useHideCookieOver';
 
 // min-h-11 = 44 px: cel dotyku (próg firmy, WCAG 2.5.5), jak przyciski opcji (QuestionField).
 const BTN =
@@ -13,6 +14,8 @@ type Status = 'idle' | 'copied' | 'manual';
 
 const ConfigLinkButtons: React.FC<{ link: string }> = ({ link }) => {
   const [status, setStatus] = useState<Status>('idle');
+  const boxRef = useRef<HTMLDivElement>(null);
+  useHideCookieOver(boxRef, true, 'configLinkCookie');
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
 
   const copy = async () => {
@@ -36,7 +39,7 @@ const ConfigLinkButtons: React.FC<{ link: string }> = ({ link }) => {
   };
 
   return (
-    <div data-testid="config-link" className="space-y-2">
+    <div ref={boxRef} data-testid="config-link" className="space-y-2">
       <p className="text-sm text-gray-400">
         Wyślij te odpowiedzi wspólnikowi: link otworzy formularz z tymi samymi wyborami.
       </p>
