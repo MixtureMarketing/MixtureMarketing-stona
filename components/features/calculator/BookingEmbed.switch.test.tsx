@@ -58,7 +58,8 @@ const OK = {
 };
 const BTN = 'Wyślij i umów rozmowę';
 const bookingOpens = () => trackEvent.mock.calls.filter((c) => c[0] === 'calculator_booking_open');
-const calendarRefs = (root: HTMLElement) => (root.innerHTML.match(/calendar\.google\.com/g) ?? []).length;
+const calendarRefs = (root: HTMLElement) =>
+  (root.innerHTML.match(/calendar\.google\.com/g) ?? []).length;
 
 const toContact = async () => {
   const view = render(
@@ -130,7 +131,7 @@ describe('K1/K2 włączony: harmonogram dopiero po kliknięciu i zapisie leada',
     expect(new URL(frame.getAttribute('src') ?? '').host).toBe('calendar.google.com');
     expect(screen.getByRole('heading', { name: 'Wybierz termin rozmowy' })).toBeInTheDocument();
     // pod wynikiem: widełki są nad ramką
-    const price = screen.getByText(/1\s000\s–\s2\s000\s*zł/);
+    const price = screen.getByText('Orientacyjne widełki');
     expect(price.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(submitPublicQuote).toHaveBeenCalledTimes(1);

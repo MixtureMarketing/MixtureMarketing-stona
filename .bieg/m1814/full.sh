@@ -13,7 +13,7 @@ echo "HEAD=$(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' 
 step() { local n=$1; shift; "$@" > "$OUT/$n.log" 2>&1; local rc=$?; echo "STEP $n rc=$rc"; return 0; }
 clean() { sed 's/\x1b\[[0-9;]*m//g' "$OUT/$1.log"; }
 tests_line() { clean "$1" | grep -aE '^ *(Test Files|Tests) ' | sed "s/^/  $1: /"; }
-fails() { clean "$1" | grep -aE '^ *(FAIL|×) ' | head -20 | sed "s/^/  $1 fail: /"; }
+fails() { clean "$1" | grep -aE '^ *(FAIL|×) |Error:|Expected|Received' | head -30 | sed "s/^/  $1 fail: /"; }
 restore_generated() { git checkout -- public/sitemap.xml 2>/dev/null; git status --porcelain | grep -v '^?? ' | sed 's/^/  dirty: /'; }
 step npm-ci npm ci --legacy-peer-deps --no-audit --no-fund
 restore_generated

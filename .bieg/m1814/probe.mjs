@@ -93,6 +93,8 @@ const GOOGLE_OK = [
   /(^|\.)googleusercontent\.com$/,
   /^(accounts|apis|ssl|www)\.google\.com$/,
 ];
+const FAKE_TURNSTILE = `window.turnstile = { render: () => 'w1', execute() {}, reset() {},
+  getResponse: () => 'e2e-token', remove() {} };`;
 const isCalendar = (h) => /(^|\.)calendar\.google\.com$/.test(h);
 
 const log = { t0: Date.now(), clicked: null, calendar: [], quotePosts: [], blocked: [] };
@@ -129,6 +131,9 @@ try {
         log.calendar.push({ t: now(), afterClick: log.clicked !== null, method: req.method() });
         if (log.clicked === null) return req.abort();
       }
+      if (u.hostname === 'challenges.cloudflare.com') {
+        return req.respond({ status: 200, contentType: 'text/javascript', body: FAKE_TURNSTILE });
+      }
       if (u.origin === ORIGIN) {
         if (u.pathname === '/api/estimation/public-questions') {
           return req.respond({
@@ -150,7 +155,11 @@ try {
         }
         return req.continue();
       }
-      if (log.clicked !== null && req.method() === 'GET' && GOOGLE_OK.some((r) => r.test(u.hostname)))
+      if (
+        log.clicked !== null &&
+        req.method() === 'GET' &&
+        GOOGLE_OK.some((r) => r.test(u.hostname))
+      )
         return req.continue();
       log.blocked.push(u.hostname);
       return req.abort();
@@ -203,20 +212,35 @@ try {
   await clickText(/^Dalej$/);
   await page.waitForSelector('input[type="email"]', { timeout: 10000 });
   await page.type('input[type="email"]', 'e2e@example.com');
-  const btnLabel = ON ? 'Wyślij i umów rozmowę' : 'Poznaj widełki';
+  // off = VITE_MM_LEAD_CONFIG=1 bez VITE_MM_BOOKING_EMBED: ten sam przycisk, brak ramki.
+  const btnLabel = 'Wyślij i umów rozmowę';
   await new Promise((r) => setTimeout(r, 1500)); // „cisza” przed kliknięciem: nic nie woła kalendarza
   result.calendarBeforeClick = log.calendar.length;
   result.iframesBeforeClick = await page.evaluate(() => document.querySelectorAll('iframe').length);
   result.calendarInDomBeforeClick = await page.evaluate(
     () => (document.documentElement.outerHTML.match(/calendar\.google\.com/g) ?? []).length,
   );
-  await page.screenshot({ path: path.join(OUT, 'shots', `m390-${mode}-przed.jpg`), type: 'jpeg', quality: 70 });
+  await page.screenshot({
+    path: path.join(OUT, 'shots', `m390-${mode}-przed.jpg`),
+    type: 'jpeg',
+    quality: 70,
+  });
 
   log.clicked = now();
   await clickText(new RegExp(`^${btnLabel}$`));
-  await page.waitForFunction(() => /Orientacyjne widełki/.test(document.body.innerText), {
-    timeout: 15000,
-  });
+  try {
+    await page.waitForFunction(() => /Orientacyjne widełki/.test(document.body.innerText), {
+      timeout: 15000,
+    });
+  } catch (e) {
+    result.bodyAfterClick = (await page.evaluate(() => document.body.innerText)).slice(-600);
+    await page.screenshot({
+      path: path.join(OUT, 'shots', `m390-${mode}-BLAD.jpg`),
+      type: 'jpeg',
+      quality: 70,
+    });
+    throw e;
+  }
 
   if (ON) {
     const frameEl = await page.waitForSelector('[data-testid="booking-embed"] iframe', {
@@ -248,7 +272,11 @@ try {
   } else {
     await new Promise((r) => setTimeout(r, 2000));
   }
-  await page.screenshot({ path: path.join(OUT, 'shots', `m390-${mode}-po.jpg`), type: 'jpeg', quality: 70 });
+  await page.screenshot({
+    path: path.join(OUT, 'shots', `m390-${mode}-po.jpg`),
+    type: 'jpeg',
+    quality: 70,
+  });
 
   result.iframesAfter = await page.evaluate(() => document.querySelectorAll('iframe').length);
   result.calendarAfterClick = log.calendar.filter((c) => c.afterClick).length;
@@ -265,7 +293,10 @@ try {
   result.blockedHosts = [...new Set(log.blocked)].slice(0, 20);
   result.scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
 
-  check(result.calendarBeforeClick === 0, `żądania do kalendarza przed kliknięciem: ${result.calendarBeforeClick}`);
+  check(
+    result.calendarBeforeClick === 0,
+    `żądania do kalendarza przed kliknięciem: ${result.calendarBeforeClick}`,
+  );
   check(result.iframesBeforeClick === 0, `ramki przed kliknięciem: ${result.iframesBeforeClick}`);
   check(result.calendarInDomBeforeClick === 0, 'adres kalendarza w DOM przed kliknięciem');
   check(result.quotePosts === 1, `POST public-quote: ${result.quotePosts}`);
@@ -278,7 +309,10 @@ try {
     check(result.postBeforeCalendar, 'kalendarz przed zapisem leada');
     check(result.slotTimes.length > 0, 'brak godzin wolnych terminów w ramce');
   } else {
-    check(result.bookingOpen === 0, `calculator_booking_open przy wyłączonym: ${result.bookingOpen}`);
+    check(
+      result.bookingOpen === 0,
+      `calculator_booking_open przy wyłączonym: ${result.bookingOpen}`,
+    );
     check(result.iframesAfter === 0, `ramki przy wyłączonym: ${result.iframesAfter}`);
     check(result.calendarAfterClick === 0, 'żądania do kalendarza przy wyłączonym');
   }
