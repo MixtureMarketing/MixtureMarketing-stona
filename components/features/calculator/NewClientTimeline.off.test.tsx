@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import type { PublicQuestion } from '../../../services/calculatorService';
-import { isNewClientTimelineEnabled } from './livePrice';
+import { isLivePriceBarEnabled, isNewClientTimelineEnabled } from './livePrice';
 
 // Zrzut <div class="text-center space-y-6">…</div> z integracji 8933c5b (widełki 27500–53000).
 const BASE_HTML =
@@ -78,7 +78,12 @@ describe('K2 parser przełącznika', () => {
   });
 
   it('brak zmiennej osi czasu nie dziedziczy VITE_MM_LIVE_PRICE_BAR (MIX-1885, mutant V4)', () => {
+    // Zmienna osi czasu naprawdę nieustawiona (undefined), nie pusta: tylko wtedy domyślny parametr
+    // parsera wspólnego sięgnąłby po VITE_MM_LIVE_PRICE_BAR.
+    vi.stubEnv('VITE_MM_NEW_CLIENT_TIMELINE', undefined);
     vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
+    expect(import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE).toBeUndefined();
+    expect(isLivePriceBarEnabled()).toBe(true); // świadek: podstawienie zadziałało
     expect(isNewClientTimelineEnabled(undefined)).toBe(false);
     expect(isNewClientTimelineEnabled()).toBe(false);
   });
