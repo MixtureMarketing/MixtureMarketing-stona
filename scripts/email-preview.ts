@@ -36,6 +36,7 @@ async function loadMessages(): Promise<{ m: Messages; logoUrl: string }> {
     logLevel: 'error',
     appType: 'custom',
     server: { middlewareMode: true, hmr: false, watch: null },
+    optimizeDeps: { noDiscovery: true, include: [] },
   });
   try {
     const m = (await server.ssrLoadModule('/functions/api/_shared/emailMessages.ts')) as Messages;

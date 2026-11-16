@@ -113,7 +113,7 @@ function blockHtml(block: EmailBlock): string {
     if (!href) return `<p class="mm-text" style="${P_STYLE}">${esc(block.button)}</p>`;
     return `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px"><tr><td align="center" bgcolor="${C.secondary}" style="border-radius:8px;background:${C.secondary}"><a class="mm-button" style="display:inline-block;padding:14px 28px;font-family:${FONT};font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:8px" href="${esc(href)}">${esc(block.button)}</a></td></tr></table>`;
   }
-  return `<hr style="border:0;border-top:1px solid ${C.hairline};margin:24px 0">`;
+  return `<hr class="mm-hr" style="border:0;border-top:1px solid ${C.hairline};margin:24px 0">`;
 }
 
 function blockText(block: EmailBlock): string {
@@ -152,6 +152,7 @@ const DARK_CSS = `
 .mm-code{background:${C.deepDark}!important;color:#f3f4f6!important}
 .mm-link,.mm-foot a{color:${C.primary}!important}
 .mm-foot{color:#cbd5e1!important}
+.mm-hr{border-top-color:#1e293b!important}
 }
 [data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
 [data-ogsb] .mm-card{background:${C.sceneMid}!important}
@@ -199,7 +200,7 @@ ${heading}
 ${body}
 </td></tr>
 <tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:${FONT};font-size:12px;line-height:1.6;color:${C.inkSubtle}">
-<hr style="border:0;border-top:1px solid ${C.hairline};margin:0 0 16px">
+<hr class="mm-hr" style="border:0;border-top:1px solid ${C.hairline};margin:0 0 16px">
 ${note}
 <p style="margin:0 0 8px;font-family:${FONT};font-size:12px;line-height:1.6" class="mm-foot">${foot}</p>
 <p style="margin:0;font-family:${FONT};font-size:12px;line-height:1.6" class="mm-foot"><a style="color:${C.accentDark};text-decoration:underline" href="${esc(DOMAIN)}">mixturemarketing.pl</a> · <a style="color:${C.accentDark};text-decoration:underline" href="${esc(EMAIL_PRIVACY_URL)}">Polityka prywatności</a></p>
