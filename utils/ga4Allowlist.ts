@@ -112,6 +112,13 @@ export const GA4_EVENTS: Readonly<Record<string, Readonly<Record<string, ParamSp
     form_submit: { contact_type: oneOf(CONTACT_TYPES), step: int(1, 10), has_existing_lead: bool },
     lead_start: { service: oneOf(CONTACT_TYPES), source: oneOf(['contact_form_step_1']) },
     contact_form_success: { lead_id: { kind: 'fixed', re: UUID_RE } },
+    // MIX-1855, slownik P4 (generate_lead: form_id, department, page_type): sukces formularza z
+    // przycisku w realizacji. Tylko stale (enum), bez nazwy klienta; `department` pomijamy, bo
+    // strona nie ma dzialow (jak przy click_phone).
+    generate_lead: {
+      form_id: oneOf(['case_study_similar']),
+      page_type: oneOf(['case_study']),
+    },
     view_pricing: { source: PATH },
     open_modal: { tier: oneOf(TIERS), price_pln: int(0, MAX_NUM), source: oneOf(['deep_link']) },
     click_tier_button: {

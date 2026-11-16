@@ -58,6 +58,10 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_CONFIG_PREVIEW',
   'VITE_MM_LIVE_PRICE_BAR',
 ];
+/** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
+const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
+/** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
+const WYLACZONE_NA_PROD = [...CENNIK_WYLACZONY_NA_PROD, ...WYCENA_WYLACZONA_NA_PROD].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 
 const wdrozenia = (w: Workflow) =>
@@ -433,11 +437,39 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
     },
   );
-  it('MIX-1838: poza WLACZONE_NA_PROD zostaje dokładnie konfigurator wyceny', () => {
+  it.each(CENNIK_WYLACZONY_NA_PROD)(
+    'MIX-1855: %s (strona /cennik/) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
+  it('MIX-1855: VITE_MM_CENNIK w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
+    const w = wczytaj();
+    const wyr = String(zmienneBuildu(w).VITE_MM_CENNIK);
+    expect(wyr).toBe(WYRAZENIE_PREVIEW);
+    expect(wartoscFlagi(wyr, 'preview')).toBe('1');
+    expect(wartoscFlagi(wyr, 'prod')).toBe('');
+    expect(wartoscFlagi(wyr, 'none')).toBe('');
+    expect(przelacznikiZKodu()).toContain('VITE_MM_CENNIK');
+    expect(WLACZONE_NA_PROD.has('VITE_MM_CENNIK')).toBe(false);
+  });
+  it('MIX-1855: VITE_MM_CENNIK usunięty z buildu = naruszenie; wyłączony w Preview = naruszenie', () => {
+    const w = kopia();
+    delete zmienneBuildu(w).VITE_MM_CENNIK;
+    expect(naruszenia(w)).toContain('build bez VITE_MM_CENNIK');
+    const w2 = kopia();
+    zmienneBuildu(w2).VITE_MM_CENNIK = '';
+    expect(naruszenia(w2).join('|')).toMatch(/VITE_MM_CENNIK: nieznana postać wyrażenia/);
+  });
+  it('MIX-1838/1855: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/ i konfigurator wyceny', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
-    expect(inne).toEqual(WYCENA_WYLACZONA_NA_PROD);
+    expect(inne).toEqual(WYLACZONE_NA_PROD);
     const zmienne = zmienneBuildu(wczytaj());
-    for (const f of WYCENA_WYLACZONA_NA_PROD) expect(zmienne[f]).toBe(WYRAZENIE_PREVIEW);
+    for (const f of WYLACZONE_NA_PROD) expect(zmienne[f]).toBe(WYRAZENIE_PREVIEW);
   });
   it.each([...WLACZONE_NA_PROD].sort())(
     'MIX-1838: %s zdjęty z produkcji (wyrażenie tylko-Preview) = naruszenie',

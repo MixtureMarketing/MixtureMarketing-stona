@@ -1,0 +1,44 @@
+# MIX-1855: źródła cen na stronie /cennik/
+
+Każda kwota na `/cennik/` (`data/content/pages/cennik.ts`) jest już opublikowana na stronie albo w Sanity.
+Tej tabeli pilnuje test `tests/seo/cennikTresc.test.ts` (każda kwota z pozycji cennika ma tu wiersz, a w tekście
+nie ma kwoty spoza listy). Brak abonamentu: żadnej „strony w abonamencie”, żadnych kwot za abonament.
+
+Sanity (projekt `azuef2ua`, dataset `production`, tylko odczyt): `*[_type=="pricingSection"]{_id,category,"t":packages[]->{_id,title,price}}`,
+wynik z 16.11.2026.
+
+| Cena na /cennik/ | Pozycja | Źródło (plik:linia albo dokument Sanity `_id`) |
+|---|---|---|
+| od 2 500 zł netto | Landing page | `components/sections/Offers.tsx:79` („Strony WWW od 2 500 zł netto”); `components/pages/LandingPage.tsx:119`; `components/pages/WebDevRzeszow.tsx:39`; Sanity `f5b37bc2-61a9-474c-abbf-e0ed557efe22` („Campaign Ready”, 2500) |
+| od 5 500 zł | Strona firmowa z CMS | `components/pages/CorporateWebsite.tsx:101`; `components/pages/WebDevRzeszow.tsx:39`; Sanity `tOZJWBLgTaeICxCENa5kId` („Business Card”, 5 500) |
+| od 9 500 zł | Sklep internetowy | `components/pages/Ecommerce.tsx:86`; `components/pages/WebDevRzeszow.tsx:39`; Sanity `tOZJWBLgTaeICxCENa5kUZ` („WooCommerce Start”, 9 500) |
+| od 19 000 zł | Portal B2B | `components/pages/CustomWebApp.tsx:92`; `components/pages/WebDevRzeszow.tsx:39` |
+| od 23 000 zł | Aplikacja dedykowana | `components/pages/CustomWebApp.tsx:92`; `components/pages/WebDevRzeszow.tsx:39`; `data/content/services/web-development/ai-systems.ts:41` |
+| od 290 zł/mies. | Opieka nad stroną po wdrożeniu | `components/pages/WebDevRzeszow.tsx:59` i `:499` |
+| ok. 100 zł/mies. (hosting sklepu, tylko w FAQ) | Koszty po wdrożeniu | `data/content/services/web-development/ecommerce.ts:102` |
+| od 1 500 zł/mc + budżet mediowy | Google Ads | `components/pages/GoogleAds.tsx:105`; Sanity `Y8h7p9jmndm131lv54J7pC` („Start”, 1 500) |
+| od 1 500 zł/mc + budżet mediowy | Meta Ads | `components/pages/MetaAds.tsx:84`; Sanity `tOZJWBLgTaeICxCENa5lbn` („Start”, 1 500) |
+| 2–10 tys. zł/mc (budżety klientów) | Kampanie, opis sekcji | `data/content/offers.ts:47` |
+| 2 000–3 000 zł/mc (zalecany budżet mediowy) | Google Ads, FAQ | `data/content/services/marketing/google-ads.ts:130`; `data/content/services/marketing/main.ts:73` |
+| od 1 200 zł/mies. | Lokalne SEO (jedno miasto, do 10 fraz) | `components/pages/SeoRzeszow.tsx:444` i `:46`; Sanity `7LzegKrHEKFtb3HP5QE58S` („Lokalne SEO”, 1 200) |
+| od 2 500 zł/mies. | Ogólnopolskie SEO (do 30 fraz) | `components/pages/SeoRzeszow.tsx:456` i `:46`; Sanity `7LzegKrHEKFtb3HP5QE5SG` („National SEO”, 2 500) |
+| od 3 500 zł/mies. | SEO dla sklepów (500+ pozycji) | `components/pages/SeoRzeszow.tsx:468` i `:46` |
+| od 1 900 zł | Audyt techniczny SEO | `components/pages/SeoRzeszow.tsx:480` i `:46` |
+| od 800 zł | Materiały drukowane | `components/pages/PrintDesign.tsx:53`; `components/pages/DesignBranding.tsx:82`; `data/content/services/design/main.ts:9` |
+| od 3 500 zł | Logo i brand book | `components/pages/BrandIdentity.tsx:51`; `components/pages/DesignBranding.tsx:82` |
+| od 8 000 zł (pełna identyfikacja, w opisie) | Logo i brand book | `components/pages/BrandIdentity.tsx:51`; `data/content/services/design/main.ts:9` |
+| od 2 000 zł | Projekt UI/UX | `components/pages/UiUxDesign.tsx:54`; `components/pages/DesignBranding.tsx:82` |
+| od 2 500 zł | Audyt wizualny | `components/pages/VisualAudit.tsx:48`; `components/pages/DesignBranding.tsx:82` |
+
+Inne twierdzenia w opisach (nie kwoty), też już opublikowane:
+
+| Twierdzenie | Źródło |
+|---|---|
+| Landing 7–14 dni roboczych, firmowa 4–8 tygodni, sklep 6–12 tygodni, aplikacja od 3 miesięcy | `components/pages/WebDevRzeszow.tsx:44` |
+| Projekty można rozliczać etapami | `components/pages/WebDevelopment.tsx:87`; `components/pages/CustomWebApp.tsx:92` |
+| Bezpłatna wycena, konsultacja 45–60 min, wstępne widełki w 24 h | `components/pages/WebDevRzeszow.tsx:39` (FAQ), `data/content/pages/contact.ts:28` |
+| Opłata za kampanię osobno od budżetu płaconego platformie | `data/content/services/marketing/google-ads.ts:130` |
+| Pomiar widoczności SEO w Google Search Console | `data/content/services/marketing/seo.ts:14` |
+
+Nie użyto: żadnej ceny abonamentowej („od 179 zł/mc” itp.), cen spoza powyższych źródeł, kwot „za godzinę”
+(Sanity ma tylko „Stawka / h” bez liczby).

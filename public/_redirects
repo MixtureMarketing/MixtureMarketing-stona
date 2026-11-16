@@ -47,8 +47,10 @@
 /home/          /             301
 
 # Kolejne zgadywane adresy (audyt MIX-489, S7; dotad 404). Cele sa realnymi, prerenderowanymi
-# trasami. /cennik -> /offers/ TYMCZASOWO: osobnej strony z cennikiem nie ma; po jej
-# powstaniu zmienic cel (i test w tests/seo/redirects.test.ts).
+# trasami. /cennik -> /offers/ do czasu publikacji strony /cennik/ (MIX-1855, przelacznik
+# VITE_MM_CENNIK): przy budowie z VITE_MM_CENNIK=1 scripts/apply-cennik-build.mjs zdejmuje obie
+# reguly /cennik z dist/_redirects (strona jest wtedy prawdziwa trasa); plik w repo zostaje
+# z regulami (wylaczony przelacznik = dist bez zmian). Test: tests/seo/redirects.test.ts.
 /cennik         /offers/      301
 /cennik/        /offers/      301
 /opinie         /wycena/      301

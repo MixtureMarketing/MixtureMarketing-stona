@@ -8,9 +8,18 @@
 //      zachowywana jest wersja statyczna.
 // Wszystkie wpisy MUSZA konczyc sie trailing slashem (kanoniczna forma URL).
 // /portal NIE jest w tej liscie - jest zablokowany przez robots.txt.
+/**
+ * MIX-1855: strona /cennik/ za przelacznikiem VITE_MM_CENNIK (tylko wartosc '1' wlacza; config/flags.ts).
+ * Wylaczony = ani prerenderu, ani wpisu w sitemap.xml, a /cennik i /cennik/ zostaja 301 na /offers/.
+ * @param {unknown} flag wartosc zmiennej srodowiska
+ * @returns {string[]}
+ */
+export const cennikRoutes = (flag) => (flag === '1' ? ['/cennik/'] : []);
+
 export const routes = [
   '/',
   '/offers/',
+  ...cennikRoutes(globalThis.process?.env?.VITE_MM_CENNIK),
   '/contact/',
   '/wycena/',
   '/o-nas/',
