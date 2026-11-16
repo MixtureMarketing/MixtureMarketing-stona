@@ -64,9 +64,9 @@ run F5-flag-name-wrong $L 'import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE' 'import.
 # semantics and layout
 FROM2='</ol>' TO2='</div>' run S1-ol-to-div $C '<ol className=' '<div className='
 ALL=1 run S2-h3-to-h4 $C 'h3' 'h4'
-run S3-h2-to-h4 $C '<h2 id=' '<h4 id='
+FROM2='</h2>' TO2='</h4>' run S3-h2-to-h4 $C '<h2 id=' '<h4 id='
 run S4-aria-labelledby-broken $C 'aria-labelledby="new-client-timeline-title"' 'aria-labelledby="x"'
-run S5-inner-ul-to-div $C '<ul className="mt-2' '<div className="mt-2'
+FROM2='</ul>' TO2='</div>' run S5-inner-ul-to-div $C '<ul className="mt-2' '<div className="mt-2'
 run S6-break-words-dropped $C ' break-words' ''
 run S7-direction-class $C 'text-start' 'text-left'
 run S8-motion-class $C 'max-w-xl pt-8' 'max-w-xl pt-8 transition-all'

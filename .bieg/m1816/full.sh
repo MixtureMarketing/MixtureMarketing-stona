@@ -54,9 +54,11 @@ echo "  bundle off: files with 'Co dostajesz i kiedy'=$(grep -l 'Co dostajesz i 
 
 step probe-on node .bieg/m1816/probe.mjs "$B/dist-on" "$B/probe-on" on
 grep -a '^PROBE' "$OUT/probe-on.log"
+tail -n 12 "$OUT/probe-on.log" | cut -c1-400 | sed 's/^/  probe-on tail: /'
 grep -a 'pageerror' "$OUT/probe-on.log" | head -5
 step probe-off node .bieg/m1816/probe.mjs "$B/dist-off" "$B/probe-off" off
 grep -a '^PROBE' "$OUT/probe-off.log"
+tail -n 12 "$OUT/probe-off.log" | cut -c1-400 | sed 's/^/  probe-off tail: /'
 grep -a 'pageerror' "$OUT/probe-off.log" | head -5
 for f in "$B"/probe-on/shots/*.jpg; do
   [ -f "$f" ] || continue
@@ -76,6 +78,7 @@ probe_mut() { # name from to expected-reason-regex
   restore_generated
   step "probe-$name" node .bieg/m1816/probe.mjs "$B/dist-$name" "$B/probe-$name" on
   grep -aE '^PROBE [a-z]+ fails' "$OUT/probe-$name.log" | cut -c1-500
+  tail -n 4 "$OUT/probe-$name.log" | cut -c1-300 | sed "s/^/  probe-$name tail: /"
   if grep -aqE "$want" "$OUT/probe-$name.log"; then echo "  probe-mut $name: zabity (reason matches $want)"; else echo "  probe-mut $name: PRZEZYL (no '$want')"; fi
 }
 probe_mut hook "  useHideCookieOver(boxRef, rows.length > 0, 'timelineCookie');" '' 'przycisk ciasteczek nakłada się'
