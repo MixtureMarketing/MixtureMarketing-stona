@@ -67,8 +67,10 @@ const PublicCalculator: React.FC = () => {
   const resultOn = isResultContactEnabled();
   const shownQuestions = resultOn ? withP4Texts(c.questions) : c.questions;
   // Z11 r2: przycisk ciasteczek nie zasłania opcji, pól ani przycisków kroków (390 px).
+  // Otoczka z formRef jest tylko przy włączonym przełączniku (niżej), więc bez niego hak nic nie
+  // mierzy; `filling` ponawia pomiar, gdy formularz pojawia się po załadowaniu pytań.
   const formRef = useRef<HTMLDivElement>(null);
-  useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);
+  useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);
   const handoff = (() => {
     if (!resultOn || c.phase !== 'done' || !c.result) return null;
     const k = linkOn ? encodeConfigLink(c.questions, c.answers) : null;

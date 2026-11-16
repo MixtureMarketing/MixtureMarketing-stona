@@ -72,10 +72,11 @@ run M24-ci-flag-on-prod .github/workflows/ci.yml "          VITE_MM_RESULT_CONTA
 run M25-css-rule-missing index.css "body[data-result-cookie='true'] .cookie-floating-btn," ""
 # r2 (NIE weryfikatora r1): przycisk ciasteczek nad opcjami formularza + mutanty V4/V6/V8/V9 weryfikatora
 U=components/features/calculator/useHideCookieOver.ts
-run R1-form-hook-off $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, false, 'formCookie', FORM_CONTROLS);"
-run R2-form-hook-whole-box $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, resultOn && filling, 'formCookie');"
+run R1-form-hook-off $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, false, 'formCookie', FORM_CONTROLS);"
+run R2-form-hook-whole-box $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, resultOn && filling, 'formCookie');"
 run R3-selector-ignored $U "const targets = selector ? Array.from(box.querySelectorAll(selector)) : [box];" "const targets = [box];"
-run R4-form-hook-no-switch $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);"
+run R4-form-hook-always-active $P "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, true, 'formCookie', FORM_CONTROLS);"
+run R11-form-box-always $P "        (resultOn ? (" "        (true ? ("
 run R5-css-form-rule-missing index.css "body[data-form-cookie='true'] .cookie-floating-btn," ""
 run R6-controls-without-button $U "'label, input, select, textarea, button, a[href]'" "'label, input, select, textarea, a[href]'"
 run R7-V4-html-in-box $I "          <p className=\"whitespace-pre-line break-words text-sm text-gray-800\">
