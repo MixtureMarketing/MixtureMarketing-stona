@@ -189,7 +189,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const psiData = psiRes.status === 'fulfilled' ? psiRes.value : null;
     if (psiRes.status === 'rejected') {
       const r = psiRes.reason;
-      const timeout = r instanceof Error && r.name === 'TimeoutError';
+      // DOMException z AbortSignal.timeout nie zawsze jest instanceof Error — patrzymy na nazwę.
+      const timeout = (r as { name?: unknown } | null)?.name === 'TimeoutError';
       console.error(
         '[run_audit] psi:',
         timeout ? `przekroczony limit ${TIMEOUTS_MS.psi / 1000} s` : errText(r),
