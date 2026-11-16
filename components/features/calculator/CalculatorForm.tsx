@@ -38,6 +38,10 @@ interface CalculatorFormProps {
   configPreview?: React.ReactNode;
   /** Link do konfiguracji (MIX-1791): pod przyciskami Wstecz/Dalej, nad podglądem. */
   configLink?: React.ReactNode;
+  /** MIX-1813 (VITE_MM_LEAD_CONFIG): opcjonalny telefon i przycisk „Wyślij i umów rozmowę”. */
+  leadConfig?: boolean;
+  phone?: string;
+  setPhone?: (v: string) => void;
 }
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({
@@ -55,6 +59,9 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
   liveBar,
   configPreview,
   configLink,
+  leadConfig = false,
+  phone = '',
+  setPhone,
 }) => {
   // Uporządkowane, unikalne grupy widocznych pytań + krok kontaktowy na końcu.
   const groups = useMemo(() => {
@@ -182,6 +189,25 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
             </p>
           </div>
 
+          {leadConfig && setPhone && (
+            <div className="space-y-2">
+              <label htmlFor="calc-phone" className="block text-base font-semibold text-white">
+                Telefon (opcjonalnie)
+              </label>
+              <input
+                id="calc-phone"
+                type="tel"
+                autoComplete="tel"
+                inputMode="tel"
+                maxLength={32}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="np. +48 600 700 800"
+                className="w-full rounded-xl border border-white/15 bg-white/[0.03] px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/60"
+              />
+            </div>
+          )}
+
           {/* Honeypot — ukryte pole; wypełnia je tylko bot. */}
           <input
             type="text"
@@ -238,7 +264,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
             disabled={submitting}
             className="px-6 py-2.5 rounded-xl bg-primary text-dark font-semibold hover:brightness-110 disabled:opacity-60 transition"
           >
-            {submitting ? 'Liczę…' : 'Poznaj widełki'}
+            {submitting ? 'Liczę…' : leadConfig ? 'Wyślij i umów rozmowę' : 'Poznaj widełki'}
           </button>
         )}
       </div>

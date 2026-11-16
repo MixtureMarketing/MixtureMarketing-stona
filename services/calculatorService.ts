@@ -38,6 +38,8 @@ export interface SubmitPayload {
   email: string;
   captcha_token: string;
   website_verify?: string;
+  /** MIX-1813: opcjonalny telefon, wysyłany tylko przy VITE_MM_LEAD_CONFIG i niepustym polu. */
+  phone?: string;
 }
 
 /** Wynik POST: sukces z widełkami albo błąd ze statusem HTTP (do komunikatu po ludzku). */
