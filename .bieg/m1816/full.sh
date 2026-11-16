@@ -82,7 +82,7 @@ probe_mut() { # name from to expected-reason-regex
   if grep -aqE "$want" "$OUT/probe-$name.log"; then echo "  probe-mut $name: zabity (reason matches $want)"; else echo "  probe-mut $name: PRZEZYL (no '$want')"; fi
 }
 probe_mut hook "  useHideCookieOver(boxRef, rows.length > 0, 'timelineCookie');" '' 'przycisk ciasteczek nakłada się'
-probe_mut wrap ' break-words' '' 'długi tekst: przewijanie poziome'
+probe_mut wrap ' break-words' '' 'długi tekst: sekcja szersza'
 
 bash .bieg/m1816/mut.sh
 restore_generated

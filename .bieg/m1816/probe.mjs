@@ -368,6 +368,10 @@ for (const vp of VIEWPORTS) {
     `${vp.name}: długi tekst: przewijanie poziome ${swLong.doc}>${swLong.win}`,
   );
   check(
+    swLong.sec && swLong.sec[0] <= swLong.sec[1],
+    `${vp.name}: długi tekst: sekcja szersza niż jej pole ${JSON.stringify(swLong.sec)}`,
+  );
+  check(
     sweep.covered === 0 && atTop.covered === 0,
     `${vp.name}: przycisk ciasteczek nakłada się ${JSON.stringify({ sweep, atTop })}`,
   );
