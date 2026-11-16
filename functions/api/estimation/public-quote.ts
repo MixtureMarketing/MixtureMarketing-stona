@@ -6,6 +6,8 @@
  * (best-effort, retry) → e-mail (best-effort, degradacja łagodna). Zwraca WYŁĄCZNIE priceRange.
  * MIX-1382: przy QUOTE_LIMITS_D1='1' przepływ idzie przez quoteGate (_quoteGate.ts): honeypot →
  * e-mail → IP krawędzi → Turnstile → liczniki D1 (fail-closed) → dopiero biblioteka i zapis.
+ * MIX-1813: przy LEAD_CONFIG_CRM='1' lead niesie do CRM etykiety, link `?k=`, plan i telefon
+ * (_leadConfig.ts); brak/'0' = zachowanie sprzed zmiany bajt w bajt.
  */
 import { loadRawLibrary, loadPublicQuestionDefs } from './_engineDb';
 import { checkRateLimit } from './_rateLimit';
@@ -19,11 +21,13 @@ import {
 import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
 import { sprawdzWymaganyTekst } from '../_shared/limity';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
+import { leadConfigSwitch, normalizePhone, buildLeadDetails, PHONE_MESSAGE } from './_leadConfig';
 import {
   parsePublicConfig,
   computePublicQuote,
   sanitizePublicAnswers,
   type PublicQuoteResult,
+  type PublicQuestionDef,
 } from '../../../lib/estimation/publicQuote';
 import type { RawLibrary } from '../../../lib/estimation/toLibraryData';
 import { withRetry } from '../../../lib/estimation/retry';
@@ -38,6 +42,8 @@ interface Env extends LinearEnv, Omit<QuoteGateEnv, 'DB'> {
   NOTIFY_EMAIL?: string;
   /** Przełącznik MIX-1382: '1' = limity D1; brak/'0' = dotychczasowy limiter KV. */
   QUOTE_LIMITS_D1?: string;
+  /** Przełącznik MIX-1813: '1' = konfiguracja w leadzie do CRM; brak/'0' = jak dotąd. */
+  LEAD_CONFIG_CRM?: string;
 }
 
 interface Body {
@@ -182,12 +188,22 @@ async function handlePost(
   const checked = sanitizePublicAnswers(body.answers, defs);
   if (checked.errors.length > 0) return invalid(checked);
   const { answers } = checked;
+  const lc = leadConfigFor(request, env, body);
+  if (lc instanceof Response) return lc;
 
   // 6. Compute + transform publiczny.
   const result = computePublicQuote(rawLib, answers, config);
 
   // 7. Zapis (best-effort, retry) — nie blokuje zwrotu ceny.
-  await persist(env, rawLib, email, answers, result, waitUntil);
+  await persist(
+    env,
+    rawLib,
+    email,
+    answers,
+    result,
+    waitUntil,
+    extraFor(lc, rawLib, defs, answers, result),
+  );
 
   // 8. E-mail (best-effort, degradacja łagodna).
   await sendEmails(env, email, result);
@@ -224,11 +240,63 @@ async function gatedPost(
   const checked = sanitizePublicAnswers(body.answers, defs);
   if (checked.errors.length > 0) return invalid(checked);
   const { answers } = checked;
+  const lc = leadConfigFor(request, env, body);
+  if (lc instanceof Response) return lc;
 
   const result = computePublicQuote(rawLib, answers, config);
-  await persist(env, rawLib, email, answers, result, waitUntil);
+  await persist(
+    env,
+    rawLib,
+    email,
+    answers,
+    result,
+    waitUntil,
+    extraFor(lc, rawLib, defs, answers, result),
+  );
   await sendEmails(env, email, result);
   return json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
+}
+
+type LeadConfigOn = { on: true; phone: string | null } | { on: false };
+type LeadExtra = { phone: string | null; details: string } | null;
+
+/**
+ * MIX-1813: przełącznik i telefon. Wyłączony (także nieznana wartość) = pole `phone` z treści nie
+ * jest czytane w ogóle. Włączony: zły telefon = 400 z linią powodu (bez wartości), zero zapisów.
+ */
+function leadConfigFor(request: Request, env: Env, body: object): LeadConfigOn | Response {
+  const sw = leadConfigSwitch(env.LEAD_CONFIG_CRM);
+  if (sw.reason)
+    console.error(`[quote] przełącznik wyłączony: ${sw.reason} ray=${safeRay(request)}`);
+  if (!sw.on) return { on: false };
+  const raw = Object.prototype.hasOwnProperty.call(body, 'phone')
+    ? (body as Record<string, unknown>).phone
+    : undefined;
+  const ph = normalizePhone(raw);
+  if (!ph.ok) {
+    console.error(`[quote] odmowa 400: ${ph.reason} ray=${safeRay(request)}`);
+    return json({ error: PHONE_MESSAGE, reason: ph.reason }, 400);
+  }
+  return { on: true, phone: ph.phone };
+}
+
+/** Telefon i `details` leada z konfiguracją; null = dzisiejszy zapis bez zmian. */
+function extraFor(
+  lc: LeadConfigOn,
+  rawLib: RawLibrary,
+  defs: PublicQuestionDef[],
+  answers: Answers,
+  result: PublicQuoteResult,
+): LeadExtra {
+  if (!lc.on) return null;
+  const details = buildLeadDetails({
+    answers,
+    priceRange: result.priceRange,
+    defs,
+    questionTexts: rawLib.questions,
+    phone: lc.phone,
+  });
+  return { phone: lc.phone, details: JSON.stringify(details) };
 }
 
 /** Jedno powiadomienie na dobę przy 80% budżetu: tylko liczby, bez e-maili klientów. */
@@ -261,19 +329,40 @@ async function persist(
   answers: Answers,
   result: PublicQuoteResult,
   waitUntil?: (p: Promise<unknown>) => void,
+  extra: LeadExtra = null,
 ): Promise<void> {
   try {
     const leadId = crypto.randomUUID();
     const budget = `${result.priceRange.min} - ${result.priceRange.max}`;
-    const details = JSON.stringify({ answers, priceRange: result.priceRange });
-    await withRetry(() =>
-      env.DB.prepare(
-        `INSERT INTO leads (id, email, name, service_type, budget, details, source, status)
+    if (extra === null) {
+      const details = JSON.stringify({ answers, priceRange: result.priceRange });
+      await withRetry(() =>
+        env.DB.prepare(
+          `INSERT INTO leads (id, email, name, service_type, budget, details, source, status)
          VALUES (?, ?, ?, ?, ?, ?, 'calculator', 'new')`,
-      )
-        .bind(leadId, email, 'Klient z kalkulatora', 'Kalkulator wyceny', budget, details)
-        .run(),
-    );
+        )
+          .bind(leadId, email, 'Klient z kalkulatora', 'Kalkulator wyceny', budget, details)
+          .run(),
+      );
+    } else {
+      // MIX-1813: konfiguracja (etykiety, link, plan) w details, telefon także w kolumnie.
+      await withRetry(() =>
+        env.DB.prepare(
+          `INSERT INTO leads (id, email, name, phone, service_type, budget, details, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'calculator', 'new')`,
+        )
+          .bind(
+            leadId,
+            email,
+            'Klient z kalkulatora',
+            extra.phone,
+            'Kalkulator wyceny',
+            budget,
+            extra.details,
+          )
+          .run(),
+      );
+    }
     // Zadanie w Linearze zaraz po zapisie leada (nie czeka na wycenę; wyjątek tu nic nie zmienia).
     zglosLeadWTle(waitUntil, env, leadId);
 
