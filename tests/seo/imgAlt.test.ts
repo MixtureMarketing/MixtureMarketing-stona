@@ -72,6 +72,10 @@ const DECORATIVE_ALLOWLIST: Record<string, { count: number; why: string }> = {
     count: 1,
     why: 'halftone aria-hidden, nakładka na opisany zrzut interfejsu',
   },
+  'components/templates/case-study/CaseStudyPhoneVideo.tsx': {
+    count: 1,
+    why: 'plakat filmu w ramce telefonu aria-hidden (MIX-1884); sekcję opisuje nagłówek „Wersja na telefon”',
+  },
 };
 
 describe('obrazy: atrybut alt', () => {
