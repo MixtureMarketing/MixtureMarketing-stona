@@ -2,6 +2,7 @@
 # MIX-1808 mutants (wzór .bieg/m1799/mut.sh): green baseline first; one mutant at a time, confirm the
 # text was present, run the affected tests, restore THAT file. Killed = a named test failed.
 set -u
+NM=0
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1808/mut
 mkdir -p "$OUT"
@@ -14,7 +15,7 @@ echo "MUT baseline rc=$brc $(clean "$OUT/baseline.log" | grep -aE '^\s+Tests ' |
 if [ "$brc" -ne 0 ]; then echo "MUT ABORT: baseline red, mutants not run"; exit 1; fi
 run() { # name file from to
   local name="$1" f="$2" from="$3" to="$4"
-  FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");const a=process.env.FROM,b=process.env.TO;if(!s.includes(a)){process.exit(3)}fs.writeFileSync(f,s.replace(a,b))' "$f" || { echo "$name NOMATCH"; return; }
+  FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");const a=process.env.FROM,b=process.env.TO;if(!s.includes(a)){process.exit(3)}fs.writeFileSync(f,s.replace(a,b))' "$f" || { echo "$name NOMATCH"; NM=$((NM+1)); return; }
   local changed; changed=$(git diff --numstat -- "$f" | awk '{print $1"+/"$2"-"}')
   # shellcheck disable=SC2086
   npx vitest run $T --maxWorkers=2 > "$OUT/$name.log" 2>&1; local rc=$?
@@ -32,14 +33,16 @@ run M1-Cf-dropped $S '[\p{Cf}\p{Cs}' '[\p{Cs}'
 run M2-Cs-dropped $S '\p{Cf}\p{Cs}' '\p{Cf}'
 run M3-Cc-dropped $S '(?![\t\n\r])\p{Cc}|' ''
 run M4-Cc-keeps-no-tab-newline $S '(?![\t\n\r])\p{Cc}' '\p{Cc}'
-run M5-034F-dropped $S '͏ᅟ' 'ᅟ'
-run M6-3164-dropped $S '⁪-⁯ㅤ' '⁪-⁯'
-run M7-115F-1160-dropped $S 'ᅟᅠ' ''
-run M8-FFA0-dropped $S 'ㅤﾠ' 'ㅤ'
-run M9-180B-180F-dropped $S '᠋-᠏' ''
+run M5-034F-dropped $S '\u034F\u115F' '\u115F'
+run M6-3164-dropped $S '\u206F\u3164' '\u206F'
+run M7-115F-1160-dropped $S '\u115F\u1160' ''
+run M8-FFA0-dropped $S '\u3164\uFFA0' '\u3164'
+run M9-180B-180F-dropped $S '\u180B-\u180F' ''
 run M10-tags-E0000-dropped $S '\u{E0000}-\u{E0FFF}' ''
 run M11-variation-selector-not-stripped $S "(m, base: string | undefined) => (base ? m : '')" "(m) => m"
 run M12-variation-selector-always-stripped $S "(base ? m : '')" "('')"
-run M13-17B4-dropped $S '឴឵' ''
+run M13-17B4-dropped $S '\u17B4\u17B5' ''
 run M14-client-helper-bypassed $V "const name = cleanClientText(rec.client_name, SCOPE_NAME_MAX);" "const name = typeof rec.client_name === 'string' && rec.client_name.trim() !== '' && rec.client_name.length <= SCOPE_NAME_MAX ? rec.client_name.trim() : null;"
 echo "git status after: $(git status --porcelain | grep -v '^??' | wc -l) modified"
+echo "NOMATCH count: $NM"
+[ "$NM" -eq 0 ] || { echo "MUT FAIL: $NM mutant(s) did not apply"; exit 3; }
