@@ -45,6 +45,7 @@ export const PHONE_REFUSAL = {
   tooLong: `telefon: dłuższy niż ${PHONE_RAW_MAX} znaków`,
   charset: 'telefon: niedozwolone znaki',
   length: 'telefon: zła liczba cyfr',
+  plZero: 'telefon: numer polski zaczyna się od 0',
 } as const;
 
 export const PHONE_MESSAGE =
@@ -58,6 +59,8 @@ export type PhoneResult = { ok: true; phone: string | null } | { ok: false; reas
 /**
  * Telefon opcjonalny: brak, null albo pusty tekst = `null`. Allowlista znaków, potem normalizacja
  * do E.164: `+` albo `00` + 8–15 cyfr; 9 cyfr bez prefiksu = numer polski (+48); 11 cyfr od 48 = +48.
+ * MIX-1877: polski numer krajowy nigdy nie zaczyna się od 0, więc część po 48 od 0 (np. 060070080,
+ * +48 060 070 080) to odmowa, a nie zapis `+48060070080`.
  */
 export function normalizePhone(raw: unknown): PhoneResult {
   if (raw === undefined || raw === null) return { ok: true, phone: null };
@@ -74,6 +77,7 @@ export function normalizePhone(raw: unknown): PhoneResult {
   else if (digits.length === 11 && digits.startsWith('48')) e164 = digits;
   if (e164 === null || e164.length < 8 || e164.length > 15 || e164.startsWith('0'))
     return { ok: false, reason: PHONE_REFUSAL.length };
+  if (e164.startsWith('480')) return { ok: false, reason: PHONE_REFUSAL.plZero };
   return { ok: true, phone: `+${e164}` };
 }
 
