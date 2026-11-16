@@ -1,10 +1,10 @@
 // MIX-1867: nowy wygląd kalkulatora /wycena/ za przełącznikiem `VITE_MM_CALC_NEW_UI` (Preview 1,
-// produkcja pusta, ten sam parser co pasek ceny: tylko `1` albo `true` włącza). Wyłączony = stary
+// produkcja pusta, ten sam parser co pasek ceny: tylko `1` włącza, MIX-1846). Wyłączony = stary
 // wygląd bez zmian. Tu WYŁĄCZNIE wygląd (klasy) i teksty stanów; logika liczenia i kontrakty API
 // zostają w hookach i formLogic.
 import { isLivePriceBarEnabled } from './livePrice';
 
-/** Włączony tylko dla `1` albo `true`; brak, puste i cokolwiek innego = stary wygląd. */
+/** Włączony tylko dla `1`; brak, puste, `true` i cokolwiek innego = stary wygląd. */
 export function isCalcNewUiEnabled(raw: unknown = import.meta.env.VITE_MM_CALC_NEW_UI): boolean {
   return isLivePriceBarEnabled(raw);
 }

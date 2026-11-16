@@ -91,10 +91,10 @@ afterEach(() => {
 });
 
 describe('MIX-1867 przełącznik VITE_MM_CALC_NEW_UI', () => {
-  it('włącza tylko 1 albo true', () => {
+  it('włącza tylko 1 (MIX-1846: true już nie włącza)', () => {
     expect(isCalcNewUiEnabled('1')).toBe(true);
-    expect(isCalcNewUiEnabled('true')).toBe(true);
-    for (const v of ['', null, '0', 'TRUE', 'yes', 1]) expect(isCalcNewUiEnabled(v)).toBe(false);
+    for (const v of ['', null, '0', 'true', 'TRUE', 'yes', 1])
+      expect(isCalcNewUiEnabled(v)).toBe(false);
     vi.stubEnv('VITE_MM_CALC_NEW_UI', '');
     expect(isCalcNewUiEnabled()).toBe(false);
   });
