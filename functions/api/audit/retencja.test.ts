@@ -353,10 +353,12 @@ describe('POST /api/audit/retencja', () => {
     expect(istnieje(db, id)).toBe(true);
   });
 
-  it('(−) brak sekretu albo za krótki: 503', async () => {
+  it('(−) brak sekretu albo za krótki: 503 z komunikatem retencji (nie CRM)', async () => {
     for (const s of [undefined, 'x'.repeat(31)]) {
       const { env } = srodowisko({ AUDIT_RETENCJA_SECRET: s });
-      expect((await wywolaj(await zadanie(), env)).status).toBe(503);
+      const odp = await wywolaj(await zadanie(), env);
+      expect(odp.status).toBe(503);
+      expect(await odp.json()).toEqual({ blad: 'Retencja audytu jest wyłączona.' });
     }
   });
 
