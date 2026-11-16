@@ -40,8 +40,11 @@ const KOMENDA_DEV =
 
 /** Zmienne VITE_MM_*, które są wartościami konfiguracji, nie przełącznikami funkcji. */
 const NIE_PRZELACZNIKI = new Set(['VITE_MM_HUB_URL', 'VITE_MM_PREONBOARD_KEY']);
-/** Przełącznik włączony także na produkcji decyzją właściciela (MIX-1465). */
-const WLACZONE_NA_PROD = new Set(['VITE_MM_MOBILE_MENU_B']);
+/** Przełączniki włączone także na produkcji decyzją właściciela. */
+const WLACZONE_NA_PROD = new Set([
+  'VITE_MM_MOBILE_MENU_B', // MIX-1465: menu mobilne B
+  'VITE_MM_VIEW_TRANSITIONS', // MIX-1311/MIX-1833: animacja przejść realizacji (akceptacja na Preview)
+]);
 
 const wdrozenia = (w: Workflow) =>
   w.jobs.ci.steps.filter((k) => (k.uses ?? '').startsWith('cloudflare/wrangler-action'));
@@ -270,7 +273,7 @@ describe('ci.yml: przełączniki VITE_MM_* (zasada MIX-1411: Preview włączone,
       expect(wartoscFlagi(String(zmienne[f]), 'preview')).toBe('1');
   });
 
-  it('build produkcji i PR: przełączniki puste, poza MOBILE_MENU_B (MIX-1465)', () => {
+  it('build produkcji i PR: puste poza WLACZONE_NA_PROD (MIX-1465, MIX-1833)', () => {
     const zmienne = zmienneBuildu(wczytaj());
     for (const f of przelacznikiZKodu()) {
       const oczekiwane = WLACZONE_NA_PROD.has(f) ? '1' : '';
@@ -403,7 +406,28 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
   });
   it('przełącznik włączony na stałe (także na produkcji)', () => {
     const w = kopia();
-    zmienneBuildu(w).VITE_MM_VIEW_TRANSITIONS = '1';
+    zmienneBuildu(w).VITE_MM_TESTIMONIALS = '1';
+    expect(naruszenia(w).join('|')).toMatch(/VITE_MM_TESTIMONIALS: zła wartość na produkcji/);
+  });
+  it('każdy przełącznik spoza WLACZONE_NA_PROD włączony na stałe jest wykrywany', () => {
+    const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
+    expect(inne.length).toBeGreaterThanOrEqual(5);
+    for (const f of inne) {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      expect(naruszenia(w).join('|')).toContain(`${f}: zła wartość na produkcji`);
+    }
+  });
+  it('na produkcji włączone są dokładnie MOBILE_MENU_B i VIEW_TRANSITIONS', () => {
+    expect([...WLACZONE_NA_PROD].sort()).toEqual([
+      'VITE_MM_MOBILE_MENU_B',
+      'VITE_MM_VIEW_TRANSITIONS',
+    ]);
+  });
+  it('VIEW_TRANSITIONS wyłączone na produkcji (MIX-1833 zdjęte)', () => {
+    const w = kopia();
+    zmienneBuildu(w).VITE_MM_VIEW_TRANSITIONS =
+      "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
     expect(naruszenia(w).join('|')).toMatch(/VITE_MM_VIEW_TRANSITIONS: zła wartość na produkcji/);
   });
   it('przełącznik z nieznanym wyrażeniem (fail-closed)', () => {
