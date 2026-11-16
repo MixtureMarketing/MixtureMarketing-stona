@@ -53,6 +53,17 @@ describe.each(PRZELACZNIKI)('MIX-1898 %s (%s)', (_nazwa, zmienna, fn) => {
     },
   );
 
+  // MIX-1902 (uwaga 1 werdyktu MIX-1898): formy obiektowe. Luźne `raw == '1'` i `valueOf()`
+  // przyjęłyby je jako '1'; świadek pokazuje, że luźne porównanie naprawdę je przepuszcza.
+  it.each([
+    ["new String('1')", new String('1')],
+    ["['1']", ['1']],
+  ] as [string, unknown][])('forma obiektowa %s → false (także przy LIVE_PRICE_BAR="1")', (_opis, v) => {
+    expect(v == '1').toBe(true); // świadek: luźne porównanie uznałoby tę formę za '1'
+    vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
+    expect(fn(v)).toBe(false);
+  });
+
   it('zmienna środowiska "true" / "" → false', () => {
     vi.stubEnv('VITE_MM_LIVE_PRICE_BAR', '1');
     for (const v of ['true', '']) {

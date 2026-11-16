@@ -228,5 +228,6 @@ wersji 2 obok `priceRange` (i `preview_token`) opcjonalne pole `scope`:
   i ceny obszarów nie wychodzą (§1 pkt 1 nadal obowiązuje dla wszystkiego poza tymi dwoma polami).
 - Klient (`services/pricePreviewService.ts`, `parseScope`) przyjmuje te same reguły jeszcze raz
   i renderuje tekst jako tekst (React), nigdy jako HTML. Front pokazuje listę za przełącznikiem
-  budowy `VITE_MM_CONFIG_PREVIEW` (`1`/`true`).
+  budowy `VITE_MM_CONFIG_PREVIEW`: włącza go tylko dokładnie `1` (MIX-1846), a brak zmiennej
+  = wyłączony, bez dziedziczenia `VITE_MM_LIVE_PRICE_BAR` (MIX-1898).
 - `contractVersion` GET `public-questions` bez zmian: kształt tamtej odpowiedzi się nie zmienia.
