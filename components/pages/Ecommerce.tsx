@@ -25,7 +25,7 @@ import { LOCAL_RZESZOW_ECOMMERCE } from '../../data/content/services/local-rzesz
  * Strona kategorii „Sklepy internetowe" — przebudowa 2026-07-16 (krytyka 20/40,
  * pełna ścieżka /impeccable). Porządek sekcji = drabina zaufania persony:
  * hero (words-only) → dowód (żywy sklep) → własność (centralny argument) →
- * cennik + utrzymanie → integracje → „masz już sklep" → FAQ → founder → CTA.
+ * cennik + utrzymanie → sekcja Rzeszów (MIX-1850) → integracje → „masz już sklep" → FAQ → founder → CTA.
  * Usunięte atrapy: fejkowy dashboard hero, orbita integracji, konfigurator
  * „ErgoChair", karty boosters, „Bezpieczeństwo klasy Enterprise".
  */
@@ -151,11 +151,13 @@ const Ecommerce: React.FC = () => {
         </Container>
       </section>
 
+      {/* MIX-1850: sekcja lokalna Rzeszów w pierwszej połowie strony, zaraz po pierwszej
+          sekcji z ofertą (cennik + utrzymanie), a nie przed stopką. */}
+      <LocalRzeszowSection content={LOCAL_RZESZOW_ECOMMERCE} onConsult={openConsult} />
+
       <EcommerceIntegrations />
 
       <EcommerceExisting onConsult={openConsult} />
-
-      <LocalRzeszowSection content={LOCAL_RZESZOW_ECOMMERCE} onConsult={openConsult} />
 
       <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} bgClassName="bg-white" />
 

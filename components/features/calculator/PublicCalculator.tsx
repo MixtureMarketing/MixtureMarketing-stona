@@ -12,7 +12,12 @@ import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
-import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import {
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
+  isLeadConfigEnabled,
+  isLivePriceBarEnabled,
+} from './livePrice';
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
@@ -88,6 +93,9 @@ const PublicCalculator: React.FC = () => {
           submitError={c.submitError}
           submitting={c.phase === 'submitting'}
           onSubmit={c.submit}
+          leadConfig={isLeadConfigEnabled()}
+          phone={c.phone}
+          setPhone={c.setPhone}
           liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
           configPreview={
             configEnabled ? (

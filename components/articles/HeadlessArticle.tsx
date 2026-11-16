@@ -33,6 +33,7 @@ const HeadlessArticle = () => {
   return (
     <ArticleShell
       id="headless-wordpress"
+      cennikLink
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       description={CONTENT.header.subtitle}
       category="tech"

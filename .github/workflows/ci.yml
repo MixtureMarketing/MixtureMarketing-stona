@@ -141,7 +141,9 @@ jobs:
           # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
           # Tu zostaje konfigurator wyceny w budowie (MIX-1377).
           VITE_MM_CONFIG_LINK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_CENNIK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1855: strona /cennik/
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_LEAD_CONFIG: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           # MIX-1873: filmy w portfolio (lista i strona realizacji) do akceptacji Jakuba na Preview.
           VITE_MM_PORTFOLIO_VIDEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}

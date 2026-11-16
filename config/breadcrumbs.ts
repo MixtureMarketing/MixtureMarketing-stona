@@ -28,6 +28,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/design/visual-audit': 'Audyt Wizualny',
   '/contact': 'Kontakt',
   '/offers': 'Oferta',
+  '/cennik': 'Cennik',
   // Etykiety z istniejących nazw (stopka / <title> / schema strony) — wcześniej okruszek
   // pokazywał surowy slug („privacy policy”, „terms”, „wycena”, „audyt 360”, „portfolio”).
   '/wycena': 'Kalkulator wyceny',
