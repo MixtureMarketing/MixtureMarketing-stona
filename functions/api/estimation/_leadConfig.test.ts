@@ -82,6 +82,26 @@ describe('normalizePhone', () => {
     ])
       expect(normalizePhone(v)).toEqual({ ok: false, reason: PHONE_REFUSAL.length });
   });
+  it('MIX-1877: polski numer od 0 to odmowa (nie +48060070080); bliźniaki bez 0 przechodzą', () => {
+    for (const v of [
+      '060070080',
+      '060 070 080',
+      '+48 060 070 080',
+      '48060070080',
+      '0048 060 070 080',
+      '+480600700800',
+    ])
+      expect(normalizePhone(v)).toEqual({ ok: false, reason: PHONE_REFUSAL.plZero });
+    const ok: [string, string][] = [
+      ['600700800', '+48600700800'],
+      ['+48 600 700 800', '+48600700800'],
+      ['48600700800', '+48600700800'],
+      ['0048 600 700 800', '+48600700800'],
+      ['+49 30 1234567', '+49301234567'],
+      ['+420 601 702 803', '+420601702803'],
+    ];
+    for (const [i, o] of ok) expect(normalizePhone(i)).toEqual({ ok: true, phone: o });
+  });
 });
 
 describe('buildLabels', () => {
