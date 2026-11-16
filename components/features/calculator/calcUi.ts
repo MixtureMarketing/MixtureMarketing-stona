@@ -89,7 +89,8 @@ export const NEW_UI_CONTRAST =
  * px-4 Containera), odstęp wewnętrzny 16 px, więc opcje mają 390 − 2·16 = 358 px (91,8 %).
  * Tło zostaje pełne (#0d1529), żeby kontrast tekstu był liczalny (axe bez „incomplete”).
  * Pasek ceny ma -mx-6 pod p-6 karty; na telefonie dostaje -mx-4 pod nowy odstęp.
- * Ta sama klasa w prerenderze (WycenaCalculator): szkielet i kalkulator mają tę samą szerokość (CLS).
+ * Ta sama klasa w prerenderze (WycenaCalculator): szkielet i kalkulator mają tę samą szerokość
+ * (CLS).
  */
 export const NEW_UI_SHELL =
   '-mx-4 bg-[#0d1529] p-4 sm:mx-0 sm:rounded-3xl sm:border sm:border-white/10 sm:p-6 sm:shadow-sm md:p-10 max-sm:[&_[data-testid=live-price-bar]]:-mx-4';

@@ -343,7 +343,8 @@ describe('MIX-1867 nowy wygląd: ekran wyniku', () => {
 // kroku; na telefonie (< 640 px) karta bez ramki, z odstępem 16 px i tłem na całą szerokość.
 const tokens = (el: Element) => (el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
 /** Klasa rysująca ramkę albo tło bloczka (bez wariantów stanu: hover/focus/aria/group). */
-const FRAME = /^(?:(?:sm|md|lg):)?(?:border(?:-[trblxy])?|bg-(?:white|primary|red-500)\/.+|rounded-(?:xl|2xl|3xl))$/;
+const FRAME =
+  /^(?:(?:sm|md|lg):)?(?:border(?:-[trblxy])?|bg-(?:white|primary|red-500)\/.+|rounded-(?:xl|2xl|3xl))$/;
 /** Elementy z ramką/tłem między `el` (bez niego) a kartą kroku (bez niej). */
 const framesBetween = (el: Element, shell: Element) => {
   const out: string[] = [];
@@ -357,7 +358,15 @@ const framesBetween = (el: Element, shell: Element) => {
 describe('MIX-1894 nowy wygląd: jedna ramka wokół odpowiedzi', () => {
   it('karta kroku: ramka i zaokrąglenie dopiero od sm, na telefonie odstęp 16 px i tło do krawędzi', () => {
     const t = NEW_UI_SHELL.split(/\s+/);
-    for (const c of ['-mx-4', 'p-4', 'sm:mx-0', 'sm:border', 'sm:rounded-3xl', 'sm:p-6', 'md:p-10'])
+    for (const c of [
+      '-mx-4',
+      'p-4',
+      'sm:mx-0',
+      'sm:border',
+      'sm:rounded-3xl',
+      'sm:p-6',
+      'md:p-10',
+    ])
       expect(t).toContain(c);
     for (const c of ['border', 'rounded-3xl', 'p-6', 'p-5', 'px-6']) expect(t).not.toContain(c);
     // pasek ceny (-mx-6 pod p-6) dostaje na telefonie -mx-4 pod nowy odstęp karty
@@ -419,7 +428,9 @@ describe('MIX-1894 nowy wygląd: jedna ramka wokół odpowiedzi', () => {
   it('wynik: widełki bez ramki wewnątrz karty', async () => {
     const { container } = renderCalc();
     await fillAndSubmit();
-    const head = await screen.findByRole('heading', { name: 'Twój projekt: orientacyjne widełki' });
+    const head = await screen.findByRole('heading', {
+      name: 'Twój projekt: orientacyjne widełki',
+    });
     const shell = container.querySelector('[data-calc-ui="new"]')!;
     expect(framesBetween(head, shell)).toEqual([]);
     const res = screen.getByTestId('calc-result');
@@ -431,8 +442,8 @@ describe('MIX-1894 nowy wygląd: jedna ramka wokół odpowiedzi', () => {
     const { container } = renderCalc();
     const s = screen.getByTestId('calc-loading');
     const shell = container.querySelector('[data-calc-ui="new"]')!;
-    const framed = [...s.querySelectorAll('*')].filter((e) =>
-      tokens(e).some((x) => /^(?:border|rounded-2xl)$/.test(x)) && e.children.length > 0,
+    const framed = [...s.querySelectorAll('*')].filter(
+      (e) => tokens(e).some((x) => /^(?:border|rounded-2xl)$/.test(x)) && e.children.length > 0,
     );
     expect(framed).toEqual([]);
     expect(shell.contains(s)).toBe(true);

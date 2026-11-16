@@ -200,7 +200,11 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
   // błąd = komunikat ze znakiem pod opcjami. Nazwę pola/grupy niesie aria-label (jak w starym
   // wyglądzie), tytuł pytania jest tekstem.
   return (
-    <div data-testid="calc-question" data-invalid={error ? 'true' : undefined} className="space-y-4">
+    <div
+      data-testid="calc-question"
+      data-invalid={error ? 'true' : undefined}
+      className="space-y-4"
+    >
       <div className="space-y-1.5">
         <p className={ui.label}>{text}</p>
         {help_text && (
