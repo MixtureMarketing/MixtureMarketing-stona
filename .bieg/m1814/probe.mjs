@@ -8,8 +8,8 @@
  * Skrypt serwuje dist na 127.0.0.1. API wyceny to atrapa (public-questions, public-quote 200);
  * Turnstile to atrapa `window.turnstile`; `window.zaraz.track` zapisuje próby zdarzeń. Blokada
  * analityki ze wspólnego scripts/lib/prod-safe.mjs (protect/watchBrowser/finish). Ruch zewnętrzny:
- * przerwany, OPRÓCZ hostów Google potrzebnych ramce harmonogramu (calendar.google.com, *.gstatic.com,
- * *.googleapis.com, *.googleusercontent.com, accounts/apis.google.com) — tylko GET, tylko po
+ * przerwany, OPRÓCZ hostów Google potrzebnych ramce harmonogramu (*.google.com, *.gstatic.com,
+ * *.googleapis.com, *.googleusercontent.com; analitykę i tak przerywa prod-safe) — tylko po
  * kliknięciu (wcześniej każde żądanie do calendar.google.com jest liczone i przerywane).
  * Mierzy (390 x 844): żądania do calendar.google.com przed kliknięciem, POST public-quote,
  * kolejność POST → pierwsze żądanie do kalendarza, zdarzenia calculator_booking_open, ramkę i godziny
@@ -91,13 +91,20 @@ const GOOGLE_OK = [
   /(^|\.)gstatic\.com$/,
   /(^|\.)googleapis\.com$/,
   /(^|\.)googleusercontent\.com$/,
-  /^(accounts|apis|ssl|www)\.google\.com$/,
+  /(^|\.)google\.com$/,
 ];
 const FAKE_TURNSTILE = `window.turnstile = { render: () => 'w1', execute() {}, reset() {},
   getResponse: () => 'e2e-token', remove() {} };`;
 const isCalendar = (h) => /(^|\.)calendar\.google\.com$/.test(h);
 
-const log = { t0: Date.now(), clicked: null, calendar: [], quotePosts: [], blocked: [] };
+const log = {
+  t0: Date.now(),
+  clicked: null,
+  calendar: [],
+  quotePosts: [],
+  blocked: [],
+  googleStatus: [],
+};
 const now = () => Date.now() - log.t0;
 
 const browser = await puppeteer.launch({
@@ -155,12 +162,7 @@ try {
         }
         return req.continue();
       }
-      if (
-        log.clicked !== null &&
-        req.method() === 'GET' &&
-        GOOGLE_OK.some((r) => r.test(u.hostname))
-      )
-        return req.continue();
+      if (log.clicked !== null && GOOGLE_OK.some((r) => r.test(u.hostname))) return req.continue();
       log.blocked.push(u.hostname);
       return req.abort();
     },
@@ -185,6 +187,11 @@ try {
       },
       consent: { APIReady: true, set: () => {} },
     };
+  });
+  page.on('response', (r) => {
+    const h = new URL(r.url()).hostname;
+    if (/google\.com$/.test(h))
+      log.googleStatus.push(`${r.status()} ${h}${new URL(r.url()).pathname.slice(0, 60)}`);
   });
   page.on('pageerror', (e) => console.error(`pageerror: ${e.message}`));
 
@@ -229,7 +236,7 @@ try {
   log.clicked = now();
   await clickText(new RegExp(`^${btnLabel}$`));
   try {
-    await page.waitForFunction(() => /Orientacyjne widełki/.test(document.body.innerText), {
+    await page.waitForFunction(() => /Orientacyjne widełki/i.test(document.body.textContent), {
       timeout: 15000,
     });
   } catch (e) {
@@ -290,6 +297,7 @@ try {
     .filter(([e]) => e === 'calculator_booking_open')
     .map(([, d]) => d);
   result.emailInEvents = JSON.stringify(attempts).includes('e2e@example.com');
+  result.googleStatus = log.googleStatus.slice(0, 25);
   result.blockedHosts = [...new Set(log.blocked)].slice(0, 20);
   result.scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
 
