@@ -174,6 +174,46 @@ for (const vp of VIEWPORTS) {
     P4_VIEWS,
     D1_VIEWS,
   );
+  // MIX-1815 r2: przycisk ciasteczek nad kontrolkami formularza (opcje, pola, przyciski kroków),
+  // przewijanie co 50 px; liczy widoczny przycisk (visibility/opacity/display).
+  const formSweep = async () => {
+    const maxF = await page.evaluate(
+      () => document.documentElement.scrollHeight - window.innerHeight,
+    );
+    const out = { steps: 0, covered: 0, maxCover: 0, cookieButtons: 0 };
+    for (let y = 0; y <= maxF; y += 50) {
+      await page.evaluate((yy) => window.scrollTo(0, yy), y);
+      await page.evaluate(
+        () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res))),
+      );
+      const m = await page.evaluate(() => {
+        const box = document.querySelector('[data-testid="calc-form-box"]') ?? document.body;
+        const ctrls = [...box.querySelectorAll('label, input, select, textarea, button, a[href]')];
+        let cover = 0;
+        const btns = document.querySelectorAll('.cookie-floating-btn');
+        for (const c of btns) {
+          const cs = getComputedStyle(c);
+          if (cs.visibility === 'hidden' || cs.display === 'none' || Number(cs.opacity) === 0)
+            continue;
+          const cb = c.getBoundingClientRect();
+          for (const a of ctrls) {
+            const ab = a.getBoundingClientRect();
+            const w = Math.min(ab.right, cb.right) - Math.max(ab.left, cb.left);
+            const h = Math.min(ab.bottom, cb.bottom) - Math.max(ab.top, cb.top);
+            if (w > 0 && h > 0) cover += Math.round(w * h);
+          }
+        }
+        return { cover, n: btns.length };
+      });
+      out.steps += 1;
+      out.cookieButtons = Math.max(out.cookieButtons, m.n);
+      if (m.cover > 0) out.covered += 1;
+      out.maxCover = Math.max(out.maxCover, m.cover);
+    }
+    await page.evaluate(() => window.scrollTo(0, 0));
+    return out;
+  };
+  r.form1 = await formSweep();
   const clickText = async (sel, text) => {
     const h = await page.evaluateHandle(
       (s, t) => [...document.querySelectorAll(s)].find((e) => e.textContent.trim() === t),
@@ -188,6 +228,7 @@ for (const vp of VIEWPORTS) {
   await page.type('input[type="number"]', '6');
   await clickText('button', 'Dalej');
   await page.waitForSelector('input[type="email"]');
+  r.form2 = await formSweep();
   await page.type('input[type="email"]', 'jan@firma.pl');
   await clickText('button', 'Poznaj widełki');
   await page.waitForFunction(() => /Policz jeszcze raz/.test(document.body.innerText), {
@@ -302,6 +343,10 @@ for (const vp of VIEWPORTS) {
       `${n}: przycisk wyniku < 44 px ${JSON.stringify(r.top.sizes)}`,
     );
     check(r.top.cookieButtons >= 1, `${n}: brak przycisku ciasteczek na stronie (próba bez sensu)`);
+    for (const k of ['form1', 'form2']) {
+      check(r[k].cookieButtons >= 1 && r[k].steps > 0, `${n}: ${k} bez przycisku ciasteczek`);
+      check(r[k].covered === 0, `${n}: ciasteczka zasłaniają kontrolki ${k} ${JSON.stringify(r[k])}`);
+    }
     check(
       r.top.cover + r.sweep.maxCover + r.centered.cover === 0,
       `${n}: ciasteczka zasłaniają ${JSON.stringify([r.top.cover, r.sweep, r.centered.cover])}`,

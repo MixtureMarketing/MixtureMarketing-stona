@@ -6,7 +6,7 @@ set -u
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1815/mut
 mkdir -p "$OUT"
-T="components/features/calculator/calculatorHandoff.test.ts components/features/calculator/ResultContact.switch.test.tsx tests/components/InlineContactForm.test.tsx tests/hooks/useContactForm.test.tsx tests/scripts/ciWorkflow.test.ts"
+T="components/features/calculator/ResultContact.resumed.test.tsx components/features/calculator/calculatorHandoff.test.ts components/features/calculator/ResultContact.switch.test.tsx tests/components/InlineContactForm.test.tsx tests/hooks/useContactForm.test.tsx tests/scripts/ciWorkflow.test.ts"
 echo "MUT HEAD $(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' | wc -l)"
 clean() { sed 's/\x1b\[[0-9;]*m//g' "$1"; }
 # shellcheck disable=SC2086
@@ -70,4 +70,24 @@ run M22-prefill-inverted $I "additionalData?.resumedLead || !preMsg) return;" "a
 run M23-no-config-box $I "      {calculatorConfig && (" "      {false && calculatorConfig && ("
 run M24-ci-flag-on-prod .github/workflows/ci.yml "          VITE_MM_RESULT_CONTACT: \${{ steps.target.outputs.target == 'preview' && '1' || '' }}" "          VITE_MM_RESULT_CONTACT: '1'"
 run M25-css-rule-missing index.css "body[data-result-cookie='true'] .cookie-floating-btn," ""
+# r2 (NIE weryfikatora r1): przycisk ciasteczek nad opcjami formularza + mutanty V4/V6/V8/V9 weryfikatora
+U=components/features/calculator/useHideCookieOver.ts
+run R1-form-hook-off $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, false, 'formCookie', FORM_CONTROLS);"
+run R2-form-hook-whole-box $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, resultOn && filling, 'formCookie');"
+run R3-selector-ignored $U "const targets = selector ? Array.from(box.querySelectorAll(selector)) : [box];" "const targets = [box];"
+run R4-form-hook-no-switch $P "useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);" "useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);"
+run R5-css-form-rule-missing index.css "body[data-form-cookie='true'] .cookie-floating-btn," ""
+run R6-controls-without-button $U "'label, input, select, textarea, button, a[href]'" "'label, input, select, textarea, a[href]'"
+run R7-V4-html-in-box $I "          <p className=\"whitespace-pre-line break-words text-sm text-gray-800\">
+            {calculatorConfig.text}
+          </p>" "          <p className=\"whitespace-pre-line break-words text-sm text-gray-800\" dangerouslySetInnerHTML={{ __html: calculatorConfig.text }} />"
+run R8-V6-resumed-no-priority $I "if (prefilled.current || additionalData?.resumedLead || !preMsg) return;" "if (prefilled.current || !preMsg) return;"
+run R9-V8-email-in-url $R '          to="/contact/"
+          state=' '          to={`/contact/?e=${encodeURIComponent(handoff?.email ?? '')}`}
+          state='
+run R10-V9-flag-default-on components/features/calculator/livePrice.ts "VITE_MM_RESULT_CONTACT,
+): boolean {
+  return isLivePriceBarEnabled(raw);" "VITE_MM_RESULT_CONTACT,
+): boolean {
+  return raw === undefined ? true : isLivePriceBarEnabled(raw);"
 echo "git status after: $(git status --porcelain | grep -v '^??' | wc -l) modified"

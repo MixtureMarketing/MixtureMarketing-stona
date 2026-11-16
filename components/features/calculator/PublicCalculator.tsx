@@ -2,6 +2,7 @@
 // (invisible-execute, reużyty z fixa lead-capture) i renderem stanów: loading / błąd ładowania /
 // formularz / wynik. Zero logiki liczenia po stronie UI (silnik żyje na serwerze).
 import React, { useEffect, useRef } from 'react';
+import { useHideCookieOver, FORM_CONTROLS } from './useHideCookieOver';
 import { usePublicCalculator } from '../../../hooks/usePublicCalculator';
 import { useLivePriceRange } from '../../../hooks/useLivePriceRange';
 import TurnstileWidget from '../contact/TurnstileWidget';
@@ -65,6 +66,9 @@ const PublicCalculator: React.FC = () => {
   // adres) do /contact/; link ?k= tylko, gdy włączony jest też link do konfiguracji (Z7).
   const resultOn = isResultContactEnabled();
   const shownQuestions = resultOn ? withP4Texts(c.questions) : c.questions;
+  // Z11 r2: przycisk ciasteczek nie zasłania opcji, pól ani przycisków kroków (390 px).
+  const formRef = useRef<HTMLDivElement>(null);
+  useHideCookieOver(formRef, resultOn && filling, 'formCookie', FORM_CONTROLS);
   const handoff = (() => {
     if (!resultOn || c.phase !== 'done' || !c.result) return null;
     const k = linkOn ? encodeConfigLink(c.questions, c.answers) : null;
@@ -93,31 +97,33 @@ const PublicCalculator: React.FC = () => {
         <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} handoff={handoff} />
       )}
 
-      {(c.phase === 'ready' || c.phase === 'submitting') && (
-        <CalculatorForm
-          visible={resultOn ? withP4Texts(c.visible) : c.visible}
-          answers={c.answers}
-          setAnswer={c.setAnswer}
-          errors={c.errors}
-          email={c.email}
-          setEmail={c.setEmail}
-          websiteVerify={c.websiteVerify}
-          setWebsiteVerify={c.setWebsiteVerify}
-          submitError={c.submitError}
-          submitting={c.phase === 'submitting'}
-          onSubmit={c.submit}
-          liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
-          configPreview={
-            configEnabled ? (
-              <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
-            ) : null
-          }
-          configLink={
-            linkK ? (
-              <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} />
-            ) : null
-          }
-        />
+      {filling && (
+        <div ref={formRef} data-testid="calc-form-box">
+          <CalculatorForm
+            visible={resultOn ? withP4Texts(c.visible) : c.visible}
+            answers={c.answers}
+            setAnswer={c.setAnswer}
+            errors={c.errors}
+            email={c.email}
+            setEmail={c.setEmail}
+            websiteVerify={c.websiteVerify}
+            setWebsiteVerify={c.setWebsiteVerify}
+            submitError={c.submitError}
+            submitting={c.phase === 'submitting'}
+            onSubmit={c.submit}
+            liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
+            configPreview={
+              configEnabled ? (
+                <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
+              ) : null
+            }
+            configLink={
+              linkK ? (
+                <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} />
+              ) : null
+            }
+          />
+        </div>
       )}
     </div>
   );

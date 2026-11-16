@@ -63,6 +63,7 @@ import ContactPage from '../../pages/ContactPage';
 import { ModalProvider } from '../../../context/ModalContext';
 import { leadService } from '../../../services/leadService';
 import { handoffState, HANDOFF_VERSION, P4_TEXTS } from './calculatorHandoff';
+import { isResultContactEnabled } from './livePrice';
 
 const FLAGS = [
   'VITE_MM_CONFIG_LINK',
@@ -87,6 +88,11 @@ const renderApp = (initial: Parameters<typeof MemoryRouter>[0]['initialEntries']
 
 const toResult = async () => {
   const view = renderApp();
+  await toResultFromForm();
+  return view;
+};
+
+const toResultFromForm = async () => {
   await screen.findByText('Jaki jest cel projektu?');
   fireEvent.click(screen.getByRole('radio', { name: 'Portal' }));
   fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '6' } });
@@ -96,7 +102,6 @@ const toResult = async () => {
   });
   fireEvent.click(screen.getByRole('button', { name: 'Poznaj widełki' }));
   await waitFor(() => expect(submitPublicQuote).toHaveBeenCalledTimes(1));
-  return view;
 };
 
 beforeEach(() => {
@@ -113,7 +118,36 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllEnvs();
   delete document.body.dataset.resultCookie;
+  delete document.body.dataset.formCookie;
 });
+
+// MIX-1815 r2: przycisk ciasteczek nad opcją formularza. Blok formularza (calc-form-box) zawsze
+// nachodzi na przycisk; kontrolki tylko wtedy, gdy `overOption` = true (opcja „Portal”).
+const COOKIE = { left: 10, right: 60, top: 700, bottom: 750, width: 50, height: 50 } as DOMRect;
+const FAR = { left: 0, right: 390, top: 0, bottom: 40, width: 390, height: 40 } as DOMRect;
+const withCookieOverForm = (overOption: () => boolean) => {
+  const btn = document.createElement('button');
+  btn.className = 'cookie-floating-btn';
+  document.body.appendChild(btn);
+  const spy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    if (this === btn) return COOKIE;
+    if (this.dataset.testid === 'calc-form-box')
+      return { left: 0, right: 390, top: 0, bottom: 2000, width: 390, height: 2000 } as DOMRect;
+    if (
+      overOption() &&
+      this.getAttribute('role') === 'radio' &&
+      this.textContent?.includes('Portal')
+    )
+      return { left: 0, right: 390, top: 690, bottom: 740, width: 390, height: 50 } as DOMRect;
+    return FAR;
+  });
+  return () => {
+    spy.mockRestore();
+    btn.remove();
+  };
+};
 
 describe('K1 przełącznik włączony', () => {
   beforeEach(() => vi.stubEnv('VITE_MM_RESULT_CONTACT', '1'));
@@ -165,6 +199,55 @@ describe('K1 przełącznik włączony', () => {
       spy.mockRestore();
       btn.remove();
     }
+  });
+
+  it('r2: przycisk ciasteczek nad opcją formularza: body dostaje data-form-cookie, nad pustym miejscem nie', async () => {
+    let over = false;
+    const restore = withCookieOverForm(() => over);
+    try {
+      renderApp();
+      await screen.findByText('Jaki jest cel projektu?');
+      // Blok formularza nachodzi na przycisk, ale żadna kontrolka: przycisk zostaje widoczny.
+      expect(document.body.dataset.formCookie).toBeUndefined();
+      over = true;
+      window.dispatchEvent(new Event('resize'));
+      await waitFor(() => expect(document.body.dataset.formCookie).toBe('true'));
+      over = false;
+      window.dispatchEvent(new Event('scroll'));
+      await waitFor(() => expect(document.body.dataset.formCookie).toBeUndefined());
+    } finally {
+      restore();
+    }
+  });
+
+  it('r2: po wyniku znacznik formularza znika', async () => {
+    const restore = withCookieOverForm(() => true);
+    try {
+      renderApp();
+      await screen.findByText('Jaki jest cel projektu?');
+      await waitFor(() => expect(document.body.dataset.formCookie).toBe('true'));
+    } finally {
+      restore();
+    }
+    await toResultFromForm();
+    await screen.findByTestId('calc-result-actions');
+    expect(document.body.dataset.formCookie).toBeUndefined();
+  });
+
+  it('r2: „Umów rozmowę” prowadzi na /contact/ bez parametrów i bez e-maila w adresie', async () => {
+    await toResult();
+    const link = await screen.findByRole('link', { name: 'Umów rozmowę' });
+    expect(link.getAttribute('href')).toBe('/contact/');
+    expect(link.getAttribute('href')).not.toContain('firma.pl');
+  });
+
+  it('r2: tekst konfiguracji z HTML trafia do ramki jako tekst, bez elementów', async () => {
+    const text = 'Cel <img src=x onerror=alert(1)><b>gruby</b>';
+    const state = handoffState({ v: HANDOFF_VERSION, text, email: '' });
+    renderApp([{ pathname: '/contact/', state }]);
+    const box = await screen.findByTestId('contact-calculator-config');
+    expect(box.textContent).toContain(text);
+    expect(box.querySelector('img, b')).toBeNull();
   });
 
   it('„Umów rozmowę” przenosi konfigurację do formularza kontaktu i do wysłanej wiadomości', async () => {
@@ -230,6 +313,24 @@ describe('K2 przełącznik wyłączony: jak dziś', () => {
     expect(screen.getByLabelText(/Email/i)).toHaveValue('');
   });
 
+  it('r2: przycisk ciasteczek nad opcją: bez znacznika formularza przy wyłączonym przełączniku', async () => {
+    const restore = withCookieOverForm(() => true);
+    try {
+      renderApp();
+      await screen.findByText('Jaki jest cel projektu?');
+      window.dispatchEvent(new Event('resize'));
+      await new Promise((r) => setTimeout(r, 50));
+      expect(document.body.dataset.formCookie).toBeUndefined();
+    } finally {
+      restore();
+    }
+  });
+
+  it('r2: zmienna VITE_MM_RESULT_CONTACT nieustawiona = przełącznik wyłączony', () => {
+    vi.stubEnv('VITE_MM_RESULT_CONTACT', undefined);
+    expect(isResultContactEnabled()).toBe(false);
+  });
+
   it('pytanie views_count ma tekst z D1', async () => {
     renderApp();
     expect(await screen.findByText('Ile unikalnych podstron/widoków?')).toBeInTheDocument();
@@ -237,6 +338,19 @@ describe('K2 przełącznik wyłączony: jak dziś', () => {
 });
 
 describe('reguła CSS dla znacznika wyniku', () => {
+  it('r2: index.css chowa .cookie-floating-btn przy data-form-cookie w tej samej regule', async () => {
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const css = fs.readFileSync(
+      path.join(path.dirname(new URL(import.meta.url).pathname), '../../../index.css'),
+      'utf8',
+    );
+    const m = css.match(/body\[data-form-cookie='true'\]\s+\.cookie-floating-btn,[^{]*\{([^}]*)\}/);
+    expect(m).not.toBeNull();
+    expect(m![1]).toMatch(/visibility:\s*hidden/);
+    expect(m![1]).toMatch(/pointer-events:\s*none/);
+  });
+
   it('index.css chowa .cookie-floating-btn przy data-result-cookie (visibility, pointer-events)', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');

@@ -46,7 +46,7 @@ clean build | grep -aE 'Size|error' | head -4 | sed 's/^/  build: /'
 restore_generated
 
 D=.bieg/m1815
-step build-on env VITE_MM_RESULT_CONTACT=1 VITE_MM_CONFIG_LINK=1 npx vite build --outDir "$D/dist-on"
+step build-on env VITE_MM_RESULT_CONTACT=1 VITE_MM_CONFIG_LINK=1 VITE_MM_CONFIG_PREVIEW=1 VITE_MM_LIVE_PRICE_BAR=1 VITE_MM_COOKIE_BANNER_STATIC=1 VITE_MM_AI_SECTION=1 VITE_MM_POWIAZANE=1 VITE_MM_RZESZOW_SEKCJE=1 VITE_MM_TESTIMONIALS=1 VITE_MM_VIEW_TRANSITIONS=1 npx vite build --outDir "$D/dist-on"
 restore_generated
 step build-off env VITE_MM_RESULT_CONTACT= VITE_MM_CONFIG_LINK= VITE_MM_CONFIG_PREVIEW= VITE_MM_LIVE_PRICE_BAR= npx vite build --outDir "$D/dist-off"
 restore_generated
