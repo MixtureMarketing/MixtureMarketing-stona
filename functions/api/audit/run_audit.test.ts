@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { onRequestPost, TIMEOUTS_MS } from './run_audit';
+import { onRequestPost, TIMEOUTS_MS, PSI_RETRY_DELAY_MS, psiErrorReason } from './run_audit';
 import { safeHttpUrl, sha256Hex } from '../_shared/security';
 import { createFakeKV, fnContext } from '../../../tests/helpers/fakeD1';
 
@@ -695,5 +695,157 @@ describe('audit/run_audit — bramka i SSRF (MIX-1324)', () => {
   it('brak magazynu KV = odmowa 503', async () => {
     const { res } = await run(undefined, {}, { env: { CACHE: undefined } });
     expect(res.status).toBe(503);
+  });
+});
+
+// MIX-1826: 503 „PageSpeed Insights chwilowo niedostępny” bez śladu przyczyny w logach.
+// fetchPSI loguje status HTTP i powód Google (bez klucza) i ponawia raz przy 429/5xx.
+describe('audit/run_audit — status PSI w logach i jedno ponowienie (MIX-1826)', () => {
+  const KEY = 'AIzaSyTESTOWY_KLUCZ_1826';
+  const psiCalls = () =>
+    fetchMock.mock.calls.filter(([u]) => String(u).includes('pagespeedonline'));
+  const errLog = () =>
+    (console.error as unknown as ReturnType<typeof vi.fn>).mock.calls.flat().map(String).join('\n');
+  const googleErr = (code: number, status: string, reason: string, message: string) =>
+    new Response(
+      JSON.stringify({ error: { code, status, message, errors: [{ reason, message }] } }),
+      {
+        status: code,
+      },
+    );
+  /** Kolejne odpowiedzi PSI z listy (ostatnia się powtarza); reszta jak w beforeEach. */
+  function psiSequence(...answers: Array<() => Response>) {
+    const inner = fetchMock.getMockImplementation()!;
+    let i = 0;
+    fetchMock.mockImplementation(async (url: string, init?: RequestInit) => {
+      if (String(url).includes('pagespeedonline')) {
+        const a = answers[Math.min(i, answers.length - 1)];
+        i++;
+        return a();
+      }
+      return inner(url, init);
+    });
+  }
+  const ok = () => new Response(JSON.stringify(PSI_OK), { status: 200 });
+  const quota = () =>
+    googleErr(
+      429,
+      'RESOURCE_EXHAUSTED',
+      'rateLimitExceeded',
+      "Quota exceeded for quota metric 'Queries'",
+    );
+  const runKey = () => run(createFakeKV(), {}, { env: { GOOGLE_BACKEND_KEY: KEY } });
+
+  it('429, potem 200 → audyt kończy się wynikiem; dwa wywołania PSI; status 429 w logu', async () => {
+    psiSequence(quota, ok);
+    const { res, json } = await runKey();
+    expect(res.status).toBe(200);
+    expect(json.status).toBe('success');
+    expect(psiCalls()).toHaveLength(2);
+    expect(errLog()).toMatch(
+      /\[run_audit\] psi: HTTP 429 \(próba 1, ponawiam\): RESOURCE_EXHAUSTED rateLimitExceeded/,
+    );
+  });
+
+  it('500 dwa razy → 503; dokładnie dwa wywołania (jedno ponowienie), obie próby w logu', async () => {
+    psiSequence(() => new Response('upstream', { status: 500 }));
+    const { res } = await runKey();
+    expect(res.status).toBe(503);
+    expect(psiCalls()).toHaveLength(2);
+    expect(errLog()).toContain('HTTP 500 (próba 1, ponawiam): upstream');
+    expect(errLog()).toContain('HTTP 500 (próba 2): upstream');
+  });
+
+  it('503 Google, potem 200 → wynik (5xx też ponawiamy)', async () => {
+    psiSequence(() => new Response('', { status: 503 }), ok);
+    const { res } = await runKey();
+    expect(res.status).toBe(200);
+    expect(psiCalls()).toHaveLength(2);
+    expect(errLog()).toContain('HTTP 503 (próba 1, ponawiam): (pusta odpowiedź)');
+  });
+
+  it('403 ograniczenie klucza → bez ponowienia, 503, powód Google w logu', async () => {
+    psiSequence(() =>
+      googleErr(
+        403,
+        'PERMISSION_DENIED',
+        'forbidden',
+        'Requests from referer <empty> are blocked.',
+      ),
+    );
+    const { res } = await runKey();
+    expect(res.status).toBe(503);
+    expect(psiCalls()).toHaveLength(1);
+    expect(errLog()).toContain(
+      'HTTP 403 (próba 1): PERMISSION_DENIED forbidden Requests from referer <empty> are blocked.',
+    );
+  });
+
+  it.each([400, 404, 428, 499])('HTTP %i → bez ponowienia (jedno wywołanie)', async (code) => {
+    psiSequence(() => new Response('x', { status: code }));
+    const { res } = await runKey();
+    expect(res.status).toBe(503);
+    expect(psiCalls()).toHaveLength(1);
+    expect(errLog()).toContain(`HTTP ${code} (próba 1): x`);
+  });
+
+  it('klucz nigdy w logu, nawet gdy Google powtórzy go w komunikacie lub w adresie', async () => {
+    psiSequence(() =>
+      googleErr(
+        400,
+        'INVALID_ARGUMENT',
+        'keyInvalid',
+        `API key ${KEY} not valid; url ?key=${KEY}&x=1 &key=inny`,
+      ),
+    );
+    await runKey();
+    const log = errLog();
+    expect(log).toContain('HTTP 400');
+    expect(log).toContain('INVALID_ARGUMENT keyInvalid API key [klucz] not valid');
+    expect(log).not.toContain(KEY);
+    expect(log).not.toContain('inny');
+  });
+
+  it('ponowienie w tym samym limicie 55 s: jeden AbortSignal.timeout, ten sam sygnał w obu próbach', async () => {
+    const spy = vi.spyOn(AbortSignal, 'timeout');
+    psiSequence(quota, ok);
+    await runKey();
+    expect(spy.mock.calls.filter(([ms]) => ms === TIMEOUTS_MS.psi)).toHaveLength(1);
+    const [a, b] = psiCalls().map(([, init]) => (init as RequestInit).signal);
+    expect(a).toBeInstanceOf(AbortSignal);
+    expect(b).toBe(a);
+  });
+
+  it('przerwa przed ponowieniem = PSI_RETRY_DELAY_MS (1 s)', async () => {
+    expect(PSI_RETRY_DELAY_MS).toBe(1_000);
+    const t = vi.spyOn(globalThis, 'setTimeout');
+    psiSequence(quota, ok);
+    await runKey();
+    expect(t.mock.calls.some(([, ms]) => ms === PSI_RETRY_DELAY_MS)).toBe(true);
+  });
+
+  it('timeout PSI → w logu „przekroczony limit 55 s”, bez ponowienia', async () => {
+    behaviour.psi = 'hang';
+    abortAllTimeouts();
+    const { res } = await runKey();
+    expect(res.status).toBe(503);
+    expect(psiCalls()).toHaveLength(1);
+    expect(errLog()).toContain('[run_audit] psi: przekroczony limit 55 s');
+  });
+
+  it('błąd sieci PSI → w logu nazwa błędu, nie „limit”', async () => {
+    behaviour.psi = 'reject';
+    await runKey();
+    expect(errLog()).toContain('[run_audit] psi: TypeError: network error');
+    expect(errLog()).not.toContain('przekroczony limit');
+  });
+
+  it('psiErrorReason: treść nie-JSON, pusta, długa (≤ 300 znaków)', () => {
+    expect(psiErrorReason('<html>Bad Gateway</html>', 'k1')).toBe('<html>Bad Gateway</html>');
+    expect(psiErrorReason('', 'k1')).toBe('(pusta odpowiedź)');
+    expect(psiErrorReason('a'.repeat(1000), 'k1')).toHaveLength(300);
+    expect(psiErrorReason(JSON.stringify({ error: { message: 'tylko komunikat' } }), '')).toBe(
+      'tylko komunikat',
+    );
   });
 });

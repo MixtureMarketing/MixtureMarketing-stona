@@ -187,7 +187,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       console.error('[run_audit] places:', errText(placesRes.reason));
     }
     const psiData = psiRes.status === 'fulfilled' ? psiRes.value : null;
-    if (psiRes.status === 'rejected') console.error('[run_audit] psi:', errText(psiRes.reason));
+    if (psiRes.status === 'rejected') {
+      const r = psiRes.reason;
+      const timeout = r instanceof Error && r.name === 'TimeoutError';
+      console.error(
+        '[run_audit] psi:',
+        timeout ? `przekroczony limit ${TIMEOUTS_MS.psi / 1000} s` : errText(r),
+      );
+    }
 
     // Bez pomiaru PSI nie ma uczciwego wyniku — fallbacki (LCP 2.5s, score 0)
     // pokazywaly uzytkownikowi zmyslone liczby jako JEGO pomiar. Jedyny dopuszczalny
@@ -519,15 +526,53 @@ async function scrapePage(url: string): Promise<ScrapeResult> {
   return result;
 }
 
+// Jedno ponowienie PSI przy 429 (limit na minutę) i 5xx (chwilowa awaria Google), w tym
+// samym limicie czasu co pierwsza próba. 400/403 (zły adres, ograniczenie klucza) nie mają
+// sensu ponawiać — wynik byłby ten sam (MIX-1826).
+export const PSI_RETRY_DELAY_MS = 1_000;
+const psiRetryable = (status: number) => status === 429 || status >= 500;
+
+/**
+ * Powód odmowy PSI do logów: status Google (np. RESOURCE_EXHAUSTED), reason
+ * (np. rateLimitExceeded) i skrócony komunikat. Klucz nigdy nie trafia do logu:
+ * wycinamy go z treści, gdyby Google go powtórzył (MIX-1826).
+ */
+export function psiErrorReason(body: string, key: string): string {
+  let text = body;
+  try {
+    const e = JSON.parse(body)?.error;
+    if (e && typeof e === 'object') {
+      const reason = Array.isArray(e.errors) ? e.errors[0]?.reason : undefined;
+      text = [e.status, reason, e.message].filter((x) => typeof x === 'string' && x).join(' ');
+    }
+  } catch {
+    // treść nie jest JSON — logujemy jej początek
+  }
+  if (key) text = text.split(key).join('[klucz]');
+  text = text.replace(/([?&]key=)[^&\s"']+/gi, '$1[klucz]');
+  return text.replace(/\s+/g, ' ').trim().slice(0, 300) || '(pusta odpowiedź)';
+}
+
 async function fetchPSI(url: string, key: string): Promise<any> {
   const psiUrl =
     `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}` +
     `&key=${key}&strategy=mobile&category=PERFORMANCE&category=SEO&category=ACCESSIBILITY&category=BEST_PRACTICES`;
-  const res = await fetch(psiUrl, { signal: AbortSignal.timeout(TIMEOUTS_MS.psi) });
-  // Bez res.ok cicha awaria PSI fabrykowała wynik (fallback „LCP 2.50 s"
-  // pokazywany użytkownikowi jako JEGO pomiar). Teraz brak pomiaru = błąd.
-  if (!res.ok) return null;
-  return res.json();
+  // Jeden sygnał na obie próby: ponowienie nie wydłuża limitu 55 s.
+  const signal = AbortSignal.timeout(TIMEOUTS_MS.psi);
+  for (let attempt = 1; ; attempt++) {
+    const res = await fetch(psiUrl, { signal });
+    // Bez res.ok cicha awaria PSI fabrykowała wynik (fallback „LCP 2.50 s"
+    // pokazywany użytkownikowi jako JEGO pomiar). Teraz brak pomiaru = błąd,
+    // a status i powód Google trafiają do logów (wcześniej 503 bez śladu przyczyny).
+    if (res.ok) return res.json();
+    const reason = psiErrorReason(await res.text().catch(() => ''), key);
+    const retry = attempt === 1 && psiRetryable(res.status);
+    console.error(
+      `[run_audit] psi: HTTP ${res.status} (próba ${attempt}${retry ? ', ponawiam' : ''}): ${reason}`,
+    );
+    if (!retry) return null;
+    await new Promise((r) => setTimeout(r, PSI_RETRY_DELAY_MS));
+  }
 }
 
 /**
