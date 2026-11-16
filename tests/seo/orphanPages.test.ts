@@ -18,9 +18,6 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const MUST_BE_LINKED: Record<string, string[]> = {
   '/offers/': ['components/sections/Offers.tsx'],
   '/branza/': ['components/pages/IndustryHub.tsx'],
-  '/abonament/professional/': ['components/pages/abonament/Professional.tsx'],
-  '/abonament/vs-wix/': ['components/pages/abonament/VsWix.tsx'],
-  '/abonament/vs-orange-klikai/': ['components/pages/abonament/VsOrange.tsx'],
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/': [
     'components/articles/IleKosztujeStronaRzeszowArticle.tsx',
   ],

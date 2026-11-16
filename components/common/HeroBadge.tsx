@@ -1,7 +1,6 @@
 /**
  * Wspolny komponent badge "live-dot" nad H1 — uzywany na wszystkich landingach.
- * Spojny wzorzec dla calej witryny (przeniesiony z grupy A /abonament/* gdzie
- * po raz pierwszy zdefiniowany).
+ * Spojny wzorzec dla calej witryny.
  */
 import React from 'react';
 

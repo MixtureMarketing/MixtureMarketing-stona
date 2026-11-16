@@ -61,7 +61,6 @@
 - **Ceny**: aktualne widełki orientacyjne są na stronach poniżej — tam jest źródło prawdy; ten plik celowo nie powtarza kwot.
   - [Oferta](https://mixturemarketing.pl/offers/)
   - [Tworzenie stron internetowych Rzeszów](https://mixturemarketing.pl/web-development/rzeszow/)
-  - [Strona w abonamencie](https://mixturemarketing.pl/abonament/)
 - **Bezpłatna konsultacja**: 45-60 minut, online lub na spotkaniu u klienta
 
 ## English summary
@@ -95,7 +94,6 @@ Mixture Marketing Sp. z o.o. is a Polish marketing agency and software house bas
 - [Kontakt](https://mixturemarketing.pl/contact/): formularz, telefon, e-mail
 - [Wycena projektu / Audyt 360](https://mixturemarketing.pl/audyt-360/): bezpłatny audyt strategiczny i konsultacja
 - [Kalkulator wyceny](https://mixturemarketing.pl/wycena/): orientacyjny koszt strony internetowej lub aplikacji w kilka minut, bez zobowiązań
-- [Strona w abonamencie](https://mixturemarketing.pl/abonament/): nowoczesna strona dla małej firmy w abonamencie, z pozycjonowaniem lokalnym i Mapami Google; kwoty tylko na stronie
 - [Oferty i cennik orientacyjny](https://mixturemarketing.pl/offers/)
 
 ## Polityki

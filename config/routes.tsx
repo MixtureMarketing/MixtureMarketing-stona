@@ -82,11 +82,6 @@ const SeoRzeszow = lazy(() => import('@/components/pages/SeoRzeszow'));
 const AgencjaInteraktywnaRzeszow = lazy(
   () => import('@/components/pages/AgencjaInteraktywnaRzeszow'),
 );
-const Abonament = lazy(() => import('@/components/pages/abonament/Abonament'));
-const AbonamentSuccess = lazy(() => import('@/components/pages/abonament/AbonamentSuccess'));
-const Professional = lazy(() => import('@/components/pages/abonament/Professional'));
-const VsWix = lazy(() => import('@/components/pages/abonament/VsWix'));
-const VsOrange = lazy(() => import('@/components/pages/abonament/VsOrange'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
 
 export const appRoutes: RouteObject[] = [
@@ -126,15 +121,8 @@ export const appRoutes: RouteObject[] = [
   // /pozycjonowanie-rzeszow/ scalona z /agencja-seo-rzeszow/ (MIX-898, decyzja MIX-977) —
   // trasy nie ma: 301 w public/_redirects (jak /marketing/seo/rzeszow).
 
-  // SaaS landing — produkt "Strona w abonamencie" (backend: binary-planet)
-  // self-serve Stripe Checkout flow. Success page noindex.
-  { path: '/abonament', element: <Abonament /> },
-  { path: '/abonament/dziekujemy', element: <AbonamentSuccess /> },
-  // Branze regulowane — osobny landing (Tomasz blocker P1)
-  { path: '/abonament/professional', element: <Professional /> },
-  // Comparison pages — SEO "X vs Y" intent
-  { path: '/abonament/vs-wix', element: <VsWix /> },
-  { path: '/abonament/vs-orange-klikai', element: <VsOrange /> },
+  // Strony usługi wycofanej w MIX-1849 (nigdy nie wystartowała) usunięte; 301 na
+  // /web-development/ w public/_redirects.
 
   // Design
   { path: '/design', element: <DesignBranding /> },

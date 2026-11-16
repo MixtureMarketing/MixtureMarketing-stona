@@ -45,8 +45,9 @@ export const VITALS_ID_RE = /^v\d{1,2}-\d{13}-\d{13}$/;
 export const STRIPE_SESSION_RE = /^cs_(?:test|live)_[A-Za-z0-9]{1,250}$/;
 
 /**
- * client_id z Hub (PreonboardModal.tsx: odpowiedz `/preonboard`, pole typu `string` bez
- * walidacji, format poza repo): przyjmujemy tylko UUID. Kazdy inny zapis = "(odrzucone)".
+ * client_id z Hub (dawny PreonboardModal: odpowiedz `/preonboard`, pole typu `string` bez
+ * walidacji, format poza repo): przyjmujemy tylko UUID. Nadawca usuniety w MIX-1849, regula
+ * zostaje jako allowlista (zdarzenie bez nadawcy nic nie wysyla). Kazdy inny zapis = "(odrzucone)".
  */
 const CLIENT_ID: ParamSpec = { kind: 'fixed', re: UUID_RE };
 

@@ -292,36 +292,6 @@
   padding: 4px 8px;
 }
 
-.mmb-promo {
-  margin-top: 16px;
-  display: block;
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--mmb-dark);
-  color: #fff;
-}
-:where(.mmb) a.mmb-promo {
-  color: #fff;
-}
-.mmb-promo-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.mmb-promo .mmb-kicker {
-  color: var(--mmb-primary);
-}
-.mmb-promo strong {
-  display: block;
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-.mmb-promo-sub {
-  font-size: 14px;
-  color: #d3d8e3;
-}
-
 .mmb-actions {
   flex: none;
   display: grid;

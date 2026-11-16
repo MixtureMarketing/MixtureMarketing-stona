@@ -5,6 +5,10 @@ import { spawnSync } from 'node:child_process';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { parse } from 'yaml';
 import { prerenderOnlyRoutes } from '../../routes.js';
+
+// MIX-1849: /abonament/dziekujemy/ wypadła z prerenderOnlyRoutes razem z usługą. Formy ataku
+// (MIX-1657…1689) dalej ćwiczą skan na tej dwusegmentowej ścieżce, więc dostają ją jako dane testu.
+const HIDDEN_FORMS = [...prerenderOnlyRoutes, '/abonament/dziekujemy/'];
 import {
   BASE_URL,
   KEY_PATHS,
@@ -438,7 +442,7 @@ describe('llmsReport: gramatyka linii, formy ataku i bliźniaki dozwolone', () =
 
 describe('MIX-1662: ścieżka ukryta bez slasha na początku, sobowtóry `/` i `-`, złączenie linii', () => {
   // Prawdziwa lista ukrytych (prerenderOnlyRoutes). Formy A01–A55 z WERDYKT-MIX-1657 (przeszły w r1).
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const L = 'llms.txt linia 4: ';
@@ -554,7 +558,7 @@ describe('MIX-1662: ścieżka ukryta bez slasha na początku, sobowtóry `/` i `
 describe('MIX-1665: skan stron ukrytych po szkielecie (litery i cyfry), granica wyrazu, próg długości', () => {
   // Formy V z WERDYKT-MIX-1662 (19 przeszło w r1) + AV z formy-ataku.md + własne. Znaki spoza ASCII
   // jako sekwencje \u (konwencja MIX-1657). Bliźniak różni się literami, nie samym separatorem.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const L = 'llms.txt linia 4: ';
@@ -766,7 +770,7 @@ describe('MIX-1665: skan stron ukrytych po szkielecie (litery i cyfry), granica 
 describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = dżoker, pary rn/cl/vv', () => {
   // Formy F z WERDYKT-MIX-1665 (uwaga 1: 14 przeszło) + własne G. Znaki spoza ASCII jako \u.
   // Każda odmowa ma bliźniaka z tym samym znakiem, który przechodzi.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const L = 'llms.txt linia 4: ';
@@ -891,7 +895,7 @@ describe('MIX-1670: sobowtóry przed małymi literami, litera spoza tablicy = d�
 describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżoker dla reszty), pary z dżokerem', () => {
   // Formy V17/V19/X01–X03 z WERDYKT-MIX-1670 (przeszły) + własne H. Znaki spoza ASCII jako \u, bo
   // greckie Ϲ/Σ i łacińskie C/E wyglądają w kodzie tak samo. Każda odmowa ma bliźniaka, który przechodzi.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const L = 'llms.txt linia 4: ';
@@ -998,7 +1002,7 @@ describe('MIX-1684: allowlista liter (tablica bez małych liter przed nią, dżo
 describe('MIX-1689: allowlista separatorów (interpunkcja spoza listy = dżoker)', () => {
   // WERDYKT-MIX-1684 uwaga 1: interpunkcja spoza ASCII była separatorem (`dz¡ekujemy` przechodził).
   // Teraz separator tylko z listy (ASCII, „ ” “ ’ « » — –), inny znak = dżoker. Znaki jako \u.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const run = (line: string, o = opts) => llmsReport(`${base}${line}\n`, sm, o);
@@ -1094,7 +1098,7 @@ describe('MIX-1689: allowlista separatorów (interpunkcja spoza listy = dżoker)
   it('W06: `moderrn` (wstawiona litera) przechodzi z założenia; `modern` = odmowa', () => {
     // Odmowa wstawionej litery wymagałaby dopasowania z odległością edycyjną (poza projektem,
     // fałszywe odmowy zwykłych słów). Resztka zapisana w AV25 (formy-ataku.md wtyczki).
-    const o = { ...opts, hiddenPaths: [...prerenderOnlyRoutes, '/modern-cloud-platform/'] };
+    const o = { ...opts, hiddenPaths: [...HIDDEN_FORMS, '/modern-cloud-platform/'] };
     const hit = `${L}ścieżka strony ukrytej /modern-cloud-platform/ (szkielet moderncloudplatform)`;
     expect(run('- Strona moderrn-cloud-platform', o).problems).toEqual([]);
     expect(run('- Strona modern-cloud-platform', o).problems).toEqual([hit]);
@@ -1104,7 +1108,7 @@ describe('MIX-1689: allowlista separatorów (interpunkcja spoza listy = dżoker)
 describe('MIX-1689 r2: znak łączący i niewidoczny po NFKC = dżoker, nigdy nie znika', () => {
   // WERDYKT-MIX-1689 F1: `noMarks` zdejmował znaki łączące z każdego znaku, więc samotny znak
   // łączący w miejscu litery znikał (`ap\u093Eikacje` → `apikacje`). Recenzja L-SYS: także Cf.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const run = (line: string) => llmsReport(`${base}${line}\n`, sm, opts);
@@ -1304,27 +1308,27 @@ describe('scripts/check-llms.mjs: kod wyjścia i tekst odmowy', () => {
   });
 
   it('odmowa: ukryta strona (prerenderOnlyRoutes) w prozie, rc 1 i linia PROBLEM', () => {
-    const line = 'Strona mixturemarketing.pl/abonament/dziekujemy/ po płatności';
+    const line = 'Strona mixturemarketing.pl/web-development/systemy-ai-aplikacje/ przed publikacją';
     const r = run(`${llms}${line}\n`);
     expect(r.stdout).toContain(
-      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /abonament/dziekujemy/ (szkielet abonamentdziekujemy)`,
+      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /web-development/systemy-ai-aplikacje/ (szkielet `,
     );
     expect(r.stdout).toContain('llms-check: BŁĄD');
     expect(r.status).toBe(1);
   });
 
   it('odmowa: ukryta strona zakodowana %2F, rc 1', () => {
-    const r = run(`${llms}Zobacz %2Fabonament%2Fdziekujemy\n`);
+    const r = run(`${llms}Zobacz %2Fweb-development%2Fsystemy-ai-aplikacje\n`);
     expect(r.stdout).toContain(
-      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /abonament/dziekujemy/ (szkielet abonamentdziekujemy)`,
+      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /web-development/systemy-ai-aplikacje/ (szkielet `,
     );
     expect(r.status).toBe(1);
   });
 
   it('odmowa: ukryta strona bez slasha na początku i z ukośnikiem U+2215, rc 1 (MIX-1662)', () => {
-    const r = run(`${llms}- Po płatności: abonament\u2215dziekujemy\n`);
+    const r = run(`${llms}- Nowość: web-development\u2215systemy-ai-aplikacje\n`);
     expect(r.stdout).toContain(
-      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /abonament/dziekujemy/ (szkielet abonamentdziekujemy)`,
+      `PROBLEM: llms.txt linia ${lines + 1}: ścieżka strony ukrytej /web-development/systemy-ai-aplikacje/ (szkielet `,
     );
     expect(r.stdout).toContain('llms-check: BŁĄD');
     expect(r.status).toBe(1);
@@ -1370,7 +1374,7 @@ describe('CI: strażnik llms.txt jest wołany w workflow po buildzie i blokuje',
 describe('MIX-1695: znak łączący i niewidoczny spoza BMP = dżoker, nigdy nie znika', () => {
   // WERDYKT-MIX-1689 mutant X6 (astralne Mn/Mc/Cf odrzucane zamiast dżokera) przeżył, bo zestaw
   // miał tylko znaki z BMP. Znaki jako \u{…}. Bliźniak: ta sama linia z literą w miejscu znaku.
-  const opts = { keyPaths: ['/a/'], hiddenPaths: prerenderOnlyRoutes };
+  const opts = { keyPaths: ['/a/'], hiddenPaths: HIDDEN_FORMS };
   const sm = xml('/a/');
   const base = `# T\n\n- [a](${BASE_URL}/a/): opis\n`;
   const run = (line: string) => llmsReport(`${base}${line}\n`, sm, opts);

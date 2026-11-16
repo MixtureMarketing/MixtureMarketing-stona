@@ -35,13 +35,6 @@ export const routes = [
   '/agencja-interaktywna-rzeszow/',
   '/agencja-seo-rzeszow/',
 
-  // SaaS landing
-  '/abonament/',
-  '/abonament/professional/',
-  '/abonament/vs-wix/',
-  '/abonament/vs-orange-klikai/',
-  // /abonament/dziekujemy/ - NIE tutaj (noindex, post-Stripe) -> prerenderOnlyRoutes nizej
-
   // Design
   '/design/',
   '/design/branding/',
@@ -97,9 +90,6 @@ export const routes = [
 // scripts/generate-sitemap.js (i skrypty audytow) importuja tylko `routes`.
 // Kazda strona tutaj musi miec <Seo noindex /> (test: tests/routes.test.ts).
 export const prerenderOnlyRoutes = [
-  // Strona po platnosci Stripe (success URL z PreonboardModal). Bez prerenderu CF Pages
-  // serwowal 404.html z kodem 404 i migal "Nie znaleziono" przed podmiana przez React.
-  '/abonament/dziekujemy/',
   // MIX-1272 (plan SEO A18): strona uslugi "systemy AI i aplikacje" ukryta do akceptacji Jakuba
   // (noindex, bez sitemapy i menu). Publikacja: przeniesc do `routes`, zdjac noindex w komponencie.
   '/web-development/systemy-ai-aplikacje/',

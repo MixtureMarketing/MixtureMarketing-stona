@@ -58,19 +58,6 @@ export const SERVICES_CONTENT = {
       features: ['Logo & Księgi Znaku', 'UI/UX Design', 'Materiały Drukowane'],
       button: 'Zobacz Szczegóły',
     },
-    {
-      key: 'saas',
-      path: '/abonament/',
-      title: 'Strona w abonamencie',
-      subtitle: 'SaaS · od 179 zł/mc',
-      desc: 'Cały pakiet — strona, SEO, leady — w jednej miesięcznej cenie. Idealne dla mikrofirm które nie chcą inwestować jednorazowo 10 tys. zł.',
-      features: [
-        'Strona + hosting w cenie',
-        'Local SEO + GBP synced',
-        'Leady na telefon (SMS 30s)',
-      ],
-      button: 'Zobacz pakiety',
-    },
   ],
 };
 
