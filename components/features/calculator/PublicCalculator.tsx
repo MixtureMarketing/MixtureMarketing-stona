@@ -13,6 +13,7 @@ import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
 import {
+  isBookingEmbedEnabled,
   isConfigLinkEnabled,
   isConfigPreviewEnabled,
   isLeadConfigEnabled,
@@ -21,6 +22,7 @@ import {
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
+import BookingEmbed from './BookingEmbed';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
 
 const PublicCalculator: React.FC = () => {
@@ -77,7 +79,12 @@ const PublicCalculator: React.FC = () => {
       {c.phase === 'loadError' && <CalculatorLoadError onRetry={() => window.location.reload()} />}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} />
+        <CalculatorResult
+          priceRange={c.result.priceRange}
+          onReset={c.reset}
+          // MIX-1814 (Z9): ramka harmonogramu dopiero na ekranie wyniku (po zapisie leada).
+          booking={isBookingEmbedEnabled() ? <BookingEmbed /> : null}
+        />
       )}
 
       {(c.phase === 'ready' || c.phase === 'submitting') && (

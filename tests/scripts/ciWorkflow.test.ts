@@ -56,6 +56,7 @@ const WLACZONE_NA_PROD = new Set([
 ]);
 /** Konfigurator wyceny w budowie (MIX-1377): Preview 1, produkcja i PR puste. */
 const WYCENA_WYLACZONA_NA_PROD = [
+  'VITE_MM_BOOKING_EMBED', // MIX-1814: harmonogram rozmów pod wynikiem (Z9)
   'VITE_MM_CONFIG_LINK',
   'VITE_MM_CONFIG_PREVIEW',
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)

@@ -53,6 +53,19 @@ export function isLeadConfigEnabled(raw: unknown = import.meta.env.VITE_MM_LEAD_
 }
 
 /**
+ * MIX-1814 (Z9, wariant A): harmonogram rozmów z I14 (`CALENDAR_IFRAME_SRC`) pod wynikiem, ładowany
+ * dopiero po kliknięciu „Wyślij i umów rozmowę” i zapisie leada. Przełącznik budowy
+ * `VITE_MM_BOOKING_EMBED` (tylko `1` włącza) działa wyłącznie razem z `VITE_MM_LEAD_CONFIG`,
+ * bo bez niego nie ma przycisku „Wyślij i umów rozmowę”.
+ */
+export function isBookingEmbedEnabled(
+  raw: unknown = import.meta.env.VITE_MM_BOOKING_EMBED,
+  leadConfig: unknown = import.meta.env.VITE_MM_LEAD_CONFIG,
+): boolean {
+  return raw === '1' && isLeadConfigEnabled(leadConfig);
+}
+
+/**
  * Klucz pamięci wyników: te same odpowiedzi (niezależnie od kolejności kluczy) = ten sam klucz.
  * Wartości puste i `undefined` nie wchodzą do klucza (tak samo ich nie wysyłamy).
  */

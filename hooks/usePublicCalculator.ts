@@ -17,7 +17,10 @@ import {
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { trackEvent } from '../utils/analytics';
-import { isLeadConfigEnabled } from '../components/features/calculator/livePrice';
+import {
+  isBookingEmbedEnabled,
+  isLeadConfigEnabled,
+} from '../components/features/calculator/livePrice';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
@@ -146,6 +149,11 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         ...(isLeadConfigEnabled() && phone.trim() !== '' ? { phone: phone.trim() } : {}),
       });
       if (res.ok) {
+        // MIX-1814 (Z9): lead zapisany, pod wynikiem otwiera się harmonogram rozmów. Jedno
+        // zdarzenie na jedno udane kliknięcie; bez e-maila i telefonu, tylko ścieżka strony.
+        if (isBookingEmbedEnabled()) {
+          trackEvent('calculator_booking_open', { source: window.location.pathname });
+        }
         setResult(res.result);
         setPhase('done');
       } else {
