@@ -66,7 +66,10 @@ describe('requestPricePreview — kontrakt', () => {
     );
     const ctrl = new AbortController();
     ctrl.abort();
-    expect(await requestPricePreview({ answers: {} }, ctrl.signal)).toEqual({ ok: false, status: 0 });
+    expect(await requestPricePreview({ answers: {} }, ctrl.signal)).toEqual({
+      ok: false,
+      status: 0,
+    });
     expect(fetchSignal?.aborted).toBe(true);
   });
 
