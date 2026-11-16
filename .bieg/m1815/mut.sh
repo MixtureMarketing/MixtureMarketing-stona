@@ -83,7 +83,7 @@ run R7-V4-html-in-box $I "          <p className=\"whitespace-pre-line break-wor
           </p>" "          <p className=\"whitespace-pre-line break-words text-sm text-gray-800\" dangerouslySetInnerHTML={{ __html: calculatorConfig.text }} />"
 run R8-V6-resumed-no-priority $I "if (prefilled.current || additionalData?.resumedLead || !preMsg) return;" "if (prefilled.current || !preMsg) return;"
 run R9-V8-email-in-url $R '          to="/contact/"
-          state=' '          to={`/contact/?e=${encodeURIComponent(handoff?.email ?? '')}`}
+          state=' '          to={`/contact/?e=${encodeURIComponent(handoff?.email ?? "")}`}
           state='
 run R10-V9-flag-default-on components/features/calculator/livePrice.ts "VITE_MM_RESULT_CONTACT,
 ): boolean {

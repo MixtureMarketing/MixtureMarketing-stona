@@ -76,6 +76,29 @@ const PublicCalculator: React.FC = () => {
     return buildHandoff(shownQuestions, c.answers, c.result.priceRange, c.email, link);
   })();
 
+  const form = filling ? (
+    <CalculatorForm
+      visible={resultOn ? withP4Texts(c.visible) : c.visible}
+      answers={c.answers}
+      setAnswer={c.setAnswer}
+      errors={c.errors}
+      email={c.email}
+      setEmail={c.setEmail}
+      websiteVerify={c.websiteVerify}
+      setWebsiteVerify={c.setWebsiteVerify}
+      submitError={c.submitError}
+      submitting={c.phase === 'submitting'}
+      onSubmit={c.submit}
+      liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
+      configPreview={
+        configEnabled ? <ConfigPreview goal={c.answers.project_goal} scope={live.scope} /> : null
+      }
+      configLink={
+        linkK ? <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} /> : null
+      }
+    />
+  ) : null;
+
   return (
     <div
       className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl"
@@ -97,34 +120,15 @@ const PublicCalculator: React.FC = () => {
         <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} handoff={handoff} />
       )}
 
-      {filling && (
-        <div ref={formRef} data-testid="calc-form-box">
-          <CalculatorForm
-            visible={resultOn ? withP4Texts(c.visible) : c.visible}
-            answers={c.answers}
-            setAnswer={c.setAnswer}
-            errors={c.errors}
-            email={c.email}
-            setEmail={c.setEmail}
-            websiteVerify={c.websiteVerify}
-            setWebsiteVerify={c.setWebsiteVerify}
-            submitError={c.submitError}
-            submitting={c.phase === 'submitting'}
-            onSubmit={c.submit}
-            liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
-            configPreview={
-              configEnabled ? (
-                <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
-              ) : null
-            }
-            configLink={
-              linkK ? (
-                <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} />
-              ) : null
-            }
-          />
-        </div>
-      )}
+      {/* Z11 r2: otoczka do pomiaru tylko przy włączonym przełączniku (bez niej DOM jak dziś). */}
+      {form &&
+        (resultOn ? (
+          <div ref={formRef} data-testid="calc-form-box">
+            {form}
+          </div>
+        ) : (
+          form
+        ))}
     </div>
   );
 };
