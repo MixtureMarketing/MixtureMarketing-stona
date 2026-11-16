@@ -14,6 +14,8 @@ import Seo from '../common/Seo';
 import AmbientBackground from '../common/AmbientBackground';
 import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
+import Powiazane from '../common/Powiazane';
+import { isPowiazaneEnabled } from '../../config/flags';
 import { useNotification } from '../../context/NotificationContext';
 import { withTrailingSlash } from '../../utils/url';
 import {
@@ -44,7 +46,13 @@ interface ArticleShellProps {
   author?: { name: string; role?: string; url?: string; sameAs?: string[] };
   publishedDate?: string;
   updatedDate?: string;
+  /** Artykuł ukryty do akceptacji (noindex); domyślnie indeksowany. MIX-1280. */
+  noindex?: boolean;
 }
+
+/** Publiczny slug artykułu z kanonicznej ścieżki `/baza-wiedzy/<slug>/`; inna ścieżka = brak. */
+export const articlePublicSlug = (canonicalPath: string): string | undefined =>
+  /^\/baza-wiedzy\/([^/]+)\/$/.exec(canonicalPath)?.[1];
 
 /** Autor wszystkich artykułów bazy wiedzy (decyzja Jakuba, MIX-920 / MIX-783). */
 const DEFAULT_AUTHOR = {
@@ -77,6 +85,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   author = DEFAULT_AUTHOR,
   publishedDate,
   updatedDate,
+  noindex = false,
 }: ArticleShellProps) => {
   const titleStr = typeof title === 'string' ? title : '';
   const titleParts = titleStr.includes(':') ? titleStr.split(':') : [titleStr, ''];
@@ -163,6 +172,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
         description={description}
         image={image}
         type="article"
+        noindex={noindex}
         breadcrumbs={breadcrumbs}
         jsonLd={articleJsonLd}
       />
@@ -260,10 +270,17 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
               <div className="py-10 text-center text-gray-400">Artykuł w przygotowaniu...</div>
             )}
 
-            <div className="mt-24">
-              <RelatedArticles currentArticleId={id} category={category} />
-            </div>
+            {!isPowiazaneEnabled() && (
+              <div className="mt-24">
+                <RelatedArticles currentArticleId={id} category={category} />
+              </div>
+            )}
           </article>
+
+          {/* Blok „Powiązane” (MIX-1268) poza prozą; brak dopasowań = nic (bez miejsca). */}
+          {isPowiazaneEnabled() && (
+            <Powiazane type="article" slug={articlePublicSlug(canonicalPath)} />
+          )}
         </div>
       </div>
     </div>

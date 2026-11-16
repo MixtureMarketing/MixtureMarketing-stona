@@ -62,6 +62,8 @@ export const routes = [
   '/baza-wiedzy/google-ads-skalowanie-budzetu/',
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026/',
   '/baza-wiedzy/audyt-ux-sklepu-internetowego/',
+  // MIX-1680: artykul "aplikacje dedykowane z AI" (MIX-1280) opublikowany 14.11.2026 (decyzja Jakuba, MIX-1280 opcja A).
+  '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
   '/baza-wiedzy/server-side-tracking-koniec-cookies/',
   '/baza-wiedzy/nextjs-zloty-standard-aplikacji-webowych/',
   '/baza-wiedzy/headless-wordpress-wydajnosc-i-bezpieczenstwo/',

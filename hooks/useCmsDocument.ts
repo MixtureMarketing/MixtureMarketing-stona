@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { reportError } from '../utils/errorReporter';
+import { isValidSnapshotEntry } from './cmsSnapshotSchema';
 
 /**
  * Stan pobrania pojedynczego dokumentu CMS po slugu.
@@ -34,6 +35,9 @@ export const CMS_DOC = {
   caseStudy: 'caseStudy',
   industryList: 'industryList',
   caseStudyList: 'caseStudyList',
+  articleList: 'articleList',
+  // Blok „Powiązane” (MIX-1268): lista linków dla klucza `<rodzaj>:<slug>`.
+  related: 'related',
 } as const;
 export type CmsDocId = (typeof CMS_DOC)[keyof typeof CMS_DOC];
 
@@ -77,9 +81,12 @@ function snapshotMap(): Map<string, unknown> {
   return cachedMap;
 }
 
-/** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma. */
+export { isValidSnapshotEntry };
+
+/** Dane dokumentu ze zrzutu w HTML albo `undefined`, gdy zrzutu (dla tego sluga) nie ma lub ma zły kształt. */
 export function readCmsSnapshot<T>(id: CmsDocId, slug: string): T | undefined {
-  return snapshotMap().get(snapshotKey(id, slug)) as T | undefined;
+  const value = snapshotMap().get(snapshotKey(id, slug));
+  return value !== undefined && isValidSnapshotEntry(id, value) ? (value as T) : undefined;
 }
 
 /** JSON bezpieczny w treści <script>: bez `<` (`</script>`, `<!--`) i U+2028/2029. */

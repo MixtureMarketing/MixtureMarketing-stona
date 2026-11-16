@@ -5,6 +5,10 @@ import { ArrowRight } from 'lucide-react';
 import { SanityCaseStudy } from '../../../types';
 import BaseCard from '../../common/BaseCard';
 import { urlFor } from '../../../services/cmsService';
+import { isTransitionActive } from '../../../utils/caseStudyTransition';
+
+/** MIX-1722: the card photo has the same 16:9 crop as the case-study hero (HERO_PHOTO, 1600x900), at half the size. */
+export const CARD_PHOTO = { width: 800, height: 450 } as const;
 
 interface PortfolioGridProps {
   projects: SanityCaseStudy[];
@@ -21,6 +25,9 @@ const CATEGORY_BADGE: Record<string, { label: string; className: string }> = {
 const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
   // Framer omija globalny CSS-kill reduced-motion — respektujemy ręcznie
   const reducedMotion = useReducedMotion();
+  // MIX-1711: lista montowana w trakcie przejścia (powrót z realizacji) stoi od razu: karty bez wejścia
+  // (opacity 0, skala 0,9 przez 0,4 s), więc zdjęcie leci do pełnej karty, a klatki animacji są lżejsze
+  const entrance = !reducedMotion && !isTransitionActive();
 
   if (loading) {
     return (
@@ -30,9 +37,9 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
             key={i}
             variant="solid"
             padding="none"
-            className="h-[500px] animate-pulse flex flex-col overflow-hidden"
+            className="animate-pulse flex flex-col overflow-hidden"
           >
-            <div className="h-2/3 bg-gray-200 w-full" />
+            <div className="aspect-[16/9] bg-gray-200 w-full" />
             <div className="p-8 space-y-4">
               <div className="h-4 bg-gray-200 rounded w-1/3" />
               <div className="h-8 bg-gray-200 rounded w-3/4" />
@@ -45,13 +52,17 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:1px_1500px]">
+    // vt-lista: w trakcie przejścia bez content-visibility (components/common/caseStudyTransitions.css, MIX-1711)
+    // MIX-1741: `auto` = ostatni zmierzony rozmiar. Bez niego po przejściu wstecz (powrót content-visibility:auto)
+    // lista bywała na klatkę pominięta i miała 1500 px zamiast swojej wysokości (375: 4820 px), strona się skracała,
+    // przewinięcie spadało na stopkę, a lista nad ekranem zostawała pominięta (sonda .bieg/mix1741/footer.mjs).
+    <div className="vt-lista grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_1500px]">
       <AnimatePresence mode="popLayout">
         {projects.map((project) => (
           <motion.div
             key={project._id}
             layout={!reducedMotion}
-            initial={reducedMotion ? false : { opacity: 0, scale: 0.9 }}
+            initial={entrance ? { opacity: 0, scale: 0.9 } : false}
             animate={{ opacity: 1, scale: 1 }}
             exit={reducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
             transition={{ duration: reducedMotion ? 0 : 0.4 }}
@@ -66,11 +77,17 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               className="h-full flex flex-col border-gray-100 relative"
             >
               {/* Image Container */}
-              <div className="relative h-72 overflow-hidden bg-gray-100">
+              <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
                 {project.mainImage ? (
                   <img
-                    src={urlFor(project.mainImage).width(800).height(600).url()}
+                    src={urlFor(project.mainImage)
+                      .width(CARD_PHOTO.width)
+                      .height(CARD_PHOTO.height)
+                      .fit('crop')
+                      .url()}
                     alt={project.title}
+                    width={CARD_PHOTO.width}
+                    height={CARD_PHOTO.height}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     loading="lazy"
                   />

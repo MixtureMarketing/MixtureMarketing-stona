@@ -47,6 +47,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026': 'Ile kosztuje strona Rzeszów 2026',
   // Tytuł to pytanie z „:” w środku — część przed dwukropkiem nie jest nazwą.
   '/baza-wiedzy/audyt-ux-sklepu-internetowego': 'Audyt UX sklepu internetowego',
+  '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto': 'Aplikacje dedykowane z AI',
 };
 
 /**

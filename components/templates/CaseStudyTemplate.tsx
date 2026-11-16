@@ -12,6 +12,8 @@ import { useCmsDocument, CMS_DOC } from '@/hooks/useCmsDocument';
 import { useBreadcrumbLabel } from '@/context/BreadcrumbLabelContext';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
+import Powiazane from '../common/Powiazane';
+import { isPowiazaneEnabled } from '@/config/flags';
 
 // Refactored Sub-components
 import CaseStudyHero from './case-study/CaseStudyHero';
@@ -125,9 +127,13 @@ const CaseStudyTemplate = () => {
         </div>
       </div>
 
-      <LazyHydrate minHeight="400px">
-        <RelatedArticles currentSlug={slug || ''} category={project.category} />
-      </LazyHydrate>
+      {isPowiazaneEnabled() ? (
+        <Powiazane type="caseStudy" slug={slug} />
+      ) : (
+        <LazyHydrate minHeight="400px">
+          <RelatedArticles currentSlug={slug || ''} category={project.category} />
+        </LazyHydrate>
+      )}
 
       <CaseStudyNavigation nextProject={nextProject} />
     </div>

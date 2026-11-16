@@ -45,7 +45,7 @@ describe('MIX-1471: switch OFF = production layout unchanged', () => {
     (value) => {
       if (value !== undefined) vi.stubEnv('VITE_MM_VIEW_TRANSITIONS', value);
       const { container } = renderHero();
-      // Snapshot recorded on the unchanged production component (base 4953c82).
+      // Snapshot of the production hero; re-recorded in MIX-1724 (photo frame 16/9, crop 1600x900); everything else unchanged since base 4953c82.
       expect(container.innerHTML).toMatchSnapshot();
     },
   );
@@ -89,9 +89,7 @@ describe('MIX-1471: switch ON = photo at the very top, text below', () => {
     expect(photo.hasAttribute('loading')).toBe(false);
     // Fixed frame (no layout shift when the image arrives) and no opacity-0 wrapper.
     const frame = photo.parentElement!;
-    expect(frame.className.split(' ')).toEqual(
-      expect.arrayContaining(['aspect-square', 'sm:aspect-[4/3]', 'md:aspect-[16/9]']),
-    );
+    expect(frame.className.split(' ')).toEqual(expect.arrayContaining(['aspect-[16/9]']));
     expect(frame.getAttribute('style') ?? '').not.toMatch(/opacity/);
   });
 

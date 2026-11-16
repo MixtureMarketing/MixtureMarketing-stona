@@ -2,7 +2,7 @@
 import { Article } from '../../types';
 
 /**
- * Rejestr statycznych artykułów /baza-wiedzy/ (29 szt.: 28 z dawnej serii, zasilonej też do Sanity, + cennik Rzeszów) — JEDYNE źródło dat dla listy, „Powiązanych"
+ * Rejestr statycznych artykułów /baza-wiedzy/ (30 szt.: 28 z dawnej serii, zasilonej też do Sanity, + cennik Rzeszów + artykuł o aplikacjach z AI z MIX-1680, tylko w repo) — JEDYNE źródło dat dla listy, „Powiązanych"
  * i ArticleShell (byline + JSON-LD Article). Daty publikacji: rejestr z importu repozytorium
  * (28.01.2026); dokumenty `article` w Sanity zostały z niego zasilone (studio .../scripts/seed.ts),
  * więc ich `publishedAt` jest tym samym zapisem. `updatedDate` tylko przy realnej zmianie treści
@@ -25,6 +25,21 @@ export const LEGACY_ARTICLES: Article[] = [
     readTime: '6 min',
     slug: '/baza-wiedzy/ile-kosztuje-strona-internetowa-rzeszow-2026',
     tags: ['Cennik', 'Strony WWW', 'Rzeszów'],
+  },
+  {
+    // Artykuł „aplikacje dedykowane z AI” (MIX-1280, plan SEO A34), opublikowany w MIX-1680. Data jak
+    // AI_ARTICLE_PUBLISHED (test); tekst w data/content/articles/ai-systems.ts, nic w Sanity.
+    id: 'aplikacje-dedykowane-z-ai',
+    title: 'Aplikacje dedykowane z AI: kiedy firma naprawdę ich potrzebuje',
+    description:
+      'AI w firmowej aplikacji nie jest celem samym w sobie. Sprawdź, w jakich sytuacjach dedykowany system z elementami AI się opłaca, a kiedy wystarczy zwykła aplikacja albo gotowe narzędzie.',
+    category: 'tech',
+    categoryLabel: 'AI i systemy',
+    image: '/assets/images/backend.png',
+    date: '2026-11-14',
+    readTime: '7 min',
+    slug: '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto',
+    tags: ['AI', 'Aplikacje dedykowane', 'Systemy'],
   },
   {
     id: 'server-side-tracking',

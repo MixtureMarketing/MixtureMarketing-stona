@@ -159,6 +159,15 @@ function App() {
               Przejdź do treści
             </a>
 
+            {/* MIX-1607: baner zgód stoi zaraz za linkiem „Przejdź do treści”, przed treścią strony.
+                Jest `fixed`, więc wygląd bez zmian; w HTML prerenderu musi być w pierwszym kawałku
+                dokumentu, bo inaczej pierwsze malowanie następuje przed jego sparsowaniem (baner na
+                końcu ~450 KB HTML), a po podmianie #root przez Reacta jego tekst staje się nowym
+                elementem LCP (symulowany LCP 3,3–3,9 s zamiast ~1,1 s). */}
+            <section aria-label="Zarządzanie plikami cookies">
+              <CookieBanner />
+            </section>
+
             <Navbar />
 
             <main id="main-content">
@@ -182,10 +191,6 @@ function App() {
                 </Suspense>
               </ErrorBoundary>
             </main>
-
-            <section aria-label="Zarządzanie plikami cookies">
-              <CookieBanner />
-            </section>
 
             <LazyHydrate minHeight="400px">
               <Footer />

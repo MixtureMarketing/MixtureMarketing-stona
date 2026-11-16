@@ -136,3 +136,18 @@ export function findCardParts(
     (a.querySelector('h2, h3, h4') as HTMLElement | null);
   return { image, title };
 }
+
+/**
+ * Zdjęcie i tytuł nagłówka realizacji z układem „zdjęcie na górze” (MIX-1471) albo `null`.
+ * Obraz = ramka zdjęcia (to ona dostaje nazwę przejścia), tytuł = jedyny H1 nagłówka.
+ * Bez tego układu (przełącznik wyłączony, brak zdjęcia) wynik to `null` = bez przejścia.
+ */
+export function findHeroParts(
+  doc: Pick<Document, 'querySelector'>,
+): { image: HTMLElement; title: HTMLElement | null } | null {
+  const header = doc.querySelector('main header[data-hero-layout="photo-top"]');
+  const img = header?.querySelector('img[fetchpriority]');
+  const frame = img?.parentElement;
+  if (!header || !frame) return null;
+  return { image: frame, title: header.querySelector<HTMLElement>('h1') };
+}

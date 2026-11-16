@@ -35,6 +35,11 @@ export function isTransitionActive(): boolean {
   return active;
 }
 
+/** Flaga „przejście w toku” dla przejścia wstecz (utils/caseStudyBackTransition.ts). */
+export function setTransitionActive(value: boolean): void {
+  active = value;
+}
+
 export interface RunOptions {
   path: string;
   parts: { image: HTMLElement; title: HTMLElement | null };
@@ -75,6 +80,11 @@ export async function runCaseStudyTransition(opts: RunOptions): Promise<'transit
   setName(parts.image, VT_NAMES.image);
   source.push(parts.image);
   if (parts.title) {
+    // MIX-1711 r2: klik ustawia fokus na linku w tytule karty, a tytuł z line-clamp (overflow: hidden)
+    // bywa wtedy przewinięty o wiersz; zdjęcie starej strony ma pokazać tytuł jak na liście, bo powrót
+    // kończy się na świeżo narysowanej karcie (pomiar .bieg/mix1711/reverse.mjs, ENTER k=0)
+    parts.title.scrollTop = 0;
+    parts.title.scrollLeft = 0;
     setName(parts.title, VT_NAMES.title);
     source.push(parts.title);
   }

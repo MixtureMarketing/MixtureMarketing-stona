@@ -1,0 +1,43 @@
+diff --git a/utils/caseStudyBackSkip.ts b/utils/caseStudyBackSkip.ts
+index 2cf442d..bd0a5d7 100644
+--- a/utils/caseStudyBackSkip.ts
++++ b/utils/caseStudyBackSkip.ts
+@@ -59,11 +59,12 @@ export function setBackSkip(
+   releaseMs: number = BACK_RELEASE_MAX_MS,
+   host: Window | null = null,
+ ): BackSkip {
+-  // MIX-1729: przejście po historii w trakcie = bez przywrócenia przeglądarki (utils/caseStudyRootScroll.ts)
+-  const unsuppress = suppressTraverseRestore(host);
++  let undo: (() => void) | null = null;
++  // MIX-1729: przejście po historii w trakcie = bez przywrócenia przeglądarki (utils/caseStudyRootScroll.ts);
++  // MIX-1758 (hipoteza): tylko po naszym przewinięciu listy; wcześniej korzeń przywraca przeglądarka (MIX-1711)
++  const unsuppress = suppressTraverseRestore(host, () => undo !== null);
+   let wake: (v: false) => void = () => undefined;
+   const woken = new Promise<false>((resolve) => (wake = resolve));
+-  let undo: (() => void) | null = null;
+   const restoring = (win: Window | null, y: number, run: Restore) => {
+     // tylko pierwsze przewinięcie: późniejsza korekta dryfu (ten sam cel) nie nadpisuje pozycji sprzed
+     if (win && !undo) {
+diff --git a/utils/caseStudyRootScroll.ts b/utils/caseStudyRootScroll.ts
+index 385ae6d..d73afd2 100644
+--- a/utils/caseStudyRootScroll.ts
++++ b/utils/caseStudyRootScroll.ts
+@@ -53,13 +53,17 @@ const NOTHING = () => undefined;
+  * `intercept` jest funkcją; wszystko inne (brak Navigation API, inny typ, błąd)
+  * = nic, przeglądarka działa jak dotąd. Zwraca zdjęcie nasłuchu (wielokrotne wywołanie = nic); nigdy nie rzuca.
+  */
+-export function suppressTraverseRestore(win: Window | null): () => void {
++export function suppressTraverseRestore(
++  win: Window | null,
++  armed: () => boolean = () => true,
++): () => void {
+   try {
+     const nav = (win as unknown as { navigation?: EventTarget | null } | null)?.navigation;
+     if (!nav || typeof nav.addEventListener !== 'function') return NOTHING;
+     const onNavigate = (e: Event) => {
+       try {
+         const n = e as unknown as NavigateLike;
++        if (armed() !== true) return;
+         if (n.navigationType !== 'traverse' || n.canIntercept !== true) return;
+         if (n.hashChange !== false || n.defaultPrevented !== false) return;
+         if (n.downloadRequest !== null || n.formData !== null) return;

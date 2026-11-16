@@ -18,6 +18,8 @@ import EcommerceOwnership from '../features/ecommerce/EcommerceOwnership';
 import EcommerceIntegrations from '../features/ecommerce/EcommerceIntegrations';
 import EcommerceExisting from '../features/ecommerce/EcommerceExisting';
 import FaqSection from '../sections/FaqSection';
+import LocalRzeszowSection from '../sections/LocalRzeszowSection';
+import { LOCAL_RZESZOW_ECOMMERCE } from '../../data/content/services/local-rzeszow';
 
 /**
  * Strona kategorii „Sklepy internetowe" — przebudowa 2026-07-16 (krytyka 20/40,
@@ -152,6 +154,8 @@ const Ecommerce: React.FC = () => {
       <EcommerceIntegrations />
 
       <EcommerceExisting onConsult={openConsult} />
+
+      <LocalRzeszowSection content={LOCAL_RZESZOW_ECOMMERCE} onConsult={openConsult} />
 
       <FaqSection title="Najczęstsze pytania" items={CONTENT.faqs} bgClassName="bg-white" />
 

@@ -12,6 +12,8 @@ import PseoLocationContent from './PseoLocationContent';
 import { RZESZOW_FAQ_SCHEMA } from './rzeszowFaq';
 import { industryAudience } from '../../../utils/seo/title';
 import { industryDescription } from '../../../utils/seo/description';
+import Powiazane from '../../common/Powiazane';
+import { isPowiazaneEnabled } from '../../../config/flags';
 
 interface PseoTemplateProps {
   mode: 'industry' | 'location';
@@ -139,6 +141,9 @@ const PseoTemplate: React.FC<PseoTemplateProps> = ({ mode }) => {
           )}
         </div>
       </div>
+
+      {/* Blok „Powiązane” (MIX-1268) tylko na branżach; miasta poza zakresem (noindex). */}
+      {mode === 'industry' && isPowiazaneEnabled() && <Powiazane type="industry" slug={slug} />}
     </div>
   );
 };

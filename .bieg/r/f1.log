@@ -1,0 +1,57 @@
+[bieg-na-stacji] wykluczono 1 plik(ow) wygladajacych na sekrety (lista w logu): /home/mixture/sesje/mixture-strona/logi/bieg-stacja-m1680f-261114082443-mixt-8e3f95-20261114-092443.log
+BIEG:GIT-OK=42ba4cc
+[bieg-na-stacji] synchronizacja ok, start polecenia na stacji
+BIEG:SLOT=7 z 14
+BIEG:LIMIT_PROCESOW=4096
+HEAD=42ba4ccbf7eda0b53ad00d56ae2d650483c5a9c0
+npm-ci rc=0
+eslint rc=0
+prettier rc=0
+tsc-root rc=0
+tsc-functions rc=0
+vitest rc=1
+ ✓ tests/seo/faqSchema.test.ts (3 tests) 12ms
+ ✓ components/features/calculator/livePrice.test.ts (4 tests) 31ms
+ ✓ lib/estimation/retry.test.ts (3 tests) 15ms
+ ✓ tests/utils/analytics.test.ts (3 tests) 15ms
+ ✓ tests/scripts/packageScripts.test.ts (3 tests) 9ms
+ ✓ tests/routes.test.ts (4 tests) 22ms
+ ✓ tests/utils/seoDescription.test.ts (6 tests) 11ms
+ ✓ tests/components/LandingPagePsychology.test.tsx (2 tests) 925ms
+     ✓ hover + klik myszą zostawia krok zaznaczony  640ms
+ ✓ tests/utils/teamMember.test.ts (3 tests) 9ms
+ ✓ functions/api/leady/e2ePodpis.test.ts (2 tests) 13ms
+ ✓ tests/components/BaseCard.test.tsx (4 tests) 71ms
+ ✓ tests/styles/textXxxsToken.test.ts (3 tests) 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/seo/aiSystemsArticleVisuals.test.tsx > wizualnie: pełny skan tekstu infografik (MIX-1677) > wykrywacz działa: nowa liczba, nazwa klienta i nazwa w środku zdania są czerwone, tekst z artykułu nie
+AssertionError: expected '' to contain 'studentpi'
+
+- Expected
++ Received
+
+- studentpi
+
+ ❯ tests/seo/aiSystemsArticleVisuals.test.tsx:339:49
+    337|     expect(naruszenia(['bibmot historia'], a).join()).toContain('bibmo…
+    338|     expect(naruszenia(['portal b2b q-plast'], a).join()).toContain('q-…
+    339|     expect(naruszenia(['studentpi'], a).join()).toContain('studentpi');
+       |                                                 ^
+    340|     expect(naruszenia(['od 23 000 zł', 'aplikacje dedykowane z AI', '2…
+    341|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 232 passed (233)
+      Tests  1 failed | 4800 passed (4801)
+   Start at  08:28:22
+   Duration  321.20s (transform 17.68s, setup 71.67s, import 49.03s, tests 242.86s, environment 216.56s)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed | 232 passed (233)
+      Tests  1 failed | 4800 passed (4801)
+ FAIL  tests/seo/aiSystemsArticleVisuals.test.tsx > wizualnie: pełny skan tekstu infografik (MIX-1677) > wykrywacz działa: nowa liczba, nazwa klienta i nazwa w środku zdania są czerwone, tekst z artykułu nie
+AssertionError: expected '' to contain 'studentpi'

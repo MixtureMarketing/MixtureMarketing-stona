@@ -1,6 +1,16 @@
-import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import { endPrerenderBoot } from '@/utils/bootState';
+import { backRestoreTarget, savedPosition } from '@/utils/caseStudyBack';
+import {
+  armSource,
+  backOwned,
+  backTicket,
+  bumpGeneration,
+  listenUserInput,
+} from '@/utils/caseStudyGeneration';
+import { startRestore } from '@/utils/caseStudyRestore';
+import { installBackInterceptor, noteLocation } from '@/utils/caseStudyBackBrowser';
 import { topScrollArgs } from '@/utils/caseStudyTransition';
 import { isViewTransitionsEnabled } from '@/utils/viewTransitions';
 
@@ -19,9 +29,61 @@ function findHashTarget(hash: string): HTMLElement | null {
 }
 
 export default function ScrollToTop() {
-  const { pathname, hash } = useLocation();
+  const { pathname, search, hash, key } = useLocation();
+  const navType = useNavigationType();
   const isFirst = useRef(true);
   const prevPathname = useRef(pathname);
+  const prevLayoutPath = useRef(pathname);
+  const restoredFor = useRef<string | null>(null);
+  const locRef = useRef({ pathname, search });
+
+  // MIX-1675: bieżąca lokalizacja routera dla biletu przywrócenia (zapis w efekcie, nie w renderze);
+  // przejście linkiem (PUSH/REPLACE) to nowe pokolenie: oczekujące przywrócenie listy gaśnie.
+  // r6: PUSH zapisuje stronę, z której wyszliśmy (jedyny cel, na który cofnięcie przywraca pozycję);
+  // REPLACE (np. przekierowanie adresu realizacji) nie zmienia wpisu pod spodem, więc zapisu nie rusza.
+  useLayoutEffect(() => {
+    const from = locRef.current;
+    locRef.current = { pathname, search };
+    if (!isViewTransitionsEnabled() || navType === 'POP') return;
+    bumpGeneration();
+    if (navType === 'PUSH') armSource(from);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- każda nawigacja (klucz wpisu)
+  }, [key]);
+
+  // MIX-1675: zapis pozycji listy i przejęcie cofnięcia; layout effect dzieci wykonuje się przed
+  // efektem routera, więc nasłuch popstate (faza capture) jest pierwszy.
+  // Przełącznik wyłączony = nic nie nasłuchuje i nic nie przywraca (zachowanie jak przed MIX-1675).
+  useLayoutEffect(() => (isViewTransitionsEnabled() ? installBackInterceptor() : undefined), []);
+  // r6: przewinięcie, klawisz albo dotyk po cofnięciu = nasze oczekujące przywrócenie gaśnie
+  useLayoutEffect(() => (isViewTransitionsEnabled() ? listenUserInput(window) : undefined), []);
+
+  // MIX-1675: powrót z realizacji na stronę z zapisaną pozycją stoi na niej od pierwszej klatki
+  // (layout effect, bez animacji) zamiast przewijać od góry. Kotwice (#) zostają po staremu.
+  useLayoutEffect(() => {
+    const prev = prevLayoutPath.current;
+    prevLayoutPath.current = pathname;
+    restoredFor.current = null;
+    if (!isViewTransitionsEnabled()) return;
+    noteLocation(pathname);
+    if (prev === pathname || hash) return;
+    const y = backRestoreTarget({
+      from: prev,
+      to: pathname,
+      navType,
+      saved: savedPosition(pathname),
+    });
+    if (y === null) return;
+    // r6: tylko cofnięcie przyjęte w popstate (pierwsze, dokładnie na listę źródłową); inaczej jak wyłączony
+    const live = backTicket(() => locRef.current);
+    if (!live()) return;
+    restoredFor.current = pathname;
+    // MIX-1707: przywrócenie należy do przejścia wstecz (przewija po potwierdzeniu pojedynczego cofnięcia);
+    // tu tylko bez przewinięcia na górę
+    if (backOwned()) return;
+    // bilet: inne pokolenie, inna ścieżka/query albo ruch użytkownika = oczekujące przywrócenie nic nie przewija
+    startRestore(y, { guard: live });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- tylko zmiana ścieżki
+  }, [pathname]);
 
   useEffect(() => {
     // Pierwsze montowanie = wejście na stronę: NIE ruszamy pozycji. Użytkownik mógł
@@ -39,7 +101,7 @@ export default function ScrollToTop() {
     }
 
     if (!hash) {
-      if (pathChanged) {
+      if (pathChanged && restoredFor.current !== pathname) {
         const args = topScrollArgs(pathname, isViewTransitionsEnabled());
         if (args.length === 1) window.scrollTo(args[0]);
         else window.scrollTo(args[0], args[1]);

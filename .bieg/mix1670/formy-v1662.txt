@@ -1,0 +1,88 @@
+// verifier MIX-1662 attack harness: inserts lines after an anchor in the repo llms.txt; reports ok + problems
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+const WT = process.argv[2];
+const { llmsReport } = await import(pathToFileURL(path.join(WT, 'scripts/lib/llms.js')).href);
+const { prerenderOnlyRoutes: H } = await import(pathToFileURL(path.join(WT, 'routes.js')).href);
+const base = fs.readFileSync(path.join(WT, 'public/llms.txt'), 'utf8');
+const sm = fs.readFileSync(path.join(WT, 'public/sitemap.xml'), 'utf8');
+const anchor = '- Obsługa zdalna: cała Polska\n';
+if (!base.includes(anchor)) { console.log('ANCHOR MISSING'); process.exit(2); }
+const forms = [
+  ['A01 rel hidden path', 'R', '- Po płatności: abonament/dziekujemy'],
+  ['A01t', 'A', '- Po płatności: abonament i podziękowanie'],
+  ['A55 prose star rel', 'R', '**Ukryte**: abonament/dziekujemy'],
+  ['A55t', 'A', '**Ukryte**: abonament i podziękowanie'],
+  ['A03 U+2215', 'R', '- Strona: ∕abonament∕dziekujemy∕'],
+  ['A04 U+2044', 'R', '- Strona: ⁄abonament⁄dziekujemy⁄'],
+  ['A03t', 'A', '- Strona: abonament, podziękowanie'],
+  ['A06 U+2010 slug', 'R', '- Nowość: web‐development systemy‐ai‐aplikacje'],
+  ['A48 U+2013 slug', 'R', '- Nowość: systemy–ai–aplikacje'],
+  ['A06t', 'A', '- Nowość: systemy AI i aplikacje'],
+  ['A08 slug split newline', 'R', '- Nowość: systemy-ai-\n- aplikacje'],
+  ['A08t', 'A', '- Nowość: systemy AI\n- aplikacje'],
+  ['V01 U+29F8', 'R', '- Strona abonament⧸dziekujemy'],
+  ['V02 U+2571', 'R', '- Strona abonament╱dziekujemy'],
+  ['V03 U+27CB rising diagonal', 'R', '- Strona abonament⟋dziekujemy'],
+  ['V04 U+30CE katakana no', 'R', '- Strona abonamentノdziekujemy'],
+  ['V05 U+1735 philippine punct', 'R', '- Strona abonament᜵dziekujemy'],
+  ['V06 U+2E3A two-em dash', 'R', '- Nowość: systemy⸺ai⸺aplikacje'],
+  ['V07 U+2043 hyphen bullet', 'R', '- Nowość: systemy⁃ai⁃aplikacje'],
+  ['V08 U+30FC long vowel', 'R', '- Nowość: systemyーaiーaplikacje'],
+  ['V09 U+02D7 modifier minus', 'R', '- Nowość: systemy˗ai˗aplikacje'],
+  ['V10 U+058A armenian hyphen', 'R', '- Nowość: systemy֊ai֊aplikacje'],
+  ['V11 U+2011 nb hyphen', 'R', '- Nowość: systemy‑ai‑aplikacje'],
+  ['V12 U+FE63 small hyphen', 'R', '- Nowość: systemy﹣ai﹣aplikacje'],
+  ['V13 U+FF0D fullwidth hyphen', 'R', '- Nowość: systemy－ai－aplikacje'],
+  ['V14 U+00AD soft hyphen', 'R', '- Nowość: systemy­ai­aplikacje'],
+  ['V15 fullwidth letters path', 'R', '- Strona ａｂｏｎａｍｅｎｔ/ｄｚｉｅｋｕｊｅｍｙ'],
+  ['V16 fullwidth letters+U+2215', 'R', '- Strona ａｂｏｎａｍｅｎｔ∕ｄｚｉｅｋｕｊｅｍｙ'],
+  ['V17 cyrillic a homoglyph', 'R', '- Strona аbonament/dziekujemy'],
+  ['V18 cyrillic e in slug', 'R', '- Nowość: systеmy-ai-aplikacje'],
+  ['V19 split over 3 lines', 'R', '- abona\n- ment/dzie\n- kujemy'],
+  ['V20 split heading+line', 'R', '## Strona abonament/\ndziekujemy dla klienta'],
+  ['V21 split quote+list slug', 'R', '> Strona web-development/systemy-\n- ai-aplikacje'],
+  ['V22 split link desc+line', 'R', '- [O nas](https://mixturemarketing.pl/o-nas/): abonament/\ndziekujemy'],
+  ['V23 split across blank line', 'R', '- abonament/\n\n- dziekujemy'],
+  ['V24 split quote with list mark', 'R', '> - abonament/\n> - dziekujemy'],
+  ['V25 split second line bold', 'R', '- abonament/\n**dziekujemy**'],
+  ['V26 md emphasis inside path', 'R', '- Strona abonament/**dziekujemy**'],
+  ['V27 md italic inside path', 'R', '- Strona abonament/*dziekujemy*'],
+  ['V28 underscore emphasis', 'R', '- Strona abonament/_dziekujemy_'],
+  ['V29 backticks around segs', 'R', '- Strona `abonament`/`dziekujemy`'],
+  ['V30 turkish dotted I', 'R', '- Strona ABONAMENT/DZİEKUJEMY'],
+  ['V31 braille blank around slash', 'R', '- Strona abonament⠀/⠀dziekujemy'],
+  ['V32 U+2216 set minus', 'R', '- Strona abonament∖dziekujemy'],
+  ['V33 U+29F5 reverse solidus op', 'R', '- Strona abonament⧵dziekujemy'],
+  ['V34 U+FF3C fullwidth backslash', 'R', '- Strona abonament＼dziekujemy'],
+  ['V35 ZWSP inside', 'R', '- Strona abonament/dzie​kujemy'],
+  ['V36 CGJ inside', 'R', '- Strona abonament/dzie͏kujemy'],
+  ['V37 hangul filler', 'R', '- Strona abonament/dzieㅤkujemy'],
+  ['V38 nbsp around slash', 'R', '- Strona abonament / dziekujemy'],
+  ['V39 dotted', 'R', '- Strona abonament.dziekujemy'],
+  ['V40 slug split 3 lines', 'R', '- systemy-\n- ai-\n- aplikacje'],
+  ['V41 uppercase rel', 'R', '- Strona ABONAMENT/DZIEKUJEMY'],
+  ['V42 polish diacritic slug', 'R', '- Strona abonament/dziękujemy'],
+  ['V43 web-dev rel full', 'R', '- Strona web-development/systemy-ai-aplikacje'],
+  ['V44 path then punctuation', 'R', '- Strona (abonament/dziekujemy).'],
+  ['V45 heading split + quote', 'R', '## Strona web-development/\n> systemy-ai-aplikacje jest'],
+  ['T01 other rel path', 'A', '- Opcje: abonament/jednorazowo'],
+  ['T02 longer word before', 'A', '- Pakiet: superabonament/dziekujemyteraz'],
+  ['T03 abonamentowy', 'A', '- Abonamentowy model; dziękujemy za zaufanie'],
+  ['T04 heading + thanks', 'A', '## Abonament\nDziękujemy za zaufanie'],
+  ['T05 web-development words', 'A', '- web-development i systemy AI'],
+  ['T06 minus sign in word', 'A', '- Strona abonament−cennik'],
+  ['T07 longer word after', 'A', '- Pakiet: abonament/dziekujemyteraz'],
+  ['T08 join false hit', 'A', '- Mamy abonament\n- dziekujemy za zaufanie'],
+];
+let R = 0, through = 0, ok = 0, fp = 0; const leaks = [], fps = [];
+for (const [id, exp, ins] of forms) {
+  const text = base.replace(anchor, anchor + ins + '\n');
+  const r = llmsReport(text, sm, { hiddenPaths: H });
+  const why = r.problems.join(' | ').slice(0, 150);
+  if (exp === 'R') { if (r.ok) { through++; leaks.push(id); } else R++; } else { if (r.ok) ok++; else { fp++; fps.push(id); } }
+  const flag = exp === 'R' && r.ok ? 'GOT-THROUGH' : exp === 'A' && !r.ok ? 'TWIN-REFUSED' : 'ok';
+  console.log(`${id}\t${r.ok ? 'PASS' : 'REFUSED'}\t${flag}\t${why}`);
+}
+console.log(`TOTAL refuse-forms=${R + through} refused=${R} got-through=${through} [${leaks.join(', ')}] allow-forms=${ok + fp} pass=${ok} false-refused=${fp} [${fps.join(', ')}]`);

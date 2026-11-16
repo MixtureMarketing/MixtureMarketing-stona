@@ -43,6 +43,7 @@ const IleKosztujeStronaRzeszowArticle = lazy(
 );
 const GoogleAdsArticle = lazy(() => import('@/components/articles/GoogleAdsArticle'));
 const UxAuditArticle = lazy(() => import('@/components/articles/UxAuditArticle'));
+const AiSystemsArticle = lazy(() => import('@/components/articles/AiSystemsArticle'));
 const ServerSideTrackingArticle = lazy(
   () => import('@/components/articles/ServerSideTrackingArticle'),
 );
@@ -168,6 +169,11 @@ export const appRoutes: RouteObject[] = [
   {
     path: '/baza-wiedzy/audyt-ux-sklepu-internetowego',
     element: <UxAuditArticle />,
+  },
+  {
+    // MIX-1280 (plan SEO A34), opublikowany w MIX-1680: w `routes` (sitemapa) i w rejestrze legacyArticles.
+    path: '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto',
+    element: <AiSystemsArticle />,
   },
   {
     path: '/baza-wiedzy/server-side-tracking-koniec-cookies',
@@ -313,6 +319,7 @@ export const CMS_DOCUMENT: Record<string, CmsPick> = {
 export const CMS_LIST: Record<string, CmsPick> = {
   '/branza': { id: 'industryList', pick: (cms) => cms.getIndustryList },
   '/portfolio': { id: 'caseStudyList', pick: (cms) => cms.getCaseStudyList },
+  '/baza-wiedzy': { id: 'articleList', pick: (cms) => cms.getArticles },
 };
 
 const preloadCmsDocument = async (path: string | undefined, slug: string | undefined) => {

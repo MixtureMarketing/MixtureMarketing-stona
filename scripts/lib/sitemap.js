@@ -3,6 +3,22 @@
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+// Jedna strefa dla generatora i bramki (MIX-1725): Europe/Warsaw, bo daty tras statycznych
+// z gita (`%as`, data autora) są lokalne. Dawniej generator i bramka liczyły „dziś” w UTC,
+// więc build między 00:00 a 01:00 CET odrzucał lastmod = lokalny dzień jako „z przyszłości”.
+export const SITEMAP_TIME_ZONE = 'Europe/Warsaw';
+const DAY_FORMAT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: SITEMAP_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** Dzień kalendarzowy (YYYY-MM-DD) chwili `d` w strefie Europe/Warsaw. */
+export function localDay(d) {
+  return DAY_FORMAT.format(d);
+}
+
 /**
  * Data w formacie YYYY-MM-DD (W3C Date subset wymagany przez <lastmod>). Brak/niepoprawna
  * data = null, NIGDY „dzisiaj”: data builda to fałszywy sygnał świeżości.
@@ -10,7 +26,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export function formatLastmod(value) {
   if (!value) return null;
   const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+  return Number.isNaN(d.getTime()) ? null : localDay(d);
 }
 
 /**
@@ -20,7 +36,7 @@ export function formatLastmod(value) {
  * @returns {string[]} lista problemów (pusta = OK)
  */
 export function lastmodProblems(entries, now = new Date()) {
-  const today = now.toISOString().split('T')[0];
+  const today = localDay(now);
   const problems = [];
   for (const e of entries) {
     if (!e.lastmod) problems.push(`${e.url}: brak lastmod`);

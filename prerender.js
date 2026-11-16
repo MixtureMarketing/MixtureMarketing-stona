@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { routes, prerenderOnlyRoutes } from './routes.js';
 import { checkPrerenderedPage } from './scripts/prerender-gate.js';
 import Beasties from 'beasties';
-import http from 'node:http';
+import { acquirePreview, writeNonce, removeNonce } from './scripts/prerender-server.js';
 import { createClient } from '@sanity/client';
 import {
   fetchDynamicLists,
@@ -26,7 +26,8 @@ try {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, 'dist');
-const PORT = 4173;
+// Port wybierany w prerender() (wolny port albo PRERENDER_PORT), nie na sztywno (MIX-1590).
+let PORT = 0;
 // 4 daje najlepszy stosunek czasu do RAM/CPU na typowym ubuntu-latest CI runnerze.
 // Powyzej 4 puppeteer page pool zaczyna konkurowac o RAM (~500MB/page).
 const MAX_CONCURRENCY = parseInt(process.env.PRERENDER_CONCURRENCY || '4', 10);
@@ -37,27 +38,6 @@ const sanityClient = createClient({
   apiVersion: '2024-01-21',
   useCdn: false,
 });
-
-// Utility: Wait for server to be ready
-async function waitForServer(port, timeout = 60000) {
-  const start = Date.now();
-  while (Date.now() - start < timeout) {
-    try {
-      await new Promise((resolve, reject) => {
-        const req = http.get(`http://localhost:${port}`, (res) => {
-          if (res.statusCode === 200) resolve();
-          else reject(new Error(`Status ${res.statusCode}`));
-        });
-        req.on('error', reject);
-        req.end();
-      });
-      return;
-    } catch (e) {
-      await new Promise((r) => setTimeout(r, 1000));
-    }
-  }
-  throw new Error(`Server at port ${port} did not start within ${timeout}ms`);
-}
 
 // Trasy, ktore po retry nadal nie maja pelnego heada (title/canonical/meta) —
 // build konczy sie bledem zamiast cicho wysylac SEO-dziure na produkcje.
@@ -219,6 +199,36 @@ async function processRoute(browser, critters, route, attempt = 1) {
   return true;
 }
 
+// Zabija całą grupę procesów preview (npm → vite).
+function killServer(server) {
+  if (!server.pid) return;
+  try {
+    process.kill(-server.pid, 'SIGTERM');
+  } catch {
+    server.kill();
+  }
+}
+
+// Start preview: wolny port z listy CORS Sanity + dowód znacznikiem, że to serwer TEGO builda
+// (logika i fail-closed w scripts/prerender-server.js, acquirePreview; MIX-1590, MIX-1601).
+function startPreview(nonce) {
+  return acquirePreview({
+    nonce,
+    env: process.env,
+    onPort: (p) => {
+      PORT = p;
+    },
+    kill: killServer,
+    // --strictPort: zajęty port = błąd startu, nie ciche przeskoczenie na inny.
+    startServer: (port) =>
+      spawn('npm', ['run', 'preview', '--', '--port', port.toString(), '--strictPort'], {
+        stdio: 'ignore',
+        shell: true,
+        detached: true, // Allow killing process group
+      }),
+  });
+}
+
 async function prerender() {
   console.log('🚀 Starting optimized prerendering...');
 
@@ -250,18 +260,16 @@ async function prerender() {
 
   // 1. Start Server
   console.log('📦 Starting preview server...');
-  const server = spawn('npm', ['run', 'preview', '--', '--port', PORT.toString()], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true, // Allow killing process group
-  });
+  // Znacznik jednorazowy w dist/ TEGO builda: serwer na PORT musi go oddać (startPreview).
+  const nonce = writeNonce(DIST_DIR);
+  let server = null;
   let browser = null;
 
   try {
-    // 2. Wait for server
+    // 2. Start + wait for server (wolny port z listy dozwolonej przez CORS Sanity + znacznik)
     console.log('⏳ Waiting for server to be ready...');
-    await waitForServer(PORT);
-    console.log('🟢 Server is ready!');
+    server = await startPreview(nonce);
+    console.log('🟢 Server is ready (znacznik builda zgodny)!');
 
     // 3. Launch Browser
     browser = await puppeteer.launch({
@@ -407,7 +415,8 @@ async function prerender() {
     process.exitCode = 1;
   } finally {
     if (browser) await browser.close().catch(() => {});
-    if (server.pid) {
+    removeNonce(DIST_DIR); // dist/ wygląda jak dawniej: bez pliku znacznika
+    if (server?.pid) {
       try {
         // Kill the entire process group on Unix-like systems
         process.kill(-server.pid, 'SIGTERM');

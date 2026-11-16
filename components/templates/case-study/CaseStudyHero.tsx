@@ -84,10 +84,10 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
       >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {project.mainImage && (
-            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; na telefonie
-            // kwadrat, żeby było większe od H1 (LCP) i rosło z karty listy.
+            // Bez wejścia framer-motion: zdjęcie jest elementem LCP i celem przejścia; MIX-1651: proporcja 16/9 na każdej szerokości (jak na desktopie);
+            // bez kwadratu na telefonie, ramka rezerwuje miejsce (CLS 0).
             <div
-              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-square sm:aspect-[4/3] md:aspect-[16/9] max-h-[75vh] mb-12"
+              className="max-w-[1600px] mx-auto rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh] mb-12"
               style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
             >
               <img
@@ -157,13 +157,21 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
             initial={arrived ? false : { opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="max-w-[1600px] mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white"
+            className="max-w-[1600px] mx-auto rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[16/9] max-h-[75vh]"
             style={named ? { viewTransitionName: VT_NAMES.image } : undefined}
           >
+            {/* MIX-1724: ten sam kadr 16/9 (fit crop, 1600x900) co przy włączonym przełączniku i co karta listy,
+                więc układ produkcyjny też ma zdjęcie 16/9 i ten sam kadr co karta. */}
             <img
-              src={urlFor(project.mainImage).width(1600).url()}
+              src={urlFor(project.mainImage)
+                .width(HERO_PHOTO.width)
+                .height(HERO_PHOTO.height)
+                .fit('crop')
+                .url()}
               alt={project.title}
-              className="w-full h-auto object-cover"
+              width={HERO_PHOTO.width}
+              height={HERO_PHOTO.height}
+              className="w-full h-full object-cover"
               fetchPriority="high"
             />
           </motion.div>

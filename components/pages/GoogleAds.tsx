@@ -30,6 +30,8 @@ import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
 import Container from '../common/Container';
 import PlotterTimeline from '../common/PlotterTimeline';
+import LocalRzeszowSection from '../sections/LocalRzeszowSection';
+import { LOCAL_RZESZOW_GOOGLE_ADS } from '../../data/content/services/local-rzeszow';
 
 /**
  * /marketing/google-ads/ — przebudowa 2026-07-16 (krytyka 13/40, pełna
@@ -274,6 +276,8 @@ const GoogleAds: React.FC = () => {
           tiers={pricingData.tiers}
         />
       )}
+
+      <LocalRzeszowSection content={LOCAL_RZESZOW_GOOGLE_ADS} onConsult={openConsult} />
 
       <FaqSection title="Pytania o Google Ads" items={CONTENT.faqs} />
 
