@@ -112,9 +112,16 @@ async function openResult(vp, reducedMotion = false) {
   if (reducedMotion)
     await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
   await page.setRequestInterception(true);
+  const blocked = [];
+  const calls = [];
   page.on('request', (req) => {
     const u = new URL(req.url());
-    if (u.origin !== ORIGIN) return req.abort();
+    if (u.origin === ORIGIN && u.pathname.startsWith('/api/'))
+      calls.push(req.method() + ' ' + u.pathname);
+    if (u.origin !== ORIGIN) {
+      blocked.push(u.host);
+      return req.abort();
+    }
     if (u.pathname === '/api/estimation/public-questions' && req.method() === 'GET')
       return req.respond({
         status: 200,
@@ -164,9 +171,29 @@ async function openResult(vp, reducedMotion = false) {
   }
   await page.type('#calc-email', 'jan@firma.pl');
   await clickText('Poznaj widełki');
-  await page.waitForFunction(() => document.body.innerText.includes('Orientacyjne widełki'), {
-    timeout: 8000,
-  });
+  try {
+    await page.waitForFunction(() => document.body.innerText.includes('Orientacyjne widełki'), {
+      timeout: 8000,
+    });
+  } catch (e) {
+    const snap = await page.evaluate(() => ({
+      text: document.body.innerText.replace(/\s+/g, ' ').slice(0, 700),
+      buttons: [...document.querySelectorAll('button')]
+        .map((b) => b.textContent.trim())
+        .slice(0, 12),
+      alerts: [...document.querySelectorAll('[role="alert"]')].map((x) => x.textContent.trim()),
+      checked: [...document.querySelectorAll('[role="radio"][aria-checked="true"]')].length,
+    }));
+    console.error(
+      'NIE DOSZLO DO WYNIKU: ' +
+        JSON.stringify(snap) +
+        ' blocked=' +
+        JSON.stringify(blocked.slice(0, 8)) +
+        ' calls=' +
+        JSON.stringify(calls),
+    );
+    throw e;
+  }
   await new Promise((r) => setTimeout(r, 300));
   await page.addStyleTag({ content: '*{transition:none!important}' });
   return page;
