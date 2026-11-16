@@ -16,7 +16,13 @@ import {
   quoteTurnstileExpect,
   type QuoteGateEnv,
 } from './_quoteGate';
-import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
+import { verifyTurnstileStrict } from '../_shared/security';
+import {
+  quoteBudgetAlertEmail,
+  quoteClientEmail,
+  quoteTeamEmail,
+  type EmailMessage,
+} from '../_shared/emailMessages';
 import { sprawdzWymaganyTekst } from '../_shared/limity';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import {
@@ -244,8 +250,7 @@ async function sendBudgetAlert(env: Env, line: string): Promise<void> {
       body: JSON.stringify({
         from: 'Mixture Marketing <info@mixturemarketing.pl>',
         to: [env.NOTIFY_EMAIL],
-        subject: `Kalkulator: ${line}`,
-        html: `<p>Kalkulator wyceny: ${escapeHtml(line)} (doba UTC).</p>`,
+        ...quoteBudgetAlertEmail(line),
       }),
     });
   } catch (e) {
@@ -317,7 +322,8 @@ async function persist(
 async function sendEmails(env: Env, email: string, result: PublicQuoteResult): Promise<void> {
   if (!env.RESEND_API_KEY) return;
   const range = `${result.priceRange.min}–${result.priceRange.max} zł`;
-  const send = (to: string, subject: string, html: string) =>
+  // Treść i oprawa: wspólny szablon maili (MIX-1866); escapowanie w emailLayout.
+  const send = (to: string, message: EmailMessage) =>
     fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -327,23 +333,12 @@ async function sendEmails(env: Env, email: string, result: PublicQuoteResult): P
       body: JSON.stringify({
         from: 'Mixture Marketing <info@mixturemarketing.pl>',
         to: [to],
-        subject,
-        html,
+        ...message,
       }),
     }).catch(() => undefined);
   try {
-    await send(
-      email,
-      'Twoja wstępna wycena — Mixture Marketing',
-      `<h3>Dziękujemy!</h3><p>Wstępny orientacyjny koszt Twojego projektu: <strong>${range}</strong>.</p>
-       <p>To zgrubne widełki z kalkulatora — skontaktujemy się, by doprecyzować zakres i podać dokładną ofertę.</p>`,
-    );
-    if (env.NOTIFY_EMAIL)
-      await send(
-        env.NOTIFY_EMAIL,
-        `🧮 Nowa wycena z kalkulatora — ${email}`,
-        `<p>Klient <strong>${escapeHtml(email)}</strong> policzył wycenę: ${escapeHtml(range)}. Draft czeka w panelu „Wyceny".</p>`,
-      );
+    await send(email, quoteClientEmail(range));
+    if (env.NOTIFY_EMAIL) await send(env.NOTIFY_EMAIL, quoteTeamEmail(email, range));
   } catch (e) {
     console.error(`[quote] e-mail: błąd ${e instanceof Error ? e.name : 'nieznany'}`);
   }

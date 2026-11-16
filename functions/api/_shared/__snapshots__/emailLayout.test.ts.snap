@@ -1,0 +1,686 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`każdy z 13 maili (8 endpointów) idzie przez wspólny szablon > HTML wszystkich maili = snapshot 1`] = `
+{
+  "admin/admin_reply_chat.ts czat klient": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Nowa wiadomość w Twoim panelu klienta</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Witaj Anna!</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Otrzymałeś nową wiadomość w panelu klienta:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px"><tr><td class="mm-quote" style="border-left:4px solid #61b6de;background:#f9fafb;padding:12px 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Linia 1<br>Linia 2</td></tr></table>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px"><tr><td align="center" bgcolor="#3f3d91" style="border-radius:8px;background:#3f3d91"><a class="mm-button" style="display:inline-block;padding:14px 28px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:8px" href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a></td></tr></table>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "admin/convert_lead.ts konto": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Twoje konto w portalu Mixture Marketing jest gotowe!</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Witaj Anna!</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Z radością informujemy, że utworzyliśmy dla Ciebie konto w naszym portalu klienta.</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Możesz się tam zalogować w każdej chwili, używając swojego adresu email, aby sprawdzić postępy prac lub pobrać dokumenty.</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px"><tr><td align="center" bgcolor="#3f3d91" style="border-radius:8px;background:#3f3d91"><a class="mm-button" style="display:inline-block;padding:14px 28px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:8px" href="https://mixturemarketing.pl/portal">Przejdź do Portalu</a></td></tr></table>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "admin/reply_lead.ts odpowiedź": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Odpowiedź na Twoje zapytanie - Mixture Marketing</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Witaj!</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Dziękujemy.<br>Wycena w piątek.</p>
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:24px 0">
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Z poważaniem,<br>Jakub Niedziela<br>Mixture Marketing</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "audit/capture-lead.ts audyt klient": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Twój raport z audytu strony — Mixture Marketing</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Raport PDF z audytu Twojej strony jest w załączniku.</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Dziękujemy za skorzystanie z audytu 360!</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">W załączniku znajdziesz raport PDF z pomiarów strony <a class="mm-link" style="color:#2d739a;text-decoration:underline" href="https://firma.pl/">https://firma.pl/</a>.</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Masz pytania o wyniki? Po prostu odpowiedz na tego maila.</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Zespół Mixture Marketing</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "audit/capture-lead.ts audyt zespół": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Nowy lead z audytu 360 — anna@example.com</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Użytkownik <strong style="color:#213261" class="mm-strong">anna@example.com</strong> ukończył audyt strony <a class="mm-link" style="color:#2d739a;text-decoration:underline" href="https://firma.pl/">https://firma.pl/</a> (wynik: <strong style="color:#213261" class="mm-strong">87/100</strong>). Raport PDF w załączniku.</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "auth/send_magic_link.ts magiczny link": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Twój magiczny link do Portalu Klienta</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Link logowania do Portalu Klienta (ważny 1 godzinę).</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Witaj Anna!</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Kliknij w poniższy przycisk, aby zalogować się do swojego panelu klienta:</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 24px"><tr><td align="center" bgcolor="#3f3d91" style="border-radius:8px;background:#3f3d91"><a class="mm-button" style="display:inline-block;padding:14px 28px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;line-height:1.2;color:#ffffff;text-decoration:none;border-radius:8px" href="https://mixturemarketing.pl/portal/verify?token=abc">Zaloguj się</a></td></tr></table>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Link jest ważny przez 1 godzinę.</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Jeśli to nie Ty prosiłeś o ten link, zignoruj tę wiadomość.</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "contact-submit.ts aktualizacja": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>📝 Aktualizacja leada lead-1 (step 3)</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Lead ID: lead-1</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Nowy lead z formularza</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Lead ID: <code style="font-family:Consolas,Menlo,monospace;background:#f3f4f6;padding:1px 4px;border-radius:3px" class="mm-code">lead-1</code></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;border-collapse:collapse"><tr><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;font-weight:700;color:#213261;width:38%">budget</td><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;color:#374151;word-break:break-word">10k</td></tr></table>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "contact-submit.ts notyfikacja": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>✅ Lead skonwertowany — ID lead-1</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Lead ID: lead-1</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Nowy lead z formularza</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Lead ID: <code style="font-family:Consolas,Menlo,monospace;background:#f3f4f6;padding:1px 4px;border-radius:3px" class="mm-code">lead-1</code></p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "contact-submit.ts nowy lead": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>🆕 Nowy lead — Anna Przykładowa (strony-www)</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Lead ID: lead-1</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Nowy lead z formularza</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Lead ID: <code style="font-family:Consolas,Menlo,monospace;background:#f3f4f6;padding:1px 4px;border-radius:3px" class="mm-code">lead-1</code></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;border-collapse:collapse"><tr><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;font-weight:700;color:#213261;width:38%">name</td><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;color:#374151;word-break:break-word">Anna Przykładowa</td></tr><tr><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;font-weight:700;color:#213261;width:38%">email</td><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;color:#374151;word-break:break-word">anna@example.com</td></tr><tr><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;font-weight:700;color:#213261;width:38%">service_interest</td><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;color:#374151;word-break:break-word">strony-www</td></tr><tr><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;font-weight:700;color:#213261;width:38%">privacy</td><td class="mm-text" style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5;vertical-align:top;color:#374151;word-break:break-word">true</td></tr></table>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "estimation/public-quote.ts alert budżetu": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Kalkulator: budżet 80% n=160/200</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Kalkulator wyceny: budżet 80% n=160/200 (doba UTC).</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "estimation/public-quote.ts wycena klient": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Twoja wstępna wycena — Mixture Marketing</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;line-height:1px;color:transparent">Wstępny orientacyjny koszt: 8000–12000 zł</div>
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+<h1 class="mm-heading" style="margin:0 0 20px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:24px;line-height:1.3;font-weight:800;color:#213261">Dziękujemy!</h1>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Wstępny orientacyjny koszt Twojego projektu: <strong style="color:#213261" class="mm-strong">8000–12000 zł</strong>.</p>
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">To zgrubne widełki z kalkulatora — skontaktujemy się, by doprecyzować zakres i podać dokładną ofertę.</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "estimation/public-quote.ts wycena zespół": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>🧮 Nowa wycena z kalkulatora — anna@example.com</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Klient <strong style="color:#213261" class="mm-strong">anna@example.com</strong> policzył wycenę: 8000–12000 zł. Draft czeka w panelu „Wyceny&quot;.</p>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+  "portal/send_message.ts wiadomość portal": "<!DOCTYPE html>
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Nowa wiadomość od Anna</title>
+<style>
+:root{color-scheme:light dark;supported-color-schemes:light dark}
+@media (prefers-color-scheme: dark){
+.mm-body,.mm-bg{background:#0b1120!important}
+.mm-card{background:#0d1529!important}
+.mm-text,.mm-heading,.mm-strong,.mm-quote{color:#f3f4f6!important}
+.mm-quote{background:#0b1120!important}
+.mm-code{background:#0b1120!important;color:#f3f4f6!important}
+.mm-link,.mm-foot a{color:#61b6de!important}
+.mm-foot{color:#cbd5e1!important}
+}
+[data-ogsc] .mm-text,[data-ogsc] .mm-heading,[data-ogsc] .mm-strong,[data-ogsc] .mm-quote{color:#f3f4f6!important}
+[data-ogsb] .mm-card{background:#0d1529!important}
+[data-ogsb] .mm-body,[data-ogsb] .mm-bg{background:#0b1120!important}
+[data-ogsc] .mm-link{color:#61b6de!important}
+@media only screen and (max-width:620px){
+.mm-pad{padding-left:20px!important;padding-right:20px!important}
+}</style>
+</head>
+<body class="mm-body" style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%">
+
+<table role="presentation" class="mm-bg" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f3f4f6" style="background:#f3f4f6">
+<tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px">
+<tr><td class="mm-pad" bgcolor="#0b1120" style="background:#0b1120;padding:24px 32px;border-radius:12px 12px 0 0">
+<a style="text-decoration:none" href="https://mixturemarketing.pl"><img src="https://mixturemarketing.pl/assets/email/logo-mixture-white.png" width="150" height="59" alt="Mixture Marketing" style="display:block;border:0;outline:none;width:150px;height:auto;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:20px;font-weight:800;color:#ffffff"></a>
+</td></tr>
+<tr><td class="mm-card mm-pad" bgcolor="#ffffff" style="background:#ffffff;padding:32px">
+
+<p class="mm-text" style="margin:0 0 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Użytkownik <strong style="color:#213261" class="mm-strong">Anna</strong> wysłał nową wiadomość:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px"><tr><td class="mm-quote" style="border-left:4px solid #61b6de;background:#f9fafb;padding:12px 16px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#374151">Linia 1<br>Linia 2</td></tr></table>
+</td></tr>
+<tr><td class="mm-card mm-pad mm-foot" bgcolor="#ffffff" style="background:#ffffff;padding:0 32px 28px;border-radius:0 0 12px 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#4b5563">
+<hr style="border:0;border-top:1px solid #f3f4f6;margin:0 0 16px">
+<p style="margin:0 0 12px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5" class="mm-foot">Mixture Marketing — automatyczne powiadomienie</p>
+<p style="margin:0 0 8px;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot">Mixture Marketing Sp. z o.o.<br>Al. Józefa Piłsudskiego 17 / 4, 35-074 Rzeszów<br>NIP 5170435774 · KRS 0001034514 · REGON 525228202<br>tel. +48 794 443 551</p>
+<p style="margin:0;font-family:Manrope,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6" class="mm-foot"><a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl">mixturemarketing.pl</a> · <a style="color:#2d739a;text-decoration:underline" href="https://mixturemarketing.pl/privacy-policy/">Polityka prywatności</a></p>
+</td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>",
+}
+`;

@@ -26,8 +26,15 @@
  */
 
 import { checkRateLimit } from './estimation/_rateLimit';
-import { clientIp, escapeHtml, verifyTurnstile } from './_shared/security';
+import { clientIp, verifyTurnstile } from './_shared/security';
 import { sendEmail as sendResendEmail } from './_shared/email';
+import {
+  leadNotificationEmail,
+  leadNotificationSubject,
+  leadUpdateSubject,
+  newLeadSubject,
+  type EmailMessage,
+} from './_shared/emailMessages';
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
 import { sprawdzKrok, sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
@@ -104,45 +111,19 @@ const json = (data: unknown, status = 200) =>
   });
 
 // Powiadomienie agencji — wspólny helper (res.ok + console.error przy porażce).
-async function sendEmail(
-  env: Env,
-  subject: string,
-  html: string,
-  replyTo?: string,
-): Promise<boolean> {
+// Treść i oprawa: wspólny szablon maili (MIX-1866, _shared/emailMessages.ts).
+async function sendEmail(env: Env, message: EmailMessage, replyTo?: string): Promise<boolean> {
   const result = await sendResendEmail(
     env,
     {
       from: 'Mixture Marketing <leads@mixturemarketing.pl>',
       to: [env.NOTIFY_EMAIL],
-      subject,
-      html,
+      ...message,
       reply_to: replyTo,
     },
     'contact-submit',
   );
   return result.ok;
-}
-
-function leadEmailHtml(lead: LeadPayload, details: Record<string, unknown> = {}): string {
-  const rows = Object.entries({ ...lead, ...details })
-    .filter(
-      ([k, v]) =>
-        v && !['captcha_token', 'website_verify', 'id'].includes(k) && typeof v !== 'object',
-    )
-    .map(
-      ([k, v]) =>
-        `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;font-weight:600">${escapeHtml(
-          k,
-        )}</td><td style="padding:6px 12px;border-bottom:1px solid #eee">${escapeHtml(v)}</td></tr>`,
-    )
-    .join('');
-  return `<!DOCTYPE html><html><body style="font-family:system-ui,sans-serif;color:#222">
-    <h1 style="color:#4f46e5">Nowy lead z formularza</h1>
-    <p>Lead ID: <code>${escapeHtml(lead.id)}</code></p>
-    <table style="border-collapse:collapse;width:100%;max-width:600px">${rows}</table>
-    <p style="color:#888;font-size:12px;margin-top:24px">Mixture Marketing — automatyczne powiadomienie</p>
-  </body></html>`;
 }
 
 // Rozdziel pola formularza na kolumny leads + resztę do JSON `details`.
@@ -313,8 +294,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       if (stored) zglosLeadWTle(waitUntil, env, lead.id);
 
       // Powiadomienie do agencji.
-      const subject = `🆕 Nowy lead — ${lead.name} (${lead.service_interest || 'general'})`;
-      const mailed = await sendEmail(env, subject, leadEmailHtml(lead), lead.email);
+      const mailed = await sendEmail(
+        env,
+        leadNotificationEmail(newLeadSubject(lead.name, lead.service_interest), lead),
+        lead.email,
+      );
 
       // Ani rekordu w D1, ani maila → lead przepadłby bez śladu. Użytkownik MUSI
       // dostać błąd, żeby spróbować ponownie.
@@ -399,8 +383,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       }
       // Email do agencji przy finalnym kroku (step=3).
       if (body.step === 3 && body.id && updated) {
-        const subject = `📝 Aktualizacja leada ${body.id} (step ${body.step})`;
-        await sendEmail(env, subject, leadEmailHtml({ id: body.id }, body.details || {}));
+        await sendEmail(
+          env,
+          leadNotificationEmail(
+            leadUpdateSubject(body.id, body.step),
+            { id: body.id },
+            body.details || {},
+          ),
+        );
       }
       return json({ success: true });
     }
@@ -429,13 +419,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
           status: `porzucony po kroku ${n}`,
         });
       }
-      const subjectMap: Record<string, string> = {
-        success: '✅ Lead skonwertowany',
-        abandoned_step_1: '⚠️ Lead porzucony (krok 1)',
-        abandoned_step_2: '⚠️ Lead porzucony (krok 2)',
-      };
-      const subject = `${subjectMap[type] || 'Lead notyfikacja'} — ID ${body.id}`;
-      await sendEmail(env, subject, leadEmailHtml({ id: body.id }));
+      await sendEmail(
+        env,
+        leadNotificationEmail(leadNotificationSubject(type, body.id), { id: body.id }),
+      );
       return json({ success: true });
     }
 

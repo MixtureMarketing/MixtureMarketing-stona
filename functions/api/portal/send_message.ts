@@ -4,7 +4,7 @@
  * Path: /api/portal/send_message
  */
 
-import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+import { portalMessageTeamEmail } from '../_shared/emailMessages';
 import { sendEmail } from '../_shared/email';
 import { chatCacheKey, kvDelete } from '../_shared/kv';
 import { serverError } from '../_shared/errors';
@@ -59,8 +59,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         from: 'Mixture Marketing <portal@mixturemarketing.pl>',
         to: [env.NOTIFY_EMAIL],
-        subject: `Nowa wiadomość od ${String(user.name ?? '').replace(/[\r\n]+/g, ' ')}`,
-        html: `<p>Użytkownik <strong>${escapeHtml(user.name)}</strong> wysłał nową wiadomość:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote>`,
+        ...portalMessageTeamEmail(user.name, content),
       },
       'portal_send_message',
     );
