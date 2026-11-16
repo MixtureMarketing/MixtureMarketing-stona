@@ -39,6 +39,17 @@ export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFI
 }
 
 /**
+ * MIX-1816 (Z13): oś czasu dla nowego klienta na ekranie wyniku wyceny za przełącznikiem
+ * `VITE_MM_NEW_CLIENT_TIMELINE`, ten sam parser: tylko `1` albo `true` włącza.
+ * Wyłączony = ekran wyniku identyczny jak wcześniej (żadnego dodatkowego elementu).
+ */
+export function isNewClientTimelineEnabled(
+  raw: unknown = import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE,
+): boolean {
+  return isLivePriceBarEnabled(raw);
+}
+
+/**
  * Klucz pamięci wyników: te same odpowiedzi (niezależnie od kolejności kluczy) = ten sam klucz.
  * Wartości puste i `undefined` nie wchodzą do klucza (tak samo ich nie wysyłamy).
  */

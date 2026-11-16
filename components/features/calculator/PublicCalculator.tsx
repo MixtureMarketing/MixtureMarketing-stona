@@ -12,7 +12,13 @@ import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
-import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import {
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
+  isLivePriceBarEnabled,
+  isNewClientTimelineEnabled,
+} from './livePrice';
+import NewClientTimeline from './NewClientTimeline';
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
@@ -72,7 +78,11 @@ const PublicCalculator: React.FC = () => {
       {c.phase === 'loadError' && <CalculatorLoadError onRetry={() => window.location.reload()} />}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} />
+        <CalculatorResult
+          priceRange={c.result.priceRange}
+          onReset={c.reset}
+          timeline={isNewClientTimelineEnabled() ? <NewClientTimeline /> : null}
+        />
       )}
 
       {(c.phase === 'ready' || c.phase === 'submitting') && (

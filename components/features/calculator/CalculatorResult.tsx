@@ -9,9 +9,11 @@ const pln = (n: number) => new Intl.NumberFormat('pl-PL').format(Math.round(n));
 interface CalculatorResultProps {
   priceRange: PriceRange;
   onReset: () => void;
+  /** Oś czasu nowego klienta (MIX-1816); brak = ekran bez zmian. */
+  timeline?: React.ReactNode;
 }
 
-const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset }) => (
+const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset, timeline }) => (
   <div className="text-center space-y-6">
     <p className="text-sm uppercase tracking-wider text-primary/80">Orientacyjne widełki</p>
     <p className="text-4xl md:text-5xl font-extrabold text-white">
@@ -36,6 +38,7 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({ priceRange, onReset
         Policz jeszcze raz
       </button>
     </div>
+    {timeline}
   </div>
 );
 

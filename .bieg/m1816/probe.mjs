@@ -1,0 +1,369 @@
+#!/usr/bin/env node
+/**
+ * MIX-1816 (Z13): próba osi czasu na ekranie wyniku /wycena/ w prawdziwej przeglądarce
+ * (wzór .bieg/m1799/probe.mjs: serwer statyczny na localhost, ruch poza localhost abortowany,
+ * API wyceny i Turnstile to atrapy).
+ *
+ *   node .bieg/m1816/probe.mjs <dist> <out> on    (budowa z VITE_MM_NEW_CLIENT_TIMELINE=1)
+ *   node .bieg/m1816/probe.mjs <dist> <out> off   (budowa bez przełącznika)
+ *
+ * on, 390/1024/1366 px: sekcja jest, <ol> z 3 <li>, nagłówki h1,h2,h3,h3,h3; brak przewijania
+ * poziomego (też z 400-znakowym słowem w punkcie); przycisk ciasteczek nakłada się na sekcję 0 px²
+ * (widoczny przycisk, pomiar co 50 px przewijania) i wraca na górze strony; axe (wcag2a/aa/22aa):
+ * 0 serious/critical w sekcji i na całym ekranie wyniku; prefers-reduced-motion: 0 animacji.
+ * off: 0 elementów osi czasu, ekran wyniku identyczny z zapisem .bieg/m1816/base.html.
+ * Wynik: <out>/probe.json; kod 0 = progi spełnione, 1 = nie, 2 = złe wywołanie.
+ */
+import http from 'node:http';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import puppeteer from 'puppeteer';
+
+const [distArg, outArg, mode] = process.argv.slice(2);
+if (!distArg || !outArg || !['on', 'off'].includes(mode)) {
+  console.error('użycie: probe.mjs <dist> <out> on|off');
+  process.exit(2);
+}
+const DIST = path.resolve(distArg);
+const OUT = path.resolve(outArg);
+await fs.mkdir(path.join(OUT, 'shots'), { recursive: true });
+const BASE_HTML = (await fs.readFile(new URL('./base.html', import.meta.url), 'utf8')).trim();
+const AXE_JS = path.resolve('node_modules/axe-core/axe.min.js');
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.svg': 'image/svg+xml',
+  '.woff2': 'font/woff2',
+  '.webp': 'image/webp',
+  '.avif': 'image/avif',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+};
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, 'http://x');
+  let file = path.join(DIST, decodeURIComponent(url.pathname));
+  if (!file.startsWith(DIST)) {
+    res.writeHead(403).end();
+    return;
+  }
+  try {
+    if ((await fs.stat(file)).isDirectory()) file = path.join(file, 'index.html');
+  } catch {
+    file = path.join(DIST, 'index.html');
+  }
+  try {
+    const body = await fs.readFile(file);
+    res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream' });
+    res.end(body);
+  } catch {
+    res.writeHead(404).end();
+  }
+});
+await new Promise((r) => server.listen(0, '127.0.0.1', r));
+const ORIGIN = `http://127.0.0.1:${server.address().port}`;
+
+const QUESTIONS = {
+  questions: [
+    {
+      code: 'project_goal',
+      text: 'Jaki jest cel projektu?',
+      help_text: null,
+      answer_type: 'select',
+      options: [
+        { value: 'sklep', label: 'Sklep internetowy' },
+        { value: 'wizytowka', label: 'Wizytówka' },
+      ],
+      visible_if: null,
+      group: 'projekt',
+      sort_order: 1,
+    },
+  ],
+};
+const UA =
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 MixtureE2E/1';
+const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+const results = { mode };
+const fails = [];
+const check = (ok, msg) => {
+  if (!ok) fails.push(msg);
+};
+const VIEWPORTS =
+  mode === 'on'
+    ? [
+        { name: 'm390', width: 390, height: 844, mobile: true, shots: true },
+        { name: 'd1024', width: 1024, height: 768, mobile: false, shots: false },
+        { name: 'd1366', width: 1366, height: 768, mobile: false, shots: true },
+      ]
+    : [{ name: 'm390', width: 390, height: 844, mobile: true, shots: false }];
+
+async function openResult(vp, reducedMotion = false) {
+  const page = await browser.newPage();
+  await page.setUserAgent(UA);
+  await page.setViewport({
+    width: vp.width,
+    height: vp.height,
+    isMobile: vp.mobile,
+    hasTouch: vp.mobile,
+    deviceScaleFactor: 1,
+  });
+  if (reducedMotion)
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+  await page.setRequestInterception(true);
+  page.on('request', (req) => {
+    const u = new URL(req.url());
+    if (u.origin !== ORIGIN) return req.abort();
+    if (u.pathname === '/api/estimation/public-questions' && req.method() === 'GET')
+      return req.respond({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(QUESTIONS),
+      });
+    if (u.pathname === '/api/estimation/public-quote' && req.method() === 'POST')
+      return req.respond({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ priceRange: { min: 27500, max: 53000 } }),
+      });
+    if (req.method() !== 'GET') return req.abort();
+    return req.continue();
+  });
+  await page.evaluateOnNewDocument(() => {
+    localStorage.setItem(
+      'cookie-consent-v2',
+      JSON.stringify({ analytics: false, marketing: false }),
+    );
+    window.turnstile = {
+      render: () => 'w1',
+      execute: () => {},
+      reset: () => {},
+      getResponse: () => 'tok-mock',
+      remove: () => {},
+    };
+  });
+  page.on('pageerror', (e) => console.error(`[${vp.name}] pageerror: ${e.message}`));
+  await page.goto(`${ORIGIN}/wycena/`, { waitUntil: 'networkidle0' });
+  await page.waitForSelector('[role="radiogroup"]');
+  await page.evaluate(() =>
+    [...document.querySelectorAll('[role="radio"]')]
+      .find((e) => e.textContent.trim() === 'Sklep internetowy')
+      .click(),
+  );
+  const clickText = (t) =>
+    page.evaluate((txt) => {
+      const b = [...document.querySelectorAll('button')].find((e) => e.textContent.trim() === txt);
+      if (!b) return false;
+      b.click();
+      return true;
+    }, t);
+  for (let i = 0; i < 4 && !(await page.$('#calc-email')); i += 1) {
+    await clickText('Dalej');
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  await page.type('#calc-email', 'jan@firma.pl');
+  await clickText('Poznaj widełki');
+  await page.waitForFunction(() => document.body.innerText.includes('Orientacyjne widełki'), {
+    timeout: 8000,
+  });
+  await new Promise((r) => setTimeout(r, 300));
+  await page.addStyleTag({ content: '*{transition:none!important}' });
+  return page;
+}
+
+const frames = (page) =>
+  page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+const measure = (page) =>
+  page.evaluate(() => {
+    const r = (e) => {
+      if (!e) return null;
+      const b = e.getBoundingClientRect();
+      return { x: b.x, y: b.y, w: b.width, h: b.height };
+    };
+    const ov = (a, b) => {
+      if (!a || !b) return 0;
+      const w = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+      const h = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      return w > 0 && h > 0 ? Math.round(w * h) : 0;
+    };
+    const sec = r(document.querySelector('[data-testid="new-client-timeline"]'));
+    const cookieEl = [...document.querySelectorAll('.cookie-floating-btn')].find(
+      (e) => e.getBoundingClientRect().width > 0,
+    );
+    const cs = cookieEl ? getComputedStyle(cookieEl) : null;
+    const shown = !!cookieEl && cs.visibility !== 'hidden' && Number(cs.opacity) > 0;
+    const c = cookieEl ? r(cookieEl) : null;
+    return { shown, covered: shown ? ov(sec, c) : 0, raw: ov(sec, c), hasCookie: !!cookieEl };
+  });
+
+for (const vp of VIEWPORTS) {
+  if (mode === 'off') {
+    const page = await openResult(vp);
+    const info = await page.evaluate(() => ({
+      sections: document.querySelectorAll('[data-testid="new-client-timeline"]').length,
+      text: document.body.innerText.includes('Co dostajesz i kiedy'),
+      html: document.querySelector('div.text-center.space-y-6')?.outerHTML ?? null,
+      flag: document.body.dataset.timelineCookie ?? null,
+    }));
+    results[vp.name] = {
+      sections: info.sections,
+      text: info.text,
+      identical: info.html === BASE_HTML,
+    };
+    check(info.sections === 0 && !info.text, `${vp.name} off: oś czasu w DOM`);
+    check(info.html === BASE_HTML, `${vp.name} off: DOM wyniku inny niż przed zmianą`);
+    check(info.flag === null, `${vp.name} off: znacznik ciasteczek`);
+    if (info.html !== BASE_HTML) console.error(`off html: ${info.html}`);
+    await page.close();
+    continue;
+  }
+
+  const page = await openResult(vp);
+  const structure = await page.evaluate(() => {
+    const s = document.querySelector('[data-testid="new-client-timeline"]');
+    const ol = s?.querySelector('ol');
+    return {
+      present: !!s,
+      olItems: ol ? [...ol.children].map((li) => li.tagName) : [],
+      headings: [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')].map((h) => h.tagName),
+      periods: [...(s?.querySelectorAll('h3') ?? [])].map((h) => h.textContent),
+      points: [...(s?.querySelectorAll('ol > li') ?? [])].map(
+        (li) => li.querySelectorAll('ul > li').length,
+      ),
+    };
+  });
+  const scrollW = () =>
+    page.evaluate(() => ({
+      doc: document.documentElement.scrollWidth,
+      win: window.innerWidth,
+      sec: (() => {
+        const s = document.querySelector('[data-testid="new-client-timeline"]');
+        return s ? [s.scrollWidth, s.clientWidth] : null;
+      })(),
+    }));
+  const sw = await scrollW();
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await frames(page);
+  const atTop = await measure(page);
+  const maxY = await page.evaluate(
+    () => document.documentElement.scrollHeight - window.innerHeight,
+  );
+  const sweep = { steps: 0, covered: 0, raw: 0, cookieHiddenSteps: 0 };
+  for (let y = 0; y <= maxY; y += 50) {
+    await page.evaluate((yy) => window.scrollTo(0, yy), y);
+    await frames(page);
+    const m = await measure(page);
+    sweep.steps += 1;
+    sweep.covered = Math.max(sweep.covered, m.covered);
+    sweep.raw = Math.max(sweep.raw, m.raw);
+    if (!m.shown) sweep.cookieHiddenSteps += 1;
+  }
+  if (vp.shots) {
+    await page.evaluate(() =>
+      document
+        .querySelector('[data-testid="new-client-timeline"]')
+        ?.scrollIntoView({ block: 'center', behavior: 'instant' }),
+    );
+    await frames(page);
+    await page.screenshot({
+      path: path.join(OUT, 'shots', `${vp.name}-timeline.jpg`),
+      type: 'jpeg',
+      quality: 70,
+    });
+  }
+  // axe w prawdziwej przeglądarce (z kontrastem), na całym ekranie wyniku i w samej sekcji
+  await page.addScriptTag({ path: AXE_JS });
+  const axeRes = await page.evaluate(async () => {
+    const res = await window.axe.run(document, {
+      runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] },
+    });
+    const bad = res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    return {
+      all: bad.map((v) => ({ id: v.id, n: v.nodes.length })),
+      sectionNodes: bad.flatMap((v) =>
+        v.nodes
+          .filter((n) => {
+            const el = document.querySelector(n.target[0]);
+            return (
+              el && document.querySelector('[data-testid="new-client-timeline"]')?.contains(el)
+            );
+          })
+          .map(() => v.id),
+      ),
+    };
+  });
+  // długi tekst bez spacji w punkcie: bez przewijania poziomego
+  await page.evaluate(() => {
+    const li = document.querySelector('[data-testid="new-client-timeline"] ul > li');
+    if (li) li.textContent = 'Z'.repeat(400);
+  });
+  await frames(page);
+  const swLong = await scrollW();
+  // prefers-reduced-motion: osobne ładowanie, 0 animacji w sekcji
+  const rm = await openResult(vp, true);
+  const anims = await rm.evaluate(
+    () =>
+      document
+        .querySelector('[data-testid="new-client-timeline"]')
+        ?.getAnimations({ subtree: true }).length ?? -1,
+  );
+  const rmMatch = await rm.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
+  await rm.close();
+  await page.close();
+
+  results[vp.name] = { structure, sw, swLong, atTop, sweep, axe: axeRes, anims, rmMatch };
+  check(structure.present, `${vp.name}: brak sekcji`);
+  check(
+    JSON.stringify(structure.olItems) === '["LI","LI","LI"]',
+    `${vp.name}: <ol> ${JSON.stringify(structure.olItems)}`,
+  );
+  const hs = structure.headings;
+  const iSec = hs.lastIndexOf('H2');
+  check(
+    hs[0] === 'H1' &&
+      hs.slice(iSec).join() === 'H2,H3,H3,H3' &&
+      hs.every((h, i) => i === 0 || Number(h[1]) <= Number(hs[i - 1][1]) + 1),
+    `${vp.name}: kolejność nagłówków ${hs.join(',')}`,
+  );
+  check(
+    JSON.stringify(structure.periods) === '["Tydzień 1","Miesiąc 1","90 dni"]',
+    `${vp.name}: okresy ${JSON.stringify(structure.periods)}`,
+  );
+  check(
+    structure.points.every((n) => n >= 1 && n <= 3),
+    `${vp.name}: punkty ${structure.points}`,
+  );
+  check(sw.doc <= sw.win, `${vp.name}: przewijanie poziome ${sw.doc}>${sw.win}`);
+  check(sw.sec && sw.sec[0] <= sw.sec[1], `${vp.name}: sekcja szersza niż jej pole`);
+  check(
+    swLong.doc <= swLong.win,
+    `${vp.name}: długi tekst: przewijanie poziome ${swLong.doc}>${swLong.win}`,
+  );
+  check(
+    sweep.covered === 0 && atTop.covered === 0,
+    `${vp.name}: przycisk ciasteczek nakłada się ${JSON.stringify({ sweep, atTop })}`,
+  );
+  check(atTop.shown, `${vp.name}: przycisk ciasteczek niewidoczny na górze`);
+  check(sweep.cookieHiddenSteps < sweep.steps, `${vp.name}: przycisk schowany przez cały czas`);
+  check(
+    axeRes.sectionNodes.length === 0,
+    `${vp.name}: axe w sekcji ${JSON.stringify(axeRes.sectionNodes)}`,
+  );
+  check(
+    axeRes.all.length === 0,
+    `${vp.name}: axe serious/critical na ekranie wyniku ${JSON.stringify(axeRes.all)}`,
+  );
+  check(rmMatch && anims === 0, `${vp.name}: reduced-motion match=${rmMatch} animacji=${anims}`);
+}
+
+await browser.close();
+server.close();
+results.fails = fails.filter(Boolean);
+await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify(results, null, 2));
+for (const [key, v] of Object.entries(results)) {
+  if (key === 'fails' || key === 'mode') continue;
+  console.log(`PROBE ${mode} ${key}: ${JSON.stringify(v)}`);
+}
+console.log(`PROBE ${mode} fails ${results.fails.length}: ${JSON.stringify(results.fails)}`);
+process.exit(results.fails.length ? 1 : 0);
