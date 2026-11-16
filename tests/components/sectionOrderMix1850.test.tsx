@@ -51,6 +51,15 @@ const wrap = (el: React.ReactElement, path: string) =>
     </HelmetProvider>,
   );
 
+/** Nazwa sekcji: znacznik atrapy, id sekcji albo znacznik atrapy w opakowaniu. */
+const znacznik = (el: Element) => {
+  const mock = el.getAttribute('data-mock');
+  if (mock) return mock;
+  if (el.id) return el.id;
+  const wewnatrz = el.querySelector('[data-mock]');
+  return wewnatrz ? wewnatrz.getAttribute('data-mock') : el.tagName.toLowerCase();
+};
+
 afterEach(() => {
   vi.unstubAllEnvs();
   cleanup();
@@ -65,13 +74,7 @@ describe('strona główna: sekcja AI zaraz po Services', () => {
     const sheet = container.querySelector('.hero-takeover-offset')!;
     const ai = container.querySelector('#ai-systems')!;
     expect(ai).not.toBeNull();
-    const kolejnosc = Array.from(sheet.children).map(
-      (el) =>
-        el.getAttribute('data-mock') ??
-        (el.id ||
-          el.querySelector('[data-mock]')?.getAttribute('data-mock') ||
-          el.tagName.toLowerCase()),
-    );
+    const kolejnosc = Array.from(sheet.children).map(znacznik);
     expect(kolejnosc).toEqual(['services', 'ai-systems', 'whyus', 'leadmagnet', 'kb', 'final']);
     expect(container.querySelector('[data-mock="services"]')!.nextElementSibling).toBe(ai);
   });
@@ -94,7 +97,7 @@ const strony: Array<[string, React.ComponentType, string, LocalRzeszowContent, s
   ],
 ];
 
-describe.each(strony)('%s: sekcja Rzeszów w pierwszej połowie', (nazwa, Page, path, content, oferta) => {
+describe.each(strony)('%s: Rzeszów w pierwszej połowie', (nazwa, Page, path, content, oferta) => {
   it('zaraz po pierwszej sekcji z ofertą i przed połową sekcji strony', async () => {
     vi.stubEnv('VITE_MM_RZESZOW_SEKCJE', '1');
     const { container } = wrap(<Page />, path);
@@ -109,7 +112,9 @@ describe.each(strony)('%s: sekcja Rzeszów w pierwszej połowie', (nazwa, Page, 
     // Poprzednia sekcja = pierwsza sekcja z ofertą (jej nagłówek).
     expect(local.previousElementSibling!.querySelector('h2')!.textContent).toBe(oferta);
     // Przed FAQ (sekcja nie stoi już tuż przed stopką).
-    const faq = screen.getByRole('heading', { level: 2, name: /^(Pytania o Google Ads|Najczęstsze pytania)$/,
+    const faq = screen.getByRole('heading', {
+      level: 2,
+      name: /^(Pytania o Google Ads|Najczęstsze pytania)$/,
     });
     expect(local.compareDocumentPosition(faq) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
