@@ -15,6 +15,11 @@
  *   npm i --no-save ffmpeg-static@5 && node scripts/record-portfolio-video.mjs
  * Zmienne: BASE (domyślnie https://mixturemarketing.pl), SLUG (try-dive-szkola-nurkowania),
  *   NAME (try-dive), OUT (public/portfolio/video), SECONDS (12), FFMPEG (ścieżka; bez niej ffmpeg-static).
+ *
+ * Tryb z gotowego pliku (MIX-1884, filmy dostarczone przez klienta/zespół, np. z karty MIX-1831):
+ *   SRC=<plik.mp4> START=<s> NAME=<nazwa> [ORIENT=portrait] node scripts/record-portfolio-video.mjs
+ *   Bez przeglądarki i bez żadnego żądania sieciowego: ffmpeg tnie SECONDS sekund od START i koduje warianty.
+ *   ORIENT=portrait: jeden wariant pionowy 540 px ≤ 0,5 MB (ramka telefonu na stronie realizacji).
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -28,14 +33,20 @@ const SLUG = process.env.SLUG || 'try-dive-szkola-nurkowania';
 const NAME = process.env.NAME || 'try-dive';
 const OUT = process.env.OUT || 'public/portfolio/video';
 const SECONDS = Number(process.env.SECONDS || 12);
+const SRC = process.env.SRC || '';
+const START = Number(process.env.START || 0);
+const ORIENT = process.env.ORIENT === 'portrait' ? 'portrait' : 'landscape';
 const MIN_GAP_MS = 1000; // ≤ 1 żądanie/s do hosta strony
 
-/** Warianty: szerokość, limit bajtów, startowe CRF (VP9, x264). */
+/** Warianty poziome: szerokość, limit bajtów, startowe CRF (VP9, x264). */
 export const VARIANTS = [
   { width: 960, limit: 500 * 1024, crf: { webm: 40, mp4: 30 } },
   { width: 1280, limit: 1.5 * 1024 * 1024, crf: { webm: 36, mp4: 27 } },
   { width: 720, limit: 512 * 1024, crf: { webm: 40, mp4: 30 } },
 ];
+
+/** Wariant pionowy (ramka telefonu): 540 px szerokości, ≤ 0,5 MB. */
+export const PORTRAIT_VARIANTS = [{ width: 540, limit: 512 * 1024, crf: { webm: 40, mp4: 30 } }];
 
 async function ffmpegPath() {
   if (process.env.FFMPEG) return process.env.FFMPEG;
@@ -53,7 +64,8 @@ async function assertInSitemap(url) {
 }
 
 function encode(ffmpeg, raw, out, codec, width, crf) {
-  const common = ['-y', '-loglevel', 'error', '-i', raw, '-t', String(SECONDS), '-an'];
+  const seek = SRC && START > 0 ? ['-ss', String(START)] : [];
+  const common = ['-y', '-loglevel', 'error', ...seek, '-i', raw, '-t', String(SECONDS), '-an'];
   const vf = ['-vf', `scale=${width}:-2:flags=lanczos,setsar=1,fps=25`, '-pix_fmt', 'yuv420p'];
   const args =
     codec === 'webm'
@@ -93,14 +105,11 @@ function encode(ffmpeg, raw, out, codec, width, crf) {
   return fs.statSync(out).size;
 }
 
-async function main() {
+/** Nagranie przewijania publicznej strony realizacji do pliku `raw` (tryb bez SRC). */
+async function recordRaw(ffmpeg, raw) {
   const url = `${BASE}/portfolio/${SLUG}/`;
   const safe = createProdSafe(BASE);
   if (safe.isProd) await assertInSitemap(url);
-  const ffmpeg = await ffmpegPath();
-  fs.mkdirSync(OUT, { recursive: true });
-  const raw = path.join(os.tmpdir(), `${NAME}-raw-${process.pid}.webm`);
-
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--hide-scrollbars'],
@@ -186,8 +195,17 @@ async function main() {
   }
   safe.finish();
   if (process.exitCode) throw new Error('prod-safe: naruszenie, pliki nie powstają');
+}
 
-  for (const v of VARIANTS) {
+async function main() {
+  const ffmpeg = await ffmpegPath();
+  fs.mkdirSync(OUT, { recursive: true });
+  if (SRC && !fs.existsSync(SRC)) throw new Error(`brak pliku SRC: ${SRC}`);
+  const raw = SRC || path.join(os.tmpdir(), `${NAME}-raw-${process.pid}.webm`);
+  if (!SRC) await recordRaw(ffmpeg, raw);
+
+  const variants = ORIENT === 'portrait' ? PORTRAIT_VARIANTS : VARIANTS;
+  for (const v of variants) {
     for (const codec of ['webm', 'mp4']) {
       const out = path.join(OUT, `${NAME}-${v.width}.${codec}`);
       let crf = v.crf[codec];
@@ -202,7 +220,8 @@ async function main() {
       if (size > v.limit) process.exitCode = 1;
     }
   }
-  fs.rmSync(raw, { force: true });
+  // plik źródłowy (SRC) zostaje; kasujemy tylko własne surowe nagranie
+  if (!SRC) fs.rmSync(raw, { force: true });
 }
 
 main().catch((e) => {
