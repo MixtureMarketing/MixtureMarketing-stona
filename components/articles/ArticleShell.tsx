@@ -15,6 +15,7 @@ import AmbientBackground from '../common/AmbientBackground';
 import Breadcrumbs from '../common/Breadcrumbs';
 import RelatedArticles from './RelatedArticles';
 import Powiazane from '../common/Powiazane';
+import CennikLink from '../common/CennikLink';
 import { isPowiazaneEnabled } from '../../config/flags';
 import { useNotification } from '../../context/NotificationContext';
 import { withTrailingSlash } from '../../utils/url';
@@ -48,6 +49,8 @@ interface ArticleShellProps {
   updatedDate?: string;
   /** Artykuł ukryty do akceptacji (noindex); domyślnie indeksowany. MIX-1280. */
   noindex?: boolean;
+  /** Odnośnik do /cennik/ pod treścią artykułu, tylko przy VITE_MM_CENNIK=1 (MIX-1855). */
+  cennikLink?: boolean;
 }
 
 /** Publiczny slug artykułu z kanonicznej ścieżki `/baza-wiedzy/<slug>/`; inna ścieżka = brak. */
@@ -86,6 +89,7 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
   publishedDate,
   updatedDate,
   noindex = false,
+  cennikLink = false,
 }: ArticleShellProps) => {
   const titleStr = typeof title === 'string' ? title : '';
   const titleParts = titleStr.includes(':') ? titleStr.split(':') : [titleStr, ''];
@@ -269,6 +273,8 @@ const ArticleShell: React.FC<ArticleShellProps> = ({
             {children || (
               <div className="py-10 text-center text-gray-400">Artykuł w przygotowaniu...</div>
             )}
+
+            {cennikLink && <CennikLink />}
 
             {!isPowiazaneEnabled() && (
               <div className="mt-24">

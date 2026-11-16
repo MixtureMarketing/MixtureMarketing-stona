@@ -67,6 +67,17 @@ const LEAD_COLUMNS = new Set([
 ]);
 const LEAD_SKIP = new Set(['captcha_token', 'website_verify', 'privacy', 'id']);
 
+/**
+ * MIX-1855: nazwa realizacji z przycisku „Chcesz podobny projekt?” (create). Tylko niepusty tekst,
+ * spacje ściśnięte, do 100 znaków; inna wartość = brak. Trafia do details (JSON) już przy create,
+ * żeby temat zadania w Linearze miał nazwę realizacji. Walidacja pól create bez zmian.
+ */
+function podobnyProjekt(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  const t = v.replace(/\s+/g, ' ').trim().slice(0, 100);
+  return t === '' ? null : t;
+}
+
 interface LeadPayload {
   id: string;
   name?: string;
@@ -178,6 +189,12 @@ function rowToLead(row: Record<string, unknown>) {
     ...extra,
   };
 }
+
+/** Wartość kolumny details przy create: JSON z nazwą realizacji albo null. */
+const podobnyProjektJson = (v: unknown): string | null => {
+  const nazwa = podobnyProjekt(v);
+  return nazwa === null ? null : JSON.stringify({ similar_project: nazwa });
+};
 
 const BRAK_TOKENU = { message: 'Brak lub niepoprawny token leada' };
 
@@ -291,8 +308,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       let stored = true;
       try {
         await env.DB.prepare(
-          `INSERT INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
-           VALUES (?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
+          `INSERT INTO leads (id, name, email, phone, service_type, source_url, details, source, status, current_step)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
         )
           .bind(
             lead.id,
@@ -301,6 +318,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
             lead.phone || null,
             lead.service_interest || null,
             body.source_url || null,
+            podobnyProjektJson(lead.similar_project),
           )
           .run();
       } catch (e) {

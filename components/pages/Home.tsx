@@ -79,6 +79,9 @@ const Home = () => {
           }
         >
           <Services />
+          {/* MIX-1276: sekcja o AI i systemach, za przełącznikiem VITE_MM_AI_SECTION (domyślnie brak w DOM).
+              MIX-1850: zaraz po Services (druga sekcja pod hero), żeby była wyżej na stronie. */}
+          <AiSystemsTeaser />
           <WhyUs />
           <div ref={leadMagnetRef}>
             <LeadMagnet />
@@ -86,8 +89,6 @@ const Home = () => {
           <KnowledgeBaseTeaser />
           {/* MIX-1326: opinie klientów, za przełącznikiem VITE_MM_TESTIMONIALS (domyślnie brak w DOM). */}
           <TestimonialsSlot />
-          {/* MIX-1276: sekcja o AI i systemach, za przełącznikiem VITE_MM_AI_SECTION (domyślnie brak w DOM). */}
-          <AiSystemsTeaser />
           <FinalBand onOpenModal={() => _openModal('general')} />
         </Suspense>
       </div>
