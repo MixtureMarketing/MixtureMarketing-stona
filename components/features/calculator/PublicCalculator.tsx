@@ -1,7 +1,7 @@
 // Orkiestrator publicznego kalkulatora — spina hook (stan/fetch/submit) z widgetem Turnstile
 // (invisible-execute, reużyty z fixa lead-capture) i renderem stanów: loading / błąd ładowania /
 // formularz / wynik. Zero logiki liczenia po stronie UI (silnik żyje na serwerze).
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { usePublicCalculator } from '../../../hooks/usePublicCalculator';
 import { useLivePriceRange } from '../../../hooks/useLivePriceRange';
 import TurnstileWidget from '../contact/TurnstileWidget';
@@ -12,7 +12,9 @@ import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
-import { isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import ConfigLinkButtons from './ConfigLinkButtons';
+import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
 
@@ -36,6 +38,21 @@ const PublicCalculator: React.FC = () => {
     // Token po kolei z wysyłką; w trakcie wysyłki odmowa (wyścig Turnstile, MIX-1412).
     getCaptchaToken: c.getPreviewToken,
   });
+
+  // Link do konfiguracji (MIX-1791): za przełącznikiem VITE_MM_CONFIG_LINK. Wyłączony = parametr
+  // `k` nie jest czytany i nie ma przycisków. Odczyt raz, po załadowaniu pytań; odpowiedzi idą
+  // przez setAnswer, więc pasek ceny i podgląd zachowują się jak po ręcznych odpowiedziach.
+  const linkOn = isConfigLinkEnabled();
+  const linkRead = useRef(false);
+  const { phase, questions, setAnswer } = c;
+  useEffect(() => {
+    if (!linkOn || linkRead.current || phase !== 'ready') return;
+    linkRead.current = true;
+    const r = readConfigLink(window.location.search, questions);
+    if (!r.ok) return;
+    for (const [code, value] of Object.entries(r.answers)) setAnswer(code, value);
+  }, [linkOn, phase, questions, setAnswer]);
+  const linkK = linkOn && filling ? encodeConfigLink(c.questions, c.answers) : null;
 
   return (
     <div
@@ -75,6 +92,11 @@ const PublicCalculator: React.FC = () => {
           configPreview={
             configEnabled ? (
               <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
+            ) : null
+          }
+          configLink={
+            linkK ? (
+              <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} />
             ) : null
           }
         />

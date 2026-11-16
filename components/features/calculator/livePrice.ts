@@ -30,6 +30,15 @@ export function isConfigPreviewEnabled(
 }
 
 /**
+ * MIX-1791: link do konfiguracji (`/wycena/?k=...`, przyciski „Skopiuj link" i „Udostępnij") za
+ * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` albo `true` włącza.
+ * Wyłączony = brak przycisków i parametr `k` w adresie nie jest czytany.
+ */
+export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFIG_LINK): boolean {
+  return isLivePriceBarEnabled(raw);
+}
+
+/**
  * Klucz pamięci wyników: te same odpowiedzi (niezależnie od kolejności kluczy) = ten sam klucz.
  * Wartości puste i `undefined` nie wchodzą do klucza (tak samo ich nie wysyłamy).
  */
