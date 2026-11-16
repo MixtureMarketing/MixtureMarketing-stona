@@ -107,7 +107,7 @@ describe('ScrollToTop', () => {
     expect(isPrerenderBoot()).toBe(false);
   });
 
-  it('nawigacja SPA z #kotwicą przewija do elementu, gdy ten się wyrenderuje (np. /abonament/#pricing)', () => {
+  it('nawigacja SPA z #kotwicą przewija do elementu, gdy ten się wyrenderuje (np. /wycena/#pricing)', () => {
     vi.useFakeTimers();
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
     const scrollIntoView = vi
@@ -115,10 +115,10 @@ describe('ScrollToTop', () => {
       .mockImplementation(() => undefined);
     const Nav = () => {
       const navigate = useNavigate();
-      return <button onClick={() => navigate('/abonament/#pricing')}>pakiety</button>;
+      return <button onClick={() => navigate('/wycena/#pricing')}>pakiety</button>;
     };
     render(
-      <MemoryRouter initialEntries={['/abonament/vs-wix/']}>
+      <MemoryRouter initialEntries={['/offers/']}>
         <ScrollToTop />
         <Nav />
       </MemoryRouter>,

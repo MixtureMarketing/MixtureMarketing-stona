@@ -294,7 +294,7 @@ describe('tytulZadania', () => {
       expect(tytulZadania(baza({ service_type: k }))).toBe(`Lead: firma.pl — ${v}`);
     }
     expect(tytulZadania(baza({ package_name: 'Pakiet Start' }))).toBe(
-      'Lead: firma.pl — abonament: Pakiet Start',
+      'Lead: firma.pl — pakiet: Pakiet Start',
     );
     expect(tytulZadania(baza({ service_type: 'Sklep <b>online</b>!' }))).toBe(
       'Lead: firma.pl — Sklep b online b',

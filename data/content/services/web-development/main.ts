@@ -104,8 +104,7 @@ export const WEB_DEV_CONTENT = {
     {
       // `band: true` — ta pozycja wychodzi z siatki i dostaje własny, szeroki pas.
       // Powód nie jest kosmetyczny: to jedyna pozycja, która nie jest stroną, tylko
-      // oprogramowaniem. Wzorzec z home, gdzie „Strona w abonamencie" (produkt)
-      // wychodzi z siatki trzech kompetencji. Cztery identyczne karty to „identical
+      // oprogramowaniem. Cztery identyczne karty to „identical
       // card grids" z listy absolutnych zakazów — złamanie rytmu musi mieć powód.
       title: 'Dedykowane systemy web',
       subtitle: 'Aplikacje B2B, SaaS, CRM',

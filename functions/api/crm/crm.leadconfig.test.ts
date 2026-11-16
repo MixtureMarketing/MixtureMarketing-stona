@@ -441,6 +441,42 @@ describe('K4: formy ataku (każda z dozwolonym bliźniakiem)', () => {
     expect(s.leads().map((l) => l.phone)).toEqual(['+123456789012345']);
   });
 
+  it('F6b 9 cyfr z wiodącym 0: 400 z linią powodu, zero leadów; bliźniaki bez 0 i +48: 200', async () => {
+    const s = srodowisko();
+    for (const phone of ['060070080', '+48 060 070 080', '48060070080']) {
+      const r = await wyslij(s.env, body({ phone }));
+      expect(r).toEqual({
+        status: 400,
+        body: { error: PHONE_MESSAGE, reason: PHONE_REFUSAL.plZero },
+      });
+    }
+    expect(s.leads()).toHaveLength(0);
+    for (const phone of ['600700800', '+48 600 700 800'])
+      expect((await wyslij(s.env, body({ phone }))).status).toBe(200);
+    expect(s.leads().map((l) => l.phone)).toEqual(['+48600700800', '+48600700800']);
+  });
+
+  it('V1 ścieżka QUOTE_LIMITS_D1=1: zły telefon = 400, zero leadów i wycen; bliźniak: 200 z telefonem', async () => {
+    const s = srodowisko({ QUOTE_LIMITS_D1: '1', QUOTE_KEY_HMAC_SECRET: 'k'.repeat(40) });
+    const zle: [string, string][] = [
+      ['600 ABC 800', PHONE_REFUSAL.charset],
+      ['12345', PHONE_REFUSAL.length],
+      ['060070080', PHONE_REFUSAL.plZero],
+    ];
+    for (const [i, [phone, reason]] of zle.entries()) {
+      const b = body({ phone, email: `zly${i}@firma.pl` });
+      const r = await wyslij(s.env, b, { ip: `2.2.2.${i + 1}` });
+      expect(r).toEqual({ status: 400, body: { error: PHONE_MESSAGE, reason } });
+    }
+    expect(s.leads()).toHaveLength(0);
+    expect(s.db.prepare('SELECT COUNT(*) AS n FROM est_quotes').get()).toEqual({ n: 0 });
+    expect(logs.join('\n')).toContain(`odmowa 400: ${PHONE_REFUSAL.charset}`);
+    const dobry = body({ phone: '600-700-800', email: 'dobry@firma.pl' });
+    expect((await wyslij(s.env, dobry, { ip: '2.2.2.9' })).status).toBe(200);
+    expect(s.leads().map((l) => l.phone)).toEqual(['+48600700800']);
+    expect(JSON.parse(s.leads()[0].details).phone).toBe('+48600700800');
+  });
+
   it('F7 e-mail z +tag i inną wielkością liter: ten sam licznik (4. wycena = 429); obcy adres: 200', async () => {
     const s = srodowisko({ QUOTE_LIMITS_D1: '1', QUOTE_KEY_HMAC_SECRET: 'k'.repeat(40) });
     const emails = ['jan@firma.pl', 'Jan@FIRMA.pl', 'jan+crm@firma.pl'];

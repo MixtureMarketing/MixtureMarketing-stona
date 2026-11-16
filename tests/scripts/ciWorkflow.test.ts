@@ -62,10 +62,18 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
   'VITE_MM_LIVE_PRICE_BAR',
 ];
+/** MIX-1873: filmy w portfolio czekają na akceptację Jakuba na Preview: Preview 1, produkcja i PR puste. */
+const FILMY_PORTFOLIO_TYLKO_PREVIEW = ['VITE_MM_PORTFOLIO_VIDEO'];
+/** Wszystkie przełączniki tylko-Preview konfiguratora i filmów (posortowane jak lista z kodu). */
+const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD, ...FILMY_PORTFOLIO_TYLKO_PREVIEW].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
-const WYLACZONE_NA_PROD = [...CENNIK_WYLACZONY_NA_PROD, ...WYCENA_WYLACZONA_NA_PROD].sort();
+const WYLACZONE_NA_PROD = [
+  ...CENNIK_WYLACZONY_NA_PROD,
+  ...WYCENA_WYLACZONA_NA_PROD,
+  ...FILMY_PORTFOLIO_TYLKO_PREVIEW,
+].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 
 const wdrozenia = (w: Workflow) =>
@@ -347,6 +355,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_VIEW_TRANSITIONS',
       'VITE_MM_LIVE_PRICE_BAR',
       'VITE_MM_COOKIE_BANNER_STATIC',
+      'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
@@ -493,8 +502,8 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w).VITE_MM_LIVE_PRICE_BAR = '1';
     expect(naruszenia(w).join('|')).toMatch(/VITE_MM_LIVE_PRICE_BAR: zła wartość na produkcji/);
   });
-  it.each(WYCENA_WYLACZONA_NA_PROD)(
-    'MIX-1838: %s (konfigurator wyceny, MIX-1377) włączony na produkcji = naruszenie',
+  it.each(TYLKO_PREVIEW)(
+    'MIX-1838/MIX-1873: %s (tylko Preview) włączony na produkcji = naruszenie',
     (f) => {
       const w = kopia();
       zmienneBuildu(w)[f] = '1';
@@ -531,7 +540,7 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w2).VITE_MM_CENNIK = '';
     expect(naruszenia(w2).join('|')).toMatch(/VITE_MM_CENNIK: nieznana postać wyrażenia/);
   });
-  it('MIX-1838/1855: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/ i konfigurator wyceny', () => {
+  it('MIX-1838/1855/1873: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, konfigurator wyceny i filmy portfolio', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
     expect(inne).toEqual(WYLACZONE_NA_PROD);
     const zmienne = zmienneBuildu(wczytaj());

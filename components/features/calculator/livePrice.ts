@@ -1,5 +1,5 @@
 // Czysta logika paska widełek na żywo (MIX-1385): przełącznik, klucz pamięci, komunikaty.
-// Przełącznik działa jak w `components/pages/abonament/PreonboardModal.tsx:54` (zmienna
+// Przełącznik działa jak inne przełączniki budowy (zmienna
 // `VITE_MM_*` wstrzykiwana przy budowie; Vite ją inline'uje): domyślnie WYŁĄCZONY, włącza
 // go dopiero `VITE_MM_LIVE_PRICE_BAR=1` w środowisku budowy (Cloudflare Pages albo lokalny plik env).
 

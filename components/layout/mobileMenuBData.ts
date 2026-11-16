@@ -16,10 +16,6 @@ export const MMB_TEXT = {
   back: 'Wróć do menu',
   tabs: 'Obszary oferty',
   tabLabels: ['Strony', 'Marketing', 'Design'],
-  promoKicker: 'Nowość',
-  promoTitle: 'Strona w abonamencie',
-  promoSub: 'od 179 zł/mc',
-  promoTarget: '/abonament/',
   call: 'Zadzwoń',
 } as const;
 

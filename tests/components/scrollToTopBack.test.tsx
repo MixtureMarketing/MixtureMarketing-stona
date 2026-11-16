@@ -16,7 +16,7 @@ function Nav() {
       <button onClick={() => navigate('/portfolio/', { replace: true })}>replace-list</button>
       <Link to="/portfolio/alfa/">card</Link>
       <Link to="/portfolio/">menu-list</Link>
-      <Link to="/abonament/#pricing">pricing</Link>
+      <Link to="/wycena/#pricing">pricing</Link>
     </>
   );
 }
@@ -96,7 +96,7 @@ describe.each([
   });
 
   it('hash navigation keeps its behaviour (scroll to 0 then to the element)', () => {
-    recordScroll('/abonament/', 900);
+    recordScroll('/wycena/', 900);
     render(<Tree entries={['/portfolio/alfa/']} index={0} />);
     scrollTo.mockClear();
     fireEvent.click(screen.getByText('pricing'));

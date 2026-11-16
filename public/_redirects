@@ -84,7 +84,21 @@
 /web-development/:slug  /web-development/:slug/  301
 /marketing/:slug        /marketing/:slug/        301
 /design/:slug           /design/:slug/           301
-/abonament/:slug        /abonament/:slug/        301
+
+# MIX-1849: usluga „Strona w abonamencie” wycofana (nigdy nie wystartowala). Strony i prerender
+# usuniete, kazdy dawny adres (z i bez slasha, takze strona po platnosci) -> 301 na najblizsza
+# usluge. Splat lapie reszte starych podstron, zeby nie bylo 404 z linkow zewnetrznych.
+/abonament                            /web-development/  301
+/abonament/                           /web-development/  301
+/abonament/professional               /web-development/  301
+/abonament/professional/              /web-development/  301
+/abonament/vs-wix                     /web-development/  301
+/abonament/vs-wix/                    /web-development/  301
+/abonament/vs-orange-klikai           /web-development/  301
+/abonament/vs-orange-klikai/          /web-development/  301
+/abonament/dziekujemy                 /web-development/  301
+/abonament/dziekujemy/                /web-development/  301
+/abonament/*                          /web-development/  301
 
 # Celowo BRAK SPA fallback dla prefiksow tresci (/baza-wiedzy/*, /branza/* itd.): prerender
 # pokrywa realne slugi, a rewrite tworzylby soft-404 bez noindex (smieciowy URL w prefiksie

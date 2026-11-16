@@ -217,16 +217,16 @@ describe('dataLayer: sygnal zgody przez te sama brame', () => {
 
 describe('page_location / page_referrer / page_title przez ten sam detektor', () => {
   it('telefon w utm_campaign adresu -> wyslany page_location bez numeru', () => {
-    window.history.replaceState({}, '', '/abonament/?utm_source=google&utm_campaign=600100200');
+    window.history.replaceState({}, '', '/wycena/?utm_source=google&utm_campaign=600100200');
     trackEvent('click_phone', { link_location: 'header' });
     const p = sent();
     expect(p.page_location).toBe(
-      `http://localhost:3000/abonament/?utm_source=google&utm_campaign=${REFUSED}`,
+      `http://localhost:3000/wycena/?utm_source=google&utm_campaign=${REFUSED}`,
     );
     expect(JSON.stringify(p)).not.toMatch(/600/);
   });
   it('blizniak: czysty adres z utm -> brak nadpisania (GA4 wysle ten sam)', () => {
-    window.history.replaceState({}, '', '/abonament/?utm_source=google&utm_campaign=black_friday');
+    window.history.replaceState({}, '', '/wycena/?utm_source=google&utm_campaign=black_friday');
     trackEvent('click_phone', { link_location: 'header' });
     expect(sent()).toEqual({ link_location: 'header' });
   });

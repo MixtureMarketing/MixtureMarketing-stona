@@ -1,7 +1,7 @@
 /**
  * Wspolny komponent karty zalozyciela — uzywany na local landings (Grupa C)
  * jako lokalny trust signal. Wersja "compact" zoptymalizowana pod sekcje
- * "Spotkasz sie z Jakubem", bez dlugiego bio (vs pelne /abonament/).
+ * "Spotkasz sie z Jakubem", bez dlugiego bio.
  *
  * Local B2B kupuje od czlowieka, nie od bezimiennej agencji — szczegolnie
  * istotne gdy biuro jest wirtualne (memory rule).

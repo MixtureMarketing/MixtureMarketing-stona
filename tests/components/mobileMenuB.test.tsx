@@ -139,9 +139,9 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     expect(rows).toEqual(['O Nas', 'Realizacje', 'Oferta', 'Baza Wiedzy', 'Kontakt']);
     expect(r.offerButton().querySelector('small')?.textContent).toBe('Strony, marketing');
     expect(r.offerButton().querySelector('.mmb-chip')?.textContent).toBe('12 usług');
-    const promo = r.mainScreen().querySelector('a.mmb-promo') as HTMLAnchorElement;
-    expect(promo.getAttribute('href')).toBe('/abonament/');
-    expect(promo.textContent).toBe('NowośćStrona w abonamencieod 179 zł/mc');
+    // MIX-1849: bez kafla usługi wycofanej (dawniej a.mmb-promo do /abonament/).
+    expect(r.mainScreen().querySelector('a.mmb-promo')).toBeNull();
+    expect(r.menu.querySelector('a[href^="/abonament"]')).toBeNull();
     expect(within(r.menu).getByText('Zadzwoń').closest('a')?.getAttribute('href')).toMatch(/^tel:/);
   });
 
@@ -283,7 +283,7 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     const mainCount = probe.mainScreen().querySelectorAll('a').length;
     const offerCount = probe.offerScreen().querySelectorAll('a').length;
     probe.unmount();
-    expect(mainCount).toBe(5);
+    expect(mainCount).toBe(4); // MIX-1849: bez kafla promo
     expect(offerCount).toBe(15);
 
     const targets: Array<['main' | 'offer', number]> = [
@@ -315,7 +315,7 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     expect(document.body.style.overflow).toBe('');
   }, 30_000);
 
-  it('nazwy ze słownika i jedyny nowy link względem starego menu to „Strona w abonamencie”', () => {
+  it('nazwy ze słownika i żadnego nowego linku względem starego menu (MIX-1849: bez kafla usługi wycofanej)', () => {
     const r = renderNavbar();
     fireEvent.click(r.toggle);
     expect(within(r.offerScreen()).getAllByText(/^Zobacz całą ofertę: /)).toHaveLength(3);
@@ -327,8 +327,8 @@ describe('Menu mobilne B (przełącznik włączony)', () => {
     ) as Record<string, string>;
     const oldHrefs = new Set([...fixture.offer.matchAll(/href="([^"]+)"/g)].map((m) => m[1]));
     const newHrefs = [...r.menu.querySelectorAll('a')].map((a) => a.getAttribute('href'));
-    expect(newHrefs.length).toBe(21);
-    expect(newHrefs.filter((h) => !oldHrefs.has(h as string))).toEqual(['/abonament/']);
+    expect(newHrefs.length).toBe(20);
+    expect(newHrefs.filter((h) => !oldHrefs.has(h as string))).toEqual([]);
   });
 
   it('menu B nie wnosi nagłówków h1–h6 (menu leży w DOM przed <h1> strony)', () => {
@@ -354,15 +354,12 @@ describe('Podświetlenie bieżącej strony (opcja A): aria-current="page"', () =
     ['/baza-wiedzy/artykul/', 'Baza Wiedzy'],
     ['/marketing/google-ads/', 'Google Ads'],
     ['/design/', 'Zobacz całą ofertę: Grafika & Design'],
-    ['/abonament/professional/', 'NowośćStrona w abonamencieod 179 zł/mc'],
   ])('%s → dokładnie jedna pozycja: %s', (route, label) => {
     const r = renderNavbar(route);
     const cur = r.current();
     expect(cur).toHaveLength(1);
     expect(cur[0].tagName).toBe('A');
-    const name = cur[0].querySelector('strong')?.closest('.mmb-promo')
-      ? cur[0].textContent
-      : (cur[0].querySelector('strong')?.textContent ?? cur[0].textContent);
+    const name = cur[0].querySelector('strong')?.textContent ?? cur[0].textContent;
     expect(name).toBe(label);
   });
 

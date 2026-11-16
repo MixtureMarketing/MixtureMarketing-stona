@@ -14,7 +14,6 @@ interface ModalProps {
  * Modal oparty na natywnym <dialog> (Sprint B3 BC1):
  * - showModal() = focus trap, ESC, inert background, Top Layer (above z-index) za darmo
  * - backdrop styling via ::backdrop CSS pseudo-element
- * - eliminuje rozbieznosc z grupa A /abonament/* gdzie native <dialog> juz uzyte
  */
 const Modal: React.FC<ModalProps> = ({
   isOpen,

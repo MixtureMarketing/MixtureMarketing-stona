@@ -43,11 +43,6 @@ npm run dev
 VITE_SANITY_PROJECT_ID=...
 VITE_SANITY_DATASET=production
 
-# SaaS Abonament — Stripe via binary-planet hub
-VITE_MM_PREONBOARD_KEY=...
-VITE_MM_HUB_URL=https://api.mixturemarketing.pl
-VITE_STRIPE_PUBLISHABLE_KEY=pk_test_... # lub pk_live_
-
 # Cloudflare deploy (tylko w GitHub Actions secrets)
 # CLOUDFLARE_API_TOKEN
 # CLOUDFLARE_ACCOUNT_ID
