@@ -50,7 +50,10 @@ const OLD: CalcUi = {
   alert: 'rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300',
 };
 
-// Nowy wygląd wg DESIGN.md: przyciski akcji = pigułka indygo (gradient tła, biały tekst, waga 800),
+// MIX-1937: pigułka ma jednolite tło #4D4B9F (środek dawnego gradientu from-secondary → #5A58AD),
+// bo na gradiencie axe nie umie policzyć kontrastu („incomplete color-contrast”). Biały na #4D4B9F
+// = 7,4:1. Strzałki w przyciskach to ikony SVG (lucide), nie znaki tekstu.
+// Nowy wygląd wg DESIGN.md: przyciski akcji = pigułka indygo (biały tekst, waga 800),
 // wyjście = goły tekst; pola i opcje ≥ 48 px (min-h-12), tekst 1rem (bez powiększania na iOS);
 // tekst na granacie ≥ text-white/75 (AA-on-Navy); fokus = globalny :focus-visible z index.css.
 const NEW: CalcUi = {
@@ -65,7 +68,7 @@ const NEW: CalcUi = {
   help: 'text-sm leading-relaxed text-white/75',
   error: 'text-sm font-medium text-red-300',
   btnPrimary:
-    'inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-secondary to-[#5A58AD] px-8 py-3 text-base font-extrabold text-white shadow-lg transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:shadow-[0_8px_25px_-5px_rgba(97,182,222,0.6)] disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0',
+    'inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#4D4B9F] px-8 py-3 text-base font-extrabold text-white shadow-lg transition-all duration-300 motion-safe:hover:-translate-y-0.5 hover:shadow-[0_8px_25px_-5px_rgba(97,182,222,0.6)] disabled:cursor-wait disabled:opacity-60 disabled:hover:translate-y-0',
   btnBack:
     'inline-flex min-h-11 items-center gap-1 rounded-full px-3 text-base text-white/75 transition-colors hover:text-white hover:underline disabled:invisible',
   btnSecondary:
@@ -90,8 +93,10 @@ export const NEW_UI_CONTRAST =
  * px-4 Containera), odstęp wewnętrzny 16 px, więc opcje mają 390 − 2·16 = 358 px (91,8 %).
  * Tło zostaje pełne (#0d1529), żeby kontrast tekstu był liczalny (axe bez „incomplete”).
  * Pasek ceny ma -mx-6 pod p-6 karty; na telefonie dostaje -mx-4 pod nowy odstęp.
+ * MIX-1937: od lg pasek ceny jest `fixed` nad tłem strony z gradientem; pełne tło bg-deep-dark
+ * (zamiast /95) daje liczalny kontrast (axe bez „incomplete”).
  * Ta sama klasa w prerenderze (WycenaCalculator): szkielet i kalkulator mają tę samą szerokość
  * (CLS).
  */
 export const NEW_UI_SHELL =
-  '-mx-4 bg-[#0d1529] p-4 sm:mx-0 sm:rounded-3xl sm:border sm:border-white/10 sm:p-6 sm:shadow-sm md:p-10 max-sm:[&_[data-testid=live-price-bar]]:-mx-4';
+  '-mx-4 bg-[#0d1529] p-4 sm:mx-0 sm:rounded-3xl sm:border sm:border-white/10 sm:p-6 sm:shadow-sm md:p-10 max-sm:[&_[data-testid=live-price-bar]]:-mx-4 lg:[&_[data-testid=live-price-bar]]:bg-deep-dark';
