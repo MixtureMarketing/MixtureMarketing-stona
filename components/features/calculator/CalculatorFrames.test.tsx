@@ -54,7 +54,9 @@ vi.mock('../contact/TurnstileWidget', async () => {
   };
 });
 
+import { HelmetProvider } from 'react-helmet-async';
 import PublicCalculator from './PublicCalculator';
+import QuestionField from './QuestionField';
 import { NEW_UI_SHELL } from './calcUi';
 
 const renderCalc = () =>
@@ -90,9 +92,12 @@ afterEach(() => {
 // MIX-1894 (uwaga Jakuba „za dużo zagłębień bloczków”): jedyna ramka wokół odpowiedzi to karta
 // kroku; na telefonie (< 640 px) karta bez ramki, z odstępem 16 px i tłem na całą szerokość.
 const tokens = (el: Element) => (el.getAttribute('class') || '').split(/\s+/).filter(Boolean);
-/** Klasa rysująca ramkę albo tło bloczka (bez wariantów stanu: hover/focus/aria/group). */
+/**
+ * Klasa rysująca ramkę albo tło bloczka (bez wariantów stanu: hover/focus/aria/group).
+ * Weryfikator r1: także border-2, ring, shadow, rounded(-lg…), bg-[#…] i gradient.
+ */
 const FRAME =
-  /^(?:(?:sm|md|lg):)?(?:border(?:-[trblxy])?|bg-(?:white|primary|red-500)\/.+|rounded-(?:xl|2xl|3xl))$/;
+  /^(?:(?:sm|md|lg|xl|max-sm):)?(?:border(?:-[trblxy])?(?:-\d+)?|ring(?:-\d+)?|shadow(?:-(?!none$)[\w[\]#./]+)?|bg-(?!transparent$|none$).+|rounded(?:-(?:[trbl]{1,2}-)?(?:sm|md|lg|xl|2xl|3xl|full))?)$/;
 /** Elementy z ramką/tłem między `el` (bez niego) a kartą kroku (bez niej). */
 const framesBetween = (el: Element, shell: Element) => {
   const out: string[] = [];
@@ -177,6 +182,52 @@ describe('MIX-1894 nowy wygląd: jedna ramka wokół odpowiedzi', () => {
     expect(res.querySelectorAll('[class*="border-primary"], [class*="bg-primary/"]').length).toBe(
       0,
     );
+  });
+
+  it('pytanie Tak/Nie: na telefonie jedna kolumna (przycisk ≥ 90 % szerokości), 2 kolumny od sm', () => {
+    render(
+      <QuestionField
+        question={{
+          code: 'has_brand',
+          text: 'Czy masz logo?',
+          help_text: null,
+          answer_type: 'bool',
+          options: null,
+          visible_if: null,
+          group: 'projekt',
+          sort_order: 3,
+        }}
+        value={undefined}
+        onChange={() => {}}
+        newUi
+      />,
+    );
+    const g = screen.getByRole('group', { name: 'Czy masz logo?' });
+    expect(tokens(g)).toContain('sm:grid-cols-2');
+    expect(tokens(g).filter((x) => /^grid-cols-/.test(x))).toEqual([]);
+    expect(framesBetween(screen.getByRole('button', { name: /Tak/ }), g.parentElement!)).toEqual(
+      [],
+    );
+  });
+
+  it('prerender: szkielet w tej samej karcie NEW_UI_SHELL co kalkulator (bez skoku układu)', async () => {
+    vi.resetModules();
+    (window as { isPrerendering?: boolean }).isPrerendering = true;
+    try {
+      const { default: Page } = await import('../../pages/WycenaCalculator');
+      render(
+        <HelmetProvider>
+          <MemoryRouter initialEntries={['/wycena/']}>
+            <Page />
+          </MemoryRouter>
+        </HelmetProvider>,
+      );
+      const s = await screen.findByTestId('calc-loading');
+      const card = s.parentElement!;
+      expect(tokens(card).sort()).toEqual(NEW_UI_SHELL.split(/\s+/).sort());
+    } finally {
+      delete (window as { isPrerendering?: boolean }).isPrerendering;
+    }
   });
 
   it('ładowanie: szkielet bez ramki pytania', () => {

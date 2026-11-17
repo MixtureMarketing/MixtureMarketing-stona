@@ -76,7 +76,7 @@ const QuestionField: React.FC<QuestionFieldProps> = ({
         return (
           <div
             id={fieldId}
-            className={newUi ? 'grid grid-cols-2 gap-3 sm:max-w-sm' : 'flex gap-3'}
+            className={newUi ? 'grid gap-3 sm:max-w-sm sm:grid-cols-2' : 'flex gap-3'}
             role="group"
             aria-label={text}
             aria-describedby={describedBy}
