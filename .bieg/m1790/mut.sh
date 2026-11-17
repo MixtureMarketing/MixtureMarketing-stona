@@ -3,6 +3,7 @@
 # text was present, run the affected tests, restore THAT file. Killed = at least one named test
 # failed (rc != 0 alone is not enough).
 set -u
+NM=0 # MIX-1938: NOMATCH (nieaktualna kotwica) = błąd skryptu, exit 3
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1790/mut
 mkdir -p "$OUT"
@@ -15,7 +16,7 @@ echo "MUT baseline rc=$brc $(clean "$OUT/baseline.log" | grep -aE '^\s+Tests ' |
 if [ "$brc" -ne 0 ]; then echo "MUT ABORT: baseline red, mutants not run"; exit 1; fi
 run() { # name file from to
   local name="$1" f="$2" from="$3" to="$4"
-  FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");const a=process.env.FROM,b=process.env.TO;if(!s.includes(a)){process.exit(3)}fs.writeFileSync(f,s.replace(a,b))' "$f" || { echo "$name NOMATCH"; return; }
+  FROM="$from" TO="$to" node -e 'const fs=require("fs");const f=process.argv[1];const s=fs.readFileSync(f,"utf8");const a=process.env.FROM,b=process.env.TO;if(!s.includes(a)){process.exit(3)}fs.writeFileSync(f,s.replace(a,b))' "$f" || { echo "$name NOMATCH"; NM=$((NM+1)); return; }
   local changed; changed=$(git diff --numstat -- "$f" | awk '{print $1"+/"$2"-"}')
   # shellcheck disable=SC2086
   npx vitest run $T --maxWorkers=2 > "$OUT/$name.log" 2>&1; local rc=$?
@@ -56,8 +57,20 @@ run M14-sketch-proto-lookup components/features/calculator/configSketches.tsx "r
 run M15-no-sketch-hides-list $C "if (!sketch && items.length === 0) return null;" "if (!sketch) return null;"
 run M16-empty-list-shown $C "{items.length > 0 && (" "{items.length >= 0 && ("
 # K2 przełącznik
-run M17-switch-loose components/features/calculator/livePrice.ts "  return isLivePriceBarEnabled(raw);" "  return ['1', 'true', 'yes', 'on'].includes(String(raw).trim().toLowerCase());"
+# MIX-1938: kotwica w isConfigPreviewEnabled (po MIX-1898 nie woła już isLivePriceBarEnabled);
+# komentarz „MIX-1791" niżej czyni ją jednoznaczną.
+run M17-switch-loose components/features/calculator/livePrice.ts "  return raw === '1';
+}
+
+/**
+ * MIX-1791:" "  return ['1', 'true', 'yes', 'on'].includes(String(raw).trim().toLowerCase());
+}
+
+/**
+ * MIX-1791:"
 run M18-switch-ignored components/features/calculator/PublicCalculator.tsx "const configEnabled = isConfigPreviewEnabled() && filling;" "const configEnabled = filling;"
 run M19-config-no-requests components/features/calculator/PublicCalculator.tsx "    enabled: liveEnabled || configEnabled," "    enabled: liveEnabled,"
 run M20-stale-scope-after-error hooks/useLivePriceRange.ts "          setState({ status, priceRange: null });" "          setState((s) => ({ status, priceRange: null, scope: s.scope }));"
 echo "git status after: $(git status --porcelain | grep -v '^??' | wc -l) modified"
+echo "NOMATCH count: $NM"
+[ "$NM" -eq 0 ] || { echo "MUT FAIL: $NM mutant(s) did not apply"; exit 3; }

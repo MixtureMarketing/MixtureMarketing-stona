@@ -48,15 +48,10 @@ run G8-kwota-dropped $G "['kwota', /\\d{3,}/]," ""
 run G9-case-sensitive $G '/pewn/i' '/pewn/'
 # flag
 run F1-flag-ignored $P 'timeline={isNewClientTimelineEnabled() ? <NewClientTimeline /> : null}' 'timeline={<NewClientTimeline />}'
-run F2-parser-truthy $L 'return isLivePriceBarEnabled(raw);
-}
-
-/**
- * Klucz pamięci' 'return !!raw;
-}
-
-/**
- * Klucz pamięci'
+# MIX-1938: kotwica w isNewClientTimelineEnabled (po MIX-1898 nie woła już isLivePriceBarEnabled).
+run F2-parser-truthy $L '(mutant V4 z werdyktu MIX-1816).
+  return raw === '"'"'1'"'"';' '(mutant V4 z werdyktu MIX-1816).
+  return !!raw;'
 run F3-flag-inverted $P 'isNewClientTimelineEnabled() ?' '!isNewClientTimelineEnabled() ?'
 run F4-timeline-slot-dropped $R '    {timeline}
 ' ''
