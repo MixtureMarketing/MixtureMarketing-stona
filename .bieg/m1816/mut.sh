@@ -9,7 +9,7 @@ OUT=.bieg/m1816/mut
 mkdir -p "$OUT"
 [ -n "${DRY:-}" ] || [ -d node_modules ] || npm ci --legacy-peer-deps --no-audit --no-fund > "$OUT/npm-ci.log" 2>&1
 D=components/features/calculator
-T="$D/NewClientTimeline.test.tsx $D/NewClientTimeline.off.test.tsx $D/newClientTimeline.content.test.ts $D/ConfigPreview.cookie.test.tsx tests/scripts/ciWorkflow.test.ts"
+T="$D/NewClientTimeline.test.tsx $D/NewClientTimeline.off.test.tsx $D/NewClientTimeline.newUi.test.tsx $D/newClientTimeline.content.test.ts $D/ConfigPreview.cookie.test.tsx tests/scripts/ciWorkflow.test.ts"
 echo "MUT HEAD $(git rev-parse HEAD) dirty=$(git status --porcelain | grep -v '^??' | wc -l)"
 clean() { sed 's/\x1b\[[0-9;]*m//g' "$1"; }
 # shellcheck disable=SC2086
@@ -53,8 +53,28 @@ run F2-parser-truthy $L '(mutant V4 z werdyktu MIX-1816).
   return raw === '"'"'1'"'"';' '(mutant V4 z werdyktu MIX-1816).
   return !!raw;'
 run F3-flag-inverted $P 'isNewClientTimelineEnabled() ?' '!isNewClientTimelineEnabled() ?'
-run F4-timeline-slot-dropped $R '    {timeline}
-' ''
+# MIX-1938: po MIX-1894 slot {timeline} jest dwa razy (NewResult i stary wygląd); kotwice jednoznaczne,
+# test nowego wyglądu (NewClientTimeline.newUi.test.tsx) dopisany do T.
+run F4-timeline-slot-dropped $R '      {timeline}
+    </div>
+  );
+};
+
+export default CalculatorResult;' '    </div>
+  );
+};
+
+export default CalculatorResult;'
+run F4b-timeline-slot-dropped-newui $R '      {timeline}
+    </div>
+  );
+};
+
+const CalculatorResult' '    </div>
+  );
+};
+
+const CalculatorResult'
 run F5-flag-name-wrong $L 'import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE' 'import.meta.env.VITE_MM_NEW_CLIENT_TIMELINES'
 # semantics and layout
 FROM2='</ol>' TO2='</div>' run S1-ol-to-div $C '<ol className=' '<div className='

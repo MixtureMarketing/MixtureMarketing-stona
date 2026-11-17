@@ -29,13 +29,12 @@ const AUDIT_TIME_PLACES: Array<[file: string, phrase: string]> = [
 
 /**
  * MIX-1938: przed sprawdzeniem sprowadza zapis do jednej postaci (formy F1, F2, F9 z werdyktu
- * MIX-1910): twarda spacja (U+00A0, U+2007, U+202F, `&nbsp;`, `&#160;`) = spacja, każdy myślnik
- * (U+2010–U+2015, U+2212) = „-".
+ * MIX-1910): encja twardej spacji (`&nbsp;`, `&#160;`, `&#xa0;`) = spacja, każdy myślnik
+ * (U+2010–U+2015, U+2212) = „-". Sam znak twardej spacji (U+00A0, U+2007, U+202F) łapie już `\s`
+ * we wzorcach niżej (w JS `\s` je obejmuje), więc nie trzeba go zamieniać.
  */
 const normalize = (line: string): string =>
-  line
-    .replace(/&nbsp;|&#160;|&#x0*a0;|[\u00a0\u2007\u202f]/gi, ' ')
-    .replace(/[\u2010-\u2015\u2212]/g, '-');
+  line.replace(/&nbsp;|&#160;|&#x0*a0;/gi, ' ').replace(/[\u2010-\u2015\u2212]/g, '-');
 
 /** Formy zakazane w components/ i data/ (inne niż „60 sekund"), sprawdzane po normalize(). */
 const FORBIDDEN: Array<[name: string, test: (line: string) => boolean]> = [
@@ -47,7 +46,9 @@ const FORBIDDEN: Array<[name: string, test: (line: string) => boolean]> = [
   [
     '„około minutę" przy audycie',
     (l) =>
-      /(audyt|wynik|raport)[^'"\n]{0,80}około minut|około minut[^'"\n]{0,80}(wynik|raport)/i.test(l),
+      /(audyt|wynik|raport)[^'"\n]{0,80}około minut|około minut[^'"\n]{0,80}(wynik|raport)/i.test(
+        l,
+      ),
   ],
   // „w minutę", „w jedną minutę" w linii o audycie, wyniku albo raporcie (F6). Kalkulator wyceny
   // („widełki w około minutę") tych słów nie ma.

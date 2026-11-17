@@ -36,10 +36,10 @@ step build npm run build
 clean build | grep -aE 'Size|error' | head -4 | sed 's/^/  build: /'
 restore_generated
 echo "--- mutanty MIX-1938 (formy F1-F9 i strażnik)"
-bash .bieg/m1938/mut.sh; echo "MUT m1938 rc=$?"
+bash .bieg/m1938/mut.sh > "$OUT/mut-m1938.log" 2>&1; mrc=$?; cat "$OUT/mut-m1938.log"; echo "MUT m1938 rc=$mrc"; [ $mrc -ne 0 ] && RC=1; grep -qE 'PRZEZYL|NIEJASNY|NOMATCH' "$OUT/mut-m1938.log" && { echo "MUT m1938: mutant przezyl/niejasny/nomatch"; RC=1; }
 echo "--- mutanty MIX-1790 (kotwica M17 po poprawce)"
-bash .bieg/m1790/mut.sh; echo "MUT m1790 rc=$?"
+bash .bieg/m1790/mut.sh > "$OUT/mut-m1790.log" 2>&1; mrc=$?; cat "$OUT/mut-m1790.log"; echo "MUT m1790 rc=$mrc"; [ $mrc -ne 0 ] && RC=1; grep -qE 'PRZEZYL|NIEJASNY|NOMATCH' "$OUT/mut-m1790.log" && { echo "MUT m1790: mutant przezyl/niejasny/nomatch"; RC=1; }
 echo "--- mutanty MIX-1816 (kotwica F2 po poprawce)"
-bash .bieg/m1816/mut.sh; echo "MUT m1816 rc=$?"
+bash .bieg/m1816/mut.sh > "$OUT/mut-m1816.log" 2>&1; mrc=$?; cat "$OUT/mut-m1816.log"; echo "MUT m1816 rc=$mrc"; [ $mrc -ne 0 ] && RC=1; grep -qE 'PRZEZYL|NIEJASNY|NOMATCH' "$OUT/mut-m1816.log" && { echo "MUT m1816: mutant przezyl/niejasny/nomatch"; RC=1; }
 echo "FULL RC=$RC"
 exit $RC

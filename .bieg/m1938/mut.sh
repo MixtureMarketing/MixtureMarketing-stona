@@ -44,7 +44,7 @@ run A9-F9-jsx-nbsp $A "$AN" '"// <span>Wynik w 60&nbsp;s</span>\nimport "'
 # Mutanty strażnika
 run G1-pusta-lista $TT '/\.(ts|tsx|json)$/.test(f)' '"/\\.(tsq)$/.test(f)"'
 run G2-bez-json $TT '/\.(ts|tsx|json)$/.test(f)' '"/\\.(ts|tsx)$/.test(f)"'
-run N1-bez-nbsp $TT "/&nbsp;|&#160;|&#x0*a0;|[\u00a0\u2007\u202f]/gi, ' '" '"/&nbsp;|&#160;|&#x0*a0;/gi, '"'"' '"'"'"'
+run N1-bez-encji-nbsp $TT "replace(/&nbsp;|&#160;" '"replace(/&#160;"'
 run N2-bez-myslnikow $TT "/[\u2010-\u2015\u2212]/g, '-'" '"/[\\u2212]/g, '"'"'-'"'"'"'
 run P1-stary-wzorzec-60s $TT '/\b60\s*(?:s|sek)(?![\p{L}\d])/iu.test(l)' '"/\\bw 60 ?s\\b/.test(l)"'
 run P2-15min-bez-audytu $TT '/\b15\s*-?\s*min/i.test(l) && /audyt/i.test(l)' '"/\\b15\\s*-?\\s*min/i.test(l)"'

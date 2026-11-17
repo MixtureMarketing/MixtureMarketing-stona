@@ -39,8 +39,10 @@ run M1-server-allowlist-dropped $S "    out.push({
 run M2-internal-name-fallback $S "cleanClientText(a.clientName, SCOPE_NAME_MAX)" "cleanClientText(a.clientName ?? a.name, SCOPE_NAME_MAX)"
 run M3-internal-desc-fallback $S "cleanClientText(a.levelClientDescription, SCOPE_DESCRIPTION_MAX)" "cleanClientText(a.levelClientDescription ?? a.levelDescription, SCOPE_DESCRIPTION_MAX)"
 run M4-unchosen-areas-included $S "    if (!(a.hoursMax > 0)) continue;" "    void 0;"
-run M5-no-length-cap $S "if (t === '' || t.length > max) return null;" "if (t === '') return null;"
-run M6-no-invisible-strip $S "raw.replace(INVISIBLE, '').trim()" "raw.trim()"
+# MIX-1938: kotwice M5, M6 po MIX-1810 (VISIBLE w warunku, stripInvisible wieloliniowe).
+run M5-no-length-cap $S "if (t === '' || t.length > max || !VISIBLE.test(t)) return null;" "if (t === '' || !VISIBLE.test(t)) return null;"
+run M6-no-invisible-strip $S "    .replace(INVISIBLE, '')
+" ""
 run M7-no-item-cap-server $S "    if (out.length >= SCOPE_MAX_ITEMS) break;" "    void 0;"
 run M8-endpoint-scope-always functions/api/estimation/public-preview.ts "const out = scope.length > 0 ? { priceRange, scope } : { priceRange };" "const out = { priceRange, scope };"
 run M9-client-allowlist-dropped $P "    out.push({
@@ -54,7 +56,8 @@ run M12-desc-as-html $C '<p className="text-xs text-gray-400">{s.client_descript
 run M13-name-as-html $C '<p className="text-sm font-semibold text-white">{s.client_name}</p>' '<p className="text-sm font-semibold text-white" dangerouslySetInnerHTML={{ __html: s.client_name }} />'
 # K5 typ i pusty zakres
 run M14-sketch-proto-lookup components/features/calculator/configSketches.tsx "return SKETCHES.get(goal) ?? null;" "return (DEFS as Record<string, SketchDef>)[goal] ?? null;"
-run M15-no-sketch-hides-list $C "if (!sketch && items.length === 0) return null;" "if (!sketch) return null;"
+# MIX-1938: kotwica M15 po przeniesieniu warunku do `shown` (przycisk ciasteczek, Z6/Z7).
+run M15-no-sketch-hides-list $C "const shown = !(!sketch && items.length === 0);" "const shown = !!sketch;"
 run M16-empty-list-shown $C "{items.length > 0 && (" "{items.length >= 0 && ("
 # K2 przełącznik
 # MIX-1938: kotwica w isConfigPreviewEnabled (po MIX-1898 nie woła już isLivePriceBarEnabled);
