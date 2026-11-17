@@ -33,7 +33,7 @@ const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
   }, []);
   return (
     <div data-testid="calc-result" className="space-y-6 md:space-y-8">
-      <div className="space-y-4 rounded-2xl border border-primary/40 bg-primary/[0.08] p-6 text-center md:p-8">
+      <div className="space-y-4 py-2 text-center">
         <h2
           ref={headRef}
           tabIndex={-1}

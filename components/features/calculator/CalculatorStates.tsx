@@ -27,7 +27,7 @@ export const CalculatorLoading: React.FC<{ newUi?: boolean }> = ({ newUi = false
       </div>
       <div aria-hidden="true" className="space-y-4">
         <div className={`h-8 w-48 ${bar}`} />
-        <div className="space-y-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 md:p-6">
+        <div className="space-y-4">
           <div className={`h-5 w-2/3 ${bar}`} />
           <div className="grid gap-3 sm:grid-cols-2">
             {[0, 1, 2, 3].map((i) => (

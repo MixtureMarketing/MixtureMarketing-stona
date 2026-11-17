@@ -26,7 +26,7 @@ import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLi
 import CalculatorResult from './CalculatorResult';
 import BookingEmbed from './BookingEmbed';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
-import { NEW_UI_CONTRAST, isCalcNewUiEnabled } from './calcUi';
+import { NEW_UI_CONTRAST, NEW_UI_SHELL, isCalcNewUiEnabled } from './calcUi';
 
 const PublicCalculator: React.FC = () => {
   const turnstileRef = useRef<TurnstileWidgetHandle>(null);
@@ -70,7 +70,7 @@ const PublicCalculator: React.FC = () => {
     <div
       className={
         newUi
-          ? `rounded-3xl border border-white/10 bg-[#0d1529] p-6 shadow-sm md:p-10 ${NEW_UI_CONTRAST}`
+          ? `${NEW_UI_SHELL} ${NEW_UI_CONTRAST}`
           : 'rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl'
       }
       data-calc-ui={newUi ? 'new' : undefined}
