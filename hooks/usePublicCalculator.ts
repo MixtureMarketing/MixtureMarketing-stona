@@ -17,7 +17,11 @@ import {
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { trackEvent } from '../utils/analytics';
-import { isLeadConfigEnabled } from '../components/features/calculator/livePrice';
+import { trackCalculatorBookingOpen } from '../utils/calculatorTracking';
+import {
+  isBookingEmbedEnabled,
+  isLeadConfigEnabled,
+} from '../components/features/calculator/livePrice';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
@@ -150,6 +154,9 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         ...(isLeadConfigEnabled() && phone.trim() !== '' ? { phone: phone.trim() } : {}),
       });
       if (res.ok) {
+        // MIX-1814 (Z9): lead zapisany, pod wynikiem otwiera się harmonogram rozmów. Jedno
+        // zdarzenie na jedno udane kliknięcie, parametry z allowlisty GA4 (source=wycena, variant=a).
+        if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });
         setResult(res.result);
         setPhase('done');
       } else {
