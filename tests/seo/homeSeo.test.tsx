@@ -50,10 +50,11 @@ const count = (text: string, phrase = HOME_SEO_PHRASE) =>
   text.toLocaleLowerCase('pl-PL').split(phrase).length - 1;
 
 /**
- * Bez stanu przewijania: useSectionProgress dopisuje `style="--p: …;"` w klatce animacji, więc jego
+ * Bez stanu przewijania: useSectionProgress i usePagePulse dopisują `--p: …;` i `--page-p: …;` w klatce animacji, więc jego
  * obecność zależy od chwili zrzutu, nie od treści strony. Wszystko inne porównujemy co do znaku.
  */
-const stable = (html: string) => html.replace(/ style="--p: [0-9.]+;"/g, '');
+const stable = (html: string) =>
+  html.replace(/ ?--(?:page-)?p: [0-9.]+;/g, '').replace(/ style=""/g, '');
 
 /** Opis pierwszej różnicy (komunikat porażki; długie HTML w jednej linii vitest ucina). */
 const firstDiff = (a: string, b: string) => {
