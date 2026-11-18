@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import imageUrlBuilder from '@sanity/image-url';
 import { client, cmsService } from '@/services/cmsService';
+import { localImageSrc } from '@/services/cms/client';
 import { SanityImage } from '@/types/sanity';
 import Seo from '@/components/common/Seo';
 import NotFound from '@/components/common/NotFound';
@@ -29,6 +30,16 @@ import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImage) {
   return builder.image(source);
+}
+
+/**
+ * MIX-1275: zdjęcie z repo (`localImage`, realizacja AI Q-PLAST) jest ścieżką od `/`; JSON-LD
+ * dostaje adres bezwzględny. Zdjęcia z Sanity bez zmian (ten sam adres CDN co dotąd).
+ */
+const SITE_ORIGIN = 'https://mixturemarketing.pl';
+function jsonLdImageUrl(source: SanityImage): string {
+  const local = localImageSrc(source);
+  return local ? `${SITE_ORIGIN}${local}` : urlFor(source).width(1200).url();
 }
 
 const CaseStudyTemplate = () => {
@@ -66,7 +77,7 @@ const CaseStudyTemplate = () => {
           '@context': 'https://schema.org',
           '@type': 'Article',
           headline: project.title,
-          image: project.mainImage ? [urlFor(project.mainImage).width(1200).url()] : [],
+          image: project.mainImage ? [jsonLdImageUrl(project.mainImage)] : [],
           datePublished: project.date,
           author: ORG_PUBLISHER,
           publisher: ORG_PUBLISHER,

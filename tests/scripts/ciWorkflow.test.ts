@@ -66,8 +66,14 @@ const WYCENA_WYLACZONA_NA_PROD = [
 ];
 /** MIX-1873: filmy w portfolio czekają na akceptację Jakuba na Preview: Preview 1, produkcja i PR puste. */
 const FILMY_PORTFOLIO_TYLKO_PREVIEW = ['VITE_MM_PORTFOLIO_VIDEO'];
+/** MIX-1275: realizacja AI Q-PLAST w portfolio czeka na akceptację Jakuba: Preview 1, produkcja i PR puste. */
+const REALIZACJA_AIQP_TYLKO_PREVIEW = ['VITE_MM_REALIZACJA_AIQP'];
 /** Wszystkie przełączniki tylko-Preview konfiguratora i filmów (posortowane jak lista z kodu). */
-const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD, ...FILMY_PORTFOLIO_TYLKO_PREVIEW].sort();
+const TYLKO_PREVIEW = [
+  ...WYCENA_WYLACZONA_NA_PROD,
+  ...FILMY_PORTFOLIO_TYLKO_PREVIEW,
+  ...REALIZACJA_AIQP_TYLKO_PREVIEW,
+].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
@@ -75,6 +81,7 @@ const WYLACZONE_NA_PROD = [
   ...CENNIK_WYLACZONY_NA_PROD,
   ...WYCENA_WYLACZONA_NA_PROD,
   ...FILMY_PORTFOLIO_TYLKO_PREVIEW,
+  ...REALIZACJA_AIQP_TYLKO_PREVIEW,
 ].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 

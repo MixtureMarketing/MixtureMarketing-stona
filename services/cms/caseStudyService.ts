@@ -1,6 +1,29 @@
 import { SanityTeamMember, SanityCaseStudy } from '@/types';
 import { SanityImage } from '@/types/sanity';
 import { fetchWithCache, CmsUnavailableError } from './client';
+import { isRealizacjaAiqpEnabled } from '@/config/flags';
+import { AIQP_CASE_STUDY } from '@/data/realizacje/aiQPlast';
+
+/**
+ * MIX-1275: realizacje z repo (nie z Sanity), dziś tylko AI Q-PLAST za VITE_MM_REALIZACJA_AIQP.
+ * Wyłączony przełącznik = pusta lista, więc listy i strony realizacji są takie jak z CMS.
+ */
+export const repoCaseStudies = (): SanityCaseStudy[] =>
+  isRealizacjaAiqpEnabled() ? [AIQP_CASE_STUDY] : [];
+
+/**
+ * Lista z CMS plus realizacje z repo na początku (najnowsze). Wpis z CMS o tym samym slugu
+ * wypada, bo strona realizacji (`getCaseStudyBySlug`) też pokazuje wersję z repo.
+ */
+export const withRepoCaseStudies = (
+  rows: SanityCaseStudy[],
+  category?: string,
+): SanityCaseStudy[] => {
+  const extra = repoCaseStudies().filter((p) => !category || p.category === category);
+  if (extra.length === 0) return rows;
+  const slugs = new Set(extra.map((p) => p.slug));
+  return [...extra, ...rows.filter((p) => !slugs.has(p?.slug))];
+};
 
 /** Limit oczekiwania na listę realizacji; po nim traktujemy pobranie jak błąd. */
 export const CASE_STUDY_LIST_TIMEOUT_MS = 10_000;
@@ -23,10 +46,10 @@ const caseStudyListQuery = (category?: string) => {
 export const caseStudyService = {
   async getCaseStudies(category?: string): Promise<SanityCaseStudy[]> {
     try {
-      return await fetchWithCache(caseStudyListQuery(category));
+      return withRepoCaseStudies(await fetchWithCache(caseStudyListQuery(category)), category);
     } catch (error) {
       console.warn('Sanity fetch error (getCaseStudies):', error);
-      return [];
+      return withRepoCaseStudies([], category);
     }
   },
 
@@ -48,7 +71,7 @@ export const caseStudyService = {
         }),
       ]);
       if (!Array.isArray(rows)) throw new Error('odpowiedź nie jest listą');
-      return rows;
+      return withRepoCaseStudies(rows);
     } catch (error) {
       console.warn('Sanity fetch error (getCaseStudyList):', error);
       throw new CmsUnavailableError('getCaseStudyList', error);
@@ -58,6 +81,8 @@ export const caseStudyService = {
   },
 
   async getCaseStudyBySlug(slug: string): Promise<SanityCaseStudy | null> {
+    const fromRepo = repoCaseStudies().find((p) => p.slug === slug);
+    if (fromRepo) return fromRepo;
     try {
       const query = `*[_type == "caseStudy" && slug.current == $slug][0] {
         ...,
