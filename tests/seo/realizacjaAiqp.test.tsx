@@ -312,3 +312,12 @@ describe('lista portfolio (PortfolioGrid)', () => {
     expect(container.querySelector('img')?.getAttribute('src')).toBe(AIQP_IMAGE_SRC);
   });
 });
+
+describe('sitemap.xml: lastmod realizacji (generator wymaga daty dla każdej trasy statycznej)', () => {
+  it('trasa realizacji ma datę z historii pliku treści data/realizacje/aiQPlast.ts', async () => {
+    const { computeLastmods, EXTRA_ROUTE_SOURCES } = await import('../../scripts/lib/lastmod.js');
+    expect(EXTRA_ROUTE_SOURCES[AIQP_PATH]).toBe('data/realizacje/aiQPlast.ts');
+    const root = resolve(__dirname, '../..');
+    expect(computeLastmods(root, [AIQP_PATH])[AIQP_PATH]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
