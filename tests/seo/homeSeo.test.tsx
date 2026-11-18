@@ -49,6 +49,12 @@ const stubFlag = (v: string | undefined) => vi.stubEnv('VITE_MM_HOME_SEO', v as 
 const count = (text: string, phrase = HOME_SEO_PHRASE) =>
   text.toLocaleLowerCase('pl-PL').split(phrase).length - 1;
 
+/**
+ * Bez stanu przewijania: useSectionProgress dopisuje `style="--p: …;"` w klatce animacji, więc jego
+ * obecność zależy od chwili zrzutu, nie od treści strony. Wszystko inne porównujemy co do znaku.
+ */
+const stable = (html: string) => html.replace(/ style="--p: [0-9.]+;"/g, '');
+
 /** Opis pierwszej różnicy (komunikat porażki; długie HTML w jednej linii vitest ucina). */
 const firstDiff = (a: string, b: string) => {
   let i = 0;
@@ -96,7 +102,8 @@ describe('przełącznik wyłączony', () => {
     stubFlag(v);
     const { container } = await renderHomeSeo();
     const snap = snapshotHome(container);
-    expect(snap.html, firstDiff(snap.html, BASE.html)).toBe(BASE.html);
+    const [got, want] = [stable(snap.html), stable(BASE.html)];
+    expect(got, firstDiff(got, want)).toBe(want);
     expect(snap.title).toBe(BASE.title);
     expect(snap.description).toBe(BASE.description);
     expect(snap.canonical).toBe(BASE.canonical);
@@ -178,7 +185,8 @@ describe('przełącznik włączony', () => {
     const base = document.createElement('div');
     base.innerHTML = BASE.html;
     band(live)!.replaceWith(band(base)!.cloneNode(true));
-    expect(live.innerHTML, firstDiff(live.innerHTML, BASE.html)).toBe(BASE.html);
+    const [got, want] = [stable(live.innerHTML), stable(BASE.html)];
+    expect(got, firstDiff(got, want)).toBe(want);
   });
 
   it('axe (wcag2a/aa): 0 naruszeń serious/critical', async () => {
