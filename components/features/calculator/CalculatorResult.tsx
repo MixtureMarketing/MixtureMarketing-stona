@@ -5,6 +5,7 @@
 // czytnik ekranu). Bez `newUi` wygląd jak przed MIX-1867.
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import type { PriceRange } from '../../../services/calculatorService';
 import { calcUi } from './calcUi';
 
@@ -53,7 +54,7 @@ const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
       <div className="flex flex-col justify-center gap-3 sm:flex-row">
         <Link to="/contact/" className={ui.btnPrimary}>
           Umów rozmowę
-          <span aria-hidden="true">→</span>
+          <ArrowRight size={18} aria-hidden="true" />
         </Link>
         <button type="button" onClick={onReset} className={ui.btnSecondary}>
           Policz jeszcze raz

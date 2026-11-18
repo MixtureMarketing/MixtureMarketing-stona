@@ -4,6 +4,7 @@
 // nagłówku kroku po Dalej/Wstecz, osobny komunikat o niedziałającym zabezpieczeniu. Bez `newUi`
 // wygląd jak przed MIX-1867. Kroki, walidacja, zdarzenia GA4 i wysyłka bez zmian.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import QuestionField from './QuestionField';
 import RodoKlauzulaKrotka from '../../common/RodoKlauzulaKrotka';
 import { CONTACT_STEP, firstErrorTarget } from './formLogic';
@@ -333,7 +334,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
           disabled={idx === 0 || submitting}
           className={ui.btnBack}
         >
-          {newUi && <span aria-hidden="true">←</span>}
+          {newUi && <ArrowLeft size={18} aria-hidden="true" />}
           Wstecz
         </button>
 
@@ -348,7 +349,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({
             }
           >
             Dalej
-            {newUi && <span aria-hidden="true">→</span>}
+            {newUi && <ArrowRight size={18} aria-hidden="true" />}
           </button>
         ) : (
           <button
