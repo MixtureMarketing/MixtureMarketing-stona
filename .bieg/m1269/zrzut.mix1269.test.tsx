@@ -24,6 +24,7 @@ it('zrzut wzorca', async () => {
   const { container } = await renderHomeSeo();
   const snap = JSON.stringify(snapshotHome(container), null, 2) + '\n';
   const out = path.resolve(__dirname, '../../tests/fixtures/mix1269/home-flag-off.json');
+  fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, snap);
   console.log('ZRZUT-START\n' + Buffer.from(snap).toString('base64') + '\nZRZUT-KONIEC');
 });
