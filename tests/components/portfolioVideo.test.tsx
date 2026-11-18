@@ -761,3 +761,37 @@ describe('lista: karta z filmem bez nakładki najechania (MIX-1896)', () => {
     expect(base).toMatch(/rounded = '2xl'/);
   });
 });
+
+// --- MIX-1896 r2 (werdykt r1, F1): film nie zagra = karta wraca do nakładki -------------------
+describe('lista: karta z wpisem w mapie, ale bez grającego filmu, ma nakładkę (MIX-1896 r2)', () => {
+  it.each<[string, () => void]>([
+    ['prefers-reduced-motion', () => (media[REDUCED] = true)],
+    ['dotyk (bez hover)', () => (media[HOVER] = false)],
+    [
+      'prerender',
+      () => ((window as unknown as { isPrerendering: boolean }).isPrerendering = true),
+    ],
+  ])('%s: 0 <video>, 1 nakładka i 1 „Zobacz case study”, link bez pierścienia filmu', (_n, ustaw) => {
+    ustaw();
+    const { container } = renderGrid([project('a')]);
+    loadAndIntersect();
+    hover(cards(container)[0]);
+    expect(container.querySelector('video')).toBeNull();
+    expect(overlays(container).length).toBe(1);
+    expect(seeCase(container).length).toBe(1);
+    expect(container.querySelector('a')!.className).not.toContain('focus-visible:after:ring-4');
+  });
+
+  it('błąd pliku filmu: <video> znika, nakładka wraca (tylko na tej karcie)', () => {
+    const { container } = renderGrid([project('a'), project('b', 'glamspace')]);
+    loadAndIntersect();
+    const [pierwsza, druga] = cards(container);
+    hover(pierwsza);
+    expect(overlays(pierwsza).length).toBe(0);
+    fireEvent.error(pierwsza.querySelector('video')!);
+    expect(pierwsza.querySelector('video')).toBeNull();
+    expect(overlays(pierwsza).length).toBe(1);
+    expect(seeCase(pierwsza).length).toBe(1);
+    expect(overlays(druga).length).toBe(0);
+  });
+});

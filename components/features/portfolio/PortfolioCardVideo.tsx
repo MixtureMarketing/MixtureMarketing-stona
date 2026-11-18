@@ -2,13 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { PortfolioVideoVariant } from '@/data/portfolioVideos';
 import {
   afterLoadIdle,
-  canHover,
   canPreloadVideo,
-  isPrerenderOrServer,
-  prefersReducedMotion,
 } from '@/utils/portfolioVideo';
 import { portfolioPreloadQueue } from '@/utils/preloadQueue';
 import { pickVideoSrc } from './pickVideoSrc';
+import { canPlayCardVideo } from './cardVideo';
 
 /** Atrybut karty listy, na której nasłuchujemy najechania (cała karta, nie tylko zdjęcie). */
 export const PORTFOLIO_CARD_ATTR = 'data-portfolio-card';
@@ -20,6 +18,8 @@ interface Props {
   video: PortfolioVideoVariant;
   /** Zdjęcie karty (ten sam adres co `<img>`, już w pamięci przeglądarki). */
   poster?: string;
+  /** MIX-1896 r2: błąd pliku, film znika; karta wraca do nakładki. */
+  onFail?: () => void;
 }
 
 /**
@@ -33,14 +33,14 @@ interface Props {
  * - Najechanie: start od razu, gdy film gotowy; inaczej na `canplay`, o ile kursor nadal jest na
  *   kafelku. Zjechanie: pauza i powrót zdjęcia. Błąd = element znika, zdjęcie zostaje.
  */
-const PortfolioCardVideo: React.FC<Props> = ({ video, poster }) => {
+const PortfolioCardVideo: React.FC<Props> = ({ video, poster, onFail }) => {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hoveredRef = useRef(false);
   const releaseRef = useRef<(() => void) | null>(null);
   // Zdolność urządzenia raz przy montowaniu. Prerender = false (filmu nie ma w HTML); aplikacja
   // montuje się przez createRoot (bez hydratacji), więc różnica z HTML-em prerenderu nie szkodzi.
-  const [capable] = useState(() => !isPrerenderOrServer() && canHover() && !prefersReducedMotion());
+  const [capable] = useState(canPlayCardVideo);
   const [src, setSrc] = useState<string | null>(null);
   const [showing, setShowing] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -150,6 +150,7 @@ const PortfolioCardVideo: React.FC<Props> = ({ video, poster }) => {
         onError={() => {
           release();
           setFailed(true);
+          onFail?.();
         }}
       />
     </>

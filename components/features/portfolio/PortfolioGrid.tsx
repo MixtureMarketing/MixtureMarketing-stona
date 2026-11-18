@@ -8,7 +8,7 @@ import { urlFor } from '../../../services/cmsService';
 import { isTransitionActive } from '../../../utils/caseStudyTransition';
 import { isPortfolioVideoEnabled } from '@/config/flags';
 import PortfolioCardVideo, { PORTFOLIO_CARD_ATTR } from './PortfolioCardVideo';
-import { cardVideoFor } from './cardVideo';
+import { canPlayCardVideo, cardVideoFor } from './cardVideo';
 
 const cardPhotoUrl = (project: SanityCaseStudy) =>
   urlFor(project.mainImage!).width(CARD_PHOTO.width).height(CARD_PHOTO.height).fit('crop').url();
@@ -42,6 +42,8 @@ const CATEGORY_BADGE: Record<string, { label: string; className: string }> = {
 const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
   // Framer omija globalny CSS-kill reduced-motion — respektujemy ręcznie
   const reducedMotion = useReducedMotion();
+  // MIX-1896 r2: karty, których film nie wczytał się (błąd pliku): wracają do nakładki
+  const [nieudane, setNieudane] = React.useState<Record<string, true>>({});
   // MIX-1711: lista montowana w trakcie przejścia (powrót z realizacji) stoi od razu: karty bez wejścia
   // (opacity 0, skala 0,9 przez 0,4 s), więc zdjęcie leci do pełnej karty, a klatki animacji są lżejsze
   const entrance = !reducedMotion && !isTransitionActive();
@@ -78,6 +80,8 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
         {projects.map((project) => {
           // MIX-1896: karta z filmem (ten sam warunek co film kafelka) bez nakładki i bez powiększenia zdjęcia
           const video = cardVideoFor(project);
+          // film faktycznie gra tylko na urządzeniu z myszą bez reduced-motion i bez błędu pliku; inaczej nakładka
+          const gra = !!video && canPlayCardVideo() && !nieudane[project._id];
           return (
             <motion.div
               key={project._id}
@@ -106,7 +110,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                       width={CARD_PHOTO.width}
                       height={CARD_PHOTO.height}
                       className={`w-full h-full object-cover${
-                        video ? '' : ' transition-transform duration-700 group-hover:scale-110'
+                        gra ? '' : ' transition-transform duration-700 group-hover:scale-110'
                       }`}
                       loading="lazy"
                     />
@@ -118,7 +122,13 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                     </div>
                   )}
 
-                  {video && <PortfolioCardVideo video={video} poster={cardPhotoUrl(project)} />}
+                  {video && (
+                    <PortfolioCardVideo
+                      video={video}
+                      poster={cardPhotoUrl(project)}
+                      onFail={() => setNieudane((m) => ({ ...m, [project._id]: true }))}
+                    />
+                  )}
 
                   {/* Overlay Tags */}
                   <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
@@ -132,7 +142,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                   </div>
 
                   {/* Hover Overlay: tylko karta bez filmu (MIX-1896: nakładka zasłaniała film) */}
-                  {!video && (
+                  {!gra && (
                     <div
                       {...{ [PORTFOLIO_OVERLAY_ATTR]: '' }}
                       className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center"
@@ -153,7 +163,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                       <Link
                         to={`/portfolio/${project.slug}/`}
                         className={`after:absolute after:inset-0 after:z-10 focus-visible:outline-none${
-                          video ? ` ${VIDEO_CARD_FOCUS}` : ''
+                          gra ? ` ${VIDEO_CARD_FOCUS}` : ''
                         }`}
                       >
                         {project.title}
