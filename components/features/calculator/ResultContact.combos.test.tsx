@@ -127,7 +127,12 @@ describe('MIX-1815 r3: Z11 × nowy wygląd × terminy × oś czasu (8 kombinacji
         expect(link.textContent).toBe('Umów rozmowę');
         for (const el of [link, again]) expect(cls(el)).toContain('min-h-12');
         expect(document.activeElement).toBe(h);
-        expect(box.innerHTML).not.toMatch(/text-gray-[34]00/);
+        // Tekst Z11 na granacie ≥ text-white/75 (terminy i oś czasu to osobne komponenty).
+        const own = [...box.children].filter(
+          (el) => !['booking-embed', 'new-client-timeline'].includes(el.getAttribute('data-testid')!),
+        );
+        expect(own.length).toBe(4);
+        for (const el of own) expect(el.outerHTML).not.toMatch(/text-gray-[34]00/);
       } else {
         for (const el of [link, again]) expect(cls(el)).toContain('min-h-11');
         expect(link.querySelector('svg')).toBeNull();
