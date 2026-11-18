@@ -7,20 +7,22 @@ import BaseCard from '../../common/BaseCard';
 import { urlFor } from '../../../services/cmsService';
 import { isTransitionActive } from '../../../utils/caseStudyTransition';
 import { isPortfolioVideoEnabled } from '@/config/flags';
-import { portfolioVideoFor } from '@/data/portfolioVideos';
 import PortfolioCardVideo, { PORTFOLIO_CARD_ATTR } from './PortfolioCardVideo';
+import { cardVideoFor } from './cardVideo';
 
 const cardPhotoUrl = (project: SanityCaseStudy) =>
   urlFor(project.mainImage!).width(CARD_PHOTO.width).height(CARD_PHOTO.height).fit('crop').url();
 
-/** MIX-1873: film kafelka za przełącznikiem; realizacja bez filmu (albo bez zdjęcia) = jak dotąd. */
-const CardVideo: React.FC<{ project: SanityCaseStudy }> = ({ project }) => {
-  if (!isPortfolioVideoEnabled() || !project.mainImage) return null;
-  const video = portfolioVideoFor(project.slug);
-  return video?.preview ? (
-    <PortfolioCardVideo video={video.preview} poster={cardPhotoUrl(project)} />
-  ) : null;
-};
+/** Atrybut granatowej nakładki najechania („Zobacz case study”): testy i pomiary (MIX-1896). */
+export const PORTFOLIO_OVERLAY_ATTR = 'data-portfolio-overlay';
+
+/**
+ * MIX-1896: karta z filmem nie ma nakładki, więc fokus z klawiatury pokazuje pierścień na całej karcie
+ * (pseudo-element stretched linku, wewnątrz karty: `ring-inset`, bo karta ma `overflow-hidden`;
+ * zaokrąglenie jak BaseCard `rounded-2xl`).
+ */
+export const VIDEO_CARD_FOCUS =
+  'focus-visible:after:ring-4 focus-visible:after:ring-inset focus-visible:after:ring-primary focus-visible:after:rounded-2xl';
 
 /** MIX-1722: the card photo has the same 16:9 crop as the case-study hero (HERO_PHOTO, 1600x900), at half the size. */
 export const CARD_PHOTO = { width: 800, height: 450 } as const;
@@ -73,7 +75,10 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
     // przewinięcie spadało na stopkę, a lista nad ekranem zostawała pominięta (sonda .bieg/mix1741/footer.mjs).
     <div className="vt-lista grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 [content-visibility:auto] [contain-intrinsic-size:auto_1px_auto_1500px]">
       <AnimatePresence mode="popLayout">
-        {projects.map((project) => (
+        {projects.map((project) => {
+          // MIX-1896: karta z filmem (ten sam warunek co film kafelka) bez nakładki i bez powiększenia zdjęcia
+          const video = cardVideoFor(project);
+          return (
           <motion.div
             key={project._id}
             layout={!reducedMotion}
@@ -100,7 +105,9 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                     alt={project.title}
                     width={CARD_PHOTO.width}
                     height={CARD_PHOTO.height}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={`w-full h-full object-cover${
+                      video ? '' : ' transition-transform duration-700 group-hover:scale-110'
+                    }`}
                     loading="lazy"
                   />
                 ) : (
@@ -111,7 +118,7 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                   </div>
                 )}
 
-                <CardVideo project={project} />
+                {video && <PortfolioCardVideo video={video} poster={cardPhotoUrl(project)} />}
 
                 {/* Overlay Tags */}
                 <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
@@ -124,14 +131,19 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                   </span>
                 </div>
 
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300">
-                    <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
-                      Zobacz case study <ArrowRight size={16} aria-hidden="true" />
-                    </span>
+                {/* Hover Overlay: tylko karta bez filmu (MIX-1896: nakładka zasłaniała film) */}
+                {!video && (
+                  <div
+                    {...{ [PORTFOLIO_OVERLAY_ATTR]: '' }}
+                    className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                  >
+                    <div className="transform translate-y-4 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300">
+                      <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
+                        Zobacz case study <ArrowRight size={16} aria-hidden="true" />
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Content */}
@@ -140,7 +152,9 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
                   <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
                     <Link
                       to={`/portfolio/${project.slug}/`}
-                      className="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
+                      className={`after:absolute after:inset-0 after:z-10 focus-visible:outline-none${
+                        video ? ` ${VIDEO_CARD_FOCUS}` : ''
+                      }`}
                     >
                       {project.title}
                     </Link>
@@ -175,7 +189,8 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
               </div>
             </BaseCard>
           </motion.div>
-        ))}
+          );
+        })}
       </AnimatePresence>
     </div>
   );

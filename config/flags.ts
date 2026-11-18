@@ -43,8 +43,8 @@ export const isRzeszowSectionsEnabled = (): boolean =>
 /**
  * Filmy w portfolio (MIX-1831/MIX-1873): lista `/portfolio/` (film po najechaniu, doczytany w tle
  * po `load`) i strona realizacji (film w miejscu zdjęcia hero po `load`). Mapa filmów:
- * `data/portfolioVideos.ts`. Wyłączony = brak `<video>` w DOM i zero żądań filmów (zasada MIX-1411:
- * Preview `1`, produkcja i PR puste).
+ * `data/portfolioVideos.ts`. Wyłączony = brak `<video>` w DOM i zero żądań filmów. Włączony na
+ * produkcji, w Preview i w PR (MIX-1896, decyzja Jakuba w MIX-1953; ci.yml).
  */
 export const isPortfolioVideoEnabled = (): boolean =>
   import.meta.env.VITE_MM_PORTFOLIO_VIDEO === '1';

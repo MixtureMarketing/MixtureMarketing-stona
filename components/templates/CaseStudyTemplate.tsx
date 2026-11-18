@@ -17,7 +17,6 @@ import { isCennikEnabled, isPowiazaneEnabled } from '@/config/flags';
 
 // Refactored Sub-components
 import CaseStudyHero from './case-study/CaseStudyHero';
-import CaseStudyPhoneVideo from './case-study/CaseStudyPhoneVideo';
 import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
@@ -119,10 +118,6 @@ const CaseStudyTemplate = () => {
       </AnimatePresence>
 
       <CaseStudyHero project={project} />
-
-      {/* MIX-1884: film pionowy w ramce telefonu (sekcja „Wersja na telefon”), tylko przy
-          VITE_MM_PORTFOLIO_VIDEO=1 i wariancie `portrait` w mapie; bez niego nic się nie renderuje. */}
-      <CaseStudyPhoneVideo slug={project.slug} />
 
       {/* div, nie landmark main: szablon renderuje się wewnątrz <main id="main-content"> z App
           (axe: landmark-no-duplicate-main / landmark-main-is-top-level). */}

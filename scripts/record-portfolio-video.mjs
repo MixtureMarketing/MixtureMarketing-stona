@@ -16,9 +16,10 @@
  *   NAME (try-dive), OUT (public/portfolio/video), SECONDS (12), FFMPEG (ścieżka; bez niej ffmpeg-static).
  *
  * Tryb z gotowego pliku (MIX-1884, filmy dostarczone przez klienta/zespół, np. z karty MIX-1831):
- *   SRC=<plik.mp4> START=<s> NAME=<nazwa> [ORIENT=portrait] node scripts/record-portfolio-video.mjs
- *   Bez przeglądarki i bez żadnego żądania sieciowego: ffmpeg tnie SECONDS sekund od START i koduje warianty.
- *   ORIENT=portrait: jeden wariant pionowy 540 px ≤ 0,5 MB (ramka telefonu na stronie realizacji).
+ *   SRC=<plik.mp4> START=<s> SECONDS=10 NAME=<nazwa> node scripts/record-portfolio-video.mjs
+ *   Bez przeglądarki i bez żadnego żądania sieciowego: ffmpeg tnie SECONDS sekund od START i koduje
+ *   te same trzy warianty poziome. Filmów pionowych nie ma (MIX-1896: usunięte z portfolio).
+ * Instrukcja dodania filmu krok po kroku: docs/runbooks/portfolio-filmy.md.
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -35,7 +36,6 @@ const OUT = process.env.OUT || 'public/portfolio/video';
 const SECONDS = Number(process.env.SECONDS || 12);
 const SRC = process.env.SRC || '';
 const START = Number(process.env.START || 0);
-const ORIENT = process.env.ORIENT === 'portrait' ? 'portrait' : 'landscape';
 const MIN_GAP_MS = 1000; // ≤ 1 żądanie/s do hosta strony
 
 /** Warianty poziome: szerokość, limit bajtów, startowe CRF (VP9, x264). */
@@ -44,14 +44,6 @@ export const VARIANTS = [
   { width: 1280, limit: 1.5 * 1024 * 1024, crf: { webm: 36, mp4: 27 } },
   { width: 720, limit: 512 * 1024, crf: { webm: 40, mp4: 30 } },
 ];
-
-/** Wariant pionowy (ramka telefonu): 540 px szerokości, ≤ 0,5 MB. */
-export const PORTRAIT_VARIANTS = [{ width: 540, limit: 512 * 1024, crf: { webm: 40, mp4: 30 } }];
-
-/** Wybór wariantów: pion = jeden wariant 540 px, poziom = 960/1280/720. */
-export function variantsFor(orient) {
-  return orient === 'portrait' ? PORTRAIT_VARIANTS : VARIANTS;
-}
 
 /** Surowe nagranie kasujemy tylko, gdy zrobił je skrypt; plik SRC (dostarczony) zostaje. */
 export function shouldRemoveRaw(src) {
@@ -239,8 +231,7 @@ async function main() {
   const raw = SRC || path.join(os.tmpdir(), `${NAME}-raw-${process.pid}.webm`);
   if (shouldRecord(SRC)) await recordRaw(ffmpeg, raw);
 
-  const variants = variantsFor(ORIENT);
-  for (const v of variants) {
+  for (const v of VARIANTS) {
     for (const codec of ['webm', 'mp4']) {
       const out = path.join(OUT, `${NAME}-${v.width}.${codec}`);
       let crf = v.crf[codec];

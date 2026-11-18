@@ -3,14 +3,14 @@
  * Lista: film tylko z myszą, doczytany w tle po `load` + idle (widoczne kafelki, najwyżej 2 naraz),
  * start na najechanie / `canplay`, pauza na zjechanie. Strona realizacji: film nad zdjęciem hero
  * po `load` + idle, start na `canplay`. Dotyk, reduced-motion, Save-Data, błąd = samo zdjęcie.
- * MIX-1884: film pionowy w ramce telefonu („Wersja na telefon”) tylko na stronie realizacji; kolejność
- * load → IntersectionObserver w hero i w sekcji pionowej; start po readyState ≥ 3; zwolnienie miejsca
- * w kolejce po 15 s.
+ * MIX-1884: kolejność load → IntersectionObserver w hero; start po readyState ≥ 3; zwolnienie miejsca
+ * w kolejce po 15 s. MIX-1896: bez filmu pionowego i ramki telefonu (Impackt = samo zdjęcie); karta listy
+ * z filmem nie ma nakładki najechania, ma za to pierścień fokusu na stretched linku.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import { render, act, fireEvent } from '@testing-library/react';
+import { render, act, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('@/services/cmsService', () => {
@@ -20,11 +20,12 @@ vi.mock('@/services/cmsService', () => {
   return { urlFor: () => chain };
 });
 
-import PortfolioGrid from '@/components/features/portfolio/PortfolioGrid';
+import PortfolioGrid, {
+  PORTFOLIO_OVERLAY_ATTR,
+  VIDEO_CARD_FOCUS,
+} from '@/components/features/portfolio/PortfolioGrid';
+import { cardVideoFor } from '@/components/features/portfolio/cardVideo';
 import CaseStudyHero from '@/components/templates/case-study/CaseStudyHero';
-import CaseStudyPhoneVideo, {
-  PHONE_VIDEO_HEADING,
-} from '@/components/templates/case-study/CaseStudyPhoneVideo';
 import type { SanityCaseStudy } from '@/types';
 import { portfolioVideoFor, PORTFOLIO_VIDEOS } from '@/data/portfolioVideos';
 import { afterLoadIdle, canPreloadVideo } from '@/utils/portfolioVideo';
@@ -185,18 +186,28 @@ const card = (c: HTMLElement) => c.querySelector('[data-portfolio-card]')!;
 // --- mapa i warunki ----------------------------------------------------------------------
 describe('mapa realizacja → film', () => {
   it('Try Dive ma film; inne slugi i klucze prototypu nie', () => {
-    expect(portfolioVideoFor(SLUG)?.preview?.webm).toBe('/portfolio/video/try-dive-960.webm');
+    expect(portfolioVideoFor(SLUG)?.preview.webm).toBe('/portfolio/video/try-dive-960.webm');
     for (const s of ['inny-projekt', '', undefined, null, '__proto__', 'constructor', 'toString'])
       expect(portfolioVideoFor(s)).toBeNull();
   });
-  it('każdy wariant poziomy ma proporcje 16:9 (ramka kafelka i hero, CLS 0)', () => {
+  it('każdy wariant ma proporcje 16:9 (ramka kafelka i hero, CLS 0)', () => {
     for (const v of Object.values(PORTFOLIO_VIDEOS))
       for (const x of [v.preview, v.desktop, v.mobile])
-        if (x) expect(Math.abs(x.width / x.height - 16 / 9)).toBeLessThan(0.01);
+        expect(Math.abs(x.width / x.height - 16 / 9)).toBeLessThan(0.01);
   });
-  it('wariant pionowy ma proporcje 540:960 (9:16)', () => {
-    const p = PORTFOLIO_VIDEOS['impackt-edu'].portrait!;
-    expect([p.width, p.height]).toEqual([540, 960]);
+  it('MIX-1896: żadna realizacja nie ma wariantu `portrait`; Impackt bez wpisu', () => {
+    for (const [slug, v] of Object.entries(PORTFOLIO_VIDEOS))
+      expect(Object.keys(v).sort(), slug).toEqual(['desktop', 'mobile', 'preview']);
+    expect(portfolioVideoFor('impackt-edu')).toBeNull();
+  });
+  it('cardVideoFor: przełącznik + zdjęcie + wpis w mapie = wariant 960 px; inaczej null', () => {
+    const p = project('a');
+    expect(cardVideoFor(p)).toBe(PORTFOLIO_VIDEOS[SLUG].preview);
+    expect(cardVideoFor({ ...p, mainImage: undefined })).toBeNull();
+    expect(cardVideoFor(project('b', 'inny-projekt'))).toBeNull();
+    expect(cardVideoFor(project('i', 'impackt-edu'))).toBeNull();
+    vi.stubEnv('VITE_MM_PORTFOLIO_VIDEO', '0');
+    expect(cardVideoFor(p)).toBeNull();
   });
 });
 
@@ -305,12 +316,13 @@ describe('lista: przełącznik i realizacje bez filmu', () => {
     loadAndIntersect();
     expect(cardVideo(container)!.getAttribute('src')).toBe('/portfolio/video/glamspace-960.webm');
   });
-  it('Impackt (tylko film pionowy): brak <video> na liście, zdjęcie zostaje', () => {
+  it('Impackt (bez wpisu w mapie, MIX-1896): brak <video> na liście, zdjęcie i nakładka zostają', () => {
     const { container } = renderGrid([project('i', 'impackt-edu')]);
     loadAndIntersect();
     fireEvent.pointerEnter(card(container), { pointerType: 'mouse' });
     expect(container.querySelector('video')).toBeNull();
     expect(container.querySelector('img')).not.toBeNull();
+    expect(container.querySelectorAll('[data-portfolio-overlay]').length).toBe(1);
   });
 });
 
@@ -585,7 +597,7 @@ describe('strona realizacji: film w ramce zdjęcia hero', () => {
     );
   });
 
-  it('Impackt (tylko film pionowy): hero bez <video> i bez „relative” na ramce', () => {
+  it('Impackt (bez wpisu w mapie, MIX-1896): hero bez <video> i bez „relative” na ramce', () => {
     const { container } = renderHero('impackt-edu');
     loadAndIntersect();
     expect(container.querySelector('video')).toBeNull();
@@ -628,218 +640,121 @@ describe('strona realizacji: film w ramce zdjęcia hero', () => {
   });
 });
 
-// --- MIX-1884: film pionowy w ramce telefonu na stronie realizacji ---------------------------
-const PORTRAIT_SLUG = 'impackt-edu';
-const renderPhoneFor = (slug: string | undefined) => render(<CaseStudyPhoneVideo slug={slug} />);
-const renderPhone = () => renderPhoneFor(PORTRAIT_SLUG);
-const phoneVideo = (c: HTMLElement) =>
-  c.querySelector<HTMLVideoElement>('video[data-case-study-phone-video]');
-const phoneScreen = (c: HTMLElement) =>
-  c.querySelector<HTMLElement>('[data-case-study-phone-screen]');
-
-describe('strona realizacji: film pionowy w ramce telefonu', () => {
-  it('przed load: sekcja z nagłówkiem „Wersja na telefon”, ramka z proporcją z mapy, film bez src', () => {
-    const { container } = renderPhone();
-    const section = container.querySelector('section[data-case-study-phone]')!;
-    expect(section).not.toBeNull();
-    const h = section.querySelector('h2')!;
-    expect(h.textContent).toBe(PHONE_VIDEO_HEADING);
-    expect(PHONE_VIDEO_HEADING).toBe('Wersja na telefon');
-    expect(section.getAttribute('aria-labelledby')).toBe(h.id);
-    expect(phoneScreen(container)!.style.aspectRatio.replace(/\s/g, '')).toBe('540/960');
-    const v = phoneVideo(container)!;
-    expect(v.muted).toBe(true);
-    expect(v.loop).toBe(true);
-    expect(v.hasAttribute('playsinline')).toBe(true);
-    expect(v.getAttribute('preload')).toBe('none');
-    expect(v.getAttribute('src')).toBeNull();
-    expect(v.getAttribute('aria-hidden')).toBe('true');
-    expect(v.getAttribute('tabindex')).toBe('-1');
-    expect(v.className).toContain('opacity-0');
-    expect(load).not.toHaveBeenCalled();
-  });
-
-  it('obudowa telefonu: zaokrąglona ramka, dekoracyjna (aria-hidden), film w jej wnętrzu', () => {
-    const { container } = renderPhone();
-    const screen = phoneScreen(container)!;
-    expect(screen.className).toMatch(/rounded-/);
-    expect(screen.className).toContain('overflow-hidden');
-    const body = screen.parentElement!;
-    expect(body.className).toMatch(/rounded-/);
-    expect(body.getAttribute('aria-hidden')).toBe('true');
-    expect(phoneVideo(container)!.parentElement).toBe(screen);
-  });
-
-  it('proporcja ramki idzie z mapy, nie na sztywno (CLS 0)', () => {
-    const p = PORTFOLIO_VIDEOS['impackt-edu'].portrait!;
-    const orig = { ...p };
-    p.width = 400;
-    p.height = 800;
-    try {
-      const { container } = renderPhone();
-      expect(phoneScreen(container)!.style.aspectRatio.replace(/\s/g, '')).toBe('400/800');
-    } finally {
-      Object.assign(p, orig);
-    }
-  });
-
-  it('przed load ramka w polu widzenia: 0 żądań (brak src, brak load())', () => {
-    const { container } = renderPhone();
-    intersectAll(true);
-    expect(phoneVideo(container)!.getAttribute('src')).toBeNull();
-    expect(load).not.toHaveBeenCalled();
-    fireLoad();
-    intersectAll(false);
-    expect(phoneVideo(container)!.getAttribute('src')).toBeNull();
-  });
-
-  it('po load, ramka poza polem widzenia: brak src; po wejściu: src, start na canplay, widoczny po playing', () => {
-    const { container } = renderPhone();
-    fireLoad();
-    intersectAll(false);
-    const v = phoneVideo(container)!;
-    expect(v.getAttribute('src')).toBeNull();
-    expect(load).not.toHaveBeenCalled();
-    intersectAll(true);
-    expect(v.getAttribute('src')).toBe('/portfolio/video/impackt-edu-540.webm');
-    expect(v.getAttribute('preload')).toBe('auto');
-    expect(load).toHaveBeenCalled();
-    expect(play).not.toHaveBeenCalled();
-    expect(v.className).toContain('opacity-0');
-    fireEvent.canPlay(v);
-    expect(play).toHaveBeenCalledTimes(1);
-    expect(v.className).toContain('opacity-0'); // niewidoczny do `playing`
-    fireEvent.playing(v);
-    expect(phoneVideo(container)!.className).toContain('opacity-100');
-  });
-
-  it('przeglądarka bez WebM bierze MP4', () => {
-    vi.spyOn(HTMLMediaElement.prototype, 'canPlayType').mockImplementation(() => '');
-    const { container } = renderPhone();
-    loadAndIntersect();
-    expect(phoneVideo(container)!.getAttribute('src')).toBe('/portfolio/video/impackt-edu-540.mp4');
-  });
-
-  it('ten sam plik 540 px na telefonie i na komputerze', () => {
-    const wide = renderPhone();
-    loadAndIntersect();
-    const a = phoneVideo(wide.container)!.getAttribute('src');
-    wide.unmount();
-    media[NARROW] = true;
-    const narrow = renderPhone();
-    loadAndIntersect();
-    expect(phoneVideo(narrow.container)!.getAttribute('src')).toBe(a);
-    expect(a).toBe('/portfolio/video/impackt-edu-540.webm');
-  });
-
-  /** Ramka bez filmu: h2, ekran z proporcją z mapy i plakat (to, co ma być w HTML-u bez `<video>`). */
-  const expectFrameWithoutVideo = (container: HTMLElement) => {
-    expect(container.querySelector('video')).toBeNull();
-    expect(container.querySelector('section[data-case-study-phone] h2')!.textContent).toBe(
-      PHONE_VIDEO_HEADING,
-    );
-    expect(phoneScreen(container)!.style.aspectRatio.replace(/\s/g, '')).toBe('540/960');
-    expect(
-      phoneScreen(container)!.querySelector('img[data-case-study-phone-poster]'),
-    ).not.toBeNull();
-    expect(container.querySelector('[role="alert"]')).toBeNull();
-  };
-
-  it.each([
-    ['prefers-reduced-motion', () => (media[REDUCED] = true)],
-    ['Save-Data', () => (conn = { saveData: true })],
-    ['łącze 3g', () => (conn = { effectiveType: '3g' })],
-    ['łącze 2g', () => (conn = { effectiveType: '2g' })],
-    ['prerender', () => ((window as unknown as { isPrerendering: boolean }).isPrerendering = true)],
-  ])('%s: jest ramka z nagłówkiem i plakatem, bez <video>', (_n, setup) => {
-    setup();
-    const { container } = renderPhone();
-    expectFrameWithoutVideo(container);
-    loadAndIntersect();
-    expectFrameWithoutVideo(container);
-    expect(load).not.toHaveBeenCalled();
-    expect(observers.every((o) => o.targets.length === 0)).toBe(true);
-  });
-
-  it('brak IntersectionObserver: ramka z plakatem, bez <video>', () => {
-    vi.stubGlobal('IntersectionObserver', undefined);
-    const { container } = renderPhone();
-    expectFrameWithoutVideo(container);
-  });
-
-  it('plakat: WebP z mapy, lazy, decoding async, pusty alt, wymiary 540×960, wypełnia ekran ramki', () => {
-    const { container } = renderPhone();
-    const img = container.querySelector<HTMLImageElement>('img[data-case-study-phone-poster]')!;
-    expect(img.getAttribute('src')).toBe('/portfolio/video/impackt-edu-540.webp');
-    expect(img.getAttribute('loading')).toBe('lazy');
-    expect(img.getAttribute('decoding')).toBe('async');
-    expect(img.getAttribute('alt')).toBe('');
-    expect(img.getAttribute('width')).toBe('540');
-    expect(img.getAttribute('height')).toBe('960');
-    expect(img.hasAttribute('fetchpriority')).toBe(false);
-    expect(img.className).toContain('absolute inset-0');
-    expect(img.parentElement).toBe(phoneScreen(container));
-    // plakat jest pod filmem w kolejności DOM (film go przykrywa po `playing`)
-    expect(img.nextElementSibling).toBe(phoneVideo(container));
-  });
-
-  it('błąd pliku: <video> znika, ramka z plakatem zostaje (bez przesunięcia układu)', () => {
-    const { container } = renderPhone();
-    loadAndIntersect();
-    const before = phoneScreen(container)!;
-    const styleBefore = before.getAttribute('style');
-    fireEvent.error(phoneVideo(container)!);
-    expectFrameWithoutVideo(container);
-    expect(phoneScreen(container)).toBe(before); // ten sam element, nie przebudowany
-    expect(phoneScreen(container)!.getAttribute('style')).toBe(styleBefore);
-    expect(container.textContent).toBe(PHONE_VIDEO_HEADING);
-  });
-
-  it('IntersectionObserver obserwuje ekran ramki, nie body ani sekcję', () => {
-    const { container } = renderPhone();
-    fireLoad();
-    const targets = observers.flatMap((o) => o.targets);
-    expect(targets).toEqual([phoneScreen(container)]);
-    expect(targets[0]).toHaveAttribute('data-case-study-phone-screen');
-  });
-
-  it('odmontowanie przed load + idle: po load brak obserwatora i brak src', () => {
-    const { container, unmount } = renderPhone();
-    const v = phoneVideo(container)!;
-    unmount();
-    fireLoad();
-    expect(observers.length).toBe(0);
-    expect(v.getAttribute('src')).toBeNull();
-    expect(load).not.toHaveBeenCalled();
-  });
-
-  it('przełącznik wyłączony: nic się nie renderuje', () => {
-    for (const v of [undefined, '', '0']) {
-      vi.unstubAllEnvs();
-      if (v !== undefined) vi.stubEnv('VITE_MM_PORTFOLIO_VIDEO', v);
-      const { container, unmount } = renderPhone();
-      loadAndIntersect();
-      expect(container.innerHTML).toBe('');
-      unmount();
-    }
-  });
-
-  it.each(['glamspace', SLUG, 'inny-projekt', '__proto__', '', undefined])(
-    'realizacja bez wariantu pionowego (%s): nic się nie renderuje',
-    (slug) => {
-      const { container } = renderPhoneFor(slug);
-      loadAndIntersect();
-      expect(container.innerHTML).toBe('');
-    },
-  );
-
-  it('szablon realizacji wpina sekcję pionową zaraz po hero', () => {
-    const src = fs.readFileSync(
+// --- MIX-1896: bez filmu pionowego i ramki telefonu ------------------------------------------
+describe('MIX-1896: strona realizacji bez ramki telefonu', () => {
+  it('szablon realizacji nie wpina sekcji telefonu; komponentu ramki nie ma', () => {
+    const tpl = fs.readFileSync(
       path.resolve(__dirname, '../../components/templates/CaseStudyTemplate.tsx'),
       'utf8',
     );
-    expect(src).toMatch(
-      /<CaseStudyHero project=\{project\} \/>\s*(\{\/\*[\s\S]*?\*\/\}\s*)?<CaseStudyPhoneVideo slug=\{project\.slug\} \/>/,
-    );
+    expect(tpl).not.toMatch(/CaseStudyPhoneVideo|Wersja na telefon|portrait/);
+    expect(
+      fs.existsSync(
+        path.resolve(__dirname, '../../components/templates/case-study/CaseStudyPhoneVideo.tsx'),
+      ),
+    ).toBe(false);
+  });
+});
+
+// --- MIX-1896: karta z filmem bez nakładki najechania ----------------------------------------
+const overlays = (c: Element) => c.querySelectorAll(`[${PORTFOLIO_OVERLAY_ATTR}]`);
+const seeCase = (c: Element) => within(c as HTMLElement).queryAllByText(/Zobacz case study/);
+const cards = (c: HTMLElement) => Array.from(c.querySelectorAll('.group'));
+/** Najechanie myszą (zdarzenia, które widzi React; :hover CSS w jsdom nie działa, liczy się DOM). */
+const hover = (el: Element) => {
+  fireEvent.mouseEnter(el);
+  fireEvent.mouseOver(el);
+  fireEvent.pointerEnter(el, { pointerType: 'mouse' });
+};
+
+describe('lista: karta z filmem bez nakładki najechania (MIX-1896)', () => {
+  it.each([SLUG, 'glamspace'])(
+    'przełącznik włączony, %s: po najechaniu film, 0 nakładek, 0 „Zobacz case study”',
+    (slug) => {
+      const { container } = renderGrid([project('a', slug)]);
+      loadAndIntersect();
+      hover(cards(container)[0]);
+      expect(cardVideo(container)).not.toBeNull();
+      expect(overlays(container).length).toBe(0);
+      expect(seeCase(container).length).toBe(0);
+    },
+  );
+
+  it('ta sama lista: karta z filmem 0 nakładek, karta bez filmu 1 nakładka i 1 „Zobacz case study”', () => {
+    const { container } = renderGrid([project('a'), project('b', 'inny-projekt')]);
+    loadAndIntersect();
+    const [withVideo, without] = cards(container);
+    hover(withVideo);
+    hover(without);
+    expect(overlays(withVideo).length).toBe(0);
+    expect(seeCase(withVideo).length).toBe(0);
+    expect(overlays(without).length).toBe(1);
+    expect(seeCase(without).length).toBe(1);
+    expect(overlays(container).length).toBe(1);
+  });
+
+  it('Try Dive bez zdjęcia (bez filmu): nakładka jest', () => {
+    const { container } = renderGrid([{ ...project('a'), mainImage: undefined }]);
+    hover(cards(container)[0]);
+    expect(container.querySelector('video')).toBeNull();
+    expect(overlays(container).length).toBe(1);
+  });
+
+  it.each([undefined, '', '0'])(
+    'przełącznik VITE_MM_PORTFOLIO_VIDEO=%s: karta Try Dive ma 1 nakładkę i 1 „Zobacz case study”',
+    (v) => {
+      vi.unstubAllEnvs();
+      if (v !== undefined) vi.stubEnv('VITE_MM_PORTFOLIO_VIDEO', v);
+      const { container } = renderGrid([project('a')]);
+      hover(cards(container)[0]);
+      expect(container.querySelector('video')).toBeNull();
+      expect(overlays(container).length).toBe(1);
+      expect(seeCase(container).length).toBe(1);
+    },
+  );
+
+  it('link karty z filmem: dostępna nazwa = tytuł, adres realizacji, stretched link i pierścień fokusu', () => {
+    const { getByRole } = renderGrid([project('a')]);
+    const link = getByRole('link', { name: 'Projekt a' });
+    expect(link.getAttribute('href')).toBe(`/portfolio/${SLUG}/`);
+    for (const c of [
+      'after:absolute',
+      'after:inset-0',
+      'focus-visible:after:ring-4',
+      'focus-visible:after:ring-inset',
+      'focus-visible:after:ring-primary',
+      'focus-visible:after:rounded-2xl',
+    ])
+      expect(link.classList.contains(c), c).toBe(true);
+    for (const c of VIDEO_CARD_FOCUS.split(' ')) expect(link.classList.contains(c), c).toBe(true);
+  });
+
+  it('fokus z klawiatury na linku karty z filmem: nakładka się nie pojawia, pierścień zostaje', () => {
+    const { getByRole, container } = renderGrid([project('a')]);
+    const link = getByRole('link', { name: 'Projekt a' });
+    act(() => link.focus());
+    expect(document.activeElement).toBe(link);
+    expect(overlays(container).length).toBe(0);
+    expect(link.classList.contains('focus-visible:after:ring-primary')).toBe(true);
+  });
+
+  it('link karty bez filmu: bez pierścienia (fokus pokazuje nakładka, jak dotąd)', () => {
+    const { getByRole } = renderGrid([project('b', 'inny-projekt')]);
+    const link = getByRole('link', { name: 'Projekt b' });
+    expect(link.className).not.toMatch(/after:ring/);
+  });
+
+  it('zdjęcie karty z filmem bez powiększenia na najechanie; karta bez filmu z powiększeniem', () => {
+    const { container } = renderGrid([project('a'), project('b', 'inny-projekt')]);
+    const [withVideo, without] = cards(container);
+    expect(withVideo.querySelector('img')!.className).not.toMatch(/scale-110/);
+    expect(without.querySelector('img')!.className).toMatch(/group-hover:scale-110/);
+  });
+
+  it('kolor i zaokrąglenie pierścienia istnieją w motywie: --color-primary (Tailwind 4) i BaseCard rounded-2xl', () => {
+    const css = fs.readFileSync(path.resolve(__dirname, '../../index.css'), 'utf8');
+    expect(css).toMatch(/--color-primary:/);
+    const base = fs.readFileSync(path.resolve(__dirname, '../../components/common/BaseCard.tsx'), 'utf8');
+    expect(base).toMatch(/rounded = '2xl'/);
   });
 });
