@@ -188,7 +188,6 @@ for (const vp of [
   }));
   await page.evaluate(axeSrc);
   const axeRes = await page.evaluate(async () => {
-    // eslint-disable-next-line no-undef
     const r = await axe.run(document, {
       runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] },
     });
