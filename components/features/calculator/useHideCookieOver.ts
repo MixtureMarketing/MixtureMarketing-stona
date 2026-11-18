@@ -19,12 +19,7 @@ export const FORM_CONTROLS = 'label, input, select, textarea, button, a[href]';
 export function useHideCookieOver(
   ref: React.RefObject<HTMLElement | null>,
   active: boolean,
-  flag:
-    | 'configPreviewCookie'
-    | 'configLinkCookie'
-    | 'timelineCookie'
-    | 'resultCookie'
-    | 'formCookie',
+  flag: 'configPreviewCookie' | 'configLinkCookie' | 'timelineCookie' | 'resultCookie' | 'formCookie',
   /** MIX-1815 r2: gdy podany, mierzymy elementy pasujące do selektora wewnątrz `ref` (opcje,
    *  pola, przyciski), a nie cały blok: przycisk chowa się tylko nad kontrolką. */
   selector?: string,

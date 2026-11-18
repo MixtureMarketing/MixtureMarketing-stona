@@ -89,11 +89,7 @@ const ResultWithContact: React.FC<
           Umów rozmowę
           {newUi && <ArrowRight size={18} aria-hidden="true" />}
         </Link>
-        <button
-          type="button"
-          onClick={onReset}
-          className={newUi ? ui.btnSecondary : OLD_SECONDARY}
-        >
+        <button type="button" onClick={onReset} className={newUi ? ui.btnSecondary : OLD_SECONDARY}>
           Policz jeszcze raz
         </button>
       </div>

@@ -49,11 +49,12 @@ vi.mock('../contact/TurnstileWidget', async () => {
 import PublicCalculator from './PublicCalculator';
 import { readHandoff } from './calculatorHandoff';
 
-let contactState: unknown = 'brak';
-const ContactProbe: React.FC = () => {
-  contactState = useLocation().state;
-  return <p>strona kontaktu</p>;
-};
+// Strona kontaktu = sonda: stan historii (konfiguracja) wypisany jako JSON.
+const ContactProbe: React.FC = () => (
+  <pre data-testid="contact-state">{JSON.stringify(useLocation().state ?? null)}</pre>
+);
+// Twarde spacje (kwoty, &nbsp;) jako zwykłe, żeby porównać tekst.
+const flat = (s: string | null | undefined) => (s ?? '').replace(/\s/g, ' ');
 
 async function reachResult() {
   const view = render(
@@ -78,7 +79,6 @@ beforeEach(() => {
     vi.stubEnv(f, '');
   vi.stubEnv('VITE_MM_LEAD_CONFIG', '1');
   vi.stubEnv('VITE_MM_RESULT_CONTACT', '1');
-  contactState = 'brak';
   submitPublicQuote.mockReset();
   submitPublicQuote.mockResolvedValue({
     ok: true,
@@ -111,7 +111,7 @@ describe('MIX-1815 r3: Z11 × nowy wygląd × terminy × oś czasu (8 kombinacji
 
       const box = screen.getByTestId('calc-result');
       const h = within(box).getByRole('heading', { level: 2, name: /Twój projekt:/ });
-      expect(h.textContent).toBe('Twój projekt: 27 500 – 53 000 zł netto');
+      expect(flat(h.textContent)).toBe('Twój projekt: 27 500 – 53 000 zł netto');
       expect(box.textContent).toContain('Dokładną cenę podamy po 20-minutowej');
       expect(screen.queryByText(/orientacyjne widełki/i)).toBeNull();
 
@@ -149,11 +149,12 @@ describe('MIX-1815 r3: Z11 × nowy wygląd × terminy × oś czasu (8 kombinacji
       }
 
       fireEvent.click(link);
-      await screen.findByText('strona kontaktu');
-      const handoff = readHandoff(contactState);
+      const state = await screen.findByTestId('contact-state');
+      const handoff = readHandoff(JSON.parse(state.textContent ?? 'null'));
       expect(handoff?.email).toBe('jan@firma.pl');
-      expect(handoff?.text).toContain('Jaki jest cel projektu? Sklep');
-      expect(handoff?.text).toContain('27 500 – 53 000 zł netto');
+      expect(flat(handoff?.text)).toContain('Jaki jest cel projektu?');
+      expect(flat(handoff?.text)).toContain('Sklep');
+      expect(flat(handoff?.text)).toContain('27 500 – 53 000 zł netto');
       unmount();
     });
   }

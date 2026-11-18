@@ -63,6 +63,7 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
   'VITE_MM_LIVE_PRICE_BAR',
   'VITE_MM_NEW_CLIENT_TIMELINE', // MIX-1816: oś czasu na ekranie wyniku (Z13)
+  'VITE_MM_RESULT_CONTACT', // MIX-1815: ekran wyniku i przejście do kontaktu (Z11)
 ];
 /** MIX-1873: filmy w portfolio czekają na akceptację Jakuba na Preview: Preview 1, produkcja i PR puste. */
 const FILMY_PORTFOLIO_TYLKO_PREVIEW = ['VITE_MM_PORTFOLIO_VIDEO'];
