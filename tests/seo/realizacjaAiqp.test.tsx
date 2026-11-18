@@ -321,3 +321,21 @@ describe('sitemap.xml: lastmod realizacji (generator wymaga daty dla każdej tra
     expect(computeLastmods(root, [AIQP_PATH])[AIQP_PATH]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 });
+
+describe('zrzut CMS w prerenderze (MIX-1620): realizacja z repo przechodzi walidację', () => {
+  it('dokument caseStudy i lista caseStudyList ze zdjęciem lokalnym = poprawny zrzut', async () => {
+    const { isValidSnapshotEntry } = await import('@/hooks/cmsSnapshotSchema');
+    expect(isValidSnapshotEntry('caseStudy', { project: AIQP_CASE_STUDY, nextProject: null })).toBe(
+      true,
+    );
+    expect(isValidSnapshotEntry('caseStudyList', [AIQP_CASE_STUDY])).toBe(true);
+  });
+  it.each(['local://evil.example/x.webp', 'local:/../x.webp', 'local:x.webp', 'image-bad'])(
+    'zdjęcie %s = zrzut odrzucony (fail-closed)',
+    async (ref) => {
+      const { isValidSnapshotEntry } = await import('@/hooks/cmsSnapshotSchema');
+      const bad = { ...AIQP_CASE_STUDY, mainImage: { _type: 'image', asset: { _ref: ref } } };
+      expect(isValidSnapshotEntry('caseStudy', { project: bad, nextProject: null })).toBe(false);
+    },
+  );
+});
