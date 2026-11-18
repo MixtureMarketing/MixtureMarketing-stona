@@ -129,7 +129,8 @@ describe('MIX-1815 r3: Z11 × nowy wygląd × terminy × oś czasu (8 kombinacji
         expect(document.activeElement).toBe(h);
         // Tekst Z11 na granacie ≥ text-white/75 (terminy i oś czasu to osobne komponenty).
         const own = [...box.children].filter(
-          (el) => !['booking-embed', 'new-client-timeline'].includes(el.getAttribute('data-testid')!),
+          (el) =>
+            !['booking-embed', 'new-client-timeline'].includes(el.getAttribute('data-testid')!),
         );
         expect(own.length).toBe(4);
         for (const el of own) expect(el.outerHTML).not.toMatch(/text-gray-[34]00/);
