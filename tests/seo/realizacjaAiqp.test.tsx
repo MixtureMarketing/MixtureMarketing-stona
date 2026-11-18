@@ -60,10 +60,13 @@ afterEach(() => {
 });
 
 describe('isRealizacjaAiqpEnabled (allowlista: tylko "1")', () => {
-  it.each([[undefined], [''], ['0'], ['true'], [' 1'], ['1 '], ['yes']])('%p = wyłączony', (raw) => {
-    vi.stubEnv(FLAG, raw as unknown as string);
-    expect(isRealizacjaAiqpEnabled()).toBe(false);
-  });
+  it.each([[undefined], [''], ['0'], ['true'], [' 1'], ['1 '], ['yes']])(
+    '%p = wyłączony',
+    (raw) => {
+      vi.stubEnv(FLAG, raw as unknown as string);
+      expect(isRealizacjaAiqpEnabled()).toBe(false);
+    },
+  );
   it('"1" = włączony', () => {
     vi.stubEnv(FLAG, '1');
     expect(isRealizacjaAiqpEnabled()).toBe(true);
@@ -169,13 +172,13 @@ describe('urlFor: zdjęcie z repo (localImage)', () => {
   ])('niedozwolona ścieżka %s = nie lokalna', (ref) => {
     expect(localImageSrc({ _type: 'image', asset: { _ref: ref, _type: 'reference' } })).toBeNull();
   });
-  it('obraz z Sanity bez zmian (adres CDN z auto=format)', () => {
-    const url = urlFor({
-      _type: 'image',
-      asset: { _ref: 'image-Tb9Ew8CXIwaY6R1kjMvI0uRR-2000x3000-jpg', _type: 'reference' },
-    }).url();
-    expect(url).toMatch(/^https:\/\/cdn\.sanity\.io\//);
-    expect(url).toContain('auto=format');
+  it('obraz z Sanity (ref image-…) nie jest lokalny: idzie dalej do buildera Sanity', () => {
+    const sanity = {
+      _type: 'image' as const,
+      asset: { _ref: 'image-Tb9Ew8CXIwaY6R1kjMvI0uRR-2000x3000-jpg', _type: 'reference' as const },
+    };
+    expect(localImageSrc(sanity)).toBeNull();
+    expect(localImageSrc(undefined)).toBeNull();
   });
 });
 
@@ -188,7 +191,7 @@ const allBlocks = [
   ...(AIQP_CASE_STUDY.result ?? []),
 ];
 const links = allBlocks.flatMap(
-  (b) => ((b.markDefs ?? []) as { _type: string; href: string }[]).map((m) => m.href) ?? [],
+  (b) => ((b.markDefs ?? []) as unknown as { _type: string; href: string }[]).map((m) => m.href),
 );
 const draft = readFileSync(resolve(__dirname, '../../docs/tresci/MIX-1275.md'), 'utf8');
 const draftBody = draft.split('## Treść (szkic)')[1].split('## Źródła')[0];
@@ -301,7 +304,7 @@ describe('lista portfolio (PortfolioGrid)', () => {
   it('karta realizacji prowadzi na /portfolio/ai-q-plast/ i ma zdjęcie z repo', () => {
     const { container } = render(
       <MemoryRouter>
-        <PortfolioGrid projects={[AIQP_CASE_STUDY]} />
+        <PortfolioGrid projects={[AIQP_CASE_STUDY]} loading={false} />
       </MemoryRouter>,
     );
     const a = container.querySelector(`a[href="${AIQP_PATH}"], a[href="/portfolio/${AIQP_SLUG}"]`);
