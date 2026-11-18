@@ -47,7 +47,7 @@ B=$D/base-src
 mkdir -p "$B"
 # Stacja nie ma historii (migawka), więc baza = to drzewo z cofniętą łatką zmian produktu
 # (.bieg/m1269/baza-odwrotnie.patch = git diff $BASE_SHA..HEAD -- components config data .github).
-tar --exclude=./node_modules --exclude=./.bieg --exclude=./dist --exclude=./.git -cf - . | tar -x -C "$B"
+tar --exclude=./node_modules --exclude=./.bieg --exclude=./dist --exclude=./.git --exclude=./tests -cf - . | tar -x -C "$B"
 git apply -R --directory="$B" .bieg/m1269/baza-odwrotnie.patch > "$OUT/baza-patch.log" 2>&1; echo "STEP baza-patch rc=$?"
 echo "  baza: łatka cofnięta, pliki flagi w bazie: $(grep -c VITE_MM_HOME_SEO "$B/config/flags.ts" "$B/.github/workflows/ci.yml" | tr '\n' ' ')"
 ln -s "$PWD/node_modules" "$B/node_modules"
@@ -55,6 +55,12 @@ ln -s "$PWD/node_modules" "$B/node_modules"
 echo "--- porównanie HTML: baza ($BASE_SHA) vs off (HEAD bez przełącznika)"
 node .bieg/m1269/porownaj.mjs "$B/dist" "$D/off" > "$OUT/porownaj.log" 2>&1; prc=$?
 cat "$OUT/porownaj.log" | head -20; echo "STEP porownaj rc=$prc"; [ $prc -ne 0 ] && RC=1
+echo "--- informacyjnie: off vs on (te same artykuły CMS w obu? różnica tylko w index.html?)"
+node .bieg/m1269/porownaj.mjs "$D/off" "$D/on" 2>&1 | head -8
+echo "--- informacyjnie: off vs drugi build off (powtarzalność artykułów)"
+step build-off2 env VITE_MM_HOME_SEO= npm run build
+cp -r dist "$D/off2"; restore_generated
+node .bieg/m1269/porownaj.mjs "$D/off" "$D/off2" 2>&1 | head -8
 echo "--- próba on/off"
 showp() { tail -1 "$OUT/$1.log" | cut -c1-4000; }
 step probe-off node .bieg/m1269/probe.mjs "$D/off" "$OUT" off
