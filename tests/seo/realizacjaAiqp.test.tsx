@@ -190,8 +190,8 @@ const allBlocks = [
   ...(AIQP_CASE_STUDY.solution ?? []),
   ...(AIQP_CASE_STUDY.result ?? []),
 ];
-const links = allBlocks.flatMap(
-  (b) => ((b.markDefs ?? []) as unknown as { _type: string; href: string }[]).map((m) => m.href),
+const links = allBlocks.flatMap((b) =>
+  ((b.markDefs ?? []) as unknown as { _type: string; href: string }[]).map((m) => m.href),
 );
 const draft = readFileSync(resolve(__dirname, '../../docs/tresci/MIX-1275.md'), 'utf8');
 const draftBody = draft.split('## Treść (szkic)')[1].split('## Źródła')[0];
