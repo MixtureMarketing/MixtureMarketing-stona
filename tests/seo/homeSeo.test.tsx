@@ -49,6 +49,13 @@ const stubFlag = (v: string | undefined) => vi.stubEnv('VITE_MM_HOME_SEO', v as 
 const count = (text: string, phrase = HOME_SEO_PHRASE) =>
   text.toLocaleLowerCase('pl-PL').split(phrase).length - 1;
 
+/** Opis pierwszej różnicy (komunikat porażki; długie HTML w jednej linii vitest ucina). */
+const firstDiff = (a: string, b: string) => {
+  let i = 0;
+  while (i < a.length && a[i] === b[i]) i++;
+  return `pierwsza różnica na znaku ${i}: …${a.slice(Math.max(0, i - 80), i + 80)}… ≠ …${b.slice(Math.max(0, i - 80), i + 80)}…`;
+};
+
 /** Pas „Lokalnie · Rzeszów”: lista linków z hubem lokalnym. */
 const band = (el: ParentNode) =>
   [...el.querySelectorAll<HTMLElement>('div.flex.flex-wrap.gap-2')].find((d) =>
@@ -85,11 +92,11 @@ describe('wzorzec bazowy (sanity)', () => {
 });
 
 describe('przełącznik wyłączony', () => {
-  it.each(OFF)('%p: strona główna identyczna z wzorcem sprzed zmiany', async (v) => {
+  it.each(OFF)('wartość %s: strona główna identyczna z wzorcem sprzed zmiany', async (v) => {
     stubFlag(v);
     const { container } = await renderHomeSeo();
     const snap = snapshotHome(container);
-    expect(snap.html).toBe(BASE.html);
+    expect(snap.html, firstDiff(snap.html, BASE.html)).toBe(BASE.html);
     expect(snap.title).toBe(BASE.title);
     expect(snap.description).toBe(BASE.description);
     expect(snap.canonical).toBe(BASE.canonical);
@@ -171,7 +178,7 @@ describe('przełącznik włączony', () => {
     const base = document.createElement('div');
     base.innerHTML = BASE.html;
     band(live)!.replaceWith(band(base)!.cloneNode(true));
-    expect(live.innerHTML).toBe(BASE.html);
+    expect(live.innerHTML, firstDiff(live.innerHTML, BASE.html)).toBe(BASE.html);
   });
 
   it('axe (wcag2a/aa): 0 naruszeń serious/critical', async () => {
