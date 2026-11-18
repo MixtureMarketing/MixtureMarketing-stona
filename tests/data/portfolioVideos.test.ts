@@ -80,7 +80,10 @@ describe('mapa filmów portfolio (MIX-1896: tylko komplety poziome)', () => {
     }));
 
   it('Try Dive i Glampspace: komplety poziome z mapy', () => {
-    expect(Object.keys(PORTFOLIO_VIDEOS).sort()).toEqual(['glamspace', 'try-dive-szkola-nurkowania']);
+    expect(Object.keys(PORTFOLIO_VIDEOS).sort()).toEqual([
+      'glamspace',
+      'try-dive-szkola-nurkowania',
+    ]);
     expect(PORTFOLIO_VIDEOS['try-dive-szkola-nurkowania']).toEqual(landscape('try-dive'));
     expect(PORTFOLIO_VIDEOS['glamspace']).toEqual(landscape('glamspace'));
   });

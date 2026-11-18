@@ -79,116 +79,116 @@ const PortfolioGrid: React.FC<PortfolioGridProps> = ({ projects, loading }) => {
           // MIX-1896: karta z filmem (ten sam warunek co film kafelka) bez nakładki i bez powiększenia zdjęcia
           const video = cardVideoFor(project);
           return (
-          <motion.div
-            key={project._id}
-            layout={!reducedMotion}
-            initial={entrance ? { opacity: 0, scale: 0.9 } : false}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={reducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
-            transition={{ duration: reducedMotion ? 0 : 0.4 }}
-            className="group h-full"
-            {...(isPortfolioVideoEnabled() ? { [PORTFOLIO_CARD_ATTR]: '' } : {})}
-          >
-            {/* Karta klikalna przez stretched-link na tytule (klawiatura + czytniki),
-                nie przez onClick na divie. */}
-            <BaseCard
-              variant="solid"
-              padding="none"
-              hover="lift"
-              className="h-full flex flex-col border-gray-100 relative"
+            <motion.div
+              key={project._id}
+              layout={!reducedMotion}
+              initial={entrance ? { opacity: 0, scale: 0.9 } : false}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0, scale: 0.9 }}
+              transition={{ duration: reducedMotion ? 0 : 0.4 }}
+              className="group h-full"
+              {...(isPortfolioVideoEnabled() ? { [PORTFOLIO_CARD_ATTR]: '' } : {})}
             >
-              {/* Image Container */}
-              <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                {project.mainImage ? (
-                  <img
-                    src={cardPhotoUrl(project)}
-                    alt={project.title}
-                    width={CARD_PHOTO.width}
-                    height={CARD_PHOTO.height}
-                    className={`w-full h-full object-cover${
-                      video ? '' : ' transition-transform duration-700 group-hover:scale-110'
-                    }`}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <span className="font-bold uppercase tracking-widest text-xs">
-                      Brak zdjęcia
-                    </span>
-                  </div>
-                )}
-
-                {video && <PortfolioCardVideo video={video} poster={cardPhotoUrl(project)} />}
-
-                {/* Overlay Tags */}
-                <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
-                  <span
-                    className={`px-3 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-white/20 text-white ${
-                      CATEGORY_BADGE[project.category]?.className ?? 'bg-dark/90'
-                    }`}
-                  >
-                    {CATEGORY_BADGE[project.category]?.label ?? project.category}
-                  </span>
-                </div>
-
-                {/* Hover Overlay: tylko karta bez filmu (MIX-1896: nakładka zasłaniała film) */}
-                {!video && (
-                  <div
-                    {...{ [PORTFOLIO_OVERLAY_ATTR]: '' }}
-                    className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                  >
-                    <div className="transform translate-y-4 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300">
-                      <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
-                        Zobacz case study <ArrowRight size={16} aria-hidden="true" />
+              {/* Karta klikalna przez stretched-link na tytule (klawiatura + czytniki),
+                nie przez onClick na divie. */}
+              <BaseCard
+                variant="solid"
+                padding="none"
+                hover="lift"
+                className="h-full flex flex-col border-gray-100 relative"
+              >
+                {/* Image Container */}
+                <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
+                  {project.mainImage ? (
+                    <img
+                      src={cardPhotoUrl(project)}
+                      alt={project.title}
+                      width={CARD_PHOTO.width}
+                      height={CARD_PHOTO.height}
+                      className={`w-full h-full object-cover${
+                        video ? '' : ' transition-transform duration-700 group-hover:scale-110'
+                      }`}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <span className="font-bold uppercase tracking-widest text-xs">
+                        Brak zdjęcia
                       </span>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
 
-              {/* Content */}
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="mb-4">
-                  <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                    <Link
-                      to={`/portfolio/${project.slug}/`}
-                      className={`after:absolute after:inset-0 after:z-10 focus-visible:outline-none${
-                        video ? ` ${VIDEO_CARD_FOCUS}` : ''
+                  {video && <PortfolioCardVideo video={video} poster={cardPhotoUrl(project)} />}
+
+                  {/* Overlay Tags */}
+                  <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
+                    <span
+                      className={`px-3 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg shadow-sm border border-white/20 text-white ${
+                        CATEGORY_BADGE[project.category]?.className ?? 'bg-dark/90'
                       }`}
                     >
-                      {project.title}
-                    </Link>
-                  </h3>
-                  <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">
-                    {project.client || 'Klient poufny'}
-                  </p>
+                      {CATEGORY_BADGE[project.category]?.label ?? project.category}
+                    </span>
+                  </div>
+
+                  {/* Hover Overlay: tylko karta bez filmu (MIX-1896: nakładka zasłaniała film) */}
+                  {!video && (
+                    <div
+                      {...{ [PORTFOLIO_OVERLAY_ATTR]: '' }}
+                      className="absolute inset-0 bg-dark/80 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 flex items-center justify-center"
+                    >
+                      <div className="transform translate-y-4 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300">
+                        <span className="inline-flex items-center gap-2 px-6 py-3 bg-white text-dark rounded-full font-bold text-sm">
+                          Zobacz case study <ArrowRight size={16} aria-hidden="true" />
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                <p className="text-gray-600 text-sm line-clamp-3 mb-6 flex-grow leading-relaxed">
-                  {project.excerpt}
-                </p>
-
-                {/* Tags */}
-                {project.subcategory && (
-                  <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-100">
-                    {project.subcategory.slice(0, 3).map((sub, i) => (
-                      <span
-                        key={i}
-                        className="text-xxs font-bold uppercase text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100"
+                {/* Content */}
+                <div className="p-8 flex flex-col flex-grow">
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-dark mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      <Link
+                        to={`/portfolio/${project.slug}/`}
+                        className={`after:absolute after:inset-0 after:z-10 focus-visible:outline-none${
+                          video ? ` ${VIDEO_CARD_FOCUS}` : ''
+                        }`}
                       >
-                        {sub}
-                      </span>
-                    ))}
-                    {project.subcategory.length > 3 && (
-                      <span className="text-xxs font-bold text-gray-400 px-1 py-1">
-                        + {project.subcategory.length - 3}
-                      </span>
-                    )}
+                        {project.title}
+                      </Link>
+                    </h3>
+                    <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                      {project.client || 'Klient poufny'}
+                    </p>
                   </div>
-                )}
-              </div>
-            </BaseCard>
-          </motion.div>
+
+                  <p className="text-gray-600 text-sm line-clamp-3 mb-6 flex-grow leading-relaxed">
+                    {project.excerpt}
+                  </p>
+
+                  {/* Tags */}
+                  {project.subcategory && (
+                    <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-100">
+                      {project.subcategory.slice(0, 3).map((sub, i) => (
+                        <span
+                          key={i}
+                          className="text-xxs font-bold uppercase text-gray-500 bg-gray-50 px-2 py-1 rounded border border-gray-100"
+                        >
+                          {sub}
+                        </span>
+                      ))}
+                      {project.subcategory.length > 3 && (
+                        <span className="text-xxs font-bold text-gray-400 px-1 py-1">
+                          + {project.subcategory.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </BaseCard>
+            </motion.div>
           );
         })}
       </AnimatePresence>

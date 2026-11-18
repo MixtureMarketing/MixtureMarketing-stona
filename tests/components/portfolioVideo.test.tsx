@@ -754,7 +754,10 @@ describe('lista: karta z filmem bez nakładki najechania (MIX-1896)', () => {
   it('kolor i zaokrąglenie pierścienia istnieją w motywie: --color-primary (Tailwind 4) i BaseCard rounded-2xl', () => {
     const css = fs.readFileSync(path.resolve(__dirname, '../../index.css'), 'utf8');
     expect(css).toMatch(/--color-primary:/);
-    const base = fs.readFileSync(path.resolve(__dirname, '../../components/common/BaseCard.tsx'), 'utf8');
+    const base = fs.readFileSync(
+      path.resolve(__dirname, '../../components/common/BaseCard.tsx'),
+      'utf8',
+    );
     expect(base).toMatch(/rounded = '2xl'/);
   });
 });

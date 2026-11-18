@@ -499,16 +499,13 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w).VITE_MM_LIVE_PRICE_BAR = '1';
     expect(naruszenia(w).join('|')).toMatch(/VITE_MM_LIVE_PRICE_BAR: zła wartość na produkcji/);
   });
-  it.each(TYLKO_PREVIEW)(
-    'MIX-1838: %s (tylko Preview) włączony na produkcji = naruszenie',
-    (f) => {
-      const w = kopia();
-      zmienneBuildu(w)[f] = '1';
-      const b = naruszenia(w);
-      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
-      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
-    },
-  );
+  it.each(TYLKO_PREVIEW)('MIX-1838: %s (tylko Preview) włączony na produkcji = naruszenie', (f) => {
+    const w = kopia();
+    zmienneBuildu(w)[f] = '1';
+    const b = naruszenia(w);
+    expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+    expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+  });
   it.each(CENNIK_WYLACZONY_NA_PROD)(
     'MIX-1855: %s (strona /cennik/) włączony na produkcji = naruszenie',
     (f) => {
@@ -582,7 +579,8 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
   it('MIX-1896: VITE_MM_PORTFOLIO_VIDEO w prawdziwym ci.yml to stała 1 (Preview, produkcja i PR)', () => {
     const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_PORTFOLIO_VIDEO);
     expect(wyr).toBe('1');
-    for (const cel of ['preview', 'prod', 'none'] as const) expect(wartoscFlagi(wyr, cel)).toBe('1');
+    for (const cel of ['preview', 'prod', 'none'] as const)
+      expect(wartoscFlagi(wyr, cel)).toBe('1');
   });
   it('MIX-1896: przywrócone wyrażenie tylko-Preview dla filmów portfolio = naruszenie', () => {
     const w = kopia();

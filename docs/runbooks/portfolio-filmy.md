@@ -11,11 +11,11 @@ samo zdjęcie. Całość działa przy `VITE_MM_PORTFOLIO_VIDEO=1`; od MIX-1896 j
 Wszystko w `public/portfolio/video/`. `<base>` to krótka nazwa filmu: może być slugiem realizacji albo
 krótsza od niego (np. `try-dive` dla realizacji `try-dive-szkola-nurkowania`).
 
-| plik | wymiary | do czego | limit |
-|---|---|---|---|
-| `<base>-960.mp4` i `<base>-960.webm` | 960×540 | kafelek listy | ≤ 500 kB każdy |
+| plik                                   | wymiary  | do czego           | limit          |
+| -------------------------------------- | -------- | ------------------ | -------------- |
+| `<base>-960.mp4` i `<base>-960.webm`   | 960×540  | kafelek listy      | ≤ 500 kB każdy |
 | `<base>-1280.mp4` i `<base>-1280.webm` | 1280×720 | hero na komputerze | ≤ 1,5 MB każdy |
-| `<base>-720.mp4` i `<base>-720.webm` | 720×406 | hero na telefonie | ≤ 0,5 MB każdy |
+| `<base>-720.mp4` i `<base>-720.webm`   | 720×406  | hero na telefonie  | ≤ 0,5 MB każdy |
 
 Limity są z MIX-1873. Film: 8–12 s, bez dźwięku, MP4 (H.264) i WebM (VP9), pętla (początek i koniec
 podobne), 25 kl/s. Wysokość 406, nie 405, bo kodek wymaga parzystej wysokości.
@@ -35,6 +35,7 @@ podobne), 25 kl/s. Wysokość 406, nie 405, bo kodek wymaga parzystej wysokości
    podnosi CRF; gdy mimo to limit jest przekroczony, kończy kodem 1 z napisem `PRZEKROCZONY`
    (wtedy skróć fragment). Bez `SRC` skrypt nagrywa przewijanie publicznej strony realizacji
    (adres tylko z sitemap.xml, ≤ 1 żądanie/s).
+
 3. W `data/portfolioVideos.ts` dopisz jedną linię w `PORTFOLIO_VIDEOS`:
 
    ```ts
@@ -43,6 +44,7 @@ podobne), 25 kl/s. Wysokość 406, nie 405, bo kodek wymaga parzystej wysokości
 
    `landscape('<base>')` daje komplet trzech wariantów z tabeli. Klucz to slug realizacji z Sanity
    (adres `/portfolio/<slug-realizacji>/`).
+
 4. Testy uruchom przez bieg na stacji (nigdy na serwerze). `tests/data/portfolioVideos.test.ts`
    sprawdzi, że:
    - każdy wpis to dokładnie `landscape('<base>')` (trzy warianty, bez `portrait`);
