@@ -150,6 +150,7 @@ jobs:
           VITE_MM_NEW_CLIENT_TIMELINE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           # MIX-1873: filmy w portfolio (lista i strona realizacji) do akceptacji Jakuba na Preview.
           VITE_MM_PORTFOLIO_VIDEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_RESULT_CONTACT: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1815: ekran wyniku i przejscie do kontaktu
         run: npm run build
 
       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,

@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import type { PriceRange } from '../../../services/calculatorService';
 import { calcUi } from './calcUi';
+import { handoffState, type CalculatorHandoff } from './calculatorHandoff';
+import { useHideCookieOver } from './useHideCookieOver';
 
 const pln = (n: number) => new Intl.NumberFormat('pl-PL').format(Math.round(n));
 
@@ -19,7 +21,90 @@ interface CalculatorResultProps {
   timeline?: React.ReactNode;
   /** MIX-1814 (Z9): harmonogram rozmów pod wynikiem; brak = ekran wyniku jak dotąd. */
   booking?: React.ReactNode;
+  /**
+   * MIX-1815 (VITE_MM_RESULT_CONTACT): konfiguracja dla /contact/. Podana = ekran wyniku z treściami
+   * P4, przyciskami ≥ 44 px i „Umów rozmowę” z konfiguracją; brak = ekran jak dziś.
+   */
+  handoff?: CalculatorHandoff | null;
 }
+
+// min-h-11 = 44 px: cel dotyku (próg firmy, WCAG 2.5.5), jak przyciski opcji i linku.
+const BTN = 'inline-flex min-h-11 items-center justify-center px-6 py-3 rounded-xl transition';
+const OLD_PRIMARY = `${BTN} bg-primary text-dark font-semibold hover:brightness-110`;
+const OLD_SECONDARY = `${BTN} border border-white/20 text-gray-200 hover:border-white/40`;
+
+/**
+ * MIX-1815 r3: ekran wyniku z przejściem do kontaktu w obu wyglądach. Stary wygląd = ekran r2
+ * (min-h-11); nowy wygląd (MIX-1867/MIX-1937) = pigułka indygo z SVG-strzałką (min-h-12 = 48 px),
+ * tekst na granacie ≥ text-white/75, fokus na nagłówku. Harmonogram i oś czasu pod przyciskami.
+ */
+const ResultWithContact: React.FC<
+  Omit<CalculatorResultProps, 'handoff'> & { handoff: CalculatorHandoff }
+> = ({ priceRange, onReset, handoff, newUi, timeline, booking }) => {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const headRef = useRef<HTMLHeadingElement>(null);
+  // Przycisk ciasteczek (fixed) nie może zasłaniać przycisków wyniku na telefonie (MIX-1799).
+  useHideCookieOver(boxRef, true, 'resultCookie');
+  useEffect(() => {
+    if (newUi) headRef.current?.focus();
+  }, [newUi]);
+  const ui = calcUi(true);
+  const range = (
+    <>
+      {pln(priceRange.min)}&nbsp;–&nbsp;{pln(priceRange.max)}&nbsp;zł netto
+    </>
+  );
+  return (
+    <div
+      className={newUi ? 'space-y-6 md:space-y-8 text-center' : 'text-center space-y-6'}
+      data-testid="calc-result"
+    >
+      {newUi ? (
+        <h2
+          ref={headRef}
+          tabIndex={-1}
+          className="text-3xl font-extrabold tracking-tight text-white focus:outline-none md:text-5xl"
+        >
+          Twój projekt: {range}
+        </h2>
+      ) : (
+        <h2 className="text-3xl md:text-5xl font-extrabold text-white">Twój projekt: {range}</h2>
+      )}
+      <p
+        className={`mx-auto max-w-md ${newUi ? 'leading-relaxed text-white/75' : 'text-gray-300'}`}
+      >
+        To orientacja z naszego modelu wyceny, nie oferta. Dokładną cenę podamy po 20-minutowej
+        rozmowie.
+      </p>
+      <div
+        ref={boxRef}
+        data-testid="calc-result-actions"
+        className="flex flex-col sm:flex-row gap-3 justify-center pt-2"
+      >
+        <Link
+          to="/contact/"
+          state={handoffState(handoff)}
+          className={newUi ? ui.btnPrimary : OLD_PRIMARY}
+        >
+          Umów rozmowę
+          {newUi && <ArrowRight size={18} aria-hidden="true" />}
+        </Link>
+        <button
+          type="button"
+          onClick={onReset}
+          className={newUi ? ui.btnSecondary : OLD_SECONDARY}
+        >
+          Policz jeszcze raz
+        </button>
+      </div>
+      <p className={`mx-auto max-w-md text-sm ${newUi ? 'text-white/75' : 'text-gray-400'}`}>
+        Twoje odpowiedzi i widełki przeniesiemy do formularza kontaktu.
+      </p>
+      {booking}
+      {timeline}
+    </div>
+  );
+};
 
 const NewResult: React.FC<Omit<CalculatorResultProps, 'newUi'>> = ({
   priceRange,
@@ -72,7 +157,19 @@ const CalculatorResult: React.FC<CalculatorResultProps> = ({
   newUi,
   timeline,
   booking,
+  handoff,
 }) => {
+  if (handoff)
+    return (
+      <ResultWithContact
+        priceRange={priceRange}
+        onReset={onReset}
+        handoff={handoff}
+        newUi={newUi}
+        timeline={timeline}
+        booking={booking}
+      />
+    );
   if (newUi)
     return (
       <NewResult priceRange={priceRange} onReset={onReset} timeline={timeline} booking={booking} />
