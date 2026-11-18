@@ -767,20 +767,20 @@ describe('lista: karta z wpisem w mapie, ale bez grającego filmu, ma nakładkę
   it.each<[string, () => void]>([
     ['prefers-reduced-motion', () => (media[REDUCED] = true)],
     ['dotyk (bez hover)', () => (media[HOVER] = false)],
-    [
-      'prerender',
-      () => ((window as unknown as { isPrerendering: boolean }).isPrerendering = true),
-    ],
-  ])('%s: 0 <video>, 1 nakładka i 1 „Zobacz case study”, link bez pierścienia filmu', (_n, ustaw) => {
-    ustaw();
-    const { container } = renderGrid([project('a')]);
-    loadAndIntersect();
-    hover(cards(container)[0]);
-    expect(container.querySelector('video')).toBeNull();
-    expect(overlays(container).length).toBe(1);
-    expect(seeCase(container).length).toBe(1);
-    expect(container.querySelector('a')!.className).not.toContain('focus-visible:after:ring-4');
-  });
+    ['prerender', () => ((window as unknown as { isPrerendering: boolean }).isPrerendering = true)],
+  ])(
+    '%s: 0 <video>, 1 nakładka i 1 „Zobacz case study”, link bez pierścienia filmu',
+    (_n, ustaw) => {
+      ustaw();
+      const { container } = renderGrid([project('a')]);
+      loadAndIntersect();
+      hover(cards(container)[0]);
+      expect(container.querySelector('video')).toBeNull();
+      expect(overlays(container).length).toBe(1);
+      expect(seeCase(container).length).toBe(1);
+      expect(container.querySelector('a')!.className).not.toContain('focus-visible:after:ring-4');
+    },
+  );
 
   it('błąd pliku filmu: <video> znika, nakładka wraca (tylko na tej karcie)', () => {
     const { container } = renderGrid([project('a'), project('b', 'glamspace')]);

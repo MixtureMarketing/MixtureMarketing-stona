@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { PortfolioVideoVariant } from '@/data/portfolioVideos';
-import {
-  afterLoadIdle,
-  canPreloadVideo,
-} from '@/utils/portfolioVideo';
+import { afterLoadIdle, canPreloadVideo } from '@/utils/portfolioVideo';
 import { portfolioPreloadQueue } from '@/utils/preloadQueue';
 import { pickVideoSrc } from './pickVideoSrc';
 import { canPlayCardVideo } from './cardVideo';
