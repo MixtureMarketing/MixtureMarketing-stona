@@ -278,7 +278,16 @@ describe('scripts/ci-turnstile-deploy.sh (API Cloudflare + dist)', () => {
     odmowa(guard(['build']), /nieznane polecenie/);
     odmowa(guard(['deploy', '--target']), /zły argument/);
     // bliźniak: te same pliki i poprawne argumenty = rc 0
-    const ok = ['--target', 'prod', '--branch', 'main', '--project-json', pj, '--dist', env.DIST_DIR];
+    const ok = [
+      '--target',
+      'prod',
+      '--branch',
+      'main',
+      '--project-json',
+      pj,
+      '--dist',
+      env.DIST_DIR,
+    ];
     expect(guard(['deploy', ...ok]).status).toBe(0);
   });
 });
