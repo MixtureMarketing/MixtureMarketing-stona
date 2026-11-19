@@ -16,7 +16,8 @@ export const TURNSTILE_ANY_TEST_SITE_KEY_RE = /(?<![0-9A-Za-z])[1-3]x0{20}[0-9A-
 /** Cele budowy z kroku „Resolve deploy target” (scripts/ci-deploy-guard.sh) + `local`. */
 export const BUILD_TARGETS = ['prod', 'preview', 'none', 'local'];
 
-const fail = (reason) => ({ ok: false, reason: `turnstile-guard: ODMOWA: ${reason}` });
+/** @param {string} reason @returns {{ ok: false, reason: string }} */
+const fail = (reason) => ({ ok: /** @type {false} */ (false), reason: `turnstile-guard: ODMOWA: ${reason}` });
 
 /** Opis wartości do linii powodu, bez wypisywania samej wartości. */
 function describe(key) {
@@ -37,6 +38,8 @@ function describe(key) {
  *   local       -> brak zmiennej (aplikacja bierze klucz produkcyjny) albo klucz produkcyjny
  *   inny cel    -> odmowa
  */
+/** @param {{ target: unknown, key: unknown }} a
+ *  @returns {{ ok: true, key: string } | { ok: false, reason: string }} */
 export function checkBuildKey({ target, key }) {
   if (typeof target !== 'string' || !BUILD_TARGETS.includes(target))
     return fail(`nieznany cel budowy (MM_DEPLOY_TARGET=${JSON.stringify(String(target)).slice(0, 40)})`);
@@ -58,6 +61,8 @@ export function checkBuildKey({ target, key }) {
  * produkcyjny. Preview: jest klucz produkcyjny albo testowy.
  * `distTexts`: treści plików tekstowych dist (html/js/json/txt).
  */
+/** @param {{ target?: unknown, branch?: unknown, productionBranch?: unknown, distTexts?: unknown }} a
+ *  @returns {{ ok: true, cfEnv: string } | { ok: false, reason: string }} */
 export function checkDeploy({ target, branch, productionBranch, distTexts }) {
   if (target !== 'prod' && target !== 'preview') return fail(`nieznany cel wgrania '${String(target)}'`);
   if (typeof productionBranch !== 'string' || productionBranch === '')

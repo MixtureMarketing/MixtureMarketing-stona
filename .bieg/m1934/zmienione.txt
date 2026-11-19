@@ -19,3 +19,4 @@ scripts/lib/turnstileKeyGuard.mjs
 scripts/preview-access-check.sh
 scripts/preview-turnstile-test-secret.sh
 tests/scripts/turnstileKeyGuard.test.ts
+tests/scripts/helpers/viteConfigBuild.mjs

@@ -239,12 +239,12 @@ describe('public-quote: lead z trybu testowego nie trafia do CRM (obie ścieżki
 describe('public-preview: tryb testowy', () => {
   function previewEnv(secret: string) {
     const { env } = quoteEnv('1', secret);
-    return { ...env, PREVIEW_TOKEN_SECRET: 'p'.repeat(40), PREVIEW_TOKEN_KID: 'k1' };
+    return { ...env, PREVIEW_TOKEN_SECRET: 'p'.repeat(48) };
   }
   const req = (base: string) =>
     new Request(`${base}/api/estimation/public-preview`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'cf-connecting-ip': '10.1.1.1' },
+      headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.7' },
       body: JSON.stringify({ answers: { project_goal: 'x' }, captcha_token: 'XXXX.DUMMY.TOKEN.XXXX' }),
     });
   it('Preview + sekret testowy = 200 (cena); A produkcja + sekret testowy = 503', async () => {

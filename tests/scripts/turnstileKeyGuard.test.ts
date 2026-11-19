@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { describe, it, expect, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { parse } from 'yaml';
 import {
   TURNSTILE_PROD_SITE_KEY as PROD,
@@ -70,42 +70,42 @@ describe('checkBuildKey: formy ataku i bliźniacy', () => {
 });
 
 describe('vite.config.ts: strażnik działa przy budowie (process.env i pliki .env*)', () => {
-  const saved = { ...process.env };
-  afterEach(() => {
-    process.env = { ...saved };
-    vi.restoreAllMocks();
-  });
-  async function build(dir: string, env: Record<string, string | undefined>) {
-    vi.spyOn(process, 'cwd').mockReturnValue(dir);
-    for (const [k, v] of Object.entries(env)) {
-      if (v === undefined) delete process.env[k];
-      else process.env[k] = v;
-    }
-    const mod = (await import('../../vite.config')).default as unknown as (
-      c: { mode: string; command: string },
-    ) => unknown;
-    return () => mod({ mode: 'production', command: 'build' });
+  // Osobny proces Node (vite ładuje konfigurację jak przy `vite build`); cwd = katalog z plikami env.
+  function build(dir: string, env: Record<string, string | undefined>) {
+    const e: Record<string, string> = {};
+    for (const [k, v] of Object.entries(process.env))
+      if (v !== undefined && k !== 'MM_DEPLOY_TARGET' && k !== 'VITE_TURNSTILE_SITE_KEY') e[k] = v;
+    for (const [k, v] of Object.entries(env)) if (v !== undefined) e[k] = v;
+    const r = spawnSync(
+      process.execPath,
+      [path.join(root, 'tests/scripts/helpers/viteConfigBuild.mjs'), path.join(root, 'vite.config.ts')],
+      { cwd: dir, encoding: 'utf8', env: e, timeout: 60_000 },
+    );
+    return { status: r.status, out: `${r.stdout}${r.stderr}` };
   }
-  it('A7 zmienna w pliku .env.production z kluczem testowym przy celu prod = build przerwany; bliźniak: plik z kluczem produkcyjnym', async () => {
+  const plikEnvProd = (d: string, v: string) => fs.writeFileSync(path.join(d, '.env.production'), `VITE_TURNSTILE_SITE_KEY=${v}\n`);
+  it('A7 zmienna w pliku .env.production z kluczem testowym przy celu prod = build przerwany; bliźniak: plik z kluczem produkcyjnym', () => {
     const d = tmp();
-    fs.writeFileSync(path.join(d, '.env.production'), `VITE_TURNSTILE_SITE_KEY=${TEST}\n`);
-    const run = await build(d, { MM_DEPLOY_TARGET: 'prod', VITE_TURNSTILE_SITE_KEY: undefined });
-    expect(run).toThrow(/klucz testowy Turnstile dla celu 'prod'/);
-    fs.writeFileSync(path.join(d, '.env.production'), `VITE_TURNSTILE_SITE_KEY=${PROD}\n`);
-    const run2 = await build(d, { MM_DEPLOY_TARGET: 'prod', VITE_TURNSTILE_SITE_KEY: undefined });
-    expect(run2).not.toThrow();
+    plikEnvProd(d, TEST);
+    const r = build(d, { MM_DEPLOY_TARGET: 'prod' });
+    expect(r.status).toBe(1);
+    expect(r.out).toMatch(/klucz testowy Turnstile dla celu 'prod'/);
+    plikEnvProd(d, PROD);
+    expect(build(d, { MM_DEPLOY_TARGET: 'prod' })).toMatchObject({ status: 0 });
   });
-  it('A7b plik .env.production z kluczem testowym bez celu (build lokalny) = przerwany; bliźniak: bez pliku', async () => {
+  it('A7b plik .env.production z kluczem testowym bez celu (build lokalny) = przerwany; bliźniak: bez pliku', () => {
     const d = tmp();
-    fs.writeFileSync(path.join(d, '.env.production'), `VITE_TURNSTILE_SITE_KEY=${TEST}\n`);
-    expect(await build(d, { MM_DEPLOY_TARGET: undefined, VITE_TURNSTILE_SITE_KEY: undefined })).toThrow(/ODMOWA/);
-    const d2 = tmp();
-    expect(await build(d2, { MM_DEPLOY_TARGET: undefined, VITE_TURNSTILE_SITE_KEY: undefined })).not.toThrow();
+    plikEnvProd(d, TEST);
+    expect(build(d, {}).status).toBe(1);
+    expect(build(tmp(), {})).toMatchObject({ status: 0 });
   });
-  it('cel z env: nieznany cel = przerwany; bliźniak preview + klucz testowy = przechodzi', async () => {
+  it('A1/A6 przez env procesu: klucz testowy dla prod i nieznany cel = przerwany; bliźniak preview + klucz testowy = przechodzi', () => {
     const d = tmp();
-    expect(await build(d, { MM_DEPLOY_TARGET: 'production', VITE_TURNSTILE_SITE_KEY: PROD })).toThrow(/nieznany cel/);
-    expect(await build(d, { MM_DEPLOY_TARGET: 'preview', VITE_TURNSTILE_SITE_KEY: TEST })).not.toThrow();
+    expect(build(d, { MM_DEPLOY_TARGET: 'prod', VITE_TURNSTILE_SITE_KEY: TEST }).status).toBe(1);
+    const r = build(d, { MM_DEPLOY_TARGET: 'production', VITE_TURNSTILE_SITE_KEY: PROD });
+    expect(r.status).toBe(1);
+    expect(r.out).toMatch(/nieznany cel/);
+    expect(build(d, { MM_DEPLOY_TARGET: 'preview', VITE_TURNSTILE_SITE_KEY: TEST })).toMatchObject({ status: 0 });
   });
 });
 
