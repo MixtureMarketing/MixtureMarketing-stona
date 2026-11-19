@@ -204,7 +204,7 @@ describe('checkDeploy: środowisko Cloudflare z production_branch, nie z nazwy g
     ]) {
       const r = p(obcy);
       expect(r.ok).toBe(false);
-      expect(r.reason).toBe('dist dla Preview bez klucza Turnstile z allowlisty');
+      expect(r.reason).toMatch(/ODMOWA: dist dla Preview bez klucza Turnstile z allowlisty$/);
     }
     expect(p(distTest)).toEqual({ ok: true, cfEnv: 'Preview' });
     expect(p(distProd)).toEqual({ ok: true, cfEnv: 'Preview' });
@@ -407,7 +407,10 @@ describe('scripts/preview-turnstile-test-secret.sh: potwierdzenie PATCH z JSON (
     return { status: r.status, stdout: r.stdout, stderr: r.stderr, patched };
   }
   const OK = [
-    ['ze spacją (jak API Cloudflare)', '{"success": true, "errors": [], "messages": [], "result": {}}'],
+    [
+      'ze spacją (jak API Cloudflare)',
+      '{"success": true, "errors": [], "messages": [], "result": {}}',
+    ],
     ['bez spacji', '{"success":true}'],
     ['wcięty, wielowierszowy', '{\n  "result": {"name": "x"},\n  "success" : true\n}\n'],
   ] as const;
@@ -443,7 +446,7 @@ describe('scripts/preview-turnstile-test-secret.sh: potwierdzenie PATCH z JSON (
       expect(r.patched).toBe(true);
       expect(r.status).toBe(1);
       expect(r.stderr).toMatch(/^preview-turnstile: ODMOWA: API nie potwierdziło zmiany$/m);
-      expect(r.stdout).not.toMatch(/OK:/);
+      expect(r.stdout).not.toMatch(/^preview-turnstile: OK:/m);
     });
   }
 });

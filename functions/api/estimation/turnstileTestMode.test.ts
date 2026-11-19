@@ -279,7 +279,11 @@ describe('public-quote: lead z trybu testowego nie trafia do CRM (obie ścieżki
     });
     // MIX-1991 (N5 przez trasę): host dev + sekret testowy + siteverify success=false = 403.
     it(`QUOTE_LIMITS_D1=${mode}: N5 Preview + sekret testowy + success=false (hostname example.com) = 403, zero zapisów`, async () => {
-      siteverify = { success: false, hostname: 'example.com', 'error-codes': ['invalid-input-response'] };
+      siteverify = {
+        success: false,
+        hostname: 'example.com',
+        'error-codes': ['invalid-input-response'],
+      };
       const { env, writes } = quoteEnv(mode, TURNSTILE_TEST_SECRET);
       const res = await runQuote(env, quoteReq(PREVIEW));
       expect(res.status).toBe(403);
