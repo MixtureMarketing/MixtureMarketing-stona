@@ -1,11 +1,11 @@
 diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 519f40a..0109647 100644
+index 691dbb9..2ae5d1b 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -150,6 +150,8 @@ jobs:
-           VITE_MM_NEW_CLIENT_TIMELINE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-           # MIX-1873: filmy w portfolio (lista i strona realizacji) do akceptacji Jakuba na Preview.
-           VITE_MM_PORTFOLIO_VIDEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+@@ -157,6 +157,8 @@ jobs:
+           # Wycofanie: usunac te dwie linie (build wraca do klucza produkcyjnego z config/turnstileKey.ts).
+           MM_DEPLOY_TARGET: ${{ steps.target.outputs.target }}
+           VITE_TURNSTILE_SITE_KEY: ${{ steps.target.outputs.target == 'preview' && '1x00000000000000000000AA' || '0x4AAAAAACYHLgkgk3FJUj06' }}
 +          # MIX-1269: strona glowna pod fraze "agencja marketingowa rzeszow" do akceptacji Jakuba na Preview.
 +          VITE_MM_HOME_SEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
          run: npm run build
@@ -161,14 +161,13 @@ index d6e3614..90ce459 100644
            </div>
          </div>
 diff --git a/config/flags.ts b/config/flags.ts
-index ad50d07..186a160 100644
+index ccf8ad6..87896f6 100644
 --- a/config/flags.ts
 +++ b/config/flags.ts
-@@ -58,3 +58,11 @@ export const isPortfolioVideoEnabled = (): boolean =>
-  * zdejmuje te 301 z dist/_redirects i dopisuje stronę do dist/llms.txt.
+@@ -59,6 +59,14 @@ export const isPortfolioVideoEnabled = (): boolean =>
   */
  export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
-+
+ 
 +/**
 + * Strona główna pod frazę „agencja marketingowa Rzeszów” (MIX-1269, plan SEO A12): nowy title,
 + * meta description, fraza w H1 i linki lokalne z opisowymi kotwicami w pasie „Lokalnie · Rzeszów”.
@@ -176,6 +175,10 @@ index ad50d07..186a160 100644
 + * bez zmian co do bajta (tests/seo/homeSeo.test.tsx). Preview buduje się z `VITE_MM_HOME_SEO=1` (ci.yml).
 + */
 +export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO === '1';
++
+ /**
+  * Sekcja dowodu na /web-development/custom-app/ (MIX-1975): PsychON (platforma szkoleniowa Fundacji
+  * Niepodzielni, zrzuty z danych testowych w public/assets/custom-app/) zamiast KorepetytorAI
 diff --git a/data/content/pages/homeSeo.ts b/data/content/pages/homeSeo.ts
 new file mode 100644
 index 0000000..d3dca18
