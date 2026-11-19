@@ -17,7 +17,10 @@ export const TURNSTILE_ANY_TEST_SITE_KEY_RE = /(?<![0-9A-Za-z])[1-3]x0{20}[0-9A-
 export const BUILD_TARGETS = ['prod', 'preview', 'none', 'local'];
 
 /** @param {string} reason @returns {{ ok: false, reason: string }} */
-const fail = (reason) => ({ ok: /** @type {false} */ (false), reason: `turnstile-guard: ODMOWA: ${reason}` });
+const fail = (reason) => ({
+  ok: /** @type {false} */ (false),
+  reason: `turnstile-guard: ODMOWA: ${reason}`,
+});
 
 /** Opis wartości do linii powodu, bez wypisywania samej wartości. */
 function describe(key) {
@@ -25,8 +28,10 @@ function describe(key) {
   if (typeof key !== 'string') return 'nie tekst';
   if (key === '') return 'pusta wartość';
   if (key !== key.trim()) return 'biały znak na brzegu';
-  if (key.toLowerCase() === TURNSTILE_TEST_SITE_KEY.toLowerCase()) return 'klucz testowy w innej wielkości liter';
-  if (key.toLowerCase() === TURNSTILE_PROD_SITE_KEY.toLowerCase()) return 'klucz produkcyjny w innej wielkości liter';
+  if (key.toLowerCase() === TURNSTILE_TEST_SITE_KEY.toLowerCase())
+    return 'klucz testowy w innej wielkości liter';
+  if (key.toLowerCase() === TURNSTILE_PROD_SITE_KEY.toLowerCase())
+    return 'klucz produkcyjny w innej wielkości liter';
   return `wartość spoza allowlisty (${key.length} zn.)`;
 }
 
@@ -42,7 +47,9 @@ function describe(key) {
  *  @returns {{ ok: true, key: string } | { ok: false, reason: string }} */
 export function checkBuildKey({ target, key }) {
   if (typeof target !== 'string' || !BUILD_TARGETS.includes(target))
-    return fail(`nieznany cel budowy (MM_DEPLOY_TARGET=${JSON.stringify(String(target)).slice(0, 40)})`);
+    return fail(
+      `nieznany cel budowy (MM_DEPLOY_TARGET=${JSON.stringify(String(target)).slice(0, 40)})`,
+    );
   if (target === 'local' && key === undefined) return { ok: true, key: TURNSTILE_PROD_SITE_KEY };
   if (key === TURNSTILE_PROD_SITE_KEY) return { ok: true, key };
   if (key === TURNSTILE_TEST_SITE_KEY) {
@@ -64,19 +71,26 @@ export function checkBuildKey({ target, key }) {
 /** @param {{ target?: unknown, branch?: unknown, productionBranch?: unknown, distTexts?: unknown }} a
  *  @returns {{ ok: true, cfEnv: string } | { ok: false, reason: string }} */
 export function checkDeploy({ target, branch, productionBranch, distTexts }) {
-  if (target !== 'prod' && target !== 'preview') return fail(`nieznany cel wgrania '${String(target)}'`);
+  if (target !== 'prod' && target !== 'preview')
+    return fail(`nieznany cel wgrania '${String(target)}'`);
   if (typeof productionBranch !== 'string' || productionBranch === '')
     return fail('brak production_branch projektu Cloudflare Pages (API)');
   if (typeof branch !== 'string' || branch === '') return fail('brak gałęzi wgrania (--branch)');
   const cfEnv = branch === productionBranch ? 'Production' : 'Preview';
   if (target === 'prod') {
-    if (branch !== 'main') return fail(`cel prod, a gałąź wgrania '${branch}' (dozwolona tylko main)`);
+    if (branch !== 'main')
+      return fail(`cel prod, a gałąź wgrania '${branch}' (dozwolona tylko main)`);
     if (cfEnv !== 'Production')
-      return fail(`cel prod, a środowisko Cloudflare = ${cfEnv} (production_branch='${productionBranch}')`);
+      return fail(
+        `cel prod, a środowisko Cloudflare = ${cfEnv} (production_branch='${productionBranch}')`,
+      );
   } else {
-    if (branch !== 'dev') return fail(`cel preview, a gałąź wgrania '${branch}' (dozwolona tylko dev)`);
+    if (branch !== 'dev')
+      return fail(`cel preview, a gałąź wgrania '${branch}' (dozwolona tylko dev)`);
     if (cfEnv !== 'Preview')
-      return fail(`gałąź '${branch}' trafiłaby do środowiska Production (production_branch='${productionBranch}')`);
+      return fail(
+        `gałąź '${branch}' trafiłaby do środowiska Production (production_branch='${productionBranch}')`,
+      );
   }
   if (!Array.isArray(distTexts) || distTexts.length === 0) return fail('pusty dist');
   const hasProd = distTexts.some((t) => t.includes(TURNSTILE_PROD_SITE_KEY));

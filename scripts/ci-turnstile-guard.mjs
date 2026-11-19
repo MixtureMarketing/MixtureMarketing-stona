@@ -66,7 +66,9 @@ export function main(argv) {
     process.stderr.write(`${r.reason}\n`);
     process.exit(1);
   }
-  process.stdout.write(`turnstile-guard: OK: cel ${a.target}, gałąź ${a.branch}, środowisko ${r.cfEnv}\n`);
+  process.stdout.write(
+    `turnstile-guard: OK: cel ${a.target}, gałąź ${a.branch}, środowisko ${r.cfEnv}\n`,
+  );
 }
 
 main(process.argv.slice(2));

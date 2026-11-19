@@ -311,7 +311,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
       // MIX-1934: tryb testowy (Preview dev): lead NIE trafia do CRM (bez D1, Lineara i maili).
       // Token edycji jest ważny, ale wiersza nie ma: update i send_notification nic nie zapiszą.
       if (tm.kind === 'test')
-        return markTestMode(json({ success: true, id: lead.id, edit_token: editToken, degraded: false }));
+        return markTestMode(
+          json({ success: true, id: lead.id, edit_token: editToken, degraded: false }),
+        );
 
       // Zapis do D1 (źródło prawdy). Ponowienie po LEAD_NOT_SAVED tworzy nowe id —
       // poprzednia próba nie zostawiła ani rekordu, ani maila.

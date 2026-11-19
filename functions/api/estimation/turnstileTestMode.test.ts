@@ -93,7 +93,15 @@ describe('turnstileMode: sekret testowy tylko na aliasie Preview dev', () => {
 describe('verifyTurnstileStrict: tryb test', () => {
   const expectQ = { hostnames: ['mixturemarketing.pl'], action: 'public_quote' };
   it('test: hostname example.com bez action = ok; real z tą samą odpowiedzią = odmowa hostname', async () => {
-    expect(await verifyTurnstileStrict('XXXX.DUMMY.TOKEN.XXXX', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).toEqual({ ok: true });
+    expect(
+      await verifyTurnstileStrict(
+        'XXXX.DUMMY.TOKEN.XXXX',
+        TURNSTILE_TEST_SECRET,
+        '',
+        expectQ,
+        'test',
+      ),
+    ).toEqual({ ok: true });
     expect(await verifyTurnstileStrict('XXXX.DUMMY.TOKEN.XXXX', REAL_SECRET, '', expectQ)).toEqual({
       ok: false,
       reason: 'captcha: hostname',
@@ -101,7 +109,9 @@ describe('verifyTurnstileStrict: tryb test', () => {
   });
   it('test: success=false albo inny hostname = odmowa', async () => {
     siteverify = { success: false };
-    expect((await verifyTurnstileStrict('t', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).ok).toBe(false);
+    expect((await verifyTurnstileStrict('t', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).ok).toBe(
+      false,
+    );
     siteverify = { success: true, hostname: 'mixturemarketing.pl', action: 'public_quote' };
     expect(await verifyTurnstileStrict('t', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).toEqual({
       ok: false,
@@ -134,12 +144,14 @@ function route(sql: string): unknown[] {
     ];
   if (sql.includes('FROM est_archetype_defaults'))
     return [{ archetype_code: 'x', aspect_code: 'frontend', default_level: 1, is_locked: 0 }];
-  if (sql.includes('FROM est_archetypes')) return [{ code: 'x', name: 'X', integration_mode: 'platform' }];
+  if (sql.includes('FROM est_archetypes'))
+    return [{ code: 'x', name: 'X', integration_mode: 'platform' }];
   if (sql.includes("visibility = 'public'")) return DEFS;
   if (sql.includes('FROM est_questions'))
     return [{ code: 'project_goal', text: 'Cel?', unknown_weight: 1, visible_if_json: null }];
   if (sql.includes('FROM est_params')) return PARAMS;
-  if (sql.includes('FROM est_aspects')) return [{ code: 'frontend', name: 'Frontend', category: 'A' }];
+  if (sql.includes('FROM est_aspects'))
+    return [{ code: 'frontend', name: 'Frontend', category: 'A' }];
   return [];
 }
 function quoteEnv(mode: '0' | '1', secret: string) {
@@ -158,8 +170,17 @@ function quoteEnv(mode: '0' | '1', secret: string) {
         };
       }
       const res = async () => ({ results: route(sql) });
-      if (/INSERT INTO (leads|est_quotes|est_quote_answers)/.test(sql)) writes.push(sql.trim().slice(0, 30));
-      return { all: res, first: async () => null, bind: () => ({ run: async () => ({ meta: { last_row_id: 1 } }), all: res, first: async () => null }) };
+      if (/INSERT INTO (leads|est_quotes|est_quote_answers)/.test(sql))
+        writes.push(sql.trim().slice(0, 30));
+      return {
+        all: res,
+        first: async () => null,
+        bind: () => ({
+          run: async () => ({ meta: { last_row_id: 1 } }),
+          all: res,
+          first: async () => null,
+        }),
+      };
     },
     batch: async (s: unknown[]) => {
       writes.push(`batch:${s.length}`);
@@ -187,12 +208,20 @@ function quoteReq(base: string) {
   return new Request(`${base}/api/estimation/public-quote`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'cf-connecting-ip': `10.0.0.${seq}` },
-    body: JSON.stringify({ answers: { project_goal: 'x' }, email: `u${seq}@x.pl`, captcha_token: 'XXXX.DUMMY.TOKEN.XXXX' }),
+    body: JSON.stringify({
+      answers: { project_goal: 'x' },
+      email: `u${seq}@x.pl`,
+      captcha_token: 'XXXX.DUMMY.TOKEN.XXXX',
+    }),
   });
 }
 type QCtx = Parameters<typeof quotePost>[0];
 const runQuote = (env: Record<string, unknown>, r: Request) =>
-  quotePost({ env, request: r, waitUntil: () => undefined } as unknown as QCtx) as Promise<Response>;
+  quotePost({
+    env,
+    request: r,
+    waitUntil: () => undefined,
+  } as unknown as QCtx) as Promise<Response>;
 
 describe('public-quote: lead z trybu testowego nie trafia do CRM (obie ścieżki QUOTE_LIMITS_D1)', () => {
   for (const mode of ['0', '1'] as const) {
@@ -245,12 +274,23 @@ describe('public-preview: tryb testowy', () => {
     new Request(`${base}/api/estimation/public-preview`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'cf-connecting-ip': '203.0.113.7' },
-      body: JSON.stringify({ answers: { project_goal: 'x' }, captcha_token: 'XXXX.DUMMY.TOKEN.XXXX' }),
+      body: JSON.stringify({
+        answers: { project_goal: 'x' },
+        captcha_token: 'XXXX.DUMMY.TOKEN.XXXX',
+      }),
     });
   it('Preview + sekret testowy = 200 (cena); A produkcja + sekret testowy = 503', async () => {
-    const ok = await handlePreview(req(PREVIEW), previewEnv(TURNSTILE_TEST_SECRET) as never, Date.now());
+    const ok = await handlePreview(
+      req(PREVIEW),
+      previewEnv(TURNSTILE_TEST_SECRET) as never,
+      Date.now(),
+    );
     expect(ok.status).toBe(200);
-    const bad = await handlePreview(req(PROD), previewEnv(TURNSTILE_TEST_SECRET) as never, Date.now());
+    const bad = await handlePreview(
+      req(PROD),
+      previewEnv(TURNSTILE_TEST_SECRET) as never,
+      Date.now(),
+    );
     expect(bad.status).toBe(503);
   });
 });
@@ -263,7 +303,9 @@ function contactEnv(secret: string, leadTokenSecret?: string) {
       DB: {
         prepare: (s: string) => {
           sql.push(s.trim().slice(0, 20));
-          return { bind: () => ({ first: async () => null, run: async () => ({ meta: { changes: 0 } }) }) };
+          return {
+            bind: () => ({ first: async () => null, run: async () => ({ meta: { changes: 0 } }) }),
+          };
         },
       },
       CACHE: { get: async () => null, put: async () => undefined },
@@ -287,7 +329,10 @@ const contact = (env: unknown, base: string, body: unknown) =>
     env,
     waitUntil: () => undefined,
   } as unknown as CCtx) as Promise<Response>;
-const LEAD = { action: 'create', lead: { name: 'Test', email: 't@example.com', captcha_token: 'XXXX.DUMMY.TOKEN.XXXX' } };
+const LEAD = {
+  action: 'create',
+  lead: { name: 'Test', email: 't@example.com', captcha_token: 'XXXX.DUMMY.TOKEN.XXXX' },
+};
 
 describe('contact-submit: tryb testowy', () => {
   it('Preview + sekret testowy: 200 z id i tokenem, nagłówek, ZERO INSERT, maili i Lineara', async () => {
@@ -320,7 +365,9 @@ describe('contact-submit: tryb testowy', () => {
   });
   it('A: publiczny sekret testowy nie jest kluczem podpisu tokenu leada; bliźniak: sekret prawdziwy jest', async () => {
     expect(await podpiszLead({ TURNSTILE_SECRET: TURNSTILE_TEST_SECRET }, 'lead-1')).toBeNull();
-    expect(await sprawdzLead({ TURNSTILE_SECRET: TURNSTILE_TEST_SECRET }, 'lead-1', 'cokolwiek')).toBe(false);
+    expect(
+      await sprawdzLead({ TURNSTILE_SECRET: TURNSTILE_TEST_SECRET }, 'lead-1', 'cokolwiek'),
+    ).toBe(false);
     const t = await podpiszLead({ TURNSTILE_SECRET: REAL_SECRET }, 'lead-1');
     expect(typeof t).toBe('string');
     expect(await sprawdzLead({ TURNSTILE_SECRET: REAL_SECRET }, 'lead-1', t)).toBe(true);
@@ -340,8 +387,16 @@ describe('audit/capture-lead: tryb testowy', () => {
     const store = new Map<string, string>();
     return {
       env: {
-        DB: { prepare: (s: string) => (sql.push(s.trim().slice(0, 20)), { bind: () => ({ run: async () => ({}) }) }) },
-        CACHE: { get: async (k: string) => store.get(k) ?? null, put: async (k: string, v: string) => void store.set(k, v) },
+        DB: {
+          prepare: (s: string) => (
+            sql.push(s.trim().slice(0, 20)),
+            { bind: () => ({ run: async () => ({}) }) }
+          ),
+        },
+        CACHE: {
+          get: async (k: string) => store.get(k) ?? null,
+          put: async (k: string, v: string) => void store.set(k, v),
+        },
         FILES: { put: async () => sql.push('R2') },
         TURNSTILE_SECRET: secret,
         RESEND_API_KEY: 're',
@@ -357,11 +412,19 @@ describe('audit/capture-lead: tryb testowy', () => {
     fd.set('url', 'https://example.com');
     fd.set('cf-turnstile-response', 'XXXX.DUMMY.TOKEN.XXXX');
     fd.set('captcha_token', 'XXXX.DUMMY.TOKEN.XXXX');
-    return new Request(`${base}/api/audit/capture-lead`, { method: 'POST', body: fd, headers: { 'cf-connecting-ip': '2.2.2.2' } });
+    return new Request(`${base}/api/audit/capture-lead`, {
+      method: 'POST',
+      body: fd,
+      headers: { 'cf-connecting-ip': '2.2.2.2' },
+    });
   };
   type ACtx = Parameters<typeof auditLeadPost>[0];
   const run = (env: unknown, r: Request) =>
-    auditLeadPost({ request: r, env, waitUntil: () => undefined } as unknown as ACtx) as Promise<Response>;
+    auditLeadPost({
+      request: r,
+      env,
+      waitUntil: () => undefined,
+    } as unknown as ACtx) as Promise<Response>;
   it('Preview + sekret testowy: success, nagłówek, ZERO zapisów (D1, R2), maili i Lineara', async () => {
     const { env, sql } = auditEnv(TURNSTILE_TEST_SECRET);
     const res = await run(env, req(PREVIEW));

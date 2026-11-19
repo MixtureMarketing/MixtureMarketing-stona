@@ -5,7 +5,12 @@ import { loadConfigFromFile } from 'vite';
 
 const [configFile] = process.argv.slice(2);
 try {
-  await loadConfigFromFile({ command: 'build', mode: 'production' }, configFile, process.cwd(), 'silent');
+  await loadConfigFromFile(
+    { command: 'build', mode: 'production' },
+    configFile,
+    process.cwd(),
+    'silent',
+  );
   console.log('OK');
 } catch (e) {
   console.error(String(e instanceof Error ? e.message : e));

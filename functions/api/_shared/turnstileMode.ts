@@ -28,9 +28,7 @@ export const TURNSTILE_TEST_HOST = 'dev.mixturemarketing-stona.pages.dev';
 const TEST_LIKE_RE = /^\s*[0-9]x0{10,}/i;
 
 export type TurnstileMode =
-  | { kind: 'real' }
-  | { kind: 'test' }
-  | { kind: 'refuse'; reason: string };
+  { kind: 'real' } | { kind: 'test' } | { kind: 'refuse'; reason: string };
 
 export const TEST_SECRET_REFUSAL = {
   host: 'captcha: sekret testowy poza Preview',
@@ -51,7 +49,8 @@ export function turnstileMode(secret: unknown, requestUrl: string): TurnstileMod
     return { kind: 'refuse', reason: TEST_SECRET_REFUSAL.host };
   }
   if (host !== TURNSTILE_TEST_HOST) return { kind: 'refuse', reason: TEST_SECRET_REFUSAL.host };
-  if (secret !== TURNSTILE_TEST_SECRET) return { kind: 'refuse', reason: TEST_SECRET_REFUSAL.unknown };
+  if (secret !== TURNSTILE_TEST_SECRET)
+    return { kind: 'refuse', reason: TEST_SECRET_REFUSAL.unknown };
   return { kind: 'test' };
 }
 
