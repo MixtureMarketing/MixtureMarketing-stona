@@ -354,6 +354,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_LIVE_PRICE_BAR',
       'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
+      'VITE_MM_CUSTOMAPP_PSYCHON', // MIX-1975
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
