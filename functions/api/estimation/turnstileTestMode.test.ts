@@ -118,6 +118,21 @@ describe('verifyTurnstileStrict: tryb test', () => {
       reason: 'captcha: hostname',
     });
   });
+  // MIX-1991 (mutant N5): w trybie testowym (host dev) success=false odrzuca nawet z poprawnym
+  // hostname example.com; liczy się tylko boolean true.
+  it('N5 test: success=false / "true" / brak pola przy hostname example.com = odmowa „odrzucony”; bliźniak success=true = ok', async () => {
+    for (const success of [false, 'true', 1, undefined, null]) {
+      siteverify = { success, hostname: 'example.com' };
+      expect(await verifyTurnstileStrict('t', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).toEqual({
+        ok: false,
+        reason: 'captcha: odrzucony',
+      });
+    }
+    siteverify = { success: true, hostname: 'example.com' };
+    expect(await verifyTurnstileStrict('t', TURNSTILE_TEST_SECRET, '', expectQ, 'test')).toEqual({
+      ok: true,
+    });
+  });
 });
 
 // ---------- 3. publiczna wycena ----------
@@ -262,7 +277,49 @@ describe('public-quote: lead z trybu testowego nie trafia do CRM (obie ścieżki
       siteverify = { success: true, hostname: 'mixturemarketing.pl', action: 'public_quote' };
       expect((await runQuote(quoteEnv(mode, REAL_SECRET).env, quoteReq(PROD))).status).toBe(200);
     });
+    // MIX-1991 (N5 przez trasę): host dev + sekret testowy + siteverify success=false = 403.
+    it(`QUOTE_LIMITS_D1=${mode}: N5 Preview + sekret testowy + success=false (hostname example.com) = 403, zero zapisów`, async () => {
+      siteverify = { success: false, hostname: 'example.com', 'error-codes': ['invalid-input-response'] };
+      const { env, writes } = quoteEnv(mode, TURNSTILE_TEST_SECRET);
+      const res = await runQuote(env, quoteReq(PREVIEW));
+      expect(res.status).toBe(403);
+      expect(((await res.json()) as Record<string, unknown>).reason).toBe('captcha: odrzucony');
+      expect(writes).toEqual([]);
+      expect(outbound()).toEqual([]);
+    });
   }
+});
+
+// MIX-1991 (mutant N11): alert budżetu 80% (mail do agencji) nie wychodzi w trybie testowym.
+// QUOTE_DAILY_BUDGET=1 => pierwsze żądanie doby = 80% (ceil(0.8*1) = 1), alert się należy.
+describe('public-quote: alert budżetu 80% a tryb testowy (QUOTE_LIMITS_D1=1)', () => {
+  async function quoteZAlertem(secret: string, base: string) {
+    const { env } = quoteEnv('1', secret);
+    env.QUOTE_DAILY_BUDGET = '1';
+    const pending: Promise<unknown>[] = [];
+    const res = (await quotePost({
+      env,
+      request: quoteReq(base),
+      waitUntil: (p: Promise<unknown>) => pending.push(p),
+    } as unknown as QCtx)) as Response;
+    await Promise.all(pending);
+    const alerty = outbound().filter((c) => c.url.includes('resend') && c.body.includes('80%'));
+    return { res, alerty };
+  }
+  it('N11 Preview + sekret testowy przy 80% budżetu = 200, ZERO maili alertu', async () => {
+    const { res, alerty } = await quoteZAlertem(TURNSTILE_TEST_SECRET, PREVIEW);
+    expect(res.status).toBe(200);
+    expect(res.headers.get(TURNSTILE_TEST_HEADER)).toBe('1');
+    expect(alerty).toEqual([]);
+    expect(outbound()).toEqual([]);
+  });
+  it('bliźniak: sekret prawdziwy na produkcji przy 80% budżetu = dokładnie 1 mail alertu', async () => {
+    siteverify = { success: true, hostname: 'mixturemarketing.pl', action: 'public_quote' };
+    const { res, alerty } = await quoteZAlertem(REAL_SECRET, PROD);
+    expect(res.status).toBe(200);
+    expect(alerty).toHaveLength(1);
+    expect(alerty[0].body).toContain('budżet 80% n=1/1');
+  });
 });
 
 describe('public-preview: tryb testowy', () => {
@@ -371,6 +428,28 @@ describe('contact-submit: tryb testowy', () => {
     const t = await podpiszLead({ TURNSTILE_SECRET: REAL_SECRET }, 'lead-1');
     expect(typeof t).toBe('string');
     expect(await sprawdzLead({ TURNSTILE_SECRET: REAL_SECRET }, 'lead-1', t)).toBe(true);
+  });
+  // MIX-1991 (mutant N12): KAŻDY sekret wyglądający na testowy (nie tylko dokładny 1x…AA) nie podpisuje.
+  it('N12 odmiany publicznego sekretu testowego nie są kluczem HMAC; bliźniak: LEAD_TOKEN_SECRET podpisuje mimo nich', async () => {
+    const odmiany = [
+      '2x0000000000000000000000000000000AA',
+      '3x0000000000000000000000000000000AA',
+      '1x0000000000000000000000000000000BB',
+      '1X0000000000000000000000000000000AA',
+      ' 1x0000000000000000000000000000000AA',
+      `${TURNSTILE_TEST_SECRET}\n`,
+      '1x00000000000',
+    ];
+    const realny = await podpiszLead({ TURNSTILE_SECRET: REAL_SECRET }, 'lead-1');
+    for (const s of odmiany) {
+      expect(s).not.toBe(TURNSTILE_TEST_SECRET);
+      expect(await podpiszLead({ TURNSTILE_SECRET: s }, 'lead-1')).toBeNull();
+      expect(await sprawdzLead({ TURNSTILE_SECRET: s }, 'lead-1', realny)).toBe(false);
+      const zSekretem = { TURNSTILE_SECRET: s, LEAD_TOKEN_SECRET: 'L'.repeat(40) };
+      const t = await podpiszLead(zSekretem, 'lead-1');
+      expect(typeof t).toBe('string');
+      expect(await sprawdzLead(zSekretem, 'lead-1', t)).toBe(true);
+    }
   });
   it('Preview z sekretem testowym i bez LEAD_TOKEN_SECRET = 503 (bez zapisu)', async () => {
     const { env, sql } = contactEnv(TURNSTILE_TEST_SECRET);
