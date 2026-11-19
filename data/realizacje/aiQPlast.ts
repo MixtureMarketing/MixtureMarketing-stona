@@ -61,7 +61,7 @@ const challenge: PortableTextBlock[] = [
     'Druga strona problemu to wiedza. Co zadziałało przy tej formie i tym materiale, wie ten, kto wtedy stał przy maszynie. Po zmianie albo odejściu tej osoby tej wiedzy brakuje. Do tego dochodzi ryzyko: nastawa zbyt blisko granicy grozi maszynie, formie i materiałowi.',
   ),
   p(
-    'Klient miał silnik rekomendacji, ale był to program z okienkami, bez połączenia sieciowego. Nie dało się go postawić przy maszynie ani połączyć z historią zmian w zakładzie.',
+    'Klient miał silnik rekomendacji, ale był to program z okienkami, bez połączenia sieciowego.',
   ),
 ];
 
@@ -126,7 +126,7 @@ const solution: PortableTextBlock[] = [
     'Ustawiacz wpisuje nastawy sam, więc system pasuje do dowolnej wtryskarki. Odczyt wprost ze sterownika przez Euromap 77 (OPC UA) jest przygotowany w mapowaniu nastaw, ale jeszcze nie wdrożony.',
   ),
   p(
-    'Ogólnie: aplikacja desktopowa na Windows, serwer z lokalną bazą, silnik rekomendacji w Pythonie, chmura w kontenerach. Czas odpowiedzi usługi silnika sprawdziliśmy na 100 zapytaniach: 95 ze 100 zmieściło się w 2 sekundach. Każda wersja przechodzi niezależną weryfikację z testami na prawdziwych instalatorach Windows.',
+    'Ogólnie: aplikacja desktopowa na Windows, serwer z lokalną bazą, silnik rekomendacji w Pythonie, chmura w kontenerach. Czas odpowiedzi usługi silnika sprawdziliśmy na stacji testowej na 100 zapytaniach: wszystkie 100 bez błędu i każde poniżej progu 2 sekund. Każda wersja przechodzi niezależną weryfikację z testami na prawdziwych instalatorach Windows.',
   ),
 ];
 

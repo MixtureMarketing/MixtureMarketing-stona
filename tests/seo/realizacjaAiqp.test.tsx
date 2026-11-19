@@ -249,7 +249,7 @@ describe('treść realizacji (kryterium 1)', () => {
   it('każda liczba w treści ma źródło w szkicu (lista liczb)', () => {
     const text = allBlocks.map(spansText).join(' ');
     const nums = [...new Set(text.match(/\d+(?:[.,]\d+)?/g) ?? [])].sort();
-    expect(nums).toEqual(['0', '1', '10', '100', '2', '25.6', '77', '95'].sort());
+    expect(nums).toEqual(['0', '1', '10', '100', '2', '25.6', '77'].sort());
   });
 });
 
