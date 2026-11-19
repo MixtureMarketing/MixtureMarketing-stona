@@ -151,6 +151,11 @@ jobs:
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_NEW_CLIENT_TIMELINE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_RESULT_CONTACT: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1815: ekran wyniku i przejscie do kontaktu
+          # MIX-1934: klucz strony Turnstile z allowlisty (straznik w vite.config.ts, cel z MM_DEPLOY_TARGET).
+          # Klucz testowy Cloudflare "zawsze przechodzi" WYLACZNIE dla preview; main, PR i reszta = produkcyjny.
+          # Wycofanie: usunac te dwie linie (build wraca do klucza produkcyjnego z config/turnstileKey.ts).
+          MM_DEPLOY_TARGET: ${{ steps.target.outputs.target }}
+          VITE_TURNSTILE_SITE_KEY: ${{ steps.target.outputs.target == 'preview' && '1x00000000000000000000AA' || '0x4AAAAAACYHLgkgk3FJUj06' }}
         run: npm run build
 
       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,
@@ -184,6 +189,15 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (main)" >> $GITHUB_OUTPUT
 
+      # MIX-1934: straznik Turnstile przed wdrozeniem produkcji: srodowisko Cloudflare z API
+      # (production_branch), galaz main, dist bez klucza testowego i z kluczem produkcyjnym. Fail-closed.
+      - name: 🛡️ Turnstile guard (Production)
+        if: steps.target.outputs.target == 'prod'
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bash scripts/ci-turnstile-deploy.sh prod main
+
       - name: 🚀 Deploy to Cloudflare Pages
         if: steps.target.outputs.target == 'prod'
         uses: cloudflare/wrangler-action@v4
@@ -205,6 +219,14 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (dev)" >> $GITHUB_OUTPUT
+
+      # MIX-1934: straznik Turnstile przed wdrozeniem Preview: galaz dev NIE moze trafic do Production.
+      - name: 🛡️ Turnstile guard (Preview)
+        if: steps.target.outputs.target == 'preview'
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bash scripts/ci-turnstile-deploy.sh preview dev
 
       - name: 🚀 Deploy to Cloudflare Pages (Preview dev)
         if: steps.target.outputs.target == 'preview'

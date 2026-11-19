@@ -31,6 +31,7 @@ import { sendEmail as sendResendEmail } from './_shared/email';
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
 import { sprawdzKrok, sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
+import { markTestMode, testModeRefusal, turnstileMode } from './_shared/turnstileMode';
 
 interface Env extends LinearEnv {
   TURNSTILE_SECRET: string;
@@ -271,6 +272,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ message: 'Spam detected' }, 403);
   }
 
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev; gdzie indziej 503 (każda akcja).
+  const tm = turnstileMode(env.TURNSTILE_SECRET, request.url);
+  if (tm.kind === 'refuse') return testModeRefusal('contact-submit', tm.reason);
+
   const ip = clientIp(request);
 
   if (body.action !== 'create' && env.CACHE) {
@@ -302,6 +307,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         console.error('Brak LEAD_TOKEN_SECRET i TURNSTILE_SECRET — nie można wydać tokenu leada');
         return json({ message: 'Błąd konfiguracji serwera' }, 503);
       }
+
+      // MIX-1934: tryb testowy (Preview dev): lead NIE trafia do CRM (bez D1, Lineara i maili).
+      // Token edycji jest ważny, ale wiersza nie ma: update i send_notification nic nie zapiszą.
+      if (tm.kind === 'test')
+        return markTestMode(json({ success: true, id: lead.id, edit_token: editToken, degraded: false }));
 
       // Zapis do D1 (źródło prawdy). Ponowienie po LEAD_NOT_SAVED tworzy nowe id —
       // poprzednia próba nie zostawiła ani rekordu, ani maila.

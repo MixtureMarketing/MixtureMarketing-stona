@@ -19,6 +19,7 @@ import {
   type QuoteGateEnv,
 } from './_quoteGate';
 import { escapeHtml, verifyTurnstileStrict } from '../_shared/security';
+import { markTestMode, turnstileMode } from '../_shared/turnstileMode';
 import { sprawdzWymaganyTekst } from '../_shared/limity';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import { leadConfigSwitch, normalizePhone, buildLeadDetails, PHONE_MESSAGE } from './_leadConfig';
@@ -137,6 +138,14 @@ async function handlePost(
     console.error(`[quote] odmowa 503: ${reason} ray=${safeRay(request)}`);
     return json({ error: 'Usługa chwilowo niedostępna. Spróbuj później.', reason }, 503);
   }
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev (gdzie indziej 503). W trybie
+  // testowym lead NIE trafia do CRM: bez zapisu D1, Lineara i maili; odpowiedź jak zwykle + nagłówek.
+  const tm = turnstileMode(env.TURNSTILE_SECRET, request.url);
+  if (tm.kind === 'refuse') {
+    console.error(`[quote] odmowa 503: ${tm.reason} ray=${safeRay(request)}`);
+    return json({ error: 'Usługa chwilowo niedostępna. Spróbuj później.', reason: tm.reason }, 503);
+  }
+  const testMode = tm.kind === 'test';
 
   // 0. Rozmiar treści (A9) przed parsowaniem, Turnstile i D1.
   const read = await readBodyLimited(request);
@@ -145,7 +154,7 @@ async function handlePost(
     const msg = read.status === 413 ? 'Zbyt duże zapytanie.' : 'Niepoprawne zapytanie.';
     return json({ error: msg, reason: read.reason }, read.status);
   }
-  if (mode === 'on') return gatedPost(withReadBody(request, read.text), env, waitUntil);
+  if (mode === 'on') return gatedPost(withReadBody(request, read.text), env, waitUntil, testMode);
 
   let body: Body;
   try {
@@ -174,6 +183,7 @@ async function handlePost(
     env.TURNSTILE_SECRET,
     ip,
     quoteTurnstileExpect(env),
+    testMode ? 'test' : 'real',
   );
   if (!ts.ok) return json({ error: 'Weryfikacja antybotowa nieudana.', reason: ts.reason }, 403);
 
@@ -193,6 +203,7 @@ async function handlePost(
 
   // 6. Compute + transform publiczny.
   const result = computePublicQuote(rawLib, answers, config);
+  if (testMode) return quoteOk(result, true);
 
   // 7. Zapis (best-effort, retry) — nie blokuje zwrotu ceny.
   await persist(
@@ -220,6 +231,7 @@ async function gatedPost(
   request: Request,
   env: Env,
   waitUntil?: (p: Promise<unknown>) => void,
+  testMode = false,
 ): Promise<Response> {
   const gate = await quoteGate(request, env, { waitUntil });
   if (!gate.ok) {
@@ -228,7 +240,7 @@ async function gatedPost(
     return res;
   }
   const { body, email } = gate;
-  if (gate.budgetAlert) {
+  if (gate.budgetAlert && !testMode) {
     const alert = sendBudgetAlert(env, gate.budgetAlert);
     if (waitUntil) waitUntil(alert);
     else await alert;
@@ -244,6 +256,7 @@ async function gatedPost(
   if (lc instanceof Response) return lc;
 
   const result = computePublicQuote(rawLib, answers, config);
+  if (testMode) return quoteOk(result, true);
   await persist(
     env,
     rawLib,
@@ -255,6 +268,12 @@ async function gatedPost(
   );
   await sendEmails(env, email, result);
   return json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
+}
+
+/** Odpowiedź z ceną; tryb testowy (MIX-1934) = ta sama treść + nagłówek X-MM-Turnstile-Test. */
+function quoteOk(result: PublicQuoteResult, testMode: boolean): Response {
+  const res = json({ priceRange: result.priceRange, currency: 'PLN', status: 'ok' });
+  return testMode ? markTestMode(res) : res;
 }
 
 type LeadConfigOn = { on: true; phone: string | null } | { on: false };
