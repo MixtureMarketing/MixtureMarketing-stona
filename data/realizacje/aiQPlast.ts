@@ -60,9 +60,7 @@ const challenge: PortableTextBlock[] = [
   p(
     'Druga strona problemu to wiedza. Co zadziałało przy tej formie i tym materiale, wie ten, kto wtedy stał przy maszynie. Po zmianie albo odejściu tej osoby tej wiedzy brakuje. Do tego dochodzi ryzyko: nastawa zbyt blisko granicy grozi maszynie, formie i materiałowi.',
   ),
-  p(
-    'Klient miał silnik rekomendacji, ale był to program z okienkami, bez połączenia sieciowego.',
-  ),
+  p('Klient miał silnik rekomendacji, ale był to program z okienkami, bez połączenia sieciowego.'),
 ];
 
 const solution: PortableTextBlock[] = [
