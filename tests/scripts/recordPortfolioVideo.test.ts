@@ -1,20 +1,19 @@
 /**
  * MIX-1884: tryb SRC skryptu `scripts/record-portfolio-video.mjs` (film z gotowego pliku, bez przeglądarki
  * i bez sieci): argumenty ffmpeg (`-ss` PRZED `-i` tylko w trybie SRC i START > 0, `-t`, `-an`), wybór
- * wariantów (pion = jeden wariant 540 px ≤ 512 kB, poziom = 960/1280/720), plik SRC nigdy nie jest
+ * wariantów (tylko poziom 960/1280/720; tryb pionowy usunięty w MIX-1896), plik SRC nigdy nie jest
  * kasowany, brak pliku SRC = błąd. Skrypt uruchamiany jest naprawdę (podstawiony ffmpeg zapisuje argumenty).
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { beforeAll, describe, expect, it } from 'vitest';
+import * as recordModule from '../../scripts/record-portfolio-video.mjs';
 import {
-  PORTRAIT_VARIANTS,
   VARIANTS,
   encodeArgs,
   shouldRecord,
   shouldRemoveRaw,
-  variantsFor,
 } from '../../scripts/record-portfolio-video.mjs';
 
 const ROOT = path.resolve(__dirname, '../..');
@@ -75,20 +74,16 @@ describe('encodeArgs: argumenty ffmpeg', () => {
   );
 });
 
-describe('wybór wariantów i decyzje trybu SRC', () => {
-  it('pion = jeden wariant 540 px z limitem 512 kB', () => {
-    const v = variantsFor('portrait');
-    expect(v).toBe(PORTRAIT_VARIANTS);
-    expect(v.map((x: { width: number }) => x.width)).toEqual([540]);
-    expect(v[0].limit).toBe(512 * 1024);
+describe('warianty i decyzje trybu SRC', () => {
+  it('tylko poziom: 960/1280/720 z limitami 500 kB / 1,5 MB / 512 kB', () => {
+    expect(VARIANTS.map((x: { width: number }) => x.width)).toEqual([960, 1280, 720]);
+    expect(VARIANTS.map((x: { limit: number }) => x.limit)).toEqual([512000, 1572864, 524288]);
   });
-  it('poziom (i brak orientacji) = 960/1280/720 z limitami 500 kB / 1,5 MB / 512 kB', () => {
-    for (const o of ['landscape', undefined, '', 'inne']) {
-      const v = variantsFor(o);
-      expect(v).toBe(VARIANTS);
-      expect(v.map((x: { width: number }) => x.width)).toEqual([960, 1280, 720]);
-      expect(v.map((x: { limit: number }) => x.limit)).toEqual([512000, 1572864, 524288]);
-    }
+  it('MIX-1896: skrypt nie ma trybu pionowego (PORTRAIT_VARIANTS, variantsFor, ORIENT)', () => {
+    const mod = recordModule as Record<string, unknown>;
+    expect(mod['PORTRAIT_VARIANTS']).toBeUndefined();
+    expect(mod['variantsFor']).toBeUndefined();
+    expect(fs.readFileSync(SCRIPT, 'utf8')).not.toMatch(/ORIENT|portrait|540/);
   });
   it('plik SRC nie jest kasowany; własne surowe nagranie tak', () => {
     expect(shouldRemoveRaw('film.mp4')).toBe(false);
@@ -190,17 +185,21 @@ describe('record-portfolio-video.mjs w trybie SRC (uruchomiony skrypt)', () => {
     expect(fs.existsSync(src)).toBe(true);
   });
 
-  it('ORIENT=portrait: jeden wariant 540 px (webm + mp4), bez wariantów poziomych', () => {
+  it('MIX-1896: ORIENT=portrait nic nie zmienia, dalej 3 warianty poziome i żadnego 540 px', () => {
     const src = srcFile();
     const { res, calls, files } = run({ SRC: src, START: '2', ORIENT: 'portrait' });
     expect(res.status, res.stderr).toBe(0);
-    expect(calls.length).toBe(2);
-    for (const a of calls) {
-      expect(a.find((x) => x.startsWith('scale='))).toMatch(/^scale=540:/);
-      expect(a[a.indexOf('-ss') + 1]).toBe('2');
-    }
-    expect(files).toEqual(['t-540.mp4', 't-540.webm']);
-    expect(fs.existsSync(src)).toBe(true);
+    expect(calls.length).toBe(6);
+    expect(calls.map((a) => a.find((x) => x.startsWith('scale='))?.split(':')[0])).toEqual([
+      'scale=960',
+      'scale=960',
+      'scale=1280',
+      'scale=1280',
+      'scale=720',
+      'scale=720',
+    ]);
+    expect(files.filter((f) => f.includes('540'))).toEqual([]);
+    expect(files.length).toBe(6);
   });
 
   it('brak pliku SRC: błąd z komunikatem, ffmpeg nie jest wołany', () => {
@@ -211,14 +210,15 @@ describe('record-portfolio-video.mjs w trybie SRC (uruchomiony skrypt)', () => {
     expect(files).toEqual([]);
   });
 
-  it('plik powyżej limitu pionu 512 kB: CRF rośnie, PRZEKROCZONY i kod 1, SRC zostaje', () => {
+  it('plik 600 kB: powyżej limitów 960 i 720 px, CRF rośnie, PRZEKROCZONY i kod 1, SRC zostaje', () => {
     const src = srcFile();
     const big = path.join(work, 'ffmpeg-big.cjs');
     fs.writeFileSync(big, stubWith(600000), { mode: 0o755 });
-    const { res, calls } = run({ SRC: src, ORIENT: 'portrait', FFMPEG: big });
+    const { res, calls } = run({ SRC: src, FFMPEG: big });
     expect(res.status).toBe(1);
     expect(res.stdout).toContain('PRZEKROCZONY');
-    expect(calls.length).toBe(14); // 2 kodeki × (1 próba + 6 z wyższym CRF)
+    // 960 i 720: 2 kodeki × (1 próba + 6 z wyższym CRF) = 28; 1280 (limit 1,5 MB): 2 próby
+    expect(calls.length).toBe(30);
     expect(fs.existsSync(src)).toBe(true);
   });
 });
