@@ -71,7 +71,13 @@ const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
-const WYLACZONE_NA_PROD = [...CENNIK_WYLACZONY_NA_PROD, ...WYCENA_WYLACZONA_NA_PROD].sort();
+/** PsychON w sekcji dowodu /web-development/custom-app/ (MIX-1975): Preview 1, produkcja i PR puste. */
+const PSYCHON_WYLACZONY_NA_PROD = ['VITE_MM_CUSTOMAPP_PSYCHON'];
+const WYLACZONE_NA_PROD = [
+  ...CENNIK_WYLACZONY_NA_PROD,
+  ...PSYCHON_WYLACZONY_NA_PROD,
+  ...WYCENA_WYLACZONA_NA_PROD,
+].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 
 const wdrozenia = (w: Workflow) =>
@@ -354,6 +360,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_LIVE_PRICE_BAR',
       'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
+      'VITE_MM_CUSTOMAPP_PSYCHON', // MIX-1975
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
@@ -507,6 +514,16 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
     expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
   });
+  it.each(PSYCHON_WYLACZONY_NA_PROD)(
+    'MIX-1975: %s (PsychON w sekcji dowodu) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
   it.each(CENNIK_WYLACZONY_NA_PROD)(
     'MIX-1855: %s (strona /cennik/) włączony na produkcji = naruszenie',
     (f) => {
@@ -535,7 +552,7 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w2).VITE_MM_CENNIK = '';
     expect(naruszenia(w2).join('|')).toMatch(/VITE_MM_CENNIK: nieznana postać wyrażenia/);
   });
-  it('MIX-1838/1855/1896: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/ i konfigurator wyceny (filmy portfolio już na produkcji)', () => {
+  it('MIX-1838/1855/1896: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, PsychON (MIX-1975) i konfigurator wyceny (filmy portfolio już na produkcji)', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
     expect(inne).toEqual(WYLACZONE_NA_PROD);
     const zmienne = zmienneBuildu(wczytaj());
