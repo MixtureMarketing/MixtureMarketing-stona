@@ -83,4 +83,8 @@ run X2-access-200-ok $X "  403)" "  403|200)"
 run F1-front-ignores-build-key $F "return typeof raw === 'string' && raw !== '' ? raw : TURNSTILE_PROD_SITE_KEY;" "return TURNSTILE_PROD_SITE_KEY;"
 run W1-secret-any-prod-branch $W '[ "$pb" = "main" ] ||' 'true ||'
 run W2-secret-no-access-check $W 'bash "$here/preview-access-check.sh" ||' 'true ||'
+# r2 (mutanty weryfikatora r1, które przeżyły dostawę)
+run N10-audit-test-mode-only-without-pdf $A "request.url).kind === 'test')" "request.url).kind === 'test' && !pdf /*N10*/)"
+run B2-guard-cli-silent scripts/ci-turnstile-guard.mjs 'process.stderr.write(`turnstile-guard: ODMOWA: ${msg}\n`);' 'void msg; // B2'
+run B4-deploy-sh-silent $D 'fail() { echo "turnstile-guard: ODMOWA: $*" >&2; exit 1; }' 'fail() { exit 1; } # B4'
 echo "MUT END"

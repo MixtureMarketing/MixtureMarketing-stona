@@ -239,28 +239,47 @@ describe('scripts/ci-turnstile-deploy.sh (API Cloudflare + dist)', () => {
     expect(r.status).toBe(1);
     expect(r.stderr).toMatch(/ODMOWA: .*Production/);
   });
-  it('A8: dist z kluczem testowym do Production = rc 1', () => {
+  it('A8: dist z kluczem testowym do Production = rc 1 z linią powodu', () => {
     const { env } = setup('main', [...distProd, TEST]);
-    expect(run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], env).status).toBe(1);
+    const r = run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], env);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/ODMOWA: .+/);
   });
-  it('fail-closed: brak tokenu, złe konto, błąd API = rc 1', () => {
+  // r2 (mutanty B2, B4): każda ścieżka fail() = rc 1 ORAZ linia powodu, nie cicha odmowa.
+  const odmowa = (r: { status: number | null; stderr: string }, powod: RegExp) => {
+    expect(r.status).toBe(1);
+    expect(r.stderr).toMatch(/^turnstile-guard: ODMOWA: /m);
+    expect(r.stderr).toMatch(powod);
+  };
+  it('fail-closed: brak tokenu, złe konto, błąd API = rc 1 z linią powodu (deploy.sh)', () => {
     const { env, d } = setup('main', distProd);
-    expect(
-      run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], { ...env, CF_API_TOKEN: '' })
-        .status,
-    ).toBe(1);
-    expect(
-      run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], {
-        ...env,
-        CF_ACCOUNT_ID: 'x',
-      }).status,
-    ).toBe(1);
+    const go = (e: Record<string, string>, args = ['prod', 'main']) =>
+      run('bash', ['scripts/ci-turnstile-deploy.sh', ...args], e);
+    odmowa(go({ ...env, CF_API_TOKEN: '' }), /brak CF_API_TOKEN/);
+    odmowa(go({ ...env, CF_ACCOUNT_ID: '' }), /brak CF_ACCOUNT_ID/);
+    odmowa(go({ ...env, CF_ACCOUNT_ID: 'x' }), /CF_ACCOUNT_ID nie wygląda/);
+    odmowa(go(env, []), /brak celu/);
+    odmowa(go(env, ['prod']), /brak gałęzi/);
     const PATH = fakeCurl(fs.mkdtempSync(path.join(d, 'y')), 'exit 22');
-    expect(
-      run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], { ...env, PATH }).status,
-    ).toBe(1);
-    fs.writeFileSync(path.join(d, 'project.json'), '{"success":false}');
-    expect(run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], env).status).toBe(1);
+    odmowa(go({ ...env, PATH }), /API Cloudflare \(projekt Pages\)/);
+  });
+  it('fail-closed: zła odpowiedź API, zły dist, złe argumenty = rc 1 z linią powodu (guard.mjs)', () => {
+    const { env, d } = setup('main', distProd);
+    const pj = path.join(d, 'project.json');
+    const go = (e: Record<string, string>) =>
+      run('bash', ['scripts/ci-turnstile-deploy.sh', 'prod', 'main'], e);
+    fs.writeFileSync(pj, '{"success":false}');
+    odmowa(go(env), /bez success=true/);
+    fs.writeFileSync(pj, 'nie json');
+    odmowa(go(env), /nieczytelna odpowiedź/);
+    fs.writeFileSync(pj, project('main'));
+    odmowa(go({ ...env, DIST_DIR: path.join(d, 'brak') }), /nieczytelny katalog dist/);
+    const guard = (args: string[]) => run('node', ['scripts/ci-turnstile-guard.mjs', ...args], {});
+    odmowa(guard(['build']), /nieznane polecenie/);
+    odmowa(guard(['deploy', '--target']), /zły argument/);
+    // bliźniak: te same pliki i poprawne argumenty = rc 0
+    const ok = ['--target', 'prod', '--branch', 'main', '--project-json', pj, '--dist', env.DIST_DIR];
+    expect(guard(['deploy', ...ok]).status).toBe(0);
   });
 });
 

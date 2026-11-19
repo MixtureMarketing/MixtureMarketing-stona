@@ -406,8 +406,12 @@ describe('audit/capture-lead: tryb testowy', () => {
       sql,
     };
   }
-  const req = (base: string) => {
+  // Prawdziwy (minimalny) PDF: nagłówek %PDF- przechodzi isPdf, więc bez trybu testowego trafia do R2.
+  const PDF_BYTES = new TextEncoder().encode('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n');
+  const req = (base: string, withPdf = false) => {
     const fd = new FormData();
+    if (withPdf)
+      fd.set('pdf', new Blob([PDF_BYTES], { type: 'application/pdf' }), 'audyt_mixture.pdf');
     fd.set('email', 't@example.com');
     fd.set('url', 'https://example.com');
     fd.set('cf-turnstile-response', 'XXXX.DUMMY.TOKEN.XXXX');
@@ -432,6 +436,22 @@ describe('audit/capture-lead: tryb testowy', () => {
     expect(res.headers.get(TURNSTILE_TEST_HEADER)).toBe('1');
     expect(sql).toEqual([]);
     expect(outbound()).toEqual([]);
+  });
+  it('Preview + sekret testowy + PDF: ZERO R2, D1, maili i Lineara (r2, mutant N10)', async () => {
+    const { env, sql } = auditEnv(TURNSTILE_TEST_SECRET);
+    const res = await run(env, req(PREVIEW, true));
+    expect(res.status).toBe(200);
+    expect(res.headers.get(TURNSTILE_TEST_HEADER)).toBe('1');
+    expect(sql).toEqual([]);
+    expect(outbound()).toEqual([]);
+  });
+  it('bliźniak z PDF: sekret prawdziwy na produkcji = zapis R2 i D1 (asercja R2 może się zaczerwienić)', async () => {
+    siteverify = { success: true };
+    const real = auditEnv(REAL_SECRET);
+    const ok = await run(real.env, req(PROD, true));
+    expect(ok.status).toBe(200);
+    expect(real.sql).toContain('R2');
+    expect(real.sql.some((s) => s.startsWith('INSERT'))).toBe(true);
   });
   it('bliźniak: sekret prawdziwy na produkcji zapisuje leada; A: sekret testowy na produkcji = 503', async () => {
     siteverify = { success: true };
