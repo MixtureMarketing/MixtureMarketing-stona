@@ -1,4 +1,3 @@
-// @vitest-environment node
 // MIX-1934: tryb testowy Turnstile (Preview) po stronie serwera. Każda forma ataku ma dozwolonego
 // bliźniaka. Kryterium 1: lead z trybu testowego NIE trafia do CRM (D1 leads/est_quotes, Linear, maile).
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

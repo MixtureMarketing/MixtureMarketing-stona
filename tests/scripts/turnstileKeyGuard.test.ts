@@ -1,4 +1,3 @@
-// @vitest-environment node
 // MIX-1934: strażnik klucza Turnstile (build i wgranie), ci.yml, test Cloudflare Access i skrypt
 // lidera. Formy ataku z karty (≥ 11), każda z dozwolonym bliźniakiem. Sieć: atrapa `curl` w PATH.
 import fs from 'node:fs';
@@ -10,12 +9,16 @@ import { parse } from 'yaml';
 import {
   TURNSTILE_PROD_SITE_KEY as PROD,
   TURNSTILE_TEST_SITE_KEY as TEST,
-  checkBuildKey,
-  checkDeploy,
+  checkBuildKey as checkBuildKeyJs,
+  checkDeploy as checkDeployJs,
 } from '../../scripts/lib/turnstileKeyGuard.mjs';
 import { TURNSTILE_PROD_SITE_KEY as PROD_FRONT, resolveTurnstileSiteKey } from '../../config/turnstileKey';
 
 const root = path.resolve(__dirname, '../..');
+type Wynik = { ok: boolean; reason?: string; key?: string; cfEnv?: string };
+const checkBuildKey = checkBuildKeyJs as unknown as (a: { target: unknown; key: unknown }) => Wynik;
+type DeployIn = { target?: unknown; branch?: unknown; productionBranch?: unknown; distTexts?: string[] };
+const checkDeploy = checkDeployJs as unknown as (a: DeployIn) => Wynik;
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'mix1934-'));
 
 // ---------- 1. build ----------
@@ -126,7 +129,7 @@ describe('front: klucz z budowy', () => {
 const distProd = [`<html>${PROD}</html>`, 'var a=1;'];
 const distTest = [`<html>${TEST}</html>`];
 describe('checkDeploy: środowisko Cloudflare z production_branch, nie z nazwy gałęzi', () => {
-  const d = (o: Partial<Parameters<typeof checkDeploy>[0]>) =>
+  const d = (o: DeployIn) =>
     checkDeploy({ target: 'prod', branch: 'main', productionBranch: 'main', distTexts: distProd, ...o });
   it('bliźniaki: prod/main/Production z kluczem produkcyjnym; preview/dev/Preview z kluczem testowym', () => {
     expect(d({})).toEqual({ ok: true, cfEnv: 'Production' });
