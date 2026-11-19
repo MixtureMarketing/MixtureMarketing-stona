@@ -134,6 +134,11 @@ describe('MIX-1815 r3: Z11 × nowy wygląd × terminy × oś czasu (8 kombinacji
         );
         expect(own.length).toBe(4);
         for (const el of own) expect(el.outerHTML).not.toMatch(/text-gray-[34]00/);
+        const alphas = own.flatMap((el) =>
+          [...el.outerHTML.matchAll(/text-white\/(\d+)/g)].map((m) => Number(m[1])),
+        );
+        expect(alphas.length).toBeGreaterThan(0);
+        for (const a of alphas) expect(a).toBeGreaterThanOrEqual(75);
       } else {
         for (const el of [link, again]) expect(cls(el)).toContain('min-h-11');
         expect(link.querySelector('svg')).toBeNull();

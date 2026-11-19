@@ -111,4 +111,5 @@ run X8-z11-no-heading-focus $R "    if (newUi) headRef.current?.focus();" "    v
 run X9-z11-new-ui-gray-text $R "'leading-relaxed text-white/75' : 'text-gray-300'" "'text-gray-300' : 'text-gray-300'"
 run X10-z11-no-timeline $R "      {booking}
       {timeline}" "      {booking}"
+run X11-z11-note-alpha-60 $R "newUi ? 'text-white/75' : 'text-gray-400'" "newUi ? 'text-white/60' : 'text-gray-400'"
 echo "git status after: $(git status --porcelain | grep -v '^??' | wc -l) modified"
