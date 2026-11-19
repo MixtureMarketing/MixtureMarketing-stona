@@ -1,54 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Cloudflare Pages Middleware: Portal Auth
- * Waliduje sesje (Bearer session_token) dla wszystkich /api/portal/*.
- *
- * UWAGA: celowo przepuszcza KAZDA aktywna sesje — zarowno role='client', jak i
- * role='admin' (brak gate'u na role, inaczej niz admin/_middleware.ts). Jest to
- * wymagane, bo download.ts rozroznia admina wewnetrznie (isAdmin => dostep do
- * dokumentow kazdego klienta). Nie zawezaj tego do samego 'client' — zepsuje to
- * pobieranie plikow po stronie admina.
+ * Portal klienta przeniesiony do Mixture CRM (decyzja Karola z 25.10.2026): każde /api/portal/* odpowiada
+ * 410 Gone, zanim cokolwiek przeczyta z bazy albo z R2 (_shared/panel.ts). Endpointy portalu zostają
+ * w repo do usunięcia w osobnym PR.
  */
+import { przeniesione } from '../_shared/panel';
 
-import { serverError } from '../_shared/errors';
-
-interface Env {
-  DB: D1Database;
-}
-
-export const onRequest: PagesFunction<Env> = async (context) => {
-  const { request, env, next } = context;
-  const authHeader = request.headers.get('Authorization');
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-  }
-
-  const token = authHeader.split(' ')[1];
-
-  // Bez try awaria D1 dawała stronę błędu Cloudflare (HTML 1101), na której
-  // front wywracał się na res.json(). Teraz JSON 500 bez szczegółów.
-  let user: any;
-  try {
-    // Verify token in DB
-    user = await env.DB.prepare(
-      `
-    SELECT id, email, name, role FROM users 
-    WHERE session_token = ? AND julianday(session_expires) > julianday('now') AND is_active = 1
-  `,
-    )
-      .bind(token)
-      .first();
-  } catch (err) {
-    return serverError(err, 'portal/_middleware');
-  }
-
-  if (!user) {
-    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), { status: 401 });
-  }
-
-  // Attach user to context for use in functions
-  context.data.user = user;
-
-  return next();
-};
+export const onRequest: PagesFunction = async () => przeniesione();

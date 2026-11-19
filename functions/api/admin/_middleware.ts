@@ -5,6 +5,12 @@
  */
 
 import { serverError } from '../_shared/errors';
+import {
+  ADMIN_DOZWOLONE,
+  bibliotekaZamrozona,
+  edycjaBiblioteki,
+  przeniesione,
+} from '../_shared/panel';
 
 interface Env {
   DB: D1Database;
@@ -40,6 +46,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   if (!user || user.role !== 'admin') {
     return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403 });
   }
+
+  // Panel przeniesiony do Mixture CRM: z admina zostaje tylko podgląd leadów, a biblioteka wycen
+  // jest zamrożona (_shared/panel.ts).
+  const sciezka = new URL(request.url).pathname;
+  if (edycjaBiblioteki(request.method, sciezka)) return bibliotekaZamrozona();
+  if (!ADMIN_DOZWOLONE.has(`${request.method} ${sciezka}`)) return przeniesione();
 
   // Attach user to context
   context.data.user = user;

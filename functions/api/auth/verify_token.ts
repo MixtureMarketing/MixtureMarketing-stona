@@ -5,6 +5,7 @@
  */
 
 import { serverError } from '../_shared/errors';
+import { przeniesione } from '../_shared/panel';
 
 interface Env {
   DB: D1Database;
@@ -47,6 +48,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     if (!user) {
       return new Response(JSON.stringify({ error: 'User not found or inactive' }), { status: 404 });
     }
+    // Portal klienta jest w Mixture CRM: sesję na stronie dostaje tylko admin (_shared/panel.ts).
+    if (user.role !== 'admin') return przeniesione();
 
     // 4. Generate Session Token (Simple UUID for now)
     const sessionToken = crypto.randomUUID().replace(/-/g, '');

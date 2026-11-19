@@ -45,7 +45,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 1. Check if user exists
     const user = await env.DB.prepare(
-      'SELECT id, name FROM users WHERE email = ? AND is_active = 1',
+      // Po przeniesieniu portalu do Mixture CRM link logowania dostaje tylko admin (podgląd leadów).
+      "SELECT id, name FROM users WHERE email = ? AND is_active = 1 AND role = 'admin'",
     )
       .bind(email)
       .first();

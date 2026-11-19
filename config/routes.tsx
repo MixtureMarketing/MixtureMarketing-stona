@@ -8,7 +8,8 @@ import { isCennikEnabled } from '@/config/flags';
 // --- Page Components (Lazy Loaded) ---
 const PortalLogin = lazy(() => import('@/components/portal/PortalLogin'));
 const PortalVerify = lazy(() => import('@/components/portal/PortalVerify'));
-const PortalDashboard = lazy(() => import('@/components/portal/PortalDashboard'));
+// Portal klienta przeniesiony do Mixture CRM: dawny panel klienta to strona z informacją.
+const PortalPrzeniesiony = lazy(() => import('@/components/portal/PortalPrzeniesiony'));
 const AdminDashboard = lazy(() => import('@/components/portal/AdminDashboard'));
 const AuditPage = lazy(() => import('@/components/pages/AuditPage'));
 const WebDevelopment = lazy(() => import('@/components/pages/WebDevelopment'));
@@ -246,7 +247,7 @@ export const appRoutes: RouteObject[] = [
   // Portal Routes
   { path: '/portal', element: <PortalLogin /> },
   { path: '/portal/verify', element: <PortalVerify /> },
-  { path: '/portal/dashboard', element: <PortalDashboard /> },
+  { path: '/portal/dashboard', element: <PortalPrzeniesiony /> },
   { path: '/portal/admin', element: <AdminDashboard /> },
 
   // Audit 360
