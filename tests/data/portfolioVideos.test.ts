@@ -1,33 +1,32 @@
 /**
- * MIX-1873/MIX-1884: pliki filmów z mapy `data/portfolioVideos.ts` istnieją w public/, mieszczą się w limitach
- * wagi (podgląd ≤ 500 kB, komputer ≤ 1,5 MB, telefon ≤ 0,5 MB, pionowy ≤ 0,5 MB), są MP4 (H.264) i WebM,
- * nie mają dźwięku (brak ścieżki audio sprawdzany po znacznikach kontenera), a wymiary w mapie zgadzają
- * się z metadanymi pliku (nagłówek `tkhd` w MP4, elementy PixelWidth/PixelHeight w WebM).
+ * MIX-1873/MIX-1896: pliki filmów z mapy `data/portfolioVideos.ts` istnieją w public/, mieszczą się w limitach
+ * wagi (podgląd ≤ 500 kB, komputer ≤ 1,5 MB, telefon ≤ 0,5 MB), są MP4 (H.264) i WebM, nie mają dźwięku
+ * (brak ścieżki audio sprawdzany po znacznikach kontenera), a wymiary w mapie zgadzają się z metadanymi
+ * pliku (nagłówek `tkhd` w MP4, elementy PixelWidth/PixelHeight w WebM). Każdy wpis to komplet poziomy
+ * `landscape('<base>')`; filmów pionowych (MIX-1884) nie ma ani w mapie, ani w `public/portfolio/video/`.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it, expect } from 'vitest';
+import * as videosModule from '@/data/portfolioVideos';
 import {
   PORTFOLIO_VIDEOS,
-  POSTER_BYTE_LIMIT,
   VIDEO_BYTE_LIMITS,
-  landscapeVideoFor,
-  portraitVideoFor,
+  landscape,
   portfolioVideoFor,
-  type PortfolioVideo,
   type PortfolioVideoVariant,
 } from '@/data/portfolioVideos';
 
 const root = path.resolve(__dirname, '..', '..');
 const file = (p: string) => path.join(root, 'public', p);
+const VIDEO_DIR = path.join(root, 'public', 'portfolio', 'video');
 
-type Kind = 'preview' | 'desktop' | 'mobile' | 'portrait';
-const KINDS: Kind[] = ['preview', 'desktop', 'mobile', 'portrait'];
+type Kind = 'preview' | 'desktop' | 'mobile';
+const KINDS: Kind[] = ['preview', 'desktop', 'mobile'];
 
 const rows = Object.entries(PORTFOLIO_VIDEOS).flatMap(([slug, v]) =>
   KINDS.flatMap((kind) => {
-    const variant: PortfolioVideoVariant | undefined = v[kind];
-    if (!variant) return [];
+    const variant: PortfolioVideoVariant = v[kind];
     return (['webm', 'mp4'] as const).map((codec) => ({
       slug,
       kind,
@@ -50,91 +49,86 @@ function hasDimensions(buf: Buffer, codec: 'webm' | 'mp4', w: number, h: number)
   return buf.includes(Buffer.from(needle));
 }
 
-describe('pliki filmów portfolio', () => {
-  it('mapa nie jest pusta (kontrola samego testu)', () => expect(rows.length).toBeGreaterThan(0));
-
-  it('limity z kryterium: podgląd 500 kB, komputer 1,5 MB, telefon 0,5 MB, pionowy 0,5 MB', () =>
+describe('mapa filmów portfolio (MIX-1896: tylko komplety poziome)', () => {
+  it('limity z kryterium: podgląd 500 kB, komputer 1,5 MB, telefon 0,5 MB (bez pionowego)', () =>
     expect(VIDEO_BYTE_LIMITS).toEqual({
       preview: 512000,
       desktop: 1572864,
       mobile: 524288,
-      portrait: 524288,
     }));
 
-  it('Glampspace: komplet wariantów poziomych 960×540, 1280×720, 720×406 (jak Try Dive)', () => {
-    const g = PORTFOLIO_VIDEOS['glamspace'];
-    expect(g.portrait).toBeUndefined();
-    expect([g.preview, g.desktop, g.mobile].map((v) => `${v?.width}×${v?.height}`)).toEqual([
-      '960×540',
-      '1280×720',
-      '720×406',
+  it("landscape('x'): x-{960,1280,720}.{webm,mp4}, wymiary 960×540, 1280×720, 720×406", () =>
+    expect(landscape('x')).toEqual({
+      preview: {
+        webm: '/portfolio/video/x-960.webm',
+        mp4: '/portfolio/video/x-960.mp4',
+        width: 960,
+        height: 540,
+      },
+      desktop: {
+        webm: '/portfolio/video/x-1280.webm',
+        mp4: '/portfolio/video/x-1280.mp4',
+        width: 1280,
+        height: 720,
+      },
+      mobile: {
+        webm: '/portfolio/video/x-720.webm',
+        mp4: '/portfolio/video/x-720.mp4',
+        width: 720,
+        height: 406,
+      },
+    }));
+
+  it('Try Dive i Glampspace: komplety poziome z mapy', () => {
+    expect(Object.keys(PORTFOLIO_VIDEOS).sort()).toEqual([
+      'glamspace',
+      'try-dive-szkola-nurkowania',
     ]);
-    expect(g.preview?.webm).toBe('/portfolio/video/glamspace-960.webm');
-    expect(g.desktop?.mp4).toBe('/portfolio/video/glamspace-1280.mp4');
-    expect(g.mobile?.webm).toBe('/portfolio/video/glamspace-720.webm');
-    expect(landscapeVideoFor('glamspace')).not.toBeNull();
-    expect(portraitVideoFor('glamspace')).toBeNull();
+    expect(PORTFOLIO_VIDEOS['try-dive-szkola-nurkowania']).toEqual(landscape('try-dive'));
+    expect(PORTFOLIO_VIDEOS['glamspace']).toEqual(landscape('glamspace'));
   });
 
-  it('Impackt: tylko wariant pionowy 540×960, bez wariantów poziomych', () => {
-    const i = PORTFOLIO_VIDEOS['impackt-edu'];
-    expect(Object.keys(i)).toEqual(['portrait']);
-    expect(`${i.portrait?.width}×${i.portrait?.height}`).toBe('540×960');
-    expect(i.portrait?.webm).toBe('/portfolio/video/impackt-edu-540.webm');
-    expect(i.portrait?.mp4).toBe('/portfolio/video/impackt-edu-540.mp4');
-    expect(portraitVideoFor('impackt-edu')).toBe(i.portrait);
-    expect(landscapeVideoFor('impackt-edu')).toBeNull();
-  });
-
-  it('Impackt: plakat WebP 540×960 istnieje i ≤ 60 kB (statyczne tło ramki telefonu)', () => {
-    const poster = PORTFOLIO_VIDEOS['impackt-edu'].portrait?.poster;
-    expect(poster).toBe('/portfolio/video/impackt-edu-540.webp');
-    expect(POSTER_BYTE_LIMIT).toBe(60 * 1024);
-    const buf = fs.readFileSync(file(poster!));
-    expect(buf.length).toBeGreaterThan(1024);
-    expect(buf.length).toBeLessThanOrEqual(POSTER_BYTE_LIMIT);
-    expect(buf.subarray(0, 4).toString('latin1')).toBe('RIFF');
-    expect(buf.subarray(8, 12).toString('latin1')).toBe('WEBP');
-    // VP8 (stratny): szerokość i wysokość (14 bitów, little endian) po znaczniku startu 9d 01 2a
-    expect(buf.subarray(12, 16).toString('latin1')).toBe('VP8 ');
-    expect(buf.subarray(23, 26).equals(Buffer.from([0x9d, 0x01, 0x2a]))).toBe(true);
-    expect([buf.readUInt16LE(26) & 0x3fff, buf.readUInt16LE(28) & 0x3fff]).toEqual([540, 960]);
-  });
-
-  it('plakat ma tylko wariant pionowy (lista i hero bez plakatu)', () => {
+  it('każdy wpis = dokładnie preview/desktop/mobile z landscape(<base>), żaden nie ma `portrait` ani plakatu', () => {
     for (const [slug, v] of Object.entries(PORTFOLIO_VIDEOS)) {
-      for (const kind of ['preview', 'desktop', 'mobile'] as const)
-        expect(v[kind]?.poster, `${slug} ${kind}`).toBeUndefined();
+      expect(Object.keys(v).sort(), slug).toEqual(['desktop', 'mobile', 'preview']);
+      expect(v, slug).not.toHaveProperty('portrait');
+      const base = /^\/portfolio\/video\/(.+)-960\.webm$/.exec(v.preview.webm)?.[1];
+      expect(base, slug).toBeTruthy();
+      expect(v, slug).toEqual(landscape(base!));
+      for (const kind of KINDS) expect(v[kind], `${slug} ${kind}`).not.toHaveProperty('poster');
     }
   });
 
-  it('każdy wpis ma komplet poziomy albo żaden; inne slugi i klucze prototypu = null', () => {
-    for (const [slug, v] of Object.entries(PORTFOLIO_VIDEOS)) {
-      const n = [v.preview, v.desktop, v.mobile].filter(Boolean).length;
-      expect([0, 3], slug).toContain(n);
-      expect(n === 3 || v.portrait, slug).toBeTruthy();
-    }
-    for (const s of ['inny-projekt', '', undefined, null, '__proto__', 'constructor']) {
+  it('moduł mapy nie ma już pionu: brak portraitVideoFor, landscapeVideoFor, POSTER_BYTE_LIMIT', () => {
+    const mod = videosModule as Record<string, unknown>;
+    for (const k of ['portraitVideoFor', 'landscapeVideoFor', 'POSTER_BYTE_LIMIT'])
+      expect(mod[k], k).toBeUndefined();
+  });
+
+  it('Impackt Edu: brak wpisu w mapie (samo zdjęcie)', () => {
+    expect(Object.prototype.hasOwnProperty.call(PORTFOLIO_VIDEOS, 'impackt-edu')).toBe(false);
+    expect(portfolioVideoFor('impackt-edu')).toBeNull();
+  });
+
+  it('inne slugi i klucze prototypu = null; wpis z mapy = ten sam obiekt', () => {
+    for (const s of ['inny-projekt', '', undefined, null, '__proto__', 'constructor', 'toString'])
       expect(portfolioVideoFor(s)).toBeNull();
-      expect(landscapeVideoFor(s)).toBeNull();
-      expect(portraitVideoFor(s)).toBeNull();
-    }
+    expect(portfolioVideoFor('glamspace')).toBe(PORTFOLIO_VIDEOS['glamspace']);
+  });
+});
+
+describe('pliki filmów portfolio', () => {
+  it('mapa nie jest pusta (kontrola samego testu)', () => expect(rows.length).toBeGreaterThan(0));
+
+  it('public/portfolio/video/: brak plików pionowych (*-540.*, impackt*)', () => {
+    const names = fs.readdirSync(VIDEO_DIR);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.filter((n) => /-540\.|impackt/i.test(n))).toEqual([]);
   });
 
-  it('wpis z niepełnym kompletem poziomym nie daje wariantów poziomych (lista i hero bez filmu)', () => {
-    const map = PORTFOLIO_VIDEOS as Record<string, PortfolioVideo>;
-    const real = PORTFOLIO_VIDEOS['glamspace'];
-    map['tmp-niepelny'] = { preview: real.preview, portrait: real.preview };
-    try {
-      expect(landscapeVideoFor('tmp-niepelny')).toBeNull();
-      expect(portraitVideoFor('tmp-niepelny')).toBe(real.preview);
-      map['tmp-niepelny'] = { preview: real.preview, desktop: real.desktop };
-      expect(landscapeVideoFor('tmp-niepelny')).toBeNull();
-      map['tmp-niepelny'] = { ...real };
-      expect(landscapeVideoFor('tmp-niepelny')).toEqual(real);
-    } finally {
-      delete map['tmp-niepelny'];
-    }
+  it('public/portfolio/video/ = dokładnie pliki z mapy (bez sierot)', () => {
+    const fromMap = rows.map((r) => path.basename(r.src)).sort();
+    expect(fs.readdirSync(VIDEO_DIR).sort()).toEqual(fromMap);
   });
 
   it.each(rows)('$slug $kind $codec: istnieje i ≤ limit', ({ src, limit }) => {

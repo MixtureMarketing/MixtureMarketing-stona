@@ -9,6 +9,7 @@
 
 import { clientIp, verifyTurnstile } from './security';
 import { ipLimitKey } from './publicUrl';
+import { turnstileMode } from './turnstileMode';
 
 export interface GateStore {
   get(key: string): Promise<string | null>;
@@ -40,6 +41,10 @@ export async function gateCaptcha(
   token: unknown,
   secret: string | undefined,
 ): Promise<GateResult> {
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev; gdzie indziej 503.
+  const tm = turnstileMode(secret, request.url);
+  if (tm.kind === 'refuse')
+    return deny(name, 503, tm.reason, 'Usługa chwilowo niedostępna. Spróbuj później.');
   const ok = await verifyTurnstile(
     typeof token === 'string' ? token : '',
     secret,

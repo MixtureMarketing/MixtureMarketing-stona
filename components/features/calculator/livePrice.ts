@@ -35,6 +35,19 @@ export function isConfigPreviewEnabled(
 }
 
 /**
+ * MIX-1815 (Z11): nowy ekran wyniku (treści P4, przyciski 44 px, „Umów rozmowę” przenosi
+ * konfigurację do /contact/) za przełącznikiem `VITE_MM_RESULT_CONTACT`, ten sam parser.
+ * Wyłączony = ekran wyniku, pytania i /contact/ jak dziś.
+ */
+export function isResultContactEnabled(
+  raw: unknown = import.meta.env.VITE_MM_RESULT_CONTACT,
+): boolean {
+  // MIX-1815 r3 (wzór MIX-1898): bez isLivePriceBarEnabled(raw), bo brak zmiennej (undefined)
+  // włączyłby tam domyślny parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
+}
+
+/**
  * MIX-1791: link do konfiguracji (`/wycena/?k=...`, przyciski „Skopiuj link" i „Udostępnij") za
  * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` włącza.
  * Wyłączony = brak przycisków i parametr `k` w adresie nie jest czytany.

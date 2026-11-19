@@ -5,6 +5,9 @@ import React, { useEffect } from 'react';
 /** Zapas wokół przycisku ciasteczek (px): chowamy go, zanim krawędź podglądu dojedzie pod niego. */
 export const COOKIE_GAP_PX = 4;
 
+/** Kontrolki formularza /wycena/, nad którymi przycisk ciasteczek ma się chować (MIX-1815 r2). */
+export const FORM_CONTROLS = 'label, input, select, textarea, button, a[href]';
+
 /**
  * Przycisk ciasteczek jest `fixed`, więc podczas przewijania zasłaniałby dół podglądu (MIX-1799,
  * uwaga Z6: 1250 px² na 390 px) i przyciski linku (700 px²). Gdy prostokąt elementu nachodzi na
@@ -16,7 +19,11 @@ export const COOKIE_GAP_PX = 4;
 export function useHideCookieOver(
   ref: React.RefObject<HTMLElement | null>,
   active: boolean,
-  flag: 'configPreviewCookie' | 'configLinkCookie' | 'timelineCookie',
+  flag:
+    'configPreviewCookie' | 'configLinkCookie' | 'timelineCookie' | 'resultCookie' | 'formCookie',
+  /** MIX-1815 r2: gdy podany, mierzymy elementy pasujące do selektora wewnątrz `ref` (opcje,
+   *  pola, przyciski), a nie cały blok: przycisk chowa się tylko nad kontrolką. */
+  selector?: string,
 ) {
   useEffect(() => {
     const box = ref.current;
@@ -25,11 +32,15 @@ export function useHideCookieOver(
     let raf = 0;
     const sync = () => {
       raf = 0;
-      const p = box.getBoundingClientRect();
+      const targets = selector ? Array.from(box.querySelectorAll(selector)) : [box];
       let over = false;
-      if (p.width > 0 && p.height > 0) {
-        for (const el of document.querySelectorAll('.cookie-floating-btn')) {
-          const c = el.getBoundingClientRect();
+      const cookies = Array.from(document.querySelectorAll('.cookie-floating-btn')).map((el) =>
+        el.getBoundingClientRect(),
+      );
+      for (const t of targets) {
+        const p = t.getBoundingClientRect();
+        if (p.width <= 0 || p.height <= 0) continue;
+        for (const c of cookies) {
           if (c.width <= 0 || c.height <= 0) continue;
           if (
             c.left < p.right &&
@@ -61,5 +72,5 @@ export function useHideCookieOver(
       if (raf) cancelAnimationFrame(raf);
       delete body.dataset[flag];
     };
-  }, [ref, active, flag]);
+  }, [ref, active, flag, selector]);
 }

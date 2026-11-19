@@ -1,16 +1,16 @@
 /**
- * Mapa realizacja → film (MIX-1831/MIX-1873). Klucz = slug realizacji z Sanity.
- * Realizacja bez wpisu działa jak dotąd (samo zdjęcie).
+ * Mapa realizacja → film (MIX-1831/MIX-1873/MIX-1896). Klucz = slug realizacji z Sanity.
+ * Realizacja bez wpisu działa jak dotąd (samo zdjęcie), np. Impackt Edu.
  *
- * Warianty (decyzja Jakuba, MIX-1831, wariant A):
- * - `preview`: kafelek listy, zawsze poziomy 16:9, ≤ 500 kB, 960 px;
- * - `desktop`: strona realizacji na komputerze, ≤ 1,5 MB, 1280 px;
- * - `mobile`: strona realizacji na telefonie, ≤ 0,5 MB, 720 px;
- * - `portrait` (MIX-1884): film pionowy 540×960, ≤ 0,5 MB, tylko na stronie realizacji w ramce telefonu
- *   (sekcja „Wersja na telefon”); ten sam plik na telefonie i komputerze.
- * Warianty poziome (`preview`/`desktop`/`mobile`) idą razem: realizacja z samym `portrait` nie ma
- * filmu na liście ani w hero. Każdy wariant: WebM (VP9) + MP4 (H.264), bez dźwięku. Pliki w `public/portfolio/video/`,
- * nagrywa je `scripts/record-portfolio-video.mjs` (limity pilnuje `tests/data/portfolioVideos.test.ts`).
+ * Każdy wpis to komplet trzech wariantów poziomych 16:9 (decyzja Jakuba, MIX-1831, wariant A):
+ * - `preview`: kafelek listy, 960×540, ≤ 500 kB;
+ * - `desktop`: strona realizacji na komputerze, 1280×720, ≤ 1,5 MB;
+ * - `mobile`: strona realizacji na telefonie, 720×406, ≤ 0,5 MB.
+ * Każdy wariant: WebM (VP9) + MP4 (H.264), bez dźwięku. Pliki `public/portfolio/video/<base>-{960,1280,720}.{webm,mp4}`
+ * nagrywa `scripts/record-portfolio-video.mjs`; nowy film = jedna linia `'<slug>': landscape('<base>')`.
+ * Filmów pionowych (ramka telefonu) nie ma: usunięte w MIX-1896.
+ * Limity, wymiary i komplet plików pilnuje `tests/data/portfolioVideos.test.ts`; instrukcja:
+ * `docs/runbooks/portfolio-filmy.md`.
  */
 
 export interface PortfolioVideoVariant {
@@ -21,21 +21,13 @@ export interface PortfolioVideoVariant {
   /** Wymiary pliku (metadane) — z nich proporcje ramki, bez przycięcia i bez przeskoku układu. */
   width: number;
   height: number;
-  /** Plakat (WebP, klatka filmu): statyczne tło ramki telefonu, gdy filmu nie ma albo nie gra (MIX-1884). */
-  poster?: string;
 }
 
-/** Komplet wariantów poziomych: kafelek listy i hero strony realizacji. */
-export interface PortfolioLandscapeVideo {
+/** Wpis mapy: komplet wariantów poziomych (kafelek listy i hero strony realizacji), wszystkie wymagane. */
+export interface PortfolioVideo {
   preview: PortfolioVideoVariant;
   desktop: PortfolioVideoVariant;
   mobile: PortfolioVideoVariant;
-}
-
-/** Wpis mapy: warianty poziome (wszystkie trzy albo żaden) i/lub pionowy. */
-export interface PortfolioVideo extends Partial<PortfolioLandscapeVideo> {
-  /** Film pionowy w ramce telefonu na stronie realizacji (MIX-1884). */
-  portrait?: PortfolioVideoVariant;
 }
 
 /** Limity wagi plików wariantów w bajtach (kryterium MIX-1873). */
@@ -43,11 +35,7 @@ export const VIDEO_BYTE_LIMITS = {
   preview: 500 * 1024,
   desktop: 1.5 * 1024 * 1024,
   mobile: 512 * 1024,
-  portrait: 512 * 1024,
 } as const;
-
-/** Limit wagi plakatu wariantu pionowego (WebP, 540×960). */
-export const POSTER_BYTE_LIMIT = 60 * 1024;
 
 const variant = (base: string, width: number, height: number): PortfolioVideoVariant => ({
   webm: `/portfolio/video/${base}-${width}.webm`,
@@ -56,43 +44,22 @@ const variant = (base: string, width: number, height: number): PortfolioVideoVar
   height,
 });
 
+/** Komplet poziomy `<base>-{960,1280,720}.{webm,mp4}`: 960×540, 1280×720, 720×406. */
+export const landscape = (base: string): PortfolioVideo => ({
+  preview: variant(base, 960, 540),
+  desktop: variant(base, 1280, 720),
+  mobile: variant(base, 720, 406), // 405 nie da się zakodować (yuv420p: wysokość parzysta)
+});
+
 export const PORTFOLIO_VIDEOS: Readonly<Record<string, PortfolioVideo>> = {
-  // Try Dive: nagranie publicznej strony realizacji (przewijanie hero i sekcji), poziomo.
-  'try-dive-szkola-nurkowania': {
-    preview: variant('try-dive', 960, 540),
-    desktop: variant('try-dive', 1280, 720),
-    mobile: variant('try-dive', 720, 406), // 405 nie da się zakodować (yuv420p: wysokość parzysta)
-  },
-  // Glampspace: poziomo, jak Try Dive.
-  glamspace: {
-    preview: variant('glamspace', 960, 540),
-    desktop: variant('glamspace', 1280, 720),
-    mobile: variant('glamspace', 720, 406),
-  },
-  // Impackt: tylko film pionowy (ramka telefonu na stronie realizacji); bez filmu na liście i w hero.
-  'impackt-edu': {
-    portrait: {
-      ...variant('impackt-edu', 540, 960),
-      poster: '/portfolio/video/impackt-edu-540.webp',
-    },
-  },
+  // Try Dive: nagranie publicznej strony realizacji (przewijanie hero i sekcji).
+  'try-dive-szkola-nurkowania': landscape('try-dive'),
+  // Glampspace: film dostarczony (tryb SRC skryptu).
+  glamspace: landscape('glamspace'),
 };
 
-/** Film realizacji albo `null` (brak wpisu, pusty slug, klucze z prototypu obiektu). */
+/** Film realizacji (lista i hero) albo `null` (brak wpisu, pusty slug, klucze z prototypu obiektu). */
 export function portfolioVideoFor(slug: string | undefined | null): PortfolioVideo | null {
   if (!slug || !Object.prototype.hasOwnProperty.call(PORTFOLIO_VIDEOS, slug)) return null;
   return PORTFOLIO_VIDEOS[slug];
-}
-
-/** Warianty poziome (lista, hero) albo `null`, gdy brak wpisu albo wpis ma tylko `portrait`. */
-export function landscapeVideoFor(slug: string | undefined | null): PortfolioLandscapeVideo | null {
-  const v = portfolioVideoFor(slug);
-  return v?.preview && v.desktop && v.mobile
-    ? { preview: v.preview, desktop: v.desktop, mobile: v.mobile }
-    : null;
-}
-
-/** Film pionowy (sekcja „Wersja na telefon”) albo `null`. */
-export function portraitVideoFor(slug: string | undefined | null): PortfolioVideoVariant | null {
-  return portfolioVideoFor(slug)?.portrait ?? null;
 }
