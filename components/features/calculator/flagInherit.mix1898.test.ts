@@ -2,7 +2,12 @@
 // zmienna nie jest ustawiona (uwaga weryfikatora MIX-1892). Wzór: isNewClientTimelineEnabled.
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { isCalcNewUiEnabled } from './calcUi';
-import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import {
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
+  isLivePriceBarEnabled,
+  isResultContactEnabled,
+} from './livePrice';
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -10,6 +15,8 @@ const PRZELACZNIKI: [string, string, (raw?: unknown) => boolean][] = [
   ['isCalcNewUiEnabled', 'VITE_MM_CALC_NEW_UI', isCalcNewUiEnabled],
   ['isConfigPreviewEnabled', 'VITE_MM_CONFIG_PREVIEW', isConfigPreviewEnabled],
   ['isConfigLinkEnabled', 'VITE_MM_CONFIG_LINK', isConfigLinkEnabled],
+  // MIX-1815 r3: ekran wyniku z przejściem do kontaktu.
+  ['isResultContactEnabled', 'VITE_MM_RESULT_CONTACT', isResultContactEnabled],
 ];
 
 // Formy ataku Z3 (fail-closed): każda = wyłączony; dozwolony bliźniak: dokładnie '1'.

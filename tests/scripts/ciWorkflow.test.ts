@@ -64,6 +64,7 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
   'VITE_MM_LIVE_PRICE_BAR',
   'VITE_MM_NEW_CLIENT_TIMELINE', // MIX-1816: oś czasu na ekranie wyniku (Z13)
+  'VITE_MM_RESULT_CONTACT', // MIX-1815: ekran wyniku i przejście do kontaktu (Z11)
 ];
 /** Wszystkie przełączniki tylko-Preview konfiguratora (posortowane jak lista z kodu). */
 const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD].sort();
