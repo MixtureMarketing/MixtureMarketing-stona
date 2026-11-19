@@ -53,55 +53,57 @@ const CustomAppProof: React.FC = () => {
           className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-12"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
         >
-          {psychon && CONTENT.proofPsychon.figures.map((fig) => (
-            <figure key={fig.src}>
-              <Link
-                to={proof.linkTo}
-                className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
-              >
-                <img
-                  src={fig.src}
-                  alt={fig.alt}
-                  width={fig.width}
-                  height={fig.height}
-                  loading="lazy"
-                  decoding="async"
-                  onError={hideBrokenFigure}
-                  className="h-auto w-full"
-                />
-              </Link>
-              <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
-                {fig.caption}
-              </figcaption>
-            </figure>
-          ))}
-          {!psychon && CONTENT.proof.figures.map((fig) => {
-            let img = urlFor(fig.ref);
-            if ('rect' in fig && fig.rect) {
-              img = img.rect(fig.rect.x, fig.rect.y, fig.rect.w, fig.rect.h);
-            }
-            return (
-              <figure key={fig.ref}>
+          {psychon &&
+            CONTENT.proofPsychon.figures.map((fig) => (
+              <figure key={fig.src}>
                 <Link
                   to={proof.linkTo}
                   className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
                 >
                   <img
-                    src={img.width(1200).fit('max').url()}
+                    src={fig.src}
                     alt={fig.alt}
-                    sizes="(min-width: 768px) 50vw, 100vw"
+                    width={fig.width}
+                    height={fig.height}
                     loading="lazy"
                     decoding="async"
                     onError={hideBrokenFigure}
-                    className="w-full"
+                    className="h-auto w-full"
                   />
                 </Link>
                 <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
                   {fig.caption}
                 </figcaption>
               </figure>
-            );
-          })}
+            ))}
+          {!psychon &&
+            CONTENT.proof.figures.map((fig) => {
+              let img = urlFor(fig.ref);
+              if ('rect' in fig && fig.rect) {
+                img = img.rect(fig.rect.x, fig.rect.y, fig.rect.w, fig.rect.h);
+              }
+              return (
+                <figure key={fig.ref}>
+                  <Link
+                    to={proof.linkTo}
+                    className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                  >
+                    <img
+                      src={img.width(1200).fit('max').url()}
+                      alt={fig.alt}
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                      loading="lazy"
+                      decoding="async"
+                      onError={hideBrokenFigure}
+                      className="w-full"
+                    />
+                  </Link>
+                  <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                    {fig.caption}
+                  </figcaption>
+                </figure>
+              );
+            })}
         </div>
 
         <p className="mt-10">

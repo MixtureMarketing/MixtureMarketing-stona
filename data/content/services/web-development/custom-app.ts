@@ -70,14 +70,16 @@ export const CUSTOM_WEB_APP_CONTENT = {
         width: 1440,
         height: 900,
         alt: 'Pulpit uczestnika w aplikacji PsychON: następna lekcja do obejrzenia, postęp w programie, godziny w dzienniku stażu i spotkania z mentorem',
-        caption: 'Pulpit uczestnika: następna lekcja, postęp w programie, staż i spotkania z mentorem.',
+        caption:
+          'Pulpit uczestnika: następna lekcja, postęp w programie, staż i spotkania z mentorem.',
       },
       {
         src: '/assets/custom-app/psychon-postepy-grupy.webp',
         width: 1440,
         height: 900,
         alt: 'Panel prowadzącego w aplikacji PsychON: lista osób w grupie z ukończonymi kursami, godzinami stażu i spotkaniami z mentorem',
-        caption: 'Panel prowadzącego: postępy całej grupy i terminy spotkań z mentorem w jednym widoku.',
+        caption:
+          'Panel prowadzącego: postępy całej grupy i terminy spotkań z mentorem w jednym widoku.',
       },
     ],
     linkLabel: 'Zobacz nasze realizacje',

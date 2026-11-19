@@ -17,7 +17,9 @@ vi.mock('../../services/cms/client', () => {
   chain.url = () => CDN;
   return { urlFor: () => chain };
 });
-vi.mock('../../hooks/useSectionProgress', () => ({ useSectionProgress: () => ({ current: null }) }));
+vi.mock('../../hooks/useSectionProgress', () => ({
+  useSectionProgress: () => ({ current: null }),
+}));
 
 import CustomAppProof from '../../components/features/web-development/CustomAppProof';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../data/content';
@@ -121,7 +123,12 @@ describe('MIX-1975: przełącznik włączony = PsychON', () => {
 
   it('treść PsychON: bez cyfr (żadnych liczb z danych Fundacji) i bez nazw osób ze zrzutów', () => {
     const p = CONTENT.proofPsychon;
-    const teksty = [p.title, p.description, p.linkLabel, ...p.figures.flatMap((f) => [f.alt, f.caption])];
+    const teksty = [
+      p.title,
+      p.description,
+      p.linkLabel,
+      ...p.figures.flatMap((f) => [f.alt, f.caption]),
+    ];
     for (const t of teksty) {
       expect(t).not.toMatch(/\d/);
       expect(t).not.toMatch(/Testow|Demo|Próbn|Wzorcow|Przykładow|Pokazow|Ćwiczebn/);

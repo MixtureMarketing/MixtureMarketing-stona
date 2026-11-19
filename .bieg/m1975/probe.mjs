@@ -34,7 +34,8 @@ const MIME = {
   '.xml': 'application/xml',
   '.txt': 'text/plain',
 };
-const BLOK = /\/cdn-cgi\/zaraz\/|googletagmanager|google-analytics|doubleclick|facebook|hotjar|clarity\.ms/;
+const BLOK =
+  /\/cdn-cgi\/zaraz\/|googletagmanager|google-analytics|doubleclick|facebook|hotjar|clarity\.ms/;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const server = http.createServer(async (req, res) => {
@@ -88,7 +89,9 @@ for (const vp of [
     // Przewijanie krokami do sekcji (leniwe obrazy, leniwe sekcje), potem czekanie na obrazy.
     for (let i = 0; i < 40; i++) {
       const dalej = await page.evaluate(() => {
-        const h = [...document.querySelectorAll('h2')].find((x) => /nie makieta/.test(x.textContent));
+        const h = [...document.querySelectorAll('h2')].find((x) =>
+          /nie makieta/.test(x.textContent),
+        );
         const s = h.closest('section');
         const r = s.getBoundingClientRect();
         if (r.top < window.innerHeight * 0.3) return false;
@@ -123,7 +126,10 @@ for (const vp of [
         studentpi: (html.match(/studentpi/gi) || []).length,
         psychon: (s.outerHTML.match(/PsychON/g) || []).length,
         opis: s.querySelector('p')?.textContent ?? '',
-        linki: [...s.querySelectorAll('a')].map((a) => [a.getAttribute('href'), a.textContent.trim()]),
+        linki: [...s.querySelectorAll('a')].map((a) => [
+          a.getAttribute('href'),
+          a.textContent.trim(),
+        ]),
         obrazy: [...s.querySelectorAll('img')].map((i) => ({
           src: i.getAttribute('src'),
           attrW: i.getAttribute('width'),
@@ -152,9 +158,13 @@ for (const vp of [
       }),
     );
     const sekcja = await page.evaluateHandle(() =>
-      [...document.querySelectorAll('h2')].find((x) => /nie makieta/.test(x.textContent)).closest('section'),
+      [...document.querySelectorAll('h2')]
+        .find((x) => /nie makieta/.test(x.textContent))
+        .closest('section'),
     );
-    await sekcja.asElement().screenshot({ path: path.join(OUT, `${tag}-${vp.w}.jpg`), type: 'jpeg', quality: 50 });
+    await sekcja
+      .asElement()
+      .screenshot({ path: path.join(OUT, `${tag}-${vp.w}.jpg`), type: 'jpeg', quality: 50 });
     await page.addScriptTag({ path: path.resolve('node_modules/axe-core/axe.min.js') });
     wynik.axe = await page.evaluate(async () => {
       const r = await window.axe.run(document, {
@@ -164,7 +174,15 @@ for (const vp of [
       const h = [...document.querySelectorAll('h2')].find((x) => /nie makieta/.test(x.textContent));
       const s = h.closest('section');
       const wSekcji = r.violations.filter((v) =>
-        v.nodes.some((n) => n.target.some((t) => { try { return s.contains(document.querySelector(t)); } catch { return false; } })),
+        v.nodes.some((n) =>
+          n.target.some((t) => {
+            try {
+              return s.contains(document.querySelector(t));
+            } catch {
+              return false;
+            }
+          }),
+        ),
       );
       return {
         seriousCritical: ciezkie.reduce((a, v) => a + v.nodes.length, 0),
