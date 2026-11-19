@@ -30,7 +30,7 @@ mut() {
 }
 mut M1-flaga-niepusta "$F" "s/import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON === '1'/import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON !== ''/"
 mut M2-zawsze-stara-tresc "$C" "s/psychon ? CONTENT.proofPsychon : CONTENT.proof/CONTENT.proof/"
-mut M3-stare-obrazy-przy-on "$C" "s/{!psychon [&][&] CONTENT.proof.figures/{CONTENT.proof.figures/"
+mut M3-stare-obrazy-przy-on "$C" "s/{!psychon [&][&]$/{true \&\&/"
 mut M4-link-psychon-404 "$D" "s|    linkTo: '/portfolio/',|    linkTo: '/portfolio/psychon/',|"
 mut M5-bez-width "$C" "/width={fig.width}/d"
 mut M6-ci-bez-flagi "$Y" "/VITE_MM_CUSTOMAPP_PSYCHON:/d"
