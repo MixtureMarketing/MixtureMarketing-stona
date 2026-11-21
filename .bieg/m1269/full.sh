@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MIX-1269 full check (wzór .bieg/m1938/full.sh): npm ci; vitest related; eslint; prettier (pliki
 # zmiany); tsc root + functions; vitest run; build bez przełącznika i z VITE_MM_HOME_SEO=1; build bazy
-# (3e208e2, integracja po r2) i porównanie HTML; próba w przeglądarce on/off; mutanty.
+# (3e208e2 = integracja przed MIX-1269; r3 też na tej bazie) i porównanie HTML; próba w przeglądarce on/off; mutanty.
 set -u
 cd "$(git rev-parse --show-toplevel)" || exit 2
 OUT=.bieg/m1269/full
