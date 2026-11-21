@@ -126,7 +126,11 @@ if (mode === 'on') {
   check(count(title) === 1, `fraza w title ${count(title)}×`);
   check(description && description.length <= 155, `meta ${description?.length} > 155`);
   check(results.html.h1Phrase === 1, `fraza w H1 ${results.html.h1Phrase}×`);
-  check(bandLinks.length >= 3 && bandLinks.length <= 5, `linków ${bandLinks.length}`);
+  // r4: 6 linków, w tym /agencja-interaktywna-rzeszow/; „agencja interaktywna” w title i meta raz.
+  check(bandLinks.length >= 5 && bandLinks.length <= 6, `linków ${bandLinks.length}`);
+  check(bandLinks.includes("/agencja-interaktywna-rzeszow/"), "brak linku do agencji interaktywnej");
+  const ai = (t) => (t || "").toLocaleLowerCase("pl-PL").split("agencja interaktywna").length - 1;
+  check(ai(title) === 1 && ai(description) === 1, `agencja interaktywna: title ${ai(title)}×, meta ${ai(description)}×`);
 } else {
   check(results.html.h1Phrase === 0, `off: fraza w H1 ${results.html.h1Phrase}×`);
 }
