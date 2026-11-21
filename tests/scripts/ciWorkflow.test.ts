@@ -70,11 +70,14 @@ const WYCENA_WYLACZONA_NA_PROD = [
 const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
+/** Strona główna pod „agencja marketingowa Rzeszów” (MIX-1269): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
+const HOME_SEO_WYLACZONY_NA_PROD = ['VITE_MM_HOME_SEO'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
 /** PsychON w sekcji dowodu /web-development/custom-app/ (MIX-1975): Preview 1, produkcja i PR puste. */
 const PSYCHON_WYLACZONY_NA_PROD = ['VITE_MM_CUSTOMAPP_PSYCHON'];
 const WYLACZONE_NA_PROD = [
   ...CENNIK_WYLACZONY_NA_PROD,
+  ...HOME_SEO_WYLACZONY_NA_PROD,
   ...PSYCHON_WYLACZONY_NA_PROD,
   ...WYCENA_WYLACZONA_NA_PROD,
 ].sort();
@@ -534,6 +537,25 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
     },
   );
+  it.each(HOME_SEO_WYLACZONY_NA_PROD)(
+    'MIX-1269: %s (strona główna SEO) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
+  it('MIX-1269: VITE_MM_HOME_SEO w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
+    const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_HOME_SEO);
+    expect(wyr).toBe(WYRAZENIE_PREVIEW);
+    expect(wartoscFlagi(wyr, 'preview')).toBe('1');
+    expect(wartoscFlagi(wyr, 'prod')).toBe('');
+    expect(wartoscFlagi(wyr, 'none')).toBe('');
+    expect(przelacznikiZKodu()).toContain('VITE_MM_HOME_SEO');
+    expect(WLACZONE_NA_PROD.has('VITE_MM_HOME_SEO')).toBe(false);
+  });
   it('MIX-1855: VITE_MM_CENNIK w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
     const w = wczytaj();
     const wyr = String(zmienneBuildu(w).VITE_MM_CENNIK);
@@ -552,7 +574,7 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w2).VITE_MM_CENNIK = '';
     expect(naruszenia(w2).join('|')).toMatch(/VITE_MM_CENNIK: nieznana postać wyrażenia/);
   });
-  it('MIX-1838/1855/1896: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, PsychON (MIX-1975) i konfigurator wyceny (filmy portfolio już na produkcji)', () => {
+  it('MIX-1838/1855/1896: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, SEO strony głównej (MIX-1269), PsychON (MIX-1975) i konfigurator wyceny (filmy portfolio już na produkcji)', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
     expect(inne).toEqual(WYLACZONE_NA_PROD);
     const zmienne = zmienneBuildu(wczytaj());

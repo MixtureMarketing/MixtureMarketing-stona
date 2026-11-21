@@ -157,6 +157,8 @@ jobs:
           # Wycofanie: usunac te dwie linie (build wraca do klucza produkcyjnego z config/turnstileKey.ts).
           MM_DEPLOY_TARGET: ${{ steps.target.outputs.target }}
           VITE_TURNSTILE_SITE_KEY: ${{ steps.target.outputs.target == 'preview' && '1x00000000000000000000AA' || '0x4AAAAAACYHLgkgk3FJUj06' }}
+          # MIX-1269: strona glowna pod fraze "agencja marketingowa rzeszow" do akceptacji Jakuba na Preview.
+          VITE_MM_HOME_SEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build
 
       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,

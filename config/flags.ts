@@ -60,6 +60,14 @@ export const isPortfolioVideoEnabled = (): boolean =>
 export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
 
 /**
+ * Strona główna pod frazę „agencja marketingowa Rzeszów” (MIX-1269, plan SEO A12): nowy title,
+ * meta description, fraza w H1 i linki lokalne z opisowymi kotwicami w pasie „Lokalnie · Rzeszów”.
+ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1269.md). Wyłączony (domyślnie) = strona główna
+ * bez zmian co do bajta (tests/seo/homeSeo.test.tsx). Preview buduje się z `VITE_MM_HOME_SEO=1` (ci.yml).
+ */
+export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO === '1';
+
+/**
  * Sekcja dowodu na /web-development/custom-app/ (MIX-1975): PsychON (platforma szkoleniowa Fundacji
  * Niepodzielni, zrzuty z danych testowych w public/assets/custom-app/) zamiast KorepetytorAI
  * (StudentPI). Link prowadzi do /portfolio/ (PsychON nie ma jeszcze strony realizacji w CMS).
