@@ -49,11 +49,21 @@ const firstDiff = (a: string, b: string) => {
   return `pierwsza różnica na znaku ${i}: …${a.slice(Math.max(0, i - 80), i + 80)}… ≠ …${b.slice(Math.max(0, i - 80), i + 80)}…`;
 };
 
-/** Tytuły i opisy kroków w kolejności (H3 + następny akapit). */
+/**
+ * Tytuły i opisy kroków w kolejności: H3 i pierwszy akapit po nim w najbliższym przodku, który
+ * taki akapit ma (stare układy zawijają H3 w osobny div z ikoną albo etykietą).
+ */
 const stepTexts = (el: HTMLElement) =>
   [...el.querySelectorAll('h3')].map((h) => {
-    const desc = h.nextElementSibling?.tagName === 'P' ? h.nextElementSibling.textContent : null;
-    return { title: h.textContent?.trim(), desc: desc?.trim() ?? null };
+    let desc: string | null = null;
+    for (let a = h.parentElement; a && desc === null; a = a.parentElement) {
+      const p = [...a.querySelectorAll('p')].find(
+        (x) => h.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      if (p) desc = p.textContent?.trim() ?? '';
+      if (a === el) break;
+    }
+    return { title: h.textContent?.trim(), desc };
   });
 
 async function section(p: ProcessPage, flag: string | undefined) {
