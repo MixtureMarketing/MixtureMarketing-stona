@@ -76,3 +76,13 @@ export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO 
  */
 export const isCustomAppPsychonEnabled = (): boolean =>
   import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON === '1';
+
+/**
+ * K1 „Oś procesu” (MIX-1317, wybór Jakuba 21.11): sekcje procesu na podstronach usług
+ * (components/common/ProcessTimeline.tsx, style `.mm-k1*` w index.css; sam CSS, JS 0).
+ * Telefon jak w zaakceptowanym prototypie, komputer z krokami na całą szerokość kontenera.
+ * Wyłączony (domyślnie) = sekcje jak przed zmianą (tests/process/processTimeline.test.tsx).
+ * Preview buduje się z `VITE_MM_PROCESS_TIMELINE=1` (ci.yml); produkcja i PR puste do OK Jakuba.
+ */
+export const isProcessTimelineEnabled = (): boolean =>
+  import.meta.env.VITE_MM_PROCESS_TIMELINE === '1';

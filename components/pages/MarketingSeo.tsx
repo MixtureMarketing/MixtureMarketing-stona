@@ -31,6 +31,8 @@ import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
 import StandardFaq from '../common/StandardFaq';
 import RelatedArticles from '../articles/RelatedArticles';
 import PlotterTimeline from '../common/PlotterTimeline';
+import ProcessTimeline from '../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../config/flags';
 
 /**
  * /marketing/seo/ — przebudowa 2026-07-16 (krytyka 14/40, pełna ścieżka
@@ -258,6 +260,27 @@ const MarketingSeo: React.FC = () => {
       {/* Roadmapa — linia plotera rysowana scrollem przez 4 etapy. */}
       <section ref={roadRef} className="relative bg-light-gray py-20 md:py-28">
         <Container>
+          {isProcessTimelineEnabled() ? (
+            <>
+              {/* MIX-1317 K1: nagłówek nad osią, kroki na całą szerokość kontenera. */}
+              <div className="max-w-3xl">
+                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                  {CONTENT.roadmap.title}
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                  {CONTENT.roadmap.description}
+                </p>
+              </div>
+              <ProcessTimeline
+                className="mt-12"
+                items={CONTENT.roadmap.steps.map((s) => ({
+                  kicker: s.month,
+                  title: s.title,
+                  desc: s.desc,
+                }))}
+              />
+            </>
+          ) : (
           <div className="lg:grid lg:grid-cols-12 lg:gap-16">
             <div
               className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
@@ -279,6 +302,7 @@ const MarketingSeo: React.FC = () => {
               }))}
             />
           </div>
+          )}
         </Container>
       </section>
 

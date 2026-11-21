@@ -7,6 +7,8 @@ import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import Container from '../common/Container';
+import ProcessTimeline from '../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../config/flags';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
 import FaqSection from '../sections/FaqSection';
@@ -172,6 +174,9 @@ const AiSystemsApps: React.FC = () => {
               {CONTENT.process.description}
             </p>
           </div>
+          {isProcessTimelineEnabled() ? (
+            <ProcessTimeline className="mt-12" items={CONTENT.process.steps} />
+          ) : (
           <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
             {CONTENT.process.steps.map((step, i) => (
               <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
@@ -192,6 +197,7 @@ const AiSystemsApps: React.FC = () => {
               </li>
             ))}
           </ol>
+          )}
         </Container>
       </section>
 

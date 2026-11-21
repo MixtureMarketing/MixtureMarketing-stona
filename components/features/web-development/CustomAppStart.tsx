@@ -1,5 +1,7 @@
 import React from 'react';
 import Container from '../../common/Container';
+import ProcessTimeline from '../../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../../config/flags';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
 
@@ -12,13 +14,17 @@ import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
  */
 const CustomAppStart: React.FC = () => {
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
+  // MIX-1317: K1 bez przesunięcia nagłówka zależnego od --p (efekt sam w CSS).
+  const on = isProcessTimelineEnabled();
 
   return (
     <section ref={sectionRef} className="relative bg-light-gray py-20 md:py-28">
       <Container>
         <div
           className="max-w-3xl"
-          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+          style={
+            on ? undefined : { transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }
+          }
         >
           <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
             {CONTENT.start.title}
@@ -26,6 +32,9 @@ const CustomAppStart: React.FC = () => {
           <p className="mt-5 text-lg leading-relaxed text-gray-700">{CONTENT.start.description}</p>
         </div>
 
+        {on ? (
+          <ProcessTimeline className="mt-12" items={CONTENT.start.steps} />
+        ) : (
         <ol
           className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
@@ -49,6 +58,7 @@ const CustomAppStart: React.FC = () => {
             </li>
           ))}
         </ol>
+        )}
       </Container>
     </section>
   );

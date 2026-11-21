@@ -3,6 +3,8 @@ import { Users, PenTool, MessageSquare, FileBox, Sparkles } from 'lucide-react';
 import SectionHeader from '../../common/SectionHeader';
 import AnimateOnScroll from '../../common/AnimateOnScroll';
 import SectionWrapper from '../../common/SectionWrapper';
+import ProcessTimeline from '../../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../../config/flags';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
 
 const BrandProcess: React.FC = () => {
@@ -24,6 +26,15 @@ const BrandProcess: React.FC = () => {
         className="mb-20"
       />
 
+      {isProcessTimelineEnabled() ? (
+        <ProcessTimeline
+          items={CONTENT.process.steps.map((s) => ({
+            kicker: s.time,
+            title: s.title,
+            desc: s.desc,
+          }))}
+        />
+      ) : (
       <div className="relative">
         <div className="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-y-1/2 z-0"></div>
 
@@ -65,6 +76,7 @@ const BrandProcess: React.FC = () => {
           ))}
         </div>
       </div>
+      )}
     </SectionWrapper>
   );
 };
