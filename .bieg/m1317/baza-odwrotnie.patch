@@ -673,10 +673,10 @@ index 87896f6..c3d13e4 100644
 +export const isProcessTimelineEnabled = (): boolean =>
 +  import.meta.env.VITE_MM_PROCESS_TIMELINE === '1';
 diff --git a/index.css b/index.css
-index 74bdaea..f0684f5 100644
+index 74bdaea..27a7a6e 100644
 --- a/index.css
 +++ b/index.css
-@@ -644,3 +644,225 @@ body[data-timeline-cookie='true'] .cookie-floating-btn {
+@@ -644,3 +644,227 @@ body[data-timeline-cookie='true'] .cookie-floating-btn {
    visibility: hidden;
    pointer-events: none;
  }
@@ -820,15 +820,16 @@ index 74bdaea..f0684f5 100644
 +    }
 +    .mm-k1:not(.mm-k1--dlugi) .mm-k1-tresc {
 +      animation-name: mm-k1-tekst-y;
++      animation-range: entry 0% cover 25%;
 +    }
 +    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(2) .mm-k1-tresc {
-+      animation-range: entry 15% cover 33%;
++      animation-range: entry 10% cover 27%;
 +    }
 +    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(3) .mm-k1-tresc {
-+      animation-range: entry 30% cover 36%;
++      animation-range: entry 20% cover 29%;
 +    }
 +    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(4) .mm-k1-tresc {
-+      animation-range: entry 45% cover 39%;
++      animation-range: entry 30% cover 31%;
 +    }
 +  }
 +  @media (prefers-reduced-motion: no-preference) and (min-width: 1280px) {
@@ -838,21 +839,22 @@ index 74bdaea..f0684f5 100644
 +    }
 +    .mm-k1 .mm-k1-tresc {
 +      animation-name: mm-k1-tekst-y;
++      animation-range: entry 0% cover 25%;
 +    }
 +    .mm-k1 .mm-k1-krok:nth-child(2) .mm-k1-tresc {
-+      animation-range: entry 15% cover 33%;
++      animation-range: entry 10% cover 27%;
 +    }
 +    .mm-k1 .mm-k1-krok:nth-child(3) .mm-k1-tresc {
-+      animation-range: entry 30% cover 36%;
++      animation-range: entry 20% cover 29%;
 +    }
 +    .mm-k1 .mm-k1-krok:nth-child(4) .mm-k1-tresc {
-+      animation-range: entry 45% cover 39%;
++      animation-range: entry 30% cover 31%;
 +    }
 +    .mm-k1 .mm-k1-krok:nth-child(5) .mm-k1-tresc {
-+      animation-range: entry 60% cover 42%;
++      animation-range: entry 40% cover 33%;
 +    }
 +    .mm-k1 .mm-k1-krok:nth-child(n + 6) .mm-k1-tresc {
-+      animation-range: entry 75% cover 45%;
++      animation-range: entry 50% cover 35%;
 +    }
 +  }
 +}
