@@ -8,6 +8,9 @@ import { isProcessTimelineEnabled } from '../../../config/flags';
 import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
 
 const BrandProcess: React.FC = () => {
+  // MIX-1317: overflow-hidden robi z sekcji kontener przewijania, a wtedy oś view() K1 liczy się
+  // względem sekcji, nie strony (animacja stoi). Przy K1 bez overflow; wyłączony = jak dotąd.
+  const k1 = isProcessTimelineEnabled();
   const processSteps = CONTENT.process.steps.map((step, i) => {
     const icons = [
       <Users key="users" size={20} />,
@@ -19,14 +22,14 @@ const BrandProcess: React.FC = () => {
   });
 
   return (
-    <SectionWrapper variant="white" overflow={true}>
+    <SectionWrapper variant="white" overflow={!k1}>
       <SectionHeader
         title={CONTENT.process.title}
         description={CONTENT.process.description}
         className="mb-20"
       />
 
-      {isProcessTimelineEnabled() ? (
+      {k1 ? (
         <ProcessTimeline
           items={CONTENT.process.steps.map((s) => ({
             kicker: s.time,

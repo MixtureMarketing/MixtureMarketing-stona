@@ -135,6 +135,12 @@ describe.each(PROCESS_PAGES)('$path', (p) => {
     // JS 0: nic w sekcji z osią nie zależy od zmiennej przewijania ustawianej skryptem.
     for (const x of [el, ...el.querySelectorAll<HTMLElement>('*')])
       expect(x.getAttribute('style') ?? '').not.toMatch(/var\(--p/);
+    // Oś view() bierze najbliższy kontener przewijania: overflow hidden/auto/scroll między osią
+    // a sekcją zatrzymałby animację (tak było w BrandProcess przez SectionWrapper).
+    for (let a = os.parentElement; a; a = a.parentElement) {
+      expect(a.className).not.toMatch(/(^|\s)overflow-(x-|y-)?(hidden|auto|scroll)(\s|$)/);
+      if (a === el) break;
+    }
     // Nagłówek sekcji zostaje jeden.
     expect(el.querySelectorAll('h2')).toHaveLength(1);
   });
