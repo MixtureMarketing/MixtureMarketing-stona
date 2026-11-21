@@ -2,6 +2,7 @@
 // (invisible-execute, reużyty z fixa lead-capture) i renderem stanów: loading / błąd ładowania /
 // formularz / wynik. Zero logiki liczenia po stronie UI (silnik żyje na serwerze).
 import React, { useEffect, useRef } from 'react';
+import { useHideCookieOver, FORM_CONTROLS } from './useHideCookieOver';
 import { usePublicCalculator } from '../../../hooks/usePublicCalculator';
 import { useLivePriceRange } from '../../../hooks/useLivePriceRange';
 import TurnstileWidget from '../contact/TurnstileWidget';
@@ -12,11 +13,23 @@ import CalculatorForm from './CalculatorForm';
 import LivePriceBar from './LivePriceBar';
 import { pickAnswers } from './formLogic';
 import ConfigPreview from './ConfigPreview';
-import { isConfigLinkEnabled, isConfigPreviewEnabled, isLivePriceBarEnabled } from './livePrice';
+import {
+  isBookingEmbedEnabled,
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
+  isLeadConfigEnabled,
+  isLivePriceBarEnabled,
+  isNewClientTimelineEnabled,
+  isResultContactEnabled,
+} from './livePrice';
+import NewClientTimeline from './NewClientTimeline';
+import { buildHandoff, withP4Texts } from './calculatorHandoff';
 import ConfigLinkButtons from './ConfigLinkButtons';
 import { buildConfigLinkUrl, encodeConfigLink, readConfigLink } from './configLink';
 import CalculatorResult from './CalculatorResult';
+import BookingEmbed from './BookingEmbed';
 import { CalculatorLoading, CalculatorLoadError } from './CalculatorStates';
+import { NEW_UI_CONTRAST, NEW_UI_SHELL, isCalcNewUiEnabled } from './calcUi';
 
 const PublicCalculator: React.FC = () => {
   const turnstileRef = useRef<TurnstileWidgetHandle>(null);
@@ -24,6 +37,8 @@ const PublicCalculator: React.FC = () => {
   // Turnstile (api.js ~85 kB) dopiero przy pierwszej interakcji z kalkulatorem, nie przy
   // wejściu na stronę; submit i tak poczeka na skrypt (getToken w trybie defer).
   const prepareCaptcha = () => turnstileRef.current?.prepare?.();
+  // MIX-1867: nowy wygląd za przełącznikiem VITE_MM_CALC_NEW_UI (wyłączony = stary wygląd).
+  const newUi = isCalcNewUiEnabled();
 
   // Pasek widełek na żywo (MIX-1385): za przełącznikiem, domyślnie wyłączony; tylko w trakcie
   // wypełniania (na ekranie wyniku widełki pokazuje CalculatorResult).
@@ -54,9 +69,59 @@ const PublicCalculator: React.FC = () => {
   }, [linkOn, phase, questions, setAnswer]);
   const linkK = linkOn && filling ? encodeConfigLink(c.questions, c.answers) : null;
 
+  // Ekran wyniku z przejściem do kontaktu (MIX-1815): za przełącznikiem VITE_MM_RESULT_CONTACT.
+  // Włączony = pytania z tekstami P4 i „Umów rozmowę” niesie konfigurację (stan historii, nie
+  // adres) do /contact/; link ?k= tylko, gdy włączony jest też link do konfiguracji (Z7).
+  const resultOn = isResultContactEnabled();
+  const shownQuestions = resultOn ? withP4Texts(c.questions) : c.questions;
+  // Z11 r2: przycisk ciasteczek nie zasłania opcji, pól ani przycisków kroków (390 px).
+  // Otoczka z formRef jest tylko przy włączonym przełączniku (niżej), więc bez niego hak nic nie
+  // mierzy; `filling` ponawia pomiar, gdy formularz pojawia się po załadowaniu pytań.
+  const formRef = useRef<HTMLDivElement>(null);
+  useHideCookieOver(formRef, filling, 'formCookie', FORM_CONTROLS);
+  const handoff = (() => {
+    if (!resultOn || c.phase !== 'done' || !c.result) return null;
+    const k = linkOn ? encodeConfigLink(c.questions, c.answers) : null;
+    const link = k ? buildConfigLinkUrl(window.location.href, k) : null;
+    return buildHandoff(shownQuestions, c.answers, c.result.priceRange, c.email, link);
+  })();
+
+  const form = filling ? (
+    <CalculatorForm
+      visible={resultOn ? withP4Texts(c.visible) : c.visible}
+      answers={c.answers}
+      setAnswer={c.setAnswer}
+      errors={c.errors}
+      email={c.email}
+      setEmail={c.setEmail}
+      websiteVerify={c.websiteVerify}
+      setWebsiteVerify={c.setWebsiteVerify}
+      submitError={c.submitError}
+      submitErrorKind={c.submitErrorKind}
+      newUi={newUi}
+      submitting={c.phase === 'submitting'}
+      onSubmit={c.submit}
+      leadConfig={isLeadConfigEnabled()}
+      phone={c.phone}
+      setPhone={c.setPhone}
+      liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
+      configPreview={
+        configEnabled ? <ConfigPreview goal={c.answers.project_goal} scope={live.scope} /> : null
+      }
+      configLink={
+        linkK ? <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} /> : null
+      }
+    />
+  ) : null;
+
   return (
     <div
-      className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl"
+      className={
+        newUi
+          ? `${NEW_UI_SHELL} ${NEW_UI_CONTRAST}`
+          : 'rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-10 shadow-xl'
+      }
+      data-calc-ui={newUi ? 'new' : undefined}
       onFocusCapture={prepareCaptcha}
       onPointerDownCapture={prepareCaptcha}
     >
@@ -67,40 +132,33 @@ const PublicCalculator: React.FC = () => {
         defer
       />
 
-      {c.phase === 'loading' && <CalculatorLoading />}
+      {c.phase === 'loading' && <CalculatorLoading newUi={newUi} />}
 
-      {c.phase === 'loadError' && <CalculatorLoadError onRetry={() => window.location.reload()} />}
+      {c.phase === 'loadError' && (
+        <CalculatorLoadError newUi={newUi} onRetry={() => window.location.reload()} />
+      )}
 
       {c.phase === 'done' && c.result && (
-        <CalculatorResult priceRange={c.result.priceRange} onReset={c.reset} />
-      )}
-
-      {(c.phase === 'ready' || c.phase === 'submitting') && (
-        <CalculatorForm
-          visible={c.visible}
-          answers={c.answers}
-          setAnswer={c.setAnswer}
-          errors={c.errors}
-          email={c.email}
-          setEmail={c.setEmail}
-          websiteVerify={c.websiteVerify}
-          setWebsiteVerify={c.setWebsiteVerify}
-          submitError={c.submitError}
-          submitting={c.phase === 'submitting'}
-          onSubmit={c.submit}
-          liveBar={liveEnabled ? <LivePriceBar state={live} /> : null}
-          configPreview={
-            configEnabled ? (
-              <ConfigPreview goal={c.answers.project_goal} scope={live.scope} />
-            ) : null
-          }
-          configLink={
-            linkK ? (
-              <ConfigLinkButtons link={buildConfigLinkUrl(window.location.href, linkK)} />
-            ) : null
-          }
+        <CalculatorResult
+          priceRange={c.result.priceRange}
+          onReset={c.reset}
+          newUi={newUi}
+          timeline={isNewClientTimelineEnabled() ? <NewClientTimeline /> : null}
+          // MIX-1814 (Z9): ramka harmonogramu dopiero na ekranie wyniku (po zapisie leada).
+          booking={isBookingEmbedEnabled() ? <BookingEmbed /> : null}
+          handoff={handoff}
         />
       )}
+
+      {/* Z11 r2: otoczka do pomiaru tylko przy włączonym przełączniku (bez niej DOM jak dziś). */}
+      {form &&
+        (resultOn ? (
+          <div ref={formRef} data-testid="calc-form-box">
+            {form}
+          </div>
+        ) : (
+          form
+        ))}
     </div>
   );
 };

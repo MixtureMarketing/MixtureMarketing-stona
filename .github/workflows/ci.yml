@@ -126,18 +126,39 @@ jobs:
           PRERENDER_CONCURRENCY: '8'
           # MIX-1465: menu mobilne B wlaczone na produkcji; wylaczenie = usunac te linie.
           VITE_MM_MOBILE_MENU_B: '1'
+          # MIX-1311/MIX-1833: animacja przejsc realizacji wlaczona na produkcji (akceptacja Jakuba na Preview);
+          # wylaczenie = przywrocic wyrazenie z target == 'preview' jak nizej.
+          VITE_MM_VIEW_TRANSITIONS: '1'
+          # MIX-1311/MIX-1838: gotowe funkcje wlaczone na produkcji jednym wdrozeniem (decyzja Jakuba 16.11);
+          # wylaczenie = przywrocic wyrazenie z target == 'preview' jak nizej.
+          VITE_MM_AI_SECTION: '1' # MIX-1276: sekcja o AI i systemach
+          VITE_MM_COOKIE_BANNER_STATIC: '1' # MIX-1579: baner ciasteczek w HTML
+          VITE_MM_POWIAZANE: '1' # MIX-1268: blok Powiazane
+          VITE_MM_RZESZOW_SEKCJE: '1' # MIX-1286: sekcje Rzeszow
+          VITE_MM_TESTIMONIALS: '1' # MIX-1326: opinie Google
+          # MIX-1896: filmy poziome w portfolio na produkcji (Jakub, MIX-1953); wylaczenie = przywrocic wyrazenie z target == 'preview'
+          VITE_MM_PORTFOLIO_VIDEO: '1'
           # MIX-1613 r2 (zasada wlasciciela MIX-1411): kazda scalona funkcja za przelacznikiem VITE_MM_*
           # jest wlaczona w Preview (build dla dev), a na produkcji i w PR wylaczona do `TAK <SHA>`.
           # Lista pochodzi z kodu (tests/scripts/ciWorkflow.test.ts pilnuje kompletnosci).
-          VITE_MM_AI_SECTION: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          # Tu zostaje konfigurator wyceny w budowie (MIX-1377).
+          VITE_MM_CALC_NEW_UI: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1867: nowy wyglad kalkulatora
+          VITE_MM_BOOKING_EMBED: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1814: terminy pod wynikiem
           VITE_MM_CONFIG_LINK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_CENNIK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1855: strona /cennik/
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_COOKIE_BANNER_STATIC: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_LEAD_CONFIG: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_POWIAZANE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_RZESZOW_SEKCJE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_TESTIMONIALS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_VIEW_TRANSITIONS: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_NEW_CLIENT_TIMELINE: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+          VITE_MM_RESULT_CONTACT: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1815: ekran wyniku i przejscie do kontaktu
+          VITE_MM_CUSTOMAPP_PSYCHON: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1975: PsychON w sekcji dowodu /web-development/custom-app/
+          # MIX-1934: klucz strony Turnstile z allowlisty (straznik w vite.config.ts, cel z MM_DEPLOY_TARGET).
+          # Klucz testowy Cloudflare "zawsze przechodzi" WYLACZNIE dla preview; main, PR i reszta = produkcyjny.
+          # Wycofanie: usunac te dwie linie (build wraca do klucza produkcyjnego z config/turnstileKey.ts).
+          MM_DEPLOY_TARGET: ${{ steps.target.outputs.target }}
+          VITE_TURNSTILE_SITE_KEY: ${{ steps.target.outputs.target == 'preview' && '1x00000000000000000000AA' || '0x4AAAAAACYHLgkgk3FJUj06' }}
+          # MIX-1269: strona glowna pod fraze "agencja marketingowa rzeszow" do akceptacji Jakuba na Preview.
+          VITE_MM_HOME_SEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
         run: npm run build
 
       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,
@@ -171,6 +192,15 @@ jobs:
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (main)" >> $GITHUB_OUTPUT
 
+      # MIX-1934: straznik Turnstile przed wdrozeniem produkcji: srodowisko Cloudflare z API
+      # (production_branch), galaz main, dist bez klucza testowego i z kluczem produkcyjnym. Fail-closed.
+      - name: 🛡️ Turnstile guard (Production)
+        if: steps.target.outputs.target == 'prod'
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bash scripts/ci-turnstile-deploy.sh prod main
+
       - name: 🚀 Deploy to Cloudflare Pages
         if: steps.target.outputs.target == 'prod'
         uses: cloudflare/wrangler-action@v4
@@ -192,6 +222,14 @@ jobs:
         run: |
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           echo "msg=CI deploy $SHORT_SHA (dev)" >> $GITHUB_OUTPUT
+
+      # MIX-1934: straznik Turnstile przed wdrozeniem Preview: galaz dev NIE moze trafic do Production.
+      - name: 🛡️ Turnstile guard (Preview)
+        if: steps.target.outputs.target == 'preview'
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: bash scripts/ci-turnstile-deploy.sh preview dev
 
       - name: 🚀 Deploy to Cloudflare Pages (Preview dev)
         if: steps.target.outputs.target == 'preview'

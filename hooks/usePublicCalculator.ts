@@ -17,6 +17,11 @@ import {
 import type { Answers } from '../lib/estimation/types';
 import type { TurnstileWidgetHandle } from '../utils/turnstile';
 import { trackEvent } from '../utils/analytics';
+import { trackCalculatorBookingOpen } from '../utils/calculatorTracking';
+import {
+  isBookingEmbedEnabled,
+  isLeadConfigEnabled,
+} from '../components/features/calculator/livePrice';
 
 export type CalcPhase = 'loading' | 'ready' | 'submitting' | 'done' | 'loadError';
 
@@ -30,9 +35,12 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
   const [questions, setQuestions] = useState<PublicQuestion[]>([]);
   const [answers, setAnswers] = useState<Answers>({});
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState(''); // MIX-1813, tylko przy VITE_MM_LEAD_CONFIG
   const [websiteVerify, setWebsiteVerify] = useState(''); // honeypot
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // MIX-1867: rodzaj błędu wysyłki dla nowego wyglądu (`captcha` = brak tokenu Turnstile).
+  const [submitErrorKind, setSubmitErrorKind] = useState<'captcha' | 'server' | null>(null);
   const [result, setResult] = useState<PublicQuoteResult | null>(null);
   // Wyścig Turnstile (MIX-1412): jeden widżet obsługuje wysyłkę i podgląd widełek, a każde
   // getToken() robi reset + execute. Pobrania tokenu idą więc po kolei (łańcuch obietnic),
@@ -117,6 +125,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     // Druga wysyłka w trakcie pierwszej: nic nie robimy (jedno POST na jedno kliknięcie).
     if (submittingRef.current) return null;
     setSubmitError(null);
+    setSubmitErrorKind(null);
     const v = validate(questions, answers, email);
     setErrors(v.errors);
     if (!v.valid) return v.errors;
@@ -129,6 +138,7 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         token = await nextToken(false);
       } catch {
         setSubmitError(humanError(403));
+        setSubmitErrorKind('captcha');
         setPhase('ready');
         return null;
       }
@@ -141,12 +151,17 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
         email: email.trim(),
         captcha_token: token,
         website_verify: websiteVerify,
+        ...(isLeadConfigEnabled() && phone.trim() !== '' ? { phone: phone.trim() } : {}),
       });
       if (res.ok) {
+        // MIX-1814 (Z9): lead zapisany, pod wynikiem otwiera się harmonogram rozmów. Jedno
+        // zdarzenie na jedno udane kliknięcie, parametry z allowlisty GA4 (source=wycena, variant=a).
+        if (isBookingEmbedEnabled()) trackCalculatorBookingOpen({ variant: 'a' });
         setResult(res.result);
         setPhase('done');
       } else {
         setSubmitError(humanError(res.status));
+        setSubmitErrorKind('server');
         setPhase('ready');
         turnstileRef.current?.reset();
       }
@@ -154,11 +169,12 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     } finally {
       submittingRef.current = false;
     }
-  }, [questions, answers, email, websiteVerify, turnstileRef, nextToken]);
+  }, [questions, answers, email, phone, websiteVerify, turnstileRef, nextToken]);
 
   const reset = useCallback(() => {
     setResult(null);
     setSubmitError(null);
+    setSubmitErrorKind(null);
     setErrors({});
     setPhase('ready');
   }, []);
@@ -171,10 +187,13 @@ export function usePublicCalculator(turnstileRef: RefObject<TurnstileWidgetHandl
     setAnswer,
     email,
     setEmail: setEmailAndClear,
+    phone,
+    setPhone,
     websiteVerify,
     setWebsiteVerify,
     errors,
     submitError,
+    submitErrorKind,
     result,
     submit,
     reset,

@@ -11,6 +11,7 @@ import {
   verifyTurnstileStrict,
   type TurnstileExpect,
 } from '../_shared/security';
+import { turnstileMode } from '../_shared/turnstileMode';
 import { PUBLIC_QUOTE_TURNSTILE_ACTION } from '../../../lib/estimation/turnstileAction';
 import {
   bumpCounter,
@@ -119,6 +120,9 @@ export async function quoteGate(
 ): Promise<QuoteGateResult> {
   const ray = safeRay(request);
   const nowMs = opts.nowMs ?? Date.now();
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev; gdzie indziej 503.
+  const tm = turnstileMode(env.TURNSTILE_SECRET, request.url);
+  if (tm.kind === 'refuse') return deny(ray, 503, tm.reason, BUSY);
 
   // 1. URL
   let search: string;
@@ -164,6 +168,7 @@ export async function quoteGate(
     env.TURNSTILE_SECRET,
     rawIp ?? '',
     quoteTurnstileExpect(env),
+    tm.kind === 'test' ? 'test' : 'real',
   );
   if (!ts.ok) return deny(ray, 403, ts.reason, 'Weryfikacja antybotowa nieudana.');
 

@@ -146,7 +146,7 @@ afterEach(() => {
 
 describe('K4 przełącznik VITE_MM_CONFIG_LINK wyłączony', () => {
   it('poprawny ?k= jest ignorowany, brak przycisków po odpowiedzi, 0 zapytań', async () => {
-    for (const v of ['', 'TRUE', ' 1', 'yes', 'on', '0']) {
+    for (const v of ['', 'true', 'TRUE', ' 1', 'yes', 'on', '0']) {
       vi.stubEnv('VITE_MM_CONFIG_LINK', v);
       at(`?k=${GOOD_K}`);
       const { unmount } = await mount();
@@ -162,9 +162,9 @@ describe('K4 przełącznik VITE_MM_CONFIG_LINK wyłączony', () => {
   }, 30_000);
 });
 
-describe('K4 przełącznik włączony (1 / true)', () => {
+describe('K4 przełącznik włączony (tylko 1; MIX-1846)', () => {
   it('link odtwarza odpowiedzi każdego typu; bez zapytań własnych funkcji linku', async () => {
-    for (const v of ['1', 'true']) {
+    for (const v of ['1']) {
       vi.stubEnv('VITE_MM_CONFIG_LINK', v);
       at(`?k=${GOOD_K}`);
       const { unmount } = await mount();

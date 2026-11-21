@@ -12,7 +12,7 @@
 //   4. Ten sam detektor czysci page_location / page_referrer / page_title (`cleanPageContext`).
 //
 // Nazwy: slownik zdarzen firmy (P4) dla click_phone / click_email i zdarzen calculator_* /
-// audit_request; pozostale to zdarzenia projektu sprzed slownika (lejek abonamentu, formularz
+// audit_request; pozostale to zdarzenia projektu sprzed slownika (lejek zamowienia usunietego w MIX-1849, formularz
 // kontaktowy, web-vitals), wpisane tu z dzisiejszymi parametrami.
 
 import { GA4_EVENTS, type LinkLocation, type ParamSpec } from './ga4Allowlist';

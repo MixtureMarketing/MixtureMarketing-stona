@@ -215,6 +215,10 @@ const GoogleAds: React.FC = () => {
         </Container>
       </section>
 
+      {/* MIX-1850: sekcja lokalna Rzeszów w pierwszej połowie strony, zaraz po pierwszej
+          sekcji z ofertą (Branże: usługi | e-commerce), a nie przed stopką. */}
+      <LocalRzeszowSection content={LOCAL_RZESZOW_GOOGLE_ADS} onConsult={openConsult} />
+
       {/* Matematyka kampanii — arytmetyka założeń użytkownika (z jawnym
           zastrzeżeniem), nie „symulator zysków". */}
       <section ref={calcRef} className="relative z-20 bg-white py-24">
@@ -276,8 +280,6 @@ const GoogleAds: React.FC = () => {
           tiers={pricingData.tiers}
         />
       )}
-
-      <LocalRzeszowSection content={LOCAL_RZESZOW_GOOGLE_ADS} onConsult={openConsult} />
 
       <FaqSection title="Pytania o Google Ads" items={CONTENT.faqs} />
 

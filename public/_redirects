@@ -47,8 +47,10 @@
 /home/          /             301
 
 # Kolejne zgadywane adresy (audyt MIX-489, S7; dotad 404). Cele sa realnymi, prerenderowanymi
-# trasami. /cennik -> /offers/ TYMCZASOWO: osobnej strony z cennikiem nie ma; po jej
-# powstaniu zmienic cel (i test w tests/seo/redirects.test.ts).
+# trasami. /cennik -> /offers/ do czasu publikacji strony /cennik/ (MIX-1855, przelacznik
+# VITE_MM_CENNIK): przy budowie z VITE_MM_CENNIK=1 scripts/apply-cennik-build.mjs zdejmuje obie
+# reguly /cennik z dist/_redirects (strona jest wtedy prawdziwa trasa); plik w repo zostaje
+# z regulami (wylaczony przelacznik = dist bez zmian). Test: tests/seo/redirects.test.ts.
 /cennik         /offers/      301
 /cennik/        /offers/      301
 /opinie         /wycena/      301
@@ -90,13 +92,28 @@
 /web-development/:slug  /web-development/:slug/  301
 /marketing/:slug        /marketing/:slug/        301
 /design/:slug           /design/:slug/           301
-/abonament/:slug        /abonament/:slug/        301
+
+# MIX-1849: usluga „Strona w abonamencie” wycofana (nigdy nie wystartowala). Strony i prerender
+# usuniete, kazdy dawny adres (z i bez slasha, takze strona po platnosci) -> 301 na najblizsza
+# usluge. Splat lapie reszte starych podstron, zeby nie bylo 404 z linkow zewnetrznych.
+/abonament                            /web-development/  301
+/abonament/                           /web-development/  301
+/abonament/professional               /web-development/  301
+/abonament/professional/              /web-development/  301
+/abonament/vs-wix                     /web-development/  301
+/abonament/vs-wix/                    /web-development/  301
+/abonament/vs-orange-klikai           /web-development/  301
+/abonament/vs-orange-klikai/          /web-development/  301
+/abonament/dziekujemy                 /web-development/  301
+/abonament/dziekujemy/                /web-development/  301
+/abonament/*                          /web-development/  301
 
 # MIX-1825 (GSC 16.11, „Strona zawiera przekierowanie”): strony pierwszego poziomu bez „/”
 # (/contact, /design, /portfolio …) dostawały od Pages 308. Jawne 301 jednym skokiem na
 # wersję z „/” (canonical, sitemap). Lista = trasy jednosegmentowe z routes.js; test
 # tests/seo/redirectLinks.test.ts pilnuje kompletności. Ogólnej reguły /:slug NIE ma:
-# łapałaby pliki (/robots.txt, /sitemap.xml, /favicon.ico).
+# łapałaby pliki (/robots.txt, /sitemap.xml, /favicon.ico). /abonament nie ma tu reguły:
+# obsługuje go wyżej blok MIX-1849 (jeden skok 301 na /web-development/).
 /offers                       /offers/                       301
 /contact                      /contact/                      301
 /wycena                       /wycena/                       301
@@ -108,7 +125,6 @@
 /marketing                    /marketing/                    301
 /agencja-interaktywna-rzeszow /agencja-interaktywna-rzeszow/ 301
 /agencja-seo-rzeszow          /agencja-seo-rzeszow/          301
-/abonament                    /abonament/                    301
 /design                       /design/                       301
 /baza-wiedzy                  /baza-wiedzy/                  301
 /portfolio                    /portfolio/                    301

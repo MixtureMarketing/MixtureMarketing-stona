@@ -1,6 +1,6 @@
 // Płynne przejście karta realizacji → strona realizacji (MIX-1308, A1 + A2 z planu MIX-1310).
 //
-// Przełącznik działa jak `VITE_MM_*` w `components/pages/abonament/PreonboardModal.tsx:54`
+// Przełącznik działa jak `VITE_MM_*` w `components/features/calculator/livePrice.ts`
 // (zmienna wstrzykiwana przy budowie, Vite ją inline'uje): domyślnie WYŁĄCZONY, włącza go
 // dopiero `VITE_MM_VIEW_TRANSITIONS=1` w środowisku budowy. Wyłączony = komponent
 // `CaseStudyTransitions` się nie montuje, nic nie nasłuchuje i w DOM nie ma żadnej

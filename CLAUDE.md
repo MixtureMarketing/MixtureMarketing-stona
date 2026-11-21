@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Marketing agency site + SaaS product (`/abonament/`) for **Mixture Marketing** (Rzeszów, PL). React 19 SPA prerendered to static HTML for SEO, hosted on Cloudflare Pages. Content is bilingual-leaning Polish; most code comments and CMS content are in Polish.
+Marketing agency site for **Mixture Marketing** (Rzeszów, PL). React 19 SPA prerendered to static HTML for SEO, hosted on Cloudflare Pages. Content is bilingual-leaning Polish; most code comments and CMS content are in Polish.
 
 ## Commands
 
@@ -59,7 +59,7 @@ When adding a static page: add the component + route in `config/routes.tsx` AND 
 
 **Browser scripts must not feed GA4 (MIX-894).** Zaraz is served from the site's own domain (`/cdn-cgi/zaraz/*`), so any Puppeteer script that opens a non-localhost URL counts as a real visitor (24-25.10.2026: ~3 400 fake GA4 users). Every such script uses `scripts/lib/prod-safe.mjs`: `createProdSafe(BASE)` → `watchBrowser(browser)` → `protect(page, {userAgent, handler})` (UA gets `MixtureE2E/1`, all `/cdn-cgi/zaraz/`, `/cdn-cgi/rum` and analytics hosts are aborted) → `finish()` (exit 1 on leak or missing blocker on non-localhost). `tests/scripts/prodSafe.test.ts` fails for any new Puppeteer script that does not import it.
 
-**SaaS abonament** (`components/pages/abonament/`): self-serve Stripe Checkout via an external "binary-planet" hub (`VITE_MM_HUB_URL`), draft persisted in `sessionStorage`, preonboard in a native `<dialog>` modal. `/abonament/dziekujemy` is `noindex` and intentionally excluded from sitemap.
+**Former subscription product** (`/abonament/*`): removed in MIX-1849 (never launched). All its URLs 301 to `/web-development/` in `public/_redirects`; do not reintroduce links, sitemap or llms.txt entries.
 
 ## Conventions & gotchas
 
@@ -76,7 +76,7 @@ When adding a static page: add the component + route in `config/routes.tsx` AND 
 
 ## Environment variables (`.env.local`)
 
-Build/prerender needs `VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET`. Abonament needs `VITE_MM_PREONBOARD_KEY`, `VITE_MM_HUB_URL`, `VITE_STRIPE_PUBLISHABLE_KEY`. Cloudflare Function secrets (set in CF Pages, not `.env`): `TURNSTILE_SECRET`, `RESEND_API_KEY`, `NOTIFY_EMAIL`. See `.env.example`.
+Build/prerender needs `VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET`. Cloudflare Function secrets (set in CF Pages, not `.env`): `TURNSTILE_SECRET`, `RESEND_API_KEY`, `NOTIFY_EMAIL`. See `.env.example`.
 
 ## Estimation module (System Wycen)
 

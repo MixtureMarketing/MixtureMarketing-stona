@@ -1,0 +1,227 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 691dbb9..2ae5d1b 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -157,6 +157,8 @@ jobs:
+           # Wycofanie: usunac te dwie linie (build wraca do klucza produkcyjnego z config/turnstileKey.ts).
+           MM_DEPLOY_TARGET: ${{ steps.target.outputs.target }}
+           VITE_TURNSTILE_SITE_KEY: ${{ steps.target.outputs.target == 'preview' && '1x00000000000000000000AA' || '0x4AAAAAACYHLgkgk3FJUj06' }}
++          # MIX-1269: strona glowna pod fraze "agencja marketingowa rzeszow" do akceptacji Jakuba na Preview.
++          VITE_MM_HOME_SEO: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
+         run: npm run build
+ 
+       # MIX-1657: strażnik public/llms.txt (gramatyka linii, adresy tylko z sitemapy po buildzie,
+diff --git a/components/pages/Home.tsx b/components/pages/Home.tsx
+index 9bbf24c..40d3f05 100644
+--- a/components/pages/Home.tsx
++++ b/components/pages/Home.tsx
+@@ -9,6 +9,8 @@ import { SITE_CONFIG } from '@/config/site';
+ import TestimonialsSlot from '@/components/sections/testimonials/TestimonialsSlot';
+ import AiSystemsTeaser from '@/components/sections/AiSystemsTeaser';
+ import { lazyWithPreload } from '@/components/common/lazyWithPreload';
++import { isHomeSeoEnabled } from '@/config/flags';
++import { HOME_SEO, HOME_SEO_BASE } from '@/data/content/pages/homeSeo';
+ 
+ // Sekcje pod hero — osobne chunki (lazy). Przy starcie z prerenderu preloadRoute()
+ // woła routePreload() i dociąga je PRZED pierwszym renderem, więc Suspense niżej
+@@ -36,11 +38,14 @@ const Home = () => {
+   // z każdym pikselem przewijania, w obie strony.
+   usePagePulse();
+ 
++  // MIX-1269: title i meta pod „agencja marketingowa Rzeszów” za VITE_MM_HOME_SEO (wyłączony = dzisiejsze).
++  const seo = isHomeSeoEnabled() ? HOME_SEO : HOME_SEO_BASE;
++
+   return (
+     <>
+       <Seo
+-        title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
+-        description="Agencja marketingowa z Rzeszowa: strony WWW, SEO, Google Ads, Meta Ads, branding. Dojeżdżamy do klientów na Podkarpaciu, realizujemy projekty w całej Polsce."
++        title={seo.title}
++        description={seo.description}
+         jsonLd={{
+           '@context': 'https://schema.org',
+           '@type': 'WebSite',
+diff --git a/components/sections/Hero.tsx b/components/sections/Hero.tsx
+index be53a10..1ff1305 100644
+--- a/components/sections/Hero.tsx
++++ b/components/sections/Hero.tsx
+@@ -6,6 +6,8 @@ import Button from '../common/Button';
+ import TrustMarquee from '../common/TrustMarquee';
+ import MixtureField from '../visuals/hero/MixtureField';
+ import { HERO_CONTENT, HERO_TRUST } from '../../data/content';
++import { isHomeSeoEnabled } from '../../config/flags';
++import { HOME_SEO } from '../../data/content/pages/homeSeo';
+ 
+ interface HeroProps {
+   onOpenModal?: () => void;
+@@ -81,6 +83,14 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
+       >
+         <AnimateOnScroll>
+           <h1 className="text-balance tracking-tight text-white">
++            {/* MIX-1269: fraza „agencja marketingowa Rzeszów” w H1, za VITE_MM_HOME_SEO (wyłączony = brak). */}
++            {isHomeSeoEnabled() && (
++              <>
++                <span className="mb-3 block text-base font-semibold text-primary sm:text-lg">
++                  {HOME_SEO.h1Lead}
++                </span>{' '}
++              </>
++            )}
+             <span className="block text-2xl font-medium text-white/60 sm:text-3xl lg:text-4xl">
+               {HERO_CONTENT.title.line1} {HERO_CONTENT.title.line2}
+             </span>{' '}
+diff --git a/components/sections/Services.tsx b/components/sections/Services.tsx
+index d6e3614..90ce459 100644
+--- a/components/sections/Services.tsx
++++ b/components/sections/Services.tsx
+@@ -6,6 +6,8 @@ import AmbientBackground from '../common/AmbientBackground';
+ import { useSectionProgress } from '../../hooks/useSectionProgress';
+ import { SERVICES_CONTENT as CONTENT } from '../../data/content';
+ import { SERVICES_SECTION_DATA } from '../../data/content/services';
++import { isHomeSeoEnabled } from '../../config/flags';
++import { HOME_LOCAL_LINKS } from '../../data/content/pages/homeSeo';
+ 
+ /**
+  * Sekcja „Kompetencje, których potrzebujesz".
+@@ -142,32 +144,51 @@ const Services: React.FC = () => {
+                   </p>
+                 </div>
+               </div>
+-              <div className="flex flex-wrap gap-2">
+-                <Link
+-                  to="/web-development/rzeszow/"
+-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+-                >
+-                  Strony WWW Rzeszów <ArrowRight size={12} />
+-                </Link>
+-                <Link
+-                  to="/agencja-seo-rzeszow/"
+-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+-                >
+-                  Pozycjonowanie Rzeszów <ArrowRight size={12} />
+-                </Link>
+-                <Link
+-                  to="/agencja-interaktywna-rzeszow/"
+-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+-                >
+-                  Agencja interaktywna <ArrowRight size={12} />
+-                </Link>
+-                <Link
+-                  to="/miasto/rzeszow/"
+-                  className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90"
+-                >
+-                  Hub lokalny <ArrowRight size={12} />
+-                </Link>
+-              </div>
++              {/* MIX-1269: opisowe kotwice + link do Google Ads za VITE_MM_HOME_SEO (wyłączony = dzisiejsze 4 linki). */}
++              {isHomeSeoEnabled() ? (
++                <div className="flex flex-wrap gap-2">
++                  {HOME_LOCAL_LINKS.map((l) => (
++                    <Link
++                      key={l.to}
++                      to={l.to}
++                      className={
++                        l.primary
++                          ? 'inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90'
++                          : 'inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary'
++                      }
++                    >
++                      {l.label} <ArrowRight size={12} />
++                    </Link>
++                  ))}
++                </div>
++              ) : (
++                <div className="flex flex-wrap gap-2">
++                  <Link
++                    to="/web-development/rzeszow/"
++                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
++                  >
++                    Strony WWW Rzeszów <ArrowRight size={12} />
++                  </Link>
++                  <Link
++                    to="/agencja-seo-rzeszow/"
++                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
++                  >
++                    Pozycjonowanie Rzeszów <ArrowRight size={12} />
++                  </Link>
++                  <Link
++                    to="/agencja-interaktywna-rzeszow/"
++                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
++                  >
++                    Agencja interaktywna <ArrowRight size={12} />
++                  </Link>
++                  <Link
++                    to="/miasto/rzeszow/"
++                    className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90"
++                  >
++                    Hub lokalny <ArrowRight size={12} />
++                  </Link>
++                </div>
++              )}
+             </div>
+           </div>
+         </div>
+diff --git a/config/flags.ts b/config/flags.ts
+index ccf8ad6..87896f6 100644
+--- a/config/flags.ts
++++ b/config/flags.ts
+@@ -59,6 +59,14 @@ export const isPortfolioVideoEnabled = (): boolean =>
+  */
+ export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
+ 
++/**
++ * Strona główna pod frazę „agencja marketingowa Rzeszów” (MIX-1269, plan SEO A12): nowy title,
++ * meta description, fraza w H1 i linki lokalne z opisowymi kotwicami w pasie „Lokalnie · Rzeszów”.
++ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1269.md). Wyłączony (domyślnie) = strona główna
++ * bez zmian co do bajta (tests/seo/homeSeo.test.tsx). Preview buduje się z `VITE_MM_HOME_SEO=1` (ci.yml).
++ */
++export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO === '1';
++
+ /**
+  * Sekcja dowodu na /web-development/custom-app/ (MIX-1975): PsychON (platforma szkoleniowa Fundacji
+  * Niepodzielni, zrzuty z danych testowych w public/assets/custom-app/) zamiast KorepetytorAI
+diff --git a/data/content/pages/homeSeo.ts b/data/content/pages/homeSeo.ts
+new file mode 100644
+index 0000000..d3dca18
+--- /dev/null
++++ b/data/content/pages/homeSeo.ts
+@@ -0,0 +1,40 @@
++/**
++ * MIX-1269 (plan SEO A12): strona główna pod frazę „agencja marketingowa Rzeszów”.
++ * Teksty za przełącznikiem VITE_MM_HOME_SEO (config/flags.ts); uzasadnienie w docs/tresci/MIX-1269.md.
++ * `HOME_SEO_BASE` = dzisiejsze title i meta (wyłączony przełącznik), bez zmian co do znaku.
++ */
++
++/** Fraza docelowa (bez rozróżniania wielkości liter): w title i H1 dokładnie raz. */
++export const HOME_SEO_PHRASE = 'agencja marketingowa rzeszów';
++
++export const HOME_SEO_BASE = {
++  title: 'Agencja Marketingowa Rzeszów — Web, SEO, Ads',
++  description:
++    'Agencja marketingowa z Rzeszowa: strony WWW, SEO, Google Ads, Meta Ads, branding. Dojeżdżamy do klientów na Podkarpaciu, realizujemy projekty w całej Polsce.',
++};
++
++export const HOME_SEO = {
++  /** 58 znaków; z sufiksem marki byłoby ponad 60, więc fitTitle zostawia go bez marki (jak dziś). */
++  title: 'Agencja marketingowa Rzeszów: strony WWW, SEO i Google Ads',
++  /** 151 znaków (limit karty 155). */
++  description:
++    'Agencja marketingowa z Rzeszowa: strony i sklepy internetowe, SEO, Google Ads, Meta Ads i branding. Pracujemy z firmami z Podkarpacia i z całej Polski.',
++  /** Pierwsza linia H1 nad „Nie szukaj wykonawców. Wybierz Partnera.” */
++  h1Lead: 'Agencja marketingowa Rzeszów.',
++};
++
++export interface HomeLocalLink {
++  to: string;
++  label: string;
++  /** Wyróżniony przycisk (hub lokalny), jak „Hub lokalny” dziś. */
++  primary?: boolean;
++}
++
++/** Linki pasa „Lokalnie · Rzeszów” w sekcji usług (adresy z public/sitemap.xml). */
++export const HOME_LOCAL_LINKS: HomeLocalLink[] = [
++  { to: '/web-development/rzeszow/', label: 'Strony internetowe Rzeszów' },
++  { to: '/agencja-seo-rzeszow/', label: 'Pozycjonowanie stron Rzeszów' },
++  { to: '/agencja-interaktywna-rzeszow/', label: 'Agencja interaktywna Rzeszów' },
++  { to: '/marketing/google-ads/', label: 'Kampanie Google Ads' },
++  { to: '/miasto/rzeszow/', label: 'Marketing w Rzeszowie', primary: true },
++];

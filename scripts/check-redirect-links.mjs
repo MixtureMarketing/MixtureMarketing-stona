@@ -26,12 +26,14 @@ const IGNORED_DIRS = ['components/portal/'];
  * Pliki z uzasadnionym wyjątkiem (nie są linkami dla robota):
  *  - PozycjonowanieRzeszow.tsx: martwa strona po scaleniu MIX-898 (brak trasy w config/routes.tsx,
  *    test mergeSeoRzeszow.test.ts pilnuje, że nikt jej nie importuje);
- *  - PreonboardModal.tsx: success/cancel path dla zewnętrznego huba płatności Stripe, kształt
- *    celowo bez slasha (komentarz w pliku; ścieżka płatności — poza zakresem SEO).
+ *  - data/content/pages/cennik.ts: CENNIK_PATH ('/cennik/') renderują tylko Cennik.tsx i
+ *    CennikLink.tsx, obie za przełącznikiem VITE_MM_CENNIK (MIX-1855). Wyłączony = brak w DOM;
+ *    włączony = scripts/apply-cennik-build.mjs zdejmuje 301 /cennik/ z dist/_redirects
+ *    (tests/seo/cennikBuild.test.ts), więc robot nie dostaje linku na przekierowanie.
  */
 export const EXCEPTION_FILES = new Set([
   'components/pages/PozycjonowanieRzeszow.tsx',
-  'components/pages/abonament/PreonboardModal.tsx',
+  'data/content/pages/cennik.ts',
 ]);
 /** Literał po porównaniu ścieżek / slugu przekazywanym dalej nie jest linkiem. */
 const NON_LINK_CONTEXT =

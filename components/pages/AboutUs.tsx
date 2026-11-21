@@ -31,7 +31,7 @@ const AboutUs: React.FC = () => {
   }, []);
 
   // Person schema dla kazdego pracownika - silny sygnal E-E-A-T (Experience+Expertise).
-  // Założyciel dostaje to samo @id co karta na /abonament/ — jedna osoba w grafie, nie dwie.
+  // Założyciel dostaje to samo @id (FOUNDER_ID) co autor artykułów — jedna osoba w grafie, nie dwie.
   const personSchemas = team.map((m) => ({
     '@context': 'https://schema.org',
     '@type': 'Person',

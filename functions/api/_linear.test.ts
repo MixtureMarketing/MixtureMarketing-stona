@@ -294,12 +294,50 @@ describe('tytulZadania', () => {
       expect(tytulZadania(baza({ service_type: k }))).toBe(`Lead: firma.pl — ${v}`);
     }
     expect(tytulZadania(baza({ package_name: 'Pakiet Start' }))).toBe(
-      'Lead: firma.pl — abonament: Pakiet Start',
+      'Lead: firma.pl — pakiet: Pakiet Start',
     );
     expect(tytulZadania(baza({ service_type: 'Sklep <b>online</b>!' }))).toBe(
       'Lead: firma.pl — Sklep b online b',
     );
     expect(tytulZadania(baza({ service_type: null }))).toBe('Lead: firma.pl — kontakt');
+  });
+
+  it('MIX-1855: podobny projekt (przycisk w realizacji): temat z nazwą realizacji', () => {
+    const d = (o: unknown) => JSON.stringify(o);
+    expect(
+      tytulZadania(baza({ service_type: 'general', details: d({ similar_project: 'GlamSpace' }) })),
+    ).toBe('Lead: firma.pl — podobny projekt: GlamSpace');
+    // pierwszeństwo przed pakietem i usługą
+    expect(
+      tytulZadania(
+        baza({
+          package_name: 'Pakiet Start',
+          service_type: 'web',
+          details: d({ similar_project: 'GlamSpace' }),
+        }),
+      ),
+    ).toBe('Lead: firma.pl — podobny projekt: GlamSpace');
+    // bliźniak: bez nazwy realizacji temat jak dotąd
+    expect(tytulZadania(baza({ service_type: 'general', details: d({}) }))).toBe(
+      'Lead: firma.pl — kontakt',
+    );
+    expect(tytulZadania(baza({ package_name: 'Pakiet Start', details: d({ x: 1 }) }))).toBe(
+      'Lead: firma.pl — pakiet: Pakiet Start', // etykieta „pakiet” od MIX-1849
+    );
+  });
+
+  it('MIX-1855: nazwa realizacji jest czyszczona jak każdy temat (≤ 40 zn., bez imienia i cyfr telefonu, bez znaków specjalnych)', () => {
+    const d = (n: unknown) => JSON.stringify({ similar_project: n });
+    expect(tytulZadania(baza({ details: d('Sklep <b>Jan</b> Kowalski 600 100 200!') }))).toBe(
+      'Lead: firma.pl — podobny projekt: Sklep b b',
+    );
+    const dluga = tytulZadania(baza({ details: d('Realizacja '.repeat(30)) }));
+    expect(dluga.replace('Lead: firma.pl — podobny projekt: ', '').length).toBeLessThanOrEqual(40);
+    // wartości nietekstowe i puste nie zmieniają tematu
+    for (const v of [5, null, ['x'], {}, '', '   ', '!!!'])
+      expect(tytulZadania(baza({ service_type: 'general', details: d(v) }))).toBe(
+        'Lead: firma.pl — kontakt',
+      );
   });
 
   it('audyt i kalkulator', () => {

@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   answersHash,
+  isConfigLinkEnabled,
+  isConfigPreviewEnabled,
   isLivePriceBarEnabled,
   previewMessage,
   LIVE_PRICE_DEBOUNCE_MS,
@@ -11,31 +13,38 @@ describe('livePrice', () => {
     expect(LIVE_PRICE_DEBOUNCE_MS).toBe(400);
   });
 
-  it('przełącznik: tylko "1" i "true" włączają', () => {
-    expect(isLivePriceBarEnabled('1')).toBe(true);
-    expect(isLivePriceBarEnabled('true')).toBe(true);
-    for (const v of [
-      undefined,
-      null,
-      '',
-      '0',
-      'false',
-      'TRUE ',
-      'TRUE',
-      'True',
-      ' true ',
-      'true ',
-      ' 1',
-      '1 ',
-      'yes',
-      'on',
-      1,
-      true,
-      {},
-    ]) {
-      expect(isLivePriceBarEnabled(v)).toBe(false);
-    }
-  });
+  it.each([
+    ['LIVE_PRICE_BAR', isLivePriceBarEnabled],
+    ['CONFIG_PREVIEW', isConfigPreviewEnabled],
+    ['CONFIG_LINK', isConfigLinkEnabled],
+  ] as const)(
+    'przełącznik %s: włącza tylko dokładnie "1" (MIX-1846: "true" = wyłączony)',
+    (_n, wl) => {
+      expect(wl('1')).toBe(true);
+      for (const v of [
+        'true',
+        undefined,
+        null,
+        '',
+        '0',
+        'false',
+        'TRUE ',
+        'TRUE',
+        'True',
+        ' true ',
+        'true ',
+        ' 1',
+        '1 ',
+        'yes',
+        'on',
+        1,
+        true,
+        {},
+      ]) {
+        expect(wl(v)).toBe(false);
+      }
+    },
+  );
 
   it('klucz pamięci nie zależy od kolejności kluczy i pomija puste wartości', () => {
     expect(answersHash({ a: 1, b: 'x' })).toBe(answersHash({ b: 'x', a: 1 }));

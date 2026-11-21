@@ -9,6 +9,8 @@ import { SITE_CONFIG } from '@/config/site';
 import TestimonialsSlot from '@/components/sections/testimonials/TestimonialsSlot';
 import AiSystemsTeaser from '@/components/sections/AiSystemsTeaser';
 import { lazyWithPreload } from '@/components/common/lazyWithPreload';
+import { isHomeSeoEnabled } from '@/config/flags';
+import { HOME_SEO, HOME_SEO_BASE } from '@/data/content/pages/homeSeo';
 
 // Sekcje pod hero — osobne chunki (lazy). Przy starcie z prerenderu preloadRoute()
 // woła routePreload() i dociąga je PRZED pierwszym renderem, więc Suspense niżej
@@ -36,11 +38,14 @@ const Home = () => {
   // z każdym pikselem przewijania, w obie strony.
   usePagePulse();
 
+  // MIX-1269: title i meta pod „agencja marketingowa Rzeszów” za VITE_MM_HOME_SEO (wyłączony = dzisiejsze).
+  const seo = isHomeSeoEnabled() ? HOME_SEO : HOME_SEO_BASE;
+
   return (
     <>
       <Seo
-        title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
-        description="Agencja marketingowa z Rzeszowa: strony WWW, SEO, Google Ads, Meta Ads, branding. Dojeżdżamy do klientów na Podkarpaciu, realizujemy projekty w całej Polsce."
+        title={seo.title}
+        description={seo.description}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
@@ -76,6 +81,9 @@ const Home = () => {
           }
         >
           <Services />
+          {/* MIX-1276: sekcja o AI i systemach, za przełącznikiem VITE_MM_AI_SECTION (domyślnie brak w DOM).
+              MIX-1850: zaraz po Services (druga sekcja pod hero), żeby była wyżej na stronie. */}
+          <AiSystemsTeaser />
           <WhyUs />
           <div ref={leadMagnetRef}>
             <LeadMagnet />
@@ -83,8 +91,6 @@ const Home = () => {
           <KnowledgeBaseTeaser />
           {/* MIX-1326: opinie klientów, za przełącznikiem VITE_MM_TESTIMONIALS (domyślnie brak w DOM). */}
           <TestimonialsSlot />
-          {/* MIX-1276: sekcja o AI i systemach, za przełącznikiem VITE_MM_AI_SECTION (domyślnie brak w DOM). */}
-          <AiSystemsTeaser />
           <FinalBand onOpenModal={() => _openModal('general')} />
         </Suspense>
       </div>
@@ -93,7 +99,7 @@ const Home = () => {
       <StickyMobileBar
         aboveRef={heroRef}
         belowRef={leadMagnetRef}
-        label="Darmowy audyt w 60s"
+        label="Darmowy audyt w 60 sekund"
         sublabel="Sprawdź błędy na swojej stronie"
         telephone={SITE_CONFIG.contact.phoneFull}
         telephoneDisplay={SITE_CONFIG.contact.phone}

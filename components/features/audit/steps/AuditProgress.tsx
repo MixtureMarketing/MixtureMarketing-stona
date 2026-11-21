@@ -126,7 +126,7 @@ const AuditProgress: React.FC<AuditProgressProps> = ({ targetUrl, onComplete, is
           <span className="text-secondary font-semibold">{targetUrl}</span>
         </p>
         <p className="text-[13px] text-gray-400 mt-2">
-          Pomiar może potrwać do minuty — prosimy nie zamykać tej karty.
+          Pomiar może potrwać do 60 sekund — prosimy nie zamykać tej karty.
         </p>
       </div>
 

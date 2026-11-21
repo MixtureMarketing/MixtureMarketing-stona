@@ -8,9 +8,18 @@
 //      zachowywana jest wersja statyczna.
 // Wszystkie wpisy MUSZA konczyc sie trailing slashem (kanoniczna forma URL).
 // /portal NIE jest w tej liscie - jest zablokowany przez robots.txt.
+/**
+ * MIX-1855: strona /cennik/ za przelacznikiem VITE_MM_CENNIK (tylko wartosc '1' wlacza; config/flags.ts).
+ * Wylaczony = ani prerenderu, ani wpisu w sitemap.xml, a /cennik i /cennik/ zostaja 301 na /offers/.
+ * @param {unknown} flag wartosc zmiennej srodowiska
+ * @returns {string[]}
+ */
+export const cennikRoutes = (flag) => (flag === '1' ? ['/cennik/'] : []);
+
 export const routes = [
   '/',
   '/offers/',
+  ...cennikRoutes(globalThis.process?.env?.VITE_MM_CENNIK),
   '/contact/',
   '/wycena/',
   '/o-nas/',
@@ -34,13 +43,6 @@ export const routes = [
   '/marketing/analytics/',
   '/agencja-interaktywna-rzeszow/',
   '/agencja-seo-rzeszow/',
-
-  // SaaS landing
-  '/abonament/',
-  '/abonament/professional/',
-  '/abonament/vs-wix/',
-  '/abonament/vs-orange-klikai/',
-  // /abonament/dziekujemy/ - NIE tutaj (noindex, post-Stripe) -> prerenderOnlyRoutes nizej
 
   // Design
   '/design/',
@@ -97,9 +99,6 @@ export const routes = [
 // scripts/generate-sitemap.js (i skrypty audytow) importuja tylko `routes`.
 // Kazda strona tutaj musi miec <Seo noindex /> (test: tests/routes.test.ts).
 export const prerenderOnlyRoutes = [
-  // Strona po platnosci Stripe (success URL z PreonboardModal). Bez prerenderu CF Pages
-  // serwowal 404.html z kodem 404 i migal "Nie znaleziono" przed podmiana przez React.
-  '/abonament/dziekujemy/',
   // MIX-1272 (plan SEO A18): strona uslugi "systemy AI i aplikacje" ukryta do akceptacji Jakuba
   // (noindex, bez sitemapy i menu). Publikacja: przeniesc do `routes`, zdjac noindex w komponencie.
   '/web-development/systemy-ai-aplikacje/',

@@ -21,11 +21,10 @@
 #
 # CSP — na razie TYLKO Report-Only (niczego nie blokuje; naruszenia widac w konsoli DevTools).
 # Zrodla wyznaczone empirycznie 2026-10-24 (Playwright na produkcji, 24 strony + modal
-# abonamentu z Turnstile + przebieg po „Akceptuje wszystkie”): Zaraz i Web Analytics (same-origin
+# zapisu (usuniety w MIX-1849) z Turnstile + przebieg po „Akceptuje wszystkie”): Zaraz i Web Analytics (same-origin
 # /cdn-cgi/* + static.cloudflareinsights.com), gtm.js z www.googletagmanager.com, beacony GA
 # (stats.g.doubleclick.net, www.google.com/ads), Turnstile (challenges.cloudflare.com: skrypt +
-# iframe), Sanity (cdn.sanity.io obrazy, <projekt>.api.sanity.io zapytania), hub abonamentu
-# api.mixturemarketing.pl, mapy/kalendarz Google w iframe, obrazy w artykulach (unsplash,
+# iframe), Sanity (cdn.sanity.io obrazy, <projekt>.api.sanity.io zapytania), mapy/kalendarz Google w iframe, obrazy w artykulach (unsplash,
 # wikimedia, transparenttextures). *.google-analytics.com / *.analytics.google.com dopuszczone
 # zapobiegawczo (GA4 po zgodzie marketingowej).
 # 'unsafe-inline' jest dzis konieczne: inline bootstrap Consent Mode w index.html, `onload=` na
@@ -36,7 +35,7 @@
 #
 # Przejscie na wymuszanie (Content-Security-Policy):
 #  1. Po deployu przejsc kluczowe strony z otwarta konsola (formularz kontaktowy z Turnstile,
-#     /abonament/ z modalem, artykul, /portfolio/, mapa, kalendarz po wyslaniu briefu) i po
+#     /wycena/, artykul, /portfolio/, mapa, kalendarz po wyslaniu briefu) i po
 #     zgodzie na cookies — konsola nie moze pokazywac „[Report Only] Refused to …” poza eval Zoda.
 #     Opcjonalnie: endpoint raportow (np. Pages Function /api/csp-report zapisujacy do KV/D1)
 #     i dyrektywa `report-to` — dopiero wtedy mamy dane od prawdziwych uzytkownikow.
@@ -46,7 +45,7 @@
 #     przestawic Beasties na preload bez `onload=` — i zamienic 'unsafe-inline' na hashe.
 /*
   Cache-Control: public, max-age=0, must-revalidate
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.sanity.io https://images.unsplash.com https://upload.wikimedia.org https://www.transparenttextures.com https://www.google.com https://*.g.doubleclick.net https://*.google-analytics.com; font-src 'self' data:; connect-src 'self' https://*.api.sanity.io https://*.apicdn.sanity.io https://api.mixturemarketing.pl https://cloudflareinsights.com https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google.com https://*.g.doubleclick.net https://*.google-analytics.com https://*.analytics.google.com; frame-src https://challenges.cloudflare.com https://www.google.com https://calendar.google.com; worker-src 'self' blob:; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://cdn.sanity.io https://images.unsplash.com https://upload.wikimedia.org https://www.transparenttextures.com https://www.google.com https://*.g.doubleclick.net https://*.google-analytics.com; font-src 'self' data:; connect-src 'self' https://*.api.sanity.io https://*.apicdn.sanity.io https://cloudflareinsights.com https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google.com https://*.g.doubleclick.net https://*.google-analytics.com https://*.analytics.google.com; frame-src https://challenges.cloudflare.com https://www.google.com https://calendar.google.com; worker-src 'self' blob:; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
 
 # Artefakty Vite (JS/CSS/fonty) maja hash w nazwie — tresc pod danym URL-em sie nie zmienia.
 /assets/*

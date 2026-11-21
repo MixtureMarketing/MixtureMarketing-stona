@@ -17,6 +17,8 @@
  * ustawiony. Bez żadnego z nich tokenów nie da się wydać ani sprawdzić (fail-closed).
  */
 
+import { isTestLikeSecret } from './_shared/turnstileMode';
+
 export interface LeadTokenEnv {
   LEAD_TOKEN_SECRET?: string;
   TURNSTILE_SECRET?: string;
@@ -27,8 +29,12 @@ const PREFIKS = 'lead-edit:v1:';
 
 const enc = new TextEncoder();
 
+// MIX-1934: publiczny sekret testowy Turnstile (Preview) NIE jest kluczem podpisu: znany każdemu,
+// pozwoliłby podrobić token edycji dowolnego leada. Wtedy tylko LEAD_TOKEN_SECRET (brak = 503).
 function kluczSurowy(env: LeadTokenEnv): string | null {
-  return env.LEAD_TOKEN_SECRET || env.TURNSTILE_SECRET || null;
+  if (env.LEAD_TOKEN_SECRET) return env.LEAD_TOKEN_SECRET;
+  if (env.TURNSTILE_SECRET && !isTestLikeSecret(env.TURNSTILE_SECRET)) return env.TURNSTILE_SECRET;
+  return null;
 }
 
 async function kluczHmac(secret: string): Promise<CryptoKey> {

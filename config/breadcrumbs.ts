@@ -16,11 +16,6 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/miasto/rzeszow': 'Rzeszów — hub lokalny',
   '/marketing/analytics': 'Data & Analityka',
   '/agencja-interaktywna-rzeszow': 'Agencja Interaktywna Rzeszów',
-  '/abonament': 'Strona w abonamencie',
-  '/abonament/dziekujemy': 'Dziękujemy',
-  '/abonament/professional': 'Professional (branże regulowane)',
-  '/abonament/vs-wix': 'Mixture vs Wix',
-  '/abonament/vs-orange-klikai': 'Mixture vs Orange KlikAI',
   '/design': 'Grafika & Design',
   '/design/branding': 'Brand Identity',
   '/design/ui-ux': 'UI/UX Design',
@@ -28,6 +23,7 @@ export const BREADCRUMBS_PATH_MAP: Record<string, string> = {
   '/design/visual-audit': 'Audyt Wizualny',
   '/contact': 'Kontakt',
   '/offers': 'Oferta',
+  '/cennik': 'Cennik',
   // Etykiety z istniejących nazw (stopka / <title> / schema strony) — wcześniej okruszek
   // pokazywał surowy slug („privacy policy”, „terms”, „wycena”, „audyt 360”, „portfolio”).
   '/wycena': 'Kalkulator wyceny',
