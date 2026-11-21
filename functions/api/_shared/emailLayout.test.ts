@@ -285,3 +285,50 @@ describe('Functions bez zależności od Vite (import.meta.env nie istnieje w Clo
     expect(src).not.toMatch(/^\s*import\s/m);
   });
 });
+
+describe('luki z weryfikacji r1 (w2, w5, w6, w8, w9, w10)', () => {
+  it('href przycisku escapowany: cudzysłów w adresie nie urywa atrybutu', () => {
+    const url = 'https://mixturemarketing.pl/portal/verify?token=a"b onmouseover="x';
+    const m = M.magicLinkEmail('Anna', url);
+    const linki = Array.from(parse(m.html).querySelectorAll('a')).filter((a) =>
+      (a.getAttribute('href') ?? '').includes('portal/verify'),
+    );
+    expect(linki.length).toBeGreaterThan(0);
+    for (const a of linki) expect(a.getAttribute('href')).toBe(url);
+    expect(m.html).not.toMatch(/token=a"b/);
+  });
+
+  it('temat maila audytu (zespół) bez CR/LF', () => {
+    const m = M.auditLeadTeamEmail('a@b.pl\r\nBcc: x@y.pl', 'https://firma.pl/', 5, false);
+    expect(m.subject).not.toMatch(/[\r\n]/);
+  });
+
+  it('safeHref: adres bez schematu (//host) zostaje tekstem', () => {
+    expect(safeHref('//evil.example/x')).toBeNull();
+    expect(safeHref('/portal')).toBeNull();
+  });
+
+  it('endpoint nie nadpisuje subject/html/text po maili z modułu (text/plain zawsze idzie)', () => {
+    const ROOT = path.resolve(__dirname, '..');
+    const FILES = [
+      'contact-submit.ts',
+      'audit/capture-lead.ts',
+      'estimation/public-quote.ts',
+      'auth/send_magic_link.ts',
+      'portal/send_message.ts',
+      'admin/reply_lead.ts',
+      'admin/convert_lead.ts',
+      'admin/admin_reply_chat.ts',
+    ];
+    let spready = 0;
+    for (const f of FILES) {
+      const src = fs.readFileSync(path.join(ROOT, f), 'utf8');
+      // Każdy spread maila (`...message,` / `...xxxEmail(...)`) aż do końca literału obiektu.
+      for (const m of src.matchAll(/\.\.\.(message|\w+Email\([^)]*\)),\n([\s\S]*?)\n\s*\}/g)) {
+        spready++;
+        expect(m[2], `${f}: klucz po spreadzie`).not.toMatch(/\b(subject|html|text)\s*:/);
+      }
+    }
+    expect(spready).toBeGreaterThanOrEqual(9);
+  });
+});
