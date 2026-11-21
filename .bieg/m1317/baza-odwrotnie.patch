@@ -79,10 +79,10 @@ index 0000000..1b38432
 +
 +export default ProcessTimeline;
 diff --git a/components/features/design/BrandProcess.tsx b/components/features/design/BrandProcess.tsx
-index 9700a86..5aca794 100644
+index 9700a86..fc9985f 100644
 --- a/components/features/design/BrandProcess.tsx
 +++ b/components/features/design/BrandProcess.tsx
-@@ -3,6 +3,8 @@ import { Users, PenTool, MessageSquare, FileBox, Sparkles } from 'lucide-react';
+@@ -3,9 +3,14 @@ import { Users, PenTool, MessageSquare, FileBox, Sparkles } from 'lucide-react';
  import SectionHeader from '../../common/SectionHeader';
  import AnimateOnScroll from '../../common/AnimateOnScroll';
  import SectionWrapper from '../../common/SectionWrapper';
@@ -91,13 +91,27 @@ index 9700a86..5aca794 100644
  import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
  
  const BrandProcess: React.FC = () => {
-@@ -24,47 +26,57 @@ const BrandProcess: React.FC = () => {
++  // MIX-1317: overflow-hidden robi z sekcji kontener przewijania, a wtedy oś view() K1 liczy się
++  // względem sekcji, nie strony (animacja stoi). Przy K1 bez overflow; wyłączony = jak dotąd.
++  const k1 = isProcessTimelineEnabled();
+   const processSteps = CONTENT.process.steps.map((step, i) => {
+     const icons = [
+       <Users key="users" size={20} />,
+@@ -17,54 +22,64 @@ const BrandProcess: React.FC = () => {
+   });
+ 
+   return (
+-    <SectionWrapper variant="white" overflow={true}>
++    <SectionWrapper variant="white" overflow={!k1}>
+       <SectionHeader
+         title={CONTENT.process.title}
+         description={CONTENT.process.description}
          className="mb-20"
        />
  
 -      <div className="relative">
 -        <div className="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-y-1/2 z-0"></div>
-+      {isProcessTimelineEnabled() ? (
++      {k1 ? (
 +        <ProcessTimeline
 +          items={CONTENT.process.steps.map((s) => ({
 +            kicker: s.time,

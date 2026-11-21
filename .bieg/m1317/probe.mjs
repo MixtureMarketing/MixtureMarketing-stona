@@ -14,7 +14,8 @@
  *    przed sekcją (oś tuż pod ekranem) opacity kroku 1 < 1 = animacja działa;
  *  - „ogranicz ruch” (390, 1366): 0 animacji w osi, wszystkie kroki opacity 1 bez przewijania;
  *  - CLS (390, 1366): layout-shift bez hadRecentInput, wczytanie + przewinięcie całej strony; ≤ 0,1;
- *  - axe wcag2a/aa w osi K1 (1366): 0 serious/critical; całą stronę liczymy informacyjnie;
+ *  - axe wcag2a/aa w osi K1 (390, 1366) po przewinięciu i przy „ogranicz ruch”: 0 serious/critical;
+ *    całą stronę liczymy informacyjnie;
  *  - zrzuty sekcji JPEG (1366, 1600, 390) jako base64 w logu (ZRZUT-START nazwa … ZRZUT-KONIEC).
  * off: CLS i axe całej strony (porównanie), brak [data-k1].
  * Wynik: <out>/probe-<tryb>.json; kod 0 = progi spełnione, 1 = nie, 2 = złe wywołanie.
@@ -112,7 +113,8 @@ const scrollTo = (page, sel, idx, frac) =>
     (sel, idx, frac) => {
       const el = document.querySelectorAll(sel)[idx];
       const top = el.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo(0, Math.max(0, top - window.innerHeight * frac));
+      // Strona ma scroll-behavior: smooth; pomiar wymaga skoku od razu.
+      window.scrollTo({ top: Math.max(0, top - window.innerHeight * frac), behavior: 'instant' });
     },
     sel,
     idx,
@@ -129,7 +131,7 @@ async function settle(page) {
   await page.evaluate(
     () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))),
   );
-  await sleep(250);
+  await sleep(400);
 }
 async function shot(page, name) {
   if (shotsArg !== '1') return;
@@ -139,11 +141,14 @@ async function shot(page, name) {
     const r = s.getBoundingClientRect();
     return { y: r.top + window.scrollY, h: r.height };
   });
-  await page.evaluate((y) => window.scrollTo(0, y), box.y);
+  await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), box.y);
   await settle(page);
   // Na koniec przewijamy przez sekcję, żeby oś była w stanie „po przewinięciu”.
   const vp = page.viewport();
-  await page.evaluate((y) => window.scrollTo(0, y), Math.max(0, box.y + box.h - vp.height));
+  await page.evaluate(
+    (y) => window.scrollTo({ top: y, behavior: 'instant' }),
+    Math.max(0, box.y + box.h - vp.height),
+  );
   await settle(page);
   const el = await page.evaluateHandle(() => {
     const k = document.querySelector('[data-k1]');
@@ -158,7 +163,7 @@ async function cls(page) {
   await page.evaluate(async () => {
     const step = Math.round(window.innerHeight * 0.6);
     for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
-      window.scrollTo(0, y);
+      window.scrollTo({ top: y, behavior: 'instant' });
       await new Promise((r) => setTimeout(r, 120));
     }
   });
@@ -194,10 +199,6 @@ for (const [p, heading] of PAGES) {
     check(h2 === 1, `${p} ${w}: nagłówek sekcji ${h2}×`);
     check(mode === 'on' ? k1 === 1 : k1 === 0, `${p} ${w}: [data-k1] ${k1}×`);
     r[`axePage_${w}`] = await axeRun(page, null);
-    if (mode === 'on' && w === 1366) {
-      r.axeK1 = await axeRun(page, '[data-k1]');
-      check(r.axeK1.length === 0, `${p}: axe w osi ${r.axeK1.join(',')}`);
-    }
     r[`cls_${w}`] = await cls(page);
     check(r[`cls_${w}`] <= 0.1, `${p} ${w}: CLS ${r[`cls_${w}`]}`);
     await page.close();
@@ -250,6 +251,12 @@ for (const [p, heading] of PAGES) {
       return document.getAnimations().filter((a) => k.contains(a.effect?.target)).length;
     });
     r[`widocznosc_${w}`] = { przedKrok1: przed[0], minPoKazdym: po, animacji: anims };
+    // axe w osi po przewinięciu (kroki w stanie końcowym; przed wjazdem mają celowo opacity 0,2):
+    // ostatni krok na 20 % wysokości ekranu, więc wszystkie animacje są za końcem zakresu.
+    await scrollTo(page, '[data-k1] .mm-k1-krok', n - 1, 0.2);
+    await settle(page);
+    r[`axeK1_${w}`] = await axeRun(page, '[data-k1]');
+    check(r[`axeK1_${w}`].length === 0, `${p} ${w}: axe w osi ${r[`axeK1_${w}`].join(',')}`);
     check(po.every((x) => x === 1), `${p} ${w}: kroki niewidoczne po przewinięciu ${po}`);
     check(przed[0] < 1, `${p} ${w}: animacja nie działa (krok 1 przed sekcją opacity ${przed[0]})`);
     check(anims > 0, `${p} ${w}: brak animacji`);
@@ -268,6 +275,8 @@ for (const [p, heading] of PAGES) {
       return document.getAnimations().filter((a) => k.contains(a.effect?.target)).length;
     });
     r[`ograniczRuch_${w}`] = { animacji: anims, minOpacity: Math.min(...o) };
+    r[`axeK1Reduce_${w}`] = await axeRun(page, '[data-k1]');
+    check(r[`axeK1Reduce_${w}`].length === 0, `${p} ${w} reduce: axe w osi ${r[`axeK1Reduce_${w}`].join(',')}`);
     check(anims === 0, `${p} ${w} reduce: animacji ${anims}`);
     check(o.every((x) => x === 1), `${p} ${w} reduce: opacity ${o}`);
     await page.close();

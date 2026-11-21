@@ -64,5 +64,6 @@ mut M13 $CSS "@keyframes mm-k1-linia {
   from {
     height: 0;
     transform: scaleY(0);" "animacja właściwości układu (CLS)"
+mut M14 $BP "overflow={!k1}" "overflow={true}" "branding: overflow-hidden zatrzymuje oś view()"
 echo "MUT SUMA zabite=$K przezyte=$S nomatch=$N"
 [ "$S" -eq 0 ] && [ "$N" -eq 0 ]
