@@ -122,8 +122,8 @@ describe.each(PROCESS_PAGES)('$path', (p) => {
     expect(stepTexts(os)).toEqual(off);
     expect(off).toHaveLength(p.steps);
     expect(el.querySelectorAll('h3')).toHaveLength(p.steps);
-    // JS 0: nic w osi nie zależy od zmiennej przewijania ustawianej skryptem.
-    for (const x of [os, ...os.querySelectorAll<HTMLElement>('*')])
+    // JS 0: nic w sekcji z osią nie zależy od zmiennej przewijania ustawianej skryptem.
+    for (const x of [el, ...el.querySelectorAll<HTMLElement>('*')])
       expect(x.getAttribute('style') ?? '').not.toMatch(/var\(--p/);
     // Nagłówek sekcji zostaje jeden.
     expect(el.querySelectorAll('h2')).toHaveLength(1);

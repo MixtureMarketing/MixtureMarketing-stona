@@ -784,15 +784,16 @@ body[data-timeline-cookie='true'] .cookie-floating-btn {
     }
     .mm-k1:not(.mm-k1--dlugi) .mm-k1-tresc {
       animation-name: mm-k1-tekst-y;
+      animation-range: entry 0% cover 25%;
     }
     .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(2) .mm-k1-tresc {
-      animation-range: entry 15% cover 33%;
+      animation-range: entry 10% cover 27%;
     }
     .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(3) .mm-k1-tresc {
-      animation-range: entry 30% cover 36%;
+      animation-range: entry 20% cover 29%;
     }
     .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(4) .mm-k1-tresc {
-      animation-range: entry 45% cover 39%;
+      animation-range: entry 30% cover 31%;
     }
   }
   @media (prefers-reduced-motion: no-preference) and (min-width: 1280px) {
@@ -802,21 +803,22 @@ body[data-timeline-cookie='true'] .cookie-floating-btn {
     }
     .mm-k1 .mm-k1-tresc {
       animation-name: mm-k1-tekst-y;
+      animation-range: entry 0% cover 25%;
     }
     .mm-k1 .mm-k1-krok:nth-child(2) .mm-k1-tresc {
-      animation-range: entry 15% cover 33%;
+      animation-range: entry 10% cover 27%;
     }
     .mm-k1 .mm-k1-krok:nth-child(3) .mm-k1-tresc {
-      animation-range: entry 30% cover 36%;
+      animation-range: entry 20% cover 29%;
     }
     .mm-k1 .mm-k1-krok:nth-child(4) .mm-k1-tresc {
-      animation-range: entry 45% cover 39%;
+      animation-range: entry 30% cover 31%;
     }
     .mm-k1 .mm-k1-krok:nth-child(5) .mm-k1-tresc {
-      animation-range: entry 60% cover 42%;
+      animation-range: entry 40% cover 33%;
     }
     .mm-k1 .mm-k1-krok:nth-child(n + 6) .mm-k1-tresc {
-      animation-range: entry 75% cover 45%;
+      animation-range: entry 50% cover 35%;
     }
   }
 }
