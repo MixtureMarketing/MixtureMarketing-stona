@@ -31,11 +31,7 @@ const IGNORED_DIRS = ['components/portal/'];
  * Znane naruszenia w plikach, których ta zmiana nie mogła dotknąć (równoległa praca).
  * Usuń wpis po poprawce — test wtedy zacznie pilnować także tego pliku.
  */
-const KNOWN_PENDING = new Set<string>([
-  // success/cancel path dla zewnętrznego huba płatności — kształt bez slasha celowo
-  // zachowany (walidacja po stronie huba nieznana); patrz komentarz w pliku.
-  'components/pages/abonament/PreonboardModal.tsx',
-]);
+const KNOWN_PENDING = new Set<string>([]);
 
 /** Ścieżki, które nie są stronami (API, panel, pliki statyczne). */
 const NON_PAGE_PREFIXES = ['/api/', '/portal', '/assets/', '/images/', '/fonts/'];

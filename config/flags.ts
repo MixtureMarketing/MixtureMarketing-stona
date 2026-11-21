@@ -39,3 +39,40 @@ export const isAiSectionEnabled = (): boolean => import.meta.env.VITE_MM_AI_SECT
  */
 export const isRzeszowSectionsEnabled = (): boolean =>
   import.meta.env.VITE_MM_RZESZOW_SEKCJE === '1';
+
+/**
+ * Filmy w portfolio (MIX-1831/MIX-1873): lista `/portfolio/` (film po najechaniu, doczytany w tle
+ * po `load`) i strona realizacji (film w miejscu zdjęcia hero po `load`). Mapa filmów:
+ * `data/portfolioVideos.ts`. Wyłączony = brak `<video>` w DOM i zero żądań filmów. Włączony na
+ * produkcji, w Preview i w PR (MIX-1896, decyzja Jakuba w MIX-1953; ci.yml).
+ */
+export const isPortfolioVideoEnabled = (): boolean =>
+  import.meta.env.VITE_MM_PORTFOLIO_VIDEO === '1';
+
+/**
+ * Strona /cennik/ z widełkami cen (MIX-1855): trasa, adres w sitemap.xml i llms.txt, linki
+ * z artykułów bazy wiedzy i przycisk „Chcesz podobny projekt?” w realizacjach. Czeka na
+ * akceptację Jakuba. Wyłączony (domyślnie) = brak trasy, a /cennik i /cennik/ dostają 301 na
+ * /offers/ (public/_redirects), HTML pozostałych stron bez zmian. Preview buduje się z
+ * `VITE_MM_CENNIK=1` (ci.yml); w buildzie z włączonym przełącznikiem scripts/apply-cennik-build.mjs
+ * zdejmuje te 301 z dist/_redirects i dopisuje stronę do dist/llms.txt.
+ */
+export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
+
+/**
+ * Strona główna pod frazę „agencja marketingowa Rzeszów” (MIX-1269, plan SEO A12): nowy title,
+ * meta description, fraza w H1 i linki lokalne z opisowymi kotwicami w pasie „Lokalnie · Rzeszów”.
+ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1269.md). Wyłączony (domyślnie) = strona główna
+ * bez zmian co do bajta (tests/seo/homeSeo.test.tsx). Preview buduje się z `VITE_MM_HOME_SEO=1` (ci.yml).
+ */
+export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO === '1';
+
+/**
+ * Sekcja dowodu na /web-development/custom-app/ (MIX-1975): PsychON (platforma szkoleniowa Fundacji
+ * Niepodzielni, zrzuty z danych testowych w public/assets/custom-app/) zamiast KorepetytorAI
+ * (StudentPI). Link prowadzi do /portfolio/ (PsychON nie ma jeszcze strony realizacji w CMS).
+ * Wyłączony (domyślnie) = sekcja jak przed zmianą. Preview buduje się z `VITE_MM_CUSTOMAPP_PSYCHON=1`
+ * (ci.yml); produkcja i PR puste do akceptacji Jakuba.
+ */
+export const isCustomAppPsychonEnabled = (): boolean =>
+  import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON === '1';

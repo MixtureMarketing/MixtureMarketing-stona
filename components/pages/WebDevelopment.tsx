@@ -162,7 +162,7 @@ const WebDevelopment: React.FC = () => {
           treść. Trzy przebudowy wizualne poległy, bo forma nie naprawia sprzeczności:
           hero i FAQ obiecują „technologię dobieramy do Twojego celu", a tamta pokazywała
           jeden stały stos sześciu rzeczy; warstwa PostgreSQL straszyła „rosnącymi
-          abonamentami", gdy w menu jest /abonament/; cztery z sześciu nazw padały ekran
+          opłatami"; cztery z sześciu nazw padały ekran
           wyżej w WebDevProjectTypes. Właściciel nazwał prawdziwą tezę: sekcja miała
           pokazywać, W CZYM UMIEMY i że WYBÓR ZALEŻY OD PROJEKTU. Stąd StackChoice. */}
         <WebDevStackChoice />

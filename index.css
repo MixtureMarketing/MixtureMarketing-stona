@@ -462,7 +462,7 @@
 }
 
 @layer utilities {
-  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny (np. /abonament/).
+  /* Cookie floating button — przesun w gore gdy sticky mobile CTA bar widoczny.
      MIX-1400: regula w warstwie utilities (nie base), bo klasa bottom-4 na przycisku jest
      w utilities i wygrywala z regula z base (przycisk zaslanial pasek na telefonie). */
   body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
@@ -624,11 +624,22 @@ body[data-live-price-bar='true'] .cookie-floating-btn {
 }
 
 /* Przycisk ciasteczek chowa się, gdy przewijany podgląd konfiguracji albo przyciski linku
-   /wycena/ nachodzą na niego (MIX-1799; znaczniki ustawiają ConfigPreview i ConfigLinkButtons).
+   /wycena/ nachodzą na niego (MIX-1799; znaczniki ustawiają ConfigPreview i ConfigLinkButtons;
+   MIX-1815: przyciski ekranu wyniku, znacznik z CalculatorResult; r2: opcje i pola formularza,
+   znacznik z PublicCalculator).
    Poza warstwami, żeby wygrać z klasami utilities. Wraca po przewinięciu; `visibility` zdejmuje
    go też z kolejności tabulatora na czas nałożenia. */
+body[data-result-cookie='true'] .cookie-floating-btn,
+body[data-form-cookie='true'] .cookie-floating-btn,
 body[data-config-preview-cookie='true'] .cookie-floating-btn,
 body[data-config-link-cookie='true'] .cookie-floating-btn {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* MIX-1816: to samo dla osi czasu na ekranie wyniku (znacznik ustawia NewClientTimeline). */
+body[data-timeline-cookie='true'] .cookie-floating-btn {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;

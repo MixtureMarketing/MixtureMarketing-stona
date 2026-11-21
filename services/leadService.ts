@@ -5,6 +5,8 @@ export interface LeadBase {
   email: string;
   phone?: string;
   service_interest?: string; // e.g., 'web', 'marketing'
+  /** MIX-1855: nazwa realizacji z przycisku „Chcesz podobny projekt?” (temat zadania w Linearze). */
+  similar_project?: string;
   captcha_token?: string;
   website_verify?: string;
 }

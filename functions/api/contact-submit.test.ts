@@ -766,6 +766,80 @@ describe('contact-submit — zgłoszenie do Lineara', () => {
     const ok = await wywolaj(srv, { action: 'create', lead: { ...lead, [tekst(100)]: 'x' } });
     expect(ok.status).toBe(200);
   });
+
+  // MIX-1855: przycisk „Chcesz podobny projekt?” w realizacji wysyła similar_project już przy create.
+  describe('similar_project (nazwa realizacji) w create', () => {
+    const tytul = () =>
+      (siec.linear.find((w) => w.op === 'ZadanieUtworz')?.vars as { input: { title: string } })
+        .input.title;
+    const details = (
+      db: { prepare: (s: string) => { get: (id: string) => unknown } },
+      id: string,
+    ) =>
+      (db.prepare('SELECT details FROM leads WHERE id = ?').get(id) as { details: string | null })
+        .details;
+
+    it('nazwa realizacji trafia do details i do tematu zadania w Linearze', async () => {
+      const { env: srv, db } = srodowisko();
+      const odp = await wywolaj(srv, {
+        action: 'create',
+        source_url: 'https://mixturemarketing.pl/portfolio/glamspace/',
+        lead: { ...lead, service_interest: 'general', similar_project: 'GlamSpace rezerwacje' },
+      });
+      expect(odp.status).toBe(200);
+      expect(JSON.parse(details(db, odp.body.id as string)!)).toEqual({
+        similar_project: 'GlamSpace rezerwacje',
+      });
+      expect(tytul()).toBe('Lead: firma.pl — podobny projekt: GlamSpace rezerwacje');
+    });
+
+    it('spacje ściśnięte, nazwa ucięta do 100 znaków', async () => {
+      const { env: srv, db } = srodowisko();
+      const odp = await wywolaj(srv, {
+        action: 'create',
+        lead: { ...lead, similar_project: `  Glam   Space ${'x'.repeat(300)}` },
+      });
+      expect(odp.status).toBe(200);
+      const zapisane = JSON.parse(details(db, odp.body.id as string)!).similar_project as string;
+      expect(zapisane.startsWith('Glam Space x')).toBe(true);
+      expect(zapisane).toHaveLength(100);
+    });
+
+    it('bez similar_project details zostaje puste, a temat jak dotąd (kontakt)', async () => {
+      const { env: srv, db } = srodowisko();
+      const odp = await wywolaj(srv, {
+        action: 'create',
+        lead: { ...lead, service_interest: 'general' },
+      });
+      expect(odp.status).toBe(200);
+      expect(details(db, odp.body.id as string)).toBeNull();
+      expect(tytul()).toBe('Lead: firma.pl — kontakt');
+    });
+
+    it.each([[''], ['   '], [5], [{ a: 1 }], [['x']], [null], [true]])(
+      '(−) similar_project=%j: ignorowane (details puste), create nadal 200',
+      async (zle) => {
+        const { env: srv, db } = srodowisko();
+        const odp = await wywolaj(srv, {
+          action: 'create',
+          lead: { ...lead, service_interest: 'general', similar_project: zle },
+        });
+        expect(odp.status).toBe(200);
+        expect(details(db, odp.body.id as string)).toBeNull();
+        expect(tytul()).toBe('Lead: firma.pl — kontakt');
+      },
+    );
+
+    it('walidacja create nie jest osłabiona: pole similar_project powyżej limitu pola → 400', async () => {
+      const { env: srv } = srodowisko();
+      const odp = await wywolaj(srv, {
+        action: 'create',
+        lead: { ...lead, similar_project: 'x'.repeat(1001) },
+      });
+      expect(odp.status).toBe(400);
+      expect(ileOp(siec, 'ZadanieUtworz')).toBe(0);
+    });
+  });
 });
 
 describe('contact-submit — bez wysyłki do Mixture CRM', () => {

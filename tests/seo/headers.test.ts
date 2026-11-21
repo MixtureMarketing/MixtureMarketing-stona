@@ -157,13 +157,10 @@ describe('public/_headers — CSP Report-Only dla całej strony', () => {
     expect(csp['frame-src']).toEqual(expect.arrayContaining(['https://challenges.cloudflare.com']));
     expect(csp['img-src']).toEqual(expect.arrayContaining(["'self'", 'https://cdn.sanity.io']));
     expect(csp['connect-src']).toEqual(
-      expect.arrayContaining([
-        "'self'",
-        'https://*.api.sanity.io',
-        'https://*.apicdn.sanity.io',
-        'https://api.mixturemarketing.pl',
-      ]),
+      expect.arrayContaining(["'self'", 'https://*.api.sanity.io', 'https://*.apicdn.sanity.io']),
     );
+    // MIX-1849: hub zapisu do wycofanej usługi nie jest już wołany ze strony.
+    expect(csp['connect-src']).not.toContain('https://api.mixturemarketing.pl');
   });
 
   it('nie dopuszcza schematów-wytrychów w script-src (http:, https:, *)', () => {

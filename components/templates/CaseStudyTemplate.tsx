@@ -13,13 +13,14 @@ import { useBreadcrumbLabel } from '@/context/BreadcrumbLabelContext';
 import RelatedArticles from '../articles/RelatedArticles';
 import LazyHydrate from '../common/LazyHydrate';
 import Powiazane from '../common/Powiazane';
-import { isPowiazaneEnabled } from '@/config/flags';
+import { isCennikEnabled, isPowiazaneEnabled } from '@/config/flags';
 
 // Refactored Sub-components
 import CaseStudyHero from './case-study/CaseStudyHero';
 import CaseStudyContent from './case-study/CaseStudyContent';
 import CaseStudySidebar from './case-study/CaseStudySidebar';
 import CaseStudyNavigation from './case-study/CaseStudyNavigation';
+import CaseStudySimilarCta from './case-study/CaseStudySimilarCta';
 import { ORG_PUBLISHER } from '../../utils/seo/organizationSchema';
 import { caseStudyTitle } from '../../utils/seo/title';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
@@ -125,6 +126,8 @@ const CaseStudyTemplate = () => {
           <CaseStudyContent project={project} onAssetClick={setActiveAsset} />
           <CaseStudySidebar project={project} />
         </div>
+        {/* MIX-1855: przycisk „Chcesz podobny projekt?”, tylko przy VITE_MM_CENNIK=1. */}
+        {isCennikEnabled() && <CaseStudySimilarCta title={project.title} />}
       </div>
 
       {isPowiazaneEnabled() ? (

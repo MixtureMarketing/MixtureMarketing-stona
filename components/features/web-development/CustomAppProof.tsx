@@ -5,12 +5,17 @@ import Container from '../../common/Container';
 import { useSectionProgress } from '../../../hooks/useSectionProgress';
 import { urlFor } from '../../../services/cms/client';
 import { CUSTOM_WEB_APP_CONTENT as CONTENT } from '../../../data/content';
+import { isCustomAppPsychonEnabled } from '../../../config/flags';
 
 /**
  * Dowód: KorepetytorAI (StudentPI) — prawdziwy SaaS z portfolio, obrazy
  * zweryfikowane oczami i przypięte po `_ref` (hash treści), URL-e CDN budowane
  * synchronicznie — bez fetcha, więc prawa strona nigdy nie stoi pusta
  * (lekcja z WebDevWpCustom). Sekcja CIEMNA — The Ciemnia Rule.
+ *
+ * MIX-1975: przy VITE_MM_CUSTOMAPP_PSYCHON=1 (config/flags.ts) sekcja pokazuje PsychON
+ * (`CONTENT.proofPsychon`): lokalne zrzuty z public/ z width/height (bez skoku układu) i link
+ * do /portfolio/. Wyłączony przełącznik = dotychczasowa sekcja KorepetytorAI bez zmian.
  */
 
 const hideBrokenFigure: React.ReactEventHandler<HTMLImageElement> = (e) => {
@@ -19,6 +24,8 @@ const hideBrokenFigure: React.ReactEventHandler<HTMLImageElement> = (e) => {
 
 const CustomAppProof: React.FC = () => {
   const sectionRef = useSectionProgress<HTMLElement>(0.85);
+  const psychon = isCustomAppPsychonEnabled();
+  const proof = psychon ? CONTENT.proofPsychon : CONTENT.proof;
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden bg-deep-dark py-24 md:py-28">
@@ -37,50 +44,74 @@ const CustomAppProof: React.FC = () => {
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
         >
           <h2 className="text-3xl font-extrabold tracking-tight text-balance text-white md:text-4xl">
-            {CONTENT.proof.title}
+            {proof.title}
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-white/75">{CONTENT.proof.description}</p>
+          <p className="mt-5 text-lg leading-relaxed text-white/75">{proof.description}</p>
         </div>
 
         <div
           className="mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-12"
           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 56px), 0)' }}
         >
-          {CONTENT.proof.figures.map((fig) => {
-            let img = urlFor(fig.ref);
-            if ('rect' in fig && fig.rect) {
-              img = img.rect(fig.rect.x, fig.rect.y, fig.rect.w, fig.rect.h);
-            }
-            return (
-              <figure key={fig.ref}>
+          {psychon &&
+            CONTENT.proofPsychon.figures.map((fig) => (
+              <figure key={fig.src}>
                 <Link
-                  to={CONTENT.proof.linkTo}
+                  to={proof.linkTo}
                   className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
                 >
                   <img
-                    src={img.width(1200).fit('max').url()}
+                    src={fig.src}
                     alt={fig.alt}
-                    sizes="(min-width: 768px) 50vw, 100vw"
+                    width={fig.width}
+                    height={fig.height}
                     loading="lazy"
                     decoding="async"
                     onError={hideBrokenFigure}
-                    className="w-full"
+                    className="h-auto w-full"
                   />
                 </Link>
                 <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
                   {fig.caption}
                 </figcaption>
               </figure>
-            );
-          })}
+            ))}
+          {!psychon &&
+            CONTENT.proof.figures.map((fig) => {
+              let img = urlFor(fig.ref);
+              if ('rect' in fig && fig.rect) {
+                img = img.rect(fig.rect.x, fig.rect.y, fig.rect.w, fig.rect.h);
+              }
+              return (
+                <figure key={fig.ref}>
+                  <Link
+                    to={proof.linkTo}
+                    className="group block overflow-hidden rounded-2xl border border-white/10 transition-colors hover:border-primary/50"
+                  >
+                    <img
+                      src={img.width(1200).fit('max').url()}
+                      alt={fig.alt}
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                      loading="lazy"
+                      decoding="async"
+                      onError={hideBrokenFigure}
+                      className="w-full"
+                    />
+                  </Link>
+                  <figcaption className="mt-4 text-sm leading-relaxed text-white/65">
+                    {fig.caption}
+                  </figcaption>
+                </figure>
+              );
+            })}
         </div>
 
         <p className="mt-10">
           <Link
-            to={CONTENT.proof.linkTo}
+            to={proof.linkTo}
             className="inline-flex items-center gap-2 font-bold text-primary underline-offset-4 hover:underline"
           >
-            {CONTENT.proof.linkLabel}
+            {proof.linkLabel}
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </p>

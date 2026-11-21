@@ -105,8 +105,8 @@ describe('przełącznik VITE_MM_CONFIG_PREVIEW (K2)', () => {
     expect(requestPricePreview).toHaveBeenCalledTimes(1);
   });
 
-  it('U5 wartości inne niż 1/true (TRUE, " 1", yes, 0, on) = wyłączony; 1 i true = włączony', async () => {
-    for (const v of ['TRUE', ' 1', 'yes', '0', 'on']) {
+  it('U5 wartości inne niż 1 (true, TRUE, " 1", yes, 0, on) = wyłączony; tylko 1 = włączony (MIX-1846)', async () => {
+    for (const v of ['true', 'TRUE', ' 1', 'yes', '0', 'on']) {
       env(v);
       const { unmount } = render(
         <MemoryRouter>
@@ -118,7 +118,7 @@ describe('przełącznik VITE_MM_CONFIG_PREVIEW (K2)', () => {
       expect(screen.queryByTestId('config-preview')).not.toBeInTheDocument();
       unmount();
     }
-    for (const v of ['1', 'true']) {
+    for (const v of ['1']) {
       env(v);
       const { unmount } = render(
         <MemoryRouter>

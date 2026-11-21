@@ -15,6 +15,7 @@ import { quoteTurnstileExpect, safeRay } from './_quoteGate';
 import { readBodyLimited } from './public-quote';
 import { activeKey, issueToken, verifyToken, PREVIEW_TOKEN_TTL_SEC } from './_previewToken';
 import { verifyTurnstileStrict } from '../_shared/security';
+import { turnstileMode } from '../_shared/turnstileMode';
 import { edgeIpKey, hmacHex } from '../_shared/gateCounter';
 import {
   parsePublicConfig,
@@ -96,6 +97,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 /** Cały przepływ z jawnym `nowMs` (exp i okna liczników testowane bez zegara). */
 export async function handlePreview(request: Request, env: Env, nowMs: number): Promise<Response> {
   const ray = safeRay(request);
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev; gdzie indziej 503.
+  const tm = turnstileMode(env.TURNSTILE_SECRET, request.url);
+  if (tm.kind === 'refuse') return deny(ray, 503, tm.reason, BUSY);
 
   // 1. Treść ≤ 8 kB, obiekt JSON, tylko pola z allowlisty, najwyżej jeden token.
   const read = await readBodyLimited(request, PREVIEW_MAX_BODY_BYTES);
@@ -158,6 +162,7 @@ export async function handlePreview(request: Request, env: Env, nowMs: number): 
         env.TURNSTILE_SECRET,
         rawIp ?? '',
         quoteTurnstileExpect(env),
+        tm.kind === 'test' ? 'test' : 'real',
       );
       if (!ts.ok) {
         if (turnstileUnavailable(ts.reason)) return deny(ray, 503, ts.reason, BUSY);

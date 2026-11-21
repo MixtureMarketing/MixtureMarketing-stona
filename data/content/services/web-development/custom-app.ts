@@ -54,6 +54,37 @@ export const CUSTOM_WEB_APP_CONTENT = {
     linkLabel: 'Zobacz case study: KorepetytorAI',
     linkTo: '/portfolio/studentpi/',
   },
+  /**
+   * MIX-1975: wariant sekcji dowodu z PsychON, tylko przy VITE_MM_CUSTOMAPP_PSYCHON=1
+   * (config/flags.ts). Zgoda Fundacji Niepodzielni: MIX-1325. Bez liczb z danych Fundacji,
+   * zrzuty z danych testowych (public/assets/custom-app/, 1440×900 webp). Strony
+   * /portfolio/psychon/ nie ma w CMS, więc link prowadzi do listy realizacji.
+   */
+  proofPsychon: {
+    title: 'Prawdziwa aplikacja, nie makieta.',
+    description:
+      'PsychON to platforma szkoleniowa, którą zbudowaliśmy dla Fundacji Niepodzielni: kursy z filmami, testy wiedzy, dziennik stażu, spotkania z mentorem i certyfikat z weryfikacją. Prowadzący ma własny panel, w którym widzi postępy całej grupy.',
+    figures: [
+      {
+        src: '/assets/custom-app/psychon-pulpit-uczestnika.webp',
+        width: 1440,
+        height: 900,
+        alt: 'Pulpit uczestnika w aplikacji PsychON: następna lekcja do obejrzenia, postęp w programie, godziny w dzienniku stażu i spotkania z mentorem',
+        caption:
+          'Pulpit uczestnika: następna lekcja, postęp w programie, staż i spotkania z mentorem.',
+      },
+      {
+        src: '/assets/custom-app/psychon-postepy-grupy.webp',
+        width: 1440,
+        height: 900,
+        alt: 'Panel prowadzącego w aplikacji PsychON: lista osób w grupie z ukończonymi kursami, godzinami stażu i spotkaniami z mentorem',
+        caption:
+          'Panel prowadzącego: postępy całej grupy i terminy spotkań z mentorem w jednym widoku.',
+      },
+    ],
+    linkLabel: 'Zobacz nasze realizacje',
+    linkTo: '/portfolio/',
+  },
   useCases: {
     title: 'Co możemy dla Ciebie zbudować?',
     description:

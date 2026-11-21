@@ -162,7 +162,7 @@ const AuditTeaser: React.FC<AuditTeaserProps> = ({
 
           {isCompact && (
             <p className="mt-4 text-center text-xxs font-bold uppercase tracking-widest text-gray-500">
-              Bezpłatnie • Wynik w 60s
+              Bezpłatnie • Wynik w 60 sekund
             </p>
           )}
         </div>

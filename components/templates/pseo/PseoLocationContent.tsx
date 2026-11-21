@@ -514,45 +514,6 @@ const PseoLocationContent: React.FC<PseoLocationContentProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* SaaS abonament callout (Rzeszow only) — promuje nowy produkt subskrypcyjny */}
-      {isHeadquartersCity && (
-        <div className="mb-20">
-          <Link
-            to="/abonament/"
-            className="group block bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-3xl p-8 md:p-10 text-white shadow-xl hover:shadow-emerald-500/40 motion-safe:hover:-translate-y-1 transition-all relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-emerald-400 rounded-full opacity-20 blur-3xl pointer-events-none" />
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
-              <div className="flex-1">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-black uppercase tracking-[0.2em] text-emerald-50 mb-3 border border-white/10">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-                  </span>
-                  Nowość · od 179 zł/mc
-                </span>
-                <h3 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
-                  Strona w abonamencie dla firm z Rzeszowa
-                </h3>
-                <p className="text-emerald-50 mb-1">
-                  Robimy stronę za Ciebie — strona WWW, Local SEO, Google Business Profile i leady
-                  na telefon w stałej miesięcznej cenie.
-                </p>
-                <p className="text-emerald-100 text-sm">
-                  Bez setupu. Bez umowy na rok. Setup w 24h.
-                </p>
-              </div>
-              <div className="flex-shrink-0">
-                <div className="inline-flex items-center gap-2 px-6 py-3 bg-white text-emerald-700 font-bold rounded-full shadow-lg group-hover:scale-105 transition-transform">
-                  Zobacz pakiety
-                  <ArrowRight size={18} />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      )}
-
       {/* CTA */}
       <div className="text-center bg-dark rounded-3xl p-12 text-white relative overflow-hidden">
         <div className="relative z-10">

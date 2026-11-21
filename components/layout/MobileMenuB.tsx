@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Phone, X } from 'lucide-react';
+import { ChevronRight, Phone, X } from 'lucide-react';
 import { NAVBAR_CONTENT as CONTENT } from '@/data/content';
 import { SITE_CONFIG } from '@/config/site';
 import { ContactType } from '@/types';
@@ -213,20 +213,6 @@ const MobileMenuB: React.FC<MobileMenuBProps> = ({ isOpen, setIsOpen, location, 
                 </li>
                 {MMB_MAIN_AFTER.map((item, i) => mainLink(item, i + 3))}
               </ul>
-              <Link
-                to={T.promoTarget}
-                onClick={close}
-                className="mmb-promo mmb-stg"
-                style={stagger(5)}
-                aria-current={current(isCurrentPage(path, T.promoTarget, true))}
-              >
-                <span className="mmb-promo-top">
-                  <span className="mmb-kicker">{T.promoKicker}</span>
-                  <ArrowRight className="mmb-ico" size={20} aria-hidden="true" />
-                </span>
-                <strong>{T.promoTitle}</strong>
-                <span className="mmb-promo-sub">{T.promoSub}</span>
-              </Link>
             </div>
           </nav>
 

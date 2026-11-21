@@ -151,6 +151,59 @@ describe('PortfolioPage — odstęp hero → lista', () => {
   });
 });
 
+describe('PortfolioPage — kolejność realizacji (MIX-1829)', () => {
+  const cs = (slug: string, title: string, category = 'web') => ({
+    _id: slug,
+    title,
+    slug,
+    category,
+    excerpt: 'x',
+  });
+  // Kolejność jak z CMS: po dacie, najnowsze pierwsze.
+  const fromCms = [
+    cs('nowy-sklep', 'Nowy Sklep'),
+    cs('try-dive-szkola-nurkowania', 'Try Dive', 'marketing'),
+    cs('impackt-edu', 'Impackt Edu'),
+    cs('stara-strona', 'Stara Strona'),
+    cs('fundacja-niepodzielni', 'Fundacja Niepodzielni'),
+  ];
+  const titles = () => screen.getAllByRole('heading', { level: 3 }).map((e) => e.textContent);
+
+  it('wyróżnione na początku (bez PsychON w CMS), reszta po dacie', async () => {
+    h.getCaseStudyList.mockResolvedValue(fromCms);
+    renderPage();
+    await screen.findByText('Nowy Sklep');
+    expect(titles()).toEqual([
+      'Fundacja Niepodzielni',
+      'Impackt Edu',
+      'Try Dive',
+      'Nowy Sklep',
+      'Stara Strona',
+    ]);
+  });
+
+  it('ta sama kolejność z zrzutu prerenderu', async () => {
+    putSnapshot(fromCms);
+    renderPage();
+    await screen.findByText('Nowy Sklep');
+    expect(titles().slice(0, 3)).toEqual(['Fundacja Niepodzielni', 'Impackt Edu', 'Try Dive']);
+  });
+
+  it('filtr kategorii zachowuje kolejność wyróżnionych', async () => {
+    h.getCaseStudyList.mockResolvedValue(fromCms);
+    renderPage();
+    await screen.findByText('Nowy Sklep');
+    fireEvent.click(screen.getByRole('button', { name: /Web Development/ }));
+    await waitFor(() => expect(screen.queryByText('Try Dive')).toBeNull());
+    expect(titles()).toEqual([
+      'Fundacja Niepodzielni',
+      'Impackt Edu',
+      'Nowy Sklep',
+      'Stara Strona',
+    ]);
+  });
+});
+
 describe('PortfolioPage — ładowanie', () => {
   it('w trakcie pobierania nie ma „Brak projektów” ani stanu błędu (szkielet)', async () => {
     h.getCaseStudyList.mockReturnValue(new Promise(() => {}));

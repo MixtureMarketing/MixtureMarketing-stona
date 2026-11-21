@@ -3,9 +3,10 @@ import { RODO_KLAUZULA_CONTENT as CONTENT } from '../../data/content';
 import { isRodoKlauzulaEnabled } from '../../config/flags';
 
 interface RodoKlauzulaKrotkaProps {
-  variant: 'contact' | 'calculator' | 'abonament';
-  /** 'dark' dla kalkulatora (ciemne tło), 'light' dla formularza kontaktowego. */
-  tone?: 'dark' | 'light';
+  variant: 'contact' | 'calculator';
+  /** 'dark' dla kalkulatora (ciemne tło), 'light' dla formularza kontaktowego; 'navy' = nowy wygląd
+   *  kalkulatora (MIX-1867): tekst text-white/75 i 12 px, kontrast AA na granacie. */
+  tone?: 'dark' | 'light' | 'navy';
 }
 
 /** Krótka klauzula RODO (P1) pod formularzem. Przy wyłączonej fladze nie renderuje nic. */
@@ -15,7 +16,11 @@ const RodoKlauzulaKrotka: React.FC<RodoKlauzulaKrotkaProps> = ({ variant, tone =
   return (
     <p
       data-testid="rodo-klauzula-krotka"
-      className={`text-[11px] leading-relaxed ${light ? 'text-gray-700' : 'text-gray-400'}`}
+      className={
+        tone === 'navy'
+          ? 'text-xs leading-relaxed text-white/75'
+          : `text-[11px] leading-relaxed ${light ? 'text-gray-700' : 'text-gray-400'}`
+      }
     >
       {CONTENT.short[variant]}
       <a

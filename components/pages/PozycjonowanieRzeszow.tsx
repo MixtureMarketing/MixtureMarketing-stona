@@ -20,7 +20,7 @@ import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
-import { CountUp } from './abonament/shared';
+import { CountUp } from '../common/CountUp';
 import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';

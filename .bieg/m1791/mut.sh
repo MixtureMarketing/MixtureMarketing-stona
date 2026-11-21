@@ -53,8 +53,16 @@ run M14-double-ga4-copy $B "      setStatus('copied');" "      setStatus('copied
 run M15-share-method-wrong $B "trackCalculatorShare({ method: 'native' });" "trackCalculatorShare({ method: 'copy' });"
 # K4 przełącznik
 run M16-switch-ignored $P "const linkOn = isConfigLinkEnabled();" "const linkOn = true;"
-run M17-switch-loose components/features/calculator/livePrice.ts "VITE_MM_CONFIG_LINK): boolean {
-  return isLivePriceBarEnabled(raw);" "VITE_MM_CONFIG_LINK): boolean {
-  return Boolean(raw);"
+# MIX-1902: od MIX-1898 isConfigLinkEnabled porównuje sam (raw === '1'), bez delegacji; kotwica
+# to koniec tej funkcji (następny blok to MIX-1816), bo `return raw === '1';` jest w pliku 4 razy.
+run M17-switch-loose components/features/calculator/livePrice.ts "  return raw === '1';
+}
+
+/**
+ * MIX-1816" "  return Boolean(raw);
+}
+
+/**
+ * MIX-1816"
 run M18-restore-skipped $P "    for (const [code, value] of Object.entries(r.answers)) setAnswer(code, value);" "    void setAnswer;"
 echo "git status after: $(git status --porcelain | grep -v '^??' | wc -l) modified"

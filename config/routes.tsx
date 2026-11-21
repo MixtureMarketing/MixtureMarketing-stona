@@ -3,6 +3,7 @@ import { matchRoutes, type Params, type RouteObject } from 'react-router-dom';
 import type { CmsDocId } from '@/hooks/useCmsDocument';
 // lazy() z jawnym preload() — patrz preloadRoute() niżej i index.tsx.
 import { lazyWithPreload as lazy } from '@/components/common/lazyWithPreload';
+import { isCennikEnabled } from '@/config/flags';
 
 // --- Page Components (Lazy Loaded) ---
 const PortalLogin = lazy(() => import('@/components/portal/PortalLogin'));
@@ -12,6 +13,7 @@ const AdminDashboard = lazy(() => import('@/components/portal/AdminDashboard'));
 const AuditPage = lazy(() => import('@/components/pages/AuditPage'));
 const WebDevelopment = lazy(() => import('@/components/pages/WebDevelopment'));
 const Offers = lazy(() => import('@/components/sections/Offers'));
+const Cennik = lazy(() => import('@/components/pages/Cennik'));
 const Marketing = lazy(() => import('@/components/pages/Marketing'));
 const DesignBranding = lazy(() => import('@/components/pages/DesignBranding'));
 const BrandIdentity = lazy(() => import('@/components/pages/BrandIdentity'));
@@ -82,17 +84,18 @@ const SeoRzeszow = lazy(() => import('@/components/pages/SeoRzeszow'));
 const AgencjaInteraktywnaRzeszow = lazy(
   () => import('@/components/pages/AgencjaInteraktywnaRzeszow'),
 );
-const Abonament = lazy(() => import('@/components/pages/abonament/Abonament'));
-const AbonamentSuccess = lazy(() => import('@/components/pages/abonament/AbonamentSuccess'));
-const Professional = lazy(() => import('@/components/pages/abonament/Professional'));
-const VsWix = lazy(() => import('@/components/pages/abonament/VsWix'));
-const VsOrange = lazy(() => import('@/components/pages/abonament/VsOrange'));
 const NotFound = lazy(() => import('@/components/common/NotFound'));
+
+/** Trasa strony /cennik/ (MIX-1855): jest tylko przy włączonym przełączniku. */
+export const cennikRoute = (enabled: boolean): RouteObject[] =>
+  enabled ? [{ path: '/cennik', element: <Cennik /> }] : [];
 
 export const appRoutes: RouteObject[] = [
   // Main Routes
   { path: '/', element: <Home /> },
   { path: '/offers', element: <Offers /> },
+  // MIX-1855: /cennik/ tylko przy VITE_MM_CENNIK=1 (config/flags.ts). Wyłączony = brak trasy.
+  ...cennikRoute(isCennikEnabled()),
   { path: '/contact', element: <ContactPage /> },
   { path: '/wycena', element: <WycenaCalculator /> },
   { path: '/o-nas', element: <AboutUs /> },
@@ -126,15 +129,8 @@ export const appRoutes: RouteObject[] = [
   // /pozycjonowanie-rzeszow/ scalona z /agencja-seo-rzeszow/ (MIX-898, decyzja MIX-977) —
   // trasy nie ma: 301 w public/_redirects (jak /marketing/seo/rzeszow).
 
-  // SaaS landing — produkt "Strona w abonamencie" (backend: binary-planet)
-  // self-serve Stripe Checkout flow. Success page noindex.
-  { path: '/abonament', element: <Abonament /> },
-  { path: '/abonament/dziekujemy', element: <AbonamentSuccess /> },
-  // Branze regulowane — osobny landing (Tomasz blocker P1)
-  { path: '/abonament/professional', element: <Professional /> },
-  // Comparison pages — SEO "X vs Y" intent
-  { path: '/abonament/vs-wix', element: <VsWix /> },
-  { path: '/abonament/vs-orange-klikai', element: <VsOrange /> },
+  // Strony usługi wycofanej w MIX-1849 (nigdy nie wystartowała) usunięte; 301 na
+  // /web-development/ w public/_redirects.
 
   // Design
   { path: '/design', element: <DesignBranding /> },

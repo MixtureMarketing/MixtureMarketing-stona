@@ -20,6 +20,7 @@ import { safeHttpUrl, sha256Hex } from '../_shared/security';
 import { auditLeadTeamEmail, auditReportEmail, type EmailMessage } from '../_shared/emailMessages';
 import { denialResponse, envInt, gateCaptcha, gateLimits, strictBump } from '../_shared/publicGate';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
+import { markTestMode, turnstileMode } from '../_shared/turnstileMode';
 import { sprawdzTekst } from '../_shared/limity';
 
 interface Env extends LinearEnv {
@@ -152,6 +153,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     console.error(`[gate:audit-lead] odmowa 503: licznik odbiorcy: ${(e as Error).message}`);
     return json({ status: 'error', message: 'Usługa chwilowo niedostępna. Spróbuj później.' }, 503);
   }
+
+  // MIX-1934: tryb testowy Turnstile (alias Preview dev; inne hosty odrzuca gateCaptcha 503):
+  // lead NIE trafia do CRM (bez R2, D1, Lineara i maili), odpowiedź jak zwykle + nagłówek.
+  if (turnstileMode(env.TURNSTILE_SECRET, request.url).kind === 'test')
+    return markTestMode(json({ status: 'success', id: crypto.randomUUID() }));
 
   let pdfB64: string | undefined;
   let r2Key: string | null = null;

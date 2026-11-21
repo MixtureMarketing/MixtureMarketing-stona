@@ -11,6 +11,7 @@ import Button from '../common/Button';
 import TestimonialsSlot from '../sections/testimonials/TestimonialsSlot';
 import { getPathBreadcrumbs } from '@/config/breadcrumbs';
 import { useCmsDocument, CMS_LIST_KEY, CMS_DOC } from '@/hooks/useCmsDocument';
+import { orderPortfolio } from '@/config/portfolioOrder';
 
 const PortfolioPage = () => {
   // MIX-1467: lista z zrzutu w prerenderowanym HTML (bez żądania do Sanity), a przy jego
@@ -20,7 +21,8 @@ const PortfolioPage = () => {
     cmsService.getCaseStudyList,
     CMS_DOC.caseStudyList,
   );
-  const projects = React.useMemo(() => data ?? [], [data]);
+  // MIX-1829: wyróżnione realizacje na początku (config/portfolioOrder.ts), reszta po dacie z CMS.
+  const projects = React.useMemo(() => orderPortfolio(data ?? []), [data]);
   const loading = status === 'loading';
   const [filter, setFilter] = useState<'all' | 'web' | 'marketing' | 'design'>('all');
   // Globalny CSS-kill nie łapie animacji JS framera — respektujemy reduced-motion ręcznie

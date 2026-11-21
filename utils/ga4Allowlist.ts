@@ -45,8 +45,9 @@ export const VITALS_ID_RE = /^v\d{1,2}-\d{13}-\d{13}$/;
 export const STRIPE_SESSION_RE = /^cs_(?:test|live)_[A-Za-z0-9]{1,250}$/;
 
 /**
- * client_id z Hub (PreonboardModal.tsx: odpowiedz `/preonboard`, pole typu `string` bez
- * walidacji, format poza repo): przyjmujemy tylko UUID. Kazdy inny zapis = "(odrzucone)".
+ * client_id z Hub (dawny PreonboardModal: odpowiedz `/preonboard`, pole typu `string` bez
+ * walidacji, format poza repo): przyjmujemy tylko UUID. Nadawca usuniety w MIX-1849, regula
+ * zostaje jako allowlista (zdarzenie bez nadawcy nic nie wysyla). Kazdy inny zapis = "(odrzucone)".
  */
 const CLIENT_ID: ParamSpec = { kind: 'fixed', re: UUID_RE };
 
@@ -112,6 +113,10 @@ export const GA4_EVENTS: Readonly<Record<string, Readonly<Record<string, ParamSp
     form_submit: { contact_type: oneOf(CONTACT_TYPES), step: int(1, 10), has_existing_lead: bool },
     lead_start: { service: oneOf(CONTACT_TYPES), source: oneOf(['contact_form_step_1']) },
     contact_form_success: { lead_id: { kind: 'fixed', re: UUID_RE } },
+    // MIX-1855, slownik P4 (generate_lead: form_id, department, page_type): sukces formularza z
+    // przycisku w realizacji. Tylko stale (enum), bez nazwy klienta; `department` pomijamy, bo
+    // strona nie ma dzialow (jak przy click_phone).
+    generate_lead: { form_id: oneOf(['case_study_similar']), page_type: oneOf(['case_study']) },
     view_pricing: { source: PATH },
     open_modal: { tier: oneOf(TIERS), price_pln: int(0, MAX_NUM), source: oneOf(['deep_link']) },
     click_tier_button: {

@@ -28,7 +28,6 @@ export const BAR_PAGES = [
   '/marketing/analytics/',
   '/agencja-interaktywna-rzeszow/',
   '/agencja-seo-rzeszow/',
-  '/abonament/',
   '/design/',
   '/design/branding/',
   '/design/ui-ux/',

@@ -38,6 +38,7 @@ import {
 import { podpiszLead, sprawdzLead } from './_leadToken';
 import { zglosLeadWTle, komentarzKrokuWTle, type LinearEnv } from './_linear';
 import { sprawdzKrok, sprawdzObiekt, sprawdzWymaganyTekst } from './_shared/limity';
+import { markTestMode, testModeRefusal, turnstileMode } from './_shared/turnstileMode';
 
 interface Env extends LinearEnv {
   TURNSTILE_SECRET: string;
@@ -73,6 +74,17 @@ const LEAD_COLUMNS = new Set([
   'service_interest',
 ]);
 const LEAD_SKIP = new Set(['captcha_token', 'website_verify', 'privacy', 'id']);
+
+/**
+ * MIX-1855: nazwa realizacji z przycisku „Chcesz podobny projekt?” (create). Tylko niepusty tekst,
+ * spacje ściśnięte, do 100 znaków; inna wartość = brak. Trafia do details (JSON) już przy create,
+ * żeby temat zadania w Linearze miał nazwę realizacji. Walidacja pól create bez zmian.
+ */
+function podobnyProjekt(v: unknown): string | null {
+  if (typeof v !== 'string') return null;
+  const t = v.replace(/\s+/g, ' ').trim().slice(0, 100);
+  return t === '' ? null : t;
+}
 
 interface LeadPayload {
   id: string;
@@ -160,6 +172,12 @@ function rowToLead(row: Record<string, unknown>) {
   };
 }
 
+/** Wartość kolumny details przy create: JSON z nazwą realizacji albo null. */
+const podobnyProjektJson = (v: unknown): string | null => {
+  const nazwa = podobnyProjekt(v);
+  return nazwa === null ? null : JSON.stringify({ similar_project: nazwa });
+};
+
 const BRAK_TOKENU = { message: 'Brak lub niepoprawny token leada' };
 
 /** Pierwszy błąd z listy sprawdzeń (komunikat po polsku) albo null. */
@@ -235,6 +253,10 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
     return json({ message: 'Spam detected' }, 403);
   }
 
+  // MIX-1934: sekret testowy Turnstile tylko na aliasie Preview dev; gdzie indziej 503 (każda akcja).
+  const tm = turnstileMode(env.TURNSTILE_SECRET, request.url);
+  if (tm.kind === 'refuse') return testModeRefusal('contact-submit', tm.reason);
+
   const ip = clientIp(request);
 
   if (body.action !== 'create' && env.CACHE) {
@@ -267,13 +289,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
         return json({ message: 'Błąd konfiguracji serwera' }, 503);
       }
 
+      // MIX-1934: tryb testowy (Preview dev): lead NIE trafia do CRM (bez D1, Lineara i maili).
+      // Token edycji jest ważny, ale wiersza nie ma: update i send_notification nic nie zapiszą.
+      if (tm.kind === 'test')
+        return markTestMode(
+          json({ success: true, id: lead.id, edit_token: editToken, degraded: false }),
+        );
+
       // Zapis do D1 (źródło prawdy). Ponowienie po LEAD_NOT_SAVED tworzy nowe id —
       // poprzednia próba nie zostawiła ani rekordu, ani maila.
       let stored = true;
       try {
         await env.DB.prepare(
-          `INSERT INTO leads (id, name, email, phone, service_type, source_url, source, status, current_step)
-           VALUES (?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
+          `INSERT INTO leads (id, name, email, phone, service_type, source_url, details, source, status, current_step)
+           VALUES (?, ?, ?, ?, ?, ?, ?, 'website', 'new', 1)`,
         )
           .bind(
             lead.id,
@@ -282,6 +311,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
             lead.phone || null,
             lead.service_interest || null,
             body.source_url || null,
+            podobnyProjektJson(lead.similar_project),
           )
           .run();
       } catch (e) {

@@ -2,6 +2,8 @@
 // Jedno źródło dla escapowania HTML w mailach, walidacji URL i weryfikacji Turnstile,
 // żeby każdy endpoint nie miał własnej, rozjeżdżającej się kopii.
 
+import { TURNSTILE_TEST_HOSTNAME } from './turnstileMode';
+
 /** Escapuje tekst do wstawienia w HTML maila (treść i wartości atrybutów). */
 export function escapeHtml(s: unknown): string {
   return String(s ?? '')
@@ -107,6 +109,9 @@ export async function verifyTurnstileStrict(
   secret: string | undefined,
   ip: string,
   expect: TurnstileExpect,
+  /** MIX-1934: `test` = sekret testowy Cloudflare na Preview (turnstileMode): siteverify zwraca
+   *  wtedy hostname „example.com” i nie zwraca akcji; prawdziwe oczekiwania nie mają zastosowania. */
+  mode: 'real' | 'test' = 'real',
 ): Promise<TurnstileVerdict> {
   if (typeof token !== 'string' || token === '' || token.length > TURNSTILE_TOKEN_MAX)
     return { ok: false, reason: 'captcha: token' };
@@ -129,6 +134,10 @@ export async function verifyTurnstileStrict(
     return { ok: false, reason: 'captcha: siteverify odpowiedź' };
   const d = data as { success?: unknown; hostname?: unknown; action?: unknown };
   if (d.success !== true) return { ok: false, reason: 'captcha: odrzucony' };
+  if (mode === 'test') {
+    if (d.hostname !== TURNSTILE_TEST_HOSTNAME) return { ok: false, reason: 'captcha: hostname' };
+    return { ok: true };
+  }
   if (typeof d.hostname !== 'string' || !expect.hostnames.includes(d.hostname))
     return { ok: false, reason: 'captcha: hostname' };
   if (typeof d.action !== 'string' || d.action !== expect.action)

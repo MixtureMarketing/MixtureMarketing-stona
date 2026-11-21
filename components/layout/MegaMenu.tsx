@@ -244,28 +244,6 @@ const MegaMenu: React.FC<MegaMenuProps> = ({ activeDropdown, onClose, onOpenModa
               ))}
             </svg>
             <div className="relative z-10">
-              {/* Strona w abonamencie — cena zweryfikowana (Starter 179 zł/mc);
-                  granat marki zamiast szmaragdowego gradientu, bez pulsu. */}
-              <Link
-                to="/abonament/"
-                onClick={onClose}
-                className="block mb-8 p-4 rounded-2xl bg-dark text-white hover:shadow-lg hover:shadow-secondary/30 motion-safe:hover:-translate-y-0.5 transition-all group"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xxs font-black uppercase tracking-[0.2em] text-primary">
-                    Nowość
-                  </span>
-                  <ArrowRight
-                    size={16}
-                    className="text-white/80 group-hover:translate-x-1 transition-transform"
-                  />
-                </div>
-                <p className="text-base font-black leading-tight mb-1">Strona w abonamencie</p>
-                <p className="text-xs text-white/70 font-medium">
-                  Strona + SEO + leady na telefon · od 179 zł/mc
-                </p>
-              </Link>
-
               <p className="font-black text-dark text-2xl mb-4 leading-tight">
                 {CONTENT.offer.title} <br />
                 <span className="text-accent-dark">{CONTENT.offer.accent}</span>

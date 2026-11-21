@@ -30,6 +30,7 @@ const UxAuditArticle = () => {
   return (
     <ArticleShell
       id="ux-audit"
+      cennikLink
       title={joinTitleLines(CONTENT.header.title.line1, CONTENT.header.title.line2)}
       seoTitle={CONTENT.header.seoTitle}
       description={CONTENT.header.subtitle}

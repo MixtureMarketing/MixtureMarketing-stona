@@ -1,5 +1,5 @@
 // Czysta logika paska widełek na żywo (MIX-1385): przełącznik, klucz pamięci, komunikaty.
-// Przełącznik działa jak w `components/pages/abonament/PreonboardModal.tsx:54` (zmienna
+// Przełącznik działa jak inne przełączniki budowy (zmienna
 // `VITE_MM_*` wstrzykiwana przy budowie; Vite ją inline'uje): domyślnie WYŁĄCZONY, włącza
 // go dopiero `VITE_MM_LIVE_PRICE_BAR=1` w środowisku budowy (Cloudflare Pages albo lokalny plik env).
 
@@ -12,30 +12,87 @@ export const LIVE_PRICE_DEBOUNCE_MS = 400;
  */
 export const LIVE_PRICE_MIN_GAP_MS = 1000;
 
-/** Włączony tylko dla wartości `1` albo `true`; brak, puste i cokolwiek innego = wyłączony. */
+/**
+ * Włączony tylko dla wartości dokładnie `1` (MIX-1846: `true` już nie włącza, tak jak strażnik
+ * ci.yml i przełączniki w config/flags.ts); brak, puste i cokolwiek innego = wyłączony.
+ */
 export function isLivePriceBarEnabled(
   raw: unknown = import.meta.env.VITE_MM_LIVE_PRICE_BAR,
 ): boolean {
-  return raw === '1' || raw === 'true';
+  return raw === '1';
 }
 
 /**
  * MIX-1790: podgląd konfiguracji (szkic typu strony + „Twój zakres") za osobnym przełącznikiem
- * `VITE_MM_CONFIG_PREVIEW`, ten sam parser: tylko `1` albo `true` włącza, reszta wyłącza.
+ * `VITE_MM_CONFIG_PREVIEW`, ten sam parser: tylko `1` włącza, reszta wyłącza.
  */
 export function isConfigPreviewEnabled(
   raw: unknown = import.meta.env.VITE_MM_CONFIG_PREVIEW,
 ): boolean {
-  return isLivePriceBarEnabled(raw);
+  // MIX-1898: bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny
+  // parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
+}
+
+/**
+ * MIX-1815 (Z11): nowy ekran wyniku (treści P4, przyciski 44 px, „Umów rozmowę” przenosi
+ * konfigurację do /contact/) za przełącznikiem `VITE_MM_RESULT_CONTACT`, ten sam parser.
+ * Wyłączony = ekran wyniku, pytania i /contact/ jak dziś.
+ */
+export function isResultContactEnabled(
+  raw: unknown = import.meta.env.VITE_MM_RESULT_CONTACT,
+): boolean {
+  // MIX-1815 r3 (wzór MIX-1898): bez isLivePriceBarEnabled(raw), bo brak zmiennej (undefined)
+  // włączyłby tam domyślny parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
 }
 
 /**
  * MIX-1791: link do konfiguracji (`/wycena/?k=...`, przyciski „Skopiuj link" i „Udostępnij") za
- * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` albo `true` włącza.
+ * przełącznikiem `VITE_MM_CONFIG_LINK`, ten sam parser: tylko `1` włącza.
  * Wyłączony = brak przycisków i parametr `k` w adresie nie jest czytany.
  */
 export function isConfigLinkEnabled(raw: unknown = import.meta.env.VITE_MM_CONFIG_LINK): boolean {
-  return isLivePriceBarEnabled(raw);
+  // MIX-1898: bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny
+  // parametr, czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1';
+}
+
+/**
+ * MIX-1816 (Z13): oś czasu dla nowego klienta na ekranie wyniku wyceny za przełącznikiem
+ * `VITE_MM_NEW_CLIENT_TIMELINE`: włącza tylko dokładnie `1` (jak MIX-1846; `true` już nie).
+ * Wyłączony = ekran wyniku identyczny jak wcześniej (żadnego dodatkowego elementu).
+ */
+export function isNewClientTimelineEnabled(
+  raw: unknown = import.meta.env.VITE_MM_NEW_CLIENT_TIMELINE,
+): boolean {
+  // Bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny parametr,
+  // czyli wartość VITE_MM_LIVE_PRICE_BAR (mutant V4 z werdyktu MIX-1816).
+  return raw === '1';
+}
+
+/**
+ * MIX-1813 (Z10): „Wyślij i umów rozmowę” z opcjonalnym telefonem za przełącznikiem budowy
+ * `VITE_MM_LEAD_CONFIG`, ten sam parser: tylko `1` albo `true` włącza. Konfigurację w leadzie
+ * zapisuje serwer dopiero przy `LEAD_CONFIG_CRM=1` (functions/api/estimation/_leadConfig.ts).
+ */
+export function isLeadConfigEnabled(raw: unknown = import.meta.env.VITE_MM_LEAD_CONFIG): boolean {
+  // Bez isLivePriceBarEnabled(raw): brak zmiennej (undefined) włączyłby tam domyślny parametr,
+  // czyli wartość VITE_MM_LIVE_PRICE_BAR.
+  return raw === '1' || raw === 'true';
+}
+
+/**
+ * MIX-1814 (Z9, wariant A): harmonogram rozmów z I14 (`CALENDAR_IFRAME_SRC`) pod wynikiem, ładowany
+ * dopiero po kliknięciu „Wyślij i umów rozmowę” i zapisie leada. Przełącznik budowy
+ * `VITE_MM_BOOKING_EMBED` (tylko `1` włącza) działa wyłącznie razem z `VITE_MM_LEAD_CONFIG`,
+ * bo bez niego nie ma przycisku „Wyślij i umów rozmowę”.
+ */
+export function isBookingEmbedEnabled(
+  raw: unknown = import.meta.env.VITE_MM_BOOKING_EMBED,
+  leadConfig: unknown = import.meta.env.VITE_MM_LEAD_CONFIG,
+): boolean {
+  return raw === '1' && isLeadConfigEnabled(leadConfig);
 }
 
 /**
