@@ -66,8 +66,10 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_NEW_CLIENT_TIMELINE', // MIX-1816: oś czasu na ekranie wyniku (Z13)
   'VITE_MM_RESULT_CONTACT', // MIX-1815: ekran wyniku i przejście do kontaktu (Z11)
 ];
-/** Wszystkie przełączniki tylko-Preview konfiguratora (posortowane jak lista z kodu). */
-const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD].sort();
+/** MIX-1275: realizacja AI Q-PLAST w portfolio czeka na akceptację Jakuba: Preview 1, produkcja i PR puste. */
+const REALIZACJA_AIQP_TYLKO_PREVIEW = ['VITE_MM_REALIZACJA_AIQP'];
+/** Wszystkie przełączniki tylko-Preview konfiguratora i realizacji AI Q-PLAST (posortowane jak lista z kodu). */
+const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD, ...REALIZACJA_AIQP_TYLKO_PREVIEW].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
 /** Strona główna pod „systemy dedykowane” i AI (MIX-1269 r3): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
@@ -80,6 +82,7 @@ const WYLACZONE_NA_PROD = [
   ...HOME_SEO_WYLACZONY_NA_PROD,
   ...PSYCHON_WYLACZONY_NA_PROD,
   ...WYCENA_WYLACZONA_NA_PROD,
+  ...REALIZACJA_AIQP_TYLKO_PREVIEW,
 ].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
 

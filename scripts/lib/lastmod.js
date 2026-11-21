@@ -25,6 +25,14 @@ const CONTENT_DIRS = [
 // treści każdego artykułu, więc nie liczy się do daty zmiany strony.
 const SHARED_SHELLS = ['components/articles/ArticleShell.tsx'];
 
+/**
+ * Trasy statyczne bez komponentu w routes.tsx (strona z szablonu dynamicznego, treść z repo):
+ * data zmiany liczona z pliku treści. MIX-1275: realizacja AI Q-PLAST (za VITE_MM_REALIZACJA_AIQP).
+ */
+export const EXTRA_ROUTE_SOURCES = {
+  '/portfolio/ai-q-plast/': 'data/realizacje/aiQPlast.ts',
+};
+
 const EXTS = ['.tsx', '.ts', '.jsx', '.js', '/index.tsx', '/index.ts'];
 
 /**
@@ -103,7 +111,7 @@ export function computeLastmods(root, routes) {
   /** @type {Record<string, string | null>} */
   const result = {};
   for (const route of routes) {
-    const comp = comps[route];
+    const comp = comps[route] ?? EXTRA_ROUTE_SOURCES[route];
     result[route] = comp ? gitLastDate(root, contentFiles(root, comp)) : null;
   }
   return result;

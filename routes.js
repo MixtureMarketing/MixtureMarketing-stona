@@ -16,6 +16,14 @@
  */
 export const cennikRoutes = (flag) => (flag === '1' ? ['/cennik/'] : []);
 
+/**
+ * MIX-1275: realizacja AI Q-PLAST (wpis z repo, nie z Sanity) za przelacznikiem VITE_MM_REALIZACJA_AIQP
+ * (tylko '1'; config/flags.ts). Wylaczony = ani prerenderu, ani wpisu w sitemap.xml (lista jak przed karta).
+ * @param {unknown} flag wartosc zmiennej srodowiska
+ * @returns {string[]}
+ */
+export const realizacjaAiqpRoutes = (flag) => (flag === '1' ? ['/portfolio/ai-q-plast/'] : []);
+
 export const routes = [
   '/',
   '/offers/',
@@ -89,6 +97,7 @@ export const routes = [
 
   // Portfolio
   '/portfolio/',
+  ...realizacjaAiqpRoutes(globalThis.process?.env?.VITE_MM_REALIZACJA_AIQP),
 
   // Hub branż (lista z Sanity; same strony /branza/<slug>/ dokłada generator z CMS)
   '/branza/',

@@ -76,3 +76,12 @@ export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO 
  */
 export const isCustomAppPsychonEnabled = (): boolean =>
   import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON === '1';
+
+/**
+ * Realizacja AI Q-PLAST w portfolio (MIX-1275, plan SEO A19): wpis z repo (`data/realizacje/aiQPlast.ts`,
+ * tekst do akceptacji Jakuba w docs/tresci/MIX-1275.md) dołączany do list realizacji z CMS, strona
+ * /portfolio/ai-q-plast/ w prerenderze i sitemap.xml. Wyłączony (domyślnie) = lista portfolio, strona
+ * realizacji i sitemap bez zmian. Preview buduje się z `VITE_MM_REALIZACJA_AIQP=1` (ci.yml).
+ */
+export const isRealizacjaAiqpEnabled = (): boolean =>
+  import.meta.env.VITE_MM_REALIZACJA_AIQP === '1';
