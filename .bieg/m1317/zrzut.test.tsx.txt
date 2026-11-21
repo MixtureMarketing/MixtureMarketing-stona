@@ -1,0 +1,31 @@
+// MIX-1317: jednorazowy zrzut wzorca sekcji procesu z kodu bazowego (przełącznik pusty).
+// Uruchamiany w kopii bazy (.bieg/m1317/zrzut.sh); wynik na stdout (base64 między znacznikami).
+import { it, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
+import {
+  PROCESS_PAGES,
+  findProcessSection,
+  renderProcessPage,
+  stableHtml,
+} from '../../tests/helpers/processPages';
+
+vi.mock('../../utils/analytics', () => ({ trackEvent: vi.fn() }));
+vi.mock('../../services/cmsService', () => ({
+  cmsService: {
+    getArticles: () => Promise.resolve([]),
+    getPricingSection: () => Promise.resolve(null),
+  },
+}));
+vi.mock('../../components/common/StickyMobileBar', () => ({ default: () => null }));
+
+it('zrzut wzorca', async () => {
+  vi.stubEnv('VITE_MM_PROCESS_TIMELINE', '');
+  const out: Record<string, string> = {};
+  for (const p of PROCESS_PAGES) {
+    renderProcessPage(p);
+    out[p.path] = stableHtml((await findProcessSection(p)).outerHTML);
+    cleanup();
+  }
+  const snap = JSON.stringify(out, null, 2) + '\n';
+  console.log('ZRZUT-START\n' + Buffer.from(snap).toString('base64') + '\nZRZUT-KONIEC');
+});
