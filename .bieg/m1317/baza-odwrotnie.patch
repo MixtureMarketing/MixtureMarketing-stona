@@ -79,7 +79,7 @@ index 0000000..1b38432
 +
 +export default ProcessTimeline;
 diff --git a/components/features/design/BrandProcess.tsx b/components/features/design/BrandProcess.tsx
-index 9700a86..f17d61a 100644
+index 9700a86..5aca794 100644
 --- a/components/features/design/BrandProcess.tsx
 +++ b/components/features/design/BrandProcess.tsx
 @@ -3,6 +3,8 @@ import { Users, PenTool, MessageSquare, FileBox, Sparkles } from 'lucide-react';
@@ -91,10 +91,12 @@ index 9700a86..f17d61a 100644
  import { BRAND_IDENTITY_CONTENT as CONTENT } from '../../../data/content';
  
  const BrandProcess: React.FC = () => {
-@@ -24,6 +26,15 @@ const BrandProcess: React.FC = () => {
+@@ -24,47 +26,57 @@ const BrandProcess: React.FC = () => {
          className="mb-20"
        />
  
+-      <div className="relative">
+-        <div className="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-y-1/2 z-0"></div>
 +      {isProcessTimelineEnabled() ? (
 +        <ProcessTimeline
 +          items={CONTENT.process.steps.map((s) => ({
@@ -104,19 +106,83 @@ index 9700a86..f17d61a 100644
 +          }))}
 +        />
 +      ) : (
-       <div className="relative">
-         <div className="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-y-1/2 z-0"></div>
++        <div className="relative">
++          <div className="hidden lg:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-gray-200 to-transparent -translate-y-1/2 z-0"></div>
  
-@@ -65,6 +76,7 @@ const BrandProcess: React.FC = () => {
-           ))}
+-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 relative z-10">
+-          {processSteps.map((step, i) => (
+-            <AnimateOnScroll key={i} delay={i * 150} className="h-full">
+-              <div className="relative group h-full">
+-                <div className="absolute -top-10 -left-4 text-8xl font-black text-gray-50 group-hover:text-primary/10 transition-colors select-none pointer-events-none z-0">
+-                  0{i + 1}
+-                </div>
++          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 relative z-10">
++            {processSteps.map((step, i) => (
++              <AnimateOnScroll key={i} delay={i * 150} className="h-full">
++                <div className="relative group h-full">
++                  <div className="absolute -top-10 -left-4 text-8xl font-black text-gray-50 group-hover:text-primary/10 transition-colors select-none pointer-events-none z-0">
++                    0{i + 1}
++                  </div>
+ 
+-                <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 hover:border-secondary/30 hover:shadow-2xl transition-all duration-500 flex flex-col h-full relative z-10">
+-                  <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 -left-6 w-4 h-4 rounded-full bg-white border-4 border-gray-200 group-hover:border-primary group-hover:scale-125 transition-all duration-500 z-20"></div>
++                  <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 hover:border-secondary/30 hover:shadow-2xl transition-all duration-500 flex flex-col h-full relative z-10">
++                    <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 -left-6 w-4 h-4 rounded-full bg-white border-4 border-gray-200 group-hover:border-primary group-hover:scale-125 transition-all duration-500 z-20"></div>
+ 
+-                  <div className="w-14 h-14 rounded-2xl bg-[#F5F9FF] flex items-center justify-center text-secondary mb-6 group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-sm">
+-                    {step.icon}
+-                  </div>
++                    <div className="w-14 h-14 rounded-2xl bg-[#F5F9FF] flex items-center justify-center text-secondary mb-6 group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-sm">
++                      {step.icon}
++                    </div>
+ 
+-                  <div className="mb-4">
+-                    <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-secondary text-xxs font-bold uppercase tracking-widest mb-3">
+-                      {step.time}
+-                    </span>
+-                    <h3 className="text-xl font-bold text-dark mb-3 group-hover:text-secondary transition-colors">
+-                      {step.title}
+-                    </h3>
+-                  </div>
++                    <div className="mb-4">
++                      <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-secondary text-xxs font-bold uppercase tracking-widest mb-3">
++                        {step.time}
++                      </span>
++                      <h3 className="text-xl font-bold text-dark mb-3 group-hover:text-secondary transition-colors">
++                        {step.title}
++                      </h3>
++                    </div>
+ 
+-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">{step.desc}</p>
++                    <p className="text-sm text-gray-700 leading-relaxed font-medium">{step.desc}</p>
+ 
+-                  <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+-                    <span className="text-xxs font-black uppercase tracking-tighter text-gray-300">
+-                      Phase 0{i + 1}
+-                    </span>
+-                    <Sparkles size={14} className="text-primary" />
++                    <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-500">
++                      <span className="text-xxs font-black uppercase tracking-tighter text-gray-300">
++                        Phase 0{i + 1}
++                      </span>
++                      <Sparkles size={14} className="text-primary" />
++                    </div>
+                   </div>
+                 </div>
+-              </div>
+-            </AnimateOnScroll>
+-          ))}
++              </AnimateOnScroll>
++            ))}
++          </div>
          </div>
-       </div>
+-      </div>
 +      )}
      </SectionWrapper>
    );
  };
 diff --git a/components/features/web-development/CustomAppStart.tsx b/components/features/web-development/CustomAppStart.tsx
-index 3e0078e..db5eebb 100644
+index 3e0078e..b15119f 100644
 --- a/components/features/web-development/CustomAppStart.tsx
 +++ b/components/features/web-development/CustomAppStart.tsx
 @@ -1,5 +1,7 @@
@@ -146,26 +212,65 @@ index 3e0078e..db5eebb 100644
          >
            <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
              {CONTENT.start.title}
-@@ -26,6 +32,9 @@ const CustomAppStart: React.FC = () => {
+@@ -26,29 +32,33 @@ const CustomAppStart: React.FC = () => {
            <p className="mt-5 text-lg leading-relaxed text-gray-700">{CONTENT.start.description}</p>
          </div>
  
+-        <ol
+-          className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm"
+-          style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
+-        >
+-          {CONTENT.start.steps.map((step, i) => (
+-            <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
+-              <span
+-                aria-hidden="true"
+-                className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
+-              >
+-                {i + 1}
+-              </span>
+-              <div>
+-                <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
+-                  {step.title}
+-                </h3>
+-                <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
+-                  {step.desc}
+-                </p>
+-              </div>
+-            </li>
+-          ))}
+-        </ol>
 +        {on ? (
 +          <ProcessTimeline className="mt-12" items={CONTENT.start.steps} />
 +        ) : (
-         <ol
-           className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm"
-           style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
-@@ -49,6 +58,7 @@ const CustomAppStart: React.FC = () => {
-             </li>
-           ))}
-         </ol>
++          <ol
++            className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm"
++            style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 48px), 0)' }}
++          >
++            {CONTENT.start.steps.map((step, i) => (
++              <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
++                <span
++                  aria-hidden="true"
++                  className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
++                >
++                  {i + 1}
++                </span>
++                <div>
++                  <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
++                    {step.title}
++                  </h3>
++                  <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
++                    {step.desc}
++                  </p>
++                </div>
++              </li>
++            ))}
++          </ol>
 +        )}
        </Container>
      </section>
    );
 diff --git a/components/pages/AiSystemsApps.tsx b/components/pages/AiSystemsApps.tsx
-index 015cf88..0a65b0e 100644
+index 015cf88..b70f6aa 100644
 --- a/components/pages/AiSystemsApps.tsx
 +++ b/components/pages/AiSystemsApps.tsx
 @@ -7,6 +7,8 @@ import StandardHero from '../common/StandardHero';
@@ -177,26 +282,59 @@ index 015cf88..0a65b0e 100644
  import FounderCard from '../common/FounderCard';
  import StickyMobileBar from '../common/StickyMobileBar';
  import FaqSection from '../sections/FaqSection';
-@@ -172,6 +174,9 @@ const AiSystemsApps: React.FC = () => {
+@@ -172,26 +174,30 @@ const AiSystemsApps: React.FC = () => {
                {CONTENT.process.description}
              </p>
            </div>
+-          <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
+-            {CONTENT.process.steps.map((step, i) => (
+-              <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
+-                <span
+-                  aria-hidden="true"
+-                  className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
+-                >
+-                  {i + 1}
+-                </span>
+-                <div>
+-                  <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
+-                    {step.title}
+-                  </h3>
+-                  <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
+-                    {step.desc}
+-                  </p>
+-                </div>
+-              </li>
+-            ))}
+-          </ol>
 +          {isProcessTimelineEnabled() ? (
 +            <ProcessTimeline className="mt-12" items={CONTENT.process.steps} />
 +          ) : (
-           <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
-             {CONTENT.process.steps.map((step, i) => (
-               <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
-@@ -192,6 +197,7 @@ const AiSystemsApps: React.FC = () => {
-               </li>
-             ))}
-           </ol>
++            <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
++              {CONTENT.process.steps.map((step, i) => (
++                <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
++                  <span
++                    aria-hidden="true"
++                    className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
++                  >
++                    {i + 1}
++                  </span>
++                  <div>
++                    <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
++                      {step.title}
++                    </h3>
++                    <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
++                      {step.desc}
++                    </p>
++                  </div>
++                </li>
++              ))}
++            </ol>
 +          )}
          </Container>
        </section>
  
 diff --git a/components/pages/GoogleAds.tsx b/components/pages/GoogleAds.tsx
-index d9cb254..48dea65 100644
+index d9cb254..0eb4df3 100644
 --- a/components/pages/GoogleAds.tsx
 +++ b/components/pages/GoogleAds.tsx
 @@ -30,6 +30,8 @@ import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
@@ -208,10 +346,33 @@ index d9cb254..48dea65 100644
  import LocalRzeszowSection from '../sections/LocalRzeszowSection';
  import { LOCAL_RZESZOW_GOOGLE_ADS } from '../../data/content/services/local-rzeszow';
  
-@@ -240,6 +242,31 @@ const GoogleAds: React.FC = () => {
+@@ -240,36 +242,62 @@ const GoogleAds: React.FC = () => {
            zamiast ciemnego mono-teatru z fejk-statusami. */}
        <section ref={processRef} className="relative bg-light-gray py-20 md:py-28">
          <Container>
+-          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+-            <div
+-              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+-              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+-            >
+-              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+-                {CONTENT.process.title}
+-              </h2>
+-              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+-                {CONTENT.process.description}
+-              </p>
+-              {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
+-              <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
+-                <BadgeCheck
+-                  size={18}
+-                  className="mt-0.5 shrink-0 text-secondary"
+-                  aria-hidden="true"
+-                />
+-                <span>
+-                  <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
+-                  {CONTENT.partner.desc}
+-                </span>
+-              </p>
 +          {isProcessTimelineEnabled() ? (
 +            <>
 +              {/* MIX-1317 K1: nagłówek nad osią, kroki na całą szerokość kontenera. */}
@@ -237,19 +398,48 @@ index d9cb254..48dea65 100644
 +              <ProcessTimeline className="mt-12" items={CONTENT.process.steps} />
 +            </>
 +          ) : (
-           <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-             <div
-               className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
-@@ -270,6 +297,7 @@ const GoogleAds: React.FC = () => {
-               icons={PROCESS_ICONS}
-             />
-           </div>
++            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
++              <div
++                className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
++                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
++              >
++                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
++                  {CONTENT.process.title}
++                </h2>
++                <p className="mt-5 text-lg leading-relaxed text-gray-700">
++                  {CONTENT.process.description}
++                </p>
++                {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
++                <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
++                  <BadgeCheck
++                    size={18}
++                    className="mt-0.5 shrink-0 text-secondary"
++                    aria-hidden="true"
++                  />
++                  <span>
++                    <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
++                    {CONTENT.partner.desc}
++                  </span>
++                </p>
++              </div>
++              <PlotterTimeline
++                className="mt-12 lg:col-span-7 lg:mt-0"
++                items={CONTENT.process.steps}
++                icons={PROCESS_ICONS}
++              />
+             </div>
+-            <PlotterTimeline
+-              className="mt-12 lg:col-span-7 lg:mt-0"
+-              items={CONTENT.process.steps}
+-              icons={PROCESS_ICONS}
+-            />
+-          </div>
 +          )}
          </Container>
        </section>
  
 diff --git a/components/pages/MarketingSeo.tsx b/components/pages/MarketingSeo.tsx
-index 1b2a56c..5bb1b51 100644
+index 1b2a56c..0e5745a 100644
 --- a/components/pages/MarketingSeo.tsx
 +++ b/components/pages/MarketingSeo.tsx
 @@ -31,6 +31,8 @@ import SeoRoiCalculator from '../features/seo/SeoRoiCalculator';
@@ -261,10 +451,21 @@ index 1b2a56c..5bb1b51 100644
  
  /**
   * /marketing/seo/ — przebudowa 2026-07-16 (krytyka 14/40, pełna ścieżka
-@@ -258,6 +260,27 @@ const MarketingSeo: React.FC = () => {
+@@ -258,27 +260,49 @@ const MarketingSeo: React.FC = () => {
        {/* Roadmapa — linia plotera rysowana scrollem przez 4 etapy. */}
        <section ref={roadRef} className="relative bg-light-gray py-20 md:py-28">
          <Container>
+-          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+-            <div
+-              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+-              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+-            >
+-              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+-                {CONTENT.roadmap.title}
+-              </h2>
+-              <p className="mt-5 text-lg leading-relaxed text-gray-700">
+-                {CONTENT.roadmap.description}
+-              </p>
 +          {isProcessTimelineEnabled() ? (
 +            <>
 +              {/* MIX-1317 K1: nagłówek nad osią, kroki na całą szerokość kontenera. */}
@@ -286,19 +487,42 @@ index 1b2a56c..5bb1b51 100644
 +              />
 +            </>
 +          ) : (
-           <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-             <div
-               className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
-@@ -279,6 +302,7 @@ const MarketingSeo: React.FC = () => {
-               }))}
-             />
-           </div>
++            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
++              <div
++                className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
++                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
++              >
++                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
++                  {CONTENT.roadmap.title}
++                </h2>
++                <p className="mt-5 text-lg leading-relaxed text-gray-700">
++                  {CONTENT.roadmap.description}
++                </p>
++              </div>
++              <PlotterTimeline
++                className="mt-12 lg:col-span-7 lg:mt-0"
++                items={CONTENT.roadmap.steps.map((s) => ({
++                  kicker: s.month,
++                  title: s.title,
++                  desc: s.desc,
++                }))}
++              />
+             </div>
+-            <PlotterTimeline
+-              className="mt-12 lg:col-span-7 lg:mt-0"
+-              items={CONTENT.roadmap.steps.map((s) => ({
+-                kicker: s.month,
+-                title: s.title,
+-                desc: s.desc,
+-              }))}
+-            />
+-          </div>
 +          )}
          </Container>
        </section>
  
 diff --git a/components/pages/SeoRzeszow.tsx b/components/pages/SeoRzeszow.tsx
-index fd2eff7..3d74104 100644
+index fd2eff7..26d1d33 100644
 --- a/components/pages/SeoRzeszow.tsx
 +++ b/components/pages/SeoRzeszow.tsx
 @@ -18,6 +18,8 @@ import {
@@ -351,14 +575,11 @@ index fd2eff7..3d74104 100644
  const SeoRzeszow: React.FC = () => {
    const { openModal } = useModal();
    const heroRef = useRef<HTMLDivElement>(null);
-@@ -497,39 +533,11 @@ const SeoRzeszow: React.FC = () => {
+@@ -497,56 +533,29 @@ const SeoRzeszow: React.FC = () => {
              <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
                Proces pozycjonowania krok po kroku
              </h2>
-+            {isProcessTimelineEnabled() ? (
-+              <ProcessTimeline items={SEO_PROCESS_STEPS} />
-+            ) : (
-             <ol className="max-w-3xl mx-auto space-y-4">
+-            <ol className="max-w-3xl mx-auto space-y-4">
 -              {[
 -                {
 -                  icon: Search,
@@ -391,14 +612,44 @@ index fd2eff7..3d74104 100644
 -                  desc: 'Miesięczny raport (pozycje, ruch, konwersje GSC/GA4), call 45 min, iteracje kwartalne.',
 -                },
 -              ].map((step, i) => (
-+              {SEO_PROCESS_STEPS.map((step, i) => (
-                 <li
-                   key={step.title}
-                   className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
-@@ -547,6 +555,7 @@ const SeoRzeszow: React.FC = () => {
-                 </li>
-               ))}
-             </ol>
+-                <li
+-                  key={step.title}
+-                  className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
+-                >
+-                  <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
+-                    {i + 1}
+-                  </div>
+-                  <div className="flex-1">
+-                    <div className="flex items-center gap-2 mb-1">
+-                      <step.icon size={20} className="text-primary" aria-hidden="true" />
+-                      <h3 className="font-bold text-lg">{step.title}</h3>
++            {isProcessTimelineEnabled() ? (
++              <ProcessTimeline items={SEO_PROCESS_STEPS} />
++            ) : (
++              <ol className="max-w-3xl mx-auto space-y-4">
++                {SEO_PROCESS_STEPS.map((step, i) => (
++                  <li
++                    key={step.title}
++                    className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
++                  >
++                    <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
++                      {i + 1}
+                     </div>
+-                    <p className="text-sm text-gray-600">{step.desc}</p>
+-                  </div>
+-                </li>
+-              ))}
+-            </ol>
++                    <div className="flex-1">
++                      <div className="flex items-center gap-2 mb-1">
++                        <step.icon size={20} className="text-primary" aria-hidden="true" />
++                        <h3 className="font-bold text-lg">{step.title}</h3>
++                      </div>
++                      <p className="text-sm text-gray-600">{step.desc}</p>
++                    </div>
++                  </li>
++                ))}
++              </ol>
 +            )}
            </div>
  
