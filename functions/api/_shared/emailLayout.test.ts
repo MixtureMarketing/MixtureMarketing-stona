@@ -263,3 +263,25 @@ describe('8 endpointów używa modułu (bez własnego HTML maili)', () => {
     expect(src).not.toMatch(/escapeHtml/);
   });
 });
+
+describe('Functions bez zależności od Vite (import.meta.env nie istnieje w Cloudflare Functions)', () => {
+  const FN = path.resolve(__dirname, '../..');
+  const CONFIG = path.resolve(__dirname, '../../../config');
+  const walk = (d: string): string[] =>
+    fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) return e.name === 'node_modules' ? [] : walk(p);
+      return /\.tsx?$/.test(e.name) && !/\.test\.tsx?$/.test(e.name) ? [p] : [];
+    });
+  it('żaden plik w functions/ nie importuje config/site (używa import.meta.env)', () => {
+    const zle = walk(FN).filter((f) =>
+      /from\s+['"][^'"]*config\/site['"]/.test(fs.readFileSync(f, 'utf8')),
+    );
+    expect(zle).toEqual([]);
+  });
+  it('config/siteIdentity.ts nie używa import.meta i niczego nie importuje', () => {
+    const src = fs.readFileSync(path.join(CONFIG, 'siteIdentity.ts'), 'utf8');
+    expect(src).not.toMatch(/import\.meta/);
+    expect(src).not.toMatch(/^\s*import\s/m);
+  });
+});

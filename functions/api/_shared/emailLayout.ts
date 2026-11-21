@@ -1,7 +1,7 @@
 // Wspólny szablon wszystkich maili strony (MIX-1866). Bez handlerów → nie tworzy trasy.
 //
 // Każdy mail = ta sama oprawa: nagłówek z logo, treść z bloków, opcjonalny przycisk,
-// stopka z danymi firmy (config/site.ts) i linkiem do polityki prywatności.
+// stopka z danymi firmy (config/siteIdentity.ts, część config/site.ts bez Vite) i linkiem do polityki prywatności.
 // Zawsze dwie wersje: HTML (tabele, 600 px, styl inline – Gmail, Outlook, Apple Mail)
 // i text/plain z tej samej treści.
 //
@@ -9,7 +9,7 @@
 // podaje surowe dane z formularzy i nie składa HTML sam. Linki tylko http(s) –
 // inny schemat (javascript:, data:) zostaje zwykłym tekstem.
 
-import { SITE_CONFIG } from '../../../config/site';
+import { SITE_IDENTITY as SITE_CONFIG } from '../../../config/siteIdentity';
 import { escapeHtml } from './security';
 
 /** Fragment akapitu: zwykły tekst, pogrubienie, kod albo link. */
