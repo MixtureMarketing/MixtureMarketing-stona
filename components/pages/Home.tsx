@@ -38,7 +38,7 @@ const Home = () => {
   // z każdym pikselem przewijania, w obie strony.
   usePagePulse();
 
-  // MIX-1269: title i meta pod „agencja marketingowa Rzeszów” za VITE_MM_HOME_SEO (wyłączony = dzisiejsze).
+  // MIX-1269 r3: title i meta (systemy dedykowane, AI) za VITE_MM_HOME_SEO (wyłączony = dzisiejsze).
   const seo = isHomeSeoEnabled() ? HOME_SEO : HOME_SEO_BASE;
 
   return (

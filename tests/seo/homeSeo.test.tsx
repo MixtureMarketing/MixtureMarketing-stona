@@ -1,4 +1,4 @@
-// MIX-1269 (plan SEO A12): strona główna pod „agencja marketingowa Rzeszów”, za przełącznikiem
+// MIX-1269 (plan SEO A12, r3): strona główna pod „systemy dedykowane” i AI, za przełącznikiem
 // VITE_MM_HOME_SEO (domyślnie wyłączony).
 // Kryteria: wyłączony = HTML treści, title, meta, canonical i JSON-LD identyczne z wzorcem zdjętym
 // z kodu bazowego (tests/fixtures/mix1269/home-flag-off.json, .bieg/m1269/zrzut.sh); włączony =
@@ -113,6 +113,20 @@ describe('przełącznik wyłączony', () => {
 });
 
 describe('przełącznik włączony', () => {
+  // r3 (decyzja Jakuba MIX-1058, 21.11): systemy dedykowane i AI najpierw, marketing dalej.
+  it('kolejność: systemy dedykowane i AI przed marketingiem (title, meta, linki)', () => {
+    expect(HOME_SEO.title.toLocaleLowerCase('pl-PL').startsWith(HOME_SEO_PHRASE)).toBe(true);
+    const meta = HOME_SEO.description.toLocaleLowerCase('pl-PL');
+    expect(meta.indexOf(HOME_SEO_PHRASE)).toBeGreaterThanOrEqual(0);
+    expect(meta.indexOf(' ai')).toBeGreaterThanOrEqual(0);
+    expect(meta.indexOf(HOME_SEO_PHRASE)).toBeLessThan(meta.indexOf('marketing'));
+    expect(meta.indexOf(' ai')).toBeLessThan(meta.indexOf('marketing'));
+    expect(HOME_LOCAL_LINKS.slice(0, 2).map((l) => l.to)).toEqual([
+      '/web-development/custom-app/',
+      '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
+    ]);
+  });
+
   it('title: nowy, ≤ 60 znaków, fraza dokładnie raz', async () => {
     stubFlag('1');
     await renderHomeSeo();
@@ -137,7 +151,9 @@ describe('przełącznik włączony', () => {
     const h1s = container.querySelectorAll('h1');
     expect(h1s).toHaveLength(1);
     const text = h1s[0].textContent!.replace(/\s+/g, ' ').trim();
-    expect(text).toBe('Agencja marketingowa Rzeszów. Nie szukaj wykonawców. Wybierz Partnera.');
+    expect(text).toBe(
+      'Systemy dedykowane i automatyzacja AI z Rzeszowa. Nie szukaj wykonawców. Wybierz Partnera.',
+    );
     expect(count(text)).toBe(1);
   });
 

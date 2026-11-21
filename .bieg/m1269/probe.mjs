@@ -29,7 +29,7 @@ const DIST = path.resolve(distArg);
 const OUT = path.resolve(outArg);
 await fs.mkdir(OUT, { recursive: true });
 const AXE_JS = path.resolve('node_modules/axe-core/axe.min.js');
-const PHRASE = 'agencja marketingowa rzeszów';
+const PHRASE = 'systemy dedykowane';
 const count = (t) => (t || '').toLocaleLowerCase('pl-PL').split(PHRASE).length - 1;
 
 const MIME = {

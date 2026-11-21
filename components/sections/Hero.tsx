@@ -83,7 +83,7 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
       >
         <AnimateOnScroll>
           <h1 className="text-balance tracking-tight text-white">
-            {/* MIX-1269: fraza „agencja marketingowa Rzeszów” w H1, za VITE_MM_HOME_SEO (wyłączony = brak). */}
+            {/* MIX-1269 r3: fraza „systemy dedykowane” w H1, za VITE_MM_HOME_SEO (wyłączony = brak). */}
             {isHomeSeoEnabled() && (
               <>
                 <span className="mb-3 block text-base font-semibold text-primary sm:text-lg">

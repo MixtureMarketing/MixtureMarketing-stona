@@ -70,7 +70,7 @@ const WYCENA_WYLACZONA_NA_PROD = [
 const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
-/** Strona główna pod „agencja marketingowa Rzeszów” (MIX-1269): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
+/** Strona główna pod „systemy dedykowane” i AI (MIX-1269 r3): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const HOME_SEO_WYLACZONY_NA_PROD = ['VITE_MM_HOME_SEO'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
 /** PsychON w sekcji dowodu /web-development/custom-app/ (MIX-1975): Preview 1, produkcja i PR puste. */
