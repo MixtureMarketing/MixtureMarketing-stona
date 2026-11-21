@@ -7,7 +7,7 @@ import { urlFor } from '@/services/cmsService';
 import { VT_NAMES, isViewTransitionsEnabled } from '@/utils/viewTransitions';
 import { getArrivalPath, signalTargetReady, subscribeArrival } from '@/utils/caseStudyArrival';
 import { isPortfolioVideoEnabled } from '@/config/flags';
-import { landscapeVideoFor } from '@/data/portfolioVideos';
+import { portfolioVideoFor } from '@/data/portfolioVideos';
 import CaseStudyHeroVideo from './CaseStudyHeroVideo';
 import './caseStudyHero.css';
 
@@ -76,7 +76,7 @@ const CaseStudyHero: React.FC<CaseStudyHeroProps> = ({ project }) => {
 
   const titleStyle = named ? { viewTransitionName: VT_NAMES.title } : undefined;
   // MIX-1873: film w ramce zdjęcia (za przełącznikiem); realizacja bez filmu = samo zdjęcie.
-  const video = isPortfolioVideoEnabled() ? landscapeVideoFor(project.slug) : null;
+  const video = isPortfolioVideoEnabled() ? portfolioVideoFor(project.slug) : null;
   const heroVideo = video ? <CaseStudyHeroVideo video={video} /> : null;
 
   // MIX-1471: przy włączonym przełączniku zdjęcie (to samo co na karcie listy) stoi na samej

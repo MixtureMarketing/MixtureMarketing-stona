@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import type { PortfolioLandscapeVideo } from '@/data/portfolioVideos';
+import type { PortfolioVideo } from '@/data/portfolioVideos';
 import { afterLoadIdle, canPreloadVideo, isNarrowViewport } from '@/utils/portfolioVideo';
 import { pickVideoSrc } from '@/components/features/portfolio/pickVideoSrc';
 
 interface Props {
-  video: PortfolioLandscapeVideo;
+  video: PortfolioVideo;
 }
 
 /**

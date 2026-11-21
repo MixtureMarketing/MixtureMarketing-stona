@@ -1,7 +1,7 @@
 // Kontrola workflow CI (.github/workflows/ci.yml): push na dev i ręczne uruchomienie na dev wdrażają
 // Preview, main tylko po push i po strażniku powtórek, pull requesty nigdy nie wdrażają, a Preview
 // buduje się ze WSZYSTKIMI przełącznikami VITE_MM_* włączonymi (MIX-1411), produkcja tylko z tymi
-// z WLACZONE_NA_PROD (MIX-1465, MIX-1833, MIX-1838); konfigurator wyceny (MIX-1377) na produkcji wyłączony.
+// z WLACZONE_NA_PROD (MIX-1465, MIX-1833, MIX-1838, MIX-1896); konfigurator wyceny (MIX-1377) na produkcji wyłączony.
 // Cel wdrożenia wyznacza skrypt scripts/ci-deploy-guard.sh (czuły na wielkość liter; jego testy:
 // tests/scripts/ciDeployGuard.test.ts). Tu: prawdziwy plik YAML, też na wariantach psutych celowo
 // (każda odmowa ma swojego dozwolonego bliźniaka).
@@ -53,6 +53,7 @@ const WLACZONE_NA_PROD = new Set([
   'VITE_MM_TESTIMONIALS', // MIX-1326: opinie Google
   'VITE_MM_RZESZOW_SEKCJE', // MIX-1286: sekcje Rzeszów
   'VITE_MM_AI_SECTION', // MIX-1276: sekcja o AI i systemach
+  'VITE_MM_PORTFOLIO_VIDEO', // MIX-1896: filmy poziome w portfolio na produkcji (Jakub, MIX-1953)
 ]);
 /** Konfigurator wyceny w budowie (MIX-1377) i nowy wygląd kalkulatora (MIX-1867): Preview 1, produkcja i PR puste. */
 const WYCENA_WYLACZONA_NA_PROD = [
@@ -63,24 +64,24 @@ const WYCENA_WYLACZONA_NA_PROD = [
   'VITE_MM_LEAD_CONFIG', // MIX-1813: lead z konfiguracją (Z10)
   'VITE_MM_LIVE_PRICE_BAR',
   'VITE_MM_NEW_CLIENT_TIMELINE', // MIX-1816: oś czasu na ekranie wyniku (Z13)
+  'VITE_MM_RESULT_CONTACT', // MIX-1815: ekran wyniku i przejście do kontaktu (Z11)
 ];
-/** MIX-1873: filmy w portfolio czekają na akceptację Jakuba na Preview: Preview 1, produkcja i PR puste. */
-const FILMY_PORTFOLIO_TYLKO_PREVIEW = ['VITE_MM_PORTFOLIO_VIDEO'];
 /** MIX-1275: realizacja AI Q-PLAST w portfolio czeka na akceptację Jakuba: Preview 1, produkcja i PR puste. */
 const REALIZACJA_AIQP_TYLKO_PREVIEW = ['VITE_MM_REALIZACJA_AIQP'];
-/** Wszystkie przełączniki tylko-Preview konfiguratora i filmów (posortowane jak lista z kodu). */
-const TYLKO_PREVIEW = [
-  ...WYCENA_WYLACZONA_NA_PROD,
-  ...FILMY_PORTFOLIO_TYLKO_PREVIEW,
-  ...REALIZACJA_AIQP_TYLKO_PREVIEW,
-].sort();
+/** Wszystkie przełączniki tylko-Preview konfiguratora i realizacji AI Q-PLAST (posortowane jak lista z kodu). */
+const TYLKO_PREVIEW = [...WYCENA_WYLACZONA_NA_PROD, ...REALIZACJA_AIQP_TYLKO_PREVIEW].sort();
 /** Strona /cennik/ (MIX-1855): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
 const CENNIK_WYLACZONY_NA_PROD = ['VITE_MM_CENNIK'];
+/** Strona główna pod „agencja marketingowa Rzeszów” (MIX-1269): Preview 1, produkcja i PR puste do akceptacji Jakuba. */
+const HOME_SEO_WYLACZONY_NA_PROD = ['VITE_MM_HOME_SEO'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
+/** PsychON w sekcji dowodu /web-development/custom-app/ (MIX-1975): Preview 1, produkcja i PR puste. */
+const PSYCHON_WYLACZONY_NA_PROD = ['VITE_MM_CUSTOMAPP_PSYCHON'];
 const WYLACZONE_NA_PROD = [
   ...CENNIK_WYLACZONY_NA_PROD,
+  ...HOME_SEO_WYLACZONY_NA_PROD,
+  ...PSYCHON_WYLACZONY_NA_PROD,
   ...WYCENA_WYLACZONA_NA_PROD,
-  ...FILMY_PORTFOLIO_TYLKO_PREVIEW,
   ...REALIZACJA_AIQP_TYLKO_PREVIEW,
 ].sort();
 const WYRAZENIE_PREVIEW = "${{ steps.target.outputs.target == 'preview' && '1' || '' }}";
@@ -365,6 +366,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_LIVE_PRICE_BAR',
       'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
+      'VITE_MM_CUSTOMAPP_PSYCHON', // MIX-1975
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
@@ -511,8 +513,15 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w).VITE_MM_LIVE_PRICE_BAR = '1';
     expect(naruszenia(w).join('|')).toMatch(/VITE_MM_LIVE_PRICE_BAR: zła wartość na produkcji/);
   });
-  it.each(TYLKO_PREVIEW)(
-    'MIX-1838/MIX-1873: %s (tylko Preview) włączony na produkcji = naruszenie',
+  it.each(TYLKO_PREVIEW)('MIX-1838: %s (tylko Preview) włączony na produkcji = naruszenie', (f) => {
+    const w = kopia();
+    zmienneBuildu(w)[f] = '1';
+    const b = naruszenia(w);
+    expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+    expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+  });
+  it.each(PSYCHON_WYLACZONY_NA_PROD)(
+    'MIX-1975: %s (PsychON w sekcji dowodu) włączony na produkcji = naruszenie',
     (f) => {
       const w = kopia();
       zmienneBuildu(w)[f] = '1';
@@ -531,6 +540,25 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
     },
   );
+  it.each(HOME_SEO_WYLACZONY_NA_PROD)(
+    'MIX-1269: %s (strona główna SEO) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
+  it('MIX-1269: VITE_MM_HOME_SEO w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
+    const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_HOME_SEO);
+    expect(wyr).toBe(WYRAZENIE_PREVIEW);
+    expect(wartoscFlagi(wyr, 'preview')).toBe('1');
+    expect(wartoscFlagi(wyr, 'prod')).toBe('');
+    expect(wartoscFlagi(wyr, 'none')).toBe('');
+    expect(przelacznikiZKodu()).toContain('VITE_MM_HOME_SEO');
+    expect(WLACZONE_NA_PROD.has('VITE_MM_HOME_SEO')).toBe(false);
+  });
   it('MIX-1855: VITE_MM_CENNIK w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
     const w = wczytaj();
     const wyr = String(zmienneBuildu(w).VITE_MM_CENNIK);
@@ -549,7 +577,7 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
     zmienneBuildu(w2).VITE_MM_CENNIK = '';
     expect(naruszenia(w2).join('|')).toMatch(/VITE_MM_CENNIK: nieznana postać wyrażenia/);
   });
-  it('MIX-1838/1855/1873: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, konfigurator wyceny i filmy portfolio', () => {
+  it('MIX-1838/1855/1896: poza WLACZONE_NA_PROD zostają dokładnie strona /cennik/, SEO strony głównej (MIX-1269), PsychON (MIX-1975) i konfigurator wyceny (filmy portfolio już na produkcji)', () => {
     const inne = przelacznikiZKodu().filter((x) => !WLACZONE_NA_PROD.has(x));
     expect(inne).toEqual(WYLACZONE_NA_PROD);
     const zmienne = zmienneBuildu(wczytaj());
@@ -574,20 +602,35 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(naruszenia(w).join('|')).toContain(`${f}: zła wartość na produkcji`);
     }
   });
-  it('na produkcji włączone są dokładnie MOBILE_MENU_B, VIEW_TRANSITIONS i pięć z MIX-1838', () => {
+  it('na produkcji włączone są dokładnie MOBILE_MENU_B, VIEW_TRANSITIONS, pięć z MIX-1838 i PORTFOLIO_VIDEO (MIX-1896)', () => {
     expect([...WLACZONE_NA_PROD].sort()).toEqual([
       'VITE_MM_AI_SECTION',
       'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_MOBILE_MENU_B',
+      'VITE_MM_PORTFOLIO_VIDEO',
       'VITE_MM_POWIAZANE',
       'VITE_MM_RZESZOW_SEKCJE',
       'VITE_MM_TESTIMONIALS',
       'VITE_MM_VIEW_TRANSITIONS',
     ]);
   });
-  it('MIX-1838: prawdziwy ci.yml ma siedem przełączników produkcji jako stałe 1', () => {
+  it('MIX-1838/MIX-1896: prawdziwy ci.yml ma osiem przełączników produkcji jako stałe 1', () => {
+    expect(WLACZONE_NA_PROD.size).toBe(8);
     const zmienne = zmienneBuildu(wczytaj());
     for (const f of WLACZONE_NA_PROD) expect(zmienne[f]).toBe('1');
+  });
+  it('MIX-1896: VITE_MM_PORTFOLIO_VIDEO w prawdziwym ci.yml to stała 1 (Preview, produkcja i PR)', () => {
+    const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_PORTFOLIO_VIDEO);
+    expect(wyr).toBe('1');
+    for (const cel of ['preview', 'prod', 'none'] as const)
+      expect(wartoscFlagi(wyr, cel)).toBe('1');
+  });
+  it('MIX-1896: przywrócone wyrażenie tylko-Preview dla filmów portfolio = naruszenie', () => {
+    const w = kopia();
+    zmienneBuildu(w).VITE_MM_PORTFOLIO_VIDEO = WYRAZENIE_PREVIEW;
+    const b = naruszenia(w);
+    expect(b).toContain('VITE_MM_PORTFOLIO_VIDEO: zła wartość na produkcji ("")');
+    expect(b).toContain('VITE_MM_PORTFOLIO_VIDEO: zła wartość poza wdrożeniem ("")');
   });
   it('VIEW_TRANSITIONS wyłączone na produkcji (MIX-1833 zdjęte)', () => {
     const w = kopia();

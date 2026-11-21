@@ -18,6 +18,11 @@
 #   po przecinku, DOKŁADNE nazwy (bez `*`, schematu, portu i ścieżki; takie wpisy są pomijane).
 #   Tylko środowisko Preview (np. alias gałęzi na *.pages.dev). Produkcja: NIE ustawiać, wtedy
 #   jedynym hostem jest mixturemarketing.pl.
+# - TURNSTILE_SECRET (MIX-1934): w środowisku Preview może być publicznym sekretem testowym
+#   Cloudflare „zawsze przechodzi” (ustawia scripts/preview-turnstile-test-secret.sh). Działa wtedy
+#   tylko na dev.mixturemarketing-stona.pages.dev i leady NIE trafiają do CRM (functions/api/_shared/
+#   turnstileMode.ts); na każdym innym hoście, także produkcji, funkcje odpowiadają 503.
+#   Production: wyłącznie prawdziwy sekret.
 
 name = "mixturemarketing-stona"
 # RÓWNA dashboardowi produkcji (zweryfikowane przez API: 2026-02-05). Zmiana daty runtime

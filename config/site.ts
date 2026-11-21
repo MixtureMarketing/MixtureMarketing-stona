@@ -3,6 +3,8 @@
  * Centralizing these values makes it easier to update contact info, social links, and other global metadata.
  */
 
+import { resolveTurnstileSiteKey } from './turnstileKey';
+
 export const SITE_CONFIG = {
   name: 'Mixture Marketing',
   companyName: 'Mixture Marketing Sp. z o.o.',
@@ -24,10 +26,11 @@ export const SITE_CONFIG = {
     foundingDate: '2023-05-08',
     shareCapital: '5 000 zł',
     registryCourt: 'Sąd Rejonowy w Rzeszowie, XII Wydział Gospodarczy KRS',
-    // Cloudflare Turnstile Site Key. Publiczny - przeznaczony do osadzenia
-    // w kodzie frontend. Secret key trzymany jest jako env var TURNSTILE_SECRET
-    // na serwerze PHP (weryfikacja w public/api/contact_submit.php).
-    turnstileSiteKey: '0x4AAAAAACYHLgkgk3FJUj06',
+    // Cloudflare Turnstile Site Key. Publiczny - przeznaczony do osadzenia w kodzie frontend.
+    // MIX-1934: wartość ze zmiennej budowy VITE_TURNSTILE_SITE_KEY (allowlista w strażniku
+    // vite.config.ts; Preview = klucz testowy Cloudflare), brak = klucz produkcyjny.
+    // Sekret TURNSTILE_SECRET żyje w zmiennych Functions Cloudflare Pages.
+    turnstileSiteKey: resolveTurnstileSiteKey(import.meta.env.VITE_TURNSTILE_SITE_KEY),
   },
   social: {
     facebook: 'https://www.facebook.com/MixtureMarketing',

@@ -6,6 +6,8 @@ import AmbientBackground from '../common/AmbientBackground';
 import { useSectionProgress } from '../../hooks/useSectionProgress';
 import { SERVICES_CONTENT as CONTENT } from '../../data/content';
 import { SERVICES_SECTION_DATA } from '../../data/content/services';
+import { isHomeSeoEnabled } from '../../config/flags';
+import { HOME_LOCAL_LINKS } from '../../data/content/pages/homeSeo';
 
 /**
  * Sekcja „Kompetencje, których potrzebujesz".
@@ -142,32 +144,51 @@ const Services: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  to="/web-development/rzeszow/"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
-                >
-                  Strony WWW Rzeszów <ArrowRight size={12} />
-                </Link>
-                <Link
-                  to="/agencja-seo-rzeszow/"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
-                >
-                  Pozycjonowanie Rzeszów <ArrowRight size={12} />
-                </Link>
-                <Link
-                  to="/agencja-interaktywna-rzeszow/"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
-                >
-                  Agencja interaktywna <ArrowRight size={12} />
-                </Link>
-                <Link
-                  to="/miasto/rzeszow/"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90"
-                >
-                  Hub lokalny <ArrowRight size={12} />
-                </Link>
-              </div>
+              {/* MIX-1269: opisowe kotwice + link do Google Ads za VITE_MM_HOME_SEO (wyłączony = dzisiejsze 4 linki). */}
+              {isHomeSeoEnabled() ? (
+                <div className="flex flex-wrap gap-2">
+                  {HOME_LOCAL_LINKS.map((l) => (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      className={
+                        l.primary
+                          ? 'inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90'
+                          : 'inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary'
+                      }
+                    >
+                      {l.label} <ArrowRight size={12} />
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    to="/web-development/rzeszow/"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+                  >
+                    Strony WWW Rzeszów <ArrowRight size={12} />
+                  </Link>
+                  <Link
+                    to="/agencja-seo-rzeszow/"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+                  >
+                    Pozycjonowanie Rzeszów <ArrowRight size={12} />
+                  </Link>
+                  <Link
+                    to="/agencja-interaktywna-rzeszow/"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 hover:text-secondary"
+                  >
+                    Agencja interaktywna <ArrowRight size={12} />
+                  </Link>
+                  <Link
+                    to="/miasto/rzeszow/"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-secondary/90"
+                  >
+                    Hub lokalny <ArrowRight size={12} />
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -6,6 +6,8 @@ import Button from '../common/Button';
 import TrustMarquee from '../common/TrustMarquee';
 import MixtureField from '../visuals/hero/MixtureField';
 import { HERO_CONTENT, HERO_TRUST } from '../../data/content';
+import { isHomeSeoEnabled } from '../../config/flags';
+import { HOME_SEO } from '../../data/content/pages/homeSeo';
 
 interface HeroProps {
   onOpenModal?: () => void;
@@ -81,6 +83,14 @@ const Hero: React.FC<HeroProps> = ({ onOpenModal: _onOpenModal }) => {
       >
         <AnimateOnScroll>
           <h1 className="text-balance tracking-tight text-white">
+            {/* MIX-1269: fraza „agencja marketingowa Rzeszów” w H1, za VITE_MM_HOME_SEO (wyłączony = brak). */}
+            {isHomeSeoEnabled() && (
+              <>
+                <span className="mb-3 block text-base font-semibold text-primary sm:text-lg">
+                  {HOME_SEO.h1Lead}
+                </span>{' '}
+              </>
+            )}
             <span className="block text-2xl font-medium text-white/60 sm:text-3xl lg:text-4xl">
               {HERO_CONTENT.title.line1} {HERO_CONTENT.title.line2}
             </span>{' '}
