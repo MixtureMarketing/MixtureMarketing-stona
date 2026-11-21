@@ -4,7 +4,7 @@
  * Path: /api/admin/admin_reply_chat
  */
 
-import { escapeHtml, escapeHtmlMultiline } from '../_shared/security';
+import { chatReplyClientEmail } from '../_shared/emailMessages';
 import { sendEmail } from '../_shared/email';
 import { chatCacheKey, kvDelete } from '../_shared/kv';
 import {
@@ -66,8 +66,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           {
             from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
             to: [client.email],
-            subject: 'Nowa wiadomość w Twoim panelu klienta',
-            html: `<p>Witaj ${escapeHtml(client.name)}!</p><p>Otrzymałeś nową wiadomość w panelu klienta:</p><blockquote>${escapeHtmlMultiline(content)}</blockquote><a href="https://mixturemarketing.pl/portal">Zaloguj się, aby odpowiedzieć</a>`,
+            ...chatReplyClientEmail(client.name, content),
           },
           'admin_reply_chat',
         )

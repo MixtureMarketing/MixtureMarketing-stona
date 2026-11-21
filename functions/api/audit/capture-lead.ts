@@ -16,7 +16,8 @@
  * (_shared/publicGate); błąd licznika (też brak KV) = odmowa 503 zamiast przepuszczenia.
  */
 
-import { escapeHtml, safeHttpUrl, sha256Hex } from '../_shared/security';
+import { safeHttpUrl, sha256Hex } from '../_shared/security';
+import { auditLeadTeamEmail, auditReportEmail, type EmailMessage } from '../_shared/emailMessages';
 import { denialResponse, envInt, gateCaptcha, gateLimits, strictBump } from '../_shared/publicGate';
 import { zglosLeadWTle, type LinearEnv } from '../_linear';
 import { markTestMode, turnstileMode } from '../_shared/turnstileMode';
@@ -62,13 +63,12 @@ function isPdf(buf: ArrayBuffer): boolean {
   return String.fromCharCode(...head) === '%PDF-';
 }
 
-async function sendEmail(env: Env, to: string, subject: string, html: string, pdfB64?: string) {
+async function sendEmail(env: Env, to: string, message: EmailMessage, pdfB64?: string) {
   if (!env.RESEND_API_KEY) return;
   const body: Record<string, unknown> = {
     from: 'Mixture Marketing <info@mixturemarketing.pl>',
     to: [to],
-    subject,
-    html,
+    ...message,
   };
   if (pdfB64) {
     body.attachments = [{ filename: 'audyt_mixture.pdf', content: pdfB64 }];
@@ -203,35 +203,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUnti
   // Zadanie w Linearze po udanym zapisie (błąd D1 wyżej kończy żądanie bez zgłoszenia).
   zglosLeadWTle(waitUntil, env, id);
 
-  const safeUrl = escapeHtml(url);
-  const safeEmail = escapeHtml(email);
-
+  // Treść i oprawa: wspólny szablon maili (MIX-1866); escapowanie w emailLayout.
   // Raport PDF do użytkownika (obietnica z bramki — teraz prawdziwa).
   if (pdfB64) {
-    await sendEmail(
-      env,
-      email,
-      'Twój raport z audytu strony — Mixture Marketing',
-      `<h3>Dziękujemy za skorzystanie z audytu 360!</h3>
-       <p>W załączniku znajdziesz raport PDF z pomiarów strony <a href="${safeUrl}">${safeUrl}</a>.</p>
-       <p>Masz pytania o wyniki? Po prostu odpowiedz na tego maila.</p>
-       <p>Zespół Mixture Marketing</p>`,
-      pdfB64,
-    );
+    await sendEmail(env, email, auditReportEmail(url), pdfB64);
   }
 
   // Powiadomienie do agencji.
   if (env.NOTIFY_EMAIL) {
-    await sendEmail(
-      env,
-      env.NOTIFY_EMAIL,
-      `Nowy lead z audytu 360 — ${email}`,
-      `<p>Użytkownik <strong>${safeEmail}</strong> ukończył audyt strony
-       <a href="${safeUrl}">${safeUrl}</a>${
-         typeof score === 'number' ? ` (wynik: <strong>${score}/100</strong>)` : ''
-       }.${pdfB64 ? ' Raport PDF w załączniku.' : ''}</p>`,
-      pdfB64,
-    );
+    await sendEmail(env, env.NOTIFY_EMAIL, auditLeadTeamEmail(email, url, score, !!pdfB64), pdfB64);
   }
 
   return json({ status: 'success', id });

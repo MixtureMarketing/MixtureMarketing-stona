@@ -5,7 +5,8 @@
  */
 
 import { checkRateLimit } from '../estimation/_rateLimit';
-import { clientIp, escapeHtml, sha256Hex } from '../_shared/security';
+import { clientIp, sha256Hex } from '../_shared/security';
+import { magicLinkEmail } from '../_shared/emailMessages';
 import { sendEmail, emailFailedResponse } from '../_shared/email';
 import { serverError } from '../_shared/errors';
 
@@ -75,14 +76,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         from: 'Mixture Marketing <portal@mixturemarketing.pl>',
         to: [email],
-        subject: 'Twój magiczny link do Portalu Klienta',
-        html: `
-            <h3>Witaj ${escapeHtml(user.name)}!</h3>
-            <p>Kliknij w poniższy przycisk, aby zalogować się do swojego panelu klienta:</p>
-            <a href="${loginUrl}" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Zaloguj się</a>
-            <p>Link jest ważny przez 1 godzinę.</p>
-            <p>Jeśli to nie Ty prosiłeś o ten link, zignoruj tę wiadomość.</p>
-          `,
+        ...magicLinkEmail(user.name, loginUrl),
       },
       'send_magic_link',
     );

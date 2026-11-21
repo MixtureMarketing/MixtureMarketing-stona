@@ -5,7 +5,7 @@
  * Path: /api/admin/convert_lead
  */
 
-import { escapeHtml } from '../_shared/security';
+import { welcomePortalEmail } from '../_shared/emailMessages';
 import { sendEmail } from '../_shared/email';
 import { ValidationError, badRequest, readJsonObject, reqText } from '../_shared/input';
 import { serverError } from '../_shared/errors';
@@ -71,13 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
         to: [lead.email],
-        subject: 'Twoje konto w portalu Mixture Marketing jest gotowe!',
-        html: `
-            <h3>Witaj ${escapeHtml(lead.name)}!</h3>
-            <p>Z radością informujemy, że utworzyliśmy dla Ciebie konto w naszym portalu klienta.</p>
-            <p>Możesz się tam zalogować w każdej chwili, używając swojego adresu email, aby sprawdzić postępy prac lub pobrać dokumenty.</p>
-            <a href="https://mixturemarketing.pl/portal" style="background:#000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Przejdź do Portalu</a>
-          `,
+        ...welcomePortalEmail(lead.name),
       },
       'convert_lead',
     );
