@@ -536,25 +536,25 @@ const SeoRzeszow: React.FC = () => {
             {isProcessTimelineEnabled() ? (
               <ProcessTimeline items={SEO_PROCESS_STEPS} />
             ) : (
-            <ol className="max-w-3xl mx-auto space-y-4">
-              {SEO_PROCESS_STEPS.map((step, i) => (
-                <li
-                  key={step.title}
-                  className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
-                    {i + 1}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <step.icon size={20} className="text-primary" aria-hidden="true" />
-                      <h3 className="font-bold text-lg">{step.title}</h3>
+              <ol className="max-w-3xl mx-auto space-y-4">
+                {SEO_PROCESS_STEPS.map((step, i) => (
+                  <li
+                    key={step.title}
+                    className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
+                  >
+                    <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
+                      {i + 1}
                     </div>
-                    <p className="text-sm text-gray-600">{step.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <step.icon size={20} className="text-primary" aria-hidden="true" />
+                        <h3 className="font-bold text-lg">{step.title}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{step.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             )}
           </div>
 

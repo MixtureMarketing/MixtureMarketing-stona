@@ -281,27 +281,27 @@ const MarketingSeo: React.FC = () => {
               />
             </>
           ) : (
-          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-            <div
-              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
-              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-            >
-              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-                {CONTENT.roadmap.title}
-              </h2>
-              <p className="mt-5 text-lg leading-relaxed text-gray-700">
-                {CONTENT.roadmap.description}
-              </p>
+            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+              <div
+                className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+              >
+                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                  {CONTENT.roadmap.title}
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                  {CONTENT.roadmap.description}
+                </p>
+              </div>
+              <PlotterTimeline
+                className="mt-12 lg:col-span-7 lg:mt-0"
+                items={CONTENT.roadmap.steps.map((s) => ({
+                  kicker: s.month,
+                  title: s.title,
+                  desc: s.desc,
+                }))}
+              />
             </div>
-            <PlotterTimeline
-              className="mt-12 lg:col-span-7 lg:mt-0"
-              items={CONTENT.roadmap.steps.map((s) => ({
-                kicker: s.month,
-                title: s.title,
-                desc: s.desc,
-              }))}
-            />
-          </div>
           )}
         </Container>
       </section>

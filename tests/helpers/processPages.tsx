@@ -13,7 +13,8 @@ import AiSystemsApps from '../../components/pages/AiSystemsApps';
 import SeoRzeszow from '../../components/pages/SeoRzeszow';
 import CustomAppStart from '../../components/features/web-development/CustomAppStart';
 import BrandProcess from '../../components/features/design/BrandProcess';
-import { AI_SYSTEMS_CONTENT, CUSTOM_WEB_APP_CONTENT } from '../../data/content';
+import { CUSTOM_WEB_APP_CONTENT } from '../../data/content';
+import { AI_SYSTEMS_CONTENT } from '../../data/content/services/web-development/ai-systems';
 
 export interface ProcessPage {
   /** Adres podstrony (sitemap.xml). */
