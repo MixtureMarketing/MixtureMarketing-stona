@@ -34,6 +34,20 @@ describe('index.css: przycisk ciasteczek nad paskiem (MIX-1400)', () => {
   it('reguly nie ma w warstwie base (tam przegrywa z bottom-4)', () => {
     expect(layerBody('base')).not.toContain(SEL);
   });
+  // MIX-2079: na telefonie przycisk nad paskiem wisiał na treści kart → przy widocznym pasku chowa się.
+  it('telefon (max 767 px): przy widocznym pasku przycisk schowany (opacity, visibility, pointer-events)', () => {
+    const m = layerBody('utilities').match(
+      new RegExp(`@media \\(max-width: 767px\\)\\s*\\{\\s*${esc}\\s*\\{([^}]*)\\}`),
+    );
+    expect(m).not.toBeNull();
+    expect(m![1]).toMatch(/opacity:\s*0;/);
+    expect(m![1]).toMatch(/visibility:\s*hidden;/);
+    expect(m![1]).toMatch(/pointer-events:\s*none;/);
+  });
+  it('od 768 px regula chowania nie dziala (desktop bez zmian)', () => {
+    const outside = layerBody('utilities').replace(/@media \(max-width: 767px\)\s*\{[^]*?\}\s*\}/, '');
+    expect(outside).not.toMatch(new RegExp(`${esc}\\s*\\{[^}]*visibility:\\s*hidden`));
+  });
   it('przycisk ma klase cookie-floating-btn i bottom-4', () => {
     const tsx = fs.readFileSync(
       path.resolve(__dirname, '../../components/features/CookieFloatingButton.tsx'),
