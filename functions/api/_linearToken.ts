@@ -93,10 +93,9 @@ function poprawny(v: unknown): v is Token {
   );
 }
 
-const wazny = (x: Token | null | undefined, teraz: number): x is Token =>
-  Boolean(x && poprawny(x) && teraz < x.wygasa);
-const swiezy = (x: Token | null | undefined, teraz: number): x is Token =>
-  wazny(x, teraz) && teraz < x.odnowPo;
+/** Jedyna walidacja tokenu (pamięć i KV): poprawny kształt i przed końcem ważności. */
+const wazny = (x: unknown, teraz: number): x is Token => poprawny(x) && teraz < x.wygasa;
+const swiezy = (x: unknown, teraz: number): x is Token => wazny(x, teraz) && teraz < x.odnowPo;
 
 async function kluczKv(env: TokenEnv): Promise<string> {
   const b = await crypto.subtle.digest(
@@ -107,10 +106,9 @@ async function kluczKv(env: TokenEnv): Promise<string> {
   return `linear:oauth:token:${h.slice(0, 16)}`;
 }
 
-async function zKv(env: TokenEnv, klucz: string): Promise<Token | null> {
-  const v = await kvGetJson<unknown>(env.CACHE, klucz);
-  return poprawny(v) ? v : null;
-}
+/** Surowa wartość z KV (może być uszkodzona); każde użycie przechodzi przez `wazny`/`swiezy`. */
+const zKv = (env: TokenEnv, klucz: string): Promise<unknown> =>
+  kvGetJson<unknown>(env.CACHE, klucz);
 
 const spij = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -240,7 +238,8 @@ export async function tokenAplikacji(
     }
 
     // Dojrzały, ale jeszcze ważny token: przy cudzej blokadzie używamy go dalej.
-    const zapasowy = [m, k].find((x) => wazny(x, teraz) && x.t !== odrzucony) ?? null;
+    const zapasowy: Token | null =
+      wazny(m, teraz) && m.t !== odrzucony ? m : wazny(k, teraz) && k.t !== odrzucony ? k : null;
     const stary = odrzucony ?? zapasowy?.t ?? null;
 
     let p = wTrakcie.get(klucz);
