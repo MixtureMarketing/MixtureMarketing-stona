@@ -145,7 +145,7 @@ jobs:
           VITE_MM_CALC_NEW_UI: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1867: nowy wyglad kalkulatora
           VITE_MM_BOOKING_EMBED: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1814: terminy pod wynikiem
           VITE_MM_CONFIG_LINK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
-          VITE_MM_CENNIK: ${{ steps.target.outputs.target == 'preview' && '1' || '' }} # MIX-1855: strona /cennik/
+          VITE_MM_CENNIK: ${{ (steps.target.outputs.target == 'preview' || steps.target.outputs.target == 'prod') && '1' || '' }} # MIX-1855/MIX-2077: strona /cennik/ (Preview i produkcja; PR pusty)
           VITE_MM_CONFIG_PREVIEW: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LEAD_CONFIG: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
           VITE_MM_LIVE_PRICE_BAR: ${{ steps.target.outputs.target == 'preview' && '1' || '' }}
