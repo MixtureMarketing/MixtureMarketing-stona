@@ -77,9 +77,12 @@ const HOME_SEO_WYLACZONY_NA_PROD = ['VITE_MM_HOME_SEO'];
 /** Wszystkie przełączniki wyłączone na produkcji (kolejność alfabetyczna jak lista z kodu). */
 /** PsychON w sekcji dowodu /web-development/custom-app/ (MIX-1975): Preview 1, produkcja i PR puste. */
 const PSYCHON_WYLACZONY_NA_PROD = ['VITE_MM_CUSTOMAPP_PSYCHON'];
+/** K1 „Oś procesu” w sekcjach procesu podstron usług (MIX-1317): Preview 1, produkcja i PR puste. */
+const PROCES_K1_WYLACZONY_NA_PROD = ['VITE_MM_PROCESS_TIMELINE'];
 const WYLACZONE_NA_PROD = [
   ...CENNIK_WYLACZONY_NA_PROD,
   ...HOME_SEO_WYLACZONY_NA_PROD,
+  ...PROCES_K1_WYLACZONY_NA_PROD,
   ...PSYCHON_WYLACZONY_NA_PROD,
   ...WYCENA_WYLACZONA_NA_PROD,
   ...REALIZACJA_AIQP_TYLKO_PREVIEW,
@@ -367,6 +370,7 @@ describe('ci.yml: przełączniki VITE_MM_* (MIX-1411: Preview włączone; produk
       'VITE_MM_COOKIE_BANNER_STATIC',
       'VITE_MM_PORTFOLIO_VIDEO', // MIX-1873
       'VITE_MM_CUSTOMAPP_PSYCHON', // MIX-1975
+      'VITE_MM_PROCESS_TIMELINE', // MIX-1317
     ])
       expect(lista).toContain(f);
     for (const n of NIE_PRZELACZNIKI) expect(lista).not.toContain(n);
@@ -550,6 +554,25 @@ describe('ci.yml: warianty psute celowo są wykrywane (negatywne nogi)', () => {
       expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
     },
   );
+  it.each(PROCES_K1_WYLACZONY_NA_PROD)(
+    'MIX-1317: %s (oś procesu K1) włączony na produkcji = naruszenie',
+    (f) => {
+      const w = kopia();
+      zmienneBuildu(w)[f] = '1';
+      const b = naruszenia(w);
+      expect(b).toContain(`${f}: zła wartość na produkcji ("1")`);
+      expect(b).toContain(`${f}: zła wartość poza wdrożeniem ("1")`);
+    },
+  );
+  it('MIX-1317: VITE_MM_PROCESS_TIMELINE w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
+    const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_PROCESS_TIMELINE);
+    expect(wyr).toBe(WYRAZENIE_PREVIEW);
+    expect(wartoscFlagi(wyr, 'preview')).toBe('1');
+    expect(wartoscFlagi(wyr, 'prod')).toBe('');
+    expect(wartoscFlagi(wyr, 'none')).toBe('');
+    expect(przelacznikiZKodu()).toContain('VITE_MM_PROCESS_TIMELINE');
+    expect(WLACZONE_NA_PROD.has('VITE_MM_PROCESS_TIMELINE')).toBe(false);
+  });
   it('MIX-1269: VITE_MM_HOME_SEO w ci.yml to dokładnie wyrażenie „Preview 1, produkcja i PR puste”', () => {
     const wyr = String(zmienneBuildu(wczytaj()).VITE_MM_HOME_SEO);
     expect(wyr).toBe(WYRAZENIE_PREVIEW);

@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import Seo from '../common/Seo';
 import Container from '../common/Container';
+import ProcessTimeline from '../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../config/flags';
 import Button from '../common/Button';
 import AmbientBackground from '../common/AmbientBackground';
 import LazyMap from '../common/LazyMap';
@@ -27,6 +29,40 @@ import { useModal } from '../../context/ModalContext';
 import { SITE_CONFIG } from '../../config/site';
 import { ORG_REF } from '../../utils/seo/organizationSchema';
 import { buildFaqSchema } from '../../utils/seo/commonSchemas';
+
+/** Proces pozycjonowania (MIX-898); wspólny dla listy i osi K1 (MIX-1317). */
+const SEO_PROCESS_STEPS = [
+  {
+    icon: Search,
+    title: 'Audyt techniczny SEO',
+    desc: 'Screaming Frog, GSC, Lighthouse, Core Web Vitals, indeksacja, schema, duplikaty.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Keyword research i strategia',
+    desc: 'Senuto/Ahrefs, audyt konkurencji Rzeszów + PL, mapa contentu na 6–12 mies.',
+  },
+  {
+    icon: Wrench,
+    title: 'Optymalizacja on-page',
+    desc: 'Title, meta, H1-H3, URL, internal linking, schema (LocalBusiness, FAQ, Service), CWV.',
+  },
+  {
+    icon: Layers,
+    title: 'Content marketing',
+    desc: 'Artykuły eksperckie, podstrony usługowe i lokalizacyjne (pillar + spokes), E-E-A-T.',
+  },
+  {
+    icon: MapPin,
+    title: 'Lokalne SEO i GBP',
+    desc: 'Google Business Profile, citations PL (panoramafirm, pkt, aleo), backlinki Klaster IT.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Monitoring i raporty',
+    desc: 'Miesięczny raport (pozycje, ruch, konwersje GSC/GA4), call 45 min, iteracje kwartalne.',
+  },
+];
 
 const SeoRzeszow: React.FC = () => {
   const { openModal } = useModal();
@@ -497,56 +533,29 @@ const SeoRzeszow: React.FC = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
               Proces pozycjonowania krok po kroku
             </h2>
-            <ol className="max-w-3xl mx-auto space-y-4">
-              {[
-                {
-                  icon: Search,
-                  title: 'Audyt techniczny SEO',
-                  desc: 'Screaming Frog, GSC, Lighthouse, Core Web Vitals, indeksacja, schema, duplikaty.',
-                },
-                {
-                  icon: BarChart3,
-                  title: 'Keyword research i strategia',
-                  desc: 'Senuto/Ahrefs, audyt konkurencji Rzeszów + PL, mapa contentu na 6–12 mies.',
-                },
-                {
-                  icon: Wrench,
-                  title: 'Optymalizacja on-page',
-                  desc: 'Title, meta, H1-H3, URL, internal linking, schema (LocalBusiness, FAQ, Service), CWV.',
-                },
-                {
-                  icon: Layers,
-                  title: 'Content marketing',
-                  desc: 'Artykuły eksperckie, podstrony usługowe i lokalizacyjne (pillar + spokes), E-E-A-T.',
-                },
-                {
-                  icon: MapPin,
-                  title: 'Lokalne SEO i GBP',
-                  desc: 'Google Business Profile, citations PL (panoramafirm, pkt, aleo), backlinki Klaster IT.',
-                },
-                {
-                  icon: TrendingUp,
-                  title: 'Monitoring i raporty',
-                  desc: 'Miesięczny raport (pozycje, ruch, konwersje GSC/GA4), call 45 min, iteracje kwartalne.',
-                },
-              ].map((step, i) => (
-                <li
-                  key={step.title}
-                  className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
-                    {i + 1}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <step.icon size={20} className="text-primary" aria-hidden="true" />
-                      <h3 className="font-bold text-lg">{step.title}</h3>
+            {isProcessTimelineEnabled() ? (
+              <ProcessTimeline items={SEO_PROCESS_STEPS} />
+            ) : (
+              <ol className="max-w-3xl mx-auto space-y-4">
+                {SEO_PROCESS_STEPS.map((step, i) => (
+                  <li
+                    key={step.title}
+                    className="flex gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
+                  >
+                    <div className="flex-shrink-0 w-12 h-12 bg-secondary text-white rounded-xl flex items-center justify-center font-extrabold text-lg">
+                      {i + 1}
                     </div>
-                    <p className="text-sm text-gray-600">{step.desc}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <step.icon size={20} className="text-primary" aria-hidden="true" />
+                        <h3 className="font-bold text-lg">{step.title}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">{step.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
 
           {/* Internal links — cluster */}
