@@ -1,15 +1,18 @@
 /**
  * Retencja danych z audytu 360 (decyzja Jakuba MIX-1371 A, 16.11.2026; zastępuje MIX-627 A „PDF 90 dni”):
  * - raport PDF w R2 (`FILES`, klucze `audit/…`) jest usuwany, gdy jest starszy niż 30 dni (czas `uploaded` z R2);
- * - lead z audytu (`leads.source = 'audit'`) jest usuwany, gdy od ostatniej zmiany (`updated_at`, a gdy go brak
- *   `created_at`) minęło ponad 12 miesięcy kalendarzowych i lead nie został klientem.
+ * - lead z audytu (`leads.source = 'audit'`) jest usuwany, gdy od momentu audytu (`created_at`, czyli zapisu leada
+ *   przez `capture-lead`; gdy go brak, `updated_at`) minęło ponad 12 miesięcy kalendarzowych i lead nie został
+ *   klientem. Późniejsza zmiana leada nie przedłuża terminu (poprawka Jakuba z 16.11, MIX-1842).
  *
  * Klient (nigdy nie kasowany): `status = 'converted'` ALBO `user_id` ustawiony ALBO w `users` jest konto z tym
  * samym adresem (bez względu na wielkość liter). Leady z innych źródeł (formularz, kalkulator) nie są ruszane.
  *
  * Granice: „starszy niż” = ściśle mniej niż próg. PDF z wiekiem dokładnie 30 dni zostaje, 30 dni i 1 s idzie.
- * Lead zmieniony dokładnie 12 miesięcy temu zostaje. 12 miesięcy = ta sama data rok wcześniej (UTC);
- * 29 lutego przechodzi na 1 marca (zachowanie `Date.setUTCFullYear`).
+ * Lead z audytu sprzed dokładnie 12 miesięcy zostaje. 12 miesięcy = ta sama data rok wcześniej (UTC); gdy takiego
+ * dnia nie ma (29 lutego), próg to ostatni dzień tego miesiąca (28 lutego), nigdy wcześniej.
+ *
+ * Oba DELETE (kolejka Lineara i lead) idą w jednym `DB.batch` (jedna transakcja D1) z tym samym warunkiem co SELECT.
  *
  * Tryb próbny (`proba: true`) tylko liczy i wypisuje identyfikatory, niczego nie usuwa. Wynik i log zawierają
  * wyłącznie liczby, identyfikatory leadów (UUID) i klucze plików R2 (`audit/<ms>_<uuid>.pdf`), bez adresów e-mail.
@@ -39,13 +42,18 @@ export function progPdf(teraz: number): number {
 
 export function progLeada(teraz: number): number {
   const d = new Date(teraz);
-  d.setUTCMonth(d.getUTCMonth() - MIESIACE_LEAD);
-  return d.getTime();
+  // Najpierw 1. dzień miesiąca docelowego, potem dzień przycięty do jego długości (29.02 → 28.02).
+  const cel = new Date(teraz);
+  cel.setUTCDate(1);
+  cel.setUTCMonth(d.getUTCMonth() - MIESIACE_LEAD);
+  const ostatni = new Date(Date.UTC(cel.getUTCFullYear(), cel.getUTCMonth() + 1, 0)).getUTCDate();
+  cel.setUTCDate(Math.min(d.getUTCDate(), ostatni));
+  return cel.getTime();
 }
 
 // Warunek leada do usunięcia; jeden tekst dla SELECT i DELETE, więc lead skonwertowany w międzyczasie zostaje.
 const WARUNEK_LEADA = `l.source = 'audit'
-  AND coalesce(l.updated_at, l.created_at) < ?
+  AND coalesce(l.created_at, l.updated_at) < ?
   AND coalesce(l.status, '') <> 'converted'
   AND l.user_id IS NULL
   AND NOT EXISTS (SELECT 1 FROM users u WHERE lower(u.email) = lower(l.email))`;
@@ -114,7 +122,7 @@ async function retencjaLeadow(env: RetencjaEnv, teraz: number, proba: boolean) {
   const id = (kandydaci.results ?? []).map((w) => String(w.id));
   const chronieni = await env.DB.prepare(
     `SELECT count(*) AS n FROM leads l
-     WHERE l.source = 'audit' AND coalesce(l.updated_at, l.created_at) < ?
+     WHERE l.source = 'audit' AND coalesce(l.created_at, l.updated_at) < ?
        AND NOT (coalesce(l.status, '') <> 'converted' AND l.user_id IS NULL
                 AND NOT EXISTS (SELECT 1 FROM users u WHERE lower(u.email) = lower(l.email)))`,
   )
@@ -131,20 +139,19 @@ async function retencjaLeadow(env: RetencjaEnv, teraz: number, proba: boolean) {
   for (let i = 0; i < id.length; i += PACZKA_ID) {
     const paczka = id.slice(i, i + PACZKA_ID);
     const miejsca = paczka.map(() => '?').join(', ');
-    // Najpierw kolejka Lineara (klucz obcy do leads), potem sam lead; oba z tym samym warunkiem co SELECT.
-    await env.DB.prepare(
-      `DELETE FROM linear_leady WHERE lead_id IN (${miejsca})
-         AND lead_id IN (SELECT l.id FROM leads l WHERE ${WARUNEK_LEADA})`,
-    )
-      .bind(...paczka, prog)
-      .run();
-    const usun = await env.DB.prepare(
-      `DELETE FROM leads WHERE id IN (${miejsca})
-         AND id IN (SELECT l.id FROM leads l WHERE ${WARUNEK_LEADA})`,
-    )
-      .bind(...paczka, prog)
-      .run();
-    wynik.usuniete += Number(usun.meta?.changes ?? 0);
+    // Najpierw kolejka Lineara (klucz obcy do leads), potem sam lead; oba z tym samym warunkiem co SELECT
+    // i w jednej transakcji (`batch`): błąd drugiego DELETE nie zostawia leada bez wiersza kolejki.
+    const wyniki = await env.DB.batch([
+      env.DB.prepare(
+        `DELETE FROM linear_leady WHERE lead_id IN (${miejsca})
+           AND lead_id IN (SELECT l.id FROM leads l WHERE ${WARUNEK_LEADA})`,
+      ).bind(...paczka, prog),
+      env.DB.prepare(
+        `DELETE FROM leads WHERE id IN (${miejsca})
+           AND id IN (SELECT l.id FROM leads l WHERE ${WARUNEK_LEADA})`,
+      ).bind(...paczka, prog),
+    ]);
+    wynik.usuniete += Number(wyniki[1]?.meta?.changes ?? 0);
   }
   return wynik;
 }

@@ -19,13 +19,36 @@ export function d1Sqlite(migrations: string[] = ['0001_init.sql']) {
     db.exec(readFileSync(resolve(__dirname, '../../migrations', plik), 'utf8'));
   }
   type Arg = string | number | null;
-  const stmt = (sql: string, args: Arg[]) => ({
-    bind: (...a: Arg[]) => stmt(sql, a),
-    first: async () => db.prepare(sql).get(...args) ?? null,
-    all: async () => ({ results: db.prepare(sql).all(...args) }),
-    run: async () => ({ meta: { changes: Number(db.prepare(sql).run(...args).changes) } }),
-  });
-  const D1 = { prepare: (sql: string) => stmt(sql, []) };
+  interface Stmt {
+    bind: (...a: Arg[]) => Stmt;
+    first: () => Promise<unknown>;
+    all: () => Promise<{ results: unknown[] }>;
+    run: () => Promise<{ meta: { changes: number } }>;
+    runSync: () => { meta: { changes: number } };
+  }
+  const stmt = (sql: string, args: Arg[]): Stmt => {
+    const runSync = () => ({ meta: { changes: Number(db.prepare(sql).run(...args).changes) } });
+    return {
+      bind: (...a: Arg[]) => stmt(sql, a),
+      first: async () => db.prepare(sql).get(...args) ?? null,
+      all: async () => ({ results: db.prepare(sql).all(...args) }),
+      run: async () => runSync(),
+      runSync,
+    };
+  };
+  // `batch` jak w D1: wszystkie zapytania w jednej transakcji; błąd jednego cofa całą paczkę.
+  const batch = async (lista: Stmt[]) => {
+    db.exec('BEGIN');
+    try {
+      const wyniki = lista.map((s) => s.runSync());
+      db.exec('COMMIT');
+      return wyniki;
+    } catch (e) {
+      db.exec('ROLLBACK');
+      throw e;
+    }
+  };
+  const D1 = { prepare: (sql: string) => stmt(sql, []), batch };
   return { DB: D1, db };
 }
 

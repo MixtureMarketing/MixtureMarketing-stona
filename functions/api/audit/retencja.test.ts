@@ -238,13 +238,78 @@ describe('retencja leadów z audytu: granica 11/12/13 miesięcy, klient chronion
     expect(istnieje(db, f) && istnieje(db, k)).toBe(true);
   });
 
-  it('(+) liczy się ostatnia zmiana (updated_at), nie data utworzenia', async () => {
+  it('(+) liczy się moment audytu (created_at): późniejsza zmiana leada nie przedłuża 12 miesięcy (MIX-1842)', async () => {
     const { env, db } = srodowisko();
-    const id = lead(db, { zmiana: miesiaceTemu(18) });
-    db.prepare('UPDATE leads SET updated_at = ? WHERE id = ?').run(czasD1(miesiaceTemu(2)), id);
+    // Audyt 13 miesięcy temu, lead zmieniony 2 miesiące temu: kasowany.
+    const staryAudyt = lead(db, { zmiana: miesiaceTemu(13) });
+    db.prepare('UPDATE leads SET updated_at = ? WHERE id = ?').run(
+      czasD1(miesiaceTemu(2)),
+      staryAudyt,
+    );
+    // Audyt 11 miesięcy temu, a updated_at (np. z importu) sprzed 18 miesięcy: zostaje.
+    const nowyAudyt = lead(db, { zmiana: miesiaceTemu(11) });
+    db.prepare('UPDATE leads SET updated_at = ? WHERE id = ?').run(
+      czasD1(miesiaceTemu(18)),
+      nowyAudyt,
+    );
     const w = await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
-    expect(w.leady.do_usuniecia).toBe(0);
+    expect(w.leady.id).toEqual([staryAudyt]);
+    expect([istnieje(db, staryAudyt), istnieje(db, nowyAudyt)]).toEqual([false, true]);
+  });
+
+  it('(+) brak created_at: liczy się updated_at (lead bez daty audytu nie zostaje na zawsze)', async () => {
+    const { env, db } = srodowisko();
+    const id = lead(db, { zmiana: miesiaceTemu(13) });
+    db.prepare('UPDATE leads SET created_at = NULL WHERE id = ?').run(id);
+    const w = await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
+    expect(w.leady.id).toEqual([id]);
+    expect(istnieje(db, id)).toBe(false);
+  });
+
+  it('(−) wyścig: lead, który został klientem między SELECT a DELETE, zostaje razem z wierszem kolejki', async () => {
+    const { env, db } = srodowisko();
+    db.exec('PRAGMA foreign_keys = OFF');
+    const a = lead(db, { zmiana: miesiaceTemu(13), kolejka: true });
+    const b = lead(db, { zmiana: miesiaceTemu(13), kolejka: true, email: 'b@firma-b.pl' });
+    const c = lead(db, { zmiana: miesiaceTemu(13), kolejka: true });
+    const baza = env.DB as { prepare: (s: string) => unknown; batch: (l: unknown[]) => unknown };
+    let zmieniony = false;
+    env.DB = {
+      prepare: (sql: string) => {
+        // Zapytanie o chronionych idzie po wyborze kandydatów, a przed DELETE.
+        if (!zmieniony && sql.includes('count(*)')) {
+          zmieniony = true;
+          db.prepare(`UPDATE leads SET status = 'converted' WHERE id = ?`).run(a);
+          db.prepare(
+            `INSERT INTO users (email, name, role) VALUES ('B@firma-b.pl', 'B', 'client')`,
+          ).run();
+        }
+        return baza.prepare(sql);
+      },
+      batch: (l: unknown[]) => baza.batch(l),
+    };
+    const w = await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
+    expect(zmieniony).toBe(true);
+    expect(w.leady.do_usuniecia).toBe(3);
+    expect(w.leady.usuniete).toBe(1);
+    expect([a, b, c].map((i) => istnieje(db, i))).toEqual([true, true, false]);
+    const kolejka = db.prepare('SELECT lead_id FROM linear_leady ORDER BY lead_id').all() as {
+      lead_id: string;
+    }[];
+    expect(kolejka.map((x) => x.lead_id)).toEqual([a, b].sort());
+  });
+
+  it('(−) błąd przy kasowaniu leada cofa też kasowanie wiersza kolejki (jedna transakcja)', async () => {
+    const { env, db } = srodowisko();
+    db.exec('PRAGMA foreign_keys = OFF');
+    const id = lead(db, { zmiana: miesiaceTemu(13), kolejka: true });
+    db.exec(
+      `CREATE TRIGGER blokada BEFORE DELETE ON leads BEGIN SELECT RAISE(ABORT, 'blokada'); END`,
+    );
+    await expect(wykonajRetencje(env as never, { proba: false, teraz: TERAZ })).rejects.toThrow();
     expect(istnieje(db, id)).toBe(true);
+    const kolejka = db.prepare('SELECT lead_id FROM linear_leady').all() as { lead_id: string }[];
+    expect(kolejka.map((x) => x.lead_id)).toEqual([id]);
   });
 
   it('(+) usuwa też wiersz kolejki Lineara usuwanego leada; wiersz chronionego zostaje', async () => {
@@ -269,6 +334,19 @@ describe('retencja leadów z audytu: granica 11/12/13 miesięcy, klient chronion
 
   it('(+) próg 12 miesięcy: ta sama data rok wcześniej (UTC)', () => {
     expect(czasD1(progLeada(TERAZ))).toBe('2025-11-16 12:00:00');
+    expect(czasD1(progLeada(Date.parse('2027-03-31T00:30:00Z')))).toBe('2026-03-31 00:30:00');
+    expect(czasD1(progLeada(Date.parse('2028-03-01T06:00:00Z')))).toBe('2027-03-01 06:00:00');
+  });
+
+  it('(−) 29 lutego: próg to 28 lutego rok wcześniej, lead z 1 marca nie znika za wcześnie', async () => {
+    const teraz = Date.parse('2028-02-29T12:00:00Z');
+    expect(czasD1(progLeada(teraz))).toBe('2027-02-28 12:00:00');
+    const { env, db } = srodowisko();
+    const marzec = lead(db, { zmiana: Date.parse('2027-03-01T06:00:00Z') });
+    const luty = lead(db, { zmiana: Date.parse('2027-02-28T11:59:59Z') });
+    const w = await wykonajRetencje(env as never, { proba: false, teraz });
+    expect(w.leady.id).toEqual([luty]);
+    expect([istnieje(db, marzec), istnieje(db, luty)]).toEqual([true, false]);
   });
 });
 
@@ -311,6 +389,9 @@ describe('czyProba: kasowanie tylko przy fladze i poza Preview', () => {
     [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: 'preview' }, {}, true],
     [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: 'preview' }, { proba: true }, true],
     [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: 'preview' }, { proba: false }, false],
+    [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: 'Preview' }, {}, true],
+    [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: ' PREVIEW ' }, {}, true],
+    [{ AUDIT_RETENCJA_KASUJ: 'tak', SRODOWISKO: 'Preview' }, { proba: false }, false],
   ])('env %j body %j → proba %s', (env, body, oczekiwane) => {
     expect(czyProba(env as never, body)).toBe(oczekiwane);
   });

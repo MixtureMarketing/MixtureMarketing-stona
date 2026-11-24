@@ -71,10 +71,12 @@ Lista pochodzi z użycia `env.` w `functions/` (bez testów). Wartości ustawia 
 |---|---|---|---|
 | `LINEAR_API_KEY` | sekret | `functions/api/_linear.ts:22`, `functions/api/_linear.ts:447` | klucz konta Linear; brak = moduł wyłączony |
 | `LINEAR_PONOW_SECRET` | sekret | `functions/api/leady/ponow.ts:57` | podpis timera, minimum 32 znaki; ta sama wartość po stronie timera (poza repo) |
+| `AUDIT_RETENCJA_SECRET` | sekret | `functions/api/audit/retencja.ts:65` | podpis timera retencji audytu, minimum 32 znaki; ta sama wartość po stronie timera (`RETENCJA_SECRET`, poza repo) |
+| `AUDIT_RETENCJA_KASUJ` | zmienna | `functions/api/audit/retencja.ts:52` | `tak` = retencja kasuje; brak albo inna wartość = tylko tryb próbny |
 | `LINEAR_TEAM_LEADY_ID` | zwykła | `functions/api/_linear.ts:23` | identyfikator zespołu LEA; brak = moduł wyłączony |
 | `LINEAR_PROWADZACY_ID` | zwykła | `functions/api/_linear.ts:727` | prowadzący zespół Leady (decyzja 2B) |
 | `LINEAR_STAN_TRIAGE_ID` | zwykła, opcjonalna | `functions/api/_linear.ts:728` | stan Triage |
-| `SRODOWISKO` | zwykła | `functions/api/_linear.ts:662` | `preview` = etykieta `test` i przedrostek `[Preview]` w tytule |
+| `SRODOWISKO` | zwykła | `functions/api/_linear.ts:662`, `functions/api/audit/retencja.ts:55` | `preview` = etykieta `test` i przedrostek `[Preview]` w tytule; retencja audytu na Preview kasuje tylko z jawnym `"proba": false` |
 | `RESEND_API_KEY`, `NOTIFY_EMAIL` | sekret, zwykła | `functions/api/_shared/email.ts:33`, `functions/api/contact-submit.ts:39` | mail do agencji (zapas, patrz 4) |
 | `TURNSTILE_SECRET`, `LEAD_TOKEN_SECRET` | sekrety | `functions/api/contact-submit.ts:277`, `functions/api/_leadToken.ts:21` | ochrona formularza i token edycji leada |
 | `CRM_STRONA_SECRET` | sekret | `functions/api/crm/_podpis.ts:17` | podpis GET z CRM (nie dotyczy Lineara) |
@@ -158,7 +160,7 @@ Pomijane pola: nazwy pasujące do `token|secret|captcha|passw|haslo|^ip$|agent` 
 
 | miejsce | okres | stan |
 |---|---|---|
-| leady z audytu w D1 (`source='audit'`) | 12 miesięcy od ostatniej zmiany (`updated_at`), jeśli lead nie został klientem | MIX-1371 A; kasowanie: `functions/api/audit/_retencja.ts` przez `POST /api/audit/retencja` (MIX-1820) |
+| leady z audytu w D1 (`source='audit'`) | 12 miesięcy od audytu (`created_at`; późniejsza zmiana leada nie przedłuża), jeśli lead nie został klientem | MIX-1371 A z poprawką MIX-1842; kasowanie: `functions/api/audit/_retencja.ts` przez `POST /api/audit/retencja` (MIX-1820) |
 | leady z formularza i kalkulatora w D1, zadania w Linearze | 12 miesięcy od ostatniego kontaktu | tekst klauzuli `data/content/common.ts`; mechanizmu usuwania w kodzie jeszcze nie ma (MIX-1820 obejmuje tylko audyt; zadania w Linearze poza repo) |
 | PDF audytu w R2 (`audit/…`) | 30 dni od wgrania | MIX-1371 A (zastępuje 90 dni z MIX-627); kasowanie: `functions/api/audit/_retencja.ts` (MIX-1820) |
 | `linear_leady` | razem z leadem (retencja usuwa wiersz jawnie przed leadem) | `migrations/0010_linear_leady.sql:8` |
@@ -171,7 +173,8 @@ Decyzja Jakuba z 02.11 (MIX-627): 12 miesięcy dla leadów i 90 dni dla PDF z au
 
 - `POST /api/audit/retencja` (`functions/api/audit/retencja.ts`), podpis HMAC jak `leady/ponow`, ale osobny sekret `AUDIT_RETENCJA_SECRET` (≥ 32 znaki) i prefiks `audyt-retencja:v1:`. Wywołanie: `scripts/audit-retencja.mjs` (env `RETENCJA_URL`, `RETENCJA_SECRET`), timer na serwerze firmy raz na dobę (poza repo, obok `leady-ponow.timer`).
 - Klient (nie kasowany): `status='converted'`, ustawione `user_id` albo konto w `users` z tym samym adresem.
-- Tryb próbny jest domyślny. Kasowanie tylko przy `AUDIT_RETENCJA_KASUJ=tak`, bez `"proba": true` w body, a na Preview (`SRODOWISKO=preview`) dodatkowo z jawnym `"proba": false`.
+- Tryb próbny jest domyślny. Kasowanie tylko przy `AUDIT_RETENCJA_KASUJ=tak`, bez `"proba": true` w body, a na Preview (`SRODOWISKO=preview`, bez względu na wielkość liter) dodatkowo z jawnym `"proba": false`.
+- Lead: 12 miesięcy od audytu (`created_at`, MIX-1842); dla 29.02 próg to 28.02 rok wcześniej. Oba DELETE (kolejka Lineara i lead) w jednym `DB.batch`, z ponownym warunkiem klienta.
 - Na przebieg najwyżej 1000 plików i 200 leadów; reszta w kolejnym dniu. Odpowiedź i log `[audyt:retencja]`: liczby, id leadów, klucze plików.
 - Nie obejmuje: zadań i Customerów w Linearze, kopii w skrzynce agencji (mail z PDF) ani kopii zapasowych D1.
 
@@ -210,7 +213,7 @@ Każde ma rekomendację; numery zbierają raport odbioru.
 | id | pytanie | rekomendacja |
 |---|---|---|
 | O1 | Kto dostaje alarm ponowień (zablokowane > 0)? | L-SYS (sprawa techniczna), a Jakub tylko leady po SLA |
-| O2 | Jak wykonywana jest retencja 12 miesięcy i 90 dni, skoro kod nic nie usuwa? | kwartalny przegląd ręczny z listą w Linearze, osobne zadanie na automat po wdrożeniu |
+| O2 | Jak wykonywana jest retencja? | audyt: automat `POST /api/audit/retencja` (PDF 30 dni, lead 12 miesięcy od audytu, 6.2.1, MIX-1820); formularz i kalkulator: kwartalny przegląd ręczny z listą w Linearze, osobne zadanie na automat |
 | O3 | Co z leadami z okresu bez klucza (brak wiersza w kolejce)? | jednorazowy skrypt zakolejkowania po przywróceniu klucza, w zadaniu z oznaczeniem czasu |
 | O4 | Czy poczta prywatna ma trafiać do Lineara w opisie zadania (e-mail jawnie)? | tak, bo opis jest dostępny tylko zespołowi LEA; tytuł pozostaje bez danych |
 | O5 | Kto jest w rolach z sekcji 6.4 i kto może usuwać zadania w Linear? | lista imienna w rejestrze poza repo, zmiany przez Jakuba |

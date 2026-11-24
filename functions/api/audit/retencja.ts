@@ -51,7 +51,8 @@ function czytajBody(tekst: string): { proba?: boolean } | string {
 export function czyProba(env: RetencjaEndpointEnv, body: { proba?: boolean }): boolean {
   if (env.AUDIT_RETENCJA_KASUJ !== 'tak') return true;
   if (body.proba === true) return true;
-  if (env.SRODOWISKO === 'preview') return body.proba !== false;
+  // Wielkość liter i spacje bez znaczenia: `Preview` albo ` preview ` to dalej Preview (domyślnie bez kasowania).
+  if ((env.SRODOWISKO ?? '').trim().toLowerCase() === 'preview') return body.proba !== false;
   return false;
 }
 
