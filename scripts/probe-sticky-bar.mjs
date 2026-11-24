@@ -244,7 +244,18 @@ for (const engine of ENGINES) {
       for (const [dir, y] of path2) {
         await page.evaluate((yy) => window.scrollTo(0, yy), y);
         await sleep(450); // transition 300 ms + rAF
-        const m = await page.evaluate(measure);
+        // Pomiar dopiero po ustaniu ruchu paska: IntersectionObserver i transition 300 ms w WebKit
+        // potrafią ruszyć później niż 450 ms po przewinięciu (stan przejściowy to nie położenie).
+        let m = await page.evaluate(measure);
+        for (let i = 0; i < 12; i++) {
+          await sleep(150);
+          const n = await page.evaluate(measure);
+          const still = !n.bar || !m.bar || Math.abs(n.bar.bottom - m.bar.bottom) < 0.5;
+          const same = n.shown === m.shown && still;
+          m = n;
+          m.settleMs = 450 + 150 * (i + 1);
+          if (same) break;
+        }
         m.dir = dir;
         rec.points.push(m);
         if (m.shown && !shotDone && dir === 'dol' && m.y > 1500) {
@@ -312,6 +323,11 @@ for (const engine of ENGINES) {
         `zgody_nachodzi=${s.cookieOverlapPoints} zgody_widoczny_przy_pasku=${s.cookieVisibleWhileBar} ` +
         `przodkowie_cb=${s.ancestors} axe=${s.axe} cls=${s.clsLoad == null ? 'n/d' : s.clsLoad.toFixed(3)}`,
     );
+    for (const b of badBar.slice(0, 5))
+      console.log(
+        `ODSTAJE ${tag} ${b.dir} y=${b.y} bottom=${b.bar.bottom.toFixed(1)} inner=${b.innerHeight} ` +
+          `styl=${b.barStyleBottom || '-'} settle=${b.settleMs}`,
+      );
     if (rec.ancestors && rec.ancestors.length)
       console.log(`PRZODKOWIE ${tag}: ${rec.ancestors.join(' | ')}`);
     results.push(rec);
