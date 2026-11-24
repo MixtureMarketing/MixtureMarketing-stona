@@ -332,3 +332,77 @@ describe('luki z weryfikacji r1 (w2, w5, w6, w8, w9, w10)', () => {
     expect(spready).toBeGreaterThanOrEqual(9);
   });
 });
+
+describe('MIX-2117: fiolet marki jako kolor główny maili', () => {
+  const ROOT = path.resolve(__dirname, '../../..');
+  const BRAND = '#3f3d91';
+  const BLUE_NAVY = ['#61b6de', '#2d739a', '#213261'];
+
+  /** Kontrast WCAG 2.x dwóch kolorów #rrggbb. */
+  const contrast = (a: string, b: string) => {
+    const lum = (h: string) => {
+      const [r, g, bl] = [1, 3, 5].map((i) => {
+        const c = parseInt(h.slice(i, i + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+    };
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+
+  it('fiolet maili = --color-brand-indigo z index.css i kolor logo', () => {
+    const css = fs.readFileSync(path.join(ROOT, 'index.css'), 'utf8');
+    expect(css).toMatch(new RegExp(`--color-brand-indigo:\\s*${BRAND};`));
+    const logo = fs.readFileSync(path.join(ROOT, 'public/assets/images/logo.svg'), 'utf8');
+    expect(logo.toLowerCase()).toContain(BRAND);
+  });
+
+  it.each(ALL)('%s – %s: nagłówek, h1, linki, wyróżnienia i przycisk w fiolecie', (_f, _n, mail) => {
+    const doc = parse(mail.html);
+    const header = doc.querySelector('img')?.closest('td');
+    expect(header?.getAttribute('bgcolor')).toBe(BRAND);
+    expect(header?.getAttribute('style')).toContain(`background:${BRAND}`);
+    const colored = [
+      ...doc.querySelectorAll('h1, strong, a.mm-link, td.mm-foot a, td.mm-text[style*="font-weight:700"]'),
+    ];
+    for (const el of colored) expect(el.getAttribute('style')).toContain(`color:${BRAND}`);
+    for (const td of doc.querySelectorAll('a.mm-button'))
+      expect(td.closest('td')?.getAttribute('bgcolor')).toBe(BRAND);
+    for (const q of doc.querySelectorAll('td.mm-quote'))
+      expect(q.getAttribute('style')).toContain(`border-left:4px solid ${BRAND}`);
+    // Niebieski i granat nie wracają jako kolor główny (inline style ani bgcolor).
+    const body = mail.html.slice(mail.html.indexOf('<body'));
+    for (const c of BLUE_NAVY) expect(body.toLowerCase()).not.toContain(c);
+  });
+
+  it('każdy element w fiolecie występuje w którymś z 13 maili', () => {
+    const all = ALL.map(([, , m]) => parse(m.html));
+    for (const sel of ['h1', 'strong', 'a.mm-link', 'a.mm-button', 'td.mm-quote', 'td.mm-foot a'])
+      expect(
+        all.some((d) => d.querySelector(sel)),
+        sel,
+      ).toBe(true);
+  });
+
+  it('kontrast tekstu i linków ≥ 4.5:1 (WCAG AA), jasny i ciemny tryb', () => {
+    const html = ALL[0][2].html;
+    const lav = html.match(/\.mm-link,\.mm-foot a\{color:(#[0-9a-f]{6})!important\}/i)?.[1];
+    const dark = html.match(/\.mm-heading,\.mm-strong\{color:(#[0-9a-f]{6})!important\}/i)?.[1];
+    expect(lav).toBeDefined();
+    expect(dark).toBe(lav);
+    const pairs: Array<[string, string]> = [
+      [BRAND, '#ffffff'], // h1, linki, wyróżnienia na karcie
+      ['#ffffff', BRAND], // napis przycisku
+      [BRAND, '#f9fafb'], // tło cytatu
+      ['#374151', '#ffffff'], // tekst
+      ['#4b5563', '#ffffff'], // stopka
+      [lav!, '#0d1529'], // tryb ciemny: linki, h1 na karcie
+      [lav!, '#0b1120'],
+      ['#f3f4f6', '#0d1529'],
+      ['#cbd5e1', '#0d1529'],
+    ];
+    for (const [fg, bg] of pairs)
+      expect(contrast(fg, bg), `${fg} na ${bg}`).toBeGreaterThanOrEqual(4.5);
+  });
+});
