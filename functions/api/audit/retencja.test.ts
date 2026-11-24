@@ -260,7 +260,11 @@ describe('retencja leadów z audytu: granica 11/12/13 miesięcy, klient chronion
   it('(+) brak created_at: liczy się updated_at (lead bez daty audytu nie zostaje na zawsze)', async () => {
     const { env, db } = srodowisko();
     const id = lead(db, { zmiana: miesiaceTemu(13) });
-    db.prepare('UPDATE leads SET created_at = NULL WHERE id = ?').run(id);
+    // updated_at jawnie (inna wartość), bo wyzwalacz z migracji 0009 wpisałby „teraz”.
+    db.prepare('UPDATE leads SET created_at = NULL, updated_at = ? WHERE id = ?').run(
+      czasD1(miesiaceTemu(13, -1000)),
+      id,
+    );
     const w = await wykonajRetencje(env as never, { proba: false, teraz: TERAZ });
     expect(w.leady.id).toEqual([id]);
     expect(istnieje(db, id)).toBe(false);
