@@ -358,23 +358,28 @@ describe('MIX-2117: fiolet marki jako kolor główny maili', () => {
     expect(logo.toLowerCase()).toContain(BRAND);
   });
 
-  it.each(ALL)('%s – %s: nagłówek, h1, linki, wyróżnienia i przycisk w fiolecie', (_f, _n, mail) => {
-    const doc = parse(mail.html);
-    const header = doc.querySelector('img')?.closest('td');
-    expect(header?.getAttribute('bgcolor')).toBe(BRAND);
-    expect(header?.getAttribute('style')).toContain(`background:${BRAND}`);
-    const colored = [
-      ...doc.querySelectorAll('h1, strong, a.mm-link, td.mm-foot a, td.mm-text[style*="font-weight:700"]'),
-    ];
-    for (const el of colored) expect(el.getAttribute('style')).toContain(`color:${BRAND}`);
-    for (const td of doc.querySelectorAll('a.mm-button'))
-      expect(td.closest('td')?.getAttribute('bgcolor')).toBe(BRAND);
-    for (const q of doc.querySelectorAll('td.mm-quote'))
-      expect(q.getAttribute('style')).toContain(`border-left:4px solid ${BRAND}`);
-    // Niebieski i granat nie wracają jako kolor główny (inline style ani bgcolor).
-    const body = mail.html.slice(mail.html.indexOf('<body'));
-    for (const c of BLUE_NAVY) expect(body.toLowerCase()).not.toContain(c);
-  });
+  it.each(ALL)(
+    '%s – %s: nagłówek, h1, linki, wyróżnienia i przycisk w fiolecie',
+    (_f, _n, mail) => {
+      const doc = parse(mail.html);
+      const header = doc.querySelector('img')?.closest('td');
+      expect(header?.getAttribute('bgcolor')).toBe(BRAND);
+      expect(header?.getAttribute('style')).toContain(`background:${BRAND}`);
+      const colored = [
+        ...doc.querySelectorAll(
+          'h1, strong, a.mm-link, td.mm-foot a, td.mm-text[style*="font-weight:700"]',
+        ),
+      ];
+      for (const el of colored) expect(el.getAttribute('style')).toContain(`color:${BRAND}`);
+      for (const td of doc.querySelectorAll('a.mm-button'))
+        expect(td.closest('td')?.getAttribute('bgcolor')).toBe(BRAND);
+      for (const q of doc.querySelectorAll('td.mm-quote'))
+        expect(q.getAttribute('style')).toContain(`border-left:4px solid ${BRAND}`);
+      // Niebieski i granat nie wracają jako kolor główny (inline style ani bgcolor).
+      const body = mail.html.slice(mail.html.indexOf('<body'));
+      for (const c of BLUE_NAVY) expect(body.toLowerCase()).not.toContain(c);
+    },
+  );
 
   it('każdy element w fiolecie występuje w którymś z 13 maili', () => {
     const all = ALL.map(([, , m]) => parse(m.html));
