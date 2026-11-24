@@ -503,6 +503,44 @@ describe('forma 5: równoległe odnowienie → najwyżej jedno pobranie', () => 
     expect(tokWyw).toHaveLength(1);
   });
 
+  it('(+) bez bindingu KV: dwa równoległe żądania w izolacie → jedno pobranie (pamięć izolatu)', async () => {
+    const { env } = srodowisko({ CACHE: undefined });
+    let pusc: () => void = () => {};
+    const brama = new Promise<void>((r) => (pusc = r));
+    tokKolejka = [
+      async () => {
+        await brama;
+        return { json: { access_token: 'tok_bez_kv', expires_in: 3600 } };
+      },
+    ];
+    const a = tokenAplikacji(env, Date.now() + 10_000);
+    const b = tokenAplikacji(env, Date.now() + 10_000);
+    await new Promise((r) => setTimeout(r, 10));
+    pusc();
+    expect(await a).toEqual({ ok: true, token: 'tok_bez_kv' });
+    expect(await b).toEqual({ ok: true, token: 'tok_bez_kv' });
+    expect(tokWyw).toHaveLength(1);
+  });
+
+  it('(−) 401 przy cudzej blokadzie: odrzucony token z KV nie wraca jako „nowy”, oauth:blokada bez kary', async () => {
+    const { env, db, kv } = srodowisko();
+    await tokenAplikacji(env, Date.now() + 10_000);
+    const [klucz] = kluczeTokenu(kv);
+    _resetPamieciTokenu();
+    tokWyw = [];
+    kv.store.set(`${klucz}:blokada`, JSON.stringify({ kto: 'inny', do: Date.now() + 30_000 }));
+    gqlKolejka = [{ status: 401, json: {} }];
+    const lead = dodajLead(db);
+    await zglosLead(env, lead.id);
+    expect(tokWyw).toHaveLength(0);
+    expect(gqlWyw).toHaveLength(1);
+    expect(wiersz(db, lead.id)).toMatchObject({
+      stan: 'kolejka',
+      proby: 0,
+      ostatni_blad: 'oauth:blokada',
+    });
+  }, 10_000);
+
   it('(+) dwa izolaty, wspólny KV, wygasły token: drugi czeka na blokadzie i bierze token pierwszego', async () => {
     const kv = createFakeKV();
     const { env } = srodowisko({}, kv);
