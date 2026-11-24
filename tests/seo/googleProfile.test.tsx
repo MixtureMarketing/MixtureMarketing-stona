@@ -9,7 +9,7 @@ import { cleanHttpsUrl, getGoogleProfileLinks } from '../../utils/googleProfile'
 import GoogleProfileButtons from '../../components/common/GoogleProfileButtons';
 import Footer from '../../components/layout/Footer';
 import ContactPage from '../../components/pages/ContactPage';
-import { getOrganizationSchema } from '../../utils/seo/organizationSchema';
+import { getOrganizationSameAs, getOrganizationSchema } from '../../utils/seo/organizationSchema';
 import { getLocalBusinessSchema } from '../../utils/seo/commonSchemas';
 
 vi.mock('../../components/features/contact/InlineContactForm', () => ({
@@ -19,6 +19,13 @@ vi.mock('../../components/features/contact/InlineContactForm', () => ({
 const PROFILE = 'https://share.google/U5QLwlwd3Ls52C3An';
 const KG = 'https://www.google.com/search?kgmid=/g/11t_svlzz2';
 const REVIEW = 'https://g.page/r/CTeu70P5NjsgEBM/review';
+/** MIX-1262: dokładne adresy z karty (stałe w teście, nie z konfiguracji). */
+const DIRECTORY_PROFILES = [
+  'https://clutch.co/profile/mixture-marketing',
+  'https://www.sortlist.com/agency/mixture-marketing',
+  'https://www.goodfirms.co/company/mixture-marketing',
+  KG,
+];
 
 const ORIGINAL_REVIEW = SITE_CONFIG.google.reviewUrl;
 const ORIGINAL_PROFILE = SITE_CONFIG.google.profileUrl;
@@ -142,6 +149,27 @@ describe('stopka i /kontakt', () => {
   });
 });
 
+describe('MIX-1262: getOrganizationSameAs', () => {
+  const ORIGINAL_SORTLIST = SITE_CONFIG.directories.sortlist;
+  afterEach(() => {
+    SITE_CONFIG.directories.sortlist = ORIGINAL_SORTLIST;
+  });
+
+  it('pomija adres nie-https i duplikaty', () => {
+    SITE_CONFIG.directories.sortlist = 'http://www.sortlist.com/agency/mixture-marketing';
+    expect(getOrganizationSameAs()).not.toContain(SITE_CONFIG.directories.sortlist);
+    SITE_CONFIG.directories.sortlist = SITE_CONFIG.directories.clutch;
+    const sameAs = getOrganizationSameAs();
+    expect(sameAs.filter((u) => u === SITE_CONFIG.directories.clutch)).toHaveLength(1);
+  });
+
+  it('kolejność: social, katalogi, na końcu Profil Firmy (kgmid)', () => {
+    const sameAs = getOrganizationSameAs();
+    expect(sameAs.at(-1)).toBe(KG);
+    expect(sameAs.slice(0, 4)).toEqual(Object.values(SITE_CONFIG.social));
+  });
+});
+
 describe('JSON-LD firmy: profil Google zamiast adresu biura wirtualnego', () => {
   const builders = {
     getOrganizationSchema: () => getOrganizationSchema() as Record<string, unknown>,
@@ -154,6 +182,14 @@ describe('JSON-LD firmy: profil Google zamiast adresu biura wirtualnego', () => 
       const sameAs = build().sameAs as string[];
       expect(sameAs).toContain(KG);
       for (const url of Object.values(SITE_CONFIG.social)) expect(sameAs).toContain(url);
+    });
+
+    it('MIX-1262: sameAs ma 4 profile z karty (Clutch, Sortlist, GoodFirms, Profil Firmy)', () => {
+      const sameAs = build().sameAs as string[];
+      for (const url of DIRECTORY_PROFILES) expect(sameAs).toContain(url);
+      expect(sameAs).toHaveLength(Object.keys(SITE_CONFIG.social).length + 4);
+      expect(new Set(sameAs).size).toBe(sameAs.length);
+      for (const url of sameAs) expect(url.startsWith('https://')).toBe(true);
     });
 
     it('hasMap wskazuje profil Google, nie mapę adresu', () => {
