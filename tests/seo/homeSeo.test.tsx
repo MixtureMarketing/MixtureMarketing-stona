@@ -1,9 +1,10 @@
-// MIX-1269 (plan SEO A12, r3): strona główna pod „systemy dedykowane” i AI, za przełącznikiem
+// MIX-1269 (plan SEO A12, r3 i r4): strona główna pod „systemy dedykowane” i AI (r4: + „agencja
+// interaktywna Rzeszów” w title, meta i pasie linków), za przełącznikiem
 // VITE_MM_HOME_SEO (domyślnie wyłączony).
 // Kryteria: wyłączony = HTML treści, title, meta, canonical i JSON-LD identyczne z wzorcem zdjętym
 // z kodu bazowego (tests/fixtures/mix1269/home-flag-off.json, .bieg/m1269/zrzut.sh); włączony =
 // nowy title ≤ 60 i meta ≤ 155 znaków, fraza w title i H1 dokładnie raz, jeden H1, canonical
-// i JSON-LD bez zmian, 5 linków lokalnych i usług z adresów w sitemap.xml; poza H1 i pasem
+// i JSON-LD bez zmian, 6 linków lokalnych i usług z adresów w sitemap.xml; poza H1 i pasem
 // linków strona bez zmian; axe bez naruszeń serious/critical.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -127,6 +128,22 @@ describe('przełącznik włączony', () => {
     ]);
   });
 
+  // r4 (Jakub 21.11 11:37): „agencja interaktywna” w title (raz, po frazie głównej), w meta i jako
+  // kotwica linku do /agencja-interaktywna-rzeszow/, po linkach o systemach i AI, przed marketingiem.
+  it('r4: „agencja interaktywna” w title raz po frazie głównej, w meta i w pasie linków', () => {
+    const AI_PHRASE = 'agencja interaktywna';
+    const title = HOME_SEO.title.toLocaleLowerCase('pl-PL');
+    expect(count(title, AI_PHRASE)).toBe(1);
+    expect(title.indexOf(AI_PHRASE)).toBeGreaterThan(title.indexOf(HOME_SEO_PHRASE));
+    expect(title).toContain('agencja interaktywna rzeszów');
+    expect(count(HOME_SEO.description, AI_PHRASE)).toBe(1);
+    expect(count(HOME_SEO.h1Lead, AI_PHRASE)).toBe(0);
+    const i = HOME_LOCAL_LINKS.findIndex((l) => l.to === '/agencja-interaktywna-rzeszow/');
+    expect(i).toBe(2);
+    expect(HOME_LOCAL_LINKS[i].label).toBe('Agencja interaktywna Rzeszów');
+    expect(HOME_LOCAL_LINKS[i].primary).toBeUndefined();
+  });
+
   it('title: nowy, ≤ 60 znaków, fraza dokładnie raz', async () => {
     stubFlag('1');
     await renderHomeSeo();
@@ -168,14 +185,14 @@ describe('przełącznik włączony', () => {
     for (const j of snap.jsonLd) expect(() => JSON.parse(j)).not.toThrow();
   });
 
-  it('pas lokalny: 5 linków w kolejności z danych, każdy adres w sitemap.xml', async () => {
+  it('pas lokalny: 6 linków w kolejności z danych, każdy adres w sitemap.xml', async () => {
     stubFlag('1');
     const { container } = await renderHomeSeo();
     const links = [...band(container)!.querySelectorAll('a')];
     expect(links.map((a) => a.getAttribute('href'))).toEqual(HOME_LOCAL_LINKS.map((l) => l.to));
     expect(links.map((a) => a.textContent!.trim())).toEqual(HOME_LOCAL_LINKS.map((l) => l.label));
-    expect(links.length).toBeGreaterThanOrEqual(3);
-    expect(links.length).toBeLessThanOrEqual(5);
+    expect(links.length).toBeGreaterThanOrEqual(5);
+    expect(links.length).toBeLessThanOrEqual(6);
     for (const l of HOME_LOCAL_LINKS) {
       expect(l.to).toMatch(/^\/[a-z0-9/-]+\/$/);
       expect(SITEMAP).toContain(`<loc>https://mixturemarketing.pl${l.to}</loc>`);

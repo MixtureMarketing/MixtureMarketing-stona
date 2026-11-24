@@ -1,7 +1,8 @@
 /**
- * MIX-1269 (plan SEO A12, runda 3): strona główna najpierw o systemach dedykowanych i automatyzacji
+ * MIX-1269 (plan SEO A12, runda 3 i 4): strona główna najpierw o systemach dedykowanych i automatyzacji
  * z AI, marketing jako usługa dodatkowa (decyzja Jakuba MIX-1058, 21.11). Wersja r2 pod
- * „agencja marketingowa Rzeszów” odrzucona 21.11 (opis w docs/tresci/MIX-1269.md).
+ * „agencja marketingowa Rzeszów” odrzucona 21.11 (opis w docs/tresci/MIX-1269.md). Runda 4 (Jakub 21.11
+ * 11:37): fraza „agencja interaktywna” w title, meta i pasie linków, łączy systemy/AI z marketingiem.
  * Teksty za przełącznikiem VITE_MM_HOME_SEO (config/flags.ts); dane i wybór fraz w docs/tresci/MIX-1269.md.
  * `HOME_SEO_BASE` = dzisiejsze title i meta (wyłączony przełącznik), bez zmian co do znaku.
  */
@@ -16,11 +17,11 @@ export const HOME_SEO_BASE = {
 };
 
 export const HOME_SEO = {
-  /** 48 znaków: fraza główna, potem lokalna; z sufiksem marki byłoby 68, więc fitTitle zostawia bez marki. */
-  title: 'Systemy dedykowane i AI | Software house Rzeszów',
-  /** 145 znaków (limit karty 155): systemy i AI najpierw, marketing jako dodatek. */
+  /** 54 znaki: fraza główna, potem lokalna „agencja interaktywna Rzeszów”; z sufiksem marki byłoby 74, więc fitTitle zostawia bez marki. */
+  title: 'Systemy dedykowane i AI | Agencja interaktywna Rzeszów',
+  /** 151 znaków (limit karty 155): systemy i AI najpierw, marketing jako dodatek. */
   description:
-    'Software house z Rzeszowa: systemy dedykowane, aplikacje webowe i automatyzacja procesów z AI. Dodatkowo marketing: strony WWW, SEO i Google Ads.',
+    'Agencja interaktywna z Rzeszowa: systemy dedykowane, aplikacje webowe i automatyzacja procesów z AI. Dodatkowo marketing: strony WWW, SEO i Google Ads.',
   /** Pierwsza linia H1 nad „Nie szukaj wykonawców. Wybierz Partnera.” */
   h1Lead: 'Systemy dedykowane i automatyzacja AI z Rzeszowa.',
 };
@@ -34,7 +35,8 @@ export interface HomeLocalLink {
 
 /**
  * Linki pasa „Lokalnie · Rzeszów” w sekcji usług (adresy z public/sitemap.xml), w kolejności:
- * systemy dedykowane i AI pierwsze, marketing dalej, hub lokalny na końcu.
+ * systemy dedykowane i AI pierwsze, potem agencja interaktywna (łączy jedno i drugie), marketing dalej,
+ * hub lokalny na końcu.
  */
 export const HOME_LOCAL_LINKS: HomeLocalLink[] = [
   { to: '/web-development/custom-app/', label: 'Aplikacje i systemy na zamówienie' },
@@ -42,6 +44,7 @@ export const HOME_LOCAL_LINKS: HomeLocalLink[] = [
     to: '/baza-wiedzy/aplikacje-dedykowane-z-ai-kiedy-warto/',
     label: 'Automatyzacja z AI w firmie',
   },
+  { to: '/agencja-interaktywna-rzeszow/', label: 'Agencja interaktywna Rzeszów' },
   { to: '/web-development/rzeszow/', label: 'Strony internetowe Rzeszów' },
   { to: '/agencja-seo-rzeszow/', label: 'Pozycjonowanie stron Rzeszów' },
   { to: '/miasto/rzeszow/', label: 'Mixture w Rzeszowie', primary: true },
