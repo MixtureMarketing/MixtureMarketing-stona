@@ -168,6 +168,8 @@ const measure = () => {
       : null,
     bar: bar ? r(bar) : null,
     barStyleBottom: bar ? bar.style.bottom : null,
+    // translateY paska z jego własnej animacji pokaż/schowaj (0 = pasek w pełni wysunięty).
+    barTy: bar ? new DOMMatrixReadOnly(getComputedStyle(bar).transform).m42 : null,
     cookie: cookieInfo,
   };
 };
@@ -251,7 +253,9 @@ for (const engine of ENGINES) {
           await sleep(150);
           const n = await page.evaluate(measure);
           const still = !n.bar || !m.bar || Math.abs(n.bar.bottom - m.bar.bottom) < 0.5;
-          const same = n.shown === m.shown && still;
+          // Pasek „widoczny”, ale jeszcze wsuwany (translateY ≠ 0): czekamy dalej.
+          const moving = n.shown && n.bar && Math.abs(n.barTy || 0) > 0.5;
+          const same = n.shown === m.shown && still && !moving;
           m = n;
           m.settleMs = 450 + 150 * (i + 1);
           if (same) break;
@@ -284,7 +288,11 @@ for (const engine of ENGINES) {
     }
     await ctx.close();
 
-    const shownPts = rec.points.filter((m) => m.shown && m.bar);
+    // Punkty przejściowe: pasek „widoczny”, ale po 2,25 s nadal przesunięty własną animacją
+    // (translateY ≠ 0) — liczone osobno, bo to nie położenie warstwy fixed (to samo na bazie).
+    const isTrans = (m) => m.shown && m.bar && Math.abs(m.barTy || 0) > 0.5;
+    const transPts = rec.points.filter(isTrans);
+    const shownPts = rec.points.filter((m) => m.shown && m.bar && !isTrans(m));
     const down = shownPts.filter((m) => m.dir === 'dol').length;
     const up = shownPts.filter((m) => m.dir === 'gora').length;
     const want = (m) => m.innerHeight + SIM_GAP;
@@ -321,12 +329,15 @@ for (const engine of ENGINES) {
     console.log(
       `PROBE ${tag} sim=${SIM_GAP} pkt_dol=${down} pkt_gora=${up} bar_poza=${s.barOffPoints} max_delta=${s.maxBarDelta.toFixed(1)} ` +
         `zgody_nachodzi=${s.cookieOverlapPoints} zgody_widoczny_przy_pasku=${s.cookieVisibleWhileBar} ` +
-        `przodkowie_cb=${s.ancestors} axe=${s.axe} cls=${s.clsLoad == null ? 'n/d' : s.clsLoad.toFixed(3)}`,
+        `przodkowie_cb=${s.ancestors} axe=${s.axe} cls=${s.clsLoad == null ? 'n/d' : s.clsLoad.toFixed(3)} ` +
+        `przejsciowe=${transPts.length}`,
     );
-    for (const b of badBar.slice(0, 5))
+    const odstaje = badBar.map((b) => ['ODSTAJE', b]);
+    for (const b of transPts) odstaje.push(['PRZEJSCIE', b]);
+    for (const [k, b] of odstaje.slice(0, 8))
       console.log(
-        `ODSTAJE ${tag} ${b.dir} y=${b.y} bottom=${b.bar.bottom.toFixed(1)} inner=${b.innerHeight} ` +
-          `styl=${b.barStyleBottom || '-'} settle=${b.settleMs}`,
+        `${k} ${tag} ${b.dir} y=${b.y} bottom=${b.bar.bottom.toFixed(1)} inner=${b.innerHeight} ` +
+          `ty=${(b.barTy || 0).toFixed(1)} styl=${b.barStyleBottom || '-'} settle=${b.settleMs}`,
       );
     if (rec.ancestors && rec.ancestors.length)
       console.log(`PRZODKOWIE ${tag}: ${rec.ancestors.join(' | ')}`);
