@@ -39,7 +39,9 @@ const SIM_GAP = Number(opt('--sim-gap', '0'));
 const ENGINES = opt('--engines', 'webkit,chromium').split(',');
 const [distArg, outArg] = args;
 if (!distArg || !outArg || !Number.isFinite(SIM_GAP)) {
-  console.error('użycie: probe-sticky-bar.mjs <dist> <out> [--sim-gap N] [--engines webkit,chromium]');
+  console.error(
+    'użycie: probe-sticky-bar.mjs <dist> <out> [--sim-gap N] [--engines webkit,chromium]',
+  );
   process.exit(2);
 }
 const require = createRequire(import.meta.url);
@@ -127,13 +129,16 @@ const measure = () => {
   const inter = (a, b) =>
     Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0.5 &&
     Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0.5;
-  const bar = (document.querySelector('[data-sticky-mobile-bar]') || document.querySelector('div.fixed.bottom-0.z-40'));
+  const bar =
+    document.querySelector('[data-sticky-mobile-bar]') ||
+    document.querySelector('div.fixed.bottom-0.z-40');
   const shown = document.body.dataset.stickyMobileBar === 'true';
   const cookie = document.querySelector('.cookie-floating-btn');
   let cookieInfo = null;
   if (cookie) {
     const cs = getComputedStyle(cookie);
-    const visible = cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity) > 0.01;
+    const visible =
+      cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity) > 0.01;
     const cr = r(cookie);
     let hitsContent = 0;
     let hitsBar = false;
@@ -155,7 +160,11 @@ const measure = () => {
     shown,
     innerHeight: window.innerHeight,
     vv: window.visualViewport
-      ? { h: window.visualViewport.height, top: window.visualViewport.offsetTop, scale: window.visualViewport.scale }
+      ? {
+          h: window.visualViewport.height,
+          top: window.visualViewport.offsetTop,
+          scale: window.visualViewport.scale,
+        }
       : null,
     bar: bar ? r(bar) : null,
     barStyleBottom: bar ? bar.style.bottom : null,
@@ -165,7 +174,9 @@ const measure = () => {
 
 const ancestors = () => {
   const bad = [];
-  const bar = (document.querySelector('[data-sticky-mobile-bar]') || document.querySelector('div.fixed.bottom-0.z-40'));
+  const bar =
+    document.querySelector('[data-sticky-mobile-bar]') ||
+    document.querySelector('div.fixed.bottom-0.z-40');
   for (let el = bar && bar.parentElement; el; el = el.parentElement) {
     const cs = getComputedStyle(el);
     const hit = [];
@@ -174,20 +185,34 @@ const ancestors = () => {
     const bf = cs.backdropFilter || cs.webkitBackdropFilter;
     if (bf && bf !== 'none') hit.push(`backdrop-filter:${bf}`);
     if (cs.perspective !== 'none') hit.push(`perspective:${cs.perspective}`);
-    if (/transform|filter|perspective/.test(cs.willChange)) hit.push(`will-change:${cs.willChange}`);
+    if (/transform|filter|perspective/.test(cs.willChange))
+      hit.push(`will-change:${cs.willChange}`);
     if (/paint|layout|strict|content/.test(cs.contain)) hit.push(`contain:${cs.contain}`);
-    if (hit.length) bad.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} ${hit.join(' ')}`);
+    if (hit.length)
+      bad.push(`${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} ${hit.join(' ')}`);
   }
   return bad;
 };
 
 for (const engine of ENGINES) {
   const browserType = engine === 'webkit' ? webkit : chromium;
-  const browser = await browserType.launch({ headless: true, args: engine === 'chromium' ? ['--no-sandbox'] : [] });
+  const browser = await browserType.launch({
+    headless: true,
+    args: engine === 'chromium' ? ['--no-sandbox'] : [],
+  });
   const ctxOpts =
     engine === 'webkit'
-      ? { ...devices['iPhone 14'], viewport: { width: 390, height: 844 }, screen: { width: 390, height: 844 } }
-      : { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 };
+      ? {
+          ...devices['iPhone 14'],
+          viewport: { width: 390, height: 844 },
+          screen: { width: 390, height: 844 },
+        }
+      : {
+          viewport: { width: 390, height: 844 },
+          isMobile: true,
+          hasTouch: true,
+          deviceScaleFactor: 2,
+        };
   for (const p of PAGES) {
     const ctx = await browser.newContext({
       ...ctxOpts,
@@ -223,7 +248,12 @@ for (const engine of ENGINES) {
         m.dir = dir;
         rec.points.push(m);
         if (m.shown && !shotDone && dir === 'dol' && m.y > 1500) {
-          await page.screenshot({ path: path.join(OUT, 'shots', `${slug}.jpg`), type: 'jpeg', quality: 45, scale: 'css' });
+          await page.screenshot({
+            path: path.join(OUT, 'shots', `${slug}.jpg`),
+            type: 'jpeg',
+            quality: 45,
+            scale: 'css',
+          });
           rec.ancestors = await page.evaluate(ancestors);
           if (engine === 'chromium') {
             await page.evaluate(AXE_SRC);
@@ -248,14 +278,17 @@ for (const engine of ENGINES) {
     const up = shownPts.filter((m) => m.dir === 'gora').length;
     const want = (m) => m.innerHeight + SIM_GAP;
     const badBar = shownPts.filter((m) => Math.abs(m.bar.bottom - want(m)) > TOL);
-    const cookieBad = rec.points.filter((m) => m.shown && m.cookie && (m.cookie.hitsBar || m.cookie.hitsContent > 0));
+    const cookieBad = rec.points.filter(
+      (m) => m.shown && m.cookie && (m.cookie.hitsBar || m.cookie.hitsContent > 0),
+    );
     rec.summary = {
       shownDown: down,
       shownUp: up,
       barOffPoints: badBar.length,
       maxBarDelta: shownPts.reduce((a, m) => Math.max(a, Math.abs(m.bar.bottom - want(m))), 0),
       cookieOverlapPoints: cookieBad.length,
-      cookieVisibleWhileBar: rec.points.filter((m) => m.shown && m.cookie && m.cookie.visible).length,
+      cookieVisibleWhileBar: rec.points.filter((m) => m.shown && m.cookie && m.cookie.visible)
+        .length,
       ancestors: rec.ancestors ? rec.ancestors.length : null,
       axe: rec.axeSeriousCritical ? rec.axeSeriousCritical.length : null,
       clsLoad: rec.clsLoad,
@@ -263,23 +296,33 @@ for (const engine of ENGINES) {
     const s = rec.summary;
     const tag = `${engine} ${p}`;
     if (rec.error) fails.push(`${tag}: błąd ${rec.error}`);
-    if (down < MIN_POINTS || up < MIN_POINTS) fails.push(`${tag}: za mało punktów z paskiem (dół ${down}, góra ${up})`);
-    if (s.barOffPoints) fails.push(`${tag}: pasek poza dołem widoku w ${s.barOffPoints} punktach (max ${s.maxBarDelta.toFixed(1)} px)`);
-    if (s.cookieOverlapPoints) fails.push(`${tag}: przycisk zgód nachodzi w ${s.cookieOverlapPoints} punktach`);
+    if (down < MIN_POINTS || up < MIN_POINTS)
+      fails.push(`${tag}: za mało punktów z paskiem (dół ${down}, góra ${up})`);
+    if (s.barOffPoints)
+      fails.push(
+        `${tag}: pasek poza dołem widoku w ${s.barOffPoints} punktach (max ${s.maxBarDelta.toFixed(1)} px)`,
+      );
+    if (s.cookieOverlapPoints)
+      fails.push(`${tag}: przycisk zgód nachodzi w ${s.cookieOverlapPoints} punktach`);
     if (s.axe) fails.push(`${tag}: axe serious/critical ${s.axe}`);
-    if (typeof s.clsLoad === 'number' && s.clsLoad > 0.1) fails.push(`${tag}: CLS ${s.clsLoad.toFixed(3)}`);
+    if (typeof s.clsLoad === 'number' && s.clsLoad > 0.1)
+      fails.push(`${tag}: CLS ${s.clsLoad.toFixed(3)}`);
     console.log(
       `PROBE ${tag} sim=${SIM_GAP} pkt_dol=${down} pkt_gora=${up} bar_poza=${s.barOffPoints} max_delta=${s.maxBarDelta.toFixed(1)} ` +
         `zgody_nachodzi=${s.cookieOverlapPoints} zgody_widoczny_przy_pasku=${s.cookieVisibleWhileBar} ` +
         `przodkowie_cb=${s.ancestors} axe=${s.axe} cls=${s.clsLoad == null ? 'n/d' : s.clsLoad.toFixed(3)}`,
     );
-    if (rec.ancestors && rec.ancestors.length) console.log(`PRZODKOWIE ${tag}: ${rec.ancestors.join(' | ')}`);
+    if (rec.ancestors && rec.ancestors.length)
+      console.log(`PRZODKOWIE ${tag}: ${rec.ancestors.join(' | ')}`);
     results.push(rec);
   }
   await browser.close();
 }
 server.close();
-await fs.writeFile(path.join(OUT, 'probe.json'), JSON.stringify({ simGap: SIM_GAP, fails, results }, null, 1));
+await fs.writeFile(
+  path.join(OUT, 'probe.json'),
+  JSON.stringify({ simGap: SIM_GAP, fails, results }, null, 1),
+);
 console.log(`PROBE KONIEC fails=${fails.length}`);
 for (const f of fails) console.log(`FAIL ${f}`);
 process.exit(fails.length ? 1 : 0);

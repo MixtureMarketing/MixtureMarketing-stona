@@ -8,7 +8,7 @@
  */
 import React, { useEffect, useRef, useState } from 'react';
 import { Phone, ArrowRight } from 'lucide-react';
-import { fixedBottomGap } from '@/utils/fixedBottomGap';
+import { useFixedBottomGap } from '@/hooks/useFixedBottomGap';
 
 interface StickyMobileBarProps {
   /** Sentinel po ktorym bar sie pojawia (np. hero). Wymagany. */
@@ -66,49 +66,9 @@ const StickyMobileBar: React.FC<StickyMobileBarProps> = ({
 
   const showBar = aboveOut && !belowIn;
 
-  // MIX-2079: Safari iOS potrafi liczyć warstwę `fixed` od starej (krótszej) wysokości widoku —
-  // pasek stał wtedy w połowie ekranu. Sonda `fixed bottom-0` mierzy, gdzie przeglądarka stawia
-  // dół warstwy; gdy wisi nad dołem visualViewport, pasek zjeżdża o tę lukę (fixedBottomGap).
+  // MIX-2079: sonda `fixed bottom-0` + luka do dołu visualViewport (Safari iOS, patrz hook).
   const probeRef = useRef<HTMLDivElement>(null);
-  const [gap, setGap] = useState(0);
-
-  useEffect(() => {
-    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
-    if (!showBar || !vv) return;
-    let frame = 0;
-    const measure = () => {
-      frame = 0;
-      const probe = probeRef.current;
-      // md:hidden (desktop) = sonda bez pudełka → bez korekty.
-      if (!probe || probe.getClientRects().length === 0) {
-        setGap(0);
-        return;
-      }
-      setGap(
-        fixedBottomGap({
-          layerBottom: probe.getBoundingClientRect().top,
-          viewportHeight: vv.height,
-          viewportOffsetTop: vv.offsetTop,
-          scale: vv.scale,
-        }),
-      );
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(measure);
-    };
-    schedule();
-    vv.addEventListener('resize', schedule);
-    vv.addEventListener('scroll', schedule);
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      vv.removeEventListener('resize', schedule);
-      vv.removeEventListener('scroll', schedule);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
-    };
-  }, [showBar]);
+  const gap = useFixedBottomGap(probeRef, showBar);
 
   useEffect(() => {
     if (showBar) {

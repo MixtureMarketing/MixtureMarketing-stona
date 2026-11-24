@@ -14,7 +14,9 @@ describe('fixedBottomGap (MIX-2079)', () => {
   });
 
   it('offsetTop visualViewport dolicza się do dołu widoku', () => {
-    expect(fixedBottomGap({ ...base, layerBottom: 700, viewportHeight: 800, viewportOffsetTop: 44 })).toBe(144);
+    expect(
+      fixedBottomGap({ ...base, layerBottom: 700, viewportHeight: 800, viewportOffsetTop: 44 }),
+    ).toBe(144);
   });
 
   it('tolerancja 2 px: drobne zaokrąglenia nie ruszają paska, 3 px już tak', () => {

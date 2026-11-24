@@ -13,7 +13,10 @@ let aboveIntersecting = false;
 class IO {
   constructor(private cb: IntersectionObserverCallback) {}
   observe = (el: Element) =>
-    this.cb([{ isIntersecting: aboveIntersecting, target: el } as IntersectionObserverEntry], this as never);
+    this.cb(
+      [{ isIntersecting: aboveIntersecting, target: el } as IntersectionObserverEntry],
+      this as never,
+    );
   disconnect = () => {};
   unobserve = () => {};
   takeRecords = () => [];
@@ -46,11 +49,16 @@ beforeEach(() => {
   vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => rafs.push(cb));
   vi.stubGlobal('cancelAnimationFrame', () => {});
   const origRect = HTMLElement.prototype.getBoundingClientRect;
-  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-    if (this.hasAttribute('data-sticky-bar-probe')) return { top: probeTop, bottom: probeTop } as DOMRect;
+  vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    if (this.hasAttribute('data-sticky-bar-probe'))
+      return { top: probeTop, bottom: probeTop } as DOMRect;
     return origRect.call(this);
   });
-  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(function (this: HTMLElement) {
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(function (
+    this: HTMLElement,
+  ) {
     return { length: this.hasAttribute('data-sticky-bar-probe') ? probeBoxes : 1 } as DOMRectList;
   });
 });

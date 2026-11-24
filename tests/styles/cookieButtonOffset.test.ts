@@ -45,7 +45,10 @@ describe('index.css: przycisk ciasteczek nad paskiem (MIX-1400)', () => {
     expect(m![1]).toMatch(/pointer-events:\s*none;/);
   });
   it('od 768 px regula chowania nie dziala (desktop bez zmian)', () => {
-    const outside = layerBody('utilities').replace(/@media \(max-width: 767px\)\s*\{[^]*?\}\s*\}/, '');
+    const outside = layerBody('utilities').replace(
+      /@media \(max-width: 767px\)\s*\{[^]*?\}\s*\}/,
+      '',
+    );
     expect(outside).not.toMatch(new RegExp(`${esc}\\s*\\{[^}]*visibility:\\s*hidden`));
   });
   it('przycisk ma klase cookie-floating-btn i bottom-4', () => {
