@@ -1,0 +1,3 @@
+scripts/preview-turnstile-test-secret.sh
+tests/scripts/turnstileKeyGuard.test.ts
+functions/api/estimation/turnstileTestMode.test.ts

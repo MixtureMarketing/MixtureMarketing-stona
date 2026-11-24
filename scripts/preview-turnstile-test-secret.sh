@@ -58,5 +58,11 @@ if [ "$wykonaj" = 0 ]; then
 fi
 res="$(curl -fsS --max-time 30 -X PATCH -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
   -H 'Content-Type: application/json' --data "$payload" "$api")" || fail "PATCH nieudany"
-printf '%s' "$res" | grep -q '"success":true' || fail "API nie potwierdziło zmiany"
+# MIX-1991: pole `success` czytane jako JSON (API odpowiada `"success": true` ze spacją, więc wzorzec
+# tekstu dawał fałszywą odmowę). Fail-closed: OK tylko obiekt z `success` === true (boolean);
+# false, "true", 1, brak pola, pole zagnieżdżone, nie-JSON, pusta odpowiedź = odmowa.
+api_success() {
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{let j;try{j=JSON.parse(s)}catch{process.exit(1)}process.exit(j&&j.success===true?0:1)})'
+}
+printf '%s' "$res" | api_success || fail "API nie potwierdziło zmiany"
 echo "preview-turnstile: OK: $opis. Zadziała od następnego wdrożenia Preview (dev)."

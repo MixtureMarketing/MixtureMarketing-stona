@@ -190,6 +190,26 @@ describe('checkDeploy: środowisko Cloudflare z production_branch, nie z nazwy g
   it('fałszywy alarm: 0x + 20 zer (liczba w kodzie) nie jest kluczem testowym', () => {
     expect(d({ distTexts: [...distProd, 'n=0x0000000000000000000000AA'] }).ok).toBe(true);
   });
+  // MIX-1991 (mutant N3): Preview przyjmuje tylko klucz z allowlisty (produkcyjny albo dokładny testowy).
+  it('N3 dist Preview z obcym kluczem / innym testowym / bez klucza = odmowa; bliźniak: klucz z allowlisty', () => {
+    const p = (distTexts: string[]) =>
+      d({ target: 'preview', branch: 'dev', productionBranch: 'main', distTexts });
+    for (const obcy of [
+      ['<html>0x4AAAAAAAobcyKluczXYZ12</html>'],
+      ['<html>k="2x00000000000000000000AB"</html>'],
+      ['<html>k="3x00000000000000000000FF"</html>'],
+      ['<html>k="1x00000000000000000000BB"</html>'],
+      [`<html>${TEST.toUpperCase()}</html>`],
+      ['<html>bez klucza</html>', 'var a=1;'],
+    ]) {
+      const r = p(obcy);
+      expect(r.ok).toBe(false);
+      expect(r.reason).toMatch(/ODMOWA: dist dla Preview bez klucza Turnstile z allowlisty$/);
+    }
+    expect(p(distTest)).toEqual({ ok: true, cfEnv: 'Preview' });
+    expect(p(distProd)).toEqual({ ok: true, cfEnv: 'Preview' });
+    expect(p(['<html>0x4AAAAAAAobcyKluczXYZ12</html>', `x="${TEST}"`]).ok).toBe(true);
+  });
 });
 
 // ---------- 3. skrypty z atrapą curl ----------
@@ -360,6 +380,75 @@ describe('scripts/preview-turnstile-test-secret.sh (lider, po TAK)', () => {
     expect(r.status).toBe(1);
     expect(log(a.d)).not.toContain('PATCH');
   });
+});
+
+// MIX-1991: odpowiedź PATCH czytana jako JSON (pole `success`), nie wzorcem tekstu. API Cloudflare
+// odpowiada `"success": true` ze spacją; dawny `grep '"success":true'` dawał fałszywą odmowę.
+describe('scripts/preview-turnstile-test-secret.sh: potwierdzenie PATCH z JSON (MIX-1991)', () => {
+  const ACCESS = '302 https://mixturemarketing.cloudflareaccess.com/x';
+  const curlLog = (d: string) =>
+    fs.existsSync(`${d}/curl.log`) ? fs.readFileSync(`${d}/curl.log`, 'utf8') : '';
+  function wykonaj(patchBody: string) {
+    const d = tmp();
+    fs.writeFileSync(path.join(d, 'patch.json'), patchBody);
+    fs.writeFileSync(path.join(d, 'project.json'), project('main'));
+    const PATH = fakeCurl(
+      d,
+      `case "$*" in *-w*) printf '%s' '${ACCESS}';; *PATCH*) cat "${d}/patch.json";; *) cat "${d}/project.json";; esac`,
+    );
+    const r = run('bash', ['scripts/preview-turnstile-test-secret.sh', '--wykonaj'], {
+      PATH,
+      CLOUDFLARE_API_TOKEN: 'tok',
+      CLOUDFLARE_ACCOUNT_ID: ACC,
+    });
+    const patched = curlLog(d)
+      .split('\n')
+      .some((l) => l.includes('PATCH'));
+    return { status: r.status, stdout: r.stdout, stderr: r.stderr, patched };
+  }
+  const OK = [
+    [
+      'ze spacją (jak API Cloudflare)',
+      '{"success": true, "errors": [], "messages": [], "result": {}}',
+    ],
+    ['bez spacji', '{"success":true}'],
+    ['wcięty, wielowierszowy', '{\n  "result": {"name": "x"},\n  "success" : true\n}\n'],
+  ] as const;
+  for (const [nazwa, body] of OK) {
+    it(`OK: success=true ${nazwa} = rc 0, linia OK`, () => {
+      const r = wykonaj(body);
+      expect(r.patched).toBe(true);
+      expect(r.status).toBe(0);
+      expect(r.stdout).toMatch(/^preview-turnstile: OK: /m);
+      expect(r.stderr).not.toMatch(/ODMOWA/);
+    });
+  }
+  // Formy ataku (fail-closed); bliźniak każdej = przypadki OK wyżej (ten sam PATCH, success === true).
+  const ODMOWA = [
+    ['F1 success=false', '{"success": false, "errors": [{"code": 8000000}]}'],
+    ['F2 success=false bez spacji', '{"success":false}'],
+    ['F3 brak pola success', '{"errors": [], "result": {}}'],
+    ['F4 nie-JSON (HTML z wzorcem w treści)', '<html><body>"success":true</body></html>'],
+    ['F5 pusta odpowiedź', ''],
+    ['F6 success jako tekst "true"', '{"success": "true"}'],
+    ['F7 success jako liczba 1', '{"success": 1}'],
+    ['F8 success tylko zagnieżdżone w result', '{"result": {"success": true}}'],
+    ['F9 wzorzec w tekście, pole false', '{"messages": ["\\"success\\":true"], "success": false}'],
+    ['F10 urwany JSON', '{"success": true, "result": {'],
+    ['F11 tablica', '[{"success": true}]'],
+    ['F12 null', 'null'],
+    ['F13 samo true', 'true'],
+    ['F14 dwa obiekty (NDJSON)', '{"success": true}\n{"success": false}'],
+  ] as const;
+  for (const [nazwa, body] of ODMOWA) {
+    it(`${nazwa} = rc 1 z linią „API nie potwierdziło zmiany”`, () => {
+      const r = wykonaj(body);
+      expect(r.patched).toBe(true);
+      expect(r.status).toBe(1);
+      expect(r.stderr).toMatch(/^preview-turnstile: ODMOWA: API nie potwierdziło zmiany$/m);
+      expect(r.stdout).not.toMatch(/^preview-turnstile: OK:/m);
+    });
+  }
 });
 
 // ---------- 4. ci.yml ----------
