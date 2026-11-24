@@ -169,7 +169,8 @@ const measure = () => {
     bar: bar ? r(bar) : null,
     barStyleBottom: bar ? bar.style.bottom : null,
     // translateY paska z jego własnej animacji pokaż/schowaj (0 = pasek w pełni wysunięty).
-    barTy: bar ? new DOMMatrixReadOnly(getComputedStyle(bar).transform).m42 : null,
+    // Tailwind v4: translate-y-* to właściwość `translate` („0px 69px” / „none”), nie `transform`.
+    barTy: bar ? parseFloat((getComputedStyle(bar).translate || '').split(' ')[1]) || 0 : null,
     cookie: cookieInfo,
   };
 };
