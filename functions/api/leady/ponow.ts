@@ -10,11 +10,12 @@
  *
  * Body opcjonalne: `{"limit": 1..50, "odblokuj": true}` (`odblokuj`: `zablokowany` → `kolejka`, `proby=0`).
  * Odpowiedź 200: `{ponowione, w_kolejce, zablokowane, bez_customer_request, czas}`.
- * Błędy: 405 (inna metoda niż POST), 503 (brak `LINEAR_PONOW_SECRET`, `LINEAR_API_KEY` albo
+ * Błędy: 405 (inna metoda niż POST), 503 (brak `LINEAR_PONOW_SECRET`, autoryzacji Lineara (MIX-2078:
+ * `LINEAR_CLIENT_ID`+`LINEAR_CLIENT_SECRET` albo `LINEAR_API_KEY`) albo
  * `LINEAR_TEAM_LEADY_ID`), 401 (zły podpis albo czas), 409 (nonce), 400 (zły body).
  * Odpowiedź i logi nie zawierają kluczy ani danych leadów.
  */
-import { drenujKolejke, type LinearEnv } from '../_linear';
+import { drenujKolejke, wlaczony, type LinearEnv } from '../_linear';
 import { bladPodpisu, blad, json } from '../crm/_podpis';
 
 export interface PonowEnv extends LinearEnv {
@@ -55,7 +56,7 @@ export const onRequest: PagesFunction<PonowEnv> = async ({ request, env }) => {
     return odp;
   }
   const sekret = env.LINEAR_PONOW_SECRET;
-  if (!sekret || sekret.length < MIN_SEKRET || !env.LINEAR_API_KEY || !env.LINEAR_TEAM_LEADY_ID) {
+  if (!sekret || sekret.length < MIN_SEKRET || !wlaczony(env)) {
     return blad(503, 'Ponawianie leadów jest wyłączone.');
   }
   const zly = await bladPodpisu(request, env, Date.now(), { sekret, prefiks: PREFIKS_PONOW });

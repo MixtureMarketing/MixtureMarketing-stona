@@ -7,19 +7,26 @@
  * stan synchronizacji to jeden wiersz `linear_leady` (migracja 0010), a identyfikator zadania w Linearze
  * jest identyfikatorem leada, więc powtórzona próba nie tworzy duplikatu (`IssueCreateInput.id`).
  *
- * Env (CF Pages strony), brak LINEAR_API_KEY albo LINEAR_TEAM_LEADY_ID = moduł wyłączony (log):
- *   - LINEAR_API_KEY (secret), LINEAR_TEAM_LEADY_ID, LINEAR_PROWADZACY_ID (zadanie przypisane do prowadzącego),
+ * Env (CF Pages strony), brak autoryzacji albo LINEAR_TEAM_LEADY_ID = moduł wyłączony (log):
+ *   - autoryzacja (MIX-2078, `_linearToken.ts`): LINEAR_CLIENT_ID + LINEAR_CLIENT_SECRET (secrety
+ *     aplikacji OAuth „Leady”, nagłówek `Bearer <token>`), a bez nich LINEAR_API_KEY (klucz osobisty,
+ *     nagłówek bez „Bearer ”, log `linear:klucz-osobisty`),
+ *   - LINEAR_TEAM_LEADY_ID, LINEAR_PROWADZACY_ID (zadanie przypisane do prowadzącego),
  *   - LINEAR_STAN_TRIAGE_ID (opcjonalnie: stan Triage, gdy zadania z API nie trafiają tam same),
  *   - SRODOWISKO=preview → etykieta `test` i przedrostek tytułu `[Preview] `.
  *
  * Logi: wyłącznie id leada i kod błędu. Nigdy e-mail, telefon, treść ani klucz.
  */
 import { kvGetJson, kvPut } from './_shared/kv';
+import { tokenAplikacji, trybAutoryzacji, type TokenEnv } from './_linearToken';
 
-export interface LinearEnv {
+export interface LinearEnv extends TokenEnv {
   DB: D1Database;
   CACHE?: KVNamespace;
   LINEAR_API_KEY?: string;
+  /** MIX-2078: aplikacja OAuth „Leady” (client_credentials); oba albo żaden. */
+  LINEAR_CLIENT_ID?: string;
+  LINEAR_CLIENT_SECRET?: string;
   LINEAR_TEAM_LEADY_ID?: string;
   LINEAR_PROWADZACY_ID?: string;
   LINEAR_STAN_TRIAGE_ID?: string;
@@ -424,6 +431,8 @@ type Odp = { ok: true; data: Json } | Porazka;
 
 interface Budzet {
   koniec: number;
+  /** MIX-2078: nowy token po 401 bierzemy najwyżej raz na wywołanie (bez pętli). */
+  ponowiono401?: boolean;
 }
 const nowyBudzet = (): Budzet => ({ koniec: Date.now() + BUDZET_MS });
 
@@ -440,14 +449,37 @@ function retryAfter(h: string | null): number | undefined {
   return Math.min(Number(h.trim()), RETRY_MAX_S);
 }
 
-async function gql(env: LinearEnv, budzet: Budzet, op: Operacja, variables: Json): Promise<Odp> {
+/** Nagłówek Authorization: `Bearer <token aplikacji>` (oauth) albo surowy klucz osobisty (klucz). */
+async function autoryzacja(
+  env: LinearEnv,
+  budzet: Budzet,
+  odrzucony: string | null,
+): Promise<{ ok: true; naglowek: string; token: string | null } | Porazka> {
+  if (trybAutoryzacji(env) !== 'oauth') {
+    return { ok: true, naglowek: env.LINEAR_API_KEY ?? '', token: null };
+  }
+  const w = await tokenAplikacji(env, budzet.koniec, odrzucony);
+  if (!w.ok) return { ok: false, blad: w.blad, ...(w.bezKary ? { bezKary: true } : {}) };
+  return { ok: true, naglowek: `Bearer ${w.token}`, token: w.token };
+}
+
+async function gql(
+  env: LinearEnv,
+  budzet: Budzet,
+  op: Operacja,
+  variables: Json,
+  odrzucony: string | null = null,
+): Promise<Odp> {
+  if (budzet.koniec - Date.now() < 500) return { ok: false, blad: 'budzet', bezKary: true };
+  const auth = await autoryzacja(env, budzet, odrzucony);
+  if (!auth.ok) return auth;
   const zostalo = budzet.koniec - Date.now();
   if (zostalo < 500) return { ok: false, blad: 'budzet', bezKary: true };
   let odp: Response;
   try {
     odp = await fetch(LINEAR_URL, {
       method: 'POST',
-      headers: { Authorization: env.LINEAR_API_KEY ?? '', 'Content-Type': 'application/json' },
+      headers: { Authorization: auth.naglowek, 'Content-Type': 'application/json' },
       body: JSON.stringify({ operationName: op, query: Q[op], variables }),
       signal: AbortSignal.timeout(Math.min(TIMEOUT_MS, zostalo)),
     });
@@ -462,6 +494,15 @@ async function gql(env: LinearEnv, budzet: Budzet, op: Operacja, variables: Json
     /* brak JSON-a: liczy się status */
   }
   const kod = kodBledu(body);
+  // MIX-2078: 401 na tokenie aplikacji → jeden nowy token i jedno ponowienie na wywołanie.
+  if (
+    auth.token !== null &&
+    (odp.status === 401 || kod === 'AUTHENTICATION_ERROR') &&
+    !budzet.ponowiono401
+  ) {
+    budzet.ponowiono401 = true;
+    return gql(env, budzet, op, variables, auth.token);
+  }
   if (odp.status === 429 || kod === 'RATELIMITED') {
     return { ok: false, blad: 'HTTP 429', ponowSek: retryAfter(odp.headers.get('Retry-After')) };
   }
@@ -564,7 +605,8 @@ async function porazka(env: LinearEnv, w: WierszLinear, p: Porazka, maZadanie: b
 // Wysyłka jednego leada
 // ---------------------------------------------------------------------------------------------
 
-const wlaczony = (env: LinearEnv) => Boolean(env.LINEAR_API_KEY && env.LINEAR_TEAM_LEADY_ID);
+export const wlaczony = (env: LinearEnv, loguj = false) =>
+  Boolean(trybAutoryzacji(env, loguj) && env.LINEAR_TEAM_LEADY_ID);
 
 async function sha256Hex(s: string): Promise<string> {
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -866,7 +908,7 @@ async function drenuj(env: LinearEnv, budzet: Budzet, limit: number): Promise<nu
 
 /** Zgłasza lead do Lineara (po udanym zapisie w D1). Nigdy nie rzuca. */
 export async function zglosLead(env: LinearEnv, leadId: string): Promise<void> {
-  if (!wlaczony(env)) {
+  if (!wlaczony(env, true)) {
     console.warn('linear:wylaczone');
     return;
   }
@@ -904,7 +946,7 @@ export async function komentarzKroku(
   krok: string,
   pola: Record<string, unknown>,
 ): Promise<void> {
-  if (!wlaczony(env)) {
+  if (!wlaczony(env, true)) {
     console.warn('linear:wylaczone');
     return;
   }
@@ -960,7 +1002,7 @@ export async function drenujKolejke(
     bez_customer_request: 0,
     czas: new Date().toISOString(),
   };
-  if (!wlaczony(env)) {
+  if (!wlaczony(env, true)) {
     console.warn('linear:wylaczone');
     return wynik;
   }

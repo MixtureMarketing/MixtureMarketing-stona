@@ -188,6 +188,17 @@ describe('POST /api/leady/ponow: przyjęcie', () => {
     expect(wywolania).toEqual([]);
   });
 
+  it('(+) MIX-2078: same dane aplikacji OAuth (bez LINEAR_API_KEY): 200, moduł włączony', async () => {
+    const { env } = srodowisko({
+      LINEAR_API_KEY: undefined,
+      LINEAR_CLIENT_ID: 'app-leady',
+      LINEAR_CLIENT_SECRET: 'sekret-aplikacji',
+    });
+    const odp = await wywolaj(await zadanie(), env);
+    expect(odp.status).toBe(200);
+    expect(wywolania).toEqual([]);
+  });
+
   it('(+) odblokuj:true zmienia zablokowany → kolejka z proby=0 (limit 1: jeden idzie dalej, drugi czeka)', async () => {
     const { env, db } = srodowisko();
     wiersz(db, 'zablokowany', 8);
@@ -322,6 +333,9 @@ describe('POST /api/leady/ponow: odmowy', () => {
       { LINEAR_PONOW_SECRET: 'p'.repeat(31) },
       { LINEAR_API_KEY: undefined },
       { LINEAR_API_KEY: '' },
+      // MIX-2078 forma 8: połowa danych aplikacji bez klucza = wyłączone.
+      { LINEAR_API_KEY: undefined, LINEAR_CLIENT_ID: 'app-leady' },
+      { LINEAR_API_KEY: undefined, LINEAR_CLIENT_SECRET: 'sekret-aplikacji' },
       { LINEAR_TEAM_LEADY_ID: undefined },
     ];
     for (const w of warianty) {
