@@ -34,4 +34,13 @@ export const SITE_CONFIG = {
     knowledgeGraphUrl: 'https://www.google.com/search?kgmid=/g/11t_svlzz2',
     reviewUrl: 'https://g.page/r/CTeu70P5NjsgEBM/review',
   },
+  /**
+   * Profile firmy w katalogach agencji (MIX-1262, plan SEO A23). Tylko do `sameAs` w JSON-LD
+   * (bez ikon w stopce). Adresy podał lider strony w karcie MIX-1262 (11.11.2026).
+   */
+  directories: {
+    clutch: 'https://clutch.co/profile/mixture-marketing',
+    sortlist: 'https://www.sortlist.com/agency/mixture-marketing',
+    goodfirms: 'https://www.goodfirms.co/company/mixture-marketing',
+  },
 };

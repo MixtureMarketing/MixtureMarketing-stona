@@ -1,5 +1,6 @@
 import { SITE_CONFIG } from '../../config/site';
 import { withTrailingSlash } from '../url';
+import { getOrganizationSameAs } from './organizationSchema';
 
 export const getBreadcrumbsSchema = (
   breadcrumbs: { name: string; item: string }[] | undefined,
@@ -59,7 +60,8 @@ export const getFaqSchema = (
 export const getLocalBusinessSchema = (baseUrl: string) => {
   const { phoneFull, email } = SITE_CONFIG.contact;
   // MIX-1020: bez adresu biura wirtualnego — profil Google (kgmid) + areaServed.
-  const socialLinks = [...Object.values(SITE_CONFIG.social), SITE_CONFIG.google.knowledgeGraphUrl];
+  // MIX-1262: sameAs ze wspólnego źródła (social + katalogi agencji + Profil Firmy).
+  const socialLinks = getOrganizationSameAs();
 
   return {
     '@context': 'https://schema.org',

@@ -56,6 +56,7 @@ const Home = () => {
           publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
           // MIX-1825: bez potentialAction (wyszukiwarka). Baza wiedzy nie obsługuje ?q=, a Google
           // crawlował szablon wyszukiwania /baza-wiedzy?q=… jako osobny adres (GSC 16.11).
+          // To samo zalecił audyt MIX-897 P7 (MIX-1261); strażnik: tests/seo/structuredData.test.tsx.
         }}
       />
 
