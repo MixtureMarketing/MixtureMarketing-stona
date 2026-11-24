@@ -1,13 +1,14 @@
 /**
  * Sticky mobile CTA bar — pokazuje sie po wyjsciu sentinel `aboveRef` z viewportu,
  * znika gdy `belowRef` jest widoczny. Toggle body[data-sticky-mobile-bar]
- * dla CookieFloatingButton offset.
+ * dla CookieFloatingButton (telefon: przycisk schowany, gdy pasek widoczny — MIX-2079).
  *
  * Uzywany na: Home, /agencja-interaktywna-rzeszow/, /web-development/rzeszow/,
  * /agencja-seo-rzeszow/ (Sprint C2). Glass backdrop, safe-area-inset-bottom.
  */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Phone, ArrowRight } from 'lucide-react';
+import { useFixedBottomGap } from '@/hooks/useFixedBottomGap';
 
 interface StickyMobileBarProps {
   /** Sentinel po ktorym bar sie pojawia (np. hero). Wymagany. */
@@ -65,6 +66,10 @@ const StickyMobileBar: React.FC<StickyMobileBarProps> = ({
 
   const showBar = aboveOut && !belowIn;
 
+  // MIX-2079: sonda `fixed bottom-0` + luka do dołu visualViewport (Safari iOS, patrz hook).
+  const probeRef = useRef<HTMLDivElement>(null);
+  const gap = useFixedBottomGap(probeRef, showBar);
+
   useEffect(() => {
     if (showBar) {
       document.body.dataset.stickyMobileBar = 'true';
@@ -81,12 +86,20 @@ const StickyMobileBar: React.FC<StickyMobileBarProps> = ({
       {/* Spacer pod ostatnia sekcja zeby content nie byl zaslaniany przez bar */}
       <div className="md:hidden h-20" aria-hidden="true" />
       <div
+        ref={probeRef}
+        data-sticky-bar-probe=""
+        aria-hidden="true"
+        className="md:hidden fixed bottom-0 left-0 h-0 w-0 pointer-events-none"
+      />
+      <div
+        data-sticky-bar-panel=""
         aria-hidden={!showBar}
         // inert: ukryty bar nie może łapać fokusa (axe: aria-hidden-focus)
         inert={!showBar}
         className={`md:hidden fixed inset-x-0 bottom-0 z-40 px-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-8px_24px_-12px_rgba(0,0,0,0.15)] transition-transform duration-300 ${
           showBar ? 'translate-y-0' : 'translate-y-full'
         }`}
+        style={showBar && gap > 0 ? { bottom: -gap } : undefined}
       >
         <div className="flex items-center gap-2">
           <div className="flex-1 text-xs leading-tight min-w-0">

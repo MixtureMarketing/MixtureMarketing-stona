@@ -473,6 +473,16 @@
       bottom: 1rem;
     }
   }
+  /* MIX-2079: na telefonie przycisk nad paskiem i tak wisiał na treści kart (ikona „Branding & UI”).
+     Gdy pasek jest widoczny, przycisk się chowa (jak MIX-1799); wraca na górze strony i przy
+     sekcji, która chowa pasek. `visibility` zdejmuje go też z kolejności tabulatora. */
+  @media (max-width: 767px) {
+    body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
 
   /* GPU Optimized Grid */
   .bg-tech-grid {
