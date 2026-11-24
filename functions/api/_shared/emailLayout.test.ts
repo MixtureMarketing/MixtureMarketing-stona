@@ -396,6 +396,8 @@ describe('MIX-2117: fiolet marki jako kolor główny maili', () => {
     const dark = html.match(/\.mm-heading,\.mm-strong\{color:(#[0-9a-f]{6})!important\}/i)?.[1];
     expect(lav).toBeDefined();
     expect(dark).toBe(lav);
+    // Outlook.com w trybie ciemnym nie przemalowuje paska nagłówka.
+    expect(html).toContain(`[data-ogsb] .mm-header{background:${BRAND}!important}`);
     const pairs: Array<[string, string]> = [
       [BRAND, '#ffffff'], // h1, linki, wyróżnienia na karcie
       ['#ffffff', BRAND], // napis przycisku
