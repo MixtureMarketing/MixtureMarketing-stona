@@ -163,6 +163,19 @@ describe('MIX-1262: getOrganizationSameAs', () => {
     expect(sameAs.filter((u) => u === SITE_CONFIG.directories.clutch)).toHaveLength(1);
   });
 
+  it('forma ataku (MIX-2115): javascript:, data: i https bez // nie trafiają do sameAs', () => {
+    for (const evil of [
+      'javascript:alert(1)',
+      'data:text/html,<script>alert(1)</script>',
+      'https:evil.example',
+      ' https://clutch.co/x',
+    ]) {
+      SITE_CONFIG.directories.sortlist = evil;
+      expect(getOrganizationSameAs()).not.toContain(evil);
+      expect(getOrganizationSchema().sameAs).not.toContain(evil);
+    }
+  });
+
   it('kolejność: social, katalogi, na końcu Profil Firmy (kgmid)', () => {
     const sameAs = getOrganizationSameAs();
     expect(sameAs.at(-1)).toBe(KG);
