@@ -32,8 +32,8 @@ step tsc-functions npx tsc --noEmit -p functions/tsconfig.json
 echo "  tsc-functions errors: $(grep -c 'error TS' "$OUT/tsc-functions.log")"
 step vitest npx vitest run --maxWorkers=2
 tests_line vitest; fails vitest
-# Build produkcji jak w ci.yml po zmianie (cel prod): stałe 1 + VITE_MM_CENNIK=1, reszta tylko-Preview pusta.
-step build env MM_DEPLOY_TARGET=prod VITE_MM_CENNIK=1 VITE_MM_MOBILE_MENU_B=1 VITE_MM_VIEW_TRANSITIONS=1 \
+# Build produkcji jak w ci.yml po zmianie (cel prod; publiczny klucz strony Turnstile z ci.yml): stale 1 + VITE_MM_CENNIK=1, reszta tylko-Preview pusta.
+step build env MM_DEPLOY_TARGET=prod VITE_TURNSTILE_SITE_KEY=0x4AAAAAACYHLgkgk3FJUj06 VITE_MM_CENNIK=1 VITE_MM_MOBILE_MENU_B=1 VITE_MM_VIEW_TRANSITIONS=1 \
   VITE_MM_AI_SECTION=1 VITE_MM_COOKIE_BANNER_STATIC=1 VITE_MM_POWIAZANE=1 VITE_MM_RZESZOW_SEKCJE=1 \
   VITE_MM_TESTIMONIALS=1 VITE_MM_PORTFOLIO_VIDEO=1 npm run build
 clean build | grep -aE 'cennik:|Size|error|Error' | head -8 | sed 's/^/  build: /'

@@ -151,7 +151,7 @@ function wartoscFlagi(wyrazenie: unknown, cel: string): string {
       wyrazenie,
     );
   if (m2) return cel === m2[1] || cel === m2[2] ? '1' : '';
-  const m =/^\$\{\{ steps\.target\.outputs\.target == '(\w+)' && '1' \|\| '' \}\}$/.exec(
+  const m = /^\$\{\{ steps\.target\.outputs\.target == '(\w+)' && '1' \|\| '' \}\}$/.exec(
     wyrazenie,
   );
   if (!m) throw new Error(`nieznana postać wyrażenia flagi: ${JSON.stringify(wyrazenie)}`);
