@@ -208,7 +208,7 @@ describe('RODO klauzula: flaga włączona', () => {
     expect(full).toHaveTextContent('art. 6 ust. 1 lit. b RODO');
     expect(full).toHaveTextContent('art. 6 ust. 1 lit. f RODO');
     expect(full).toHaveTextContent('12 miesięcy od ostatniego kontaktu');
-    expect(full).toHaveTextContent('Raport PDF z audytu strony przechowujemy 90 dni');
+    expect(full).toHaveTextContent('Raport PDF z audytu strony przechowujemy 30 dni');
     expect(full).toHaveTextContent('Linear Orbit Inc.');
     expect(full).toHaveTextContent('Cloudflare, Inc.');
     expect(full).toHaveTextContent('Resend');
