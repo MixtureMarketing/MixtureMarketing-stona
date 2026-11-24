@@ -229,6 +229,7 @@ export async function tokenAplikacji(
       pamiec.delete(klucz);
       m = undefined;
     }
+    const zapasowyM: Token | null = wazny(m, teraz) ? m : null;
     if (swiezy(m, teraz)) return { ok: true, token: m.t };
 
     const k = await zKv(env, klucz);
@@ -238,8 +239,7 @@ export async function tokenAplikacji(
     }
 
     // Dojrzały, ale jeszcze ważny token: przy cudzej blokadzie używamy go dalej.
-    const zapasowy: Token | null =
-      wazny(m, teraz) && m.t !== odrzucony ? m : wazny(k, teraz) && k.t !== odrzucony ? k : null;
+    const zapasowy: Token | null = zapasowyM ?? (wazny(k, teraz) && k.t !== odrzucony ? k : null);
     const stary = odrzucony ?? zapasowy?.t ?? null;
 
     let p = wTrakcie.get(klucz);
