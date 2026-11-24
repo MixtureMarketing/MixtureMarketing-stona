@@ -92,7 +92,7 @@ const StickyMobileBar: React.FC<StickyMobileBarProps> = ({
         className="md:hidden fixed bottom-0 left-0 h-0 w-0 pointer-events-none"
       />
       <div
-        data-sticky-mobile-bar=""
+        data-sticky-bar-panel=""
         aria-hidden={!showBar}
         // inert: ukryty bar nie może łapać fokusa (axe: aria-hidden-focus)
         inert={!showBar}

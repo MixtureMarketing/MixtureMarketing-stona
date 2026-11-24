@@ -84,7 +84,7 @@ const Harness = () => {
   );
 };
 
-const bar = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-sticky-mobile-bar]')!;
+const bar = (c: HTMLElement) => c.querySelector<HTMLElement>('[data-sticky-bar-panel]')!;
 
 describe('StickyMobileBar: pasek przy dole widoku (MIX-2079)', () => {
   it('zwykły widok: bez stylu bottom (zostaje klasa bottom-0)', () => {

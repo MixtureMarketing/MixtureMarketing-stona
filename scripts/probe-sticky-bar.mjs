@@ -130,7 +130,7 @@ const measure = () => {
     Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) > 0.5 &&
     Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) > 0.5;
   const bar =
-    document.querySelector('[data-sticky-mobile-bar]') ||
+    document.querySelector('[data-sticky-bar-panel]') ||
     document.querySelector('div.fixed.bottom-0.z-40');
   const shown = document.body.dataset.stickyMobileBar === 'true';
   const cookie = document.querySelector('.cookie-floating-btn');
@@ -175,7 +175,7 @@ const measure = () => {
 const ancestors = () => {
   const bad = [];
   const bar =
-    document.querySelector('[data-sticky-mobile-bar]') ||
+    document.querySelector('[data-sticky-bar-panel]') ||
     document.querySelector('div.fixed.bottom-0.z-40');
   for (let el = bar && bar.parentElement; el; el = el.parentElement) {
     const cs = getComputedStyle(el);
