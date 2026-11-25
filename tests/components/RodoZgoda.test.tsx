@@ -65,7 +65,7 @@ vi.mock('../../components/common/Seo', () => ({ default: () => null }));
 const STARA_RETENCJA =
   'Dane kontaktowe przechowujemy przez okres trwania korespondencji, a następnie do czasu przedawnienia ewentualnych roszczeń (zazwyczaj 3-6 lat) lub do momentu wycofania przez Ciebie zgody.';
 const NOWA_RETENCJA =
-  'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy. Raport PDF z audytu strony przechowujemy 90 dni.';
+  'Dane ze zgłoszenia przechowujemy 12 miesięcy od ostatniego kontaktu, a potem usuwamy lub anonimizujemy. Raport PDF z audytu strony przechowujemy 30 dni.';
 
 /** Samo ContactStep1 w prawdziwym react-hook-form (bez reszty formularza). */
 const Step1Harness: React.FC = () => {
@@ -200,7 +200,7 @@ describe('MIX-847, flaga wyłączona: formularz jak przed zmianą', () => {
     expect(contactSchema.safeParse({ ...dane, privacy: true }).success).toBe(true);
   });
 
-  it('polityka: pkt 3 ze starym tekstem retencji, bez 12 miesięcy i 90 dni', () => {
+  it('polityka: pkt 3 ze starym tekstem retencji, bez 12 miesięcy i 30 dni PDF', () => {
     const { container } = render(
       <MemoryRouter>
         <PrivacyPolicy />
@@ -208,7 +208,7 @@ describe('MIX-847, flaga wyłączona: formularz jak przed zmianą', () => {
     );
     expect(screen.getByText(STARA_RETENCJA)).toBeInTheDocument();
     expect(container.textContent).not.toContain('12 miesięcy');
-    expect(container.textContent).not.toContain('90 dni');
+    expect(container.textContent).not.toContain('PDF z audytu strony przechowujemy');
   });
 });
 
@@ -257,7 +257,7 @@ describe('MIX-847, flaga włączona: bez okienka zgody', () => {
     expect(getContactSchema().safeParse({ email: 'jan@test.pl' }).success).toBe(false);
   });
 
-  it('polityka: pkt 3 podaje 12 miesięcy i 90 dni, bez „wycofania zgody”, zgodnie z klauzulą', () => {
+  it('polityka: pkt 3 podaje 12 miesięcy i 30 dni, bez „wycofania zgody”, zgodnie z klauzulą', () => {
     const { container } = render(
       <MemoryRouter>
         <PrivacyPolicy />

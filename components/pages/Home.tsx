@@ -9,6 +9,8 @@ import { SITE_CONFIG } from '@/config/site';
 import TestimonialsSlot from '@/components/sections/testimonials/TestimonialsSlot';
 import AiSystemsTeaser from '@/components/sections/AiSystemsTeaser';
 import { lazyWithPreload } from '@/components/common/lazyWithPreload';
+import { isHomeSeoEnabled } from '@/config/flags';
+import { HOME_SEO, HOME_SEO_BASE } from '@/data/content/pages/homeSeo';
 
 // Sekcje pod hero — osobne chunki (lazy). Przy starcie z prerenderu preloadRoute()
 // woła routePreload() i dociąga je PRZED pierwszym renderem, więc Suspense niżej
@@ -36,11 +38,14 @@ const Home = () => {
   // z każdym pikselem przewijania, w obie strony.
   usePagePulse();
 
+  // MIX-1269 r3: title i meta (systemy dedykowane, AI) za VITE_MM_HOME_SEO (wyłączony = dzisiejsze).
+  const seo = isHomeSeoEnabled() ? HOME_SEO : HOME_SEO_BASE;
+
   return (
     <>
       <Seo
-        title="Agencja Marketingowa Rzeszów — Web, SEO, Ads"
-        description="Agencja marketingowa z Rzeszowa: strony WWW, SEO, Google Ads, Meta Ads, branding. Dojeżdżamy do klientów na Podkarpaciu, realizujemy projekty w całej Polsce."
+        title={seo.title}
+        description={seo.description}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebSite',
@@ -49,11 +54,9 @@ const Home = () => {
           url: 'https://mixturemarketing.pl',
           inLanguage: 'pl-PL',
           publisher: { '@id': 'https://mixturemarketing.pl/#organization' },
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: 'https://mixturemarketing.pl/baza-wiedzy/?q={search_term_string}',
-            'query-input': 'required name=search_term_string',
-          },
+          // MIX-1825: bez potentialAction (wyszukiwarka). Baza wiedzy nie obsługuje ?q=, a Google
+          // crawlował szablon wyszukiwania /baza-wiedzy?q=… jako osobny adres (GSC 16.11).
+          // To samo zalecił audyt MIX-897 P7 (MIX-1261); strażnik: tests/seo/structuredData.test.tsx.
         }}
       />
 

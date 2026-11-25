@@ -31,6 +31,16 @@ describe('useCanonicalUrl — domyślny canonical bez parametrów', () => {
     ['/', 'https://mixturemarketing.pl/'],
     ['/baza-wiedzy/', 'https://mixturemarketing.pl/baza-wiedzy/'],
     ['/marketing/analytics', 'https://mixturemarketing.pl/marketing/analytics/'],
+    // MIX-1825 (GSC: „Duplikat, użytkownik nie oznaczył strony kanonicznej”): obie wersje
+    // adresu realizacji wskazują jedną kanoniczną — wersję z „/”.
+    [
+      '/portfolio/high-performance-landing-page-dla-aplikacji-mobilnej-pickme',
+      'https://mixturemarketing.pl/portfolio/high-performance-landing-page-dla-aplikacji-mobilnej-pickme/',
+    ],
+    [
+      '/portfolio/high-performance-landing-page-dla-aplikacji-mobilnej-pickme/',
+      'https://mixturemarketing.pl/portfolio/high-performance-landing-page-dla-aplikacji-mobilnej-pickme/',
+    ],
   ])('bez parametrów: %s → %s (dopisany ukośnik, absolutny URL)', (url, expected) => {
     expect(canonicalAt(url)).toBe(expected);
   });

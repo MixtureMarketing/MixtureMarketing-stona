@@ -60,6 +60,14 @@ export const isPortfolioVideoEnabled = (): boolean =>
 export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK === '1';
 
 /**
+ * Strona główna pod „systemy dedykowane” i automatyzację AI (MIX-1269 r3, plan SEO A12): nowy title,
+ * meta description, fraza w H1 i linki lokalne z opisowymi kotwicami w pasie „Lokalnie · Rzeszów”.
+ * Tekst czeka na akceptację Jakuba (docs/tresci/MIX-1269.md). Wyłączony (domyślnie) = strona główna
+ * bez zmian co do bajta (tests/seo/homeSeo.test.tsx). Preview buduje się z `VITE_MM_HOME_SEO=1` (ci.yml).
+ */
+export const isHomeSeoEnabled = (): boolean => import.meta.env.VITE_MM_HOME_SEO === '1';
+
+/**
  * Sekcja dowodu na /web-development/custom-app/ (MIX-1975): PsychON (platforma szkoleniowa Fundacji
  * Niepodzielni, zrzuty z danych testowych w public/assets/custom-app/) zamiast KorepetytorAI
  * (StudentPI). Link prowadzi do /portfolio/ (PsychON nie ma jeszcze strony realizacji w CMS).
@@ -68,3 +76,22 @@ export const isCennikEnabled = (): boolean => import.meta.env.VITE_MM_CENNIK ===
  */
 export const isCustomAppPsychonEnabled = (): boolean =>
   import.meta.env.VITE_MM_CUSTOMAPP_PSYCHON === '1';
+
+/**
+ * Realizacja AI Q-PLAST w portfolio (MIX-1275, plan SEO A19): wpis z repo (`data/realizacje/aiQPlast.ts`,
+ * tekst do akceptacji Jakuba w docs/tresci/MIX-1275.md) dołączany do list realizacji z CMS, strona
+ * /portfolio/ai-q-plast/ w prerenderze i sitemap.xml. Wyłączony (domyślnie) = lista portfolio, strona
+ * realizacji i sitemap bez zmian. Preview buduje się z `VITE_MM_REALIZACJA_AIQP=1` (ci.yml).
+ */
+export const isRealizacjaAiqpEnabled = (): boolean =>
+  import.meta.env.VITE_MM_REALIZACJA_AIQP === '1';
+
+/**
+ * K1 „Oś procesu” (MIX-1317, wybór Jakuba 21.11): sekcje procesu na podstronach usług
+ * (components/common/ProcessTimeline.tsx, style `.mm-k1*` w index.css; sam CSS, JS 0).
+ * Telefon jak w zaakceptowanym prototypie, komputer z krokami na całą szerokość kontenera.
+ * Wyłączony (domyślnie) = sekcje jak przed zmianą (tests/process/processTimeline.test.tsx).
+ * Preview buduje się z `VITE_MM_PROCESS_TIMELINE=1` (ci.yml); produkcja i PR puste do OK Jakuba.
+ */
+export const isProcessTimelineEnabled = (): boolean =>
+  import.meta.env.VITE_MM_PROCESS_TIMELINE === '1';

@@ -30,6 +30,8 @@ import GoogleAdsCalculator from '../features/marketing/GoogleAdsCalculator';
 import StandardHero from '../common/StandardHero';
 import Container from '../common/Container';
 import PlotterTimeline from '../common/PlotterTimeline';
+import ProcessTimeline from '../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../config/flags';
 import LocalRzeszowSection from '../sections/LocalRzeszowSection';
 import { LOCAL_RZESZOW_GOOGLE_ADS } from '../../data/content/services/local-rzeszow';
 
@@ -240,36 +242,62 @@ const GoogleAds: React.FC = () => {
           zamiast ciemnego mono-teatru z fejk-statusami. */}
       <section ref={processRef} className="relative bg-light-gray py-20 md:py-28">
         <Container>
-          <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-            <div
-              className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
-              style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
-            >
-              <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
-                {CONTENT.process.title}
-              </h2>
-              <p className="mt-5 text-lg leading-relaxed text-gray-700">
-                {CONTENT.process.description}
-              </p>
-              {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
-              <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
-                <BadgeCheck
-                  size={18}
-                  className="mt-0.5 shrink-0 text-secondary"
-                  aria-hidden="true"
-                />
-                <span>
-                  <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
-                  {CONTENT.partner.desc}
-                </span>
-              </p>
+          {isProcessTimelineEnabled() ? (
+            <>
+              {/* MIX-1317 K1: nagłówek nad osią, kroki na całą szerokość kontenera. */}
+              <div className="max-w-3xl">
+                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                  {CONTENT.process.title}
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                  {CONTENT.process.description}
+                </p>
+                <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
+                  <BadgeCheck
+                    size={18}
+                    className="mt-0.5 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
+                    {CONTENT.partner.desc}
+                  </span>
+                </p>
+              </div>
+              <ProcessTimeline className="mt-12" items={CONTENT.process.steps} />
+            </>
+          ) : (
+            <div className="lg:grid lg:grid-cols-12 lg:gap-16">
+              <div
+                className="lg:col-span-5 lg:self-start lg:sticky lg:top-28"
+                style={{ transform: 'translate3d(0, calc((1 - var(--p, 1)) * 24px), 0)' }}
+              >
+                <h2 className="text-3xl font-extrabold tracking-tight text-balance text-dark md:text-4xl">
+                  {CONTENT.process.title}
+                </h2>
+                <p className="mt-5 text-lg leading-relaxed text-gray-700">
+                  {CONTENT.process.description}
+                </p>
+                {/* Google Partner — potwierdzony status, weryfikowalny publicznie. */}
+                <p className="mt-8 flex items-start gap-3 rounded-2xl border border-gray-200 bg-white px-5 py-4 text-sm leading-relaxed text-gray-700">
+                  <BadgeCheck
+                    size={18}
+                    className="mt-0.5 shrink-0 text-secondary"
+                    aria-hidden="true"
+                  />
+                  <span>
+                    <strong className="text-dark">{CONTENT.partner.label}.</strong>{' '}
+                    {CONTENT.partner.desc}
+                  </span>
+                </p>
+              </div>
+              <PlotterTimeline
+                className="mt-12 lg:col-span-7 lg:mt-0"
+                items={CONTENT.process.steps}
+                icons={PROCESS_ICONS}
+              />
             </div>
-            <PlotterTimeline
-              className="mt-12 lg:col-span-7 lg:mt-0"
-              items={CONTENT.process.steps}
-              icons={PROCESS_ICONS}
-            />
-          </div>
+          )}
         </Container>
       </section>
 

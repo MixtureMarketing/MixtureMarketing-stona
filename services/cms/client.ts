@@ -1,5 +1,8 @@
 import { createClient, type SanityClient } from '@sanity/client';
 import imageUrlBuilder, { type SanityImageSource } from '@sanity/image-url';
+import { localImageSrc } from '@/utils/localImage';
+
+export { LOCAL_IMAGE_PREFIX, localImage, localImageSrc } from '@/utils/localImage';
 
 const projectId = import.meta.env.VITE_SANITY_PROJECT_ID;
 const dataset = import.meta.env.VITE_SANITY_DATASET || 'production';
@@ -45,8 +48,19 @@ export const client: SanityClient = isCmsConfigured
   : createUnconfiguredClient();
 
 const builder = imageUrlBuilder(client);
+type UrlBuilder = ReturnType<typeof builder.image>;
 
-export function urlFor(source: SanityImageSource) {
+/** Atrapa łańcucha buildera: każda metoda zwraca ją samą, `url()` daje ścieżkę lokalną. */
+const localBuilder = (src: string): UrlBuilder => {
+  const chain: UrlBuilder = new Proxy({} as UrlBuilder, {
+    get: (_t, prop) => (prop === 'url' || prop === 'toString' ? () => src : () => chain),
+  });
+  return chain;
+};
+
+export function urlFor(source: SanityImageSource): UrlBuilder {
+  const local = localImageSrc(source);
+  if (local) return localBuilder(local);
   // auto=format: WebP/AVIF zamiast PNG/JPG (PNG z CMS ważyły do 3 MB).
   return builder.image(source).auto('format');
 }

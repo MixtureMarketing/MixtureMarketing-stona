@@ -12,6 +12,7 @@
  */
 
 import { isRelatedType, isSafeSlug, MAX_RELATED_TITLE } from '../utils/related';
+import { localImageSrc } from '../utils/localImage';
 
 /** Maks. liczba pozycji listy; więcej = zrzut odrzucony (ochrona przed rozdmuchanym wpisem). */
 export const MAX_SNAPSHOT_LIST_ITEMS = 1000;
@@ -46,7 +47,7 @@ const image: Check = (v) =>
   isRecord(v) &&
   isRecord(v.asset) &&
   typeof v.asset._ref === 'string' &&
-  SANITY_IMAGE_REF.test(v.asset._ref);
+  (SANITY_IMAGE_REF.test(v.asset._ref) || localImageSrc(v) !== null); // MIX-1275: zdjęcie z repo
 
 const req = (check: Check): FieldRule => ({ required: true, check });
 const opt = (check: Check): FieldRule => ({ required: false, check });

@@ -4,7 +4,7 @@
  * Path: /api/admin/reply_lead
  */
 
-import { escapeHtmlMultiline } from '../_shared/security';
+import { leadReplyEmail } from '../_shared/emailMessages';
 import { sendEmail, emailFailedResponse } from '../_shared/email';
 import { serverError } from '../_shared/errors';
 
@@ -35,9 +35,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       {
         from: 'Jakub z Mixture Marketing <biuro@mixturemarketing.pl>',
         to: [email],
-        subject: 'Odpowiedź na Twoje zapytanie - Mixture Marketing',
-        text: message,
-        html: `<div style="font-family:sans-serif;line-height:1.6;"><p>Witaj!</p><p>${escapeHtmlMultiline(message)}</p><hr><p>Z poważaniem,<br>Jakub Niedziela<br>Mixture Marketing</p></div>`,
+        ...leadReplyEmail(message),
       },
       'reply_lead',
     );

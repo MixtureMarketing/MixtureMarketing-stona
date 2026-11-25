@@ -252,7 +252,8 @@ describe('Z1 limity wyceny (QUOTE_LIMITS_D1=1)', () => {
     expect(notifyMails()).toHaveLength(1);
     const alert = notifyMails()[0];
     expect(alert.to).toEqual(['biuro@mixturemarketing.pl']);
-    expect(`${alert.subject} ${alert.html}`).not.toContain('@');
+    // MIX-1866: szablon ma CSS z @media, więc pilnujemy braku ADRESU e-mail (dane osobowe).
+    expect(`${alert.subject} ${alert.html} ${alert.text}`).not.toMatch(/[\w.+-]+@[\w-]+\.[\w.]+/);
     expect(alert.subject).toContain('budżet 80% n=160/200');
     expect(
       await post(env, { ip: '10.9.9.9', body: { ...VALID, email: 'k201@x.pl' } }),

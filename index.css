@@ -473,6 +473,16 @@
       bottom: 1rem;
     }
   }
+  /* MIX-2079: na telefonie przycisk nad paskiem i tak wisiał na treści kart (ikona „Branding & UI”).
+     Gdy pasek jest widoczny, przycisk się chowa (jak MIX-1799); wraca na górze strony i przy
+     sekcji, która chowa pasek. `visibility` zdejmuje go też z kolejności tabulatora. */
+  @media (max-width: 767px) {
+    body[data-sticky-mobile-bar='true'] .cookie-floating-btn {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
 
   /* GPU Optimized Grid */
   .bg-tech-grid {
@@ -643,4 +653,227 @@ body[data-timeline-cookie='true'] .cookie-floating-btn {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+/* MIX-1317 K1 „Oś procesu” (components/common/ProcessTimeline.tsx, przełącznik
+   VITE_MM_PROCESS_TIMELINE). Sam CSS, JS 0. Telefon: oś pionowa jak w prototypie
+   (proto1317/k1.html). Komputer: kroki w jednym rzędzie na całą szerokość kontenera, oś
+   pozioma nad nimi (≥ 1024 px; przy 5+ krokach, klasa --dlugi, ≥ 1280 px).
+   Stan spoczynkowy = pełna widoczność: animacje tylko przy wsparciu animation-timeline
+   i bez „ogranicz ruch”; fill both trzyma opacity 1 po przewinięciu. Poza @layer: pusty
+   blok warstwy zmieniłby CSS krytyczny (Beasties) na każdej stronie przy wyłączonym przełączniku. Animowane transform
+   i opacity (plus tło numeru), więc bez przesunięć układu (CLS). */
+.mm-k1 {
+  position: relative;
+}
+.mm-k1::before,
+.mm-k1-linia {
+  content: '';
+  position: absolute;
+  left: calc(1.25rem - 1px);
+  top: 1.25rem;
+  bottom: 1.25rem;
+  width: 2px;
+  border-radius: 2px;
+}
+.mm-k1::before {
+  background: #e5e7eb;
+}
+.mm-k1-linia {
+  background: linear-gradient(var(--color-primary), var(--color-secondary));
+  transform-origin: top;
+}
+.mm-k1-kroki {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.mm-k1-krok {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+.mm-k1-nr {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--color-secondary);
+  border-radius: 9999px;
+  background: #fff;
+  color: var(--color-secondary);
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Komputer: rząd kroków + oś pozioma od środka pierwszego do środka ostatniego numeru. */
+@media (min-width: 1024px) {
+  .mm-k1:not(.mm-k1--dlugi)::before,
+  .mm-k1:not(.mm-k1--dlugi) .mm-k1-linia {
+    top: calc(1.25rem - 1px);
+    bottom: auto;
+    left: 1.25rem;
+    right: calc((100% - (var(--k1-n) - 1) * 2rem) / var(--k1-n) - 1.25rem);
+    width: auto;
+    height: 2px;
+  }
+  .mm-k1:not(.mm-k1--dlugi) .mm-k1-linia {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    transform-origin: left;
+  }
+  .mm-k1:not(.mm-k1--dlugi) .mm-k1-kroki {
+    grid-template-columns: repeat(var(--k1-n), minmax(0, 1fr));
+    gap: 2rem;
+  }
+  .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok {
+    display: block;
+  }
+  .mm-k1:not(.mm-k1--dlugi) .mm-k1-tresc {
+    margin-top: 1.25rem;
+  }
+}
+@media (min-width: 1280px) {
+  .mm-k1::before,
+  .mm-k1 .mm-k1-linia {
+    top: calc(1.25rem - 1px);
+    bottom: auto;
+    left: 1.25rem;
+    right: calc((100% - (var(--k1-n) - 1) * 2rem) / var(--k1-n) - 1.25rem);
+    width: auto;
+    height: 2px;
+  }
+  .mm-k1 .mm-k1-linia {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    transform-origin: left;
+  }
+  .mm-k1 .mm-k1-kroki {
+    grid-template-columns: repeat(var(--k1-n), minmax(0, 1fr));
+    gap: 2rem;
+  }
+  .mm-k1 .mm-k1-krok {
+    display: block;
+  }
+  .mm-k1 .mm-k1-tresc {
+    margin-top: 1.25rem;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .mm-k1 {
+      view-timeline-name: --mm-k1;
+    }
+    .mm-k1-linia {
+      animation: mm-k1-linia linear both;
+      animation-timeline: --mm-k1;
+      animation-range: entry 40% exit 60%;
+    }
+    .mm-k1-tresc {
+      animation: mm-k1-tekst linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    .mm-k1-nr {
+      animation: mm-k1-nr linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 45%;
+    }
+  }
+  /* Rząd: kroki wspólnie wjeżdżają w ekran, więc kolejność daje przesunięcie zakresów. */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .mm-k1:not(.mm-k1--dlugi) .mm-k1-linia {
+      animation-name: mm-k1-linia-x;
+      animation-range: entry 50% cover 50%;
+    }
+    .mm-k1:not(.mm-k1--dlugi) .mm-k1-tresc {
+      animation-name: mm-k1-tekst-y;
+      animation-range: entry 0% cover 25%;
+    }
+    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(2) .mm-k1-tresc {
+      animation-range: entry 10% cover 27%;
+    }
+    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(3) .mm-k1-tresc {
+      animation-range: entry 20% cover 29%;
+    }
+    .mm-k1:not(.mm-k1--dlugi) .mm-k1-krok:nth-child(4) .mm-k1-tresc {
+      animation-range: entry 30% cover 31%;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1280px) {
+    .mm-k1 .mm-k1-linia {
+      animation-name: mm-k1-linia-x;
+      animation-range: entry 50% cover 50%;
+    }
+    .mm-k1 .mm-k1-tresc {
+      animation-name: mm-k1-tekst-y;
+      animation-range: entry 0% cover 25%;
+    }
+    .mm-k1 .mm-k1-krok:nth-child(2) .mm-k1-tresc {
+      animation-range: entry 10% cover 27%;
+    }
+    .mm-k1 .mm-k1-krok:nth-child(3) .mm-k1-tresc {
+      animation-range: entry 20% cover 29%;
+    }
+    .mm-k1 .mm-k1-krok:nth-child(4) .mm-k1-tresc {
+      animation-range: entry 30% cover 31%;
+    }
+    .mm-k1 .mm-k1-krok:nth-child(5) .mm-k1-tresc {
+      animation-range: entry 40% cover 33%;
+    }
+    .mm-k1 .mm-k1-krok:nth-child(n + 6) .mm-k1-tresc {
+      animation-range: entry 50% cover 35%;
+    }
+  }
+}
+@keyframes mm-k1-linia {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes mm-k1-linia-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes mm-k1-tekst {
+  from {
+    opacity: 0.2;
+    transform: translateX(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mm-k1-tekst-y {
+  from {
+    opacity: 0.2;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes mm-k1-nr {
+  from {
+    background: #fff;
+    color: var(--color-secondary);
+  }
+  to {
+    background: var(--color-secondary);
+    color: #fff;
+  }
 }

@@ -7,6 +7,8 @@ import StandardHero from '../common/StandardHero';
 import HeroTrustLine from '../common/HeroTrustLine';
 import BaseCta from '../common/BaseCta';
 import Container from '../common/Container';
+import ProcessTimeline from '../common/ProcessTimeline';
+import { isProcessTimelineEnabled } from '../../config/flags';
 import FounderCard from '../common/FounderCard';
 import StickyMobileBar from '../common/StickyMobileBar';
 import FaqSection from '../sections/FaqSection';
@@ -172,26 +174,30 @@ const AiSystemsApps: React.FC = () => {
               {CONTENT.process.description}
             </p>
           </div>
-          <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
-            {CONTENT.process.steps.map((step, i) => (
-              <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
-                <span
-                  aria-hidden="true"
-                  className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
-                >
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
-                    {step.desc}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          {isProcessTimelineEnabled() ? (
+            <ProcessTimeline className="mt-12" items={CONTENT.process.steps} />
+          ) : (
+            <ol className="mt-12 divide-y divide-gray-100 rounded-3xl border border-gray-200 bg-white shadow-sm">
+              {CONTENT.process.steps.map((step, i) => (
+                <li key={step.title} className="flex gap-6 px-6 py-8 md:gap-10 md:px-10">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-3xl leading-none font-extrabold tracking-tight text-primary/80 tabular-nums md:text-4xl"
+                  >
+                    {i + 1}
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-extrabold tracking-tight text-balance text-dark md:text-xl">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-gray-700">
+                      {step.desc}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
         </Container>
       </section>
 
