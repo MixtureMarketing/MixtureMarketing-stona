@@ -26,7 +26,12 @@
 import { kvDelete, kvGetJson, kvPut } from './_shared/kv';
 
 export const OAUTH_TOKEN_URL = 'https://api.linear.app/oauth/token';
-export const OAUTH_SCOPE = 'read,write';
+/**
+ * Scope tokenu aplikacji (MIX-2078 r2, decyzja A w MIX-851): read, write i customer:write.
+ * customer:write (app actor only) jest potrzebny do customerUpsert i customerNeedCreate w _linear.ts.
+ * Źródło nazw i separatora (przecinek): linear.app/developers/oauth-2-0-authentication.
+ */
+export const OAUTH_SCOPE = 'read,write,customer:write';
 const TIMEOUT_MS = 8_000;
 const ZAPAS_MAX_MS = 24 * 3600 * 1000;
 const BLOKADA_TTL_S = 60;
