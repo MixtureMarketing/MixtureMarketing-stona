@@ -3,7 +3,6 @@ import { serverError } from './errors';
 import { onRequestGet as getLeads } from '../admin/get_leads';
 import { onRequestPost as saveProject } from '../admin/save_project';
 import { onRequest as adminMiddleware } from '../admin/_middleware';
-import { onRequest as portalMiddleware } from '../portal/_middleware';
 import { onRequestPost as verifyToken } from '../auth/verify_token';
 import { fnContext } from '../../../tests/helpers/fakeD1';
 
@@ -97,16 +96,15 @@ describe('endpointy nie zwracają szczegółów błędu D1', () => {
     );
   });
 
-  it('middleware admina i portalu: awaria D1 → JSON 500, nie strona błędu Cloudflare', async () => {
-    for (const mw of [adminMiddleware, portalMiddleware]) {
-      await expectGeneric500(
-        await (mw as Handler)(
-          fnContext({
-            env: { DB: brokenDb },
-            headers: { Authorization: 'Bearer tok' },
-          }) as never,
-        ),
-      );
-    }
+  // Middleware portalu nie czyta już D1 (portal przeniesiony do CRM, zawsze 410).
+  it('middleware admina: awaria D1 → JSON 500, nie strona błędu Cloudflare', async () => {
+    await expectGeneric500(
+      await (adminMiddleware as Handler)(
+        fnContext({
+          env: { DB: brokenDb },
+          headers: { Authorization: 'Bearer tok' },
+        }) as never,
+      ),
+    );
   });
 });

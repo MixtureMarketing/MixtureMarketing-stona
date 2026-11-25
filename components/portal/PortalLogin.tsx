@@ -56,8 +56,11 @@ const PortalLogin: React.FC = () => {
           <div className="inline-flex p-3 rounded-xl bg-indigo-50 text-secondary mb-4">
             <Mail size={24} />
           </div>
-          <h1 className="text-3xl font-bold text-dark">Strefa Klienta</h1>
+          <h1 className="text-3xl font-bold text-dark">Panel zespołu</h1>
           <p className="text-gray-500 mt-2">Zaloguj się bez hasła (Magic Link)</p>
+          <p className="text-sm text-gray-500 mt-3">
+            Portal klienta ma nowy adres. Link do niego wysyłamy klientom e-mailem.
+          </p>
         </div>
 
         {sessionExpired && (

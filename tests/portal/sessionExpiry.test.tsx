@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../../context/AuthContext';
@@ -85,7 +85,7 @@ describe('wygasła / zastąpiona sesja', () => {
     expect(screen.queryByText(/Błąd ładowania projektów/i)).not.toBeInTheDocument();
   });
 
-  it('panel admina: odpowiedź bez tablic (np. 500/obiekt błędu) nie wywraca list', async () => {
+  it('panel admina: odpowiedź bez tablicy leadów (np. obiekt błędu) nie wywraca listy', async () => {
     loginAs('admin');
     global.fetch = vi.fn((url: string) =>
       url.includes('get_leads')
@@ -95,7 +95,8 @@ describe('wygasła / zastąpiona sesja', () => {
 
     renderPortal('/portal/admin');
     await waitFor(() => expect(fetch).toHaveBeenCalled());
-    fireEvent.click(await screen.findByRole('button', { name: /^Leads$/ }));
+    // Po przeniesieniu panelu do Mixture CRM zostają same leady, bez zakładek.
+    expect(await screen.findByText(/są teraz w Mixture CRM/i)).toBeInTheDocument();
     await new Promise((r) => setTimeout(r, 20));
     expect(screen.queryByText(/Coś poszło nie tak/i)).not.toBeInTheDocument();
     expect(localStorage.getItem('portal_token')).toBe('stary_token'); // 500 ≠ wylogowanie

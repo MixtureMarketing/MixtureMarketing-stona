@@ -29,9 +29,7 @@ describe('Panel admina na telefonie', () => {
   });
 
   it('tabele leadów i klientów przewijają się poziomo w swoim kontenerze', () => {
-    const leads = render(
-      <AdminLeads leads={[]} onViewDetails={vi.fn()} onConvert={vi.fn()} onReply={vi.fn()} />,
-    );
+    const leads = render(<AdminLeads leads={[]} onViewDetails={vi.fn()} />);
     expect(leads.container.querySelector('table')?.parentElement).toHaveClass('overflow-x-auto');
     const clients = render(<AdminClients clients={[]} onEdit={vi.fn()} />);
     expect(clients.container.querySelector('table')?.parentElement).toHaveClass('overflow-x-auto');
