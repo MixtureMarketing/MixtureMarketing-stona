@@ -269,7 +269,11 @@ describe('token aplikacji: K1, K2', () => {
     expect(p.get('grant_type')).toBe('client_credentials');
     expect(p.get('client_id')).toBe(ID_PROD);
     expect(p.get('client_secret')).toBe(SEKRET);
-    expect(p.get('scope')).toBe('read,write');
+    expect(p.get('scope')).toBe('read,write,customer:write');
+    // MIX-2078 r2: dokładnie trzy scope'y, bez duplikatów i bez innych (np. admin).
+    const scope = (p.get('scope') ?? '').split(',');
+    expect([...scope].sort()).toEqual(['customer:write', 'read', 'write']);
+    expect(new Set(scope).size).toBe(3);
     expect(tokWyw[0].signal).toBe(true);
     expect(gqlWyw.length).toBe(4);
     expect(gqlWyw.every((w) => w.auth === `Bearer ${tokenNr(1)}`)).toBe(true);
